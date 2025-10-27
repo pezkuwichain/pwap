@@ -7,7 +7,7 @@ import EmailVerification from '@/pages/EmailVerification';
 import PasswordReset from '@/pages/PasswordReset';
 import ProfileSettings from '@/pages/ProfileSettings';
 import AdminPanel from '@/pages/AdminPanel';
-
+import WalletDashboard from './pages/WalletDashboard';
 import { AppProvider } from '@/contexts/AppContext';
 import { WalletProvider } from '@/contexts/WalletContext';
 import { WebSocketProvider } from '@/contexts/WebSocketContext';
@@ -47,6 +47,11 @@ function App() {
                     <Route path="/admin" element={
                       <ProtectedRoute requireAdmin>
                         <AdminPanel />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/wallet" element={
+                      <ProtectedRoute>
+                        <WalletDashboard />
                       </ProtectedRoute>
                     } />
                     <Route path="*" element={<NotFound />} />

@@ -1,0 +1,91 @@
+import React, { useState } from 'react';
+import { usePolkadot } from '@/contexts/PolkadotContext';
+import { AccountBalance } from '@/components/AccountBalance';
+import { TransferModal } from '@/components/TransferModal';
+import { Button } from '@/components/ui/button';
+import { ArrowUpRight, ArrowDownRight, History } from 'lucide-react';
+
+const WalletDashboard: React.FC = () => {
+  const { selectedAccount } = usePolkadot();
+  const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
+
+  if (!selectedAccount) {
+    return (
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-white mb-4">Wallet Not Connected</h2>
+          <p className="text-gray-400 mb-6">Please connect your wallet to view your dashboard</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-950 pt-24 pb-12">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-white mb-2">Wallet Dashboard</h1>
+          <p className="text-gray-400">Manage your HEZ and PEZ tokens</p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column - Balance */}
+          <div className="lg:col-span-1">
+            <AccountBalance />
+          </div>
+
+          {/* Right Column - Actions */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Quick Actions */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <Button
+                onClick={() => setIsTransferModalOpen(true)}
+                className="bg-gradient-to-r from-green-600 to-yellow-400 hover:from-green-700 hover:to-yellow-500 h-24 flex flex-col items-center justify-center"
+              >
+                <ArrowUpRight className="w-6 h-6 mb-2" />
+                <span>Send</span>
+              </Button>
+
+              <Button
+                variant="outline"
+                className="border-gray-700 hover:bg-gray-800 h-24 flex flex-col items-center justify-center"
+                disabled
+              >
+                <ArrowDownRight className="w-6 h-6 mb-2" />
+                <span>Receive</span>
+              </Button>
+
+              <Button
+                variant="outline"
+                className="border-gray-700 hover:bg-gray-800 h-24 flex flex-col items-center justify-center"
+                disabled
+              >
+                <History className="w-6 h-6 mb-2" />
+                <span>History</span>
+              </Button>
+            </div>
+
+            {/* Recent Activity Placeholder */}
+            <div className="bg-gray-900 border border-gray-800 rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-white mb-4">Recent Activity</h3>
+              <div className="text-center py-12">
+                <History className="w-12 h-12 text-gray-600 mx-auto mb-3" />
+                <p className="text-gray-500">No recent transactions</p>
+                <p className="text-gray-600 text-sm mt-1">
+                  Your transaction history will appear here
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <TransferModal
+        isOpen={isTransferModalOpen}
+        onClose={() => setIsTransferModalOpen(false)}
+      />
+    </div>
+  );
+};
+
+export default WalletDashboard;

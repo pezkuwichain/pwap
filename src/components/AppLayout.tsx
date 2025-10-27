@@ -90,6 +90,13 @@ const AppLayout: React.FC = () => {
 
                     {t('nav.dashboard', 'Dashboard')}
                   </button>
+                  <button
+                    onClick={() => navigate('/wallet')}
+                    className="text-gray-300 hover:text-white transition-colors flex items-center gap-1"
+                  >
+                    <Wallet className="w-4 h-4" />
+                    {t('nav.wallet', 'Wallet')}
+                  </button>
                   <button 
                     onClick={() => navigate('/profile-settings')}
                     className="text-gray-300 hover:text-white transition-colors flex items-center gap-1"
