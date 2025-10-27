@@ -31,7 +31,7 @@ import { P2PMarket } from './p2p/P2PMarket';
 import { MultiSigWallet } from './wallet/MultiSigWallet';
 import { useWallet } from '@/contexts/WalletContext';
 import { supabase } from '@/lib/supabase';
-
+import { PolkadotWalletButton } from './PolkadotWalletButton';
 const AppLayout: React.FC = () => {
   const navigate = useNavigate();
   const [walletModalOpen, setWalletModalOpen] = useState(false);
@@ -71,7 +71,7 @@ const AppLayout: React.FC = () => {
     <div className="min-h-screen bg-gray-950 text-white">
       {/* Navigation */}
       <nav className="fixed top-0 w-full z-40 bg-gray-950/90 backdrop-blur-md border-b border-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
               <span className="text-xl font-bold bg-gradient-to-r from-green-500 to-yellow-400 bg-clip-text text-transparent">
@@ -229,7 +229,7 @@ const AppLayout: React.FC = () => {
               </div>
               <NotificationBell />
               <LanguageSwitcher />
-              <WalletButton />
+              <PolkadotWalletButton />
               <a 
                 href="https://github.com/pezkuwichain" 
                 target="_blank" 
@@ -258,19 +258,19 @@ const AppLayout: React.FC = () => {
           <DelegationManager />
         ) : showForum ? (
           <div className="pt-20 min-h-screen bg-gray-950">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-full mx-auto px-8">
               <ForumOverview />
             </div>
           </div>
         ) : showModeration ? (
           <div className="pt-20 min-h-screen bg-gray-950">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-full mx-auto px-8">
               <ModerationPanel />
             </div>
           </div>
         ) : showTreasury ? (
           <div className="pt-20 min-h-screen bg-gray-950">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-full mx-auto px-8">
               <div className="text-center mb-12">
                 <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-green-500 via-yellow-400 to-red-500 bg-clip-text text-transparent">
                   {t('treasury.title', 'Treasury Management')}
@@ -320,7 +320,7 @@ const AppLayout: React.FC = () => {
           </div>
         ) : showStaking ? (
           <div className="pt-20 min-h-screen bg-gray-950">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-full mx-auto px-8">
               <div className="text-center mb-12">
                 <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-green-500 via-yellow-400 to-red-500 bg-clip-text text-transparent">
                   Staking Rewards
@@ -334,7 +334,7 @@ const AppLayout: React.FC = () => {
           </div>
         ) : showP2P ? (
           <div className="pt-20 min-h-screen bg-gray-950">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-full mx-auto px-8">
               <div className="text-center mb-12">
                 <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-green-500 via-yellow-400 to-red-500 bg-clip-text text-transparent">
                   P2P Trading Market
@@ -348,7 +348,7 @@ const AppLayout: React.FC = () => {
           </div>
         ) : showTokenSwap ? (
           <div className="pt-20 min-h-screen bg-gray-950">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-full mx-auto px-8">
               <div className="text-center mb-12">
                 <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-purple-500 via-pink-400 to-yellow-500 bg-clip-text text-transparent">
                   PEZ/HEZ Token Swap
@@ -362,7 +362,7 @@ const AppLayout: React.FC = () => {
           </div>
         ) : showMultiSig ? (
           <div className="pt-20 min-h-screen bg-gray-950">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-full mx-auto px-8">
               <div className="text-center mb-12">
                 <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-green-500 via-yellow-400 to-red-500 bg-clip-text text-transparent">
                   Multi-Signature Wallet
@@ -424,7 +424,7 @@ const AppLayout: React.FC = () => {
 
       {/* Footer */}
       <footer className="bg-gray-950 border-t border-gray-800 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-full mx-auto px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
               <h3 className="text-lg font-semibold mb-4 bg-gradient-to-r from-green-500 to-yellow-400 bg-clip-text text-transparent">

@@ -12,6 +12,11 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
+    "@polkadot/api": "^16.4.9",
+    "@polkadot/extension-dapp": "^0.62.3",
+    "@polkadot/keyring": "^13.5.7",
+    "@polkadot/util": "^13.5.7",
+    "@polkadot/util-crypto": "^13.5.7",
     "@radix-ui/react-accordion": "^1.2.0",
     "@radix-ui/react-alert-dialog": "^1.1.1",
     "@radix-ui/react-aspect-ratio": "^1.1.0",
@@ -48,6 +53,8 @@
     "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.3.0",
     "highlight.js": "^11.9.0",
+    "i18next": "^23.7.6",
+    "i18next-browser-languagedetector": "^7.2.0",
     "input-otp": "^1.2.4",
     "lucide-react": "^0.462.0",
     "marked": "^12.0.1",
@@ -56,6 +63,7 @@
     "react-day-picker": "^8.10.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.53.0",
+    "react-i18next": "^14.0.0",
     "react-resizable-panels": "^2.1.3",
     "react-router-dom": "^6.26.2",
     "recharts": "^2.12.7",
@@ -64,10 +72,7 @@
     "tailwindcss-animate": "^1.0.7",
     "uuid": "^11.1.0",
     "vaul": "^0.9.3",
-    "zod": "^3.23.8",
-    "i18next": "^23.7.6",
-    "react-i18next": "^14.0.0",
-    "i18next-browser-languagedetector": "^7.2.0"
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
