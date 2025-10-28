@@ -156,7 +156,7 @@ const DelegationManager: React.FC = () => {
       </div>
 
       <Tabs defaultValue="explore" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3 bg-green-50">
+        <TabsList className="grid w-full grid-cols-3 bg-green-50 text-gray-900">
           <TabsTrigger value="explore">{t('delegation.explore')}</TabsTrigger>
           <TabsTrigger value="my-delegations">{t('delegation.myDelegations')}</TabsTrigger>
           <TabsTrigger value="delegate-profile">{t('delegation.becomeDelegate')}</TabsTrigger>

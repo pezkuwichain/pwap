@@ -286,9 +286,9 @@ const ProposalWizard: React.FC<ProposalWizardProps> = ({ onComplete, onCancel })
           {/* Step 5: Review */}
           {currentStep === 5 && (
             <div className="space-y-4">
-              <Alert className="border-green-200 bg-green-50">
-                <Check className="w-4 h-4" />
-                <AlertDescription>
+              <Alert className="border-green-200 bg-green-50 text-gray-900">
+                <Check className="w-4 h-4 text-gray-900" />
+                <AlertDescription className="text-gray-900">
                   {t('proposals.wizard.readyToSubmit')}
                 </AlertDescription>
               </Alert>

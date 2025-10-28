@@ -364,9 +364,9 @@ export function DiscussionThread({ proposalId }: { proposalId: string }) {
             <Button>Post Comment</Button>
           </div>
           {showMarkdownHelp && (
-            <Card className="mt-4 p-4 bg-gray-50">
-              <p className="text-sm font-semibold mb-2">Markdown Formatting:</p>
-              <ul className="text-sm space-y-1">
+            <Card className="mt-4 p-4 bg-gray-50 text-gray-900">
+              <p className="text-sm font-semibold mb-2 text-gray-900">Markdown Formatting:</p>
+              <ul className="text-sm space-y-1 text-gray-900">
                 <li>**bold** → <strong>bold</strong></li>
                 <li>*italic* → <em>italic</em></li>
                 <li>[link](url) → <a href="#" className="text-blue-600">link</a></li>

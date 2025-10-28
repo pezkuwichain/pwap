@@ -150,10 +150,10 @@ const TokenSwap = () => {
           </div>
 
           <div className="space-y-4">
-            <div className="bg-gray-50 rounded-lg p-4">
+            <div className="bg-gray-50 rounded-lg p-4 text-gray-900">
               <div className="flex justify-between mb-2">
-                <span className="text-sm text-gray-600">From</span>
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-gray-900">From</span>
+                <span className="text-sm text-gray-900">
                   Balance: {isLoadingBalances ? '...' : fromBalance} {fromToken}
                 </span>
               </div>
@@ -182,10 +182,10 @@ const TokenSwap = () => {
               </Button>
             </div>
 
-            <div className="bg-gray-50 rounded-lg p-4">
+            <div className="bg-gray-50 rounded-lg p-4 text-gray-900">
               <div className="flex justify-between mb-2">
-                <span className="text-sm text-gray-600">To</span>
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-gray-900">To</span>
+                <span className="text-sm text-gray-900">
                   Balance: {isLoadingBalances ? '...' : toBalance} {toToken}
                 </span>
               </div>
@@ -203,14 +203,14 @@ const TokenSwap = () => {
               </div>
             </div>
 
-            <div className="bg-blue-50 rounded-lg p-3">
+            <div className="bg-blue-50 rounded-lg p-3 text-gray-900">
               <div className="flex justify-between text-sm">
-                <span>Exchange Rate</span>
-                <span className="font-semibold">1 {fromToken} = {exchangeRate} {toToken}</span>
+                <span className="text-gray-900">Exchange Rate</span>
+                <span className="font-semibold text-gray-900">1 {fromToken} = {exchangeRate} {toToken}</span>
               </div>
               <div className="flex justify-between text-sm mt-1">
-                <span>Slippage Tolerance</span>
-                <span className="font-semibold">{slippage}%</span>
+                <span className="text-gray-900">Slippage Tolerance</span>
+                <span className="font-semibold text-gray-900">{slippage}%</span>
               </div>
             </div>
 
@@ -231,14 +231,14 @@ const TokenSwap = () => {
           </h3>
           <div className="space-y-3">
             {liquidityData.map((pool, idx) => (
-              <div key={idx} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+              <div key={idx} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg text-gray-900">
                 <div>
-                  <div className="font-semibold">{pool.pool}</div>
-                  <div className="text-sm text-gray-600">TVL: ${pool.tvl}</div>
+                  <div className="font-semibold text-gray-900">{pool.pool}</div>
+                  <div className="text-sm text-gray-900">TVL: ${pool.tvl}</div>
                 </div>
                 <div className="text-right">
                   <div className="text-green-600 font-semibold">{pool.apr} APR</div>
-                  <div className="text-sm text-gray-600">Vol: ${pool.volume}</div>
+                  <div className="text-sm text-gray-900">Vol: ${pool.volume}</div>
                 </div>
               </div>
             ))}
@@ -254,12 +254,12 @@ const TokenSwap = () => {
           </h3>
           <div className="space-y-3">
             {txHistory.map((tx, idx) => (
-              <div key={idx} className="p-3 bg-gray-50 rounded-lg">
+              <div key={idx} className="p-3 bg-gray-50 rounded-lg text-gray-900">
                 <div className="flex justify-between items-center mb-1">
-                  <span className="font-semibold">{tx.amount} {tx.from}</span>
+                  <span className="font-semibold text-gray-900">{tx.amount} {tx.from}</span>
                   <ArrowDownUp className="h-4 w-4 text-gray-400" />
                 </div>
-                <div className="flex justify-between text-sm text-gray-600">
+                <div className="flex justify-between text-sm text-gray-900">
                   <span>Rate: {tx.rate}</span>
                   <span>{tx.time}</span>
                 </div>
@@ -306,14 +306,14 @@ const TokenSwap = () => {
             <DialogTitle>Confirm Swap</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="p-4 bg-gray-50 rounded-lg">
+            <div className="p-4 bg-gray-50 rounded-lg text-gray-900">
               <div className="flex justify-between mb-2">
-                <span>You Pay</span>
-                <span className="font-bold">{fromAmount} {fromToken}</span>
+                <span className="text-gray-900">You Pay</span>
+                <span className="font-bold text-gray-900">{fromAmount} {fromToken}</span>
               </div>
               <div className="flex justify-between">
-                <span>You Receive</span>
-                <span className="font-bold">{toAmount} {toToken}</span>
+                <span className="text-gray-900">You Receive</span>
+                <span className="font-bold text-gray-900">{toAmount} {toToken}</span>
               </div>
             </div>
             <Button

@@ -198,12 +198,12 @@ export default function Dashboard() {
               </div>
               
               {!profile?.email_verified && (
-                <div className="border-l-4 border-yellow-500 bg-yellow-50 p-4">
+                <div className="border-l-4 border-yellow-500 bg-yellow-50 p-4 text-gray-900">
                   <div className="flex items-center">
                     <AlertCircle className="h-5 w-5 text-yellow-600 mr-2" />
                     <div>
-                      <h4 className="font-medium">Verify your email</h4>
-                      <p className="text-sm">Please verify your email to access all features</p>
+                      <h4 className="font-medium text-gray-900">Verify your email</h4>
+                      <p className="text-sm text-gray-900">Please verify your email to access all features</p>
                     </div>
                   </div>
                 </div>

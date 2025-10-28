@@ -50,9 +50,9 @@ const DelegateProfile: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <Alert className="border-blue-200 bg-blue-50">
-            <Info className="w-4 h-4" />
-            <AlertDescription>
+          <Alert className="border-blue-200 bg-blue-50 text-gray-900">
+            <Info className="w-4 h-4 text-gray-900" />
+            <AlertDescription className="text-gray-900">
               {t('delegation.delegateRequirements')}
             </AlertDescription>
           </Alert>
@@ -215,9 +215,9 @@ const DelegateProfile: React.FC = () => {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <Alert className="border-green-200 bg-green-50 mb-6">
-          <CheckCircle className="w-4 h-4" />
-          <AlertDescription>
+        <Alert className="border-green-200 bg-green-50 mb-6 text-gray-900">
+          <CheckCircle className="w-4 h-4 text-gray-900" />
+          <AlertDescription className="text-gray-900">
             {t('delegation.delegateActive')}
           </AlertDescription>
         </Alert>

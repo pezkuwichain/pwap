@@ -276,9 +276,9 @@ export const FundingProposal: React.FC = () => {
           </Button>
 
           {totalMilestoneAmount !== totalBudget && totalMilestoneAmount > 0 && (
-            <div className="flex items-center gap-2 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+            <div className="flex items-center gap-2 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg text-gray-900">
               <AlertCircle className="h-5 w-5 text-yellow-600" />
-              <span className="text-sm">
+              <span className="text-sm text-gray-900">
                 Milestone total (${totalMilestoneAmount.toLocaleString()}) doesn't match budget total (${totalBudget.toLocaleString()})
               </span>
             </div>
