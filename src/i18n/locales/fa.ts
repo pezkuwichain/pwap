@@ -1,19 +1,27 @@
 export default {
   // Navigation
-  'nav.home': 'خانه',
+  'nav.home': 'صفحه اصلی',
   'nav.dashboard': 'داشبورد',
+  'nav.wallet': 'کیف پول',
+  'nav.settings': 'تنظیمات',
   'nav.governance': 'حکمرانی',
+  'nav.proposals': 'پیشنهادات',
+  'nav.delegation': 'نمایندگی',
   'nav.treasury': 'خزانه',
   'nav.staking': 'استیکینگ',
   'nav.forum': 'انجمن',
+  'nav.moderation': 'مدیریت محتوا',
   'nav.profile': 'پروفایل',
-  'nav.admin': 'مدیر',
+  'nav.admin': 'مدیریت',
+  'nav.docs': 'مستندات',
+  'nav.login': 'ورود',
+  'nav.logout': 'خروج',
   
   // Hero Section
   'hero.title': 'پلتفرم حکمرانی بلاکچین',
-  'hero.subtitle': 'حکمرانی دموکراتیک و شفاف با فناوری بلاکچین',
+  'hero.subtitle': 'حکمرانی دموکراتیک و شفاف با تکنولوژی بلاکچین',
   'hero.cta.primary': 'شروع کنید',
-  'hero.cta.secondary': 'بیشتر بدانید',
+  'hero.cta.secondary': 'اطلاعات بیشتر',
   
   // Auth
   'auth.login': 'ورود',
@@ -21,7 +29,7 @@ export default {
   'auth.signup': 'ثبت نام',
   'auth.email': 'ایمیل',
   'auth.password': 'رمز عبور',
-  'auth.confirmPassword': 'تایید رمز عبور',
+  'auth.confirmPassword': 'تکرار رمز عبور',
   'auth.rememberMe': 'مرا به خاطر بسپار',
   'auth.forgotPassword': 'رمز عبور را فراموش کرده‌اید؟',
   
@@ -35,16 +43,31 @@ export default {
   // Governance
   'governance.proposals': 'پیشنهادات',
   'governance.activeProposals': 'پیشنهادات فعال',
-  'governance.vote': 'رای دادن',
+  'governance.vote': 'رأی دادن',
   'governance.delegate': 'نماینده',
   'governance.createProposal': 'ایجاد پیشنهاد',
-  'governance.votingPower': 'قدرت رای',
+  'governance.votingPower': 'قدرت رأی',
+  
+  // Treasury
+  'treasury.title': 'خزانه',
+  'treasury.subtitle': 'مدیریت منابع جامعه',
+  'treasury.overview': 'نمای کلی',
+  'treasury.proposals': 'پیشنهادات',
+  'treasury.history': 'تاریخچه',
+  'treasury.approvals': 'تأییدیه‌ها',
+  
+  // Footer
+  'footer.description': 'حکمرانی غیرمتمرکز برای کردستان',
+  'footer.about': 'درباره',
+  'footer.developers': 'توسعه‌دهندگان',
+  'footer.community': 'جامعه',
+  'footer.rights': 'تمامی حقوق محفوظ است',
   
   // Common
   'common.loading': 'در حال بارگذاری...',
   'common.save': 'ذخیره',
   'common.cancel': 'لغو',
-  'common.confirm': 'تایید',
+  'common.confirm': 'تأیید',
   'common.delete': 'حذف',
   'common.edit': 'ویرایش',
   'common.search': 'جستجو',
@@ -55,5 +78,9 @@ export default {
   'common.next': 'بعدی',
   'common.previous': 'قبلی',
   'common.yes': 'بله',
-  'common.no': 'خیر'
+  'common.no': 'خیر',
+  'common.backToHome': 'بازگشت به صفحه اصلی',
+  
+  // Role
+  'role': 'نقش'
 }

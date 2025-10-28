@@ -2,12 +2,20 @@ export default {
   // Navigation
   'nav.home': 'Ana Sayfa',
   'nav.dashboard': 'Kontrol Paneli',
+  'nav.wallet': 'Cüzdan',
+  'nav.settings': 'Ayarlar',
   'nav.governance': 'Yönetişim',
+  'nav.proposals': 'Teklifler',
+  'nav.delegation': 'Delegasyon',
   'nav.treasury': 'Hazine',
-  'nav.staking': 'Staking',
+  'nav.staking': 'Stake Etme',
   'nav.forum': 'Forum',
+  'nav.moderation': 'Moderasyon',
   'nav.profile': 'Profil',
   'nav.admin': 'Yönetici',
+  'nav.docs': 'Dokümantasyon',
+  'nav.login': 'Giriş Yap',
+  'nav.logout': 'Çıkış Yap',
   
   // Hero Section
   'hero.title': 'Blockchain Yönetişim Platformu',
@@ -40,6 +48,21 @@ export default {
   'governance.createProposal': 'Öneri Oluştur',
   'governance.votingPower': 'Oy Gücü',
   
+  // Treasury
+  'treasury.title': 'Hazine',
+  'treasury.subtitle': 'Topluluk fonlarını yönetin',
+  'treasury.overview': 'Genel Bakış',
+  'treasury.proposals': 'Teklifler',
+  'treasury.history': 'Geçmiş',
+  'treasury.approvals': 'Onaylar',
+  
+  // Footer
+  'footer.description': 'Kürdistan için merkezi olmayan yönetişim',
+  'footer.about': 'Hakkında',
+  'footer.developers': 'Geliştiriciler',
+  'footer.community': 'Topluluk',
+  'footer.rights': 'Tüm hakları saklıdır',
+  
   // Common
   'common.loading': 'Yükleniyor...',
   'common.save': 'Kaydet',
@@ -55,5 +78,9 @@ export default {
   'common.next': 'İleri',
   'common.previous': 'Önceki',
   'common.yes': 'Evet',
-  'common.no': 'Hayır'
+  'common.no': 'Hayır',
+  'common.backToHome': 'Ana Sayfaya Dön',
+  
+  // Role
+  'role': 'Rol'
 }

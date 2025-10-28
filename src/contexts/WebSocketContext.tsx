@@ -31,19 +31,54 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const reconnectTimeout = useRef<NodeJS.Timeout>();
   const eventListeners = useRef<Map<string, Set<(data: any) => void>>>(new Map());
   const { toast } = useToast();
+  
+  // Connection state management
+  const currentEndpoint = useRef<string>('');
+  const hasShownFinalError = useRef(false);
+  const connectionAttempts = useRef(0);
+  
+  const ENDPOINTS = [
+    'wss://ws.pezkuwichain.io',           // Production WebSocket
+    'ws://localhost:9944',                 // Local development node
+    'ws://127.0.0.1:9944',                // Alternative local address
+  ];
 
-  const connect = useCallback(() => {
+  const connect = useCallback((endpointIndex: number = 0) => {
+    // If we've tried all endpoints, show error once and stop
+    if (endpointIndex >= ENDPOINTS.length) {
+      if (!hasShownFinalError.current) {
+        console.error('❌ All WebSocket endpoints failed');
+        toast({
+          title: "Real-time Connection Unavailable",
+          description: "Could not connect to WebSocket server. Live updates will be disabled.",
+          variant: "destructive",
+        });
+        hasShownFinalError.current = true;
+      }
+      return;
+    }
+
     try {
-      // In production, replace with actual WebSocket server URL
-      const wsUrl = import.meta.env.VITE_WS_URL || 'wss://pezkuwichain-ws.example.com';
+      const wsUrl = ENDPOINTS[endpointIndex];
+      currentEndpoint.current = wsUrl;
+      
+      console.log(`🔌 Attempting WebSocket connection to: ${wsUrl}`);
+      
       ws.current = new WebSocket(wsUrl);
 
       ws.current.onopen = () => {
         setIsConnected(true);
-        toast({
-          title: "Connected",
-          description: "Real-time updates enabled",
-        });
+        connectionAttempts.current = 0;
+        hasShownFinalError.current = false;
+        console.log(`✅ WebSocket connected to: ${wsUrl}`);
+        
+        // Only show success toast for production endpoint
+        if (endpointIndex === 0) {
+          toast({
+            title: "Connected",
+            description: "Real-time updates enabled",
+          });
+        }
       };
 
       ws.current.onmessage = (event) => {
@@ -59,28 +94,36 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       };
 
       ws.current.onerror = (error) => {
-        console.error('WebSocket error:', error);
-        toast({
-          title: "Connection Error",
-          description: "Failed to establish real-time connection",
-          variant: "destructive",
-        });
+        console.warn(`⚠️ WebSocket error on ${wsUrl}:`, error);
       };
 
       ws.current.onclose = () => {
         setIsConnected(false);
-        // Attempt to reconnect after 5 seconds
+        console.log(`🔌 WebSocket disconnected from: ${wsUrl}`);
+        
+        // Try next endpoint after 2 seconds
         reconnectTimeout.current = setTimeout(() => {
-          connect();
-        }, 5000);
+          connectionAttempts.current++;
+          
+          // If we've been connected before and lost connection, try same endpoint first
+          if (connectionAttempts.current < 3) {
+            connect(endpointIndex);
+          } else {
+            // Try next endpoint in the list
+            connect(endpointIndex + 1);
+            connectionAttempts.current = 0;
+          }
+        }, 2000);
       };
     } catch (error) {
-      console.error('Failed to create WebSocket connection:', error);
+      console.error(`❌ Failed to create WebSocket connection to ${ENDPOINTS[endpointIndex]}:`, error);
+      // Try next endpoint immediately
+      setTimeout(() => connect(endpointIndex + 1), 1000);
     }
   }, [toast]);
 
   useEffect(() => {
-    connect();
+    connect(0); // Start with first endpoint
 
     return () => {
       if (reconnectTimeout.current) {
@@ -107,7 +150,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     if (ws.current?.readyState === WebSocket.OPEN) {
       ws.current.send(JSON.stringify(message));
     } else {
-      console.warn('WebSocket is not connected');
+      console.warn('WebSocket is not connected - message queued');
     }
   }, []);
 
@@ -115,7 +158,9 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     if (ws.current) {
       ws.current.close();
     }
-    connect();
+    hasShownFinalError.current = false;
+    connectionAttempts.current = 0;
+    connect(0); // Start from first endpoint again
   }, [connect]);
 
   return (
