@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Wallet, Chrome, Smartphone, Copy, Check, ExternalLink } from 'lucide-react';
+import { Wallet, Chrome, ExternalLink, Copy, Check, LogOut } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -8,8 +8,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useWallet } from '@/contexts/WalletContext';
+import { usePolkadot } from '@/contexts/PolkadotContext';
 import { formatAddress } from '@/lib/wallet';
 
 interface WalletModalProps {
@@ -18,24 +17,37 @@ interface WalletModalProps {
 }
 
 export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => {
-  const { connectMetaMask, connectWalletConnect, isConnected, address } = useWallet();
+  const { 
+    accounts, 
+    selectedAccount, 
+    setSelectedAccount,
+    connectWallet, 
+    disconnectWallet,
+    error 
+  } = usePolkadot();
+  
   const [copied, setCopied] = useState(false);
 
   const handleCopyAddress = () => {
-    if (address) {
-      navigator.clipboard.writeText(address);
+    if (selectedAccount?.address) {
+      navigator.clipboard.writeText(selectedAccount.address);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
   };
 
-  const handleMetaMaskConnect = async () => {
-    await connectMetaMask();
-    if (isConnected) onClose();
+  const handleConnect = async () => {
+    await connectWallet();
   };
 
-  const handleWalletConnectConnect = async () => {
-    await connectWalletConnect();
+  const handleSelectAccount = (account: typeof accounts[0]) => {
+    setSelectedAccount(account);
+    onClose();
+  };
+
+  const handleDisconnect = () => {
+    disconnectWallet();
+    onClose();
   };
 
   return (
@@ -43,82 +55,181 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Wallet className="h-5 w-5 text-kesk" />
-            Connect Wallet
+            <Wallet className="h-5 w-5 text-purple-400" />
+            {selectedAccount ? 'Wallet Connected' : 'Connect Wallet'}
           </DialogTitle>
           <DialogDescription>
-            Connect your wallet to interact with PezkuwiChain governance
+            {selectedAccount 
+              ? 'Manage your Polkadot account' 
+              : 'Connect your Polkadot.js extension to interact with PezkuwiChain'}
           </DialogDescription>
         </DialogHeader>
 
-        {!isConnected ? (
-          <Tabs defaultValue="browser" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="browser">Browser Wallet</TabsTrigger>
-              <TabsTrigger value="mobile">Mobile Wallet</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="browser" className="space-y-4">
-              <Button
-                onClick={handleMetaMaskConnect}
-                className="w-full justify-start bg-kesk hover:bg-kesk/90"
-              >
-                <Chrome className="mr-2 h-5 w-5" />
-                MetaMask
-              </Button>
-              <div className="text-sm text-muted-foreground">
-                Don't have MetaMask?{' '}
-                <a
-                  href="https://metamask.io/download/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-kesk hover:underline"
-                >
-                  Download here
-                </a>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="mobile" className="space-y-4">
-              <Button
-                onClick={handleWalletConnectConnect}
-                className="w-full justify-start bg-zer hover:bg-zer/90"
-              >
-                <Smartphone className="mr-2 h-5 w-5" />
-                WalletConnect
-              </Button>
-              <div className="text-sm text-muted-foreground">
-                Scan QR code with your mobile wallet to connect
-              </div>
-            </TabsContent>
-          </Tabs>
-        ) : (
+        {/* No Extension Error */}
+        {error && error.includes('extension') && (
           <div className="space-y-4">
-            <div className="flex items-center justify-between p-3 border rounded-lg">
-              <div>
-                <div className="text-sm text-muted-foreground">Connected Address</div>
-                <div className="font-mono font-medium">{formatAddress(address!)}</div>
-              </div>
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={handleCopyAddress}
+            <div className="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+              <p className="text-sm text-yellow-300">
+                Polkadot.js extension not detected. Please install it to continue.
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <a
+                href="https://polkadot.js.org/extension/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1"
               >
-                {copied ? (
-                  <Check className="h-4 w-4 text-kesk" />
-                ) : (
-                  <Copy className="h-4 w-4" />
-                )}
+                <Button className="w-full bg-orange-600 hover:bg-orange-700">
+                  <Chrome className="mr-2 h-4 w-4" />
+                  Install Extension
+                </Button>
+              </a>
+            </div>
+
+            <p className="text-xs text-gray-400 text-center">
+              After installing, refresh the page and try again
+            </p>
+          </div>
+        )}
+
+        {/* Connected State */}
+        {selectedAccount && !error && (
+          <div className="space-y-4">
+            {/* Account Info */}
+            <div className="bg-gray-800/50 rounded-lg p-4 space-y-3">
+              <div>
+                <div className="text-xs text-gray-400 mb-1">Account Name</div>
+                <div className="font-medium">{selectedAccount.meta.name || 'Unnamed Account'}</div>
+              </div>
+
+              <div>
+                <div className="text-xs text-gray-400 mb-1">Address</div>
+                <div className="flex items-center justify-between gap-2">
+                  <code className="text-sm font-mono text-gray-300 truncate">
+                    {formatAddress(selectedAccount.address)}
+                  </code>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={handleCopyAddress}
+                    className="shrink-0"
+                  >
+                    {copied ? (
+                      <Check className="h-4 w-4 text-green-400" />
+                    ) : (
+                      <Copy className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+
+              <div>
+                <div className="text-xs text-gray-400 mb-1">Source</div>
+                <div className="text-sm text-gray-300">
+                  {selectedAccount.meta.source || 'polkadot-js'}
+                </div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => window.open(`https://polkadot.js.org/apps/?rpc=ws://127.0.0.1:9944#/explorer`, '_blank')}
+              >
+                <ExternalLink className="mr-2 h-4 w-4" />
+                View on Explorer
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleDisconnect}
+                className="text-red-400 border-red-400/30 hover:bg-red-400/10"
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Disconnect
               </Button>
             </div>
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={() => window.open('https://explorer.pezkuwichain.app/address/' + address, '_blank')}
-            >
-              <ExternalLink className="mr-2 h-4 w-4" />
-              View on Explorer
-            </Button>
+
+            {/* Switch Account */}
+            {accounts.length > 1 && (
+              <div className="space-y-2">
+                <div className="text-sm text-gray-400">Switch Account</div>
+                <div className="space-y-2 max-h-48 overflow-y-auto">
+                  {accounts.map((account) => (
+                    <button
+                      key={account.address}
+                      onClick={() => handleSelectAccount(account)}
+                      className={`w-full p-3 rounded-lg border transition-all text-left ${
+                        account.address === selectedAccount.address
+                          ? 'bg-purple-500/20 border-purple-500/50'
+                          : 'bg-gray-800/30 border-gray-700 hover:border-gray-600'
+                      }`}
+                    >
+                      <div className="font-medium text-sm">
+                        {account.meta.name || 'Unnamed'}
+                      </div>
+                      <div className="text-xs text-gray-400 font-mono">
+                        {formatAddress(account.address)}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Not Connected State */}
+        {!selectedAccount && !error && (
+          <div className="space-y-4">
+            {accounts.length > 0 ? (
+              // Has accounts, show selection
+              <div className="space-y-2">
+                <div className="text-sm text-gray-400">Select an account to connect:</div>
+                <div className="space-y-2">
+                  {accounts.map((account) => (
+                    <button
+                      key={account.address}
+                      onClick={() => handleSelectAccount(account)}
+                      className="w-full p-4 rounded-lg border border-gray-700 bg-gray-800/50 hover:border-purple-500/50 hover:bg-gray-800 transition-all text-left"
+                    >
+                      <div className="font-medium mb-1">
+                        {account.meta.name || 'Unnamed Account'}
+                      </div>
+                      <div className="text-sm text-gray-400 font-mono">
+                        {account.address}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              // No accounts, show connect button
+              <div className="space-y-4">
+                <Button
+                  onClick={handleConnect}
+                  className="w-full bg-gradient-to-r from-purple-600 to-cyan-400 hover:from-purple-700 hover:to-cyan-500"
+                >
+                  <Wallet className="mr-2 h-4 w-4" />
+                  Connect Polkadot.js
+                </Button>
+                
+                <div className="text-sm text-gray-400 text-center">
+                  Don't have Polkadot.js?{' '}
+                  <a
+                    href="https://polkadot.js.org/extension/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-purple-400 hover:underline"
+                  >
+                    Download here
+                  </a>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </DialogContent>

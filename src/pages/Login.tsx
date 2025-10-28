@@ -1,31 +1,27 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { usePolkadot } from '@/contexts/PolkadotContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { TwoFactorVerify } from '@/components/auth/TwoFactorVerify';
 import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Eye, EyeOff, Wallet, Mail, Lock, User, AlertCircle, ArrowLeft, UserPlus } from 'lucide-react';
-import { useWallet } from '@/contexts/WalletContext';
 import { useTranslation } from 'react-i18next';
-import { supabase } from '@/lib/supabase';
 
 const Login: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { connect } = useWallet();
+  const { connectWallet, selectedAccount } = usePolkadot();
   const { signIn, signUp } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [requires2FA, setRequires2FA] = useState(false);
-  const [tempUserId, setTempUserId] = useState('');
   
   const [loginData, setLoginData] = useState({
     email: '',
@@ -49,17 +45,16 @@ const Login: React.FC = () => {
       const { error } = await signIn(loginData.email, loginData.password);
       
       if (error) {
-        // More user-friendly error messages
         if (error.message?.includes('Invalid login credentials')) {
-          setError('Email veya şifre hatalı. Doğru bilgiler: info@pezkuwichain.io / Sq230515yBkB@#nm90');
+          setError('Email or password is incorrect. Please try again.');
         } else {
-          setError(error.message || 'Giriş başarısız. Lütfen tekrar deneyin.');
+          setError(error.message || 'Login failed. Please try again.');
         }
       } else {
         navigate('/');
       }
     } catch (err) {
-      setError('Giriş yapılamadı. Lütfen tekrar deneyin.');
+      setError('Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -83,7 +78,12 @@ const Login: React.FC = () => {
         return;
       }
       
-      const { error } = await signUp(signupData.email, signupData.password, signupData.name, signupData.referralCode);
+      const { error } = await signUp(
+        signupData.email, 
+        signupData.password, 
+        signupData.name, 
+        signupData.referralCode
+      );
       
       if (error) {
         setError(error.message);
@@ -99,11 +99,21 @@ const Login: React.FC = () => {
 
   const handleWalletConnect = async () => {
     setLoading(true);
+    setError('');
     try {
-      await connect();
-      navigate('/');
-    } catch (err) {
-      setError('Failed to connect wallet');
+      await connectWallet();
+      if (selectedAccount) {
+        navigate('/');
+      } else {
+        setError('Please select an account from your Polkadot.js extension');
+      }
+    } catch (err: any) {
+      console.error('Wallet connection failed:', err);
+      if (err.message?.includes('extension')) {
+        setError('Polkadot.js extension not found. Please install it first.');
+      } else {
+        setError('Failed to connect wallet. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -201,13 +211,13 @@ const Login: React.FC = () => {
                     {t('login.forgotPassword', 'Forgot password?')}
                   </button>
                 </div>
+
                 {error && (
                   <Alert className="bg-red-900/20 border-red-800">
                     <AlertCircle className="h-4 w-4 text-red-500" />
                     <AlertDescription className="text-red-400">{error}</AlertDescription>
                   </Alert>
                 )}
-                
                 
                 <Button 
                   type="submit" 
@@ -320,6 +330,7 @@ const Login: React.FC = () => {
                     {t('login.referralDescription', 'If someone referred you, enter their code here')}
                   </p>
                 </div>
+
                 {error && (
                   <Alert className="bg-red-900/20 border-red-800">
                     <AlertCircle className="h-4 w-4 text-red-500" />
@@ -354,8 +365,12 @@ const Login: React.FC = () => {
             disabled={loading}
           >
             <Wallet className="mr-2 h-4 w-4" />
-            {t('login.connectWallet', 'Connect Wallet')}
+            {t('login.connectWallet', 'Connect with Polkadot.js')}
           </Button>
+
+          <p className="mt-2 text-xs text-center text-gray-500">
+            {t('login.walletHint', 'Connect your Polkadot wallet for instant access')}
+          </p>
         </CardContent>
         
         <CardFooter className="text-center text-sm text-gray-500">
