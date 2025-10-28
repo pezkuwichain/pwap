@@ -12,11 +12,12 @@ interface AuthContextType {
   checkAdminStatus: () => Promise<boolean>;
 }
 
-// Demo/Founder account credentials
+// Demo/Founder account credentials from environment variables
+// ⚠️ SECURITY: Never hardcode credentials in source code!
 const FOUNDER_ACCOUNT = {
-  email: 'info@pezkuwichain.io',
-  password: 'Sq230515yBkB@#nm90',
-  id: 'founder-001',
+  email: import.meta.env.VITE_DEMO_FOUNDER_EMAIL || '',
+  password: import.meta.env.VITE_DEMO_FOUNDER_PASSWORD || '',
+  id: import.meta.env.VITE_DEMO_FOUNDER_ID || 'founder-001',
   user_metadata: {
     full_name: 'Satoshi Qazi Muhammed',
     phone: '+9647700557978',
@@ -24,6 +25,9 @@ const FOUNDER_ACCOUNT = {
     founder: true
   }
 };
+
+// Check if demo mode is enabled
+const DEMO_MODE_ENABLED = import.meta.env.VITE_ENABLE_DEMO_MODE === 'true';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -85,8 +89,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signIn = async (email: string, password: string) => {
-    // Check if this is the founder account (demo/fallback mode)
-    if (email === FOUNDER_ACCOUNT.email && password === FOUNDER_ACCOUNT.password) {
+    // Check if demo mode is enabled and this is the founder account
+    if (DEMO_MODE_ENABLED && email === FOUNDER_ACCOUNT.email && password === FOUNDER_ACCOUNT.password) {
       // Try Supabase first
       try {
         const { data, error } = await supabase.auth.signInWithPassword({

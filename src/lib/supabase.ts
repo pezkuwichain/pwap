@@ -1,11 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
 
+// Initialize Supabase client from environment variables
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// Initialize Supabase client
-// Using direct values from project configuration
-const supabaseUrl = 'https://vbhftvdayqfmcgmzdxfv.supabase.co';
-const supabaseKey = 'sb_publishable_Aq6cShprdtxYyUsohmsquQ_OurU7w07';
+if (!supabaseUrl || !supabaseKey) {
+  console.warn('Supabase credentials not found in environment variables');
+}
+
 const supabase = createClient(supabaseUrl, supabaseKey);
-
 
 export { supabase };

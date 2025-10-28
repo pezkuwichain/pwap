@@ -1,0 +1,93 @@
+# ========================================
+# Git Attributes for PezkuwiChain
+# ========================================
+# Prevents merge conflicts and ensures consistent file handling
+
+# ========================================
+# ENVIRONMENT FILES - NO MERGE
+# ========================================
+# Prevent .env files from being merged
+# Always use local version (ours) in case of conflict
+.env merge=ours
+.env.* merge=ours
+
+# But allow .env.example to be merged normally
+!.env.example
+
+# ========================================
+# SENSITIVE FILES - NO DIFF
+# ========================================
+# Prevent sensitive files from showing diffs
+*.key diff=secret
+*.pem diff=secret
+*.cert diff=secret
+*.p12 diff=secret
+*.pfx diff=secret
+*secret* diff=secret
+*password* diff=secret
+*credential* diff=secret
+
+# ========================================
+# LINE ENDINGS
+# ========================================
+# Auto normalize line endings
+* text=auto
+
+# Specific file types
+*.js text eol=lf
+*.jsx text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# Windows batch files
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Shell scripts
+*.sh text eol=lf
+
+# ========================================
+# BINARY FILES
+# ========================================
+# Mark as binary (no text conversion)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.mov binary
+*.mp4 binary
+*.mp3 binary
+*.flv binary
+*.fla binary
+*.swf binary
+*.gz binary
+*.zip binary
+*.7z binary
+*.ttf binary
+*.eot binary
+*.woff binary
+*.woff2 binary
+*.pyc binary
+
+# ========================================
+# GENERATED FILES
+# ========================================
+# Mark generated files
+dist/** linguist-generated=true
+build/** linguist-generated=true
+coverage/** linguist-generated=true
+*.min.js linguist-generated=true
+*.min.css linguist-generated=true
+
+# ========================================
+# LOCK FILES
+# ========================================
+# Always use local version for lock files in conflicts
+package-lock.json merge=ours
+yarn.lock merge=ours
+pnpm-lock.yaml merge=ours

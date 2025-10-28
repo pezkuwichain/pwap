@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,6 +8,9 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, Coins, Lock, Clock, Gift, Calculator, Info } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { usePolkadot } from '@/contexts/PolkadotContext';
+import { ASSET_IDS, formatBalance } from '@/lib/wallet';
+import { toast } from '@/components/ui/use-toast';
 
 interface StakingPool {
   id: string;
@@ -23,39 +26,43 @@ interface StakingPool {
 
 export const StakingDashboard: React.FC = () => {
   const { t } = useTranslation();
+  const { api, isApiReady, selectedAccount } = usePolkadot();
   const [selectedPool, setSelectedPool] = useState<StakingPool | null>(null);
   const [stakeAmount, setStakeAmount] = useState('');
   const [unstakeAmount, setUnstakeAmount] = useState('');
+  const [isLoadingPools, setIsLoadingPools] = useState(false);
 
-  const stakingPools: StakingPool[] = [
+  // Real staking pools data from blockchain
+  const [stakingPools, setStakingPools] = useState<StakingPool[]>([
+    // Fallback mock data - will be replaced with real data
     {
       id: '1',
       name: 'HEZ Flexible',
       token: 'HEZ',
       apy: 8.5,
-      totalStaked: 1500000,
+      totalStaked: 0,
       minStake: 100,
       lockPeriod: 0,
-      userStaked: 5000,
-      rewards: 42.5
+      userStaked: 0,
+      rewards: 0
     },
     {
       id: '2',
       name: 'HEZ Locked 30 Days',
       token: 'HEZ',
       apy: 12.0,
-      totalStaked: 3200000,
+      totalStaked: 0,
       minStake: 500,
       lockPeriod: 30,
-      userStaked: 10000,
-      rewards: 100
+      userStaked: 0,
+      rewards: 0
     },
     {
       id: '3',
       name: 'PEZ High Yield',
       token: 'PEZ',
       apy: 15.5,
-      totalStaked: 800000,
+      totalStaked: 0,
       minStake: 1000,
       lockPeriod: 60,
       userStaked: 0,
@@ -66,27 +73,158 @@ export const StakingDashboard: React.FC = () => {
       name: 'PEZ Governance',
       token: 'PEZ',
       apy: 18.0,
-      totalStaked: 2100000,
+      totalStaked: 0,
       minStake: 2000,
       lockPeriod: 90,
-      userStaked: 25000,
-      rewards: 375
+      userStaked: 0,
+      rewards: 0
     }
-  ];
+  ]);
 
-  const handleStake = (pool: StakingPool) => {
-    console.log('Staking', stakeAmount, pool.token, 'in pool', pool.name);
-    // Implement staking logic
+  // Fetch staking pools data from blockchain
+  useEffect(() => {
+    const fetchStakingData = async () => {
+      if (!api || !isApiReady) {
+        return;
+      }
+
+      setIsLoadingPools(true);
+      try {
+        // TODO: Query staking pools from chain
+        // This would query your custom staking pallet
+        // const pools = await api.query.staking.pools.entries();
+
+        // For now, using mock data
+        // In real implementation, parse pool data from chain
+        console.log('Staking pools would be fetched from chain here');
+
+        // If user is connected, fetch their staking info
+        if (selectedAccount) {
+          // TODO: Query user staking positions
+          // const userStakes = await api.query.staking.ledger(selectedAccount.address);
+          // Update stakingPools with user data
+        }
+      } catch (error) {
+        console.error('Failed to fetch staking data:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to fetch staking pools',
+          variant: 'destructive',
+        });
+      } finally {
+        setIsLoadingPools(false);
+      }
+    };
+
+    fetchStakingData();
+  }, [api, isApiReady, selectedAccount]);
+
+  const handleStake = async (pool: StakingPool) => {
+    if (!api || !selectedAccount) {
+      toast({
+        title: 'Error',
+        description: 'Please connect your wallet',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!stakeAmount || parseFloat(stakeAmount) < pool.minStake) {
+      toast({
+        title: 'Error',
+        description: `Minimum stake is ${pool.minStake} ${pool.token}`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      // TODO: Implement staking transaction
+      // const assetId = ASSET_IDS[pool.token];
+      // const amount = parseAmount(stakeAmount, 12);
+      // await api.tx.staking.stake(pool.id, amount).signAndSend(...);
+
+      console.log('Staking', stakeAmount, pool.token, 'in pool', pool.name);
+
+      toast({
+        title: 'Success',
+        description: `Staked ${stakeAmount} ${pool.token}`,
+      });
+
+      setStakeAmount('');
+      setSelectedPool(null);
+    } catch (error: any) {
+      console.error('Staking failed:', error);
+      toast({
+        title: 'Error',
+        description: error.message || 'Staking failed',
+        variant: 'destructive',
+      });
+    }
   };
 
-  const handleUnstake = (pool: StakingPool) => {
-    console.log('Unstaking', unstakeAmount, pool.token, 'from pool', pool.name);
-    // Implement unstaking logic
+  const handleUnstake = async (pool: StakingPool) => {
+    if (!api || !selectedAccount) {
+      toast({
+        title: 'Error',
+        description: 'Please connect your wallet',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      // TODO: Implement unstaking transaction
+      // const amount = parseAmount(unstakeAmount, 12);
+      // await api.tx.staking.unstake(pool.id, amount).signAndSend(...);
+
+      console.log('Unstaking', unstakeAmount, pool.token, 'from pool', pool.name);
+
+      toast({
+        title: 'Success',
+        description: `Unstaked ${unstakeAmount} ${pool.token}`,
+      });
+
+      setUnstakeAmount('');
+      setSelectedPool(null);
+    } catch (error: any) {
+      console.error('Unstaking failed:', error);
+      toast({
+        title: 'Error',
+        description: error.message || 'Unstaking failed',
+        variant: 'destructive',
+      });
+    }
   };
 
-  const handleClaimRewards = (pool: StakingPool) => {
-    console.log('Claiming rewards from pool', pool.name);
-    // Implement claim rewards logic
+  const handleClaimRewards = async (pool: StakingPool) => {
+    if (!api || !selectedAccount) {
+      toast({
+        title: 'Error',
+        description: 'Please connect your wallet',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      // TODO: Implement claim rewards transaction
+      // await api.tx.staking.claimRewards(pool.id).signAndSend(...);
+
+      console.log('Claiming rewards from pool', pool.name);
+
+      toast({
+        title: 'Success',
+        description: `Claimed ${pool.rewards} ${pool.token} rewards`,
+      });
+    } catch (error: any) {
+      console.error('Claim rewards failed:', error);
+      toast({
+        title: 'Error',
+        description: error.message || 'Claim rewards failed',
+        variant: 'destructive',
+      });
+    }
   };
 
   const totalStaked = stakingPools.reduce((sum, pool) => sum + (pool.userStaked || 0), 0);

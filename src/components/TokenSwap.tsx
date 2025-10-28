@@ -1,11 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowDownUp, Settings, Info, TrendingUp, Clock } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { usePolkadot } from '@/contexts/PolkadotContext';
+import { ASSET_IDS, formatBalance } from '@/lib/wallet';
+import { toast } from '@/components/ui/use-toast';
 
 const TokenSwap = () => {
+  const { api, isApiReady, selectedAccount } = usePolkadot();
   const [fromToken, setFromToken] = useState('PEZ');
   const [toToken, setToToken] = useState('HEZ');
   const [fromAmount, setFromAmount] = useState('');
@@ -14,21 +18,112 @@ const TokenSwap = () => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [isSwapping, setIsSwapping] = useState(false);
 
-  const exchangeRate = fromToken === 'PEZ' ? 2.5 : 0.4;
+  // Real balances from blockchain
+  const [fromBalance, setFromBalance] = useState('0');
+  const [toBalance, setToBalance] = useState('0');
+  const [exchangeRate, setExchangeRate] = useState(2.5); // Will be fetched from pool
+  const [isLoadingBalances, setIsLoadingBalances] = useState(false);
+
   const toAmount = fromAmount ? (parseFloat(fromAmount) * exchangeRate).toFixed(4) : '';
+
+  // Fetch balances from blockchain
+  useEffect(() => {
+    const fetchBalances = async () => {
+      if (!api || !isApiReady || !selectedAccount) {
+        return;
+      }
+
+      setIsLoadingBalances(true);
+      try {
+        const fromAssetId = ASSET_IDS[fromToken as keyof typeof ASSET_IDS];
+        const toAssetId = ASSET_IDS[toToken as keyof typeof ASSET_IDS];
+
+        // Fetch balances from Assets pallet
+        const [fromAssetBalance, toAssetBalance] = await Promise.all([
+          api.query.assets.account(fromAssetId, selectedAccount.address),
+          api.query.assets.account(toAssetId, selectedAccount.address),
+        ]);
+
+        // Format balances (12 decimals for PEZ/HEZ tokens)
+        const fromBal = fromAssetBalance.toJSON() as any;
+        const toBal = toAssetBalance.toJSON() as any;
+
+        setFromBalance(fromBal ? formatBalance(fromBal.balance.toString(), 12) : '0');
+        setToBalance(toBal ? formatBalance(toBal.balance.toString(), 12) : '0');
+      } catch (error) {
+        console.error('Failed to fetch balances:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to fetch token balances',
+          variant: 'destructive',
+        });
+      } finally {
+        setIsLoadingBalances(false);
+      }
+    };
+
+    fetchBalances();
+  }, [api, isApiReady, selectedAccount, fromToken, toToken]);
+
+  // TODO: Fetch exchange rate from DEX pool
+  // This should query the liquidity pool to get real-time exchange rates
+  useEffect(() => {
+    // Placeholder: In real implementation, query pool reserves
+    // const fetchExchangeRate = async () => {
+    //   if (!api || !isApiReady) return;
+    //   const pool = await api.query.dex.pools([fromAssetId, toAssetId]);
+    //   // Calculate rate from pool reserves
+    // };
+
+    // Mock exchange rate for now
+    const mockRate = fromToken === 'PEZ' ? 2.5 : 0.4;
+    setExchangeRate(mockRate);
+  }, [api, isApiReady, fromToken, toToken]);
 
   const handleSwap = () => {
     setFromToken(toToken);
     setToToken(fromToken);
+    setFromAmount('');
   };
 
-  const handleConfirmSwap = () => {
+  const handleConfirmSwap = async () => {
+    if (!api || !selectedAccount) {
+      toast({
+        title: 'Error',
+        description: 'Please connect your wallet',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsSwapping(true);
-    setTimeout(() => {
-      setIsSwapping(false);
+    try {
+      // TODO: Implement actual swap transaction
+      // const fromAssetId = ASSET_IDS[fromToken];
+      // const toAssetId = ASSET_IDS[toToken];
+      // const amount = parseAmount(fromAmount, 12);
+      // await api.tx.dex.swap(fromAssetId, toAssetId, amount, minReceive).signAndSend(...);
+
+      // Simulated swap for now
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      toast({
+        title: 'Success',
+        description: `Swapped ${fromAmount} ${fromToken} for ${toAmount} ${toToken}`,
+      });
+
       setShowConfirm(false);
       setFromAmount('');
-    }, 2000);
+    } catch (error: any) {
+      console.error('Swap failed:', error);
+      toast({
+        title: 'Error',
+        description: error.message || 'Swap transaction failed',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSwapping(false);
+    }
   };
 
   const liquidityData = [
@@ -58,7 +153,9 @@ const TokenSwap = () => {
             <div className="bg-gray-50 rounded-lg p-4">
               <div className="flex justify-between mb-2">
                 <span className="text-sm text-gray-600">From</span>
-                <span className="text-sm text-gray-600">Balance: 10,000</span>
+                <span className="text-sm text-gray-600">
+                  Balance: {isLoadingBalances ? '...' : fromBalance} {fromToken}
+                </span>
               </div>
               <div className="flex gap-3">
                 <Input
@@ -88,7 +185,9 @@ const TokenSwap = () => {
             <div className="bg-gray-50 rounded-lg p-4">
               <div className="flex justify-between mb-2">
                 <span className="text-sm text-gray-600">To</span>
-                <span className="text-sm text-gray-600">Balance: 5,000</span>
+                <span className="text-sm text-gray-600">
+                  Balance: {isLoadingBalances ? '...' : toBalance} {toToken}
+                </span>
               </div>
               <div className="flex gap-3">
                 <Input

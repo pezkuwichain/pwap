@@ -1,11 +1,23 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { PEZKUWICHAIN_NETWORK, WALLET_ERRORS, initialWalletState, WalletState } from '@/lib/wallet';
+// ========================================
+// WalletContext - Polkadot.js Wallet Integration
+// ========================================
+// This context wraps PolkadotContext and provides wallet functionality
+// ⚠️ MIGRATION NOTE: This now uses Polkadot.js instead of MetaMask/Ethereum
 
-interface WalletContextType extends WalletState {
-  connectMetaMask: () => Promise<void>;
-  connectWalletConnect: () => Promise<void>;
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { usePolkadot } from './PolkadotContext';
+import { WALLET_ERRORS, formatBalance, ASSET_IDS } from '@/lib/wallet';
+import type { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
+
+interface WalletContextType {
+  isConnected: boolean;
+  account: string | null;  // Current selected account address
+  accounts: InjectedAccountWithMeta[];
+  balance: string;
+  error: string | null;
+  connectWallet: () => Promise<void>;
   disconnect: () => void;
-  switchNetwork: () => Promise<void>;
+  switchAccount: (account: InjectedAccountWithMeta) => void;
   signTransaction: (tx: any) => Promise<string>;
   signMessage: (message: string) => Promise<string>;
 }
@@ -13,141 +25,130 @@ interface WalletContextType extends WalletState {
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
 
 export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [walletState, setWalletState] = useState<WalletState>(initialWalletState);
+  const polkadot = usePolkadot();
+  const [balance, setBalance] = useState<string>('0');
+  const [error, setError] = useState<string | null>(null);
 
-  const updateBalance = useCallback(async (address: string, provider: any) => {
-    try {
-      const balance = await provider.request({
-        method: 'eth_getBalance',
-        params: [address, 'latest']
-      });
-      setWalletState(prev => ({ ...prev, balance }));
-    } catch (error) {
-      console.error('Failed to fetch balance:', error);
-    }
-  }, []);
-
-  const connectMetaMask = useCallback(async () => {
-    if (!window.ethereum) {
-      setWalletState(prev => ({ ...prev, error: WALLET_ERRORS.NO_WALLET }));
+  // Fetch balance when account changes
+  const updateBalance = useCallback(async (address: string) => {
+    if (!polkadot.api || !polkadot.isApiReady) {
+      console.warn('API not ready, cannot fetch balance');
       return;
     }
 
     try {
-      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-      const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-      
-      setWalletState({
-        isConnected: true,
-        address: accounts[0],
-        balance: '0',
-        chainId,
-        provider: window.ethereum,
-        error: null
-      });
-
-      await updateBalance(accounts[0], window.ethereum);
-    } catch (error: any) {
-      setWalletState(prev => ({
-        ...prev,
-        error: error.code === 4001 ? WALLET_ERRORS.USER_REJECTED : WALLET_ERRORS.CONNECTION_FAILED
-      }));
+      // Query native token balance (PEZ)
+      const { data: balance } = await polkadot.api.query.system.account(address);
+      const formattedBalance = formatBalance(balance.free.toString());
+      setBalance(formattedBalance);
+    } catch (err) {
+      console.error('Failed to fetch balance:', err);
+      setError('Failed to fetch balance');
     }
-  }, [updateBalance]);
+  }, [polkadot.api, polkadot.isApiReady]);
 
-  const connectWalletConnect = useCallback(async () => {
-    // WalletConnect implementation placeholder
-    setWalletState(prev => ({
-      ...prev,
-      error: 'WalletConnect integration coming soon'
-    }));
-  }, []);
+  // Connect wallet (Polkadot.js extension)
+  const connectWallet = useCallback(async () => {
+    try {
+      setError(null);
+      await polkadot.connectWallet();
+    } catch (err: any) {
+      console.error('Wallet connection failed:', err);
+      setError(err.message || WALLET_ERRORS.CONNECTION_FAILED);
+    }
+  }, [polkadot]);
 
+  // Disconnect wallet
   const disconnect = useCallback(() => {
-    setWalletState(initialWalletState);
-  }, []);
+    polkadot.disconnectWallet();
+    setBalance('0');
+    setError(null);
+  }, [polkadot]);
 
-  const switchNetwork = useCallback(async () => {
-    if (!walletState.provider) return;
+  // Switch account
+  const switchAccount = useCallback((account: InjectedAccountWithMeta) => {
+    polkadot.setSelectedAccount(account);
+  }, [polkadot]);
 
-    try {
-      await walletState.provider.request({
-        method: 'wallet_switchEthereumChain',
-        params: [{ chainId: PEZKUWICHAIN_NETWORK.chainId }]
-      });
-    } catch (error: any) {
-      if (error.code === 4902) {
-        try {
-          await walletState.provider.request({
-            method: 'wallet_addEthereumChain',
-            params: [PEZKUWICHAIN_NETWORK]
-          });
-        } catch (addError) {
-          setWalletState(prev => ({ ...prev, error: WALLET_ERRORS.NETWORK_ERROR }));
-        }
-      }
-    }
-  }, [walletState.provider]);
-
+  // Sign and submit transaction
   const signTransaction = useCallback(async (tx: any): Promise<string> => {
-    if (!walletState.provider || !walletState.address) {
-      throw new Error('Wallet not connected');
+    if (!polkadot.api || !polkadot.selectedAccount) {
+      throw new Error(WALLET_ERRORS.API_NOT_READY);
     }
 
     try {
-      const result = await walletState.provider.request({
-        method: 'eth_sendTransaction',
-        params: [{ ...tx, from: walletState.address }]
-      });
-      return result;
+      const { web3FromAddress } = await import('@polkadot/extension-dapp');
+      const injector = await web3FromAddress(polkadot.selectedAccount.address);
+
+      // Sign and send transaction
+      const hash = await tx.signAndSend(
+        polkadot.selectedAccount.address,
+        { signer: injector.signer }
+      );
+
+      return hash.toHex();
     } catch (error: any) {
+      console.error('Transaction failed:', error);
       throw new Error(error.message || WALLET_ERRORS.TRANSACTION_FAILED);
     }
-  }, [walletState.provider, walletState.address]);
+  }, [polkadot.api, polkadot.selectedAccount]);
 
+  // Sign message
   const signMessage = useCallback(async (message: string): Promise<string> => {
-    if (!walletState.provider || !walletState.address) {
-      throw new Error('Wallet not connected');
+    if (!polkadot.selectedAccount) {
+      throw new Error('No account selected');
     }
 
     try {
-      const result = await walletState.provider.request({
-        method: 'personal_sign',
-        params: [message, walletState.address]
+      const { web3FromAddress } = await import('@polkadot/extension-dapp');
+      const injector = await web3FromAddress(polkadot.selectedAccount.address);
+
+      if (!injector.signer.signRaw) {
+        throw new Error('Wallet does not support message signing');
+      }
+
+      const { signature } = await injector.signer.signRaw({
+        address: polkadot.selectedAccount.address,
+        data: message,
+        type: 'bytes'
       });
-      return result;
+
+      return signature;
     } catch (error: any) {
+      console.error('Message signing failed:', error);
       throw new Error(error.message || 'Failed to sign message');
     }
-  }, [walletState.provider, walletState.address]);
+  }, [polkadot.selectedAccount]);
 
+  // Update balance when selected account changes
   useEffect(() => {
-    if (window.ethereum) {
-      window.ethereum.on('accountsChanged', (accounts: string[]) => {
-        if (accounts.length === 0) {
-          disconnect();
-        } else {
-          setWalletState(prev => ({ ...prev, address: accounts[0] }));
-          updateBalance(accounts[0], window.ethereum);
-        }
-      });
-
-      window.ethereum.on('chainChanged', (chainId: string) => {
-        setWalletState(prev => ({ ...prev, chainId }));
-      });
+    if (polkadot.selectedAccount && polkadot.isApiReady) {
+      updateBalance(polkadot.selectedAccount.address);
     }
-  }, [disconnect, updateBalance]);
+  }, [polkadot.selectedAccount, polkadot.isApiReady, updateBalance]);
+
+  // Sync error state with PolkadotContext
+  useEffect(() => {
+    if (polkadot.error) {
+      setError(polkadot.error);
+    }
+  }, [polkadot.error]);
+
+  const value: WalletContextType = {
+    isConnected: polkadot.accounts.length > 0,
+    account: polkadot.selectedAccount?.address || null,
+    accounts: polkadot.accounts,
+    balance,
+    error: error || polkadot.error,
+    connectWallet,
+    disconnect,
+    switchAccount,
+    signTransaction,
+    signMessage,
+  };
 
   return (
-    <WalletContext.Provider value={{
-      ...walletState,
-      connectMetaMask,
-      connectWalletConnect,
-      disconnect,
-      switchNetwork,
-      signTransaction,
-      signMessage
-    }}>
+    <WalletContext.Provider value={value}>
       {children}
     </WalletContext.Provider>
   );
