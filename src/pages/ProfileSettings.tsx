@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
@@ -11,9 +12,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, User, Mail, Shield, Bell, Palette, Globe } from 'lucide-react';
+import { Loader2, User, Mail, Shield, Bell, Palette, Globe, ArrowLeft } from 'lucide-react';
 import { TwoFactorSetup } from '@/components/auth/TwoFactorSetup';
 export default function ProfileSettings() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
@@ -182,7 +184,13 @@ export default function ProfileSettings() {
   };
 
   return (
-    <div className="container mx-auto py-8 max-w-4xl">
+    <div className="container mx-auto py-8 max-w-4xl relative">
+      <button
+        onClick={() => navigate('/')}
+        className="absolute top-4 left-4 text-gray-400 hover:text-white transition-colors"
+      >
+        <ArrowLeft className="w-5 h-5" />
+      </button>
       <h1 className="text-3xl font-bold mb-8">Profile Settings</h1>
 
       <Tabs defaultValue="profile" className="space-y-4">

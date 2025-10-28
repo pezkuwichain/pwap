@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { User, Mail, Phone, Globe, MapPin, Calendar, Shield, AlertCircle } from 'lucide-react';
+import { User, Mail, Phone, Globe, MapPin, Calendar, Shield, AlertCircle, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Dashboard() {
@@ -65,7 +65,13 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-6xl">
+    <div className="container mx-auto p-6 max-w-6xl relative">
+      <button
+        onClick={() => navigate('/')}
+        className="absolute top-4 left-4 text-gray-400 hover:text-white transition-colors"
+      >
+        <ArrowLeft className="w-5 h-5" />
+      </button>
       <h1 className="text-3xl font-bold mb-6">User Dashboard</h1>
       
       <div className="grid gap-6 md:grid-cols-3 mb-6">

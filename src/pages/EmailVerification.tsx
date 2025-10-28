@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/supabase';
-import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { CheckCircle, XCircle, Loader2, ArrowLeft } from 'lucide-react';
 
 export default function EmailVerification() {
   const [searchParams] = useSearchParams();
@@ -40,7 +40,13 @@ export default function EmailVerification() {
 
   return (
     <div className="container mx-auto flex items-center justify-center min-h-screen p-4">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md relative">
+        <button
+          onClick={() => navigate('/')}
+          className="absolute top-4 left-4 text-gray-400 hover:text-white transition-colors z-10"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </button>
         <CardHeader>
           <CardTitle>Email Verification</CardTitle>
           <CardDescription>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -7,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
-import { Users, Settings, Activity, Shield, Bell, Trash2, Monitor, Lock, AlertTriangle } from 'lucide-react';
+import { Users, Settings, Activity, Shield, Bell, Trash2, Monitor, Lock, AlertTriangle, ArrowLeft } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -27,6 +28,7 @@ import { SessionMonitor } from '@/components/security/SessionMonitor';
 import { PermissionEditor } from '@/components/security/PermissionEditor';
 import { SecurityAudit } from '@/components/security/SecurityAudit';
 export default function AdminPanel() {
+  const navigate = useNavigate();
   const [users, setUsers] = useState<any[]>([]);
   const [adminRoles, setAdminRoles] = useState<any[]>([]);
   const [systemSettings, setSystemSettings] = useState<any[]>([]);
@@ -138,7 +140,13 @@ export default function AdminPanel() {
   }
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto py-8 relative">
+      <button
+        onClick={() => navigate('/')}
+        className="absolute top-4 left-4 text-gray-400 hover:text-white transition-colors"
+      >
+        <ArrowLeft className="w-5 h-5" />
+      </button>
       <h1 className="text-3xl font-bold mb-8">Admin Panel</h1>
 
       <Tabs defaultValue="users" className="space-y-4">

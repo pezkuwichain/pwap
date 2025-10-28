@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { usePolkadot } from '@/contexts/PolkadotContext';
 import { AccountBalance } from '@/components/AccountBalance';
 import { TransferModal } from '@/components/TransferModal';
 import { ReceiveModal } from '@/components/ReceiveModal';
 import { TransactionHistory } from '@/components/TransactionHistory';
 import { Button } from '@/components/ui/button';
-import { ArrowUpRight, ArrowDownRight, History } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, History, ArrowLeft } from 'lucide-react';
 
 const WalletDashboard: React.FC = () => {
+  const navigate = useNavigate();
   const { selectedAccount } = usePolkadot();
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
   const [isReceiveModalOpen, setIsReceiveModalOpen] = useState(false);
@@ -26,7 +28,13 @@ const WalletDashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-950 pt-24 pb-12">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        <button
+          onClick={() => navigate('/')}
+          className="absolute top-4 left-4 text-gray-400 hover:text-white transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </button>
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">Wallet Dashboard</h1>
           <p className="text-gray-400">Manage your HEZ and PEZ tokens</p>
