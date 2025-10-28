@@ -2,12 +2,16 @@ import React, { useState } from 'react';
 import { usePolkadot } from '@/contexts/PolkadotContext';
 import { AccountBalance } from '@/components/AccountBalance';
 import { TransferModal } from '@/components/TransferModal';
+import { ReceiveModal } from '@/components/ReceiveModal';
+import { TransactionHistory } from '@/components/TransactionHistory';
 import { Button } from '@/components/ui/button';
 import { ArrowUpRight, ArrowDownRight, History } from 'lucide-react';
 
 const WalletDashboard: React.FC = () => {
   const { selectedAccount } = usePolkadot();
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
+  const [isReceiveModalOpen, setIsReceiveModalOpen] = useState(false);
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
 
   if (!selectedAccount) {
     return (
@@ -45,20 +49,20 @@ const WalletDashboard: React.FC = () => {
                 <ArrowUpRight className="w-6 h-6 mb-2" />
                 <span>Send</span>
               </Button>
-
+            
               <Button
+                onClick={() => setIsReceiveModalOpen(true)}
                 variant="outline"
                 className="border-gray-700 hover:bg-gray-800 h-24 flex flex-col items-center justify-center"
-                disabled
               >
                 <ArrowDownRight className="w-6 h-6 mb-2" />
                 <span>Receive</span>
               </Button>
 
               <Button
+                onClick={() => setIsHistoryModalOpen(true)}
                 variant="outline"
                 className="border-gray-700 hover:bg-gray-800 h-24 flex flex-col items-center justify-center"
-                disabled
               >
                 <History className="w-6 h-6 mb-2" />
                 <span>History</span>
@@ -74,6 +78,13 @@ const WalletDashboard: React.FC = () => {
                 <p className="text-gray-600 text-sm mt-1">
                   Your transaction history will appear here
                 </p>
+                <Button
+                  onClick={() => setIsHistoryModalOpen(true)}
+                  variant="outline"
+                  className="mt-4 border-gray-700 hover:bg-gray-800"
+                >
+                  View All Transactions
+                </Button>
               </div>
             </div>
           </div>
@@ -83,6 +94,16 @@ const WalletDashboard: React.FC = () => {
       <TransferModal
         isOpen={isTransferModalOpen}
         onClose={() => setIsTransferModalOpen(false)}
+      />
+
+      <ReceiveModal
+        isOpen={isReceiveModalOpen}
+        onClose={() => setIsReceiveModalOpen(false)}
+      />
+
+      <TransactionHistory
+        isOpen={isHistoryModalOpen}
+        onClose={() => setIsHistoryModalOpen(false)}
       />
     </div>
   );

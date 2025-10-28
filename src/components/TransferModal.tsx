@@ -10,6 +10,13 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { ArrowRight, Loader2, CheckCircle, XCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -18,15 +25,37 @@ interface TransferModalProps {
   onClose: () => void;
 }
 
+type TokenType = 'HEZ' | 'PEZ' | 'USDT' | 'BTC' | 'ETH' | 'DOT';
+
+interface Token {
+  symbol: TokenType;
+  name: string;
+  assetId?: number;
+  decimals: number;
+  color: string;
+}
+
+const TOKENS: Token[] = [
+  { symbol: 'HEZ', name: 'Hez Token', decimals: 12, color: 'from-green-600 to-yellow-400' },
+  { symbol: 'PEZ', name: 'Pez Token', assetId: 1, decimals: 12, color: 'from-blue-600 to-purple-400' },
+  { symbol: 'USDT', name: 'Tether USD', assetId: 2, decimals: 6, color: 'from-green-500 to-green-600' },
+  { symbol: 'BTC', name: 'Bitcoin', assetId: 3, decimals: 8, color: 'from-orange-500 to-yellow-500' },
+  { symbol: 'ETH', name: 'Ethereum', assetId: 4, decimals: 18, color: 'from-purple-500 to-blue-500' },
+  { symbol: 'DOT', name: 'Polkadot', assetId: 5, decimals: 10, color: 'from-pink-500 to-red-500' },
+];
+
 export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose }) => {
   const { api, isApiReady, selectedAccount } = usePolkadot();
   const { toast } = useToast();
   
+  const [selectedToken, setSelectedToken] = useState<TokenType>('HEZ');
   const [recipient, setRecipient] = useState('');
   const [amount, setAmount] = useState('');
   const [isTransferring, setIsTransferring] = useState(false);
   const [txStatus, setTxStatus] = useState<'idle' | 'signing' | 'pending' | 'success' | 'error'>('idle');
   const [txHash, setTxHash] = useState('');
+
+  const currentToken = TOKENS.find(t => t.symbol === selectedToken) || TOKENS[0];
 
   const handleTransfer = async () => {
     if (!api || !isApiReady || !selectedAccount) {
@@ -55,12 +84,22 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose })
       const { web3FromAddress } = await import('@polkadot/extension-dapp');
       const injector = await web3FromAddress(selectedAccount.address);
 
-      // Convert amount to plancks (12 decimals)
-      const decimals = 12;
-      const amountInPlancks = BigInt(parseFloat(amount) * Math.pow(10, decimals));
+      // Convert amount to smallest unit
+      const amountInSmallestUnit = BigInt(parseFloat(amount) * Math.pow(10, currentToken.decimals));
 
-      // Create transfer transaction
-      const transfer = api.tx.balances.transferKeepAlive(recipient, amountInPlancks.toString());
+      let transfer;
+
+      // Create appropriate transfer transaction based on token type
+      if (selectedToken === 'HEZ') {
+        // Native token transfer
+        transfer = api.tx.balances.transferKeepAlive(recipient, amountInSmallestUnit.toString());
+      } else {
+        // Asset token transfer (PEZ, USDT, BTC, ETH, DOT)
+        if (!currentToken.assetId) {
+          throw new Error('Asset ID not configured');
+        }
+        transfer = api.tx.assets.transfer(currentToken.assetId, recipient, amountInSmallestUnit.toString());
+      }
 
       setTxStatus('pending');
 
@@ -96,7 +135,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose })
               setTxStatus('success');
               toast({
                 title: "Transfer Successful!",
-                description: `Sent ${amount} HEZ to ${recipient.slice(0, 8)}...${recipient.slice(-6)}`,
+                description: `Sent ${amount} ${selectedToken} to ${recipient.slice(0, 8)}...${recipient.slice(-6)}`,
               });
 
               // Reset form after 2 seconds
@@ -133,6 +172,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose })
       setAmount('');
       setTxStatus('idle');
       setTxHash('');
+      setSelectedToken('HEZ');
       onClose();
     }
   };
@@ -141,9 +181,9 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose })
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="bg-gray-900 border-gray-800">
         <DialogHeader>
-          <DialogTitle className="text-white">Send HEZ</DialogTitle>
+          <DialogTitle className="text-white">Send Tokens</DialogTitle>
           <DialogDescription className="text-gray-400">
-            Transfer HEZ tokens to another account
+            Transfer tokens to another account
           </DialogDescription>
         </DialogHeader>
 
@@ -175,6 +215,31 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose })
           </div>
         ) : (
           <div className="space-y-4">
+            {/* Token Selection */}
+            <div>
+              <Label htmlFor="token" className="text-white">Select Token</Label>
+              <Select value={selectedToken} onValueChange={(value) => setSelectedToken(value as TokenType)} disabled={isTransferring}>
+                <SelectTrigger className="bg-gray-800 border-gray-700 text-white mt-2">
+                  <SelectValue placeholder="Select token" />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-800 border-gray-700">
+                  {TOKENS.map((token) => (
+                    <SelectItem 
+                      key={token.symbol} 
+                      value={token.symbol}
+                      className="text-white hover:bg-gray-700 focus:bg-gray-700"
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className={`w-3 h-3 rounded-full bg-gradient-to-r ${token.color}`}></div>
+                        <span className="font-semibold">{token.symbol}</span>
+                        <span className="text-gray-400 text-sm">- {token.name}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             <div>
               <Label htmlFor="recipient" className="text-white">Recipient Address</Label>
               <Input
@@ -188,17 +253,20 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose })
             </div>
 
             <div>
-              <Label htmlFor="amount" className="text-white">Amount (HEZ)</Label>
+              <Label htmlFor="amount" className="text-white">Amount ({selectedToken})</Label>
               <Input
                 id="amount"
                 type="number"
-                step="0.0001"
+                step={selectedToken === 'HEZ' || selectedToken === 'PEZ' ? '0.0001' : '0.000001'}
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="0.0000"
                 className="bg-gray-800 border-gray-700 text-white mt-2"
                 disabled={isTransferring}
               />
+              <div className="text-xs text-gray-500 mt-1">
+                Decimals: {currentToken.decimals}
+              </div>
             </div>
 
             {txStatus === 'signing' && (
@@ -221,7 +289,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose })
             <Button
               onClick={handleTransfer}
               disabled={isTransferring || !recipient || !amount}
-              className="w-full bg-gradient-to-r from-green-600 to-yellow-400 hover:from-green-700 hover:to-yellow-500"
+              className={`w-full bg-gradient-to-r ${currentToken.color} hover:opacity-90`}
             >
               {isTransferring ? (
                 <>
@@ -230,7 +298,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose })
                 </>
               ) : (
                 <>
-                  Send
+                  Send {selectedToken}
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </>
               )}

@@ -15,6 +15,7 @@ export const AccountBalance: React.FC = () => {
     reserved: '0',
     total: '0',
   });
+  const [pezBalance, setPezBalance] = useState<string>('0');
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchBalance = async () => {
@@ -22,12 +23,13 @@ export const AccountBalance: React.FC = () => {
 
     setIsLoading(true);
     try {
+      // Fetch HEZ balance
       const { data: balanceData } = await api.query.system.account(selectedAccount.address);
       
       const free = balanceData.free.toString();
       const reserved = balanceData.reserved.toString();
       
-      // Convert from plancks to tokens (assuming 12 decimals like DOT)
+      // Convert from plancks to tokens (12 decimals)
       const decimals = 12;
       const divisor = Math.pow(10, decimals);
       
@@ -40,6 +42,23 @@ export const AccountBalance: React.FC = () => {
         reserved: reservedTokens,
         total: totalTokens,
       });
+
+      // Fetch PEZ balance (Asset ID: 1)
+      try {
+        const pezAssetBalance = await api.query.assets.account(1, selectedAccount.address);
+        
+        if (pezAssetBalance.isSome) {
+          const assetData = pezAssetBalance.unwrap();
+          const pezAmount = assetData.balance.toString();
+          const pezTokens = (parseInt(pezAmount) / divisor).toFixed(4);
+          setPezBalance(pezTokens);
+        } else {
+          setPezBalance('0');
+        }
+      } catch (error) {
+        console.error('Failed to fetch PEZ balance:', error);
+        setPezBalance('0');
+      }
     } catch (error) {
       console.error('Failed to fetch balance:', error);
     } finally {
@@ -50,13 +69,15 @@ export const AccountBalance: React.FC = () => {
   useEffect(() => {
     fetchBalance();
 
-    // Subscribe to balance updates
-    let unsubscribe: () => void;
+    // Subscribe to HEZ balance updates
+    let unsubscribeHez: () => void;
+    let unsubscribePez: () => void;
 
     const subscribeBalance = async () => {
       if (!api || !isApiReady || !selectedAccount) return;
 
-      unsubscribe = await api.query.system.account(
+      // Subscribe to HEZ balance
+      unsubscribeHez = await api.query.system.account(
         selectedAccount.address,
         ({ data: balanceData }) => {
           const free = balanceData.free.toString();
@@ -76,12 +97,35 @@ export const AccountBalance: React.FC = () => {
           });
         }
       );
+
+      // Subscribe to PEZ balance (Asset ID: 1)
+      try {
+        unsubscribePez = await api.query.assets.account(
+          1,
+          selectedAccount.address,
+          (assetBalance) => {
+            if (assetBalance.isSome) {
+              const assetData = assetBalance.unwrap();
+              const pezAmount = assetData.balance.toString();
+              const decimals = 12;
+              const divisor = Math.pow(10, decimals);
+              const pezTokens = (parseInt(pezAmount) / divisor).toFixed(4);
+              setPezBalance(pezTokens);
+            } else {
+              setPezBalance('0');
+            }
+          }
+        );
+      } catch (error) {
+        console.error('Failed to subscribe to PEZ balance:', error);
+      }
     };
 
     subscribeBalance();
 
     return () => {
-      if (unsubscribe) unsubscribe();
+      if (unsubscribeHez) unsubscribeHez();
+      if (unsubscribePez) unsubscribePez();
     };
   }, [api, isApiReady, selectedAccount]);
 
@@ -100,12 +144,12 @@ export const AccountBalance: React.FC = () => {
 
   return (
     <div className="space-y-4">
-      {/* Total Balance Card */}
+      {/* HEZ Balance Card */}
       <Card className="bg-gradient-to-br from-green-900/30 to-yellow-900/30 border-green-500/30">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg font-medium text-gray-300">
-              Total Balance
+              HEZ Balance
             </CardTitle>
             <Button
               variant="ghost"
@@ -150,6 +194,26 @@ export const AccountBalance: React.FC = () => {
                   {balance.reserved} HEZ
                 </div>
               </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* PEZ Balance Card */}
+      <Card className="bg-gradient-to-br from-blue-900/30 to-purple-900/30 border-blue-500/30">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg font-medium text-gray-300">
+            PEZ Token Balance
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div>
+            <div className="text-4xl font-bold text-white mb-1">
+              {isLoading ? '...' : pezBalance}
+              <span className="text-2xl text-gray-400 ml-2">PEZ</span>
+            </div>
+            <div className="text-sm text-gray-400">
+              Governance & Rewards Token
             </div>
           </div>
         </CardContent>
