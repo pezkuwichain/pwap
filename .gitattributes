@@ -9,10 +9,13 @@
 # Prevent .env files from being merged
 # Always use local version (ours) in case of conflict
 .env merge=ours
-.env.* merge=ours
+.env.local merge=ours
+.env.production merge=ours
+.env.staging merge=ours
+.env.development merge=ours
 
-# But allow .env.example to be merged normally
-!.env.example
+# Allow .env.example to be merged normally (no special handling needed)
+# .env.example uses default merge strategy
 
 # ========================================
 # SENSITIVE FILES - NO DIFF
