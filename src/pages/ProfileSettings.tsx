@@ -80,8 +80,9 @@ export default function ProfileSettings() {
   const updateProfile = async () => {
     setLoading(true);
     try {
-      const updateData = {
-        username: profile.username,
+      const profileData = {
+        id: user?.id,
+        username: profile.username || '',
         full_name: profile.full_name,
         bio: profile.bio,
         phone_number: profile.phone_number,
@@ -92,17 +93,20 @@ export default function ProfileSettings() {
         updated_at: new Date().toISOString()
       };
 
-      console.log('💾 SAVING PROFILE DATA:', updateData);
+      console.log('💾 UPSERTING PROFILE DATA:', profileData);
       console.log('👤 User ID:', user?.id);
 
+      // Use upsert to create row if it doesn't exist, or update if it does
       const { data, error } = await supabase
         .from('profiles')
-        .update(updateData)
-        .eq('id', user?.id)
+        .upsert(profileData, {
+          onConflict: 'id',
+          ignoreDuplicates: false
+        })
         .select();
 
-      console.log('✅ Save response data:', data);
-      console.log('❌ Save error:', error);
+      console.log('✅ Upsert response data:', data);
+      console.log('❌ Upsert error:', error);
 
       if (error) throw error;
 
@@ -110,6 +114,9 @@ export default function ProfileSettings() {
         title: 'Success',
         description: 'Profile updated successfully',
       });
+
+      // Reload profile to ensure state is in sync
+      await loadProfile();
     } catch (error) {
       console.error('❌ Profile update failed:', error);
       toast({
