@@ -5,20 +5,29 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
+import { usePolkadot } from '@/contexts/PolkadotContext';
 import { supabase } from '@/lib/supabase';
-import { User, Mail, Phone, Globe, MapPin, Calendar, Shield, AlertCircle, ArrowLeft } from 'lucide-react';
+import { User, Mail, Phone, Globe, MapPin, Calendar, Shield, AlertCircle, ArrowLeft, Award } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { fetchUserTikis, calculateTikiScore, getPrimaryRole, getTikiDisplayName, getTikiColor, getTikiEmoji, getUserRoleCategories } from '@/lib/tiki';
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const { api, isApiReady, selectedAccount } = usePolkadot();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [tikis, setTikis] = useState<string[]>([]);
+  const [tikiScore, setTikiScore] = useState<number>(0);
+  const [loadingTikis, setLoadingTikis] = useState(false);
 
   useEffect(() => {
     fetchProfile();
-  }, [user]);
+    if (selectedAccount && api && isApiReady) {
+      fetchTikiData();
+    }
+  }, [user, selectedAccount, api, isApiReady]);
 
   const fetchProfile = async () => {
     if (!user) return;
@@ -39,25 +48,58 @@ export default function Dashboard() {
     }
   };
 
+  const fetchTikiData = async () => {
+    if (!selectedAccount || !api) return;
+
+    setLoadingTikis(true);
+    try {
+      const userTikis = await fetchUserTikis(api, selectedAccount.address);
+      setTikis(userTikis);
+      setTikiScore(calculateTikiScore(userTikis));
+    } catch (error) {
+      console.error('Error fetching tiki data:', error);
+    } finally {
+      setLoadingTikis(false);
+    }
+  };
+
   const sendVerificationEmail = async () => {
     try {
-      const { data, error } = await supabase.functions.invoke('email-verification', {
-        body: { action: 'send', email: user?.email }
+      // Supabase automatically sends verification email when updating email
+      // or we can trigger resend with updateUser
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: user?.email || '',
       });
 
       if (error) throw error;
-      
+
       toast({
         title: "Verification Email Sent",
         description: "Please check your email for verification link",
       });
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Error sending verification email:', error);
       toast({
         title: "Error",
-        description: "Failed to send verification email",
+        description: error.message || "Failed to send verification email",
         variant: "destructive"
       });
     }
+  };
+
+  const getRoleDisplay = (): string => {
+    if (loadingTikis) return 'Loading...';
+    if (!selectedAccount) return 'Member';
+    if (tikis.length === 0) return 'Member';
+
+    const primaryRole = getPrimaryRole(tikis);
+    return getTikiDisplayName(primaryRole);
+  };
+
+  const getRoleCategories = (): string[] => {
+    if (tikis.length === 0) return ['Member'];
+    return getUserRoleCategories(tikis);
   };
 
   if (loading) {
@@ -74,7 +116,7 @@ export default function Dashboard() {
       </button>
       <h1 className="text-3xl font-bold mb-6">User Dashboard</h1>
       
-      <div className="grid gap-6 md:grid-cols-3 mb-6">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Account Status</CardTitle>
@@ -116,10 +158,25 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {profile?.role || 'Member'}
+              {getRoleDisplay()}
             </div>
             <p className="text-xs text-muted-foreground">
-              Account type
+              {selectedAccount ? 'From Tiki NFTs' : 'Connect wallet for roles'}
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Tiki Score</CardTitle>
+            <Award className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {loadingTikis ? '...' : tikiScore}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {tikis.length} {tikis.length === 1 ? 'role' : 'roles'} assigned
             </p>
           </CardContent>
         </Card>
@@ -128,6 +185,7 @@ export default function Dashboard() {
       <Tabs defaultValue="profile" className="space-y-4">
         <TabsList>
           <TabsTrigger value="profile">Profile</TabsTrigger>
+          <TabsTrigger value="roles">Roles & Tikis</TabsTrigger>
           <TabsTrigger value="security">Security</TabsTrigger>
           <TabsTrigger value="activity">Activity</TabsTrigger>
         </TabsList>
@@ -179,7 +237,94 @@ export default function Dashboard() {
                   <span>{profile?.location || 'Not set'}</span>
                 </div>
               </div>
-              <Button onClick={() => navigate('/settings')}>Edit Profile</Button>
+              <Button onClick={() => navigate('/profile/settings')}>Edit Profile</Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="roles" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Roles & Tikis</CardTitle>
+              <CardDescription>
+                {selectedAccount
+                  ? 'Your roles from the blockchain (Pallet-Tiki)'
+                  : 'Connect your wallet to view your roles'}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {!selectedAccount && (
+                <div className="text-center py-8">
+                  <Shield className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground mb-4">
+                    Connect your Polkadot wallet to view your on-chain roles
+                  </p>
+                  <Button onClick={() => navigate('/')}>
+                    Go to Home to Connect Wallet
+                  </Button>
+                </div>
+              )}
+
+              {selectedAccount && loadingTikis && (
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground">Loading roles from blockchain...</p>
+                </div>
+              )}
+
+              {selectedAccount && !loadingTikis && tikis.length === 0 && (
+                <div className="text-center py-8">
+                  <Award className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground mb-2">
+                    No roles assigned yet
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Complete KYC to become a Citizen (Hemwelatî)
+                  </p>
+                </div>
+              )}
+
+              {selectedAccount && !loadingTikis && tikis.length > 0 && (
+                <div className="space-y-4">
+                  <div className="grid gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">Primary Role:</span>
+                      <Badge className="text-lg">
+                        {getTikiEmoji(getPrimaryRole(tikis))} {getTikiDisplayName(getPrimaryRole(tikis))}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">Total Score:</span>
+                      <span className="text-lg font-bold text-purple-600">{tikiScore}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">Categories:</span>
+                      <span className="text-muted-foreground">{getRoleCategories().join(', ')}</span>
+                    </div>
+                  </div>
+
+                  <div className="border-t pt-4">
+                    <h4 className="font-medium mb-3">All Roles ({tikis.length})</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {tikis.map((tiki, index) => (
+                        <Badge
+                          key={index}
+                          variant="outline"
+                          className={getTikiColor(tiki)}
+                        >
+                          {getTikiEmoji(tiki)} {getTikiDisplayName(tiki)}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="border-t pt-4 bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
+                    <h4 className="font-medium mb-2">Blockchain Address</h4>
+                    <p className="text-sm text-muted-foreground font-mono break-all">
+                      {selectedAccount.address}
+                    </p>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
