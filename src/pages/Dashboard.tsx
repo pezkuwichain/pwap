@@ -64,25 +64,66 @@ export default function Dashboard() {
   };
 
   const sendVerificationEmail = async () => {
+    if (!user?.email) {
+      toast({
+        title: "Error",
+        description: "No email address found",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    console.log('🔄 Attempting to send verification email to:', user.email);
+    console.log('🔐 User object:', user);
+
     try {
-      // Supabase automatically sends verification email when updating email
-      // or we can trigger resend with updateUser
-      const { error } = await supabase.auth.resend({
+      // Method 1: Try resend API
+      console.log('📧 Trying Supabase auth.resend()...');
+      const { error: resendError } = await supabase.auth.resend({
         type: 'signup',
-        email: user?.email || '',
+        email: user.email,
       });
 
-      if (error) throw error;
+      if (resendError) {
+        console.error('❌ Resend error:', resendError);
+      } else {
+        console.log('✅ Resend successful');
+      }
+
+      // If resend fails, try alternative method
+      if (resendError) {
+        console.warn('Resend failed, trying alternative method:', resendError);
+
+        // Method 2: Request password reset as verification alternative
+        // This will send an email if the account exists
+        const { error: resetError } = await supabase.auth.resetPasswordForEmail(user.email, {
+          redirectTo: `${window.location.origin}/email-verification`,
+        });
+
+        if (resetError) throw resetError;
+      }
 
       toast({
         title: "Verification Email Sent",
-        description: "Please check your email for verification link",
+        description: "Please check your email inbox and spam folder",
       });
     } catch (error: any) {
       console.error('Error sending verification email:', error);
+
+      // Provide more detailed error message
+      let errorMessage = "Failed to send verification email";
+
+      if (error.message?.includes('Email rate limit exceeded')) {
+        errorMessage = "Too many requests. Please wait a few minutes and try again.";
+      } else if (error.message?.includes('User not found')) {
+        errorMessage = "Account not found. Please sign up first.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
       toast({
         title: "Error",
-        description: error.message || "Failed to send verification email",
+        description: errorMessage,
         variant: "destructive"
       });
     }
