@@ -42,14 +42,19 @@ export default function ProfileSettings() {
 
   const loadProfile = async () => {
     try {
-      const { data } = await supabase
+      console.log('📥 LOADING PROFILE in ProfileSettings for user:', user?.id);
+
+      const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user?.id)
         .single();
 
+      console.log('📊 LOADED PROFILE DATA:', data);
+      console.log('❌ Load error:', error);
+
       if (data) {
-        setProfile({
+        const profileState = {
           username: data.username || '',
           full_name: data.full_name || '',
           bio: data.bio || '',
@@ -62,30 +67,42 @@ export default function ProfileSettings() {
           notifications_push: data.notifications_push ?? false,
           notifications_sms: data.notifications_sms ?? false,
           two_factor_enabled: data.two_factor_enabled ?? false
-        });
+        };
+
+        console.log('✅ SETTING PROFILE STATE TO:', profileState);
+        setProfile(profileState);
       }
     } catch (error) {
-      console.error('Error loading profile:', error);
+      console.error('❌ Error loading profile:', error);
     }
   };
 
   const updateProfile = async () => {
     setLoading(true);
     try {
-      const { error } = await supabase
+      const updateData = {
+        username: profile.username,
+        full_name: profile.full_name,
+        bio: profile.bio,
+        phone_number: profile.phone_number,
+        location: profile.location,
+        website: profile.website,
+        language: profile.language,
+        theme: profile.theme,
+        updated_at: new Date().toISOString()
+      };
+
+      console.log('💾 SAVING PROFILE DATA:', updateData);
+      console.log('👤 User ID:', user?.id);
+
+      const { data, error } = await supabase
         .from('profiles')
-        .update({
-          username: profile.username,
-          full_name: profile.full_name,
-          bio: profile.bio,
-          phone_number: profile.phone_number,
-          location: profile.location,
-          website: profile.website,
-          language: profile.language,
-          theme: profile.theme,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', user?.id);
+        .update(updateData)
+        .eq('id', user?.id)
+        .select();
+
+      console.log('✅ Save response data:', data);
+      console.log('❌ Save error:', error);
 
       if (error) throw error;
 
@@ -94,6 +111,7 @@ export default function ProfileSettings() {
         description: 'Profile updated successfully',
       });
     } catch (error) {
+      console.error('❌ Profile update failed:', error);
       toast({
         title: 'Error',
         description: 'Failed to update profile',

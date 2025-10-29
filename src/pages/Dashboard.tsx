@@ -32,12 +32,17 @@ export default function Dashboard() {
   const fetchProfile = async () => {
     if (!user) return;
 
+    console.log('📥 FETCHING PROFILE for user:', user.id);
+
     try {
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
         .single();
+
+      console.log('📊 FETCHED PROFILE DATA:', data);
+      console.log('❌ Fetch error:', error);
 
       if (error) throw error;
 
@@ -78,9 +83,10 @@ export default function Dashboard() {
       // Note: Email verification is handled by Supabase Auth (user.email_confirmed_at)
       // We don't store it in profiles table to avoid duplication
 
+      console.log('✅ SETTING PROFILE STATE TO:', data);
       setProfile(data);
     } catch (error) {
-      console.error('Error fetching profile:', error);
+      console.error('❌ Error fetching profile:', error);
     } finally {
       setLoading(false);
     }
