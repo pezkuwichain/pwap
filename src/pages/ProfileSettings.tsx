@@ -23,7 +23,9 @@ export default function ProfileSettings() {
     username: '',
     full_name: '',
     bio: '',
-    phone: '',
+    phone_number: '',
+    location: '',
+    website: '',
     language: 'en',
     theme: 'light',
     notifications_email: true,
@@ -51,7 +53,9 @@ export default function ProfileSettings() {
           username: data.username || '',
           full_name: data.full_name || '',
           bio: data.bio || '',
-          phone: data.phone || '',
+          phone_number: data.phone_number || '',
+          location: data.location || '',
+          website: data.website || '',
           language: data.language || 'en',
           theme: data.theme || 'light',
           notifications_email: data.notifications_email ?? true,
@@ -74,7 +78,9 @@ export default function ProfileSettings() {
           username: profile.username,
           full_name: profile.full_name,
           bio: profile.bio,
-          phone: profile.phone,
+          phone_number: profile.phone_number,
+          location: profile.location,
+          website: profile.website,
           language: profile.language,
           theme: profile.theme,
           updated_at: new Date().toISOString()
@@ -247,9 +253,25 @@ export default function ProfileSettings() {
               <div>
                 <Label>Phone Number</Label>
                 <Input
-                  value={profile.phone}
-                  onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
+                  value={profile.phone_number}
+                  onChange={(e) => setProfile({ ...profile, phone_number: e.target.value })}
                   placeholder="+1234567890"
+                />
+              </div>
+              <div>
+                <Label>Location</Label>
+                <Input
+                  value={profile.location}
+                  onChange={(e) => setProfile({ ...profile, location: e.target.value })}
+                  placeholder="City, Country"
+                />
+              </div>
+              <div>
+                <Label>Website</Label>
+                <Input
+                  value={profile.website}
+                  onChange={(e) => setProfile({ ...profile, website: e.target.value })}
+                  placeholder="https://example.com"
                 />
               </div>
               <Button onClick={updateProfile} disabled={loading}>

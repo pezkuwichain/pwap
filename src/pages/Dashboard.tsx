@@ -41,6 +41,40 @@ export default function Dashboard() {
 
       if (error) throw error;
 
+      // Auto-sync user metadata from Auth to profiles if missing
+      if (data) {
+        const needsUpdate: any = {};
+
+        // Sync full_name from Auth metadata if not set in profiles
+        if (!data.full_name && user.user_metadata?.full_name) {
+          needsUpdate.full_name = user.user_metadata.full_name;
+        }
+
+        // Sync phone from Auth metadata if not set in profiles
+        if (!data.phone_number && user.user_metadata?.phone) {
+          needsUpdate.phone_number = user.user_metadata.phone;
+        }
+
+        // Sync email if not set
+        if (!data.email && user.email) {
+          needsUpdate.email = user.email;
+        }
+
+        // If there are fields to update, update the profile
+        if (Object.keys(needsUpdate).length > 0) {
+          console.log('🔄 Syncing profile from Auth metadata:', needsUpdate);
+          const { error: updateError } = await supabase
+            .from('profiles')
+            .update(needsUpdate)
+            .eq('id', user.id);
+
+          if (!updateError) {
+            // Update local state
+            Object.assign(data, needsUpdate);
+          }
+        }
+      }
+
       // Note: Email verification is handled by Supabase Auth (user.email_confirmed_at)
       // We don't store it in profiles table to avoid duplication
 
