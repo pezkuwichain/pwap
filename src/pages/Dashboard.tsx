@@ -41,18 +41,8 @@ export default function Dashboard() {
 
       if (error) throw error;
 
-      // Sync email_verified from Supabase Auth
-      const isEmailVerified = !!user.email_confirmed_at;
-
-      // Update profile with Auth's verification status if different
-      if (data && data.email_verified !== isEmailVerified) {
-        await supabase
-          .from('profiles')
-          .update({ email_verified: isEmailVerified })
-          .eq('id', user.id);
-
-        data.email_verified = isEmailVerified;
-      }
+      // Note: Email verification is handled by Supabase Auth (user.email_confirmed_at)
+      // We don't store it in profiles table to avoid duplication
 
       setProfile(data);
     } catch (error) {
