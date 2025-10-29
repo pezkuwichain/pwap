@@ -80,8 +80,7 @@ export default function ProfileSettings() {
   const updateProfile = async () => {
     setLoading(true);
     try {
-      const profileData = {
-        id: user?.id,
+      console.log('💾 CALLING UPSERT FUNCTION with data:', {
         username: profile.username || '',
         full_name: profile.full_name,
         bio: profile.bio,
@@ -89,24 +88,27 @@ export default function ProfileSettings() {
         location: profile.location,
         website: profile.website,
         language: profile.language,
-        theme: profile.theme,
-        updated_at: new Date().toISOString()
-      };
-
-      console.log('💾 UPSERTING PROFILE DATA:', profileData);
+        theme: profile.theme
+      });
       console.log('👤 User ID:', user?.id);
 
-      // Use upsert to create row if it doesn't exist, or update if it does
-      const { data, error } = await supabase
-        .from('profiles')
-        .upsert(profileData, {
-          onConflict: 'id',
-          ignoreDuplicates: false
-        })
-        .select();
+      // Call the secure upsert function
+      const { data, error } = await supabase.rpc('upsert_user_profile', {
+        p_username: profile.username || '',
+        p_full_name: profile.full_name || null,
+        p_bio: profile.bio || null,
+        p_phone_number: profile.phone_number || null,
+        p_location: profile.location || null,
+        p_website: profile.website || null,
+        p_language: profile.language || 'en',
+        p_theme: profile.theme || 'dark',
+        p_notifications_email: profile.notifications_email ?? true,
+        p_notifications_push: profile.notifications_push ?? false,
+        p_notifications_sms: profile.notifications_sms ?? false
+      });
 
-      console.log('✅ Upsert response data:', data);
-      console.log('❌ Upsert error:', error);
+      console.log('✅ Function response data:', data);
+      console.log('❌ Function error:', error);
 
       if (error) throw error;
 
@@ -117,11 +119,11 @@ export default function ProfileSettings() {
 
       // Reload profile to ensure state is in sync
       await loadProfile();
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Profile update failed:', error);
       toast({
         title: 'Error',
-        description: 'Failed to update profile',
+        description: error?.message || 'Failed to update profile',
         variant: 'destructive',
       });
     } finally {
@@ -132,15 +134,20 @@ export default function ProfileSettings() {
   const updateNotificationSettings = async () => {
     setLoading(true);
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          notifications_email: profile.notifications_email,
-          notifications_push: profile.notifications_push,
-          notifications_sms: profile.notifications_sms,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', user?.id);
+      // Call the upsert function with current profile data + notification settings
+      const { data, error } = await supabase.rpc('upsert_user_profile', {
+        p_username: profile.username || '',
+        p_full_name: profile.full_name || null,
+        p_bio: profile.bio || null,
+        p_phone_number: profile.phone_number || null,
+        p_location: profile.location || null,
+        p_website: profile.website || null,
+        p_language: profile.language || 'en',
+        p_theme: profile.theme || 'dark',
+        p_notifications_email: profile.notifications_email ?? true,
+        p_notifications_push: profile.notifications_push ?? false,
+        p_notifications_sms: profile.notifications_sms ?? false
+      });
 
       if (error) throw error;
 
@@ -148,10 +155,10 @@ export default function ProfileSettings() {
         title: 'Success',
         description: 'Notification settings updated',
       });
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: 'Error',
-        description: 'Failed to update notification settings',
+        description: error?.message || 'Failed to update notification settings',
         variant: 'destructive',
       });
     } finally {
