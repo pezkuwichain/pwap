@@ -31,7 +31,7 @@ export default function Dashboard() {
 
   const fetchProfile = async () => {
     if (!user) return;
-    
+
     try {
       const { data, error } = await supabase
         .from('profiles')
@@ -40,6 +40,20 @@ export default function Dashboard() {
         .single();
 
       if (error) throw error;
+
+      // Sync email_verified from Supabase Auth
+      const isEmailVerified = !!user.email_confirmed_at;
+
+      // Update profile with Auth's verification status if different
+      if (data && data.email_verified !== isEmailVerified) {
+        await supabase
+          .from('profiles')
+          .update({ email_verified: isEmailVerified })
+          .eq('id', user.id);
+
+        data.email_verified = isEmailVerified;
+      }
+
       setProfile(data);
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -165,14 +179,16 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {profile?.email_verified ? (
+              {user?.email_confirmed_at || profile?.email_verified ? (
                 <Badge className="bg-green-500">Verified</Badge>
               ) : (
                 <Badge variant="destructive">Unverified</Badge>
               )}
             </div>
             <p className="text-xs text-muted-foreground">
-              Email verification status
+              {user?.email_confirmed_at
+                ? `Verified on ${new Date(user.email_confirmed_at).toLocaleDateString()}`
+                : 'Email verification status'}
             </p>
           </CardContent>
         </Card>
@@ -248,7 +264,9 @@ export default function Dashboard() {
                   <Mail className="h-4 w-4 text-muted-foreground" />
                   <span className="font-medium">Email:</span>
                   <span>{user?.email}</span>
-                  {!profile?.email_verified && (
+                  {user?.email_confirmed_at || profile?.email_verified ? (
+                    <Badge className="bg-green-500">Verified</Badge>
+                  ) : (
                     <Button size="sm" variant="outline" onClick={sendVerificationEmail}>
                       Verify Email
                     </Button>
@@ -258,7 +276,7 @@ export default function Dashboard() {
                   <Mail className="h-4 w-4 text-muted-foreground" />
                   <span className="font-medium">Recovery Email:</span>
                   <span>{profile?.recovery_email || 'Not set'}</span>
-                  {profile?.recovery_email_verified && (
+                  {profile?.recovery_email_verified && profile?.recovery_email && (
                     <Badge className="bg-green-500">Verified</Badge>
                   )}
                 </div>
@@ -383,7 +401,7 @@ export default function Dashboard() {
                 <Button onClick={() => navigate('/reset-password')}>Change Password</Button>
               </div>
               
-              {!profile?.email_verified && (
+              {!user?.email_confirmed_at && !profile?.email_verified && (
                 <div className="border-l-4 border-yellow-500 bg-yellow-50 p-4 text-gray-900">
                   <div className="flex items-center">
                     <AlertCircle className="h-5 w-5 text-yellow-600 mr-2" />
