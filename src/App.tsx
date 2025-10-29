@@ -39,7 +39,7 @@ function App() {
                         <Dashboard />
                       </ProtectedRoute>
                     } />
-                    <Route path="/profile-settings" element={
+                    <Route path="/profile/settings" element={
                       <ProtectedRoute>
                         <ProfileSettings />
                       </ProtectedRoute>

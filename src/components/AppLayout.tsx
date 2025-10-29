@@ -192,8 +192,8 @@ const AppLayout: React.FC = () => {
                     </div>
                   </div>
 
-                  <button 
-                    onClick={() => navigate('/profile-settings')}
+                  <button
+                    onClick={() => navigate('/profile/settings')}
                     className="text-gray-300 hover:text-white transition-colors flex items-center gap-1 text-sm"
                   >
                     <Settings className="w-4 h-4" />
