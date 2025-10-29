@@ -42,19 +42,19 @@ export default function ProfileSettings() {
 
   const loadProfile = async () => {
     try {
-      console.log('📥 LOADING PROFILE in ProfileSettings for user:', user?.id);
-
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user?.id)
         .single();
 
-      console.log('📊 LOADED PROFILE DATA:', data);
-      console.log('❌ Load error:', error);
+      if (error) {
+        console.error('Error loading profile:', error);
+        return;
+      }
 
       if (data) {
-        const profileState = {
+        setProfile({
           username: data.username || '',
           full_name: data.full_name || '',
           bio: data.bio || '',
@@ -67,31 +67,16 @@ export default function ProfileSettings() {
           notifications_push: data.notifications_push ?? false,
           notifications_sms: data.notifications_sms ?? false,
           two_factor_enabled: data.two_factor_enabled ?? false
-        };
-
-        console.log('✅ SETTING PROFILE STATE TO:', profileState);
-        setProfile(profileState);
+        });
       }
     } catch (error) {
-      console.error('❌ Error loading profile:', error);
+      console.error('Error loading profile:', error);
     }
   };
 
   const updateProfile = async () => {
     setLoading(true);
     try {
-      console.log('💾 CALLING UPSERT FUNCTION with data:', {
-        username: profile.username || '',
-        full_name: profile.full_name,
-        bio: profile.bio,
-        phone_number: profile.phone_number,
-        location: profile.location,
-        website: profile.website,
-        language: profile.language,
-        theme: profile.theme
-      });
-      console.log('👤 User ID:', user?.id);
-
       // Call the secure upsert function
       const { data, error } = await supabase.rpc('upsert_user_profile', {
         p_username: profile.username || '',
@@ -107,9 +92,6 @@ export default function ProfileSettings() {
         p_notifications_sms: profile.notifications_sms ?? false
       });
 
-      console.log('✅ Function response data:', data);
-      console.log('❌ Function error:', error);
-
       if (error) throw error;
 
       toast({
@@ -120,7 +102,7 @@ export default function ProfileSettings() {
       // Reload profile to ensure state is in sync
       await loadProfile();
     } catch (error: any) {
-      console.error('❌ Profile update failed:', error);
+      console.error('Profile update failed:', error);
       toast({
         title: 'Error',
         description: error?.message || 'Failed to update profile',
