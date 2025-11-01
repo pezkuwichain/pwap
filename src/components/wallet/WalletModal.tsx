@@ -62,7 +62,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
       }
 
       try {
-        const score = await api.query.trust.trustScoreOf(selectedAccount.address);
+        const score = await api.query.trust.trustScores(selectedAccount.address);
         setTrustScore(score.toString());
         console.log('✅ Trust score fetched:', score.toString());
       } catch (err) {
