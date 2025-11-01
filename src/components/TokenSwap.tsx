@@ -10,6 +10,7 @@ import { usePolkadot } from '@/contexts/PolkadotContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { ASSET_IDS, formatBalance, parseAmount } from '@/lib/wallet';
 import { useToast } from '@/hooks/use-toast';
+import { KurdistanSun } from './KurdistanSun';
 
 const TokenSwap = () => {
   const { api, isApiReady, selectedAccount } = usePolkadot();
@@ -330,6 +331,7 @@ const TokenSwap = () => {
     }
 
     setIsSwapping(true);
+    setShowConfirm(false); // Close dialog before transaction starts
     try {
       const amountIn = parseAmount(fromAmount, 12);
       const minAmountOut = parseAmount(
@@ -447,7 +449,6 @@ const TokenSwap = () => {
                 description: `Swapped ${fromAmount} ${fromToken} for ~${toAmount} ${toToken}`,
               });
 
-              setShowConfirm(false);
               setFromAmount('');
 
               // Refresh balances without page reload
@@ -513,6 +514,18 @@ const TokenSwap = () => {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Kurdistan Sun Animation Overlay during swap (only after confirm dialog is closed) */}
+      {isSwapping && !showConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-4">
+            <KurdistanSun size={300} />
+            <p className="text-white text-xl font-semibold animate-pulse">
+              Processing your swap...
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="lg:col-span-2 space-y-6">
         <Card className="p-6">
           <div className="flex justify-between items-center mb-6">
