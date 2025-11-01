@@ -370,9 +370,32 @@ const TokenSwap = () => {
               if (api.events.assetConversion?.SwapExecuted?.is(event)) {
                 const [who, path, amountIn, amountOut] = event.data;
 
-                // Parse path to get token symbols
-                const fromAssetId = path[0]?.nativeOrAsset?.asset?.toNumber() || 0;
-                const toAssetId = path[1]?.nativeOrAsset?.asset?.toNumber() || 0;
+                // Parse path to get token symbols - path is Vec<MultiAsset>
+                let fromAssetId = 0;
+                let toAssetId = 0;
+
+                try {
+                  // Try different path formats
+                  const pathArray = path.toJSON ? path.toJSON() : path;
+
+                  if (Array.isArray(pathArray) && pathArray.length >= 2) {
+                    // Extract asset IDs from path
+                    const asset0 = pathArray[0];
+                    const asset1 = pathArray[1];
+
+                    // Handle different enum formats
+                    if (typeof asset0 === 'object') {
+                      fromAssetId = asset0.nativeOrAsset?.asset || asset0.NativeOrAsset?.Asset || 0;
+                    }
+                    if (typeof asset1 === 'object') {
+                      toAssetId = asset1.nativeOrAsset?.asset || asset1.NativeOrAsset?.Asset || 0;
+                    }
+                  }
+
+                  console.log('🔍 Parsed swap path:', { pathArray, fromAssetId, toAssetId });
+                } catch (err) {
+                  console.warn('Failed to parse path:', err);
+                }
 
                 const fromTokenSymbol = fromAssetId === 0 ? 'wHEZ' : fromAssetId === 1 ? 'PEZ' : `Asset${fromAssetId}`;
                 const toTokenSymbol = toAssetId === 0 ? 'wHEZ' : toAssetId === 1 ? 'PEZ' : `Asset${toAssetId}`;
@@ -591,10 +614,29 @@ const TokenSwap = () => {
                           const { event } = record;
                           if (api.events.assetConversion?.SwapExecuted?.is(event)) {
                             const [who, path, amountIn, amountOut] = event.data;
-                            const fromAssetId = path[0]?.nativeOrAsset?.asset?.toNumber() || 0;
-                            const toAssetId = path[1]?.nativeOrAsset?.asset?.toNumber() || 0;
+
+                            // Parse path (same logic as main history fetch)
+                            let fromAssetId = 0;
+                            let toAssetId = 0;
+                            try {
+                              const pathArray = path.toJSON ? path.toJSON() : path;
+                              if (Array.isArray(pathArray) && pathArray.length >= 2) {
+                                const asset0 = pathArray[0];
+                                const asset1 = pathArray[1];
+                                if (typeof asset0 === 'object') {
+                                  fromAssetId = asset0.nativeOrAsset?.asset || asset0.NativeOrAsset?.Asset || 0;
+                                }
+                                if (typeof asset1 === 'object') {
+                                  toAssetId = asset1.nativeOrAsset?.asset || asset1.NativeOrAsset?.Asset || 0;
+                                }
+                              }
+                            } catch (err) {
+                              console.warn('Failed to parse path in refresh:', err);
+                            }
+
                             const fromTokenSymbol = fromAssetId === 0 ? 'wHEZ' : fromAssetId === 1 ? 'PEZ' : `Asset${fromAssetId}`;
                             const toTokenSymbol = toAssetId === 0 ? 'wHEZ' : toAssetId === 1 ? 'PEZ' : `Asset${toAssetId}`;
+
                             if (who.toString() === selectedAccount.address) {
                               transactions.push({
                                 blockNumber: blockNum,
