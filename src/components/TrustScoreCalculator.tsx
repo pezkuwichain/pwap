@@ -2,12 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { Calculator, TrendingUp, Users, BookOpen, Award } from 'lucide-react';
 
 const TrustScoreCalculator: React.FC = () => {
-  const [stakingScore, setStakingScore] = useState(50);
+  const [stakedAmount, setStakedAmount] = useState(100);
   const [stakingMonths, setStakingMonths] = useState(6);
   const [referralCount, setReferralCount] = useState(5);
   const [perwerdeScore, setPerwerdeScore] = useState(30);
   const [tikiScore, setTikiScore] = useState(40);
   const [finalScore, setFinalScore] = useState(0);
+
+  // Calculate base amount score based on pallet_staking_score logic
+  const getAmountScore = (amount: number) => {
+    if (amount <= 100) return 20;
+    if (amount <= 250) return 30;
+    if (amount <= 750) return 40;
+    return 50; // 751+ HEZ
+  };
 
   // Calculate staking multiplier based on months
   const getStakingMultiplier = (months: number) => {
@@ -27,19 +35,20 @@ const TrustScoreCalculator: React.FC = () => {
   };
 
   useEffect(() => {
+    const amountScore = getAmountScore(stakedAmount);
     const multiplier = getStakingMultiplier(stakingMonths);
-    const adjustedStaking = Math.min(stakingScore * multiplier, 100);
+    const adjustedStaking = Math.min(amountScore * multiplier, 100);
     const adjustedReferral = getReferralScore(referralCount);
-    
-    const weightedSum = 
-      adjustedStaking * 100 + 
-      adjustedReferral * 300 + 
-      perwerdeScore * 300 + 
+
+    const weightedSum =
+      adjustedStaking * 100 +
+      adjustedReferral * 300 +
+      perwerdeScore * 300 +
       tikiScore * 300;
-    
+
     const score = (adjustedStaking * weightedSum) / 1000;
     setFinalScore(Math.round(score));
-  }, [stakingScore, stakingMonths, referralCount, perwerdeScore, tikiScore]);
+  }, [stakedAmount, stakingMonths, referralCount, perwerdeScore, tikiScore]);
 
   return (
     <section className="py-20 bg-gray-950">
@@ -60,24 +69,24 @@ const TrustScoreCalculator: React.FC = () => {
             <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl border border-gray-800 p-6">
               <div className="flex items-center mb-4">
                 <TrendingUp className="w-5 h-5 text-purple-400 mr-3" />
-                <h3 className="text-lg font-semibold text-white">Staking Score</h3>
+                <h3 className="text-lg font-semibold text-white">Staking Amount</h3>
               </div>
-              
+
               <div className="space-y-4">
                 <div>
-                  <label className="text-gray-400 text-sm">Base Staking Score (0-100)</label>
+                  <label className="text-gray-400 text-sm">Staked Amount (HEZ)</label>
                   <input
                     type="range"
                     min="0"
-                    max="100"
-                    value={stakingScore}
-                    onChange={(e) => setStakingScore(parseInt(e.target.value))}
+                    max="1000"
+                    step="10"
+                    value={stakedAmount}
+                    onChange={(e) => setStakedAmount(parseInt(e.target.value))}
                     className="w-full mt-2"
                   />
-                  <div className="flex justify-between text-xs text-gray-500 mt-1">
-                    <span>0</span>
-                    <span>{stakingScore}</span>
-                    <span>100</span>
+                  <div className="flex justify-between items-center mt-2">
+                    <span className="text-cyan-400">{stakedAmount} HEZ</span>
+                    <span className="text-purple-400">Score: {getAmountScore(stakedAmount)}</span>
                   </div>
                 </div>
                 
@@ -200,7 +209,7 @@ const TrustScoreCalculator: React.FC = () => {
               <div className="mt-4 space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-400">Staking Component:</span>
-                  <span className="text-purple-400">{Math.round(stakingScore * getStakingMultiplier(stakingMonths))} × 100</span>
+                  <span className="text-purple-400">{Math.min(Math.round(getAmountScore(stakedAmount) * getStakingMultiplier(stakingMonths)), 100)} × 100</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-400">Referral Component:</span>
