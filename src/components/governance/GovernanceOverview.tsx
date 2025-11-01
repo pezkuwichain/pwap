@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
-import { 
-  Vote, Users, Gavel, FileText, TrendingUpIcon, 
-  Clock, CheckCircle, XCircle, AlertCircle, 
+import React, { useState, useEffect } from 'react';
+import {
+  Vote, Users, Gavel, FileText, TrendingUpIcon,
+  Clock, CheckCircle, XCircle, AlertCircle,
   BarChart3, PieChart, Activity, Shield
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Progress } from '../ui/progress';
+import { usePolkadot } from '../../contexts/PolkadotContext';
+import { formatBalance } from '../../lib/wallet';
 
 interface GovernanceStats {
   activeProposals: number;
@@ -20,16 +22,89 @@ interface GovernanceStats {
 }
 
 const GovernanceOverview: React.FC = () => {
-  const [stats] = useState<GovernanceStats>({
-    activeProposals: 12,
-    activeElections: 2,
-    totalVoters: 15234,
-    participationRate: 68.5,
-    parliamentMembers: 27,
-    diwanMembers: 9,
-    nextElection: '15 days',
-    treasuryBalance: '2.5M PEZ'
+  const { api, isApiReady } = usePolkadot();
+  const [stats, setStats] = useState<GovernanceStats>({
+    activeProposals: 0,
+    activeElections: 0,
+    totalVoters: 0,
+    participationRate: 0,
+    parliamentMembers: 0,
+    diwanMembers: 0,
+    nextElection: '-',
+    treasuryBalance: '0 HEZ'
   });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchGovernanceData = async () => {
+      if (!api || !isApiReady) {
+        console.log('API not ready for governance data');
+        return;
+      }
+
+      try {
+        console.log('📊 Fetching governance data from blockchain...');
+        setLoading(true);
+
+        // Fetch active referenda (proposals)
+        let activeProposals = 0;
+        try {
+          const referendaCount = await api.query.referenda.referendumCount();
+          console.log('Referenda count:', referendaCount.toNumber());
+          activeProposals = referendaCount.toNumber();
+        } catch (err) {
+          console.warn('Failed to fetch referenda count:', err);
+        }
+
+        // Fetch treasury balance
+        let treasuryBalance = '0 HEZ';
+        try {
+          const treasuryAccount = await api.query.system.account(
+            '5EYCAe5ijiYfyeZ2JJCGq56LmPyNRAKzpG4QkoQkkQNB5e6Z' // Treasury pallet address
+          );
+          const balance = treasuryAccount.data.free.toString();
+          treasuryBalance = `${formatBalance(balance)} HEZ`;
+          console.log('Treasury balance:', treasuryBalance);
+        } catch (err) {
+          console.warn('Failed to fetch treasury balance:', err);
+        }
+
+        // Fetch council members
+        let parliamentMembers = 0;
+        try {
+          const members = await api.query.council.members();
+          parliamentMembers = members.length;
+          console.log('Council members:', parliamentMembers);
+        } catch (err) {
+          console.warn('Failed to fetch council members:', err);
+        }
+
+        // Update stats
+        setStats({
+          activeProposals,
+          activeElections: 0, // Not implemented yet
+          totalVoters: 0, // Will be calculated from conviction voting
+          participationRate: 0,
+          parliamentMembers,
+          diwanMembers: 0, // Not implemented yet
+          nextElection: '-',
+          treasuryBalance
+        });
+
+        console.log('✅ Governance data updated:', {
+          activeProposals,
+          parliamentMembers,
+          treasuryBalance
+        });
+      } catch (error) {
+        console.error('Failed to fetch governance data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGovernanceData();
+  }, [api, isApiReady]);
 
   const [recentActivity] = useState([
     { type: 'proposal', action: 'New proposal submitted', title: 'Treasury Allocation Update', time: '2 hours ago' },
