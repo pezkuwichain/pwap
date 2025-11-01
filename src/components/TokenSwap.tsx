@@ -11,6 +11,8 @@ import { useWallet } from '@/contexts/WalletContext';
 import { ASSET_IDS, formatBalance, parseAmount } from '@/lib/wallet';
 import { useToast } from '@/hooks/use-toast';
 import { KurdistanSun } from './KurdistanSun';
+import { PriceChart } from './trading/PriceChart';
+import { LimitOrders } from './trading/LimitOrders';
 
 const TokenSwap = () => {
   const { api, isApiReady, selectedAccount } = usePolkadot();
@@ -693,6 +695,15 @@ const TokenSwap = () => {
       )}
 
       <div className="lg:col-span-2 space-y-6">
+        {/* Price Chart */}
+        {exchangeRate > 0 && (
+          <PriceChart
+            fromToken={fromToken}
+            toToken={toToken}
+            currentPrice={exchangeRate}
+          />
+        )}
+
         <Card className="p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold">Token Swap</h2>
@@ -876,6 +887,13 @@ const TokenSwap = () => {
             </div>
           )}
         </Card>
+
+        {/* Limit Orders Section */}
+        <LimitOrders
+          fromToken={fromToken}
+          toToken={toToken}
+          currentPrice={exchangeRate}
+        />
       </div>
 
       <div>

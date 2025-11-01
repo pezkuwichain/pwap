@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowUpDown, Search, Filter, TrendingUp, TrendingDown, User, Shield, Clock, DollarSign, Plus, X, SlidersHorizontal } from 'lucide-react';
+import { ArrowUpDown, Search, Filter, TrendingUp, TrendingDown, User, Shield, Clock, DollarSign, Plus, X, SlidersHorizontal, Lock, CheckCircle, AlertCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 interface P2POffer {
@@ -151,9 +151,34 @@ export const P2PMarket: React.FC = () => {
       return 0;
     });
 
+  // Escrow state
+  const [showEscrow, setShowEscrow] = useState(false);
+  const [escrowStep, setEscrowStep] = useState<'funding' | 'confirmation' | 'release'>('funding');
+  const [escrowOffer, setEscrowOffer] = useState<P2POffer | null>(null);
+
   const handleTrade = (offer: P2POffer) => {
     console.log('Initiating trade:', tradeAmount, offer.token, 'with', offer.seller.name);
-    // Implement trade logic
+    setEscrowOffer(offer);
+    setShowEscrow(true);
+    setEscrowStep('funding');
+  };
+
+  const handleEscrowFund = () => {
+    console.log('Funding escrow with:', tradeAmount, escrowOffer?.token);
+    setEscrowStep('confirmation');
+  };
+
+  const handleEscrowConfirm = () => {
+    console.log('Confirming payment received');
+    setEscrowStep('release');
+  };
+
+  const handleEscrowRelease = () => {
+    console.log('Releasing escrow funds');
+    setShowEscrow(false);
+    setSelectedOffer(null);
+    setEscrowOffer(null);
+    setEscrowStep('funding');
   };
 
   return (
@@ -583,11 +608,189 @@ export const P2PMarket: React.FC = () => {
         </Card>
       )}
 
+      {/* Escrow Modal (Binance P2P Escrow style) */}
+      {showEscrow && escrowOffer && (
+        <Card className="bg-gray-900 border-gray-800 fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-2xl">
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <CardTitle className="flex items-center gap-2">
+                <Lock className="w-5 h-5 text-blue-400" />
+                Secure Escrow Trade
+              </CardTitle>
+              <Button variant="ghost" size="icon" onClick={() => setShowEscrow(false)}>
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+            <CardDescription>
+              Trade safely with escrow protection • {activeTab === 'buy' ? 'Buying' : 'Selling'} {escrowOffer.token}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Escrow Steps Indicator */}
+            <div className="flex justify-between items-center">
+              {[
+                { step: 'funding', label: 'Fund Escrow', icon: Lock },
+                { step: 'confirmation', label: 'Payment', icon: Clock },
+                { step: 'release', label: 'Complete', icon: CheckCircle }
+              ].map((item, idx) => (
+                <div key={item.step} className="flex-1 flex flex-col items-center">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                    escrowStep === item.step ? 'bg-blue-600' :
+                    ['funding', 'confirmation', 'release'].indexOf(escrowStep) > idx ? 'bg-green-600' : 'bg-gray-700'
+                  }`}>
+                    <item.icon className="w-5 h-5 text-white" />
+                  </div>
+                  <span className="text-xs text-gray-400 mt-2">{item.label}</span>
+                  {idx < 2 && (
+                    <div className={`absolute w-32 h-0.5 mt-5 ${
+                      ['funding', 'confirmation', 'release'].indexOf(escrowStep) > idx ? 'bg-green-600' : 'bg-gray-700'
+                    }`} style={{ left: `calc(${(idx + 1) * 33.33}% - 64px)` }}></div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Trade Details Card */}
+            <Card className="bg-gray-800 border-gray-700 p-4">
+              <h4 className="font-semibold text-white mb-3">Trade Details</h4>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Seller</span>
+                  <span className="text-white font-semibold">{escrowOffer.seller.name}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Amount</span>
+                  <span className="text-white font-semibold">{tradeAmount} {escrowOffer.token}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Price per {escrowOffer.token}</span>
+                  <span className="text-white font-semibold">${escrowOffer.price}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Payment Method</span>
+                  <span className="text-white font-semibold">{escrowOffer.paymentMethod}</span>
+                </div>
+                <div className="flex justify-between pt-2 border-t border-gray-700">
+                  <span className="text-gray-400">Total</span>
+                  <span className="text-lg font-bold text-white">
+                    ${(parseFloat(tradeAmount || '0') * escrowOffer.price).toFixed(2)}
+                  </span>
+                </div>
+              </div>
+            </Card>
+
+            {/* Step Content */}
+            {escrowStep === 'funding' && (
+              <div className="space-y-4">
+                <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4">
+                  <div className="flex gap-3">
+                    <Shield className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+                    <div className="text-sm text-blue-200">
+                      <strong>Escrow Protection:</strong> Your funds will be held securely in smart contract escrow until both parties confirm the trade. This protects both buyer and seller.
+                    </div>
+                  </div>
+                </div>
+
+                <div className="text-sm text-gray-400">
+                  1. Fund the escrow with {tradeAmount} {escrowOffer.token}<br />
+                  2. Wait for seller to provide payment details<br />
+                  3. Complete payment via {escrowOffer.paymentMethod}<br />
+                  4. Confirm payment to release escrow
+                </div>
+
+                <Button
+                  onClick={handleEscrowFund}
+                  className="w-full bg-blue-600 hover:bg-blue-700"
+                >
+                  Fund Escrow ({tradeAmount} {escrowOffer.token})
+                </Button>
+              </div>
+            )}
+
+            {escrowStep === 'confirmation' && (
+              <div className="space-y-4">
+                <div className="bg-yellow-900/20 border border-yellow-500/30 rounded-lg p-4">
+                  <div className="flex gap-3">
+                    <Clock className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
+                    <div className="text-sm text-yellow-200">
+                      <strong>Waiting for Payment:</strong> Complete your {escrowOffer.paymentMethod} payment and click confirm when done. Do not release escrow until payment is verified!
+                    </div>
+                  </div>
+                </div>
+
+                <Card className="bg-gray-800 border-gray-700 p-4">
+                  <h4 className="font-semibold text-white mb-2">Payment Instructions</h4>
+                  <div className="text-sm text-gray-300 space-y-1">
+                    <p>• Payment Method: {escrowOffer.paymentMethod}</p>
+                    <p>• Amount: ${(parseFloat(tradeAmount || '0') * escrowOffer.price).toFixed(2)}</p>
+                    <p>• Time Limit: {escrowOffer.timeLimit} minutes</p>
+                  </div>
+                </Card>
+
+                <div className="flex gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setShowEscrow(false);
+                      setEscrowStep('funding');
+                    }}
+                    className="flex-1"
+                  >
+                    Cancel Trade
+                  </Button>
+                  <Button
+                    onClick={handleEscrowConfirm}
+                    className="flex-1 bg-green-600 hover:bg-green-700"
+                  >
+                    I've Made Payment
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {escrowStep === 'release' && (
+              <div className="space-y-4">
+                <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-4">
+                  <div className="flex gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
+                    <div className="text-sm text-green-200">
+                      <strong>Payment Confirmed:</strong> Your payment has been verified. The escrow will be released to the seller automatically.
+                    </div>
+                  </div>
+                </div>
+
+                <Card className="bg-gray-800 border-gray-700 p-4">
+                  <h4 className="font-semibold text-white mb-2">Trade Summary</h4>
+                  <div className="text-sm text-gray-300 space-y-1">
+                    <p>✅ Escrow Funded: {tradeAmount} {escrowOffer.token}</p>
+                    <p>✅ Payment Sent: ${(parseFloat(tradeAmount || '0') * escrowOffer.price).toFixed(2)}</p>
+                    <p>✅ Payment Verified</p>
+                    <p className="text-green-400 font-semibold mt-2">🎉 Trade Completed Successfully!</p>
+                  </div>
+                </Card>
+
+                <Button
+                  onClick={handleEscrowRelease}
+                  className="w-full bg-green-600 hover:bg-green-700"
+                >
+                  Close & Release Escrow
+                </Button>
+              </div>
+            )}
+
+            <div className="text-xs text-gray-500 text-center">
+              Note: Smart contract escrow integration coming soon
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Overlay */}
-      {(showCreateOrder || selectedOffer) && (
+      {(showCreateOrder || selectedOffer || showEscrow) && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40" onClick={() => {
           setShowCreateOrder(false);
           setSelectedOffer(null);
+          setShowEscrow(false);
         }}></div>
       )}
     </div>
