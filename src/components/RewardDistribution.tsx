@@ -33,9 +33,9 @@ const RewardDistribution: React.FC = () => {
         </div>
 
         <div className="mb-8">
-          <img 
-            src="https://d64gsuwffb70l.cloudfront.net/68ec477a0a2fa844d6f9df15_1760315341305_1a772368.webp"
-            alt="Trust Score Network"
+          <img
+            src="/pezkuwichain_logo.png"
+            alt="PezkuwiChain Logo"
             className="w-full h-64 object-cover rounded-xl opacity-80"
           />
         </div>
