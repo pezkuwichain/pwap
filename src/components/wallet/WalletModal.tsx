@@ -56,17 +56,31 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
   // Fetch trust score from blockchain
   useEffect(() => {
     const fetchTrustScore = async () => {
+      console.log('🔍 Fetching trust score...', {
+        hasApi: !!api,
+        isApiReady,
+        hasAccount: !!selectedAccount,
+        address: selectedAccount?.address
+      });
+
       if (!api || !isApiReady || !selectedAccount?.address) {
+        console.log('⚠️ Cannot fetch trust score - missing requirements');
         setTrustScore('-');
         return;
       }
 
       try {
+        console.log('📡 Querying api.query.trust.trustScores...');
         const score = await api.query.trust.trustScores(selectedAccount.address);
-        setTrustScore(score.toString());
-        console.log('✅ Trust score fetched:', score.toString());
+        const scoreStr = score.toString();
+        setTrustScore(scoreStr);
+        console.log('✅ Trust score fetched successfully:', scoreStr);
       } catch (err) {
-        console.warn('Failed to fetch trust score:', err);
+        console.error('❌ Failed to fetch trust score:', err);
+        console.error('Error details:', {
+          message: err instanceof Error ? err.message : String(err),
+          stack: err instanceof Error ? err.stack : undefined
+        });
         setTrustScore('-');
       }
     };
