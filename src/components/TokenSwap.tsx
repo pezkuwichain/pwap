@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowDownUp, Settings, TrendingUp, Clock, AlertCircle } from 'lucide-react';
+import { ArrowDownUp, Settings, TrendingUp, Clock, AlertCircle, Info, AlertTriangle } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -43,12 +43,28 @@ const TokenSwap = () => {
   const [liquidityPools, setLiquidityPools] = useState<any[]>([]);
   const [isLoadingPools, setIsLoadingPools] = useState(false);
 
+  // Transaction history
+  interface SwapTransaction {
+    blockNumber: number;
+    timestamp: number;
+    from: string;
+    fromToken: string;
+    fromAmount: string;
+    toToken: string;
+    toAmount: string;
+    txHash: string;
+  }
+  const [swapHistory, setSwapHistory] = useState<SwapTransaction[]>([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+
   // Pool reserves for AMM calculation
   const [poolReserves, setPoolReserves] = useState<{ reserve0: number; reserve1: number; asset0: number; asset1: number } | null>(null);
 
-  // Calculate toAmount using AMM constant product formula
-  const toAmount = React.useMemo(() => {
-    if (!fromAmount || !poolReserves || parseFloat(fromAmount) <= 0) return '';
+  // Calculate toAmount and price impact using AMM constant product formula
+  const swapCalculations = React.useMemo(() => {
+    if (!fromAmount || !poolReserves || parseFloat(fromAmount) <= 0) {
+      return { toAmount: '', priceImpact: 0, minimumReceived: '', lpFee: '' };
+    }
 
     const amountIn = parseFloat(fromAmount);
     const { reserve0, reserve1, asset0, asset1 } = poolReserves;
@@ -70,6 +86,16 @@ const TokenSwap = () => {
     const denominator = reserveIn * 1000 + amountInWithFee;
     const amountOut = numerator / denominator;
 
+    // Calculate price impact (like Uniswap)
+    // Price impact = (amount_in / reserve_in) / (1 + amount_in / reserve_in) * 100
+    const priceImpact = (amountIn / (reserveIn + amountIn)) * 100;
+
+    // Calculate LP fee amount
+    const lpFeeAmount = (amountIn * (LP_FEE / 1000)).toFixed(4);
+
+    // Calculate minimum received with slippage
+    const minReceived = (amountOut * (1 - parseFloat(slippage) / 100)).toFixed(4);
+
     console.log('🔍 Uniswap V2 AMM:', {
       amountIn,
       amountInWithFee,
@@ -78,11 +104,21 @@ const TokenSwap = () => {
       numerator,
       denominator,
       amountOut,
+      priceImpact: priceImpact.toFixed(2) + '%',
+      lpFeeAmount,
+      minReceived,
       feePercent: LP_FEE / 10 + '%'
     });
 
-    return amountOut.toFixed(4);
-  }, [fromAmount, poolReserves, fromToken]);
+    return {
+      toAmount: amountOut.toFixed(4),
+      priceImpact,
+      minimumReceived: minReceived,
+      lpFee: lpFeeAmount
+    };
+  }, [fromAmount, poolReserves, fromToken, slippage]);
+
+  const { toAmount, priceImpact, minimumReceived, lpFee } = swapCalculations;
 
   // Check if AssetConversion pallet is available
   useEffect(() => {
@@ -296,6 +332,82 @@ const TokenSwap = () => {
     fetchLiquidityPools();
   }, [api, isApiReady, isDexAvailable]);
 
+  // Fetch swap transaction history
+  useEffect(() => {
+    const fetchSwapHistory = async () => {
+      if (!api || !isApiReady || !isDexAvailable || !selectedAccount) {
+        return;
+      }
+
+      setIsLoadingHistory(true);
+      try {
+        // Get recent finalized blocks (last 100 blocks)
+        const finalizedHead = await api.rpc.chain.getFinalizedHead();
+        const finalizedBlock = await api.rpc.chain.getBlock(finalizedHead);
+        const currentBlockNumber = finalizedBlock.block.header.number.toNumber();
+
+        const startBlock = Math.max(0, currentBlockNumber - 100);
+
+        console.log('🔍 Fetching swap history from block', startBlock, 'to', currentBlockNumber);
+
+        const transactions: SwapTransaction[] = [];
+
+        // Query block by block for SwapExecuted events
+        for (let blockNum = currentBlockNumber; blockNum >= startBlock && transactions.length < 10; blockNum--) {
+          try {
+            const blockHash = await api.rpc.chain.getBlockHash(blockNum);
+            const apiAt = await api.at(blockHash);
+            const events = await apiAt.query.system.events();
+            const block = await api.rpc.chain.getBlock(blockHash);
+            const timestamp = Date.now() - ((currentBlockNumber - blockNum) * 6000); // Estimate 6s per block
+
+            events.forEach((record: any) => {
+              const { event } = record;
+
+              // Check for AssetConversion::SwapExecuted event
+              if (api.events.assetConversion?.SwapExecuted?.is(event)) {
+                const [who, path, amountIn, amountOut] = event.data;
+
+                // Parse path to get token symbols
+                const fromAssetId = path[0]?.nativeOrAsset?.asset?.toNumber() || 0;
+                const toAssetId = path[1]?.nativeOrAsset?.asset?.toNumber() || 0;
+
+                const fromTokenSymbol = fromAssetId === 0 ? 'wHEZ' : fromAssetId === 1 ? 'PEZ' : `Asset${fromAssetId}`;
+                const toTokenSymbol = toAssetId === 0 ? 'wHEZ' : toAssetId === 1 ? 'PEZ' : `Asset${toAssetId}`;
+
+                // Only show transactions from current user
+                if (who.toString() === selectedAccount.address) {
+                  transactions.push({
+                    blockNumber: blockNum,
+                    timestamp,
+                    from: who.toString(),
+                    fromToken: fromTokenSymbol === 'wHEZ' ? 'HEZ' : fromTokenSymbol,
+                    fromAmount: formatBalance(amountIn.toString()),
+                    toToken: toTokenSymbol === 'wHEZ' ? 'HEZ' : toTokenSymbol,
+                    toAmount: formatBalance(amountOut.toString()),
+                    txHash: blockHash.toHex()
+                  });
+                }
+              }
+            });
+          } catch (err) {
+            console.warn(`Failed to fetch block ${blockNum}:`, err);
+          }
+        }
+
+        console.log('✅ Swap history fetched:', transactions.length, 'transactions');
+        setSwapHistory(transactions.slice(0, 10)); // Show max 10
+      } catch (error) {
+        console.error('Failed to fetch swap history:', error);
+        setSwapHistory([]);
+      } finally {
+        setIsLoadingHistory(false);
+      }
+    };
+
+    fetchSwapHistory();
+  }, [api, isApiReady, isDexAvailable, selectedAccount]);
+
   const handleSwap = () => {
     setFromToken(toToken);
     setToToken(fromToken);
@@ -451,9 +563,63 @@ const TokenSwap = () => {
 
               setFromAmount('');
 
-              // Refresh balances without page reload
+              // Refresh balances and history without page reload
               await refreshBalances();
               console.log('✅ Balances refreshed after swap');
+
+              // Refresh swap history after 3 seconds (wait for block finalization)
+              setTimeout(async () => {
+                console.log('🔄 Refreshing swap history...');
+                const fetchSwapHistory = async () => {
+                  if (!api || !isApiReady || !isDexAvailable || !selectedAccount) return;
+                  setIsLoadingHistory(true);
+                  try {
+                    const finalizedHead = await api.rpc.chain.getFinalizedHead();
+                    const finalizedBlock = await api.rpc.chain.getBlock(finalizedHead);
+                    const currentBlockNumber = finalizedBlock.block.header.number.toNumber();
+                    const startBlock = Math.max(0, currentBlockNumber - 100);
+                    const transactions: SwapTransaction[] = [];
+                    for (let blockNum = currentBlockNumber; blockNum >= startBlock && transactions.length < 10; blockNum--) {
+                      try {
+                        const blockHash = await api.rpc.chain.getBlockHash(blockNum);
+                        const apiAt = await api.at(blockHash);
+                        const events = await apiAt.query.system.events();
+                        const timestamp = Date.now() - ((currentBlockNumber - blockNum) * 6000);
+                        events.forEach((record: any) => {
+                          const { event } = record;
+                          if (api.events.assetConversion?.SwapExecuted?.is(event)) {
+                            const [who, path, amountIn, amountOut] = event.data;
+                            const fromAssetId = path[0]?.nativeOrAsset?.asset?.toNumber() || 0;
+                            const toAssetId = path[1]?.nativeOrAsset?.asset?.toNumber() || 0;
+                            const fromTokenSymbol = fromAssetId === 0 ? 'wHEZ' : fromAssetId === 1 ? 'PEZ' : `Asset${fromAssetId}`;
+                            const toTokenSymbol = toAssetId === 0 ? 'wHEZ' : toAssetId === 1 ? 'PEZ' : `Asset${toAssetId}`;
+                            if (who.toString() === selectedAccount.address) {
+                              transactions.push({
+                                blockNumber: blockNum,
+                                timestamp,
+                                from: who.toString(),
+                                fromToken: fromTokenSymbol === 'wHEZ' ? 'HEZ' : fromTokenSymbol,
+                                fromAmount: formatBalance(amountIn.toString()),
+                                toToken: toTokenSymbol === 'wHEZ' ? 'HEZ' : toTokenSymbol,
+                                toAmount: formatBalance(amountOut.toString()),
+                                txHash: blockHash.toHex()
+                              });
+                            }
+                          }
+                        });
+                      } catch (err) {
+                        console.warn(`Failed to fetch block ${blockNum}:`, err);
+                      }
+                    }
+                    setSwapHistory(transactions.slice(0, 10));
+                  } catch (error) {
+                    console.error('Failed to refresh swap history:', error);
+                  } finally {
+                    setIsLoadingHistory(false);
+                  }
+                };
+                await fetchSwapHistory();
+              }, 3000);
             } else {
               toast({
                 title: 'Error',
@@ -600,10 +766,14 @@ const TokenSwap = () => {
               </div>
             </div>
 
-            <div className="bg-blue-900/20 border border-blue-800/30 rounded-lg p-3">
+            {/* Swap Details - Uniswap Style */}
+            <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-300">Exchange Rate</span>
-                <span className="font-semibold text-blue-400">
+                <span className="text-gray-400 flex items-center gap-1">
+                  <Info className="w-3 h-3" />
+                  Exchange Rate
+                </span>
+                <span className="font-semibold text-white">
                   {isLoadingRate ? (
                     'Loading...'
                   ) : exchangeRate > 0 ? (
@@ -613,11 +783,59 @@ const TokenSwap = () => {
                   )}
                 </span>
               </div>
-              <div className="flex justify-between text-sm mt-1">
-                <span className="text-gray-300">Slippage Tolerance</span>
+
+              {/* Price Impact Indicator (Uniswap style) */}
+              {fromAmount && parseFloat(fromAmount) > 0 && priceImpact > 0 && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-400 flex items-center gap-1">
+                    <AlertTriangle className={`w-3 h-3 ${
+                      priceImpact < 1 ? 'text-green-500' :
+                      priceImpact < 5 ? 'text-yellow-500' :
+                      'text-red-500'
+                    }`} />
+                    Price Impact
+                  </span>
+                  <span className={`font-semibold ${
+                    priceImpact < 1 ? 'text-green-400' :
+                    priceImpact < 5 ? 'text-yellow-400' :
+                    'text-red-400'
+                  }`}>
+                    {priceImpact < 0.01 ? '<0.01%' : `${priceImpact.toFixed(2)}%`}
+                  </span>
+                </div>
+              )}
+
+              {/* LP Fee */}
+              {fromAmount && parseFloat(fromAmount) > 0 && lpFee && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-400">Liquidity Provider Fee</span>
+                  <span className="text-gray-300">{lpFee} {fromToken}</span>
+                </div>
+              )}
+
+              {/* Minimum Received */}
+              {fromAmount && parseFloat(fromAmount) > 0 && minimumReceived && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-400">Minimum Received</span>
+                  <span className="text-gray-300">{minimumReceived} {toToken}</span>
+                </div>
+              )}
+
+              <div className="flex justify-between text-sm pt-2 border-t border-gray-700">
+                <span className="text-gray-400">Slippage Tolerance</span>
                 <span className="font-semibold text-blue-400">{slippage}%</span>
               </div>
             </div>
+
+            {/* High Price Impact Warning (>5%) */}
+            {priceImpact >= 5 && (
+              <Alert className="bg-red-900/20 border-red-500/30">
+                <AlertTriangle className="h-4 w-4 text-red-500" />
+                <AlertDescription className="text-red-300 text-sm">
+                  High price impact! Your trade will significantly affect the pool price. Consider a smaller amount or check if there's better liquidity.
+                </AlertDescription>
+              </Alert>
+            )}
 
             <Button
               className="w-full h-12 text-lg"
@@ -667,9 +885,51 @@ const TokenSwap = () => {
             Recent Swaps
           </h3>
 
-          <div className="text-center text-gray-400 py-8">
-            {selectedAccount ? 'No swap history yet' : 'Connect wallet to view history'}
-          </div>
+          {!selectedAccount ? (
+            <div className="text-center text-gray-400 py-8">
+              Connect wallet to view history
+            </div>
+          ) : isLoadingHistory ? (
+            <div className="text-center text-gray-400 py-8">
+              Loading history...
+            </div>
+          ) : swapHistory.length > 0 ? (
+            <div className="space-y-3">
+              {swapHistory.map((tx, idx) => (
+                <div key={idx} className="p-3 bg-gray-800 border border-gray-700 rounded-lg hover:border-gray-600 transition-colors">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <ArrowDownUp className="w-4 h-4 text-blue-400" />
+                      <span className="text-sm font-semibold text-white">
+                        {tx.fromToken} → {tx.toToken}
+                      </span>
+                    </div>
+                    <span className="text-xs text-gray-500">
+                      #{tx.blockNumber}
+                    </span>
+                  </div>
+                  <div className="text-sm text-gray-400 space-y-1">
+                    <div className="flex justify-between">
+                      <span>Sent:</span>
+                      <span className="text-red-400">-{tx.fromAmount} {tx.fromToken}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Received:</span>
+                      <span className="text-green-400">+{tx.toAmount} {tx.toToken}</span>
+                    </div>
+                    <div className="flex justify-between text-xs pt-1 border-t border-gray-700">
+                      <span>{new Date(tx.timestamp).toLocaleDateString()}</span>
+                      <span>{new Date(tx.timestamp).toLocaleTimeString()}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center text-gray-400 py-8">
+              No swap history yet
+            </div>
+          )}
         </Card>
       </div>
 

@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowUpDown, Search, Filter, TrendingUp, TrendingDown, User, Shield, Clock, DollarSign } from 'lucide-react';
+import { ArrowUpDown, Search, Filter, TrendingUp, TrendingDown, User, Shield, Clock, DollarSign, Plus, X, SlidersHorizontal } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 interface P2POffer {
@@ -34,6 +34,19 @@ export const P2PMarket: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedOffer, setSelectedOffer] = useState<P2POffer | null>(null);
   const [tradeAmount, setTradeAmount] = useState('');
+
+  // Advanced filters
+  const [paymentMethodFilter, setPaymentMethodFilter] = useState<string>('all');
+  const [minPrice, setMinPrice] = useState<string>('');
+  const [maxPrice, setMaxPrice] = useState<string>('');
+  const [sortBy, setSortBy] = useState<'price' | 'rating' | 'trades'>('price');
+  const [showFilters, setShowFilters] = useState(false);
+
+  // Order creation
+  const [showCreateOrder, setShowCreateOrder] = useState(false);
+  const [newOrderAmount, setNewOrderAmount] = useState('');
+  const [newOrderPrice, setNewOrderPrice] = useState('');
+  const [newOrderPaymentMethod, setNewOrderPaymentMethod] = useState('Bank Transfer');
 
   const offers: P2POffer[] = [
     {
@@ -106,11 +119,37 @@ export const P2PMarket: React.FC = () => {
     }
   ];
 
-  const filteredOffers = offers.filter(offer => 
-    offer.type === activeTab && 
-    offer.token === selectedToken &&
-    (searchTerm === '' || offer.seller.name.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  // Payment methods list
+  const paymentMethods = ['Bank Transfer', 'PayPal', 'Crypto', 'Wire Transfer', 'Cash', 'Mobile Money'];
+
+  // Advanced filtering and sorting
+  const filteredOffers = offers
+    .filter(offer => {
+      // Basic filters
+      if (offer.type !== activeTab) return false;
+      if (offer.token !== selectedToken) return false;
+      if (searchTerm && !offer.seller.name.toLowerCase().includes(searchTerm.toLowerCase())) return false;
+
+      // Payment method filter
+      if (paymentMethodFilter !== 'all' && offer.paymentMethod !== paymentMethodFilter) return false;
+
+      // Price range filter
+      if (minPrice && offer.price < parseFloat(minPrice)) return false;
+      if (maxPrice && offer.price > parseFloat(maxPrice)) return false;
+
+      return true;
+    })
+    .sort((a, b) => {
+      // Sorting logic
+      if (sortBy === 'price') {
+        return activeTab === 'buy' ? a.price - b.price : b.price - a.price;
+      } else if (sortBy === 'rating') {
+        return b.seller.rating - a.seller.rating;
+      } else if (sortBy === 'trades') {
+        return b.seller.completedTrades - a.seller.completedTrades;
+      }
+      return 0;
+    });
 
   const handleTrade = (offer: P2POffer) => {
     console.log('Initiating trade:', tradeAmount, offer.token, 'with', offer.seller.name);
@@ -178,7 +217,27 @@ export const P2PMarket: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {/* Filters */}
+            {/* Top Action Bar */}
+            <div className="flex justify-between items-center">
+              <Button
+                onClick={() => setShowCreateOrder(true)}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Create Order
+              </Button>
+
+              <Button
+                variant="outline"
+                onClick={() => setShowFilters(!showFilters)}
+                className="border-gray-700"
+              >
+                <SlidersHorizontal className="w-4 h-4 mr-2" />
+                {showFilters ? 'Hide Filters' : 'Show Filters'}
+              </Button>
+            </div>
+
+            {/* Basic Filters */}
             <div className="flex flex-wrap gap-4">
               <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'buy' | 'sell')} className="flex-1">
                 <TabsList className="grid w-full max-w-[200px] grid-cols-2">
@@ -208,7 +267,89 @@ export const P2PMarket: React.FC = () => {
                   />
                 </div>
               </div>
+
+              {/* Sort Selector */}
+              <Select value={sortBy} onValueChange={(v) => setSortBy(v as 'price' | 'rating' | 'trades')}>
+                <SelectTrigger className="w-[150px] bg-gray-800 border-gray-700">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="price">Price</SelectItem>
+                  <SelectItem value="rating">Rating</SelectItem>
+                  <SelectItem value="trades">Trades</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
+
+            {/* Advanced Filters Panel (Binance P2P style) */}
+            {showFilters && (
+              <Card className="bg-gray-800 border-gray-700 p-4">
+                <div className="space-y-4">
+                  <h4 className="font-semibold text-white flex items-center gap-2">
+                    <Filter className="w-4 h-4" />
+                    Advanced Filters
+                  </h4>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Payment Method Filter */}
+                    <div>
+                      <Label className="text-sm text-gray-400">Payment Method</Label>
+                      <Select value={paymentMethodFilter} onValueChange={setPaymentMethodFilter}>
+                        <SelectTrigger className="bg-gray-900 border-gray-700">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Methods</SelectItem>
+                          {paymentMethods.map(method => (
+                            <SelectItem key={method} value={method}>{method}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Min Price Filter */}
+                    <div>
+                      <Label className="text-sm text-gray-400">Min Price ($)</Label>
+                      <Input
+                        type="number"
+                        placeholder="Min"
+                        value={minPrice}
+                        onChange={(e) => setMinPrice(e.target.value)}
+                        className="bg-gray-900 border-gray-700"
+                      />
+                    </div>
+
+                    {/* Max Price Filter */}
+                    <div>
+                      <Label className="text-sm text-gray-400">Max Price ($)</Label>
+                      <Input
+                        type="number"
+                        placeholder="Max"
+                        value={maxPrice}
+                        onChange={(e) => setMaxPrice(e.target.value)}
+                        className="bg-gray-900 border-gray-700"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Clear Filters Button */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setPaymentMethodFilter('all');
+                      setMinPrice('');
+                      setMaxPrice('');
+                      setSearchTerm('');
+                    }}
+                    className="border-gray-700"
+                  >
+                    <X className="w-3 h-3 mr-1" />
+                    Clear All Filters
+                  </Button>
+                </div>
+              </Card>
+            )}
 
             {/* Offers List */}
             <div className="space-y-3">
@@ -324,6 +465,130 @@ export const P2PMarket: React.FC = () => {
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Create Order Modal (Binance P2P style) */}
+      {showCreateOrder && (
+        <Card className="bg-gray-900 border-gray-800 fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md">
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <CardTitle>Create P2P Order</CardTitle>
+              <Button variant="ghost" size="icon" onClick={() => setShowCreateOrder(false)}>
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+            <CardDescription>
+              Create a {activeTab === 'buy' ? 'buy' : 'sell'} order for {selectedToken}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label>Order Type</Label>
+              <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'buy' | 'sell')}>
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="buy">Buy</TabsTrigger>
+                  <TabsTrigger value="sell">Sell</TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
+
+            <div>
+              <Label>Token</Label>
+              <Select value={selectedToken} onValueChange={(v) => setSelectedToken(v as 'HEZ' | 'PEZ')}>
+                <SelectTrigger className="bg-gray-800 border-gray-700">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="HEZ">HEZ</SelectItem>
+                  <SelectItem value="PEZ">PEZ</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label>Amount ({selectedToken})</Label>
+              <Input
+                type="number"
+                placeholder="Enter amount"
+                value={newOrderAmount}
+                onChange={(e) => setNewOrderAmount(e.target.value)}
+                className="bg-gray-800 border-gray-700"
+              />
+            </div>
+
+            <div>
+              <Label>Price per {selectedToken} ($)</Label>
+              <Input
+                type="number"
+                placeholder="Enter price"
+                value={newOrderPrice}
+                onChange={(e) => setNewOrderPrice(e.target.value)}
+                className="bg-gray-800 border-gray-700"
+              />
+            </div>
+
+            <div>
+              <Label>Payment Method</Label>
+              <Select value={newOrderPaymentMethod} onValueChange={setNewOrderPaymentMethod}>
+                <SelectTrigger className="bg-gray-800 border-gray-700">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {paymentMethods.map(method => (
+                    <SelectItem key={method} value={method}>{method}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="bg-gray-800 p-3 rounded-lg">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-400">Total Value</span>
+                <span className="text-white font-semibold">
+                  ${(parseFloat(newOrderAmount || '0') * parseFloat(newOrderPrice || '0')).toFixed(2)}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <Button
+                className="flex-1 bg-green-600 hover:bg-green-700"
+                onClick={() => {
+                  console.log('Creating order:', {
+                    type: activeTab,
+                    token: selectedToken,
+                    amount: newOrderAmount,
+                    price: newOrderPrice,
+                    paymentMethod: newOrderPaymentMethod
+                  });
+                  // TODO: Implement blockchain integration
+                  setShowCreateOrder(false);
+                }}
+              >
+                Create Order
+              </Button>
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => setShowCreateOrder(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+
+            <div className="text-xs text-gray-500 text-center">
+              Note: Blockchain integration for P2P orders is coming soon
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Overlay */}
+      {(showCreateOrder || selectedOffer) && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40" onClick={() => {
+          setShowCreateOrder(false);
+          setSelectedOffer(null);
+        }}></div>
       )}
     </div>
   );
