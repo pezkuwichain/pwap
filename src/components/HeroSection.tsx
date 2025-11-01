@@ -29,12 +29,45 @@ const HeroSection: React.FC = () => {
           console.warn('Failed to fetch referenda:', err);
         }
 
+        // Fetch total staked tokens
+        let tokensStaked = '0';
+        try {
+          const currentEra = await api.query.staking.currentEra();
+          if (currentEra.isSome) {
+            const eraIndex = currentEra.unwrap().toNumber();
+            const totalStake = await api.query.staking.erasTotalStake(eraIndex);
+            const formatted = formatBalance(totalStake.toString());
+            tokensStaked = `${formatted} HEZ`;
+          }
+        } catch (err) {
+          console.warn('Failed to fetch total stake:', err);
+        }
+
+        // Count total voters from conviction voting
+        let totalVoters = 0;
+        try {
+          // Get all voting keys and count unique voters
+          const votingKeys = await api.query.convictionVoting.votingFor.keys();
+          // Each key represents a unique (account, track) pair
+          // Count unique accounts
+          const uniqueAccounts = new Set(votingKeys.map(key => key.args[0].toString()));
+          totalVoters = uniqueAccounts.size;
+        } catch (err) {
+          console.warn('Failed to fetch voters:', err);
+        }
+
         // Update stats
         setStats({
           activeProposals,
-          totalVoters: 0, // TODO: Calculate from conviction voting
-          tokensStaked: '0', // TODO: Get from staking pallet
+          totalVoters,
+          tokensStaked,
           trustScore: 0 // TODO: Calculate trust score
+        });
+
+        console.log('✅ Hero stats updated:', {
+          activeProposals,
+          totalVoters,
+          tokensStaked
         });
       } catch (error) {
         console.error('Failed to fetch hero stats:', error);
