@@ -368,7 +368,16 @@ const TokenSwap = () => {
 
               // Check for AssetConversion::SwapExecuted event
               if (api.events.assetConversion?.SwapExecuted?.is(event)) {
-                const [who, path, amountIn, amountOut] = event.data;
+                console.log('🔍 Full event.data:', event.data.toJSON());
+                console.log('🔍 event.data length:', event.data.length);
+
+                // SwapExecuted has 5 fields: (who, send_to, amountIn, amountOut, path)
+                const [who, sendTo, amountIn, amountOut, path] = event.data;
+
+                console.log('🔍 who:', who.toString());
+                console.log('🔍 sendTo:', sendTo.toString());
+                console.log('🔍 path type:', typeof path);
+                console.log('🔍 path:', path);
 
                 // Parse path to get token symbols - path is Vec<MultiAsset>
                 let fromAssetId = 0;
@@ -378,21 +387,39 @@ const TokenSwap = () => {
                   // Try different path formats
                   const pathArray = path.toJSON ? path.toJSON() : path;
 
+                  console.log('🔍 Raw path data:', JSON.stringify(pathArray, null, 2));
+
                   if (Array.isArray(pathArray) && pathArray.length >= 2) {
                     // Extract asset IDs from path
                     const asset0 = pathArray[0];
                     const asset1 = pathArray[1];
 
+                    console.log('🔍 Asset0 structure:', JSON.stringify(asset0, null, 2));
+                    console.log('🔍 Asset1 structure:', JSON.stringify(asset1, null, 2));
+
                     // Handle different enum formats
-                    if (typeof asset0 === 'object') {
-                      fromAssetId = asset0.nativeOrAsset?.asset || asset0.NativeOrAsset?.Asset || 0;
+                    if (typeof asset0 === 'object' && asset0 !== null) {
+                      // Try multiple access patterns
+                      fromAssetId = asset0.nativeOrAsset?.asset ||
+                                   asset0.NativeOrAsset?.Asset ||
+                                   asset0.asset ||
+                                   asset0.Asset ||
+                                   (typeof asset0.nativeOrAsset?.Native !== 'undefined' ? 0 : undefined) ||
+                                   (typeof asset0.NativeOrAsset?.Native !== 'undefined' ? 0 : undefined) ||
+                                   0;
                     }
-                    if (typeof asset1 === 'object') {
-                      toAssetId = asset1.nativeOrAsset?.asset || asset1.NativeOrAsset?.Asset || 0;
+                    if (typeof asset1 === 'object' && asset1 !== null) {
+                      toAssetId = asset1.nativeOrAsset?.asset ||
+                                 asset1.NativeOrAsset?.Asset ||
+                                 asset1.asset ||
+                                 asset1.Asset ||
+                                 (typeof asset1.nativeOrAsset?.Native !== 'undefined' ? 0 : undefined) ||
+                                 (typeof asset1.NativeOrAsset?.Native !== 'undefined' ? 0 : undefined) ||
+                                 0;
                     }
                   }
 
-                  console.log('🔍 Parsed swap path:', { pathArray, fromAssetId, toAssetId });
+                  console.log('🔍 Parsed IDs:', { fromAssetId, toAssetId });
                 } catch (err) {
                   console.warn('Failed to parse path:', err);
                 }
@@ -613,23 +640,53 @@ const TokenSwap = () => {
                         events.forEach((record: any) => {
                           const { event } = record;
                           if (api.events.assetConversion?.SwapExecuted?.is(event)) {
-                            const [who, path, amountIn, amountOut] = event.data;
+                            console.log('🔄 Full event.data:', event.data.toJSON());
+                            console.log('🔄 event.data length:', event.data.length);
+
+                            // SwapExecuted has 5 fields: (who, send_to, amountIn, amountOut, path)
+                            const [who, sendTo, amountIn, amountOut, path] = event.data;
+
+                            console.log('🔄 who:', who.toString());
+                            console.log('🔄 sendTo:', sendTo.toString());
+                            console.log('🔄 path type:', typeof path);
+                            console.log('🔄 path:', path);
 
                             // Parse path (same logic as main history fetch)
                             let fromAssetId = 0;
                             let toAssetId = 0;
                             try {
                               const pathArray = path.toJSON ? path.toJSON() : path;
+
+                              console.log('🔄 Refresh path data:', JSON.stringify(pathArray, null, 2));
+
                               if (Array.isArray(pathArray) && pathArray.length >= 2) {
                                 const asset0 = pathArray[0];
                                 const asset1 = pathArray[1];
-                                if (typeof asset0 === 'object') {
-                                  fromAssetId = asset0.nativeOrAsset?.asset || asset0.NativeOrAsset?.Asset || 0;
+
+                                console.log('🔄 Refresh Asset0:', JSON.stringify(asset0, null, 2));
+                                console.log('🔄 Refresh Asset1:', JSON.stringify(asset1, null, 2));
+
+                                if (typeof asset0 === 'object' && asset0 !== null) {
+                                  fromAssetId = asset0.nativeOrAsset?.asset ||
+                                               asset0.NativeOrAsset?.Asset ||
+                                               asset0.asset ||
+                                               asset0.Asset ||
+                                               (typeof asset0.nativeOrAsset?.Native !== 'undefined' ? 0 : undefined) ||
+                                               (typeof asset0.NativeOrAsset?.Native !== 'undefined' ? 0 : undefined) ||
+                                               0;
                                 }
-                                if (typeof asset1 === 'object') {
-                                  toAssetId = asset1.nativeOrAsset?.asset || asset1.NativeOrAsset?.Asset || 0;
+                                if (typeof asset1 === 'object' && asset1 !== null) {
+                                  toAssetId = asset1.nativeOrAsset?.asset ||
+                                             asset1.NativeOrAsset?.Asset ||
+                                             asset1.asset ||
+                                             asset1.Asset ||
+                                             (typeof asset1.nativeOrAsset?.Native !== 'undefined' ? 0 : undefined) ||
+                                             (typeof asset1.NativeOrAsset?.Native !== 'undefined' ? 0 : undefined) ||
+                                             0;
                                 }
                               }
+
+                              console.log('🔄 Refresh Parsed IDs:', { fromAssetId, toAssetId });
                             } catch (err) {
                               console.warn('Failed to parse path in refresh:', err);
                             }
