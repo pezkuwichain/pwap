@@ -397,25 +397,13 @@ const TokenSwap = () => {
                     console.log('🔍 Asset0 structure:', JSON.stringify(asset0, null, 2));
                     console.log('🔍 Asset1 structure:', JSON.stringify(asset1, null, 2));
 
-                    // Handle different enum formats
-                    if (typeof asset0 === 'object' && asset0 !== null) {
-                      // Try multiple access patterns
-                      fromAssetId = asset0.nativeOrAsset?.asset ||
-                                   asset0.NativeOrAsset?.Asset ||
-                                   asset0.asset ||
-                                   asset0.Asset ||
-                                   (typeof asset0.nativeOrAsset?.Native !== 'undefined' ? 0 : undefined) ||
-                                   (typeof asset0.NativeOrAsset?.Native !== 'undefined' ? 0 : undefined) ||
-                                   0;
+                    // Path structure is: [[assetId, amount], [assetId, amount]]
+                    // Each element is a tuple where index 0 is the asset ID
+                    if (Array.isArray(asset0) && asset0.length >= 1) {
+                      fromAssetId = typeof asset0[0] === 'number' ? asset0[0] : parseInt(asset0[0]) || 0;
                     }
-                    if (typeof asset1 === 'object' && asset1 !== null) {
-                      toAssetId = asset1.nativeOrAsset?.asset ||
-                                 asset1.NativeOrAsset?.Asset ||
-                                 asset1.asset ||
-                                 asset1.Asset ||
-                                 (typeof asset1.nativeOrAsset?.Native !== 'undefined' ? 0 : undefined) ||
-                                 (typeof asset1.NativeOrAsset?.Native !== 'undefined' ? 0 : undefined) ||
-                                 0;
+                    if (Array.isArray(asset1) && asset1.length >= 1) {
+                      toAssetId = typeof asset1[0] === 'number' ? asset1[0] : parseInt(asset1[0]) || 0;
                     }
                   }
 
@@ -666,23 +654,13 @@ const TokenSwap = () => {
                                 console.log('🔄 Refresh Asset0:', JSON.stringify(asset0, null, 2));
                                 console.log('🔄 Refresh Asset1:', JSON.stringify(asset1, null, 2));
 
-                                if (typeof asset0 === 'object' && asset0 !== null) {
-                                  fromAssetId = asset0.nativeOrAsset?.asset ||
-                                               asset0.NativeOrAsset?.Asset ||
-                                               asset0.asset ||
-                                               asset0.Asset ||
-                                               (typeof asset0.nativeOrAsset?.Native !== 'undefined' ? 0 : undefined) ||
-                                               (typeof asset0.NativeOrAsset?.Native !== 'undefined' ? 0 : undefined) ||
-                                               0;
+                                // Path structure is: [[assetId, amount], [assetId, amount]]
+                                // Each element is a tuple where index 0 is the asset ID
+                                if (Array.isArray(asset0) && asset0.length >= 1) {
+                                  fromAssetId = typeof asset0[0] === 'number' ? asset0[0] : parseInt(asset0[0]) || 0;
                                 }
-                                if (typeof asset1 === 'object' && asset1 !== null) {
-                                  toAssetId = asset1.nativeOrAsset?.asset ||
-                                             asset1.NativeOrAsset?.Asset ||
-                                             asset1.asset ||
-                                             asset1.Asset ||
-                                             (typeof asset1.nativeOrAsset?.Native !== 'undefined' ? 0 : undefined) ||
-                                             (typeof asset1.NativeOrAsset?.Native !== 'undefined' ? 0 : undefined) ||
-                                             0;
+                                if (Array.isArray(asset1) && asset1.length >= 1) {
+                                  toAssetId = typeof asset1[0] === 'number' ? asset1[0] : parseInt(asset1[0]) || 0;
                                 }
                               }
 
