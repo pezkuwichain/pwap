@@ -368,36 +368,22 @@ const TokenSwap = () => {
 
               // Check for AssetConversion::SwapExecuted event
               if (api.events.assetConversion?.SwapExecuted?.is(event)) {
-                console.log('🔍 Full event.data:', event.data.toJSON());
-                console.log('🔍 event.data length:', event.data.length);
-
                 // SwapExecuted has 5 fields: (who, send_to, amountIn, amountOut, path)
                 const [who, sendTo, amountIn, amountOut, path] = event.data;
-
-                console.log('🔍 who:', who.toString());
-                console.log('🔍 sendTo:', sendTo.toString());
-                console.log('🔍 path type:', typeof path);
-                console.log('🔍 path:', path);
 
                 // Parse path to get token symbols - path is Vec<MultiAsset>
                 let fromAssetId = 0;
                 let toAssetId = 0;
 
                 try {
-                  // Try different path formats
+                  // Path structure is: [[assetId, amount], [assetId, amount]]
                   const pathArray = path.toJSON ? path.toJSON() : path;
-
-                  console.log('🔍 Raw path data:', JSON.stringify(pathArray, null, 2));
 
                   if (Array.isArray(pathArray) && pathArray.length >= 2) {
                     // Extract asset IDs from path
                     const asset0 = pathArray[0];
                     const asset1 = pathArray[1];
 
-                    console.log('🔍 Asset0 structure:', JSON.stringify(asset0, null, 2));
-                    console.log('🔍 Asset1 structure:', JSON.stringify(asset1, null, 2));
-
-                    // Path structure is: [[assetId, amount], [assetId, amount]]
                     // Each element is a tuple where index 0 is the asset ID
                     if (Array.isArray(asset0) && asset0.length >= 1) {
                       fromAssetId = typeof asset0[0] === 'number' ? asset0[0] : parseInt(asset0[0]) || 0;
@@ -406,10 +392,8 @@ const TokenSwap = () => {
                       toAssetId = typeof asset1[0] === 'number' ? asset1[0] : parseInt(asset1[0]) || 0;
                     }
                   }
-
-                  console.log('🔍 Parsed IDs:', { fromAssetId, toAssetId });
                 } catch (err) {
-                  console.warn('Failed to parse path:', err);
+                  console.warn('Failed to parse swap path:', err);
                 }
 
                 const fromTokenSymbol = fromAssetId === 0 ? 'wHEZ' : fromAssetId === 1 ? 'PEZ' : `Asset${fromAssetId}`;
@@ -628,33 +612,20 @@ const TokenSwap = () => {
                         events.forEach((record: any) => {
                           const { event } = record;
                           if (api.events.assetConversion?.SwapExecuted?.is(event)) {
-                            console.log('🔄 Full event.data:', event.data.toJSON());
-                            console.log('🔄 event.data length:', event.data.length);
-
                             // SwapExecuted has 5 fields: (who, send_to, amountIn, amountOut, path)
                             const [who, sendTo, amountIn, amountOut, path] = event.data;
-
-                            console.log('🔄 who:', who.toString());
-                            console.log('🔄 sendTo:', sendTo.toString());
-                            console.log('🔄 path type:', typeof path);
-                            console.log('🔄 path:', path);
 
                             // Parse path (same logic as main history fetch)
                             let fromAssetId = 0;
                             let toAssetId = 0;
                             try {
+                              // Path structure is: [[assetId, amount], [assetId, amount]]
                               const pathArray = path.toJSON ? path.toJSON() : path;
-
-                              console.log('🔄 Refresh path data:', JSON.stringify(pathArray, null, 2));
 
                               if (Array.isArray(pathArray) && pathArray.length >= 2) {
                                 const asset0 = pathArray[0];
                                 const asset1 = pathArray[1];
 
-                                console.log('🔄 Refresh Asset0:', JSON.stringify(asset0, null, 2));
-                                console.log('🔄 Refresh Asset1:', JSON.stringify(asset1, null, 2));
-
-                                // Path structure is: [[assetId, amount], [assetId, amount]]
                                 // Each element is a tuple where index 0 is the asset ID
                                 if (Array.isArray(asset0) && asset0.length >= 1) {
                                   fromAssetId = typeof asset0[0] === 'number' ? asset0[0] : parseInt(asset0[0]) || 0;
@@ -663,10 +634,8 @@ const TokenSwap = () => {
                                   toAssetId = typeof asset1[0] === 'number' ? asset1[0] : parseInt(asset1[0]) || 0;
                                 }
                               }
-
-                              console.log('🔄 Refresh Parsed IDs:', { fromAssetId, toAssetId });
                             } catch (err) {
-                              console.warn('Failed to parse path in refresh:', err);
+                              console.warn('Failed to parse swap path in refresh:', err);
                             }
 
                             const fromTokenSymbol = fromAssetId === 0 ? 'wHEZ' : fromAssetId === 1 ? 'PEZ' : `Asset${fromAssetId}`;
