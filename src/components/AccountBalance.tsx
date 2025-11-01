@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { usePolkadot } from '@/contexts/PolkadotContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Wallet, TrendingUp, ArrowUpRight, ArrowDownRight, RefreshCw } from 'lucide-react';
+import { Wallet, TrendingUp, ArrowUpRight, ArrowDownRight, RefreshCw, Award } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export const AccountBalance: React.FC = () => {
@@ -16,6 +16,7 @@ export const AccountBalance: React.FC = () => {
     total: '0',
   });
   const [pezBalance, setPezBalance] = useState<string>('0');
+  const [trustScore, setTrustScore] = useState<string>('-');
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchBalance = async () => {
@@ -68,6 +69,24 @@ export const AccountBalance: React.FC = () => {
 
   useEffect(() => {
     fetchBalance();
+
+    // Fetch Trust Score
+    const fetchTrustScore = async () => {
+      if (!api || !isApiReady || !selectedAccount?.address) {
+        setTrustScore('-');
+        return;
+      }
+
+      try {
+        const score = await api.query.trust.trustScores(selectedAccount.address);
+        setTrustScore(score.toString());
+      } catch (err) {
+        console.error('Failed to fetch trust score:', err);
+        setTrustScore('-');
+      }
+    };
+
+    fetchTrustScore();
 
     // Subscribe to HEZ balance updates
     let unsubscribeHez: () => void;
@@ -233,6 +252,15 @@ export const AccountBalance: React.FC = () => {
               <span className="text-gray-400">Address</span>
               <span className="text-white font-mono text-xs">
                 {selectedAccount.address.slice(0, 8)}...{selectedAccount.address.slice(-8)}
+              </span>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-gray-400 flex items-center gap-1">
+                <Award className="w-3 h-3 text-purple-400" />
+                Trust Score
+              </span>
+              <span className="text-lg font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
+                {trustScore}
               </span>
             </div>
           </div>
