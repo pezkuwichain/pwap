@@ -1,10 +1,48 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChevronRight, Cpu, GitBranch, Shield } from 'lucide-react';
 import { NetworkStats } from './NetworkStats';
+import { usePolkadot } from '../contexts/PolkadotContext';
+import { formatBalance } from '../lib/wallet';
 
 const HeroSection: React.FC = () => {
   const { t } = useTranslation();
+  const { api, isApiReady } = usePolkadot();
+  const [stats, setStats] = useState({
+    activeProposals: 0,
+    totalVoters: 0,
+    tokensStaked: '0',
+    trustScore: 0
+  });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      if (!api || !isApiReady) return;
+
+      try {
+        // Fetch active referenda
+        let activeProposals = 0;
+        try {
+          const referendaCount = await api.query.referenda.referendumCount();
+          activeProposals = referendaCount.toNumber();
+        } catch (err) {
+          console.warn('Failed to fetch referenda:', err);
+        }
+
+        // Update stats
+        setStats({
+          activeProposals,
+          totalVoters: 0, // TODO: Calculate from conviction voting
+          tokensStaked: '0', // TODO: Get from staking pallet
+          trustScore: 0 // TODO: Calculate trust score
+        });
+      } catch (error) {
+        console.error('Failed to fetch hero stats:', error);
+      }
+    };
+
+    fetchStats();
+  }, [api, isApiReady]);
 
   return (
     <section className="relative min-h-screen flex items-center justify-start overflow-hidden bg-gray-950">
@@ -43,19 +81,19 @@ const HeroSection: React.FC = () => {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12 max-w-4xl mx-auto">
           <div className="bg-gray-900/50 backdrop-blur-sm rounded-lg border border-green-500/30 p-4">
-            <div className="text-2xl font-bold text-green-400">127</div>
+            <div className="text-2xl font-bold text-green-400">{stats.activeProposals}</div>
             <div className="text-sm text-gray-400">{t('hero.stats.activeProposals')}</div>
           </div>
           <div className="bg-gray-900/50 backdrop-blur-sm rounded-lg border border-yellow-400/30 p-4">
-            <div className="text-2xl font-bold text-yellow-400">3,482</div>
+            <div className="text-2xl font-bold text-yellow-400">{stats.totalVoters || '-'}</div>
             <div className="text-sm text-gray-400">{t('hero.stats.totalVoters')}</div>
           </div>
           <div className="bg-gray-900/50 backdrop-blur-sm rounded-lg border border-red-500/30 p-4">
-            <div className="text-2xl font-bold text-red-400">2.1M</div>
+            <div className="text-2xl font-bold text-red-400">{stats.tokensStaked || '-'}</div>
             <div className="text-sm text-gray-400">{t('hero.stats.tokensStaked')}</div>
           </div>
           <div className="bg-gray-900/50 backdrop-blur-sm rounded-lg border border-green-500/30 p-4">
-            <div className="text-2xl font-bold text-green-400">95%</div>
+            <div className="text-2xl font-bold text-green-400">{stats.trustScore ? `${stats.trustScore}%` : '-'}</div>
             <div className="text-sm text-gray-400">{t('hero.stats.trustScore')}</div>
           </div>
         </div>
