@@ -29,9 +29,11 @@ export const CHAIN_CONFIG = {
 // ========================================
 // SUBSTRATE ASSET IDs (Assets Pallet)
 // ========================================
+// ⚠️ IMPORTANT: HEZ is the native token and does NOT have an Asset ID
+// Only wrapped/asset tokens are listed here
 export const ASSET_IDS = {
-  PEZ: parseInt(import.meta.env.VITE_ASSET_PEZ || '1'),
-  HEZ: parseInt(import.meta.env.VITE_ASSET_HEZ || '2'),
+  WHEZ: parseInt(import.meta.env.VITE_ASSET_WHEZ || '0'),  // Wrapped HEZ
+  PEZ: parseInt(import.meta.env.VITE_ASSET_PEZ || '1'),    // PEZ utility token
   USDT: parseInt(import.meta.env.VITE_ASSET_USDT || '3'),
   BTC: parseInt(import.meta.env.VITE_ASSET_BTC || '4'),
   ETH: parseInt(import.meta.env.VITE_ASSET_ETH || '5'),

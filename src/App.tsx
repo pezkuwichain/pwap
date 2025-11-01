@@ -9,6 +9,7 @@ import ProfileSettings from '@/pages/ProfileSettings';
 import AdminPanel from '@/pages/AdminPanel';
 import WalletDashboard from './pages/WalletDashboard';
 import { AppProvider } from '@/contexts/AppContext';
+import { PolkadotProvider } from '@/contexts/PolkadotContext';
 import { WalletProvider } from '@/contexts/WalletContext';
 import { WebSocketProvider } from '@/contexts/WebSocketContext';
 import { IdentityProvider } from '@/contexts/IdentityContext';
@@ -24,10 +25,11 @@ function App() {
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <AuthProvider>
         <AppProvider>
-          <WalletProvider>
-            <WebSocketProvider>
-              <IdentityProvider>
-                <Router>
+          <PolkadotProvider endpoint="ws://127.0.0.1:9944">
+            <WalletProvider>
+              <WebSocketProvider>
+                <IdentityProvider>
+                  <Router>
                   <Routes>
                     <Route path="/login" element={<Login />} />
 
@@ -56,10 +58,11 @@ function App() {
                     } />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
-                </Router>
-              </IdentityProvider>
-            </WebSocketProvider>
-          </WalletProvider>
+                  </Router>
+                </IdentityProvider>
+              </WebSocketProvider>
+            </WalletProvider>
+          </PolkadotProvider>
         </AppProvider>
       </AuthProvider>
       <Toaster />
