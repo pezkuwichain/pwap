@@ -79,11 +79,11 @@ const HeroSection: React.FC = () => {
 
   return (
     <section className="relative min-h-screen flex items-center justify-start overflow-hidden bg-gray-950">
-      {/* Kurdish Flag Background */}
+      {/* Background Image */}
       <div className="absolute inset-0">
         <img
-          src="https://d64gsuwffb70l.cloudfront.net/68ec477a0a2fa844d6f9df15_1760373625599_6626c9cb.webp"
-          alt="Kurdish Flag"
+          src="/DKstate.png"
+          alt="DKstate Background"
           className="w-full h-full object-cover opacity-30"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-green-600/20 via-gray-950/70 to-gray-950"></div>
