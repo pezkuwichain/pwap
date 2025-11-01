@@ -221,10 +221,9 @@ const AppLayout: React.FC = () => {
                 </button>
               )}
               
-              <a 
-                href="https://docs.pezkuwichain.io" 
-                target="_blank" 
-                rel="noopener noreferrer"
+              <a
+                href="https://raw.githubusercontent.com/pezkuwichain/DKSweb/main/public/Whitepaper.pdf"
+                download="Pezkuwi_Whitepaper.pdf"
                 className="text-gray-300 hover:text-white transition-colors text-sm"
               >
                 Docs
@@ -450,7 +449,11 @@ const AppLayout: React.FC = () => {
               <h4 className="text-white font-semibold mb-4">{t('footer.about')}</h4>
               <ul className="space-y-2">
                 <li>
-                  <a href="#" className="text-gray-400 hover:text-white text-sm flex items-center">
+                  <a
+                    href="https://raw.githubusercontent.com/pezkuwichain/DKSweb/main/public/Whitepaper.pdf"
+                    download="Pezkuwi_Whitepaper.pdf"
+                    className="text-gray-400 hover:text-white text-sm flex items-center"
+                  >
                     {t('nav.docs')}
                     <ExternalLink className="w-3 h-3 ml-1" />
                   </a>
