@@ -7,11 +7,13 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { usePolkadot } from '@/contexts/PolkadotContext';
+import { useWallet } from '@/contexts/WalletContext';
 import { ASSET_IDS, formatBalance, parseAmount } from '@/lib/wallet';
 import { useToast } from '@/hooks/use-toast';
 
 const TokenSwap = () => {
   const { api, isApiReady, selectedAccount } = usePolkadot();
+  const { balances, refreshBalances } = useWallet();
   const { toast } = useToast();
   
   const [fromToken, setFromToken] = useState('PEZ');
@@ -25,106 +27,207 @@ const TokenSwap = () => {
   // DEX availability check
   const [isDexAvailable, setIsDexAvailable] = useState(false);
 
-  // Real balances from blockchain
-  const [fromBalance, setFromBalance] = useState('0');
-  const [toBalance, setToBalance] = useState('0');
+  // Exchange rate and loading states
   const [exchangeRate, setExchangeRate] = useState(0);
-  const [isLoadingBalances, setIsLoadingBalances] = useState(false);
   const [isLoadingRate, setIsLoadingRate] = useState(false);
+
+  // Get balances from wallet context
+  console.log('🔍 TokenSwap balances from context:', balances);
+  console.log('🔍 fromToken:', fromToken, 'toToken:', toToken);
+  const fromBalance = balances[fromToken as keyof typeof balances];
+  const toBalance = balances[toToken as keyof typeof balances];
+  console.log('🔍 Final balances:', { fromBalance, toBalance });
 
   // Liquidity pool data
   const [liquidityPools, setLiquidityPools] = useState<any[]>([]);
   const [isLoadingPools, setIsLoadingPools] = useState(false);
 
-  const toAmount = fromAmount && exchangeRate > 0 
-    ? (parseFloat(fromAmount) * exchangeRate).toFixed(4) 
-    : '';
+  // Pool reserves for AMM calculation
+  const [poolReserves, setPoolReserves] = useState<{ reserve0: number; reserve1: number; asset0: number; asset1: number } | null>(null);
+
+  // Calculate toAmount using AMM constant product formula
+  const toAmount = React.useMemo(() => {
+    if (!fromAmount || !poolReserves || parseFloat(fromAmount) <= 0) return '';
+
+    const amountIn = parseFloat(fromAmount);
+    const { reserve0, reserve1, asset0, asset1 } = poolReserves;
+
+    // Determine which reserve is input and which is output
+    const fromAssetId = fromToken === 'HEZ' ? 0 : ASSET_IDS[fromToken as keyof typeof ASSET_IDS];
+    const isAsset0ToAsset1 = fromAssetId === asset0;
+
+    const reserveIn = isAsset0ToAsset1 ? reserve0 : reserve1;
+    const reserveOut = isAsset0ToAsset1 ? reserve1 : reserve0;
+
+    // Uniswap V2 AMM formula (matches Substrate runtime exactly)
+    // Runtime: amount_in_with_fee = amount_in * (1000 - LPFee) = amount_in * 970
+    // LPFee = 30 (3% fee, not 0.3%!)
+    // Formula: amountOut = (amountIn * 970 * reserveOut) / (reserveIn * 1000 + amountIn * 970)
+    const LP_FEE = 30; // 3% fee
+    const amountInWithFee = amountIn * (1000 - LP_FEE); // = amountIn * 970
+    const numerator = amountInWithFee * reserveOut;
+    const denominator = reserveIn * 1000 + amountInWithFee;
+    const amountOut = numerator / denominator;
+
+    console.log('🔍 Uniswap V2 AMM:', {
+      amountIn,
+      amountInWithFee,
+      reserveIn,
+      reserveOut,
+      numerator,
+      denominator,
+      amountOut,
+      feePercent: LP_FEE / 10 + '%'
+    });
+
+    return amountOut.toFixed(4);
+  }, [fromAmount, poolReserves, fromToken]);
 
   // Check if AssetConversion pallet is available
   useEffect(() => {
+    console.log('🔍 Checking DEX availability...', { api: !!api, isApiReady });
     if (api && isApiReady) {
       const hasAssetConversion = api.tx.assetConversion !== undefined;
+      console.log('🔍 AssetConversion pallet check:', hasAssetConversion);
       setIsDexAvailable(hasAssetConversion);
-      
+
       if (!hasAssetConversion) {
-        console.warn('AssetConversion pallet not available in runtime');
+        console.warn('⚠️ AssetConversion pallet not available in runtime');
+      } else {
+        console.log('✅ AssetConversion pallet is available!');
       }
     }
   }, [api, isApiReady]);
 
-  // Fetch balances from blockchain
-  useEffect(() => {
-    const fetchBalances = async () => {
-      if (!api || !isApiReady || !selectedAccount) {
-        return;
-      }
-
-      setIsLoadingBalances(true);
-      try {
-        const fromAssetId = ASSET_IDS[fromToken as keyof typeof ASSET_IDS];
-        const toAssetId = ASSET_IDS[toToken as keyof typeof ASSET_IDS];
-
-        // Fetch balances from Assets pallet
-        const [fromAssetBalance, toAssetBalance] = await Promise.all([
-          api.query.assets.account(fromAssetId, selectedAccount.address),
-          api.query.assets.account(toAssetId, selectedAccount.address),
-        ]);
-
-        // Format balances (12 decimals for PEZ/HEZ tokens)
-        const fromBal = fromAssetBalance.toJSON() as any;
-        const toBal = toAssetBalance.toJSON() as any;
-
-        setFromBalance(fromBal ? formatBalance(fromBal.balance.toString(), 12) : '0');
-        setToBalance(toBal ? formatBalance(toBal.balance.toString(), 12) : '0');
-      } catch (error) {
-        console.error('Failed to fetch balances:', error);
-        toast({
-          title: 'Error',
-          description: 'Failed to fetch token balances',
-          variant: 'destructive',
-        });
-      } finally {
-        setIsLoadingBalances(false);
-      }
-    };
-
-    fetchBalances();
-  }, [api, isApiReady, selectedAccount, fromToken, toToken, toast]);
-
   // Fetch exchange rate from AssetConversion pool
+  // Always use wHEZ/PEZ pool (the only valid pool)
   useEffect(() => {
     const fetchExchangeRate = async () => {
+      console.log('🔍 fetchExchangeRate check:', { api: !!api, isApiReady, isDexAvailable, fromToken, toToken });
+
       if (!api || !isApiReady || !isDexAvailable) {
+        console.log('⚠️ Skipping fetchExchangeRate:', { api: !!api, isApiReady, isDexAvailable });
         return;
       }
 
+      console.log('✅ Starting fetchExchangeRate...');
       setIsLoadingRate(true);
       try {
-        const fromAssetId = ASSET_IDS[fromToken as keyof typeof ASSET_IDS];
-        const toAssetId = ASSET_IDS[toToken as keyof typeof ASSET_IDS];
+        // Map user-selected tokens to actual pool assets
+        // HEZ → wHEZ (Asset 0) behind the scenes
+        const getPoolAssetId = (token: string) => {
+          if (token === 'HEZ') return 0; // wHEZ
+          return ASSET_IDS[token as keyof typeof ASSET_IDS];
+        };
 
-        // Create pool asset tuple [asset1, asset2]
+        const fromAssetId = getPoolAssetId(fromToken);
+        const toAssetId = getPoolAssetId(toToken);
+
+        console.log('🔍 Looking for pool:', { fromToken, toToken, fromAssetId, toAssetId });
+
+        // IMPORTANT: Pool ID must be sorted (smaller asset ID first)
+        const [asset1, asset2] = fromAssetId < toAssetId
+          ? [fromAssetId, toAssetId]
+          : [toAssetId, fromAssetId];
+
+        console.log('🔍 Sorted pool assets:', { asset1, asset2 });
+
+        // Create pool asset tuple [asset1, asset2] - must be sorted!
         const poolAssets = [
-          { NativeOrAsset: { Asset: fromAssetId } },
-          { NativeOrAsset: { Asset: toAssetId } }
+          { NativeOrAsset: { Asset: asset1 } },
+          { NativeOrAsset: { Asset: asset2 } }
         ];
+
+        console.log('🔍 Pool query with:', poolAssets);
 
         // Query pool from AssetConversion pallet
         const poolInfo = await api.query.assetConversion.pools(poolAssets);
+        console.log('🔍 Pool query result:', poolInfo.toHuman());
+
+        console.log('🔍 Pool isEmpty?', poolInfo.isEmpty, 'exists?', !poolInfo.isEmpty);
 
         if (poolInfo && !poolInfo.isEmpty) {
           const pool = poolInfo.toJSON() as any;
-          
-          if (pool && pool[0] && pool[1]) {
-            // Pool structure: [reserve0, reserve1]
-            const reserve0 = parseFloat(pool[0].toString());
-            const reserve1 = parseFloat(pool[1].toString());
-            
-            // Calculate exchange rate
-            const rate = reserve1 / reserve0;
-            setExchangeRate(rate);
-          } else {
-            console.warn('Pool has no reserves');
+          console.log('🔍 Pool data:', pool);
+
+          try {
+            // New pallet version: reserves are stored in pool account balances
+            // AccountIdConverter implementation in substrate:
+            // blake2_256(&Encode::encode(&(PalletId, PoolId))[..])
+            console.log('🔍 Deriving pool account using AccountIdConverter...');
+            const { stringToU8a } = await import('@polkadot/util');
+            const { blake2AsU8a } = await import('@polkadot/util-crypto');
+
+            // PalletId for AssetConversion: "py/ascon" (8 bytes)
+            const PALLET_ID = stringToU8a('py/ascon');
+
+            // Create PoolId tuple (u32, u32)
+            const poolId = api.createType('(u32, u32)', [asset1, asset2]);
+            console.log('🔍 Pool ID:', poolId.toHuman());
+
+            // Create (PalletId, PoolId) tuple: ([u8; 8], (u32, u32))
+            const palletIdType = api.createType('[u8; 8]', PALLET_ID);
+            const fullTuple = api.createType('([u8; 8], (u32, u32))', [palletIdType, poolId]);
+
+            console.log('🔍 Full tuple encoded length:', fullTuple.toU8a().length);
+            console.log('🔍 Full tuple bytes:', Array.from(fullTuple.toU8a()));
+
+            // Hash the SCALE-encoded tuple
+            const accountHash = blake2AsU8a(fullTuple.toU8a(), 256);
+            console.log('🔍 Account hash:', Array.from(accountHash).slice(0, 8));
+
+            const poolAccountId = api.createType('AccountId32', accountHash);
+            console.log('🔍 Pool AccountId (NEW METHOD):', poolAccountId.toString());
+
+            // Query pool account's asset balances
+            console.log('🔍 Querying reserves for asset', asset1, 'and', asset2);
+            const reserve0Query = await api.query.assets.account(asset1, poolAccountId);
+            const reserve1Query = await api.query.assets.account(asset2, poolAccountId);
+
+            console.log('🔍 Reserve0 query result:', reserve0Query.toHuman());
+            console.log('🔍 Reserve1 query result:', reserve1Query.toHuman());
+            console.log('🔍 Reserve0 isEmpty?', reserve0Query.isEmpty);
+            console.log('🔍 Reserve1 isEmpty?', reserve1Query.isEmpty);
+
+            const reserve0Data = reserve0Query.toJSON() as any;
+            const reserve1Data = reserve1Query.toJSON() as any;
+
+            console.log('🔍 Reserve0 JSON:', reserve0Data);
+            console.log('🔍 Reserve1 JSON:', reserve1Data);
+
+            if (reserve0Data && reserve1Data && reserve0Data.balance && reserve1Data.balance) {
+              // Parse hex string balances to BigInt, then to number
+              const balance0Hex = reserve0Data.balance.toString();
+              const balance1Hex = reserve1Data.balance.toString();
+
+              console.log('🔍 Raw hex balances:', { balance0Hex, balance1Hex });
+
+              const reserve0 = Number(BigInt(balance0Hex)) / 1e12;
+              const reserve1 = Number(BigInt(balance1Hex)) / 1e12;
+
+              console.log('✅ Reserves found:', { reserve0, reserve1 });
+
+              // Store pool reserves for AMM calculation
+              setPoolReserves({
+                reserve0,
+                reserve1,
+                asset0: asset1,  // Sorted pool always has asset1 < asset2
+                asset1: asset2
+              });
+
+              // Also calculate simple exchange rate for display
+              const rate = fromAssetId === asset1
+                ? reserve1 / reserve0  // from asset1 to asset2
+                : reserve0 / reserve1; // from asset2 to asset1
+
+              console.log('✅ Exchange rate:', rate, 'direction:', fromAssetId === asset1 ? 'asset1→asset2' : 'asset2→asset1');
+              setExchangeRate(rate);
+            } else {
+              console.warn('⚠️ Pool has no reserves - reserve0Data:', reserve0Data, 'reserve1Data:', reserve1Data);
+              setExchangeRate(0);
+            }
+          } catch (err) {
+            console.error('❌ Error deriving pool account:', err);
             setExchangeRate(0);
           }
         } else {
@@ -228,67 +331,128 @@ const TokenSwap = () => {
 
     setIsSwapping(true);
     try {
-      const fromAssetId = ASSET_IDS[fromToken as keyof typeof ASSET_IDS];
-      const toAssetId = ASSET_IDS[toToken as keyof typeof ASSET_IDS];
       const amountIn = parseAmount(fromAmount, 12);
-      
-      // Calculate minimum amount out based on slippage
       const minAmountOut = parseAmount(
         (parseFloat(toAmount) * (1 - parseFloat(slippage) / 100)).toString(),
         12
       );
 
-      // Create path for swap
-      const path = [
-        { NativeOrAsset: { Asset: fromAssetId } },
-        { NativeOrAsset: { Asset: toAssetId } }
-      ];
-
       // Get signer from extension
       const { web3FromAddress } = await import('@polkadot/extension-dapp');
       const injector = await web3FromAddress(selectedAccount.address);
 
-      // Submit swap transaction to AssetConversion pallet
-      const tx = api.tx.assetConversion.swapExactTokensForTokens(
-        path,
-        amountIn.toString(),
-        minAmountOut.toString(),
-        selectedAccount.address,
-        true // keep_alive
-      );
+      // Build transaction based on token types
+      let tx;
 
+      if (fromToken === 'HEZ' && toToken === 'PEZ') {
+        // HEZ → PEZ: wrap(HEZ→wHEZ) then swap(wHEZ→PEZ)
+        const wrapTx = api.tx.tokenWrapper.wrap(amountIn.toString());
+        const swapPath = [
+          { NativeOrAsset: { Asset: 0 } }, // wHEZ
+          { NativeOrAsset: { Asset: 1 } }  // PEZ
+        ];
+        const swapTx = api.tx.assetConversion.swapExactTokensForTokens(
+          swapPath,
+          amountIn.toString(),
+          minAmountOut.toString(),
+          selectedAccount.address,
+          true
+        );
+        tx = api.tx.utility.batchAll([wrapTx, swapTx]);
+
+      } else if (fromToken === 'PEZ' && toToken === 'HEZ') {
+        // PEZ → HEZ: swap(PEZ→wHEZ) then unwrap(wHEZ→HEZ)
+        const swapPath = [
+          { NativeOrAsset: { Asset: 1 } }, // PEZ
+          { NativeOrAsset: { Asset: 0 } }  // wHEZ
+        ];
+        const swapTx = api.tx.assetConversion.swapExactTokensForTokens(
+          swapPath,
+          amountIn.toString(),
+          minAmountOut.toString(),
+          selectedAccount.address,
+          true
+        );
+        const unwrapTx = api.tx.tokenWrapper.unwrap(minAmountOut.toString());
+        tx = api.tx.utility.batchAll([swapTx, unwrapTx]);
+
+      } else {
+        // Direct swap between assets (should not happen with HEZ/PEZ only)
+        const getPoolAssetId = (token: string) => {
+          if (token === 'HEZ') return 0; // wHEZ
+          return ASSET_IDS[token as keyof typeof ASSET_IDS];
+        };
+
+        const swapPath = [
+          { NativeOrAsset: { Asset: getPoolAssetId(fromToken) } },
+          { NativeOrAsset: { Asset: getPoolAssetId(toToken) } }
+        ];
+
+        tx = api.tx.assetConversion.swapExactTokensForTokens(
+          swapPath,
+          amountIn.toString(),
+          minAmountOut.toString(),
+          selectedAccount.address,
+          true
+        );
+      }
+
+      // Sign and send transaction
       await tx.signAndSend(
         selectedAccount.address,
         { signer: injector.signer },
-        ({ status, events }) => {
+        async ({ status, events, dispatchError }) => {
+          console.log('🔍 Transaction status:', status.toHuman());
+
           if (status.isInBlock) {
-            console.log('Swap in block:', status.asInBlock.toHex());
-            
+            console.log('✅ Transaction in block:', status.asInBlock.toHex());
+
             toast({
               title: 'Transaction Submitted',
-              description: `Swap in block ${status.asInBlock.toHex().slice(0, 10)}...`,
+              description: `Processing in block ${status.asInBlock.toHex().slice(0, 10)}...`,
             });
           }
 
           if (status.isFinalized) {
-            console.log('Swap finalized:', status.asFinalized.toHex());
-            
-            // Check for successful swap event
-            const swapEvent = events.find(({ event }) =>
+            console.log('✅ Transaction finalized:', status.asFinalized.toHex());
+            console.log('🔍 All events:', events.map(({ event }) => event.toHuman()));
+            console.log('🔍 dispatchError:', dispatchError?.toHuman());
+
+            // Check for errors
+            if (dispatchError) {
+              let errorMessage = 'Transaction failed';
+
+              if (dispatchError.isModule) {
+                const decoded = api.registry.findMetaError(dispatchError.asModule);
+                errorMessage = `${decoded.section}.${decoded.name}: ${decoded.docs}`;
+              }
+
+              toast({
+                title: 'Error',
+                description: errorMessage,
+                variant: 'destructive',
+              });
+              setIsSwapping(false);
+              return;
+            }
+
+            // Success - check for swap event
+            const hasSwapEvent = events.some(({ event }) =>
               api.events.assetConversion?.SwapExecuted?.is(event)
             );
 
-            if (swapEvent) {
+            if (hasSwapEvent || fromToken === 'HEZ' || toToken === 'HEZ') {
               toast({
                 title: 'Success!',
-                description: `Swapped ${fromAmount} ${fromToken} for ${toAmount} ${toToken}`,
+                description: `Swapped ${fromAmount} ${fromToken} for ~${toAmount} ${toToken}`,
               });
 
               setShowConfirm(false);
               setFromAmount('');
-              
-              // Refresh balances
-              window.location.reload();
+
+              // Refresh balances without page reload
+              await refreshBalances();
+              console.log('✅ Balances refreshed after swap');
             } else {
               toast({
                 title: 'Error',
@@ -296,7 +460,7 @@ const TokenSwap = () => {
                 variant: 'destructive',
               });
             }
-            
+
             setIsSwapping(false);
           }
         }
@@ -326,8 +490,8 @@ const TokenSwap = () => {
             
             <div>
               <h2 className="text-2xl font-bold mb-2">DEX Coming Soon</h2>
-              <p className="text-gray-400 max-w-md mx-auto">
-                The AssetConversion pallet is not yet enabled in the runtime. 
+              <p className="text-gray-300 max-w-md mx-auto">
+                The AssetConversion pallet is not yet enabled in the runtime.
                 Token swapping functionality will be available after the next runtime upgrade.
               </p>
             </div>
@@ -368,11 +532,11 @@ const TokenSwap = () => {
           )}
 
           <div className="space-y-4">
-            <div className="bg-gray-50 rounded-lg p-4 text-gray-900">
+            <div className="bg-gray-800 border border-gray-700 rounded-lg p-4">
               <div className="flex justify-between mb-2">
-                <span className="text-sm text-gray-900">From</span>
-                <span className="text-sm text-gray-900">
-                  Balance: {isLoadingBalances ? '...' : fromBalance} {fromToken}
+                <span className="text-sm text-gray-400">From</span>
+                <span className="text-sm text-gray-400">
+                  Balance: {fromBalance} {fromToken}
                 </span>
               </div>
               <div className="flex gap-3">
@@ -381,32 +545,32 @@ const TokenSwap = () => {
                   value={fromAmount}
                   onChange={(e) => setFromAmount(e.target.value)}
                   placeholder="0.0"
-                  className="text-2xl font-bold border-0 bg-transparent"
+                  className="text-2xl font-bold border-0 bg-transparent text-white placeholder:text-gray-600"
                   disabled={!selectedAccount}
                 />
-                <Button variant="outline" className="min-w-[100px]">
+                <Button variant="outline" className="min-w-[100px] border-gray-600 hover:border-gray-500">
                   {fromToken === 'PEZ' ? '🟣 PEZ' : '🟡 HEZ'}
                 </Button>
               </div>
             </div>
 
-            <div className="flex justify-center">
+            <div className="flex justify-center -my-2">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={handleSwap}
-                className="rounded-full bg-white border-2"
+                className="rounded-full bg-gray-800 border-2 border-gray-700 hover:bg-gray-700 hover:border-gray-600"
                 disabled={!selectedAccount}
               >
-                <ArrowDownUp className="h-5 w-5" />
+                <ArrowDownUp className="h-5 w-5 text-gray-300" />
               </Button>
             </div>
 
-            <div className="bg-gray-50 rounded-lg p-4 text-gray-900">
+            <div className="bg-gray-800 border border-gray-700 rounded-lg p-4">
               <div className="flex justify-between mb-2">
-                <span className="text-sm text-gray-900">To</span>
-                <span className="text-sm text-gray-900">
-                  Balance: {isLoadingBalances ? '...' : toBalance} {toToken}
+                <span className="text-sm text-gray-400">To</span>
+                <span className="text-sm text-gray-400">
+                  Balance: {toBalance} {toToken}
                 </span>
               </div>
               <div className="flex gap-3">
@@ -415,18 +579,18 @@ const TokenSwap = () => {
                   value={toAmount}
                   readOnly
                   placeholder="0.0"
-                  className="text-2xl font-bold border-0 bg-transparent"
+                  className="text-2xl font-bold border-0 bg-transparent text-white placeholder:text-gray-600"
                 />
-                <Button variant="outline" className="min-w-[100px]">
+                <Button variant="outline" className="min-w-[100px] border-gray-600 hover:border-gray-500">
                   {toToken === 'PEZ' ? '🟣 PEZ' : '🟡 HEZ'}
                 </Button>
               </div>
             </div>
 
-            <div className="bg-blue-50 rounded-lg p-3 text-gray-900">
+            <div className="bg-blue-900/20 border border-blue-800/30 rounded-lg p-3">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-900">Exchange Rate</span>
-                <span className="font-semibold text-gray-900">
+                <span className="text-gray-300">Exchange Rate</span>
+                <span className="font-semibold text-blue-400">
                   {isLoadingRate ? (
                     'Loading...'
                   ) : exchangeRate > 0 ? (
@@ -437,8 +601,8 @@ const TokenSwap = () => {
                 </span>
               </div>
               <div className="flex justify-between text-sm mt-1">
-                <span className="text-gray-900">Slippage Tolerance</span>
-                <span className="font-semibold text-gray-900">{slippage}%</span>
+                <span className="text-gray-300">Slippage Tolerance</span>
+                <span className="font-semibold text-blue-400">{slippage}%</span>
               </div>
             </div>
 
@@ -459,24 +623,24 @@ const TokenSwap = () => {
           </h3>
           
           {isLoadingPools ? (
-            <div className="text-center text-gray-500 py-8">Loading pools...</div>
+            <div className="text-center text-gray-400 py-8">Loading pools...</div>
           ) : liquidityPools.length > 0 ? (
             <div className="space-y-3">
               {liquidityPools.map((pool, idx) => (
-                <div key={idx} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg text-gray-900">
+                <div key={idx} className="flex justify-between items-center p-3 bg-gray-800 border border-gray-700 rounded-lg hover:border-gray-600 transition-colors">
                   <div>
-                    <div className="font-semibold text-gray-900">{pool.pool}</div>
-                    <div className="text-sm text-gray-900">TVL: {pool.tvl}</div>
+                    <div className="font-semibold text-gray-200">{pool.pool}</div>
+                    <div className="text-sm text-gray-400">TVL: {pool.tvl}</div>
                   </div>
                   <div className="text-right">
-                    <div className="text-green-600 font-semibold">{pool.apr} APR</div>
-                    <div className="text-sm text-gray-900">Vol: {pool.volume}</div>
+                    <div className="text-green-400 font-semibold">{pool.apr} APR</div>
+                    <div className="text-sm text-gray-400">Vol: {pool.volume}</div>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="text-center text-gray-500 py-8">
+            <div className="text-center text-gray-400 py-8">
               No liquidity pools available yet
             </div>
           )}
@@ -489,8 +653,8 @@ const TokenSwap = () => {
             <Clock className="h-5 w-5" />
             Recent Swaps
           </h3>
-          
-          <div className="text-center text-gray-500 py-8">
+
+          <div className="text-center text-gray-400 py-8">
             {selectedAccount ? 'No swap history yet' : 'Connect wallet to view history'}
           </div>
         </Card>
@@ -533,22 +697,22 @@ const TokenSwap = () => {
             <DialogTitle>Confirm Swap</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="p-4 bg-gray-50 rounded-lg text-gray-900">
+            <div className="p-4 bg-gray-800 border border-gray-700 rounded-lg">
               <div className="flex justify-between mb-2">
-                <span className="text-gray-900">You Pay</span>
-                <span className="font-bold text-gray-900">{fromAmount} {fromToken}</span>
+                <span className="text-gray-300">You Pay</span>
+                <span className="font-bold text-white">{fromAmount} {fromToken}</span>
               </div>
               <div className="flex justify-between mb-2">
-                <span className="text-gray-900">You Receive</span>
-                <span className="font-bold text-gray-900">{toAmount} {toToken}</span>
+                <span className="text-gray-300">You Receive</span>
+                <span className="font-bold text-white">{toAmount} {toToken}</span>
               </div>
-              <div className="flex justify-between mt-3 pt-3 border-t text-sm">
-                <span className="text-gray-600">Exchange Rate</span>
-                <span className="text-gray-600">1 {fromToken} = {exchangeRate.toFixed(4)} {toToken}</span>
+              <div className="flex justify-between mt-3 pt-3 border-t border-gray-700 text-sm">
+                <span className="text-gray-400">Exchange Rate</span>
+                <span className="text-gray-400">1 {fromToken} = {exchangeRate.toFixed(4)} {toToken}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Slippage</span>
-                <span className="text-gray-600">{slippage}%</span>
+                <span className="text-gray-400">Slippage</span>
+                <span className="text-gray-400">{slippage}%</span>
               </div>
             </div>
             <Button

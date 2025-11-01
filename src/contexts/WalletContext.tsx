@@ -9,27 +9,44 @@ import { usePolkadot } from './PolkadotContext';
 import { WALLET_ERRORS, formatBalance, ASSET_IDS } from '@/lib/wallet';
 import type { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
 
+interface TokenBalances {
+  HEZ: string;
+  PEZ: string;
+  wHEZ: string;
+}
+
 interface WalletContextType {
   isConnected: boolean;
   account: string | null;  // Current selected account address
   accounts: InjectedAccountWithMeta[];
-  balance: string;
+  balance: string;  // Legacy: HEZ balance
+  balances: TokenBalances;  // All token balances
   error: string | null;
   connectWallet: () => Promise<void>;
   disconnect: () => void;
   switchAccount: (account: InjectedAccountWithMeta) => void;
   signTransaction: (tx: any) => Promise<string>;
   signMessage: (message: string) => Promise<string>;
+  refreshBalances: () => Promise<void>;  // Refresh all token balances
 }
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
 
 export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const polkadot = usePolkadot();
+
+  console.log('🎯 WalletProvider render:', {
+    hasApi: !!polkadot.api,
+    isApiReady: polkadot.isApiReady,
+    selectedAccount: polkadot.selectedAccount?.address,
+    accountsCount: polkadot.accounts.length
+  });
+
   const [balance, setBalance] = useState<string>('0');
+  const [balances, setBalances] = useState<TokenBalances>({ HEZ: '0', PEZ: '0', wHEZ: '0' });
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch balance when account changes
+  // Fetch all token balances when account changes
   const updateBalance = useCallback(async (address: string) => {
     if (!polkadot.api || !polkadot.isApiReady) {
       console.warn('API not ready, cannot fetch balance');
@@ -37,13 +54,59 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
 
     try {
-      // Query native token balance (PEZ)
-      const { data: balance } = await polkadot.api.query.system.account(address);
-      const formattedBalance = formatBalance(balance.free.toString());
-      setBalance(formattedBalance);
+      console.log('💰 Fetching all token balances for:', address);
+
+      // Fetch HEZ (native token)
+      const { data: nativeBalance } = await polkadot.api.query.system.account(address);
+      const hezBalance = formatBalance(nativeBalance.free.toString());
+      setBalance(hezBalance); // Legacy support
+
+      // Fetch PEZ (Asset ID: 1)
+      let pezBalance = '0';
+      try {
+        const pezData = await polkadot.api.query.assets.account(ASSET_IDS.PEZ, address);
+        console.log('📊 Raw PEZ data:', pezData.toHuman());
+
+        if (pezData.isSome) {
+          const assetData = pezData.unwrap();
+          const pezAmount = assetData.balance.toString();
+          pezBalance = formatBalance(pezAmount);
+          console.log('✅ PEZ balance found:', pezBalance);
+        } else {
+          console.warn('⚠️ PEZ asset not found for this account');
+        }
+      } catch (err) {
+        console.error('❌ Failed to fetch PEZ balance:', err);
+      }
+
+      // Fetch wHEZ (Asset ID: 0)
+      let whezBalance = '0';
+      try {
+        const whezData = await polkadot.api.query.assets.account(ASSET_IDS.WHEZ, address);
+        console.log('📊 Raw wHEZ data:', whezData.toHuman());
+
+        if (whezData.isSome) {
+          const assetData = whezData.unwrap();
+          const whezAmount = assetData.balance.toString();
+          whezBalance = formatBalance(whezAmount);
+          console.log('✅ wHEZ balance found:', whezBalance);
+        } else {
+          console.warn('⚠️ wHEZ asset not found for this account');
+        }
+      } catch (err) {
+        console.error('❌ Failed to fetch wHEZ balance:', err);
+      }
+
+      setBalances({
+        HEZ: hezBalance,
+        PEZ: pezBalance,
+        wHEZ: whezBalance,
+      });
+
+      console.log('✅ Balances updated:', { HEZ: hezBalance, PEZ: pezBalance, wHEZ: whezBalance });
     } catch (err) {
-      console.error('Failed to fetch balance:', err);
-      setError('Failed to fetch balance');
+      console.error('Failed to fetch balances:', err);
+      setError('Failed to fetch balances');
     }
   }, [polkadot.api, polkadot.isApiReady]);
 
@@ -122,10 +185,16 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   // Update balance when selected account changes
   useEffect(() => {
+    console.log('🔄 WalletContext useEffect triggered!', {
+      hasAccount: !!polkadot.selectedAccount,
+      isApiReady: polkadot.isApiReady,
+      address: polkadot.selectedAccount?.address
+    });
+
     if (polkadot.selectedAccount && polkadot.isApiReady) {
       updateBalance(polkadot.selectedAccount.address);
     }
-  }, [polkadot.selectedAccount, polkadot.isApiReady, updateBalance]);
+  }, [polkadot.selectedAccount, polkadot.isApiReady]);
 
   // Sync error state with PolkadotContext
   useEffect(() => {
@@ -134,17 +203,26 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   }, [polkadot.error]);
 
+  // Refresh balances for current account
+  const refreshBalances = useCallback(async () => {
+    if (polkadot.selectedAccount) {
+      await updateBalance(polkadot.selectedAccount.address);
+    }
+  }, [polkadot.selectedAccount, updateBalance]);
+
   const value: WalletContextType = {
     isConnected: polkadot.accounts.length > 0,
     account: polkadot.selectedAccount?.address || null,
     accounts: polkadot.accounts,
     balance,
+    balances,
     error: error || polkadot.error,
     connectWallet,
     disconnect,
     switchAccount,
     signTransaction,
     signMessage,
+    refreshBalances,
   };
 
   return (
