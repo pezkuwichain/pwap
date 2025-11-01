@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Wallet, Chrome, ExternalLink, Copy, Check, LogOut } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Wallet, Chrome, ExternalLink, Copy, Check, LogOut, Award } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -17,16 +17,19 @@ interface WalletModalProps {
 }
 
 export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => {
-  const { 
-    accounts, 
-    selectedAccount, 
+  const {
+    accounts,
+    selectedAccount,
     setSelectedAccount,
-    connectWallet, 
+    connectWallet,
     disconnectWallet,
-    error 
+    api,
+    isApiReady,
+    error
   } = usePolkadot();
-  
+
   const [copied, setCopied] = useState(false);
+  const [trustScore, setTrustScore] = useState<string>('-');
 
   const handleCopyAddress = () => {
     if (selectedAccount?.address) {
@@ -49,6 +52,27 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
     disconnectWallet();
     onClose();
   };
+
+  // Fetch trust score from blockchain
+  useEffect(() => {
+    const fetchTrustScore = async () => {
+      if (!api || !isApiReady || !selectedAccount?.address) {
+        setTrustScore('-');
+        return;
+      }
+
+      try {
+        const score = await api.query.trust.trustScoreOf(selectedAccount.address);
+        setTrustScore(score.toString());
+        console.log('✅ Trust score fetched:', score.toString());
+      } catch (err) {
+        console.warn('Failed to fetch trust score:', err);
+        setTrustScore('-');
+      }
+    };
+
+    fetchTrustScore();
+  }, [api, isApiReady, selectedAccount]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -122,6 +146,16 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                       <Copy className="h-4 w-4" />
                     )}
                   </Button>
+                </div>
+              </div>
+
+              <div>
+                <div className="text-xs text-gray-400 mb-1">Trust Score</div>
+                <div className="flex items-center gap-2">
+                  <Award className="h-4 w-4 text-purple-400" />
+                  <span className="text-lg font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
+                    {trustScore}
+                  </span>
                 </div>
               </div>
 
