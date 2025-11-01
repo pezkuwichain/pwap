@@ -21,9 +21,9 @@ interface PolkadotProviderProps {
   endpoint?: string;
 }
 
-export const PolkadotProvider: React.FC<PolkadotProviderProps> = ({ 
-  children, 
-  endpoint = 'ws://127.0.0.1:9944' // Local testnet RPC
+export const PolkadotProvider: React.FC<PolkadotProviderProps> = ({
+  children,
+  endpoint = 'wss://beta.pezkuwichain.io' // Beta testnet RPC
 }) => {
   const [api, setApi] = useState<ApiPromise | null>(null);
   const [isApiReady, setIsApiReady] = useState(false);
