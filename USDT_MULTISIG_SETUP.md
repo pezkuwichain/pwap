@@ -10,11 +10,11 @@ USDT Treasury, kullanıcıların gerçek USDT'yi chain'de wUSDT olarak kullanabi
 
 | # | Rol | Tiki | Unique | AccountId | Sorumluluk |
 |---|-----|------|--------|-----------|------------|
-| 1️⃣ | **Founder/Başkan** | Serok | ✅ | `5Grw...` | Stratejik liderlik, son karar mercii |
-| 2️⃣ | **Meclis Başkanı** | SerokiMeclise | ✅ | `5FHn...` | Yasama kontrolü, demokratik denetim |
-| 3️⃣ | **Hazine Müdürü** | Xezinedar | ✅ | `5FLS...` | Treasury yönetimi, reserve management |
-| 4️⃣ | **Noter** | Noter | ❌ | `5DAA...` | Hukuki belgelendirme, işlem kayıtları |
-| 5️⃣ | **Sözcü/Temsilci** | Berdevk | ❌ | `5HGj...` | İletişim, şeffaflık, topluluk bilgilendirme |
+| 1️⃣ | **Founder/Başkan** | Serok | ✅ | `5D74yW53pg3gCaLMzGvZUNxiqTZMwFXA85bB2QYfcYh5Tdc4` | Stratejik liderlik, son karar mercii |
+| 2️⃣ | **Meclis Başkanı** | SerokiMeclise | ✅ | `5GTRuK96TkmjUSuQnkjBJBCEmHSDSdW22ptWosxCBWACfsZp` | Yasama kontrolü, demokratik denetim |
+| 3️⃣ | **Hazine Müdürü** | Xezinedar | ✅ | `5DRTYPChot1UPDHEeJVTtuE8dLDgCVvAcWbdnc8zwwpYYjeR` | Treasury yönetimi, reserve management |
+| 4️⃣ | **Noter** | Noter | ❌ | `5DFwqK698vL4gXHEcanaewnAqhxJ2rjhAogpSTHw3iwGDwd3` | Hukuki belgelendirme, işlem kayıtları |
+| 5️⃣ | **Sözcü/Temsilci** | Berdevk | ❌ | `5F4V6dzpe72dE2C7YN3y7VGznMTWPFeSKL3ANhp4XasXjfvj` | İletişim, şeffaflık, topluluk bilgilendirme |
 
 ### Açıklama:
 - **Unique Roller (3):** Chain'de sadece 1 kişi bu role sahip olabilir (blockchain garantili)

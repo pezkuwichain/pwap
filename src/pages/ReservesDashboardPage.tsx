@@ -5,10 +5,11 @@ import { Button } from '@/components/ui/button';
 import { ReservesDashboard } from '@/components/ReservesDashboard';
 import { USDTBridge } from '@/components/USDTBridge';
 
-// TODO: Replace with actual addresses when multisig is set up
+// USDT Treasury Multisig Member Addresses
 const SPECIFIC_ADDRESSES = {
-  Noter: '5DAAnrj7VHTznn2AWBemMuyBwZWs6FNFjdyVXUeYum3PTXFy', // Example address
-  Berdevk: '5HGjWAeFDfFCWPsjFQdVV2Msvz2XtMktvgocEZcCj68kUMaw', // Example address
+  // Non-unique roles - manually specified
+  Noter: '5DFwqK698vL4gXHEcanaewnAqhxJ2rjhAogpSTHw3iwGDwd3',
+  Berdevk: '5F4V6dzpe72dE2C7YN3y7VGznMTWPFeSKL3ANhp4XasXjfvj',
 };
 
 const ReservesDashboardPage = () => {
