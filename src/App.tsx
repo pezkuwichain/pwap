@@ -9,6 +9,7 @@ import ProfileSettings from '@/pages/ProfileSettings';
 import AdminPanel from '@/pages/AdminPanel';
 import WalletDashboard from './pages/WalletDashboard';
 import PoolDashboardPage from './pages/PoolDashboard';
+import ReservesDashboardPage from './pages/ReservesDashboardPage';
 import { AppProvider } from '@/contexts/AppContext';
 import { PolkadotProvider } from '@/contexts/PolkadotContext';
 import { WalletProvider } from '@/contexts/WalletContext';
@@ -60,6 +61,11 @@ function App() {
                     <Route path="/pool" element={
                       <ProtectedRoute>
                         <PoolDashboardPage />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/reserves" element={
+                      <ProtectedRoute>
+                        <ReservesDashboardPage />
                       </ProtectedRoute>
                     } />
                     <Route path="*" element={<NotFound />} />

@@ -34,6 +34,7 @@ export const CHAIN_CONFIG = {
 export const ASSET_IDS = {
   WHEZ: parseInt(import.meta.env.VITE_ASSET_WHEZ || '0'),  // Wrapped HEZ
   PEZ: parseInt(import.meta.env.VITE_ASSET_PEZ || '1'),    // PEZ utility token
+  WUSDT: parseInt(import.meta.env.VITE_ASSET_WUSDT || '2'), // Wrapped USDT (multisig backed)
   USDT: parseInt(import.meta.env.VITE_ASSET_USDT || '3'),
   BTC: parseInt(import.meta.env.VITE_ASSET_BTC || '4'),
   ETH: parseInt(import.meta.env.VITE_ASSET_ETH || '5'),
