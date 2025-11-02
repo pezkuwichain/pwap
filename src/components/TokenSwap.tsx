@@ -485,10 +485,8 @@ const TokenSwap = () => {
       if (fromToken === 'HEZ' && toToken === 'PEZ') {
         // HEZ → PEZ: wrap(HEZ→wHEZ) then swap(wHEZ→PEZ)
         const wrapTx = api.tx.tokenWrapper.wrap(amountIn.toString());
-        const swapPath = [
-          { NativeOrAsset: { Asset: 0 } }, // wHEZ
-          { NativeOrAsset: { Asset: 1 } }  // PEZ
-        ];
+        // AssetKind = u32, so swap path is just [0, 1]
+        const swapPath = [0, 1]; // wHEZ → PEZ
         const swapTx = api.tx.assetConversion.swapExactTokensForTokens(
           swapPath,
           amountIn.toString(),
@@ -500,10 +498,8 @@ const TokenSwap = () => {
 
       } else if (fromToken === 'PEZ' && toToken === 'HEZ') {
         // PEZ → HEZ: swap(PEZ→wHEZ) then unwrap(wHEZ→HEZ)
-        const swapPath = [
-          { NativeOrAsset: { Asset: 1 } }, // PEZ
-          { NativeOrAsset: { Asset: 0 } }  // wHEZ
-        ];
+        // AssetKind = u32, so swap path is just [1, 0]
+        const swapPath = [1, 0]; // PEZ → wHEZ
         const swapTx = api.tx.assetConversion.swapExactTokensForTokens(
           swapPath,
           amountIn.toString(),
@@ -521,9 +517,10 @@ const TokenSwap = () => {
           return ASSET_IDS[token as keyof typeof ASSET_IDS];
         };
 
+        // AssetKind = u32, so swap path is just [assetId1, assetId2]
         const swapPath = [
-          { NativeOrAsset: { Asset: getPoolAssetId(fromToken) } },
-          { NativeOrAsset: { Asset: getPoolAssetId(toToken) } }
+          getPoolAssetId(fromToken),
+          getPoolAssetId(toToken)
         ];
 
         tx = api.tx.assetConversion.swapExactTokensForTokens(

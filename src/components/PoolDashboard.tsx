@@ -48,7 +48,9 @@ const PoolDashboard = () => {
 
       try {
         // Query wHEZ/PEZ pool
-        const poolId = [0, 1]; // wHEZ (asset 0) / PEZ (asset 1)
+        const asset1 = 0; // wHEZ
+        const asset2 = 1; // PEZ
+        const poolId = [asset1, asset2];
 
         const poolInfo = await api.query.assetConversion.pools(poolId);
 
@@ -56,17 +58,28 @@ const PoolDashboard = () => {
           const lpTokenData = poolInfo.unwrap().toJSON() as any;
           const lpTokenId = lpTokenData.lpToken;
 
-          // Get pool account
-          const poolAccountData = await api.query.assetConversion.poolAccountIds?.(poolId);
-          let poolAccount = '';
+          // Derive pool account using AccountIdConverter
+          const { stringToU8a } = await import('@polkadot/util');
+          const { blake2AsU8a } = await import('@polkadot/util-crypto');
 
-          if (poolAccountData && poolAccountData.isSome) {
-            poolAccount = poolAccountData.unwrap().toString();
-          }
+          // PalletId for AssetConversion: "py/ascon" (8 bytes)
+          const PALLET_ID = stringToU8a('py/ascon');
+
+          // Create PoolId tuple (u32, u32)
+          const poolIdType = api.createType('(u32, u32)', [asset1, asset2]);
+
+          // Create (PalletId, PoolId) tuple: ([u8; 8], (u32, u32))
+          const palletIdType = api.createType('[u8; 8]', PALLET_ID);
+          const fullTuple = api.createType('([u8; 8], (u32, u32))', [palletIdType, poolIdType]);
+
+          // Hash the SCALE-encoded tuple
+          const accountHash = blake2AsU8a(fullTuple.toU8a(), 256);
+          const poolAccountId = api.createType('AccountId32', accountHash);
+          const poolAccount = poolAccountId.toString();
 
           // Get reserves
-          const whezBalanceData = await api.query.assets.account(0, poolAccount);
-          const pezBalanceData = await api.query.assets.account(1, poolAccount);
+          const whezBalanceData = await api.query.assets.account(asset1, poolAccountId);
+          const pezBalanceData = await api.query.assets.account(asset2, poolAccountId);
 
           let reserve0 = 0;
           let reserve1 = 0;
