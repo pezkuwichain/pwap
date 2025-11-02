@@ -6,7 +6,7 @@ import { TransferModal } from '@/components/TransferModal';
 import { ReceiveModal } from '@/components/ReceiveModal';
 import { TransactionHistory } from '@/components/TransactionHistory';
 import { Button } from '@/components/ui/button';
-import { ArrowUpRight, ArrowDownRight, History, ArrowLeft } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, History, ArrowLeft, Activity } from 'lucide-react';
 
 const WalletDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -49,7 +49,7 @@ const WalletDashboard: React.FC = () => {
           {/* Right Column - Actions */}
           <div className="lg:col-span-2 space-y-6">
             {/* Quick Actions */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               <Button
                 onClick={() => setIsTransferModalOpen(true)}
                 className="bg-gradient-to-r from-green-600 to-yellow-400 hover:from-green-700 hover:to-yellow-500 h-24 flex flex-col items-center justify-center"
@@ -57,7 +57,7 @@ const WalletDashboard: React.FC = () => {
                 <ArrowUpRight className="w-6 h-6 mb-2" />
                 <span>Send</span>
               </Button>
-            
+
               <Button
                 onClick={() => setIsReceiveModalOpen(true)}
                 variant="outline"
@@ -65,6 +65,15 @@ const WalletDashboard: React.FC = () => {
               >
                 <ArrowDownRight className="w-6 h-6 mb-2" />
                 <span>Receive</span>
+              </Button>
+
+              <Button
+                onClick={() => navigate('/pool')}
+                variant="outline"
+                className="border-blue-600 hover:bg-blue-900/20 text-blue-400 h-24 flex flex-col items-center justify-center"
+              >
+                <Activity className="w-6 h-6 mb-2" />
+                <span>Pool</span>
               </Button>
 
               <Button

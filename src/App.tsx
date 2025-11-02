@@ -8,6 +8,7 @@ import PasswordReset from '@/pages/PasswordReset';
 import ProfileSettings from '@/pages/ProfileSettings';
 import AdminPanel from '@/pages/AdminPanel';
 import WalletDashboard from './pages/WalletDashboard';
+import PoolDashboardPage from './pages/PoolDashboard';
 import { AppProvider } from '@/contexts/AppContext';
 import { PolkadotProvider } from '@/contexts/PolkadotContext';
 import { WalletProvider } from '@/contexts/WalletContext';
@@ -54,6 +55,11 @@ function App() {
                     <Route path="/wallet" element={
                       <ProtectedRoute>
                         <WalletDashboard />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/pool" element={
+                      <ProtectedRoute>
+                        <PoolDashboardPage />
                       </ProtectedRoute>
                     } />
                     <Route path="*" element={<NotFound />} />
