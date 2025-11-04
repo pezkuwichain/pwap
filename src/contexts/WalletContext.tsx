@@ -13,6 +13,7 @@ interface TokenBalances {
   HEZ: string;
   PEZ: string;
   wHEZ: string;
+  wUSDT: string;
 }
 
 interface WalletContextType {
@@ -43,7 +44,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   });
 
   const [balance, setBalance] = useState<string>('0');
-  const [balances, setBalances] = useState<TokenBalances>({ HEZ: '0', PEZ: '0', wHEZ: '0' });
+  const [balances, setBalances] = useState<TokenBalances>({ HEZ: '0', PEZ: '0', wHEZ: '0', wUSDT: '0' });
   const [error, setError] = useState<string | null>(null);
 
   // Fetch all token balances when account changes
@@ -97,13 +98,32 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         console.error('❌ Failed to fetch wHEZ balance:', err);
       }
 
+      // Fetch wUSDT (Asset ID: 2)
+      let wusdtBalance = '0';
+      try {
+        const wusdtData = await polkadot.api.query.assets.account(ASSET_IDS.WUSDT, address);
+        console.log('📊 Raw wUSDT data:', wusdtData.toHuman());
+
+        if (wusdtData.isSome) {
+          const assetData = wusdtData.unwrap();
+          const wusdtAmount = assetData.balance.toString();
+          wusdtBalance = formatBalance(wusdtAmount);
+          console.log('✅ wUSDT balance found:', wusdtBalance);
+        } else {
+          console.warn('⚠️ wUSDT asset not found for this account');
+        }
+      } catch (err) {
+        console.error('❌ Failed to fetch wUSDT balance:', err);
+      }
+
       setBalances({
         HEZ: hezBalance,
         PEZ: pezBalance,
         wHEZ: whezBalance,
+        wUSDT: wusdtBalance,
       });
 
-      console.log('✅ Balances updated:', { HEZ: hezBalance, PEZ: pezBalance, wHEZ: whezBalance });
+      console.log('✅ Balances updated:', { HEZ: hezBalance, PEZ: pezBalance, wHEZ: whezBalance, wUSDT: wusdtBalance });
     } catch (err) {
       console.error('Failed to fetch balances:', err);
       setError('Failed to fetch balances');

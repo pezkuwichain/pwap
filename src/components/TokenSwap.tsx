@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { usePolkadot } from '@/contexts/PolkadotContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { ASSET_IDS, formatBalance, parseAmount } from '@/lib/wallet';
@@ -14,11 +15,18 @@ import { KurdistanSun } from './KurdistanSun';
 import { PriceChart } from './trading/PriceChart';
 import { LimitOrders } from './trading/LimitOrders';
 
+// Available tokens for swap
+const AVAILABLE_TOKENS = [
+  { symbol: 'HEZ', emoji: '🟡', assetId: 0, name: 'HEZ', badge: true, displaySymbol: 'HEZ' },
+  { symbol: 'PEZ', emoji: '🟣', assetId: 1, name: 'PEZ', badge: true, displaySymbol: 'PEZ' },
+  { symbol: 'wUSDT', emoji: '💵', assetId: 2, name: 'USDT', badge: true, displaySymbol: 'USDT' },
+] as const;
+
 const TokenSwap = () => {
   const { api, isApiReady, selectedAccount } = usePolkadot();
   const { balances, refreshBalances } = useWallet();
   const { toast } = useToast();
-  
+
   const [fromToken, setFromToken] = useState('PEZ');
   const [toToken, setToToken] = useState('HEZ');
   const [fromAmount, setFromAmount] = useState('');
@@ -61,6 +69,12 @@ const TokenSwap = () => {
 
   // Pool reserves for AMM calculation
   const [poolReserves, setPoolReserves] = useState<{ reserve0: number; reserve1: number; asset0: number; asset1: number } | null>(null);
+
+  // Helper: Get display name for token (USDT instead of wUSDT)
+  const getTokenDisplayName = (tokenSymbol: string) => {
+    const token = AVAILABLE_TOKENS.find(t => t.symbol === tokenSymbol);
+    return token?.displaySymbol || tokenSymbol;
+  };
 
   // Calculate toAmount and price impact using AMM constant product formula
   const swapCalculations = React.useMemo(() => {
@@ -156,6 +170,8 @@ const TokenSwap = () => {
         // HEZ → wHEZ (Asset 0) behind the scenes
         const getPoolAssetId = (token: string) => {
           if (token === 'HEZ') return 0; // wHEZ
+          if (token === 'PEZ') return 1;
+          if (token === 'wUSDT') return 2;
           return ASSET_IDS[token as keyof typeof ASSET_IDS];
         };
 
@@ -241,10 +257,17 @@ const TokenSwap = () => {
 
               console.log('🔍 Raw hex balances:', { balance0Hex, balance1Hex });
 
-              const reserve0 = Number(BigInt(balance0Hex)) / 1e12;
-              const reserve1 = Number(BigInt(balance1Hex)) / 1e12;
+              // Use correct decimals for each asset
+              // asset1=0 (wHEZ): 12 decimals
+              // asset1=1 (PEZ): 12 decimals
+              // asset2=2 (wUSDT): 6 decimals
+              const decimals0 = asset1 === 2 ? 6 : 12; // asset1 is the smaller ID
+              const decimals1 = asset2 === 2 ? 6 : 12; // asset2 is the larger ID
 
-              console.log('✅ Reserves found:', { reserve0, reserve1 });
+              const reserve0 = Number(BigInt(balance0Hex)) / (10 ** decimals0);
+              const reserve1 = Number(BigInt(balance1Hex)) / (10 ** decimals1);
+
+              console.log('✅ Reserves found:', { reserve0, reserve1, decimals0, decimals1 });
 
               // Store pool reserves for AMM calculation
               setPoolReserves({
@@ -396,8 +419,8 @@ const TokenSwap = () => {
                   console.warn('Failed to parse swap path:', err);
                 }
 
-                const fromTokenSymbol = fromAssetId === 0 ? 'wHEZ' : fromAssetId === 1 ? 'PEZ' : `Asset${fromAssetId}`;
-                const toTokenSymbol = toAssetId === 0 ? 'wHEZ' : toAssetId === 1 ? 'PEZ' : `Asset${toAssetId}`;
+                const fromTokenSymbol = fromAssetId === 0 ? 'wHEZ' : fromAssetId === 1 ? 'PEZ' : fromAssetId === 2 ? 'wUSDT' : `Asset${fromAssetId}`;
+                const toTokenSymbol = toAssetId === 0 ? 'wHEZ' : toAssetId === 1 ? 'PEZ' : toAssetId === 2 ? 'wUSDT' : `Asset${toAssetId}`;
 
                 // Only show transactions from current user
                 if (who.toString() === selectedAccount.address) {
@@ -769,7 +792,7 @@ const TokenSwap = () => {
               <div className="flex justify-between mb-2">
                 <span className="text-sm text-gray-400">From</span>
                 <span className="text-sm text-gray-400">
-                  Balance: {fromBalance} {fromToken}
+                  Balance: {fromBalance} {getTokenDisplayName(fromToken)}
                 </span>
               </div>
               <div className="flex gap-3">
@@ -781,9 +804,46 @@ const TokenSwap = () => {
                   className="text-2xl font-bold border-0 bg-transparent text-white placeholder:text-gray-600"
                   disabled={!selectedAccount}
                 />
-                <Button variant="outline" className="min-w-[100px] border-gray-600 hover:border-gray-500">
-                  {fromToken === 'PEZ' ? '🟣 PEZ' : '🟡 HEZ'}
-                </Button>
+                <Select
+                  value={fromToken}
+                  onValueChange={(value) => {
+                    setFromToken(value);
+                    // Prevent selecting same token for both sides
+                    if (value === toToken) {
+                      const otherToken = AVAILABLE_TOKENS.find(t => t.symbol !== value);
+                      if (otherToken) setToToken(otherToken.symbol);
+                    }
+                  }}
+                  disabled={!selectedAccount}
+                >
+                  <SelectTrigger className="min-w-[140px] border-gray-600 hover:border-gray-500">
+                    <SelectValue>
+                      {(() => {
+                        const token = AVAILABLE_TOKENS.find(t => t.symbol === fromToken);
+                        return (
+                          <span className="flex items-center gap-1.5 relative">
+                            {token?.emoji} {token?.displaySymbol || token?.name}
+                            {token?.badge && (
+                              <span className="w-2 h-2 bg-gradient-to-br from-red-500 via-yellow-400 to-green-500 rounded-sm absolute -bottom-0.5 -right-0.5"></span>
+                            )}
+                          </span>
+                        );
+                      })()}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {AVAILABLE_TOKENS.map((token) => (
+                      <SelectItem key={token.symbol} value={token.symbol}>
+                        <span className="flex items-center gap-2">
+                          <span>{token.emoji} {token.name}</span>
+                          {token.badge && (
+                            <span className="w-2.5 h-2.5 bg-gradient-to-br from-red-500 via-yellow-400 to-green-500 rounded-sm ml-1"></span>
+                          )}
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
@@ -803,7 +863,7 @@ const TokenSwap = () => {
               <div className="flex justify-between mb-2">
                 <span className="text-sm text-gray-400">To</span>
                 <span className="text-sm text-gray-400">
-                  Balance: {toBalance} {toToken}
+                  Balance: {toBalance} {getTokenDisplayName(toToken)}
                 </span>
               </div>
               <div className="flex gap-3">
@@ -814,9 +874,46 @@ const TokenSwap = () => {
                   placeholder="0.0"
                   className="text-2xl font-bold border-0 bg-transparent text-white placeholder:text-gray-600"
                 />
-                <Button variant="outline" className="min-w-[100px] border-gray-600 hover:border-gray-500">
-                  {toToken === 'PEZ' ? '🟣 PEZ' : '🟡 HEZ'}
-                </Button>
+                <Select
+                  value={toToken}
+                  onValueChange={(value) => {
+                    setToToken(value);
+                    // Prevent selecting same token for both sides
+                    if (value === fromToken) {
+                      const otherToken = AVAILABLE_TOKENS.find(t => t.symbol !== value);
+                      if (otherToken) setFromToken(otherToken.symbol);
+                    }
+                  }}
+                  disabled={!selectedAccount}
+                >
+                  <SelectTrigger className="min-w-[140px] border-gray-600 hover:border-gray-500">
+                    <SelectValue>
+                      {(() => {
+                        const token = AVAILABLE_TOKENS.find(t => t.symbol === toToken);
+                        return (
+                          <span className="flex items-center gap-1.5 relative">
+                            {token?.emoji} {token?.displaySymbol || token?.name}
+                            {token?.badge && (
+                              <span className="w-2 h-2 bg-gradient-to-br from-red-500 via-yellow-400 to-green-500 rounded-sm absolute -bottom-0.5 -right-0.5"></span>
+                            )}
+                          </span>
+                        );
+                      })()}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {AVAILABLE_TOKENS.map((token) => (
+                      <SelectItem key={token.symbol} value={token.symbol}>
+                        <span className="flex items-center gap-2">
+                          <span>{token.emoji} {token.name}</span>
+                          {token.badge && (
+                            <span className="w-2.5 h-2.5 bg-gradient-to-br from-red-500 via-yellow-400 to-green-500 rounded-sm ml-1"></span>
+                          )}
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
@@ -831,7 +928,7 @@ const TokenSwap = () => {
                   {isLoadingRate ? (
                     'Loading...'
                   ) : exchangeRate > 0 ? (
-                    `1 ${fromToken} = ${exchangeRate.toFixed(4)} ${toToken}`
+                    `1 ${getTokenDisplayName(fromToken)} = ${exchangeRate.toFixed(4)} ${getTokenDisplayName(toToken)}`
                   ) : (
                     'No pool available'
                   )}
@@ -863,7 +960,7 @@ const TokenSwap = () => {
               {fromAmount && parseFloat(fromAmount) > 0 && lpFee && (
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-400">Liquidity Provider Fee</span>
-                  <span className="text-gray-300">{lpFee} {fromToken}</span>
+                  <span className="text-gray-300">{lpFee} {getTokenDisplayName(fromToken)}</span>
                 </div>
               )}
 
@@ -871,7 +968,7 @@ const TokenSwap = () => {
               {fromAmount && parseFloat(fromAmount) > 0 && minimumReceived && (
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-400">Minimum Received</span>
-                  <span className="text-gray-300">{minimumReceived} {toToken}</span>
+                  <span className="text-gray-300">{minimumReceived} {getTokenDisplayName(toToken)}</span>
                 </div>
               )}
 
@@ -962,7 +1059,7 @@ const TokenSwap = () => {
                     <div className="flex items-center gap-2">
                       <ArrowDownUp className="w-4 h-4 text-blue-400" />
                       <span className="text-sm font-semibold text-white">
-                        {tx.fromToken} → {tx.toToken}
+                        {getTokenDisplayName(tx.fromToken)} → {getTokenDisplayName(tx.toToken)}
                       </span>
                     </div>
                     <span className="text-xs text-gray-500">
@@ -972,11 +1069,11 @@ const TokenSwap = () => {
                   <div className="text-sm text-gray-400 space-y-1">
                     <div className="flex justify-between">
                       <span>Sent:</span>
-                      <span className="text-red-400">-{tx.fromAmount} {tx.fromToken}</span>
+                      <span className="text-red-400">-{tx.fromAmount} {getTokenDisplayName(tx.fromToken)}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Received:</span>
-                      <span className="text-green-400">+{tx.toAmount} {tx.toToken}</span>
+                      <span className="text-green-400">+{tx.toAmount} {getTokenDisplayName(tx.toToken)}</span>
                     </div>
                     <div className="flex justify-between text-xs pt-1 border-t border-gray-700">
                       <span>{new Date(tx.timestamp).toLocaleDateString()}</span>
@@ -1034,15 +1131,15 @@ const TokenSwap = () => {
             <div className="p-4 bg-gray-800 border border-gray-700 rounded-lg">
               <div className="flex justify-between mb-2">
                 <span className="text-gray-300">You Pay</span>
-                <span className="font-bold text-white">{fromAmount} {fromToken}</span>
+                <span className="font-bold text-white">{fromAmount} {getTokenDisplayName(fromToken)}</span>
               </div>
               <div className="flex justify-between mb-2">
                 <span className="text-gray-300">You Receive</span>
-                <span className="font-bold text-white">{toAmount} {toToken}</span>
+                <span className="font-bold text-white">{toAmount} {getTokenDisplayName(toToken)}</span>
               </div>
               <div className="flex justify-between mt-3 pt-3 border-t border-gray-700 text-sm">
                 <span className="text-gray-400">Exchange Rate</span>
-                <span className="text-gray-400">1 {fromToken} = {exchangeRate.toFixed(4)} {toToken}</span>
+                <span className="text-gray-400">1 {getTokenDisplayName(fromToken)} = {exchangeRate.toFixed(4)} {getTokenDisplayName(toToken)}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-400">Slippage</span>

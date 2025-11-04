@@ -47,9 +47,9 @@ const PoolDashboard = () => {
       setError(null);
 
       try {
-        // Query wHEZ/PEZ pool
-        const asset1 = 0; // wHEZ
-        const asset2 = 1; // PEZ
+        // Query PEZ/wUSDT pool
+        const asset1 = 1; // PEZ
+        const asset2 = 2; // wUSDT
         const poolId = [asset1, asset2];
 
         const poolInfo = await api.query.assetConversion.pools(poolId);
@@ -78,25 +78,25 @@ const PoolDashboard = () => {
           const poolAccount = poolAccountId.toString();
 
           // Get reserves
-          const whezBalanceData = await api.query.assets.account(asset1, poolAccountId);
-          const pezBalanceData = await api.query.assets.account(asset2, poolAccountId);
+          const pezBalanceData = await api.query.assets.account(asset1, poolAccountId);
+          const wusdtBalanceData = await api.query.assets.account(asset2, poolAccountId);
 
           let reserve0 = 0;
           let reserve1 = 0;
 
-          if (whezBalanceData.isSome) {
-            const whezData = whezBalanceData.unwrap().toJSON() as any;
-            reserve0 = Number(whezData.balance) / 1e12;
-          }
-
           if (pezBalanceData.isSome) {
             const pezData = pezBalanceData.unwrap().toJSON() as any;
-            reserve1 = Number(pezData.balance) / 1e12;
+            reserve0 = Number(pezData.balance) / 1e12;
+          }
+
+          if (wusdtBalanceData.isSome) {
+            const wusdtData = wusdtBalanceData.unwrap().toJSON() as any;
+            reserve1 = Number(wusdtData.balance) / 1e6; // wUSDT has 6 decimals
           }
 
           setPoolData({
-            asset0: 0,
-            asset1: 1,
+            asset0: 1,
+            asset1: 2,
             reserve0,
             reserve1,
             lpTokenId,
@@ -227,7 +227,7 @@ const PoolDashboard = () => {
         <div>
           <h2 className="text-2xl font-bold text-white flex items-center gap-2">
             <Droplet className="h-6 w-6 text-blue-400" />
-            wHEZ/PEZ Pool Dashboard
+            PEZ/wUSDT Pool Dashboard
           </h2>
           <p className="text-gray-400 mt-1">Monitor liquidity pool metrics and your position</p>
         </div>
@@ -248,7 +248,7 @@ const PoolDashboard = () => {
                 ${totalLiquidityUSD.toLocaleString('en-US', { maximumFractionDigits: 0 })}
               </p>
               <p className="text-xs text-gray-500 mt-1">
-                {poolData.reserve0.toLocaleString()} wHEZ + {poolData.reserve1.toLocaleString()} PEZ
+                {poolData.reserve0.toLocaleString()} PEZ + {poolData.reserve1.toLocaleString()} wUSDT
               </p>
             </div>
             <DollarSign className="h-8 w-8 text-green-400" />
@@ -259,12 +259,12 @@ const PoolDashboard = () => {
         <Card className="p-4 bg-gray-800/50 border-gray-700">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm text-gray-400">HEZ Price</p>
+              <p className="text-sm text-gray-400">PEZ Price</p>
               <p className="text-2xl font-bold text-white mt-1">
-                {currentPrice.toFixed(4)} PEZ
+                ${currentPrice.toFixed(4)}
               </p>
               <p className="text-xs text-gray-500 mt-1">
-                1 PEZ = {(1 / currentPrice).toFixed(6)} HEZ
+                1 wUSDT = {(1 / currentPrice).toFixed(4)} PEZ
               </p>
             </div>
             <TrendingUp className="h-8 w-8 text-blue-400" />
@@ -319,18 +319,18 @@ const PoolDashboard = () => {
             <div className="space-y-4">
               <div className="flex items-center justify-between p-4 bg-gray-900/50 rounded-lg">
                 <div>
-                  <p className="text-sm text-gray-400">wHEZ Reserve</p>
+                  <p className="text-sm text-gray-400">PEZ Reserve</p>
                   <p className="text-2xl font-bold text-white">{poolData.reserve0.toLocaleString('en-US', { maximumFractionDigits: 2 })}</p>
                 </div>
-                <Badge variant="outline">Asset 0</Badge>
+                <Badge variant="outline">Asset 1</Badge>
               </div>
 
               <div className="flex items-center justify-between p-4 bg-gray-900/50 rounded-lg">
                 <div>
-                  <p className="text-sm text-gray-400">PEZ Reserve</p>
+                  <p className="text-sm text-gray-400">wUSDT Reserve</p>
                   <p className="text-2xl font-bold text-white">{poolData.reserve1.toLocaleString('en-US', { maximumFractionDigits: 2 })}</p>
                 </div>
-                <Badge variant="outline">Asset 1</Badge>
+                <Badge variant="outline">Asset 2</Badge>
               </div>
             </div>
 
@@ -387,11 +387,11 @@ const PoolDashboard = () => {
                   <p className="text-sm text-gray-400 mb-2">Your Position Value</p>
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <span className="text-gray-300">wHEZ:</span>
+                      <span className="text-gray-300">PEZ:</span>
                       <span className="text-white font-semibold">{lpPosition.asset0Amount.toFixed(4)}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-300">PEZ:</span>
+                      <span className="text-gray-300">wUSDT:</span>
                       <span className="text-white font-semibold">{lpPosition.asset1Amount.toFixed(4)}</span>
                     </div>
                   </div>
@@ -442,7 +442,7 @@ const PoolDashboard = () => {
 
             <div className="space-y-4">
               <div className="p-4 bg-gray-900/50 rounded-lg">
-                <p className="text-sm text-gray-400 mb-3">If HEZ price changes by:</p>
+                <p className="text-sm text-gray-400 mb-3">If PEZ price changes by:</p>
 
                 <div className="space-y-2">
                   {[10, 25, 50, 100, 200].map((change) => {
