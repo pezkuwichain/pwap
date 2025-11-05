@@ -20,9 +20,19 @@ import {
 import { ArrowRight, Loader2, CheckCircle, XCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
+interface TokenBalance {
+  assetId: number;
+  symbol: string;
+  name: string;
+  balance: string;
+  decimals: number;
+  usdValue: number;
+}
+
 interface TransferModalProps {
   isOpen: boolean;
   onClose: () => void;
+  selectedAsset?: TokenBalance | null;
 }
 
 type TokenType = 'HEZ' | 'PEZ' | 'USDT' | 'BTC' | 'ETH' | 'DOT';
@@ -44,10 +54,10 @@ const TOKENS: Token[] = [
   { symbol: 'DOT', name: 'Polkadot', assetId: 5, decimals: 10, color: 'from-pink-500 to-red-500' },
 ];
 
-export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose }) => {
+export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, selectedAsset }) => {
   const { api, isApiReady, selectedAccount } = usePolkadot();
   const { toast } = useToast();
-  
+
   const [selectedToken, setSelectedToken] = useState<TokenType>('HEZ');
   const [recipient, setRecipient] = useState('');
   const [amount, setAmount] = useState('');
@@ -55,7 +65,16 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose })
   const [txStatus, setTxStatus] = useState<'idle' | 'signing' | 'pending' | 'success' | 'error'>('idle');
   const [txHash, setTxHash] = useState('');
 
-  const currentToken = TOKENS.find(t => t.symbol === selectedToken) || TOKENS[0];
+  // Use the provided selectedAsset or fall back to token selection
+  const currentToken = selectedAsset ? {
+    symbol: selectedAsset.symbol as TokenType,
+    name: selectedAsset.name,
+    assetId: selectedAsset.assetId,
+    decimals: selectedAsset.decimals,
+    color: selectedAsset.assetId === 0 ? 'from-green-600 to-yellow-400' :
+           selectedAsset.assetId === 2 ? 'from-emerald-500 to-teal-500' :
+           'from-cyan-500 to-blue-500',
+  } : TOKENS.find(t => t.symbol === selectedToken) || TOKENS[0];
 
   const handleTransfer = async () => {
     if (!api || !isApiReady || !selectedAccount) {
@@ -90,14 +109,12 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose })
       let transfer;
 
       // Create appropriate transfer transaction based on token type
-      if (selectedToken === 'HEZ') {
-        // Native token transfer
+      // wHEZ uses native token transfer (balances pallet), all others use assets pallet
+      if (currentToken.assetId === undefined || (selectedToken === 'HEZ' && !selectedAsset)) {
+        // Native HEZ token transfer
         transfer = api.tx.balances.transferKeepAlive(recipient, amountInSmallestUnit.toString());
       } else {
-        // Asset token transfer (PEZ, USDT, BTC, ETH, DOT)
-        if (!currentToken.assetId) {
-          throw new Error('Asset ID not configured');
-        }
+        // Asset token transfer (wHEZ, PEZ, wUSDT, etc.)
         transfer = api.tx.assets.transfer(currentToken.assetId, recipient, amountInSmallestUnit.toString());
       }
 
@@ -135,7 +152,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose })
               setTxStatus('success');
               toast({
                 title: "Transfer Successful!",
-                description: `Sent ${amount} ${selectedToken} to ${recipient.slice(0, 8)}...${recipient.slice(-6)}`,
+                description: `Sent ${amount} ${currentToken.symbol} to ${recipient.slice(0, 8)}...${recipient.slice(-6)}`,
               });
 
               // Reset form after 2 seconds
@@ -181,9 +198,13 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose })
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="bg-gray-900 border-gray-800">
         <DialogHeader>
-          <DialogTitle className="text-white">Send Tokens</DialogTitle>
+          <DialogTitle className="text-white">
+            {selectedAsset ? `Send ${selectedAsset.symbol}` : 'Send Tokens'}
+          </DialogTitle>
           <DialogDescription className="text-gray-400">
-            Transfer tokens to another account
+            {selectedAsset
+              ? `Transfer ${selectedAsset.name} to another account`
+              : 'Transfer tokens to another account'}
           </DialogDescription>
         </DialogHeader>
 
@@ -215,30 +236,32 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose })
           </div>
         ) : (
           <div className="space-y-4">
-            {/* Token Selection */}
-            <div>
-              <Label htmlFor="token" className="text-white">Select Token</Label>
-              <Select value={selectedToken} onValueChange={(value) => setSelectedToken(value as TokenType)} disabled={isTransferring}>
-                <SelectTrigger className="bg-gray-800 border-gray-700 text-white mt-2">
-                  <SelectValue placeholder="Select token" />
-                </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-gray-700">
-                  {TOKENS.map((token) => (
-                    <SelectItem 
-                      key={token.symbol} 
-                      value={token.symbol}
-                      className="text-white hover:bg-gray-700 focus:bg-gray-700"
-                    >
-                      <div className="flex items-center gap-2">
-                        <div className={`w-3 h-3 rounded-full bg-gradient-to-r ${token.color}`}></div>
-                        <span className="font-semibold">{token.symbol}</span>
-                        <span className="text-gray-400 text-sm">- {token.name}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {/* Token Selection - Only show if no asset is pre-selected */}
+            {!selectedAsset && (
+              <div>
+                <Label htmlFor="token" className="text-white">Select Token</Label>
+                <Select value={selectedToken} onValueChange={(value) => setSelectedToken(value as TokenType)} disabled={isTransferring}>
+                  <SelectTrigger className="bg-gray-800 border-gray-700 text-white mt-2">
+                    <SelectValue placeholder="Select token" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-800 border-gray-700">
+                    {TOKENS.map((token) => (
+                      <SelectItem
+                        key={token.symbol}
+                        value={token.symbol}
+                        className="text-white hover:bg-gray-700 focus:bg-gray-700"
+                      >
+                        <div className="flex items-center gap-2">
+                          <div className={`w-3 h-3 rounded-full bg-gradient-to-r ${token.color}`}></div>
+                          <span className="font-semibold">{token.symbol}</span>
+                          <span className="text-gray-400 text-sm">- {token.name}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             <div>
               <Label htmlFor="recipient" className="text-white">Recipient Address</Label>

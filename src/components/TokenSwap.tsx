@@ -76,6 +76,13 @@ const TokenSwap = () => {
     return token?.displaySymbol || tokenSymbol;
   };
 
+  // Check if user has insufficient balance
+  const hasInsufficientBalance = React.useMemo(() => {
+    const fromAmountNum = parseFloat(fromAmount || '0');
+    const fromBalanceNum = parseFloat(fromBalance?.toString() || '0');
+    return fromAmountNum > 0 && fromAmountNum > fromBalanceNum;
+  }, [fromAmount, fromBalance]);
+
   // Calculate toAmount and price impact using AMM constant product formula
   const swapCalculations = React.useMemo(() => {
     if (!fromAmount || !poolReserves || parseFloat(fromAmount) <= 0) {
@@ -489,14 +496,47 @@ const TokenSwap = () => {
       return;
     }
 
+    // ✅ BALANCE VALIDATION - Check if user has sufficient balance
+    const fromAmountNum = parseFloat(fromAmount);
+    const fromBalanceNum = parseFloat(fromBalance?.toString() || '0');
+
+    if (fromAmountNum > fromBalanceNum) {
+      toast({
+        title: 'Insufficient Balance',
+        description: `You only have ${fromBalanceNum.toFixed(4)} ${getTokenDisplayName(fromToken)}. Cannot swap ${fromAmountNum} ${getTokenDisplayName(fromToken)}.`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsSwapping(true);
     setShowConfirm(false); // Close dialog before transaction starts
     try {
-      const amountIn = parseAmount(fromAmount, 12);
+      // Get correct decimals for each token
+      const getTokenDecimals = (token: string) => {
+        if (token === 'wUSDT') return 6; // wUSDT has 6 decimals
+        return 12; // HEZ, wHEZ, PEZ all have 12 decimals
+      };
+
+      const fromDecimals = getTokenDecimals(fromToken);
+      const toDecimals = getTokenDecimals(toToken);
+
+      const amountIn = parseAmount(fromAmount, fromDecimals);
       const minAmountOut = parseAmount(
         (parseFloat(toAmount) * (1 - parseFloat(slippage) / 100)).toString(),
-        12
+        toDecimals
       );
+
+      console.log('💰 Swap amounts:', {
+        fromToken,
+        toToken,
+        fromAmount,
+        toAmount,
+        fromDecimals,
+        toDecimals,
+        amountIn: amountIn.toString(),
+        minAmountOut: minAmountOut.toString()
+      });
 
       // Get signer from extension
       const { web3FromAddress } = await import('@polkadot/extension-dapp');
@@ -533,18 +573,42 @@ const TokenSwap = () => {
         const unwrapTx = api.tx.tokenWrapper.unwrap(minAmountOut.toString());
         tx = api.tx.utility.batchAll([swapTx, unwrapTx]);
 
-      } else {
-        // Direct swap between assets (should not happen with HEZ/PEZ only)
-        const getPoolAssetId = (token: string) => {
-          if (token === 'HEZ') return 0; // wHEZ
-          return ASSET_IDS[token as keyof typeof ASSET_IDS];
-        };
+      } else if (fromToken === 'HEZ') {
+        // HEZ → Any Asset: wrap(HEZ→wHEZ) then swap(wHEZ→Asset)
+        const wrapTx = api.tx.tokenWrapper.wrap(amountIn.toString());
+        // Map token symbol to asset ID
+        const toAssetId = toToken === 'PEZ' ? 1 : toToken === 'wUSDT' ? 2 : ASSET_IDS[toToken as keyof typeof ASSET_IDS];
+        const swapPath = [0, toAssetId]; // wHEZ → target asset
+        const swapTx = api.tx.assetConversion.swapExactTokensForTokens(
+          swapPath,
+          amountIn.toString(),
+          minAmountOut.toString(),
+          selectedAccount.address,
+          true
+        );
+        tx = api.tx.utility.batchAll([wrapTx, swapTx]);
 
-        // AssetKind = u32, so swap path is just [assetId1, assetId2]
-        const swapPath = [
-          getPoolAssetId(fromToken),
-          getPoolAssetId(toToken)
-        ];
+      } else if (toToken === 'HEZ') {
+        // Any Asset → HEZ: swap(Asset→wHEZ) then unwrap(wHEZ→HEZ)
+        // Map token symbol to asset ID
+        const fromAssetId = fromToken === 'PEZ' ? 1 : fromToken === 'wUSDT' ? 2 : ASSET_IDS[fromToken as keyof typeof ASSET_IDS];
+        const swapPath = [fromAssetId, 0]; // source asset → wHEZ
+        const swapTx = api.tx.assetConversion.swapExactTokensForTokens(
+          swapPath,
+          amountIn.toString(),
+          minAmountOut.toString(),
+          selectedAccount.address,
+          true
+        );
+        const unwrapTx = api.tx.tokenWrapper.unwrap(minAmountOut.toString());
+        tx = api.tx.utility.batchAll([swapTx, unwrapTx]);
+
+      } else {
+        // Direct swap between assets (PEZ ↔ wUSDT, etc.)
+        // Map token symbols to asset IDs
+        const fromAssetId = fromToken === 'PEZ' ? 1 : fromToken === 'wUSDT' ? 2 : ASSET_IDS[fromToken as keyof typeof ASSET_IDS];
+        const toAssetId = toToken === 'PEZ' ? 1 : toToken === 'wUSDT' ? 2 : ASSET_IDS[toToken as keyof typeof ASSET_IDS];
+        const swapPath = [fromAssetId, toAssetId];
 
         tx = api.tx.assetConversion.swapExactTokensForTokens(
           swapPath,
@@ -978,8 +1042,18 @@ const TokenSwap = () => {
               </div>
             </div>
 
+            {/* Insufficient Balance Warning */}
+            {hasInsufficientBalance && (
+              <Alert className="bg-red-900/20 border-red-500/30">
+                <AlertTriangle className="h-4 w-4 text-red-500" />
+                <AlertDescription className="text-red-300 text-sm">
+                  Insufficient {getTokenDisplayName(fromToken)} balance. You have {fromBalance} {getTokenDisplayName(fromToken)} but trying to swap {fromAmount} {getTokenDisplayName(fromToken)}.
+                </AlertDescription>
+              </Alert>
+            )}
+
             {/* High Price Impact Warning (>5%) */}
-            {priceImpact >= 5 && (
+            {priceImpact >= 5 && !hasInsufficientBalance && (
               <Alert className="bg-red-900/20 border-red-500/30">
                 <AlertTriangle className="h-4 w-4 text-red-500" />
                 <AlertDescription className="text-red-300 text-sm">
@@ -991,9 +1065,15 @@ const TokenSwap = () => {
             <Button
               className="w-full h-12 text-lg"
               onClick={() => setShowConfirm(true)}
-              disabled={!fromAmount || parseFloat(fromAmount) <= 0 || !selectedAccount || exchangeRate === 0}
+              disabled={!fromAmount || parseFloat(fromAmount) <= 0 || !selectedAccount || exchangeRate === 0 || hasInsufficientBalance}
             >
-              {!selectedAccount ? 'Connect Wallet' : exchangeRate === 0 ? 'No Pool Available' : 'Swap Tokens'}
+              {!selectedAccount
+                ? 'Connect Wallet'
+                : hasInsufficientBalance
+                ? `Insufficient ${getTokenDisplayName(fromToken)} Balance`
+                : exchangeRate === 0
+                ? 'No Pool Available'
+                : 'Swap Tokens'}
             </Button>
           </div>
         </Card>

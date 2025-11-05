@@ -98,7 +98,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         console.error('❌ Failed to fetch wHEZ balance:', err);
       }
 
-      // Fetch wUSDT (Asset ID: 2)
+      // Fetch wUSDT (Asset ID: 2) - IMPORTANT: wUSDT has 6 decimals, not 12!
       let wusdtBalance = '0';
       try {
         const wusdtData = await polkadot.api.query.assets.account(ASSET_IDS.WUSDT, address);
@@ -107,7 +107,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         if (wusdtData.isSome) {
           const assetData = wusdtData.unwrap();
           const wusdtAmount = assetData.balance.toString();
-          wusdtBalance = formatBalance(wusdtAmount);
+          wusdtBalance = formatBalance(wusdtAmount, 6); // wUSDT uses 6 decimals!
           console.log('✅ wUSDT balance found:', wusdtBalance);
         } else {
           console.warn('⚠️ wUSDT asset not found for this account');

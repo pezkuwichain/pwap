@@ -5,11 +5,27 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { usePolkadot } from '@/contexts/PolkadotContext';
 import { useWallet } from '@/contexts/WalletContext';
-import { ASSET_IDS } from '@/lib/wallet';
+import { ASSET_IDS, getAssetSymbol } from '@/lib/wallet';
 import { AddLiquidityModal } from '@/components/AddLiquidityModal';
 import { RemoveLiquidityModal } from '@/components/RemoveLiquidityModal';
+
+// Helper function to convert asset IDs to user-friendly display names
+// Users should only see HEZ, PEZ, USDT - wrapped tokens are backend details
+const getDisplayTokenName = (assetId: number): string => {
+  if (assetId === ASSET_IDS.WHEZ || assetId === 0) return 'HEZ';
+  if (assetId === ASSET_IDS.PEZ || assetId === 1) return 'PEZ';
+  if (assetId === ASSET_IDS.WUSDT || assetId === 2) return 'USDT';
+  return getAssetSymbol(assetId); // Fallback for other assets
+};
+
+// Helper function to get decimals for each asset
+const getAssetDecimals = (assetId: number): number => {
+  if (assetId === ASSET_IDS.WUSDT) return 6; // wUSDT has 6 decimals
+  return 12; // wHEZ, PEZ have 12 decimals
+};
 
 interface PoolData {
   asset0: number;
@@ -38,18 +54,66 @@ const PoolDashboard = () => {
   const [isAddLiquidityModalOpen, setIsAddLiquidityModalOpen] = useState(false);
   const [isRemoveLiquidityModalOpen, setIsRemoveLiquidityModalOpen] = useState(false);
 
-  // Fetch pool data
+  // Pool selection state
+  const [availablePools, setAvailablePools] = useState<Array<[number, number]>>([]);
+  const [selectedPool, setSelectedPool] = useState<string>('1-2'); // Default: PEZ/wUSDT
+
+  // Discover available pools
   useEffect(() => {
     if (!api || !isApiReady) return;
+
+    const discoverPools = async () => {
+      try {
+        // Check all possible pool combinations
+        const possiblePools: Array<[number, number]> = [
+          [ASSET_IDS.WHEZ, ASSET_IDS.PEZ],     // wHEZ/PEZ
+          [ASSET_IDS.WHEZ, ASSET_IDS.WUSDT],   // wHEZ/wUSDT
+          [ASSET_IDS.PEZ, ASSET_IDS.WUSDT],    // PEZ/wUSDT
+        ];
+
+        const existingPools: Array<[number, number]> = [];
+
+        for (const [asset0, asset1] of possiblePools) {
+          const poolInfo = await api.query.assetConversion.pools([asset0, asset1]);
+          if (poolInfo.isSome) {
+            existingPools.push([asset0, asset1]);
+          }
+        }
+
+        setAvailablePools(existingPools);
+
+        // Set default pool to first available if current selection doesn't exist
+        if (existingPools.length > 0) {
+          const currentPoolKey = selectedPool;
+          const poolExists = existingPools.some(
+            ([a0, a1]) => `${a0}-${a1}` === currentPoolKey
+          );
+          if (!poolExists) {
+            const [firstAsset0, firstAsset1] = existingPools[0];
+            setSelectedPool(`${firstAsset0}-${firstAsset1}`);
+          }
+        }
+      } catch (err) {
+        console.error('Error discovering pools:', err);
+      }
+    };
+
+    discoverPools();
+  }, [api, isApiReady]);
+
+  // Fetch pool data
+  useEffect(() => {
+    if (!api || !isApiReady || !selectedPool) return;
 
     const fetchPoolData = async () => {
       setIsLoading(true);
       setError(null);
 
       try {
-        // Query PEZ/wUSDT pool
-        const asset1 = 1; // PEZ
-        const asset2 = 2; // wUSDT
+        // Parse selected pool (e.g., "1-2" -> [1, 2])
+        const [asset1Str, asset2Str] = selectedPool.split('-');
+        const asset1 = parseInt(asset1Str);
+        const asset2 = parseInt(asset2Str);
         const poolId = [asset1, asset2];
 
         const poolInfo = await api.query.assetConversion.pools(poolId);
@@ -78,25 +142,29 @@ const PoolDashboard = () => {
           const poolAccount = poolAccountId.toString();
 
           // Get reserves
-          const pezBalanceData = await api.query.assets.account(asset1, poolAccountId);
-          const wusdtBalanceData = await api.query.assets.account(asset2, poolAccountId);
+          const asset0BalanceData = await api.query.assets.account(asset1, poolAccountId);
+          const asset1BalanceData = await api.query.assets.account(asset2, poolAccountId);
 
           let reserve0 = 0;
           let reserve1 = 0;
 
-          if (pezBalanceData.isSome) {
-            const pezData = pezBalanceData.unwrap().toJSON() as any;
-            reserve0 = Number(pezData.balance) / 1e12;
+          // Use dynamic decimals for each asset
+          const asset1Decimals = getAssetDecimals(asset1);
+          const asset2Decimals = getAssetDecimals(asset2);
+
+          if (asset0BalanceData.isSome) {
+            const asset0Data = asset0BalanceData.unwrap().toJSON() as any;
+            reserve0 = Number(asset0Data.balance) / Math.pow(10, asset1Decimals);
           }
 
-          if (wusdtBalanceData.isSome) {
-            const wusdtData = wusdtBalanceData.unwrap().toJSON() as any;
-            reserve1 = Number(wusdtData.balance) / 1e6; // wUSDT has 6 decimals
+          if (asset1BalanceData.isSome) {
+            const asset1Data = asset1BalanceData.unwrap().toJSON() as any;
+            reserve1 = Number(asset1Data.balance) / Math.pow(10, asset2Decimals);
           }
 
           setPoolData({
-            asset0: 1,
-            asset1: 2,
+            asset0: asset1,
+            asset1: asset2,
             reserve0,
             reserve1,
             lpTokenId,
@@ -162,7 +230,7 @@ const PoolDashboard = () => {
     const interval = setInterval(fetchPoolData, 30000);
 
     return () => clearInterval(interval);
-  }, [api, isApiReady, selectedAccount]);
+  }, [api, isApiReady, selectedAccount, selectedPool]);
 
   // Calculate metrics
   const constantProduct = poolData ? poolData.reserve0 * poolData.reserve1 : 0;
@@ -221,20 +289,50 @@ const PoolDashboard = () => {
     );
   }
 
+  // Get asset symbols for the selected pool (using display names)
+  const asset0Symbol = poolData ? getDisplayTokenName(poolData.asset0) : '';
+  const asset1Symbol = poolData ? getDisplayTokenName(poolData.asset1) : '';
+
   return (
     <div className="space-y-6">
+      {/* Pool Selector */}
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-            <Droplet className="h-6 w-6 text-blue-400" />
-            PEZ/wUSDT Pool Dashboard
-          </h2>
-          <p className="text-gray-400 mt-1">Monitor liquidity pool metrics and your position</p>
+        <div className="flex items-center gap-4">
+          <div>
+            <h3 className="text-sm font-medium text-gray-400 mb-1">Pool Dashboards</h3>
+            <Select value={selectedPool} onValueChange={setSelectedPool}>
+              <SelectTrigger className="w-[240px] bg-gray-800/50 border-gray-700">
+                <SelectValue placeholder="Select pool" />
+              </SelectTrigger>
+              <SelectContent>
+                {availablePools.map(([asset0, asset1]) => {
+                  const symbol0 = getDisplayTokenName(asset0);
+                  const symbol1 = getDisplayTokenName(asset1);
+                  return (
+                    <SelectItem key={`${asset0}-${asset1}`} value={`${asset0}-${asset1}`}>
+                      {symbol0}/{symbol1}
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
         <Badge variant="outline" className="flex items-center gap-1">
           <Clock className="h-3 w-3" />
           Live
         </Badge>
+      </div>
+
+      {/* Pool Dashboard Title */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+            <Droplet className="h-6 w-6 text-blue-400" />
+            {asset0Symbol}/{asset1Symbol} Pool Dashboard
+          </h2>
+          <p className="text-gray-400 mt-1">Monitor liquidity pool metrics and your position</p>
+        </div>
       </div>
 
       {/* Key Metrics Grid */}
@@ -248,7 +346,7 @@ const PoolDashboard = () => {
                 ${totalLiquidityUSD.toLocaleString('en-US', { maximumFractionDigits: 0 })}
               </p>
               <p className="text-xs text-gray-500 mt-1">
-                {poolData.reserve0.toLocaleString()} PEZ + {poolData.reserve1.toLocaleString()} wUSDT
+                {poolData.reserve0.toLocaleString()} {asset0Symbol} + {poolData.reserve1.toLocaleString()} {asset1Symbol}
               </p>
             </div>
             <DollarSign className="h-8 w-8 text-green-400" />
@@ -259,12 +357,12 @@ const PoolDashboard = () => {
         <Card className="p-4 bg-gray-800/50 border-gray-700">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm text-gray-400">PEZ Price</p>
+              <p className="text-sm text-gray-400">{asset0Symbol} Price</p>
               <p className="text-2xl font-bold text-white mt-1">
                 ${currentPrice.toFixed(4)}
               </p>
               <p className="text-xs text-gray-500 mt-1">
-                1 wUSDT = {(1 / currentPrice).toFixed(4)} PEZ
+                1 {asset1Symbol} = {(1 / currentPrice).toFixed(4)} {asset0Symbol}
               </p>
             </div>
             <TrendingUp className="h-8 w-8 text-blue-400" />
@@ -319,7 +417,7 @@ const PoolDashboard = () => {
             <div className="space-y-4">
               <div className="flex items-center justify-between p-4 bg-gray-900/50 rounded-lg">
                 <div>
-                  <p className="text-sm text-gray-400">PEZ Reserve</p>
+                  <p className="text-sm text-gray-400">{asset0Symbol} Reserve</p>
                   <p className="text-2xl font-bold text-white">{poolData.reserve0.toLocaleString('en-US', { maximumFractionDigits: 2 })}</p>
                 </div>
                 <Badge variant="outline">Asset 1</Badge>
@@ -327,7 +425,7 @@ const PoolDashboard = () => {
 
               <div className="flex items-center justify-between p-4 bg-gray-900/50 rounded-lg">
                 <div>
-                  <p className="text-sm text-gray-400">wUSDT Reserve</p>
+                  <p className="text-sm text-gray-400">{asset1Symbol} Reserve</p>
                   <p className="text-2xl font-bold text-white">{poolData.reserve1.toLocaleString('en-US', { maximumFractionDigits: 2 })}</p>
                 </div>
                 <Badge variant="outline">Asset 2</Badge>
@@ -387,11 +485,11 @@ const PoolDashboard = () => {
                   <p className="text-sm text-gray-400 mb-2">Your Position Value</p>
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <span className="text-gray-300">PEZ:</span>
+                      <span className="text-gray-300">{asset0Symbol}:</span>
                       <span className="text-white font-semibold">{lpPosition.asset0Amount.toFixed(4)}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-300">wUSDT:</span>
+                      <span className="text-gray-300">{asset1Symbol}:</span>
                       <span className="text-white font-semibold">{lpPosition.asset1Amount.toFixed(4)}</span>
                     </div>
                   </div>
@@ -402,15 +500,15 @@ const PoolDashboard = () => {
                   <div className="space-y-1 text-sm">
                     <div className="flex justify-between">
                       <span className="text-gray-300">Daily:</span>
-                      <span className="text-green-400">~{((lpPosition.asset0Amount * 2 * estimateAPR()) / 365 / 100).toFixed(4)} HEZ</span>
+                      <span className="text-green-400">~{((lpPosition.asset0Amount * 2 * estimateAPR()) / 365 / 100).toFixed(4)} {asset0Symbol}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-300">Monthly:</span>
-                      <span className="text-green-400">~{((lpPosition.asset0Amount * 2 * estimateAPR()) / 12 / 100).toFixed(4)} HEZ</span>
+                      <span className="text-green-400">~{((lpPosition.asset0Amount * 2 * estimateAPR()) / 12 / 100).toFixed(4)} {asset0Symbol}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-300">Yearly:</span>
-                      <span className="text-green-400">~{((lpPosition.asset0Amount * 2 * estimateAPR()) / 100).toFixed(4)} HEZ</span>
+                      <span className="text-green-400">~{((lpPosition.asset0Amount * 2 * estimateAPR()) / 100).toFixed(4)} {asset0Symbol}</span>
                     </div>
                   </div>
                 </div>
@@ -442,7 +540,7 @@ const PoolDashboard = () => {
 
             <div className="space-y-4">
               <div className="p-4 bg-gray-900/50 rounded-lg">
-                <p className="text-sm text-gray-400 mb-3">If PEZ price changes by:</p>
+                <p className="text-sm text-gray-400 mb-3">If {asset0Symbol} price changes by:</p>
 
                 <div className="space-y-2">
                   {[10, 25, 50, 100, 200].map((change) => {
