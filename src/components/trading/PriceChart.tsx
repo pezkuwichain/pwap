@@ -10,6 +10,13 @@ interface PriceChartProps {
   currentPrice: number;
 }
 
+// Helper: Convert backend token symbols to user-facing display names
+const getDisplayName = (token: string): string => {
+  if (token === 'wUSDT') return 'USDT';
+  if (token === 'wHEZ') return 'HEZ';
+  return token; // HEZ, PEZ, etc. remain the same
+};
+
 export const PriceChart: React.FC<PriceChartProps> = ({ fromToken, toToken, currentPrice }) => {
   const [timeframe, setTimeframe] = useState<'1H' | '24H' | '7D' | '30D'>('24H');
   const [chartData, setChartData] = useState<any[]>([]);
@@ -83,7 +90,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({ fromToken, toToken, curr
       <div className="flex justify-between items-center mb-4">
         <div>
           <div className="text-sm text-gray-400 mb-1">
-            {fromToken}/{toToken} Price
+            {getDisplayName(fromToken)}/{getDisplayName(toToken)} Price
           </div>
           <div className="flex items-center gap-3">
             <span className="text-2xl font-bold text-white">

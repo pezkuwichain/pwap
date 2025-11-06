@@ -13,7 +13,7 @@ interface TokenBalances {
   HEZ: string;
   PEZ: string;
   wHEZ: string;
-  wUSDT: string;
+  USDT: string;  // User-facing key for wUSDT (backend uses wUSDT asset ID 2)
 }
 
 interface WalletContextType {
@@ -44,7 +44,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   });
 
   const [balance, setBalance] = useState<string>('0');
-  const [balances, setBalances] = useState<TokenBalances>({ HEZ: '0', PEZ: '0', wHEZ: '0', wUSDT: '0' });
+  const [balances, setBalances] = useState<TokenBalances>({ HEZ: '0', PEZ: '0', wHEZ: '0', USDT: '0' });
   const [error, setError] = useState<string | null>(null);
 
   // Fetch all token balances when account changes
@@ -120,7 +120,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         HEZ: hezBalance,
         PEZ: pezBalance,
         wHEZ: whezBalance,
-        wUSDT: wusdtBalance,
+        USDT: wusdtBalance,
       });
 
       console.log('✅ Balances updated:', { HEZ: hezBalance, PEZ: pezBalance, wHEZ: whezBalance, wUSDT: wusdtBalance });

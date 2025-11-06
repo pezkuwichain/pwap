@@ -580,6 +580,8 @@ const PoolDashboard = () => {
       <AddLiquidityModal
         isOpen={isAddLiquidityModalOpen}
         onClose={() => setIsAddLiquidityModalOpen(false)}
+        asset0={poolData?.asset0}
+        asset1={poolData?.asset1}
       />
 
       {lpPosition && poolData && (
