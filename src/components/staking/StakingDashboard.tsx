@@ -4,443 +4,711 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Progress } from '@/components/ui/progress';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, Coins, Lock, Clock, Gift, Calculator, Info } from 'lucide-react';
+import { TrendingUp, Coins, Lock, Clock, Award, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { usePolkadot } from '@/contexts/PolkadotContext';
-import { ASSET_IDS, formatBalance } from '@/lib/wallet';
+import { useWallet } from '@/contexts/WalletContext';
 import { toast } from '@/components/ui/use-toast';
-
-interface StakingPool {
-  id: string;
-  name: string;
-  token: 'HEZ' | 'PEZ';
-  apy: number;
-  totalStaked: number;
-  minStake: number;
-  lockPeriod: number;
-  userStaked?: number;
-  rewards?: number;
-}
+import { web3FromAddress } from '@polkadot/extension-dapp';
+import {
+  getStakingInfo,
+  getActiveValidators,
+  getMinNominatorBond,
+  getBondingDuration,
+  getCurrentEra,
+  parseAmount,
+  type StakingInfo
+} from '@/lib/staking';
 
 export const StakingDashboard: React.FC = () => {
   const { t } = useTranslation();
-  const { api, isApiReady, selectedAccount } = usePolkadot();
-  const [selectedPool, setSelectedPool] = useState<StakingPool | null>(null);
-  const [stakeAmount, setStakeAmount] = useState('');
-  const [unstakeAmount, setUnstakeAmount] = useState('');
-  const [isLoadingPools, setIsLoadingPools] = useState(false);
+  const { api, selectedAccount, isApiReady } = usePolkadot();
+  const { balances, refreshBalances } = useWallet();
 
-  // Real staking pools data from blockchain
-  const [stakingPools, setStakingPools] = useState<StakingPool[]>([
-    // Fallback mock data - will be replaced with real data
-    {
-      id: '1',
-      name: 'HEZ Flexible',
-      token: 'HEZ',
-      apy: 8.5,
-      totalStaked: 0,
-      minStake: 100,
-      lockPeriod: 0,
-      userStaked: 0,
-      rewards: 0
-    },
-    {
-      id: '2',
-      name: 'HEZ Locked 30 Days',
-      token: 'HEZ',
-      apy: 12.0,
-      totalStaked: 0,
-      minStake: 500,
-      lockPeriod: 30,
-      userStaked: 0,
-      rewards: 0
-    },
-    {
-      id: '3',
-      name: 'PEZ High Yield',
-      token: 'PEZ',
-      apy: 15.5,
-      totalStaked: 0,
-      minStake: 1000,
-      lockPeriod: 60,
-      userStaked: 0,
-      rewards: 0
-    },
-    {
-      id: '4',
-      name: 'PEZ Governance',
-      token: 'PEZ',
-      apy: 18.0,
-      totalStaked: 0,
-      minStake: 2000,
-      lockPeriod: 90,
-      userStaked: 0,
-      rewards: 0
-    }
-  ]);
+  const [stakingInfo, setStakingInfo] = useState<StakingInfo | null>(null);
+  const [validators, setValidators] = useState<string[]>([]);
+  const [minNominatorBond, setMinNominatorBond] = useState('0');
+  const [bondingDuration, setBondingDuration] = useState(28);
+  const [currentEra, setCurrentEra] = useState(0);
 
-  // Fetch staking pools data from blockchain
+  const [bondAmount, setBondAmount] = useState('');
+  const [unbondAmount, setUnbondAmount] = useState('');
+  const [selectedValidators, setSelectedValidators] = useState<string[]>([]);
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingData, setIsLoadingData] = useState(false);
+
+  // Fetch staking data
   useEffect(() => {
     const fetchStakingData = async () => {
-      if (!api || !isApiReady) {
+      if (!api || !isApiReady || !selectedAccount) {
         return;
       }
 
-      setIsLoadingPools(true);
+      setIsLoadingData(true);
       try {
-        // TODO: Query staking pools from chain
-        // This would query your custom staking pallet
-        // const pools = await api.query.staking.pools.entries();
+        const [info, activeVals, minBond, duration, era] = await Promise.all([
+          getStakingInfo(api, selectedAccount.address),
+          getActiveValidators(api),
+          getMinNominatorBond(api),
+          getBondingDuration(api),
+          getCurrentEra(api)
+        ]);
 
-        // For now, using mock data
-        // In real implementation, parse pool data from chain
-        console.log('Staking pools would be fetched from chain here');
+        setStakingInfo(info);
+        setValidators(activeVals);
+        setMinNominatorBond(minBond);
+        setBondingDuration(duration);
+        setCurrentEra(era);
 
-        // If user is connected, fetch their staking info
-        if (selectedAccount) {
-          // TODO: Query user staking positions
-          // const userStakes = await api.query.staking.ledger(selectedAccount.address);
-          // Update stakingPools with user data
+        // Pre-select current nominations if any
+        if (info.nominations.length > 0) {
+          setSelectedValidators(info.nominations);
         }
       } catch (error) {
         console.error('Failed to fetch staking data:', error);
         toast({
           title: 'Error',
-          description: 'Failed to fetch staking pools',
+          description: 'Failed to fetch staking information',
           variant: 'destructive',
         });
       } finally {
-        setIsLoadingPools(false);
+        setIsLoadingData(false);
       }
     };
 
     fetchStakingData();
+    const interval = setInterval(fetchStakingData, 30000); // Refresh every 30s
+    return () => clearInterval(interval);
   }, [api, isApiReady, selectedAccount]);
 
-  const handleStake = async (pool: StakingPool) => {
-    if (!api || !selectedAccount) {
-      toast({
-        title: 'Error',
-        description: 'Please connect your wallet',
-        variant: 'destructive',
-      });
-      return;
-    }
+  const handleBond = async () => {
+    if (!api || !selectedAccount || !bondAmount) return;
 
-    if (!stakeAmount || parseFloat(stakeAmount) < pool.minStake) {
-      toast({
-        title: 'Error',
-        description: `Minimum stake is ${pool.minStake} ${pool.token}`,
-        variant: 'destructive',
-      });
-      return;
-    }
-
+    setIsLoading(true);
     try {
-      // TODO: Implement staking transaction
-      // const assetId = ASSET_IDS[pool.token];
-      // const amount = parseAmount(stakeAmount, 12);
-      // await api.tx.staking.stake(pool.id, amount).signAndSend(...);
+      const amount = parseAmount(bondAmount);
 
-      console.log('Staking', stakeAmount, pool.token, 'in pool', pool.name);
+      // Validate
+      if (parseFloat(bondAmount) < parseFloat(minNominatorBond)) {
+        throw new Error(`Minimum bond is ${minNominatorBond} HEZ`);
+      }
 
-      toast({
-        title: 'Success',
-        description: `Staked ${stakeAmount} ${pool.token}`,
-      });
+      if (parseFloat(bondAmount) > parseFloat(balances.HEZ)) {
+        throw new Error('Insufficient HEZ balance');
+      }
 
-      setStakeAmount('');
-      setSelectedPool(null);
+      const injector = await web3FromAddress(selectedAccount.address);
+
+      // If already bonded, use bondExtra, otherwise use bond
+      let tx;
+      if (stakingInfo && parseFloat(stakingInfo.bonded) > 0) {
+        tx = api.tx.staking.bondExtra(amount);
+      } else {
+        // For new bond, also need to specify reward destination
+        tx = api.tx.staking.bond(amount, 'Staked'); // Auto-compound rewards
+      }
+
+      await tx.signAndSend(
+        selectedAccount.address,
+        { signer: injector.signer },
+        ({ status, events, dispatchError }) => {
+          if (status.isInBlock) {
+            console.log('Transaction in block:', status.asInBlock.toHex());
+
+            if (dispatchError) {
+              let errorMessage = 'Transaction failed';
+              if (dispatchError.isModule) {
+                const decoded = api.registry.findMetaError(dispatchError.asModule);
+                errorMessage = `${decoded.section}.${decoded.name}: ${decoded.docs.join(' ')}`;
+              }
+              toast({
+                title: 'Error',
+                description: errorMessage,
+                variant: 'destructive',
+              });
+              setIsLoading(false);
+            } else {
+              toast({
+                title: 'Success',
+                description: `Bonded ${bondAmount} HEZ successfully`,
+              });
+              setBondAmount('');
+              refreshBalances();
+              // Refresh staking data after a delay
+              setTimeout(() => {
+                if (api && selectedAccount) {
+                  getStakingInfo(api, selectedAccount.address).then(setStakingInfo);
+                }
+              }, 3000);
+              setIsLoading(false);
+            }
+          }
+        }
+      );
     } catch (error: any) {
-      console.error('Staking failed:', error);
+      console.error('Bond failed:', error);
       toast({
         title: 'Error',
-        description: error.message || 'Staking failed',
+        description: error.message || 'Failed to bond tokens',
         variant: 'destructive',
       });
+      setIsLoading(false);
     }
   };
 
-  const handleUnstake = async (pool: StakingPool) => {
-    if (!api || !selectedAccount) {
+  const handleNominate = async () => {
+    if (!api || !selectedAccount || selectedValidators.length === 0) return;
+
+    if (!stakingInfo || parseFloat(stakingInfo.bonded) === 0) {
       toast({
         title: 'Error',
-        description: 'Please connect your wallet',
+        description: 'You must bond tokens before nominating validators',
         variant: 'destructive',
       });
       return;
     }
 
+    setIsLoading(true);
     try {
-      // TODO: Implement unstaking transaction
-      // const amount = parseAmount(unstakeAmount, 12);
-      // await api.tx.staking.unstake(pool.id, amount).signAndSend(...);
+      const injector = await web3FromAddress(selectedAccount.address);
 
-      console.log('Unstaking', unstakeAmount, pool.token, 'from pool', pool.name);
+      const tx = api.tx.staking.nominate(selectedValidators);
 
-      toast({
-        title: 'Success',
-        description: `Unstaked ${unstakeAmount} ${pool.token}`,
-      });
-
-      setUnstakeAmount('');
-      setSelectedPool(null);
+      await tx.signAndSend(
+        selectedAccount.address,
+        { signer: injector.signer },
+        ({ status, dispatchError }) => {
+          if (status.isInBlock) {
+            if (dispatchError) {
+              let errorMessage = 'Nomination failed';
+              if (dispatchError.isModule) {
+                const decoded = api.registry.findMetaError(dispatchError.asModule);
+                errorMessage = `${decoded.section}.${decoded.name}: ${decoded.docs.join(' ')}`;
+              }
+              toast({
+                title: 'Error',
+                description: errorMessage,
+                variant: 'destructive',
+              });
+              setIsLoading(false);
+            } else {
+              toast({
+                title: 'Success',
+                description: `Nominated ${selectedValidators.length} validator(s)`,
+              });
+              // Refresh staking data
+              setTimeout(() => {
+                if (api && selectedAccount) {
+                  getStakingInfo(api, selectedAccount.address).then(setStakingInfo);
+                }
+              }, 3000);
+              setIsLoading(false);
+            }
+          }
+        }
+      );
     } catch (error: any) {
-      console.error('Unstaking failed:', error);
+      console.error('Nomination failed:', error);
       toast({
         title: 'Error',
-        description: error.message || 'Unstaking failed',
+        description: error.message || 'Failed to nominate validators',
         variant: 'destructive',
       });
+      setIsLoading(false);
     }
   };
 
-  const handleClaimRewards = async (pool: StakingPool) => {
-    if (!api || !selectedAccount) {
+  const handleUnbond = async () => {
+    if (!api || !selectedAccount || !unbondAmount) return;
+
+    setIsLoading(true);
+    try {
+      const amount = parseAmount(unbondAmount);
+
+      if (!stakingInfo || parseFloat(unbondAmount) > parseFloat(stakingInfo.active)) {
+        throw new Error('Insufficient staked amount');
+      }
+
+      const injector = await web3FromAddress(selectedAccount.address);
+      const tx = api.tx.staking.unbond(amount);
+
+      await tx.signAndSend(
+        selectedAccount.address,
+        { signer: injector.signer },
+        ({ status, dispatchError }) => {
+          if (status.isInBlock) {
+            if (dispatchError) {
+              let errorMessage = 'Unbond failed';
+              if (dispatchError.isModule) {
+                const decoded = api.registry.findMetaError(dispatchError.asModule);
+                errorMessage = `${decoded.section}.${decoded.name}: ${decoded.docs.join(' ')}`;
+              }
+              toast({
+                title: 'Error',
+                description: errorMessage,
+                variant: 'destructive',
+              });
+              setIsLoading(false);
+            } else {
+              toast({
+                title: 'Success',
+                description: `Unbonded ${unbondAmount} HEZ. Withdrawal available in ${bondingDuration} eras`,
+              });
+              setUnbondAmount('');
+              setTimeout(() => {
+                if (api && selectedAccount) {
+                  getStakingInfo(api, selectedAccount.address).then(setStakingInfo);
+                }
+              }, 3000);
+              setIsLoading(false);
+            }
+          }
+        }
+      );
+    } catch (error: any) {
+      console.error('Unbond failed:', error);
       toast({
         title: 'Error',
-        description: 'Please connect your wallet',
+        description: error.message || 'Failed to unbond tokens',
+        variant: 'destructive',
+      });
+      setIsLoading(false);
+    }
+  };
+
+  const handleWithdrawUnbonded = async () => {
+    if (!api || !selectedAccount) return;
+
+    if (!stakingInfo || parseFloat(stakingInfo.redeemable) === 0) {
+      toast({
+        title: 'Info',
+        description: 'No tokens available to withdraw',
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const injector = await web3FromAddress(selectedAccount.address);
+
+      // Number of slashing spans (usually 0)
+      const tx = api.tx.staking.withdrawUnbonded(0);
+
+      await tx.signAndSend(
+        selectedAccount.address,
+        { signer: injector.signer },
+        ({ status, dispatchError }) => {
+          if (status.isInBlock) {
+            if (dispatchError) {
+              let errorMessage = 'Withdrawal failed';
+              if (dispatchError.isModule) {
+                const decoded = api.registry.findMetaError(dispatchError.asModule);
+                errorMessage = `${decoded.section}.${decoded.name}: ${decoded.docs.join(' ')}`;
+              }
+              toast({
+                title: 'Error',
+                description: errorMessage,
+                variant: 'destructive',
+              });
+              setIsLoading(false);
+            } else {
+              toast({
+                title: 'Success',
+                description: `Withdrew ${stakingInfo.redeemable} HEZ`,
+              });
+              refreshBalances();
+              setTimeout(() => {
+                if (api && selectedAccount) {
+                  getStakingInfo(api, selectedAccount.address).then(setStakingInfo);
+                }
+              }, 3000);
+              setIsLoading(false);
+            }
+          }
+        }
+      );
+    } catch (error: any) {
+      console.error('Withdrawal failed:', error);
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to withdraw tokens',
+        variant: 'destructive',
+      });
+      setIsLoading(false);
+    }
+  };
+
+  const handleStartScoreTracking = async () => {
+    if (!api || !selectedAccount) return;
+
+    if (!stakingInfo || parseFloat(stakingInfo.bonded) === 0) {
+      toast({
+        title: 'Error',
+        description: 'You must bond tokens before starting score tracking',
         variant: 'destructive',
       });
       return;
     }
 
+    setIsLoading(true);
     try {
-      // TODO: Implement claim rewards transaction
-      // await api.tx.staking.claimRewards(pool.id).signAndSend(...);
+      const injector = await web3FromAddress(selectedAccount.address);
+      const tx = api.tx.stakingScore.startScoreTracking();
 
-      console.log('Claiming rewards from pool', pool.name);
-
-      toast({
-        title: 'Success',
-        description: `Claimed ${pool.rewards} ${pool.token} rewards`,
-      });
+      await tx.signAndSend(
+        selectedAccount.address,
+        { signer: injector.signer },
+        ({ status, dispatchError }) => {
+          if (status.isInBlock) {
+            if (dispatchError) {
+              let errorMessage = 'Failed to start score tracking';
+              if (dispatchError.isModule) {
+                const decoded = api.registry.findMetaError(dispatchError.asModule);
+                errorMessage = `${decoded.section}.${decoded.name}: ${decoded.docs.join(' ')}`;
+              }
+              toast({
+                title: 'Error',
+                description: errorMessage,
+                variant: 'destructive',
+              });
+              setIsLoading(false);
+            } else {
+              toast({
+                title: 'Success',
+                description: 'Score tracking started successfully! Your staking score will now accumulate over time.',
+              });
+              // Refresh staking data after a delay
+              setTimeout(() => {
+                if (api && selectedAccount) {
+                  getStakingInfo(api, selectedAccount.address).then(setStakingInfo);
+                }
+              }, 3000);
+              setIsLoading(false);
+            }
+          }
+        }
+      );
     } catch (error: any) {
-      console.error('Claim rewards failed:', error);
+      console.error('Start score tracking failed:', error);
       toast({
         title: 'Error',
-        description: error.message || 'Claim rewards failed',
+        description: error.message || 'Failed to start score tracking',
         variant: 'destructive',
       });
+      setIsLoading(false);
     }
   };
 
-  const totalStaked = stakingPools.reduce((sum, pool) => sum + (pool.userStaked || 0), 0);
-  const totalRewards = stakingPools.reduce((sum, pool) => sum + (pool.rewards || 0), 0);
+  const toggleValidator = (validator: string) => {
+    setSelectedValidators(prev => {
+      if (prev.includes(validator)) {
+        return prev.filter(v => v !== validator);
+      } else {
+        // Max 16 nominations
+        if (prev.length >= 16) {
+          toast({
+            title: 'Limit Reached',
+            description: 'Maximum 16 validators can be nominated',
+          });
+          return prev;
+        }
+        return [...prev, validator];
+      }
+    });
+  };
+
+  if (isLoadingData) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-gray-400">Loading staking data...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       {/* Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <Card className="bg-gray-900 border-gray-800">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm text-gray-400">Total Staked</CardTitle>
+            <CardTitle className="text-sm text-gray-400">Total Bonded</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">{totalStaked.toLocaleString()}</div>
-            <p className="text-xs text-gray-500 mt-1">Across all pools</p>
+            <div className="text-2xl font-bold text-white">
+              {stakingInfo?.bonded || '0'} HEZ
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              Active: {stakingInfo?.active || '0'} HEZ
+            </p>
           </CardContent>
         </Card>
 
         <Card className="bg-gray-900 border-gray-800">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm text-gray-400">Total Rewards</CardTitle>
+            <CardTitle className="text-sm text-gray-400">Unlocking</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-500">{totalRewards.toFixed(2)}</div>
-            <p className="text-xs text-gray-500 mt-1">Ready to claim</p>
+            <div className="text-2xl font-bold text-yellow-500">
+              {stakingInfo?.unlocking.reduce((sum, u) => sum + parseFloat(u.amount), 0).toFixed(2) || '0'} HEZ
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              {stakingInfo?.unlocking.length || 0} chunk(s)
+            </p>
           </CardContent>
         </Card>
 
         <Card className="bg-gray-900 border-gray-800">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm text-gray-400">Average APY</CardTitle>
+            <CardTitle className="text-sm text-gray-400">Redeemable</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-500">13.5%</div>
-            <p className="text-xs text-gray-500 mt-1">Weighted average</p>
+            <div className="text-2xl font-bold text-green-500">
+              {stakingInfo?.redeemable || '0'} HEZ
+            </div>
+            <Button
+              size="sm"
+              onClick={handleWithdrawUnbonded}
+              disabled={!stakingInfo || parseFloat(stakingInfo.redeemable) === 0 || isLoading}
+              className="mt-2 w-full"
+            >
+              Withdraw
+            </Button>
           </CardContent>
         </Card>
 
         <Card className="bg-gray-900 border-gray-800">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm text-gray-400">Next Reward</CardTitle>
+            <CardTitle className="text-sm text-gray-400">Staking Score</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">4h 23m</div>
-            <p className="text-xs text-gray-500 mt-1">Distribution time</p>
+            {stakingInfo?.hasStartedScoreTracking ? (
+              <>
+                <div className="text-2xl font-bold text-purple-500">
+                  {stakingInfo.stakingScore}/100
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Duration: {stakingInfo.stakingDuration
+                    ? `${Math.floor(stakingInfo.stakingDuration / (24 * 60 * 10))} days`
+                    : '0 days'}
+                </p>
+              </>
+            ) : (
+              <>
+                <div className="text-2xl font-bold text-gray-500">Not Started</div>
+                <Button
+                  size="sm"
+                  onClick={handleStartScoreTracking}
+                  disabled={!stakingInfo || parseFloat(stakingInfo.bonded) === 0 || isLoading}
+                  className="mt-2 w-full bg-purple-600 hover:bg-purple-700"
+                >
+                  Start Score Tracking
+                </Button>
+              </>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gray-900 border-gray-800">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm text-gray-400">PEZ Rewards</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {stakingInfo?.pezRewards && stakingInfo.pezRewards.hasPendingClaim ? (
+              <>
+                <div className="text-2xl font-bold text-orange-500">
+                  {parseFloat(stakingInfo.pezRewards.totalClaimable).toFixed(2)} PEZ
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  {stakingInfo.pezRewards.claimableRewards.length} epoch(s) to claim
+                </p>
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    toast({
+                      title: 'Coming Soon',
+                      description: 'Claim PEZ rewards functionality will be available soon',
+                    });
+                  }}
+                  disabled={isLoading}
+                  className="mt-2 w-full bg-orange-600 hover:bg-orange-700"
+                >
+                  Claim Rewards
+                </Button>
+              </>
+            ) : (
+              <>
+                <div className="text-2xl font-bold text-gray-500">0 PEZ</div>
+                <p className="text-xs text-gray-500 mt-1">
+                  {stakingInfo?.pezRewards
+                    ? `Epoch ${stakingInfo.pezRewards.currentEpoch}`
+                    : 'No rewards available'}
+                </p>
+              </>
+            )}
           </CardContent>
         </Card>
       </div>
 
-      {/* Staking Pools */}
+      {/* Main Staking Interface */}
       <Card className="bg-gray-900 border-gray-800">
         <CardHeader>
-          <CardTitle className="text-xl text-white">Staking Pools</CardTitle>
+          <CardTitle className="text-xl text-white">Validator Nomination Staking</CardTitle>
           <CardDescription className="text-gray-400">
-            Choose a pool and start earning rewards
+            Bond HEZ and nominate validators to earn staking rewards
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {stakingPools.map((pool) => (
-              <Card key={pool.id} className="bg-gray-800 border-gray-700">
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle className="text-lg text-white">{pool.name}</CardTitle>
-                      <Badge variant={pool.token === 'HEZ' ? 'default' : 'secondary'}>
-                        {pool.token}
-                      </Badge>
+          <Tabs defaultValue="stake">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="stake">Stake</TabsTrigger>
+              <TabsTrigger value="nominate">Nominate</TabsTrigger>
+              <TabsTrigger value="unstake">Unstake</TabsTrigger>
+            </TabsList>
+
+            {/* STAKE TAB */}
+            <TabsContent value="stake" className="space-y-4">
+              <Alert className="bg-blue-900/20 border-blue-500">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription className="text-sm">
+                  Minimum bond: {minNominatorBond} HEZ. Bonded tokens are locked and earn rewards when nominated validators produce blocks.
+                </AlertDescription>
+              </Alert>
+
+              <div>
+                <Label>Amount to Bond (HEZ)</Label>
+                <Input
+                  type="number"
+                  placeholder={`Min: ${minNominatorBond}`}
+                  value={bondAmount}
+                  onChange={(e) => setBondAmount(e.target.value)}
+                  className="bg-gray-800 border-gray-700"
+                  disabled={isLoading}
+                />
+                <div className="flex justify-between mt-1 text-xs text-gray-400">
+                  <span>Available: {balances.HEZ} HEZ</span>
+                  <button
+                    onClick={() => setBondAmount(balances.HEZ)}
+                    className="text-blue-400 hover:text-blue-300"
+                  >
+                    Max
+                  </button>
+                </div>
+              </div>
+
+              <Button
+                onClick={handleBond}
+                disabled={isLoading || !bondAmount || parseFloat(bondAmount) < parseFloat(minNominatorBond)}
+                className="w-full bg-green-600 hover:bg-green-700"
+              >
+                {stakingInfo && parseFloat(stakingInfo.bonded) > 0 ? 'Bond Additional' : 'Bond Tokens'}
+              </Button>
+            </TabsContent>
+
+            {/* NOMINATE TAB */}
+            <TabsContent value="nominate" className="space-y-4">
+              <Alert className="bg-purple-900/20 border-purple-500">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription className="text-sm">
+                  Select up to 16 validators to nominate. Your stake will be distributed to active validators.
+                  {stakingInfo && parseFloat(stakingInfo.bonded) === 0 && ' You must bond tokens first.'}
+                </AlertDescription>
+              </Alert>
+
+              <div className="space-y-2">
+                <Label>Active Validators ({validators.length})</Label>
+                <div className="max-h-64 overflow-y-auto space-y-2 border border-gray-700 rounded-lg p-3 bg-gray-800">
+                  {validators.map((validator) => (
+                    <div
+                      key={validator}
+                      className={`flex items-center justify-between p-2 rounded cursor-pointer transition-colors ${
+                        selectedValidators.includes(validator)
+                          ? 'bg-purple-900/30 border border-purple-500'
+                          : 'bg-gray-700 hover:bg-gray-600'
+                      }`}
+                      onClick={() => toggleValidator(validator)}
+                    >
+                      <span className="text-sm font-mono truncate flex-1">
+                        {validator.slice(0, 8)}...{validator.slice(-8)}
+                      </span>
+                      {selectedValidators.includes(validator) && (
+                        <CheckCircle2 className="w-4 h-4 text-purple-400 ml-2" />
+                      )}
                     </div>
-                    <div className="text-right">
-                      <div className="text-2xl font-bold text-green-500">{pool.apy}%</div>
-                      <p className="text-xs text-gray-400">APY</p>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-400">Total Staked</span>
-                      <span className="text-white">{pool.totalStaked.toLocaleString()} {pool.token}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-400">Lock Period</span>
-                      <span className="text-white">
-                        {pool.lockPeriod === 0 ? 'Flexible' : `${pool.lockPeriod} days`}
+                  ))}
+                </div>
+                <p className="text-xs text-gray-400">
+                  Selected: {selectedValidators.length}/16
+                </p>
+              </div>
+
+              <Button
+                onClick={handleNominate}
+                disabled={isLoading || selectedValidators.length === 0 || !stakingInfo || parseFloat(stakingInfo.bonded) === 0}
+                className="w-full bg-purple-600 hover:bg-purple-700"
+              >
+                Nominate Validators
+              </Button>
+            </TabsContent>
+
+            {/* UNSTAKE TAB */}
+            <TabsContent value="unstake" className="space-y-4">
+              <Alert className="bg-yellow-900/20 border-yellow-500">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription className="text-sm">
+                  Unbonded tokens will be locked for {bondingDuration} eras (~{bondingDuration} days) before withdrawal.
+                </AlertDescription>
+              </Alert>
+
+              <div>
+                <Label>Amount to Unbond (HEZ)</Label>
+                <Input
+                  type="number"
+                  placeholder={`Max: ${stakingInfo?.active || '0'}`}
+                  value={unbondAmount}
+                  onChange={(e) => setUnbondAmount(e.target.value)}
+                  className="bg-gray-800 border-gray-700"
+                  disabled={isLoading}
+                />
+                <div className="flex justify-between mt-1 text-xs text-gray-400">
+                  <span>Staked: {stakingInfo?.active || '0'} HEZ</span>
+                  <button
+                    onClick={() => setUnbondAmount(stakingInfo?.active || '0')}
+                    className="text-blue-400 hover:text-blue-300"
+                  >
+                    Max
+                  </button>
+                </div>
+              </div>
+
+              {stakingInfo && stakingInfo.unlocking.length > 0 && (
+                <div className="bg-gray-800 rounded-lg p-3 space-y-2">
+                  <Label className="text-sm">Unlocking Chunks</Label>
+                  {stakingInfo.unlocking.map((chunk, i) => (
+                    <div key={i} className="flex justify-between text-sm">
+                      <span className="text-gray-400">{chunk.amount} HEZ</span>
+                      <span className="text-gray-500">
+                        Era {chunk.era} ({chunk.blocksRemaining > 0 ? `~${Math.floor(chunk.blocksRemaining / 600)} blocks` : 'Ready'})
                       </span>
                     </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-400">Min. Stake</span>
-                      <span className="text-white">{pool.minStake} {pool.token}</span>
-                    </div>
-                  </div>
+                  ))}
+                </div>
+              )}
 
-                  {pool.userStaked && pool.userStaked > 0 && (
-                    <div className="pt-2 border-t border-gray-700">
-                      <div className="flex justify-between text-sm mb-2">
-                        <span className="text-gray-400">Your Stake</span>
-                        <span className="text-white font-semibold">{pool.userStaked.toLocaleString()} {pool.token}</span>
-                      </div>
-                      <div className="flex justify-between text-sm mb-3">
-                        <span className="text-gray-400">Rewards</span>
-                        <span className="text-green-500 font-semibold">{pool.rewards?.toFixed(2)} {pool.token}</span>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => handleClaimRewards(pool)}
-                          className="flex-1"
-                        >
-                          <Gift className="w-4 h-4 mr-1" />
-                          Claim
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="secondary"
-                          onClick={() => setSelectedPool(pool)}
-                          className="flex-1"
-                        >
-                          Manage
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-
-                  {(!pool.userStaked || pool.userStaked === 0) && (
-                    <Button 
-                      className="w-full bg-green-600 hover:bg-green-700"
-                      onClick={() => setSelectedPool(pool)}
-                    >
-                      <Lock className="w-4 h-4 mr-2" />
-                      Stake {pool.token}
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+              <Button
+                onClick={handleUnbond}
+                disabled={isLoading || !unbondAmount || !stakingInfo || parseFloat(stakingInfo.active) === 0}
+                className="w-full bg-red-600 hover:bg-red-700"
+                variant="destructive"
+              >
+                Unbond Tokens
+              </Button>
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
-
-      {/* Stake/Unstake Modal */}
-      {selectedPool && (
-        <Card className="bg-gray-900 border-gray-800">
-          <CardHeader>
-            <CardTitle>Manage {selectedPool.name}</CardTitle>
-            <CardDescription>Stake or unstake your tokens</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="stake">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="stake">Stake</TabsTrigger>
-                <TabsTrigger value="unstake">Unstake</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="stake" className="space-y-4">
-                <div>
-                  <Label>Amount to Stake</Label>
-                  <Input
-                    type="number"
-                    placeholder={`Min: ${selectedPool.minStake} ${selectedPool.token}`}
-                    value={stakeAmount}
-                    onChange={(e) => setStakeAmount(e.target.value)}
-                    className="bg-gray-800 border-gray-700"
-                  />
-                </div>
-                <div className="bg-gray-800 p-4 rounded-lg space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-400">Estimated APY</span>
-                    <span className="text-green-500 font-semibold">{selectedPool.apy}%</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-400">Lock Period</span>
-                    <span className="text-white">{selectedPool.lockPeriod === 0 ? 'None' : `${selectedPool.lockPeriod} days`}</span>
-                  </div>
-                </div>
-                <Button 
-                  className="w-full bg-green-600 hover:bg-green-700"
-                  onClick={() => handleStake(selectedPool)}
-                >
-                  Confirm Stake
-                </Button>
-              </TabsContent>
-              
-              <TabsContent value="unstake" className="space-y-4">
-                <div>
-                  <Label>Amount to Unstake</Label>
-                  <Input
-                    type="number"
-                    placeholder={`Max: ${selectedPool.userStaked} ${selectedPool.token}`}
-                    value={unstakeAmount}
-                    onChange={(e) => setUnstakeAmount(e.target.value)}
-                    className="bg-gray-800 border-gray-700"
-                  />
-                </div>
-                <div className="bg-yellow-900/20 border border-yellow-600/50 p-4 rounded-lg">
-                  <p className="text-sm text-yellow-500">
-                    <Info className="w-4 h-4 inline mr-1" />
-                    {selectedPool.lockPeriod > 0 
-                      ? `Tokens are locked for ${selectedPool.lockPeriod} days. Early withdrawal may incur penalties.`
-                      : 'You can unstake anytime without penalties.'}
-                  </p>
-                </div>
-                <Button 
-                  className="w-full"
-                  variant="destructive"
-                  onClick={() => handleUnstake(selectedPool)}
-                >
-                  Confirm Unstake
-                </Button>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 };
