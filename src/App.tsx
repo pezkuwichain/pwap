@@ -10,6 +10,7 @@ import AdminPanel from '@/pages/AdminPanel';
 import WalletDashboard from './pages/WalletDashboard';
 import PoolDashboardPage from './pages/PoolDashboard';
 import ReservesDashboardPage from './pages/ReservesDashboardPage';
+import BeCitizen from './pages/BeCitizen';
 import { AppProvider } from '@/contexts/AppContext';
 import { PolkadotProvider } from '@/contexts/PolkadotContext';
 import { WalletProvider } from '@/contexts/WalletContext';
@@ -38,6 +39,7 @@ function App() {
                     <Route path="/email-verification" element={<EmailVerification />} />
                     <Route path="/reset-password" element={<PasswordReset />} />
                     <Route path="/" element={<Index />} />
+                    <Route path="/be-citizen" element={<BeCitizen />} />
                     <Route path="/dashboard" element={
                       <ProtectedRoute>
                         <Dashboard />

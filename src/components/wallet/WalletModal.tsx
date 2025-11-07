@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Wallet, Chrome, ExternalLink, Copy, Check, LogOut, Award } from 'lucide-react';
+import { Wallet, Chrome, ExternalLink, Copy, Check, LogOut, Award, Users, TrendingUp, Shield } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -10,6 +10,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { usePolkadot } from '@/contexts/PolkadotContext';
 import { formatAddress } from '@/lib/wallet';
+import { getAllScores, type UserScores } from '@/lib/scores';
 
 interface WalletModalProps {
   isOpen: boolean;
@@ -29,7 +30,14 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
   } = usePolkadot();
 
   const [copied, setCopied] = useState(false);
-  const [trustScore, setTrustScore] = useState<string>('-');
+  const [scores, setScores] = useState<UserScores>({
+    trustScore: 0,
+    referralScore: 0,
+    stakingScore: 0,
+    tikiScore: 0,
+    totalScore: 0
+  });
+  const [loadingScores, setLoadingScores] = useState(false);
 
   const handleCopyAddress = () => {
     if (selectedAccount?.address) {
@@ -53,39 +61,39 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
     onClose();
   };
 
-  // Fetch trust score from blockchain
+  // Fetch all scores from blockchain
   useEffect(() => {
-    const fetchTrustScore = async () => {
-      console.log('🔍 Fetching trust score...', {
-        hasApi: !!api,
-        isApiReady,
-        hasAccount: !!selectedAccount,
-        address: selectedAccount?.address
-      });
-
+    const fetchAllScores = async () => {
       if (!api || !isApiReady || !selectedAccount?.address) {
-        console.log('⚠️ Cannot fetch trust score - missing requirements');
-        setTrustScore('-');
+        setScores({
+          trustScore: 0,
+          referralScore: 0,
+          stakingScore: 0,
+          tikiScore: 0,
+          totalScore: 0
+        });
         return;
       }
 
+      setLoadingScores(true);
       try {
-        console.log('📡 Querying api.query.trust.trustScores...');
-        const score = await api.query.trust.trustScores(selectedAccount.address);
-        const scoreStr = score.toString();
-        setTrustScore(scoreStr);
-        console.log('✅ Trust score fetched successfully:', scoreStr);
+        const userScores = await getAllScores(api, selectedAccount.address);
+        setScores(userScores);
       } catch (err) {
-        console.error('❌ Failed to fetch trust score:', err);
-        console.error('Error details:', {
-          message: err instanceof Error ? err.message : String(err),
-          stack: err instanceof Error ? err.stack : undefined
+        console.error('Failed to fetch scores:', err);
+        setScores({
+          trustScore: 0,
+          referralScore: 0,
+          stakingScore: 0,
+          tikiScore: 0,
+          totalScore: 0
         });
-        setTrustScore('-');
+      } finally {
+        setLoadingScores(false);
       }
     };
 
-    fetchTrustScore();
+    fetchAllScores();
   }, [api, isApiReady, selectedAccount]);
 
   return (
@@ -164,12 +172,48 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
               </div>
 
               <div>
-                <div className="text-xs text-gray-400 mb-1">Trust Score</div>
-                <div className="flex items-center gap-2">
-                  <Award className="h-4 w-4 text-purple-400" />
-                  <span className="text-lg font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
-                    {trustScore}
-                  </span>
+                <div className="text-xs text-gray-400 mb-2">Scores from Blockchain</div>
+                {loadingScores ? (
+                  <div className="text-sm text-gray-400">Loading scores...</div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-gray-900/50 rounded p-2">
+                      <div className="flex items-center gap-1 mb-1">
+                        <Shield className="h-3 w-3 text-purple-400" />
+                        <span className="text-xs text-gray-400">Trust</span>
+                      </div>
+                      <span className="text-sm font-bold text-purple-400">{scores.trustScore}</span>
+                    </div>
+                    <div className="bg-gray-900/50 rounded p-2">
+                      <div className="flex items-center gap-1 mb-1">
+                        <Users className="h-3 w-3 text-cyan-400" />
+                        <span className="text-xs text-gray-400">Referral</span>
+                      </div>
+                      <span className="text-sm font-bold text-cyan-400">{scores.referralScore}</span>
+                    </div>
+                    <div className="bg-gray-900/50 rounded p-2">
+                      <div className="flex items-center gap-1 mb-1">
+                        <TrendingUp className="h-3 w-3 text-green-400" />
+                        <span className="text-xs text-gray-400">Staking</span>
+                      </div>
+                      <span className="text-sm font-bold text-green-400">{scores.stakingScore}</span>
+                    </div>
+                    <div className="bg-gray-900/50 rounded p-2">
+                      <div className="flex items-center gap-1 mb-1">
+                        <Award className="h-3 w-3 text-pink-400" />
+                        <span className="text-xs text-gray-400">Tiki</span>
+                      </div>
+                      <span className="text-sm font-bold text-pink-400">{scores.tikiScore}</span>
+                    </div>
+                  </div>
+                )}
+                <div className="mt-2 pt-2 border-t border-gray-700">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-400">Total Score</span>
+                    <span className="text-lg font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
+                      {loadingScores ? '...' : scores.totalScore}
+                    </span>
+                  </div>
                 </div>
               </div>
 

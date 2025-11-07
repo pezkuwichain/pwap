@@ -7,9 +7,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePolkadot } from '@/contexts/PolkadotContext';
 import { supabase } from '@/lib/supabase';
-import { User, Mail, Phone, Globe, MapPin, Calendar, Shield, AlertCircle, ArrowLeft, Award } from 'lucide-react';
+import { User, Mail, Phone, Globe, MapPin, Calendar, Shield, AlertCircle, ArrowLeft, Award, Users, TrendingUp } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { fetchUserTikis, calculateTikiScore, getPrimaryRole, getTikiDisplayName, getTikiColor, getTikiEmoji, getUserRoleCategories } from '@/lib/tiki';
+import { getAllScores, type UserScores } from '@/lib/scores';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -19,13 +20,19 @@ export default function Dashboard() {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [tikis, setTikis] = useState<string[]>([]);
-  const [tikiScore, setTikiScore] = useState<number>(0);
-  const [loadingTikis, setLoadingTikis] = useState(false);
+  const [scores, setScores] = useState<UserScores>({
+    trustScore: 0,
+    referralScore: 0,
+    stakingScore: 0,
+    tikiScore: 0,
+    totalScore: 0
+  });
+  const [loadingScores, setLoadingScores] = useState(false);
 
   useEffect(() => {
     fetchProfile();
     if (selectedAccount && api && isApiReady) {
-      fetchTikiData();
+      fetchScoresAndTikis();
     }
   }, [user, selectedAccount, api, isApiReady]);
 
@@ -85,18 +92,22 @@ export default function Dashboard() {
     }
   };
 
-  const fetchTikiData = async () => {
+  const fetchScoresAndTikis = async () => {
     if (!selectedAccount || !api) return;
 
-    setLoadingTikis(true);
+    setLoadingScores(true);
     try {
+      // Fetch all scores from blockchain (includes trust, referral, staking, tiki)
+      const allScores = await getAllScores(api, selectedAccount.address);
+      setScores(allScores);
+
+      // Also fetch tikis separately for role display (needed for role details)
       const userTikis = await fetchUserTikis(api, selectedAccount.address);
       setTikis(userTikis);
-      setTikiScore(calculateTikiScore(userTikis));
     } catch (error) {
-      console.error('Error fetching tiki data:', error);
+      console.error('Error fetching scores and tikis:', error);
     } finally {
-      setLoadingTikis(false);
+      setLoadingScores(false);
     }
   };
 
@@ -167,7 +178,7 @@ export default function Dashboard() {
   };
 
   const getRoleDisplay = (): string => {
-    if (loadingTikis) return 'Loading...';
+    if (loadingScores) return 'Loading...';
     if (!selectedAccount) return 'Member';
     if (tikis.length === 0) return 'Member';
 
@@ -248,12 +259,74 @@ export default function Dashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tiki Score</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Score</CardTitle>
             <Award className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {loadingTikis ? '...' : tikiScore}
+              {loadingScores ? '...' : scores.totalScore}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Combined from all score types
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Trust Score</CardTitle>
+            <Shield className="h-4 w-4 text-purple-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-purple-600">
+              {loadingScores ? '...' : scores.trustScore}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              From pallet_trust
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Referral Score</CardTitle>
+            <Users className="h-4 w-4 text-cyan-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-cyan-600">
+              {loadingScores ? '...' : scores.referralScore}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              From referral system
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Staking Score</CardTitle>
+            <TrendingUp className="h-4 w-4 text-green-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">
+              {loadingScores ? '...' : scores.stakingScore}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              From pallet_staking_score
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Tiki Score</CardTitle>
+            <Award className="h-4 w-4 text-pink-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-pink-600">
+              {loadingScores ? '...' : scores.tikiScore}
             </div>
             <p className="text-xs text-muted-foreground">
               {tikis.length} {tikis.length === 1 ? 'role' : 'roles'} assigned
@@ -347,13 +420,13 @@ export default function Dashboard() {
                 </div>
               )}
 
-              {selectedAccount && loadingTikis && (
+              {selectedAccount && loadingScores && (
                 <div className="text-center py-8">
                   <p className="text-muted-foreground">Loading roles from blockchain...</p>
                 </div>
               )}
 
-              {selectedAccount && !loadingTikis && tikis.length === 0 && (
+              {selectedAccount && !loadingScores && tikis.length === 0 && (
                 <div className="text-center py-8">
                   <Award className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <p className="text-muted-foreground mb-2">
@@ -365,7 +438,7 @@ export default function Dashboard() {
                 </div>
               )}
 
-              {selectedAccount && !loadingTikis && tikis.length > 0 && (
+              {selectedAccount && !loadingScores && tikis.length > 0 && (
                 <div className="space-y-4">
                   <div className="grid gap-2">
                     <div className="flex items-center gap-2">
@@ -376,7 +449,7 @@ export default function Dashboard() {
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="font-medium">Total Score:</span>
-                      <span className="text-lg font-bold text-purple-600">{tikiScore}</span>
+                      <span className="text-lg font-bold text-purple-600">{scores.totalScore}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="font-medium">Categories:</span>

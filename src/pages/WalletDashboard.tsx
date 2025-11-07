@@ -5,6 +5,7 @@ import { AccountBalance } from '@/components/AccountBalance';
 import { TransferModal } from '@/components/TransferModal';
 import { ReceiveModal } from '@/components/ReceiveModal';
 import { TransactionHistory } from '@/components/TransactionHistory';
+import { NftList } from '@/components/NftList';
 import { Button } from '@/components/ui/button';
 import { ArrowUpRight, ArrowDownRight, History, ArrowLeft, Activity } from 'lucide-react';
 
@@ -104,6 +105,9 @@ const WalletDashboard: React.FC = () => {
                 </Button>
               </div>
             </div>
+
+            {/* NFT Collection */}
+            <NftList />
           </div>
         </div>
       </div>

@@ -21,7 +21,7 @@ import { TreasuryOverview } from './treasury/TreasuryOverview';
 import { FundingProposal } from './treasury/FundingProposal';
 import { SpendingHistory } from './treasury/SpendingHistory';
 import { MultiSigApproval } from './treasury/MultiSigApproval';
-import { Github, FileText, ExternalLink, Shield, Award, User, FileEdit, Users2, MessageSquare, ShieldCheck, Wifi, WifiOff, Wallet, DollarSign, PiggyBank, History, Key, TrendingUp, ArrowRightLeft, Lock, LogIn, LayoutDashboard, Settings, UserCog, Repeat } from 'lucide-react';
+import { Github, FileText, ExternalLink, Shield, Award, User, FileEdit, Users2, MessageSquare, ShieldCheck, Wifi, WifiOff, Wallet, DollarSign, PiggyBank, History, Key, TrendingUp, ArrowRightLeft, Lock, LogIn, LayoutDashboard, Settings, UserCog, Repeat, Users } from 'lucide-react';
 import GovernanceInterface from './GovernanceInterface';
 import RewardDistribution from './RewardDistribution';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -98,6 +98,14 @@ const AppLayout: React.FC = () => {
                   >
                     <Wallet className="w-4 h-4" />
                     Wallet
+                  </button>
+
+                  <button
+                    onClick={() => navigate('/be-citizen')}
+                    className="text-cyan-300 hover:text-cyan-100 transition-colors flex items-center gap-1 text-sm font-semibold"
+                  >
+                    <Users className="w-4 h-4" />
+                    Be Citizen
                   </button>
 
                   {/* Governance Dropdown */}
@@ -212,13 +220,22 @@ const AppLayout: React.FC = () => {
                   </button>
                 </>
               ) : (
-                <button 
-                  onClick={() => navigate('/login')}
-                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 text-sm"
-                >
-                  <LogIn className="w-4 h-4" />
-                  Login
-                </button>
+                <>
+                  <button
+                    onClick={() => navigate('/be-citizen')}
+                    className="text-cyan-300 hover:text-cyan-100 transition-colors flex items-center gap-1 text-sm font-semibold"
+                  >
+                    <Users className="w-4 h-4" />
+                    Be Citizen
+                  </button>
+                  <button
+                    onClick={() => navigate('/login')}
+                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 text-sm"
+                  >
+                    <LogIn className="w-4 h-4" />
+                    Login
+                  </button>
+                </>
               )}
               
               <a

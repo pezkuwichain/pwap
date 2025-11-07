@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { usePolkadot } from '@/contexts/PolkadotContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Wallet, TrendingUp, ArrowUpRight, ArrowDownRight, RefreshCw, Award, Plus, Coins, Send } from 'lucide-react';
+import { Wallet, TrendingUp, ArrowUpRight, ArrowDownRight, RefreshCw, Award, Plus, Coins, Send, Shield, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ASSET_IDS, getAssetSymbol } from '@/lib/wallet';
 import { AddTokenModal } from './AddTokenModal';
 import { TransferModal } from './TransferModal';
+import { getAllScores, type UserScores } from '@/lib/scores';
 
 interface TokenBalance {
   assetId: number;
@@ -31,7 +32,14 @@ export const AccountBalance: React.FC = () => {
   const [usdtBalance, setUsdtBalance] = useState<string>('0');
   const [hezUsdPrice, setHezUsdPrice] = useState<number>(0);
   const [pezUsdPrice, setPezUsdPrice] = useState<number>(0);
-  const [trustScore, setTrustScore] = useState<string>('-');
+  const [scores, setScores] = useState<UserScores>({
+    trustScore: 0,
+    referralScore: 0,
+    stakingScore: 0,
+    tikiScore: 0,
+    totalScore: 0
+  });
+  const [loadingScores, setLoadingScores] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [otherTokens, setOtherTokens] = useState<TokenBalance[]>([]);
   const [isAddTokenModalOpen, setIsAddTokenModalOpen] = useState(false);
@@ -316,23 +324,38 @@ export const AccountBalance: React.FC = () => {
     fetchBalance();
     fetchTokenPrices(); // Fetch token USD prices from pools
 
-    // Fetch Trust Score
-    const fetchTrustScore = async () => {
+    // Fetch All Scores from blockchain
+    const fetchAllScores = async () => {
       if (!api || !isApiReady || !selectedAccount?.address) {
-        setTrustScore('-');
+        setScores({
+          trustScore: 0,
+          referralScore: 0,
+          stakingScore: 0,
+          tikiScore: 0,
+          totalScore: 0
+        });
         return;
       }
 
+      setLoadingScores(true);
       try {
-        const score = await api.query.trust.trustScores(selectedAccount.address);
-        setTrustScore(score.toString());
+        const userScores = await getAllScores(api, selectedAccount.address);
+        setScores(userScores);
       } catch (err) {
-        console.error('Failed to fetch trust score:', err);
-        setTrustScore('-');
+        console.error('Failed to fetch scores:', err);
+        setScores({
+          trustScore: 0,
+          referralScore: 0,
+          stakingScore: 0,
+          tikiScore: 0,
+          totalScore: 0
+        });
+      } finally {
+        setLoadingScores(false);
       }
     };
 
-    fetchTrustScore();
+    fetchAllScores();
 
     // Subscribe to HEZ balance updates
     let unsubscribeHez: () => void;
@@ -535,30 +558,81 @@ export const AccountBalance: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Account Info */}
+      {/* Account Info & Scores */}
       <Card className="bg-gray-900 border-gray-800">
-        <CardContent className="pt-6">
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-400">Account</span>
-              <span className="text-white font-mono">
-                {selectedAccount.meta.name || 'Unnamed'}
-              </span>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg font-medium text-gray-300">
+            Account Information
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {/* Account Details */}
+            <div className="space-y-2 pb-4 border-b border-gray-800">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-400">Account</span>
+                <span className="text-white font-mono">
+                  {selectedAccount.meta.name || 'Unnamed'}
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-400">Address</span>
+                <span className="text-white font-mono text-xs">
+                  {selectedAccount.address.slice(0, 8)}...{selectedAccount.address.slice(-8)}
+                </span>
+              </div>
             </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-400">Address</span>
-              <span className="text-white font-mono text-xs">
-                {selectedAccount.address.slice(0, 8)}...{selectedAccount.address.slice(-8)}
-              </span>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-400 flex items-center gap-1">
-                <Award className="w-3 h-3 text-purple-400" />
-                Trust Score
-              </span>
-              <span className="text-lg font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
-                {trustScore}
-              </span>
+
+            {/* Scores from Blockchain */}
+            <div>
+              <div className="text-xs text-gray-400 mb-3">Scores from Blockchain</div>
+              {loadingScores ? (
+                <div className="text-sm text-gray-400">Loading scores...</div>
+              ) : (
+                <div className="space-y-3">
+                  {/* Score Grid */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-gray-800/50 rounded-lg p-3">
+                      <div className="flex items-center gap-1 mb-1">
+                        <Shield className="h-3 w-3 text-purple-400" />
+                        <span className="text-xs text-gray-400">Trust</span>
+                      </div>
+                      <span className="text-base font-bold text-purple-400">{scores.trustScore}</span>
+                    </div>
+                    <div className="bg-gray-800/50 rounded-lg p-3">
+                      <div className="flex items-center gap-1 mb-1">
+                        <Users className="h-3 w-3 text-cyan-400" />
+                        <span className="text-xs text-gray-400">Referral</span>
+                      </div>
+                      <span className="text-base font-bold text-cyan-400">{scores.referralScore}</span>
+                    </div>
+                    <div className="bg-gray-800/50 rounded-lg p-3">
+                      <div className="flex items-center gap-1 mb-1">
+                        <TrendingUp className="h-3 w-3 text-green-400" />
+                        <span className="text-xs text-gray-400">Staking</span>
+                      </div>
+                      <span className="text-base font-bold text-green-400">{scores.stakingScore}</span>
+                    </div>
+                    <div className="bg-gray-800/50 rounded-lg p-3">
+                      <div className="flex items-center gap-1 mb-1">
+                        <Award className="h-3 w-3 text-pink-400" />
+                        <span className="text-xs text-gray-400">Tiki</span>
+                      </div>
+                      <span className="text-base font-bold text-pink-400">{scores.tikiScore}</span>
+                    </div>
+                  </div>
+
+                  {/* Total Score */}
+                  <div className="pt-3 border-t border-gray-800">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-400">Total Score</span>
+                      <span className="text-xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
+                        {scores.totalScore}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </CardContent>
