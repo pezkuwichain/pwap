@@ -138,7 +138,6 @@ export const TIKI_SCORES: Record<string, number> = {
   SerokiMeclise: 150,
   SerokWeziran: 125,
   Dozger: 120,
-  Serok: 100,
   Wezir: 100,
   WezireDarayiye: 100,
   WezireParez: 100,

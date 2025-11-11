@@ -48,6 +48,9 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
   const [amount0, setAmount0] = useState('');
   const [amount1, setAmount1] = useState('');
   const [currentPrice, setCurrentPrice] = useState<number | null>(null);
+  const [isPoolEmpty, setIsPoolEmpty] = useState(true); // Track if pool has meaningful liquidity
+  const [minDeposit0, setMinDeposit0] = useState<number>(0.01); // Dynamic minimum deposit for asset0
+  const [minDeposit1, setMinDeposit1] = useState<number>(0.01); // Dynamic minimum deposit for asset1
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -59,6 +62,82 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
   const asset1BalanceKey = getBalanceKey(asset1);
   const asset0Decimals = getAssetDecimals(asset0);
   const asset1Decimals = getAssetDecimals(asset1);
+
+  // Reset form when modal is closed
+  useEffect(() => {
+    if (!isOpen) {
+      setAmount0('');
+      setAmount1('');
+      setError(null);
+      setSuccess(false);
+    }
+  }, [isOpen]);
+
+  // Fetch minimum deposit requirements from runtime
+  useEffect(() => {
+    if (!api || !isApiReady || !isOpen) return;
+
+    const fetchMinimumBalances = async () => {
+      try {
+        // Query asset details which contains minBalance
+        const assetDetails0 = await api.query.assets.asset(asset0);
+        const assetDetails1 = await api.query.assets.asset(asset1);
+
+        console.log('🔍 Querying minimum balances for assets:', { asset0, asset1 });
+
+        if (assetDetails0.isSome && assetDetails1.isSome) {
+          const details0 = assetDetails0.unwrap().toJSON() as any;
+          const details1 = assetDetails1.unwrap().toJSON() as any;
+
+          console.log('📦 Asset details:', {
+            asset0: details0,
+            asset1: details1
+          });
+
+          const minBalance0Raw = details0.minBalance || '0';
+          const minBalance1Raw = details1.minBalance || '0';
+
+          const minBalance0 = Number(minBalance0Raw) / Math.pow(10, asset0Decimals);
+          const minBalance1 = Number(minBalance1Raw) / Math.pow(10, asset1Decimals);
+
+          console.log('📊 Minimum deposit requirements from assets:', {
+            asset0: asset0Name,
+            minBalance0Raw,
+            minBalance0,
+            asset1: asset1Name,
+            minBalance1Raw,
+            minBalance1
+          });
+
+          setMinDeposit0(minBalance0);
+          setMinDeposit1(minBalance1);
+        } else {
+          console.warn('⚠️ Asset details not found, using defaults');
+        }
+
+        // Also check if there's a MintMinLiquidity constant in assetConversion pallet
+        if (api.consts.assetConversion) {
+          const mintMinLiq = api.consts.assetConversion.mintMinLiquidity;
+          if (mintMinLiq) {
+            console.log('🔧 AssetConversion MintMinLiquidity constant:', mintMinLiq.toString());
+          }
+
+          const liquidityWithdrawalFee = api.consts.assetConversion.liquidityWithdrawalFee;
+          if (liquidityWithdrawalFee) {
+            console.log('🔧 AssetConversion LiquidityWithdrawalFee:', liquidityWithdrawalFee.toHuman());
+          }
+
+          // Log all assetConversion constants
+          console.log('🔧 All assetConversion constants:', Object.keys(api.consts.assetConversion));
+        }
+      } catch (err) {
+        console.error('❌ Error fetching minimum balances:', err);
+        // Keep default 0.01 if query fails
+      }
+    };
+
+    fetchMinimumBalances();
+  }, [api, isApiReady, isOpen, asset0, asset1, asset0Decimals, asset1Decimals, asset0Name, asset1Name]);
 
   // Fetch current pool price
   useEffect(() => {
@@ -93,26 +172,50 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
             const reserve0 = Number(data0.balance) / Math.pow(10, asset0Decimals);
             const reserve1 = Number(data1.balance) / Math.pow(10, asset1Decimals);
 
-            setCurrentPrice(reserve1 / reserve0);
+            // Consider pool empty if reserves are less than 1 token (dust amounts)
+            const MINIMUM_LIQUIDITY = 1;
+            if (reserve0 >= MINIMUM_LIQUIDITY && reserve1 >= MINIMUM_LIQUIDITY) {
+              setCurrentPrice(reserve1 / reserve0);
+              setIsPoolEmpty(false);
+              console.log('Pool has liquidity - auto-calculating ratio:', reserve1 / reserve0);
+            } else {
+              setCurrentPrice(null);
+              setIsPoolEmpty(true);
+              console.log('Pool is empty or has dust only - manual input allowed');
+            }
+          } else {
+            // No reserves found - pool is empty
+            setCurrentPrice(null);
+            setIsPoolEmpty(true);
+            console.log('Pool is empty - manual input allowed');
           }
+        } else {
+          // Pool doesn't exist yet - completely empty
+          setCurrentPrice(null);
+          setIsPoolEmpty(true);
+          console.log('Pool does not exist yet - manual input allowed');
         }
       } catch (err) {
         console.error('Error fetching pool price:', err);
+        // On error, assume pool is empty to allow manual input
+        setCurrentPrice(null);
+        setIsPoolEmpty(true);
       }
     };
 
     fetchPoolPrice();
   }, [api, isApiReady, isOpen, asset0, asset1, asset0Decimals, asset1Decimals]);
 
-  // Auto-calculate asset1 amount based on asset0 input
+  // Auto-calculate asset1 amount based on asset0 input (only if pool has liquidity)
   useEffect(() => {
-    if (amount0 && currentPrice) {
+    if (!isPoolEmpty && amount0 && currentPrice) {
       const calculated = parseFloat(amount0) * currentPrice;
       setAmount1(calculated.toFixed(asset1Decimals === 6 ? 2 : 4));
-    } else if (!amount0) {
+    } else if (!amount0 && !isPoolEmpty) {
       setAmount1('');
     }
-  }, [amount0, currentPrice, asset1Decimals]);
+    // If pool is empty, don't auto-calculate - let user input both amounts
+  }, [amount0, currentPrice, asset1Decimals, isPoolEmpty]);
 
   const handleAddLiquidity = async () => {
     if (!api || !selectedAccount || !amount0 || !amount1) return;
@@ -124,6 +227,19 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
       // Validate amounts
       if (parseFloat(amount0) <= 0 || parseFloat(amount1) <= 0) {
         setError('Please enter valid amounts');
+        setIsLoading(false);
+        return;
+      }
+
+      // Check minimum deposit requirements from runtime
+      if (parseFloat(amount0) < minDeposit0) {
+        setError(`${asset0Name} amount must be at least ${minDeposit0.toFixed(asset0Decimals === 6 ? 2 : 4)} (minimum deposit requirement)`);
+        setIsLoading(false);
+        return;
+      }
+
+      if (parseFloat(amount1) < minDeposit1) {
+        setError(`${asset1Name} amount must be at least ${minDeposit1.toFixed(asset1Decimals === 6 ? 2 : 4)} (minimum deposit requirement)`);
         setIsLoading(false);
         return;
       }
@@ -277,26 +393,41 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
           </Alert>
         )}
 
-        <Alert className="mb-4 bg-blue-900/20 border-blue-500">
-          <Info className="h-4 w-4" />
-          <AlertDescription className="text-sm">
-            Add liquidity to earn 3% fees from all swaps.
-            {(asset0 === 0 || asset0 === ASSET_IDS.WHEZ) && ' Your HEZ will be automatically wrapped to wHEZ.'}
-          </AlertDescription>
-        </Alert>
+        {isPoolEmpty ? (
+          <Alert className="mb-4 bg-yellow-900/20 border-yellow-500">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription className="text-sm">
+              <strong>First Liquidity Provider:</strong> Pool is empty! You are setting the initial price ratio.
+              <strong> Minimum deposit: {minDeposit0.toFixed(asset0Decimals === 6 ? 2 : 4)} {asset0Name} and {minDeposit1.toFixed(asset1Decimals === 6 ? 2 : 4)} {asset1Name}.</strong>
+              {(asset0 === 0 || asset0 === ASSET_IDS.WHEZ) && ' Your HEZ will be automatically wrapped to wHEZ.'}
+            </AlertDescription>
+          </Alert>
+        ) : (
+          <Alert className="mb-4 bg-blue-900/20 border-blue-500">
+            <Info className="h-4 w-4" />
+            <AlertDescription className="text-sm">
+              Add liquidity to earn 3% fees from all swaps. Amounts are auto-calculated based on current pool ratio.
+              <strong> Minimum deposit: {minDeposit0.toFixed(asset0Decimals === 6 ? 2 : 4)} {asset0Name} and {minDeposit1.toFixed(asset1Decimals === 6 ? 2 : 4)} {asset1Name}.</strong>
+              {(asset0 === 0 || asset0 === ASSET_IDS.WHEZ) && ' Your HEZ will be automatically wrapped to wHEZ.'}
+            </AlertDescription>
+          </Alert>
+        )}
 
         <div className="space-y-4">
           {/* Asset 0 Input */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
               {asset0Name} Amount
+              <span className="text-xs text-gray-500 ml-2">(min: {minDeposit0.toFixed(asset0Decimals === 6 ? 2 : 4)})</span>
             </label>
             <div className="relative">
               <input
                 type="number"
                 value={amount0}
                 onChange={(e) => setAmount0(e.target.value)}
-                placeholder="0.0"
+                placeholder={`${minDeposit0.toFixed(asset0Decimals === 6 ? 2 : 4)} or more`}
+                min={minDeposit0}
+                step={minDeposit0 < 1 ? minDeposit0 : 0.01}
                 className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500"
                 disabled={isLoading}
               />
@@ -322,16 +453,29 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
           {/* Asset 1 Input */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              {asset1Name} Amount (Auto-calculated)
+              {asset1Name} Amount {!isPoolEmpty && '(Auto-calculated)'}
+              {isPoolEmpty && (
+                <>
+                  <span className="text-yellow-400 text-xs ml-2">⚠️ You set the initial ratio</span>
+                  <span className="text-xs text-gray-500 ml-2">(min: {minDeposit1.toFixed(asset1Decimals === 6 ? 2 : 4)})</span>
+                </>
+              )}
             </label>
             <div className="relative">
               <input
                 type="number"
                 value={amount1}
-                placeholder="0.0"
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-gray-400 focus:outline-none cursor-not-allowed"
-                disabled={true}
-                readOnly
+                onChange={(e) => setAmount1(e.target.value)}
+                placeholder={isPoolEmpty ? `${minDeposit1.toFixed(asset1Decimals === 6 ? 2 : 4)} or more` : "Auto-calculated"}
+                min={isPoolEmpty ? minDeposit1 : undefined}
+                step={isPoolEmpty ? (minDeposit1 < 1 ? minDeposit1 : 0.01) : undefined}
+                className={`w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none ${
+                  isPoolEmpty
+                    ? 'text-white focus:border-blue-500'
+                    : 'text-gray-400 cursor-not-allowed'
+                }`}
+                disabled={!isPoolEmpty || isLoading}
+                readOnly={!isPoolEmpty}
               />
               <div className="absolute right-3 top-3 flex items-center gap-2">
                 <span className="text-gray-400 text-sm">{asset1Name}</span>
@@ -339,18 +483,33 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
             </div>
             <div className="flex justify-between mt-1 text-xs text-gray-400">
               <span>Balance: {balance1.toLocaleString()}</span>
-              <span>
-                {currentPrice && `Rate: 1 ${asset0Name} = ${currentPrice.toFixed(asset1Decimals === 6 ? 2 : 4)} ${asset1Name}`}
-              </span>
+              {isPoolEmpty ? (
+                <button
+                  onClick={() => setAmount1(balance1.toString())}
+                  className="text-blue-400 hover:text-blue-300"
+                >
+                  Max
+                </button>
+              ) : (
+                currentPrice && <span>Rate: 1 {asset0Name} = {currentPrice.toFixed(asset1Decimals === 6 ? 2 : 4)} {asset1Name}</span>
+              )}
             </div>
           </div>
 
           {/* Price Info */}
           {amount0 && amount1 && (
             <div className="bg-gray-800 rounded-lg p-3 space-y-2 text-sm">
+              {isPoolEmpty && (
+                <div className="flex justify-between text-yellow-300">
+                  <span>Initial Price</span>
+                  <span>
+                    1 {asset0Name} = {(parseFloat(amount1) / parseFloat(amount0)).toFixed(asset1Decimals === 6 ? 2 : 4)} {asset1Name}
+                  </span>
+                </div>
+              )}
               <div className="flex justify-between text-gray-300">
                 <span>Share of Pool</span>
-                <span>~0.1%</span>
+                <span>{isPoolEmpty ? '100%' : '~0.1%'}</span>
               </div>
               <div className="flex justify-between text-gray-300">
                 <span>Slippage Tolerance</span>

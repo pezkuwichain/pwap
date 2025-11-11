@@ -10,6 +10,7 @@ export const NetworkStats: React.FC = () => {
   const [blockHash, setBlockHash] = useState<string>('');
   const [finalizedBlock, setFinalizedBlock] = useState<number>(0);
   const [validatorCount, setValidatorCount] = useState<number>(0);
+  const [nominatorCount, setNominatorCount] = useState<number>(0);
   const [peers, setPeers] = useState<number>(0);
 
   useEffect(() => {
@@ -17,6 +18,7 @@ export const NetworkStats: React.FC = () => {
 
     let unsubscribeNewHeads: () => void;
     let unsubscribeFinalizedHeads: () => void;
+    let intervalId: NodeJS.Timeout;
 
     const subscribeToBlocks = async () => {
       try {
@@ -31,13 +33,34 @@ export const NetworkStats: React.FC = () => {
           setFinalizedBlock(header.number.toNumber());
         });
 
-        // Get validator count
-        const validators = await api.query.session.validators();
-        setValidatorCount(validators.length);
+        // Update validator count, nominator count, and peer count every 3 seconds
+        const updateNetworkStats = async () => {
+          try {
+            const validators = await api.query.session.validators();
+            const health = await api.rpc.system.health();
 
-        // Get peer count
-        const health = await api.rpc.system.health();
-        setPeers(health.peers.toNumber());
+            // Count nominators
+            let nominatorCount = 0;
+            try {
+              const nominators = await api.query.staking.nominators.entries();
+              nominatorCount = nominators.length;
+            } catch (err) {
+              console.warn('Staking pallet not available, nominators = 0');
+            }
+
+            setValidatorCount(validators.length);
+            setNominatorCount(nominatorCount);
+            setPeers(health.peers.toNumber());
+          } catch (err) {
+            console.error('Failed to update network stats:', err);
+          }
+        };
+
+        // Initial update
+        await updateNetworkStats();
+
+        // Update every 3 seconds
+        intervalId = setInterval(updateNetworkStats, 3000);
 
       } catch (err) {
         console.error('Failed to subscribe to blocks:', err);
@@ -49,6 +72,7 @@ export const NetworkStats: React.FC = () => {
     return () => {
       if (unsubscribeNewHeads) unsubscribeNewHeads();
       if (unsubscribeFinalizedHeads) unsubscribeFinalizedHeads();
+      if (intervalId) clearInterval(intervalId);
     };
   }, [api, isApiReady]);
 
@@ -85,7 +109,7 @@ export const NetworkStats: React.FC = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
       {/* Connection Status */}
       <Card className="bg-gray-900 border-gray-800">
         <CardHeader className="pb-3">
@@ -155,7 +179,25 @@ export const NetworkStats: React.FC = () => {
             {validatorCount}
           </div>
           <div className="text-xs text-gray-500 mt-1">
-            Securing the network
+            Securing the network - LIVE
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Nominators */}
+      <Card className="bg-gray-900 border-gray-800">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-2">
+            <Users className="w-4 h-4 text-cyan-500" />
+            Active Nominators
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold text-white">
+            {nominatorCount}
+          </div>
+          <div className="text-xs text-gray-500 mt-1">
+            Staking to validators
           </div>
         </CardContent>
       </Card>

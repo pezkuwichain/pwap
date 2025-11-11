@@ -78,7 +78,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .from('admin_roles')
         .select('role')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       const adminStatus = !error && data && ['admin', 'super_admin'].includes(data.role);
       setIsAdmin(adminStatus);

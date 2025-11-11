@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChevronRight, Cpu, GitBranch, Shield } from 'lucide-react';
-import { NetworkStats } from './NetworkStats';
+import { ChevronRight, Shield } from 'lucide-react';
 import { usePolkadot } from '../contexts/PolkadotContext';
 import { formatBalance } from '../lib/wallet';
 
@@ -93,57 +92,52 @@ const HeroSection: React.FC = () => {
       <div className="relative z-10 w-full text-center">
         <div className="mb-8 inline-flex items-center px-4 py-2 rounded-full bg-green-600/20 backdrop-blur-sm border border-green-500/30">
           <Shield className="w-4 h-4 text-yellow-400 mr-2" />
-          <span className="text-yellow-400 text-sm font-medium">Substrate Parachain v1.0</span>
+          <span className="text-yellow-400 text-sm font-medium">Digital Kurdistan State v1.0</span>
         </div>
 
         <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-green-500 via-yellow-400 to-red-500 bg-clip-text text-transparent">
           PezkuwiChain
         </h1>
 
-        <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto">
-          {t('hero.title')}
+        <p className="text-xl md:text-2xl text-gray-300 mb-4 max-w-3xl mx-auto">
+          {t('hero.title', 'Blockchain Governance Platform')}
         </p>
-        <p className="text-lg text-gray-400 mb-8 max-w-2xl mx-auto">
-          {t('hero.subtitle')}
+        <p className="text-lg text-gray-400 mb-12 max-w-2xl mx-auto">
+          {t('hero.subtitle', 'Democratic and transparent governance with blockchain technology')}
         </p>
 
-        {/* Live Network Stats */}
-        <div className="mb-12">
-          <NetworkStats />
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12 max-w-4xl mx-auto">
-          <div className="bg-gray-900/50 backdrop-blur-sm rounded-lg border border-green-500/30 p-4">
-            <div className="text-2xl font-bold text-green-400">{stats.activeProposals}</div>
-            <div className="text-sm text-gray-400">{t('hero.stats.activeProposals')}</div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12 max-w-5xl mx-auto px-4">
+          <div className="bg-gray-900/70 backdrop-blur-md rounded-xl border border-green-500/40 p-6 hover:border-green-400/60 transition-all">
+            <div className="text-4xl font-bold text-green-400 mb-2">{stats.activeProposals}</div>
+            <div className="text-sm text-gray-300 font-medium">{t('hero.stats.activeProposals', 'Active Proposals')}</div>
           </div>
-          <div className="bg-gray-900/50 backdrop-blur-sm rounded-lg border border-yellow-400/30 p-4">
-            <div className="text-2xl font-bold text-yellow-400">{stats.totalVoters || '-'}</div>
-            <div className="text-sm text-gray-400">{t('hero.stats.totalVoters')}</div>
+          <div className="bg-gray-900/70 backdrop-blur-md rounded-xl border border-yellow-400/40 p-6 hover:border-yellow-400/60 transition-all">
+            <div className="text-4xl font-bold text-yellow-400 mb-2">{stats.totalVoters.toLocaleString()}</div>
+            <div className="text-sm text-gray-300 font-medium">{t('hero.stats.totalVoters', 'Total Voters')}</div>
           </div>
-          <div className="bg-gray-900/50 backdrop-blur-sm rounded-lg border border-red-500/30 p-4">
-            <div className="text-2xl font-bold text-red-400">{stats.tokensStaked || '-'}</div>
-            <div className="text-sm text-gray-400">{t('hero.stats.tokensStaked')}</div>
+          <div className="bg-gray-900/70 backdrop-blur-md rounded-xl border border-red-500/40 p-6 hover:border-red-500/60 transition-all">
+            <div className="text-4xl font-bold text-red-400 mb-2">{stats.tokensStaked}</div>
+            <div className="text-sm text-gray-300 font-medium">{t('hero.stats.tokensStaked', 'Tokens Staked')}</div>
           </div>
-          <div className="bg-gray-900/50 backdrop-blur-sm rounded-lg border border-green-500/30 p-4">
-            <div className="text-2xl font-bold text-green-400">{stats.trustScore ? `${stats.trustScore}%` : '-'}</div>
-            <div className="text-sm text-gray-400">{t('hero.stats.trustScore')}</div>
+          <div className="bg-gray-900/70 backdrop-blur-md rounded-xl border border-green-500/40 p-6 hover:border-green-500/60 transition-all">
+            <div className="text-4xl font-bold text-green-400 mb-2">{stats.trustScore}%</div>
+            <div className="text-sm text-gray-300 font-medium">{t('hero.stats.trustScore', 'Trust Score')}</div>
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center px-4">
           <button
             onClick={() => document.getElementById('governance')?.scrollIntoView({ behavior: 'smooth' })}
-            className="px-8 py-4 bg-gradient-to-r from-green-600 to-yellow-400 text-white font-semibold rounded-lg hover:from-green-700 hover:to-yellow-500 transition-all transform hover:scale-105 flex items-center justify-center group"
+            className="px-8 py-4 bg-gradient-to-r from-green-500 via-yellow-400 to-yellow-500 text-gray-900 font-bold rounded-lg hover:shadow-lg hover:shadow-yellow-400/50 transition-all transform hover:scale-105 flex items-center justify-center group"
           >
-            {t('hero.exploreGovernance')}
+            {t('hero.exploreGovernance', 'Explore Governance')}
             <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </button>
           <button
-            onClick={() => document.getElementById('identity')?.scrollIntoView({ behavior: 'smooth' })}
-            className="px-8 py-4 bg-gray-900/50 backdrop-blur-sm text-white font-semibold rounded-lg border border-red-500/50 hover:bg-red-500/10 transition-all"
+            onClick={() => document.getElementById('governance')?.scrollIntoView({ behavior: 'smooth' })}
+            className="px-8 py-4 bg-gray-900/80 backdrop-blur-sm text-white font-semibold rounded-lg border border-gray-700 hover:bg-gray-800 hover:border-gray-600 transition-all"
           >
-            {t('hero.learnMore')}
+            {t('hero.learnMore', 'Learn More')}
           </button>
         </div>
       </div>

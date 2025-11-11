@@ -19,7 +19,7 @@ import { LimitOrders } from './trading/LimitOrders';
 const AVAILABLE_TOKENS = [
   { symbol: 'HEZ', emoji: '🟡', assetId: 0, name: 'HEZ', badge: true, displaySymbol: 'HEZ' },
   { symbol: 'PEZ', emoji: '🟣', assetId: 1, name: 'PEZ', badge: true, displaySymbol: 'PEZ' },
-  { symbol: 'wUSDT', emoji: '💵', assetId: 2, name: 'USDT', badge: true, displaySymbol: 'USDT' },
+  { symbol: 'USDT', emoji: '💵', assetId: 2, name: 'USDT', badge: true, displaySymbol: 'USDT' },
 ] as const;
 
 const TokenSwap = () => {
@@ -178,7 +178,7 @@ const TokenSwap = () => {
         const getPoolAssetId = (token: string) => {
           if (token === 'HEZ') return 0; // wHEZ
           if (token === 'PEZ') return 1;
-          if (token === 'wUSDT') return 2;
+          if (token === 'USDT') return 2;
           return ASSET_IDS[token as keyof typeof ASSET_IDS];
         };
 
@@ -426,8 +426,8 @@ const TokenSwap = () => {
                   console.warn('Failed to parse swap path:', err);
                 }
 
-                const fromTokenSymbol = fromAssetId === 0 ? 'wHEZ' : fromAssetId === 1 ? 'PEZ' : fromAssetId === 2 ? 'wUSDT' : `Asset${fromAssetId}`;
-                const toTokenSymbol = toAssetId === 0 ? 'wHEZ' : toAssetId === 1 ? 'PEZ' : toAssetId === 2 ? 'wUSDT' : `Asset${toAssetId}`;
+                const fromTokenSymbol = fromAssetId === 0 ? 'wHEZ' : fromAssetId === 1 ? 'PEZ' : fromAssetId === 2 ? 'USDT' : `Asset${fromAssetId}`;
+                const toTokenSymbol = toAssetId === 0 ? 'wHEZ' : toAssetId === 1 ? 'PEZ' : toAssetId === 2 ? 'USDT' : `Asset${toAssetId}`;
 
                 // Only show transactions from current user
                 if (who.toString() === selectedAccount.address) {
@@ -514,7 +514,7 @@ const TokenSwap = () => {
     try {
       // Get correct decimals for each token
       const getTokenDecimals = (token: string) => {
-        if (token === 'wUSDT') return 6; // wUSDT has 6 decimals
+        if (token === 'USDT') return 6; // USDT has 6 decimals
         return 12; // HEZ, wHEZ, PEZ all have 12 decimals
       };
 
@@ -577,7 +577,7 @@ const TokenSwap = () => {
         // HEZ → Any Asset: wrap(HEZ→wHEZ) then swap(wHEZ→Asset)
         const wrapTx = api.tx.tokenWrapper.wrap(amountIn.toString());
         // Map token symbol to asset ID
-        const toAssetId = toToken === 'PEZ' ? 1 : toToken === 'wUSDT' ? 2 : ASSET_IDS[toToken as keyof typeof ASSET_IDS];
+        const toAssetId = toToken === 'PEZ' ? 1 : toToken === 'USDT' ? 2 : ASSET_IDS[toToken as keyof typeof ASSET_IDS];
         const swapPath = [0, toAssetId]; // wHEZ → target asset
         const swapTx = api.tx.assetConversion.swapExactTokensForTokens(
           swapPath,
@@ -591,7 +591,7 @@ const TokenSwap = () => {
       } else if (toToken === 'HEZ') {
         // Any Asset → HEZ: swap(Asset→wHEZ) then unwrap(wHEZ→HEZ)
         // Map token symbol to asset ID
-        const fromAssetId = fromToken === 'PEZ' ? 1 : fromToken === 'wUSDT' ? 2 : ASSET_IDS[fromToken as keyof typeof ASSET_IDS];
+        const fromAssetId = fromToken === 'PEZ' ? 1 : fromToken === 'USDT' ? 2 : ASSET_IDS[fromToken as keyof typeof ASSET_IDS];
         const swapPath = [fromAssetId, 0]; // source asset → wHEZ
         const swapTx = api.tx.assetConversion.swapExactTokensForTokens(
           swapPath,
@@ -604,10 +604,10 @@ const TokenSwap = () => {
         tx = api.tx.utility.batchAll([swapTx, unwrapTx]);
 
       } else {
-        // Direct swap between assets (PEZ ↔ wUSDT, etc.)
+        // Direct swap between assets (PEZ ↔ USDT, etc.)
         // Map token symbols to asset IDs
-        const fromAssetId = fromToken === 'PEZ' ? 1 : fromToken === 'wUSDT' ? 2 : ASSET_IDS[fromToken as keyof typeof ASSET_IDS];
-        const toAssetId = toToken === 'PEZ' ? 1 : toToken === 'wUSDT' ? 2 : ASSET_IDS[toToken as keyof typeof ASSET_IDS];
+        const fromAssetId = fromToken === 'PEZ' ? 1 : fromToken === 'USDT' ? 2 : ASSET_IDS[fromToken as keyof typeof ASSET_IDS];
+        const toAssetId = toToken === 'PEZ' ? 1 : toToken === 'USDT' ? 2 : ASSET_IDS[toToken as keyof typeof ASSET_IDS];
         const swapPath = [fromAssetId, toAssetId];
 
         tx = api.tx.assetConversion.swapExactTokensForTokens(
@@ -722,8 +722,8 @@ const TokenSwap = () => {
                               console.warn('Failed to parse swap path in refresh:', err);
                             }
 
-                            const fromTokenSymbol = fromAssetId === 0 ? 'wHEZ' : fromAssetId === 1 ? 'PEZ' : `Asset${fromAssetId}`;
-                            const toTokenSymbol = toAssetId === 0 ? 'wHEZ' : toAssetId === 1 ? 'PEZ' : `Asset${toAssetId}`;
+                            const fromTokenSymbol = fromAssetId === 0 ? 'wHEZ' : fromAssetId === 1 ? 'PEZ' : fromAssetId === 2 ? 'USDT' : `Asset${fromAssetId}`;
+                            const toTokenSymbol = toAssetId === 0 ? 'wHEZ' : toAssetId === 1 ? 'PEZ' : toAssetId === 2 ? 'USDT' : `Asset${toAssetId}`;
 
                             if (who.toString() === selectedAccount.address) {
                               transactions.push({

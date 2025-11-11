@@ -9,6 +9,7 @@ import PalletsGrid from './PalletsGrid';
 import TeamSection from './TeamSection';
 import ChainSpecs from './ChainSpecs';
 import TrustScoreCalculator from './TrustScoreCalculator';
+import { NetworkStats } from './NetworkStats';
 import { WalletButton } from './wallet/WalletButton';
 import { WalletModal } from './wallet/WalletModal';
 import { LanguageSwitcher } from './LanguageSwitcher';
@@ -21,7 +22,7 @@ import { TreasuryOverview } from './treasury/TreasuryOverview';
 import { FundingProposal } from './treasury/FundingProposal';
 import { SpendingHistory } from './treasury/SpendingHistory';
 import { MultiSigApproval } from './treasury/MultiSigApproval';
-import { Github, FileText, ExternalLink, Shield, Award, User, FileEdit, Users2, MessageSquare, ShieldCheck, Wifi, WifiOff, Wallet, DollarSign, PiggyBank, History, Key, TrendingUp, ArrowRightLeft, Lock, LogIn, LayoutDashboard, Settings, UserCog, Repeat, Users } from 'lucide-react';
+import { Github, FileText, ExternalLink, Shield, Award, User, FileEdit, Users2, MessageSquare, ShieldCheck, Wifi, WifiOff, Wallet, DollarSign, PiggyBank, History, Key, TrendingUp, ArrowRightLeft, Lock, LogIn, LayoutDashboard, Settings, UserCog, Repeat, Users, Droplet } from 'lucide-react';
 import GovernanceInterface from './GovernanceInterface';
 import RewardDistribution from './RewardDistribution';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -32,6 +33,7 @@ import { MultiSigWallet } from './wallet/MultiSigWallet';
 import { useWallet } from '@/contexts/WalletContext';
 import { supabase } from '@/lib/supabase';
 import { PolkadotWalletButton } from './PolkadotWalletButton';
+import { DEXDashboard } from './dex/DEXDashboard';
 const AppLayout: React.FC = () => {
   const navigate = useNavigate();
   const [walletModalOpen, setWalletModalOpen] = useState(false);
@@ -47,6 +49,7 @@ const AppLayout: React.FC = () => {
   const [showP2P, setShowP2P] = useState(false);
   const [showMultiSig, setShowMultiSig] = useState(false);
   const [showTokenSwap, setShowTokenSwap] = useState(false);
+  const [showDEX, setShowDEX] = useState(false);
   const { t } = useTranslation();
   const { isConnected } = useWebSocket();
   const { account } = useWallet();
@@ -56,13 +59,18 @@ const AppLayout: React.FC = () => {
   React.useEffect(() => {
     const checkAdminStatus = async () => {
       if (user) {
-        const { data } = await supabase
+        const { data, error } = await supabase
           .from('admin_roles')
           .select('role')
           .eq('user_id', user.id)
-          .single();
-        
+          .maybeSingle();
+
+        if (error) {
+          console.warn('Admin check error:', error);
+        }
         setIsAdmin(!!data);
+      } else {
+        setIsAdmin(false);
       }
     };
     checkAdminStatus();
@@ -84,14 +92,14 @@ const AppLayout: React.FC = () => {
             <div className="hidden lg:flex items-center space-x-4 flex-1 justify-start ml-8 pr-4">
               {user ? (
                 <>
-                  <button 
+                  <button
                     onClick={() => navigate('/dashboard')}
                     className="text-gray-300 hover:text-white transition-colors flex items-center gap-1 text-sm"
                   >
                     <LayoutDashboard className="w-4 h-4" />
                     Dashboard
                   </button>
-                  
+
                   <button
                     onClick={() => navigate('/wallet')}
                     className="text-gray-300 hover:text-white transition-colors flex items-center gap-1 text-sm"
@@ -118,28 +126,28 @@ const AppLayout: React.FC = () => {
                       </svg>
                     </button>
                     <div className="absolute left-0 mt-2 w-48 bg-gray-900 border border-gray-700 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                      <button 
+                      <button
                         onClick={() => setShowProposalWizard(true)}
                         className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2 rounded-t-lg"
                       >
                         <FileEdit className="w-4 h-4" />
-                        {t('nav.proposals')}
+                        Proposals
                       </button>
-                      <button 
+                      <button
                         onClick={() => setShowDelegation(true)}
                         className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2"
                       >
                         <Users2 className="w-4 h-4" />
-                        {t('nav.delegation')}
+                        Delegation
                       </button>
-                      <button 
+                      <button
                         onClick={() => setShowForum(true)}
                         className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2"
                       >
                         <MessageSquare className="w-4 h-4" />
-                        {t('nav.forum')}
+                        Forum
                       </button>
-                      <button 
+                      <button
                         onClick={() => {
                           setShowTreasury(true);
                           setTreasuryTab('overview');
@@ -147,14 +155,14 @@ const AppLayout: React.FC = () => {
                         className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2"
                       >
                         <PiggyBank className="w-4 h-4" />
-                        {t('nav.treasury')}
+                        Treasury
                       </button>
-                      <button 
+                      <button
                         onClick={() => setShowModeration(true)}
                         className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2 rounded-b-lg"
                       >
                         <ShieldCheck className="w-4 h-4" />
-                        {t('nav.moderation')}
+                        Moderation
                       </button>
                     </div>
                   </div>
@@ -169,28 +177,35 @@ const AppLayout: React.FC = () => {
                       </svg>
                     </button>
                     <div className="absolute left-0 mt-2 w-48 bg-gray-900 border border-gray-700 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                      <button 
-                        onClick={() => setShowTokenSwap(true)}
+                      <button
+                        onClick={() => setShowDEX(true)}
                         className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2 rounded-t-lg"
+                      >
+                        <Droplet className="w-4 h-4" />
+                        DEX Pools
+                      </button>
+                      <button
+                        onClick={() => setShowTokenSwap(true)}
+                        className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2"
                       >
                         <Repeat className="w-4 h-4" />
                         Token Swap
                       </button>
-                      <button 
+                      <button
                         onClick={() => setShowP2P(true)}
                         className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2"
                       >
                         <ArrowRightLeft className="w-4 h-4" />
                         P2P Market
                       </button>
-                      <button 
+                      <button
                         onClick={() => setShowStaking(true)}
                         className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2"
                       >
                         <TrendingUp className="w-4 h-4" />
                         Staking
                       </button>
-                      <button 
+                      <button
                         onClick={() => setShowMultiSig(true)}
                         className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2 rounded-b-lg"
                       >
@@ -207,8 +222,8 @@ const AppLayout: React.FC = () => {
                     <Settings className="w-4 h-4" />
                     Settings
                   </button>
-                  
-                  <button 
+
+                  <button
                     onClick={async () => {
                       await signOut();
                       navigate('/login');
@@ -237,7 +252,7 @@ const AppLayout: React.FC = () => {
                   </button>
                 </>
               )}
-              
+
               <a
                 href="https://raw.githubusercontent.com/pezkuwichain/DKSweb/main/public/Whitepaper.pdf"
                 download="Pezkuwi_Whitepaper.pdf"
@@ -257,7 +272,7 @@ const AppLayout: React.FC = () => {
                   <WifiOff className="w-4 h-4 text-gray-500" />
                 )}
               </div>
-              
+
               <NotificationBell />
               <LanguageSwitcher />
               <PolkadotWalletButton />
@@ -269,7 +284,9 @@ const AppLayout: React.FC = () => {
       {/* Main Content */}
       <main>
         {/* Conditional Rendering for Features */}
-        {showProposalWizard ? (
+        {showDEX ? (
+          <DEXDashboard />
+        ) : showProposalWizard ? (
           <ProposalWizard 
             onComplete={(proposal) => {
               console.log('Proposal created:', proposal);
@@ -400,6 +417,7 @@ const AppLayout: React.FC = () => {
         ) : (
           <>
             <HeroSection />
+            <NetworkStats key="network-stats-live" />
             <PalletsGrid />
             <TokenomicsSection />
             
@@ -419,11 +437,12 @@ const AppLayout: React.FC = () => {
           </>
         )}
         
-        
-        {(showProposalWizard || showDelegation || showForum || showModeration || showTreasury || showStaking || showP2P || showMultiSig || showTokenSwap) && (
+
+        {(showDEX || showProposalWizard || showDelegation || showForum || showModeration || showTreasury || showStaking || showP2P || showMultiSig || showTokenSwap) && (
           <div className="fixed bottom-8 right-8 z-50">
             <button
               onClick={() => {
+                setShowDEX(false);
                 setShowProposalWizard(false);
                 setShowDelegation(false);
                 setShowForum(false);
@@ -436,7 +455,7 @@ const AppLayout: React.FC = () => {
               }}
               className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-full shadow-lg flex items-center gap-2 transition-all"
             >
-              ← {t('common.backToHome')}
+              ← Back to Home
             </button>
           </div>
         )}

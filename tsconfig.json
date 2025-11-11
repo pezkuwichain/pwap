@@ -7,7 +7,8 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@pezkuwi/i18n": ["../shared/i18n"]
     },
     "noImplicitAny": false,
     "noUnusedParameters": false,

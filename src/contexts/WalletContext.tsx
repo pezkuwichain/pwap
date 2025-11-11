@@ -8,6 +8,8 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { usePolkadot } from './PolkadotContext';
 import { WALLET_ERRORS, formatBalance, ASSET_IDS } from '@/lib/wallet';
 import type { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
+import type { Signer } from '@polkadot/api/types';
+import { web3FromAddress } from '@polkadot/extension-dapp';
 
 interface TokenBalances {
   HEZ: string;
@@ -23,6 +25,7 @@ interface WalletContextType {
   balance: string;  // Legacy: HEZ balance
   balances: TokenBalances;  // All token balances
   error: string | null;
+  signer: Signer | null;  // Polkadot.js signer for transactions
   connectWallet: () => Promise<void>;
   disconnect: () => void;
   switchAccount: (account: InjectedAccountWithMeta) => void;
@@ -46,6 +49,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [balance, setBalance] = useState<string>('0');
   const [balances, setBalances] = useState<TokenBalances>({ HEZ: '0', PEZ: '0', wHEZ: '0', USDT: '0' });
   const [error, setError] = useState<string | null>(null);
+  const [signer, setSigner] = useState<Signer | null>(null);
 
   // Fetch all token balances when account changes
   const updateBalance = useCallback(async (address: string) => {
@@ -203,6 +207,26 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   }, [polkadot.selectedAccount]);
 
+  // Get signer from extension when account changes
+  useEffect(() => {
+    const getSigner = async () => {
+      if (polkadot.selectedAccount) {
+        try {
+          const injector = await web3FromAddress(polkadot.selectedAccount.address);
+          setSigner(injector.signer);
+          console.log('✅ Signer obtained for', polkadot.selectedAccount.address);
+        } catch (error) {
+          console.error('Failed to get signer:', error);
+          setSigner(null);
+        }
+      } else {
+        setSigner(null);
+      }
+    };
+
+    getSigner();
+  }, [polkadot.selectedAccount]);
+
   // Update balance when selected account changes
   useEffect(() => {
     console.log('🔄 WalletContext useEffect triggered!', {
@@ -237,6 +261,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     balance,
     balances,
     error: error || polkadot.error,
+    signer,
     connectWallet,
     disconnect,
     switchAccount,

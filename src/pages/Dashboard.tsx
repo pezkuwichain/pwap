@@ -44,9 +44,12 @@ export default function Dashboard() {
         .from('profiles')
         .select('*')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Profile fetch error:', error);
+        return;
+      }
 
       // Auto-sync user metadata from Auth to profiles if missing
       if (data) {

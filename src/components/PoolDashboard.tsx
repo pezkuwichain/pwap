@@ -590,6 +590,8 @@ const PoolDashboard = () => {
           onClose={() => setIsRemoveLiquidityModalOpen(false)}
           lpPosition={lpPosition}
           lpTokenId={poolData.lpTokenId}
+          asset0={poolData.asset0}
+          asset1={poolData.asset1}
         />
       )}
     </div>
