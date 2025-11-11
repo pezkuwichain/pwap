@@ -294,7 +294,25 @@ export async function getStakingInfo(
   }, BigInt(0));
 
   // Get staking score if available
-  // Score calculation based on Pezkuwi's pallet_staking_score logic
+  //
+  // IMPORTANT: This calculation MUST match pallet_staking_score::get_staking_score() exactly!
+  // The pallet calculates this score and reports it to pallet_pez_rewards.
+  // Any changes here must be synchronized with pallets/staking-score/src/lib.rs
+  //
+  // Score Formula:
+  // 1. Amount Score (20-50 points based on staked HEZ)
+  //    - 0-100 HEZ: 20 points
+  //    - 101-250 HEZ: 30 points
+  //    - 251-750 HEZ: 40 points
+  //    - 751+ HEZ: 50 points
+  // 2. Duration Multiplier (based on time staked)
+  //    - < 1 month: x1.0
+  //    - 1-2 months: x1.2
+  //    - 3-5 months: x1.4
+  //    - 6-11 months: x1.7
+  //    - 12+ months: x2.0
+  // 3. Final Score = min(100, floor(amountScore * durationMultiplier))
+  //
   let stakingScore: number | null = null;
   let stakingDuration: number | null = null;
   let hasStartedScoreTracking = false;
@@ -326,7 +344,7 @@ export async function getStakingInfo(
         }
 
         // Calculate duration multiplier
-        const MONTH_IN_BLOCKS = 30 * 24 * 60 * 10; // ~30 days worth of blocks (6s per block)
+        const MONTH_IN_BLOCKS = 30 * 24 * 60 * 10; // 432,000 blocks (~30 days, 6s per block)
         let durationMultiplier = 1.0;
 
         if (durationInBlocks >= 12 * MONTH_IN_BLOCKS) {
@@ -342,6 +360,7 @@ export async function getStakingInfo(
         }
 
         // Final score calculation (max 100)
+        // This MUST match the pallet's integer math: amount_score * multiplier_numerator / multiplier_denominator
         stakingScore = Math.min(100, Math.floor(amountScore * durationMultiplier));
 
         console.log('Staking score calculated:', {
