@@ -69,7 +69,7 @@ const WalletDashboard: React.FC = () => {
               </Button>
 
               <Button
-                onClick={() => navigate('/pool')}
+                onClick={() => navigate('/')}
                 variant="outline"
                 className="border-blue-600 hover:bg-blue-900/20 text-blue-400 h-24 flex flex-col items-center justify-center"
               >

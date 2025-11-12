@@ -8,7 +8,6 @@ import PasswordReset from '@/pages/PasswordReset';
 import ProfileSettings from '@/pages/ProfileSettings';
 import AdminPanel from '@/pages/AdminPanel';
 import WalletDashboard from './pages/WalletDashboard';
-import PoolDashboardPage from './pages/PoolDashboard';
 import ReservesDashboardPage from './pages/ReservesDashboardPage';
 import BeCitizen from './pages/BeCitizen';
 import { AppProvider } from '@/contexts/AppContext';
@@ -58,11 +57,6 @@ function App() {
                     <Route path="/wallet" element={
                       <ProtectedRoute>
                         <WalletDashboard />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/pool" element={
-                      <ProtectedRoute>
-                        <PoolDashboardPage />
                       </ProtectedRoute>
                     } />
                     <Route path="/reserves" element={

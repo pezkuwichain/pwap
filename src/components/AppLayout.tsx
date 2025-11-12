@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import HeroSection from './HeroSection';
 import TokenomicsSection from './TokenomicsSection';
-import TokenSwap from './TokenSwap';
 import PalletsGrid from './PalletsGrid';
 import TeamSection from './TeamSection';
 import ChainSpecs from './ChainSpecs';
@@ -48,7 +47,6 @@ const AppLayout: React.FC = () => {
   const [showStaking, setShowStaking] = useState(false);
   const [showP2P, setShowP2P] = useState(false);
   const [showMultiSig, setShowMultiSig] = useState(false);
-  const [showTokenSwap, setShowTokenSwap] = useState(false);
   const [showDEX, setShowDEX] = useState(false);
   const { t } = useTranslation();
   const { isConnected } = useWebSocket();
@@ -183,13 +181,6 @@ const AppLayout: React.FC = () => {
                       >
                         <Droplet className="w-4 h-4" />
                         DEX Pools
-                      </button>
-                      <button
-                        onClick={() => setShowTokenSwap(true)}
-                        className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2"
-                      >
-                        <Repeat className="w-4 h-4" />
-                        Token Swap
                       </button>
                       <button
                         onClick={() => setShowP2P(true)}
@@ -386,20 +377,6 @@ const AppLayout: React.FC = () => {
               <P2PMarket />
             </div>
           </div>
-        ) : showTokenSwap ? (
-          <div className="pt-20 min-h-screen bg-gray-950">
-            <div className="max-w-full mx-auto px-4">
-              <div className="text-center mb-12">
-                <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-purple-500 via-pink-400 to-yellow-500 bg-clip-text text-transparent">
-                  PEZ/HEZ Token Swap
-                </h2>
-                <p className="text-gray-400 text-lg max-w-3xl mx-auto">
-                  Swap between PEZ and HEZ tokens instantly with real-time rates
-                </p>
-              </div>
-              <TokenSwap />
-            </div>
-          </div>
         ) : showMultiSig ? (
           <div className="pt-20 min-h-screen bg-gray-950">
             <div className="max-w-full mx-auto px-4">
@@ -438,7 +415,7 @@ const AppLayout: React.FC = () => {
         )}
         
 
-        {(showDEX || showProposalWizard || showDelegation || showForum || showModeration || showTreasury || showStaking || showP2P || showMultiSig || showTokenSwap) && (
+        {(showDEX || showProposalWizard || showDelegation || showForum || showModeration || showTreasury || showStaking || showP2P || showMultiSig) && (
           <div className="fixed bottom-8 right-8 z-50">
             <button
               onClick={() => {
@@ -451,7 +428,6 @@ const AppLayout: React.FC = () => {
                 setShowStaking(false);
                 setShowP2P(false);
                 setShowMultiSig(false);
-                setShowTokenSwap(false);
               }}
               className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-full shadow-lg flex items-center gap-2 transition-all"
             >
