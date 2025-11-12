@@ -83,14 +83,50 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({ isOpen, 
             const fromAddress = signer.toString();
             const isFromOurAccount = fromAddress === selectedAccount.address;
 
+            // Only track transactions from this account
+            if (!isFromOurAccount) {
+              return;
+            }
+
             // Parse balances.transfer or balances.transferKeepAlive
-            if (method.section === 'balances' && 
+            if (method.section === 'balances' &&
                 (method.method === 'transfer' || method.method === 'transferKeepAlive')) {
               const [dest, value] = method.args;
-              const toAddress = dest.toString();
-              const isToOurAccount = toAddress === selectedAccount.address;
+              txList.push({
+                blockNumber,
+                extrinsicIndex: index,
+                hash: extrinsic.hash.toHex(),
+                method: method.method,
+                section: method.section,
+                from: fromAddress,
+                to: dest.toString(),
+                amount: value.toString(),
+                success: true,
+                timestamp: timestamp,
+              });
+            }
 
-              if (isFromOurAccount || isToOurAccount) {
+            // Parse assets.transfer (PEZ, USDT, etc.)
+            else if (method.section === 'assets' && method.method === 'transfer') {
+              const [assetId, dest, value] = method.args;
+              txList.push({
+                blockNumber,
+                extrinsicIndex: index,
+                hash: extrinsic.hash.toHex(),
+                method: `${method.method} (Asset ${assetId.toString()})`,
+                section: method.section,
+                from: fromAddress,
+                to: dest.toString(),
+                amount: value.toString(),
+                success: true,
+                timestamp: timestamp,
+              });
+            }
+
+            // Parse staking operations
+            else if (method.section === 'staking') {
+              if (method.method === 'bond' || method.method === 'bondExtra') {
+                const value = method.args[method.method === 'bond' ? 1 : 0];
                 txList.push({
                   blockNumber,
                   extrinsicIndex: index,
@@ -98,34 +134,92 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({ isOpen, 
                   method: method.method,
                   section: method.section,
                   from: fromAddress,
-                  to: toAddress,
                   amount: value.toString(),
+                  success: true,
+                  timestamp: timestamp,
+                });
+              } else if (method.method === 'unbond') {
+                const [value] = method.args;
+                txList.push({
+                  blockNumber,
+                  extrinsicIndex: index,
+                  hash: extrinsic.hash.toHex(),
+                  method: method.method,
+                  section: method.section,
+                  from: fromAddress,
+                  amount: value.toString(),
+                  success: true,
+                  timestamp: timestamp,
+                });
+              } else if (method.method === 'nominate' || method.method === 'withdrawUnbonded' || method.method === 'chill') {
+                txList.push({
+                  blockNumber,
+                  extrinsicIndex: index,
+                  hash: extrinsic.hash.toHex(),
+                  method: method.method,
+                  section: method.section,
+                  from: fromAddress,
                   success: true,
                   timestamp: timestamp,
                 });
               }
             }
 
-            // Parse assets.transfer (PEZ, USDT, etc.)
-            if (method.section === 'assets' && method.method === 'transfer') {
-              const [assetId, dest, value] = method.args;
-              const toAddress = dest.toString();
-              const isToOurAccount = toAddress === selectedAccount.address;
-
-              if (isFromOurAccount || isToOurAccount) {
+            // Parse DEX operations
+            else if (method.section === 'dex') {
+              if (method.method === 'swap') {
+                const [path, amountIn] = method.args;
                 txList.push({
                   blockNumber,
                   extrinsicIndex: index,
                   hash: extrinsic.hash.toHex(),
-                  method: `${method.method} (Asset ${assetId.toString()})`,
+                  method: method.method,
                   section: method.section,
                   from: fromAddress,
-                  to: toAddress,
-                  amount: value.toString(),
+                  amount: amountIn.toString(),
+                  success: true,
+                  timestamp: timestamp,
+                });
+              } else if (method.method === 'addLiquidity' || method.method === 'removeLiquidity') {
+                txList.push({
+                  blockNumber,
+                  extrinsicIndex: index,
+                  hash: extrinsic.hash.toHex(),
+                  method: method.method,
+                  section: method.section,
+                  from: fromAddress,
                   success: true,
                   timestamp: timestamp,
                 });
               }
+            }
+
+            // Parse stakingScore operations
+            else if (method.section === 'stakingScore' && method.method === 'startTracking') {
+              txList.push({
+                blockNumber,
+                extrinsicIndex: index,
+                hash: extrinsic.hash.toHex(),
+                method: method.method,
+                section: method.section,
+                from: fromAddress,
+                success: true,
+                timestamp: timestamp,
+              });
+            }
+
+            // Parse pezRewards operations
+            else if (method.section === 'pezRewards' && method.method === 'claimReward') {
+              txList.push({
+                blockNumber,
+                extrinsicIndex: index,
+                hash: extrinsic.hash.toHex(),
+                method: method.method,
+                section: method.section,
+                from: fromAddress,
+                success: true,
+                timestamp: timestamp,
+              });
             }
           });
         } catch (blockError) {
