@@ -9,15 +9,13 @@ import { KurdistanColors } from '../theme/colors';
 import WelcomeScreen from '../screens/WelcomeScreen';
 import SignInScreen from '../screens/SignInScreen';
 import SignUpScreen from '../screens/SignUpScreen';
-import DashboardScreen from '../screens/DashboardScreen';
-import SettingsScreen from '../screens/SettingsScreen';
+import BottomTabNavigator from './BottomTabNavigator';
 
 export type RootStackParamList = {
   Welcome: undefined;
   SignIn: undefined;
   SignUp: undefined;
-  Dashboard: undefined;
-  Settings: undefined;
+  MainApp: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -100,27 +98,8 @@ const AppNavigator: React.FC = () => {
             </Stack.Screen>
           </>
         ) : (
-          // Show main app if authenticated
-          <>
-            <Stack.Screen name="Dashboard">
-              {(props) => (
-                <DashboardScreen
-                  {...props}
-                  onNavigateToWallet={() => console.log('Navigate to Wallet')}
-                  onNavigateToSettings={() => props.navigation.navigate('Settings')}
-                />
-              )}
-            </Stack.Screen>
-            <Stack.Screen name="Settings">
-              {(props) => (
-                <SettingsScreen
-                  {...props}
-                  onBack={() => props.navigation.goBack()}
-                  onLogout={handleLogout}
-                />
-              )}
-            </Stack.Screen>
-          </>
+          // Show main app (bottom tabs) if authenticated
+          <Stack.Screen name="MainApp" component={BottomTabNavigator} />
         )}
       </Stack.Navigator>
     </NavigationContainer>
