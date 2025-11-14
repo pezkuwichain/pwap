@@ -65,7 +65,7 @@ const WalletScreen: React.FC = () => {
       balance: balances.HEZ,
       value: '$0.00',
       change: '+0.00%',
-      logo: '💎',
+      logo: '🟡',
       isLive: true,
     },
     {
@@ -74,7 +74,7 @@ const WalletScreen: React.FC = () => {
       balance: balances.PEZ,
       value: '$0.00',
       change: '+0.00%',
-      logo: '🪙',
+      logo: '🟣',
       isLive: true,
     },
     {
