@@ -3,6 +3,7 @@ import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { initializeI18n } from './src/i18n';
 import { LanguageProvider } from './src/contexts/LanguageContext';
+import { PolkadotProvider } from './src/contexts/PolkadotContext';
 import AppNavigator from './src/navigation/AppNavigator';
 import { KurdistanColors } from './src/theme/colors';
 
@@ -34,10 +35,12 @@ export default function App() {
   }
 
   return (
-    <LanguageProvider>
-      <StatusBar style="auto" />
-      <AppNavigator />
-    </LanguageProvider>
+    <PolkadotProvider>
+      <LanguageProvider>
+        <StatusBar style="auto" />
+        <AppNavigator />
+      </LanguageProvider>
+    </PolkadotProvider>
   );
 }
 
