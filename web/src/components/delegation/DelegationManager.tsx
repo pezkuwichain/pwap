@@ -22,7 +22,7 @@ const DelegationManager: React.FC = () => {
   const [delegationAmount, setDelegationAmount] = useState('');
   const [delegationPeriod, setDelegationPeriod] = useState('3months');
 
-  // Format token amounts from blockchain units (assuming 12 decimals for PZKW)
+  // Format token amounts from blockchain units (assuming 12 decimals for HEZ)
   const formatTokenAmount = (amount: string | number) => {
     const value = typeof amount === 'string' ? BigInt(amount) : BigInt(amount);
     return formatNumber(Number(value) / 1e12, 2);
@@ -175,7 +175,7 @@ const DelegationManager: React.FC = () => {
                               </span>
                               <span className="flex items-center gap-1">
                                 <Users className="w-3 h-3" />
-                                {formatTokenAmount(delegate.totalDelegated)} PZKW delegated
+                                {formatTokenAmount(delegate.totalDelegated)} HEZ delegated
                               </span>
                               <span className="flex items-center gap-1">
                                 <Users className="w-3 h-3" />
@@ -209,7 +209,7 @@ const DelegationManager: React.FC = () => {
                       <Input
                         id="amount"
                         type="number"
-                        placeholder="Enter PZK amount"
+                        placeholder="Enter HEZ amount"
                         value={delegationAmount}
                         onChange={(e) => setDelegationAmount(e.target.value)}
                       />
@@ -275,7 +275,7 @@ const DelegationManager: React.FC = () => {
                           <h4 className="font-semibold">{delegation.delegate}</h4>
                           <p className="text-xs text-gray-500 font-mono mb-2">{delegation.delegateAddress}</p>
                           <div className="flex items-center gap-3 text-sm text-gray-600 mt-1">
-                            <span>{formatTokenAmount(delegation.amount)} PZKW</span>
+                            <span>{formatTokenAmount(delegation.amount)} HEZ</span>
                             <Badge variant="secondary">Conviction: {delegation.conviction}x</Badge>
                             {delegation.category && <Badge variant="secondary">{delegation.category}</Badge>}
                           </div>

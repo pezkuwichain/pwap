@@ -94,11 +94,11 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Send className="h-5 w-5 text-kesk" />
-            {type === 'send' ? 'Send PZK' : type === 'vote' ? 'Cast Vote' : 'Delegate Voting Power'}
+            {type === 'send' ? 'Send HEZ' : type === 'vote' ? 'Cast Vote' : 'Delegate Voting Power'}
           </DialogTitle>
           <DialogDescription>
-            {type === 'send' 
-              ? 'Send PZK tokens to another address'
+            {type === 'send'
+              ? 'Send HEZ tokens to another address'
               : type === 'vote'
               ? 'Submit your vote for the proposal'
               : 'Delegate your voting power to another address'}
@@ -120,7 +120,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                   />
                 </div>
                 <div>
-                  <Label htmlFor="amount">Amount (PZK)</Label>
+                  <Label htmlFor="amount">Amount (HEZ)</Label>
                   <Input
                     id="amount"
                     type="number"
