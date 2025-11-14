@@ -8,103 +8,70 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Users, TrendingUp, Shield, Clock, ChevronRight, Award } from 'lucide-react';
+import { Users, TrendingUp, Shield, Clock, ChevronRight, Award, Loader2, Activity } from 'lucide-react';
 import DelegateProfile from './DelegateProfile';
+import { useDelegation } from '@/hooks/useDelegation';
+import { usePolkadot } from '@/contexts/PolkadotContext';
+import { formatNumber } from '@/lib/utils';
 
 const DelegationManager: React.FC = () => {
   const { t } = useTranslation();
+  const { selectedAccount } = usePolkadot();
+  const { delegates, userDelegations, stats, loading, error } = useDelegation(selectedAccount?.address);
   const [selectedDelegate, setSelectedDelegate] = useState<any>(null);
   const [delegationAmount, setDelegationAmount] = useState('');
   const [delegationPeriod, setDelegationPeriod] = useState('3months');
 
-  const delegates = [
-    {
-      id: 1,
-      name: 'Leyla Zana',
-      address: '0x1234...5678',
-      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330',
-      reputation: 9500,
-      successRate: 92,
-      totalDelegated: 125000,
-      activeProposals: 8,
-      categories: ['Treasury', 'Community'],
-      description: 'Focused on community development and treasury management',
-      performance: {
-        proposalsCreated: 45,
-        proposalsPassed: 41,
-        participationRate: 98
-      }
-    },
-    {
-      id: 2,
-      name: 'Mazlum Doğan',
-      address: '0x8765...4321',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d',
-      reputation: 8800,
-      successRate: 88,
-      totalDelegated: 98000,
-      activeProposals: 6,
-      categories: ['Technical', 'Governance'],
-      description: 'Technical expert specializing in protocol upgrades',
-      performance: {
-        proposalsCreated: 32,
-        proposalsPassed: 28,
-        participationRate: 95
-      }
-    },
-    {
-      id: 3,
-      name: 'Sakine Cansız',
-      address: '0x9876...1234',
-      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80',
-      reputation: 9200,
-      successRate: 90,
-      totalDelegated: 110000,
-      activeProposals: 7,
-      categories: ['Community', 'Governance'],
-      description: 'Community organizer with focus on inclusive governance',
-      performance: {
-        proposalsCreated: 38,
-        proposalsPassed: 34,
-        participationRate: 96
-      }
-    }
-  ];
-
-  const myDelegations = [
-    {
-      id: 1,
-      delegate: 'Leyla Zana',
-      amount: 5000,
-      category: 'Treasury',
-      period: '3 months',
-      remaining: '45 days',
-      status: 'active'
-    },
-    {
-      id: 2,
-      delegate: 'Mazlum Doğan',
-      amount: 3000,
-      category: 'Technical',
-      period: '6 months',
-      remaining: '120 days',
-      status: 'active'
-    }
-  ];
+  // Format token amounts from blockchain units (assuming 12 decimals for PZKW)
+  const formatTokenAmount = (amount: string | number) => {
+    const value = typeof amount === 'string' ? BigInt(amount) : BigInt(amount);
+    return formatNumber(Number(value) / 1e12, 2);
+  };
 
   const handleDelegate = () => {
-    console.log('Delegating:', { 
-      delegate: selectedDelegate, 
-      amount: delegationAmount, 
-      period: delegationPeriod 
+    console.log('Delegating:', {
+      delegate: selectedDelegate,
+      amount: delegationAmount,
+      period: delegationPeriod
     });
   };
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-green-600 mr-3" />
+          <span className="text-lg">Loading delegation data from blockchain...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="pt-6">
+            <p className="text-red-600">Error loading delegation data: {error}</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">{t('delegation.title')}</h1>
-        <p className="text-gray-600">{t('delegation.description')}</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">{t('delegation.title')}</h1>
+            <p className="text-gray-600">{t('delegation.description')}</p>
+          </div>
+          <Badge variant="outline" className="bg-green-500/10 border-green-500 text-green-700">
+            <Activity className="h-3 w-3 mr-1" />
+            Live Blockchain Data
+          </Badge>
+        </div>
       </div>
 
       {/* Stats Overview */}
@@ -114,7 +81,7 @@ const DelegationManager: React.FC = () => {
             <div className="flex items-center gap-3">
               <Users className="w-8 h-8 text-green-600" />
               <div>
-                <div className="text-2xl font-bold">12</div>
+                <div className="text-2xl font-bold">{stats.activeDelegates}</div>
                 <div className="text-sm text-gray-600">{t('delegation.activeDelegates')}</div>
               </div>
             </div>
@@ -125,7 +92,7 @@ const DelegationManager: React.FC = () => {
             <div className="flex items-center gap-3">
               <TrendingUp className="w-8 h-8 text-yellow-600" />
               <div>
-                <div className="text-2xl font-bold">450K</div>
+                <div className="text-2xl font-bold">{formatTokenAmount(stats.totalDelegated)}</div>
                 <div className="text-sm text-gray-600">{t('delegation.totalDelegated')}</div>
               </div>
             </div>
@@ -136,7 +103,7 @@ const DelegationManager: React.FC = () => {
             <div className="flex items-center gap-3">
               <Shield className="w-8 h-8 text-red-600" />
               <div>
-                <div className="text-2xl font-bold">89%</div>
+                <div className="text-2xl font-bold">{stats.avgSuccessRate}%</div>
                 <div className="text-sm text-gray-600">{t('delegation.avgSuccessRate')}</div>
               </div>
             </div>
@@ -147,7 +114,7 @@ const DelegationManager: React.FC = () => {
             <div className="flex items-center gap-3">
               <Clock className="w-8 h-8 text-blue-600" />
               <div>
-                <div className="text-2xl font-bold">8K</div>
+                <div className="text-2xl font-bold">{formatTokenAmount(stats.userDelegated)}</div>
                 <div className="text-sm text-gray-600">{t('delegation.yourDelegated')}</div>
               </div>
             </div>
@@ -169,54 +136,65 @@ const DelegationManager: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {delegates.map((delegate) => (
-                  <div
-                    key={delegate.id}
-                    className="border rounded-lg p-4 hover:bg-gray-50 transition-colors cursor-pointer"
-                    onClick={() => setSelectedDelegate(delegate)}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start gap-4">
-                        <img
-                          src={delegate.avatar}
-                          alt={delegate.name}
-                          className="w-12 h-12 rounded-full"
-                        />
-                        <div>
-                          <h3 className="font-semibold flex items-center gap-2">
-                            {delegate.name}
-                            <Badge className="bg-green-100 text-green-800">
-                              {delegate.successRate}% success
-                            </Badge>
-                          </h3>
-                          <p className="text-sm text-gray-600 mb-2">{delegate.description}</p>
-                          <div className="flex flex-wrap gap-2 mb-2">
-                            {delegate.categories.map((cat) => (
-                              <Badge key={cat} variant="secondary">{cat}</Badge>
-                            ))}
+                {delegates.length === 0 ? (
+                  <Card>
+                    <CardContent className="pt-6 text-center text-gray-500">
+                      No active delegates found on the blockchain.
+                    </CardContent>
+                  </Card>
+                ) : (
+                  delegates.map((delegate) => (
+                    <div
+                      key={delegate.id}
+                      className="border rounded-lg p-4 hover:bg-gray-50 transition-colors cursor-pointer"
+                      onClick={() => setSelectedDelegate(delegate)}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start gap-4">
+                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white font-bold">
+                            {delegate.address.substring(0, 2).toUpperCase()}
                           </div>
-                          <div className="flex items-center gap-4 text-sm text-gray-500">
-                            <span className="flex items-center gap-1">
-                              <TrendingUp className="w-3 h-3" />
-                              {delegate.reputation} rep
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Users className="w-3 h-3" />
-                              {(delegate.totalDelegated / 1000).toFixed(0)}K delegated
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Award className="w-3 h-3" />
-                              {delegate.activeProposals} active
-                            </span>
+                          <div>
+                            <h3 className="font-semibold flex items-center gap-2">
+                              {delegate.name}
+                              <Badge className="bg-green-100 text-green-800">
+                                {delegate.successRate}% success
+                              </Badge>
+                            </h3>
+                            <p className="text-sm text-gray-600 mb-1 font-mono">{delegate.address}</p>
+                            <p className="text-sm text-gray-600 mb-2">{delegate.description}</p>
+                            <div className="flex flex-wrap gap-2 mb-2">
+                              {delegate.categories.map((cat) => (
+                                <Badge key={cat} variant="secondary">{cat}</Badge>
+                              ))}
+                            </div>
+                            <div className="flex items-center gap-4 text-sm text-gray-500">
+                              <span className="flex items-center gap-1">
+                                <TrendingUp className="w-3 h-3" />
+                                {delegate.reputation} rep
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Users className="w-3 h-3" />
+                                {formatTokenAmount(delegate.totalDelegated)} PZKW delegated
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Users className="w-3 h-3" />
+                                {delegate.delegatorCount} delegators
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Award className="w-3 h-3" />
+                                {delegate.activeProposals} active
+                              </span>
+                            </div>
                           </div>
                         </div>
+                        <Button size="sm" variant="outline">
+                          <ChevronRight className="w-4 h-4" />
+                        </Button>
                       </div>
-                      <Button size="sm" variant="outline">
-                        <ChevronRight className="w-4 h-4" />
-                      </Button>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
 
               {/* Delegation Form */}
@@ -281,32 +259,42 @@ const DelegationManager: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {myDelegations.map((delegation) => (
-                  <div key={delegation.id} className="border rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <div>
-                        <h4 className="font-semibold">{delegation.delegate}</h4>
-                        <div className="flex items-center gap-3 text-sm text-gray-600 mt-1">
-                          <span>{delegation.amount} PZK</span>
-                          <Badge variant="secondary">{delegation.category}</Badge>
-                          <span>{delegation.remaining} remaining</span>
+                {userDelegations.length === 0 ? (
+                  <Card>
+                    <CardContent className="pt-6 text-center text-gray-500">
+                      {selectedAccount
+                        ? "You haven't delegated any voting power yet."
+                        : "Connect your wallet to view your delegations."}
+                    </CardContent>
+                  </Card>
+                ) : (
+                  userDelegations.map((delegation) => (
+                    <div key={delegation.id} className="border rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div>
+                          <h4 className="font-semibold">{delegation.delegate}</h4>
+                          <p className="text-xs text-gray-500 font-mono mb-2">{delegation.delegateAddress}</p>
+                          <div className="flex items-center gap-3 text-sm text-gray-600 mt-1">
+                            <span>{formatTokenAmount(delegation.amount)} PZKW</span>
+                            <Badge variant="secondary">Conviction: {delegation.conviction}x</Badge>
+                            {delegation.category && <Badge variant="secondary">{delegation.category}</Badge>}
+                          </div>
                         </div>
+                        <Badge className="bg-green-100 text-green-800">
+                          {delegation.status}
+                        </Badge>
                       </div>
-                      <Badge className="bg-green-100 text-green-800">
-                        {delegation.status}
-                      </Badge>
+                      <div className="flex gap-2 mt-3">
+                        <Button size="sm" variant="outline">
+                          {t('delegation.modify')}
+                        </Button>
+                        <Button size="sm" variant="outline">
+                          {t('delegation.revoke')}
+                        </Button>
+                      </div>
                     </div>
-                    <Progress value={60} className="h-2" />
-                    <div className="flex gap-2 mt-3">
-                      <Button size="sm" variant="outline">
-                        {t('delegation.modify')}
-                      </Button>
-                      <Button size="sm" variant="outline">
-                        {t('delegation.revoke')}
-                      </Button>
-                    </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </CardContent>
           </Card>
