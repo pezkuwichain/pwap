@@ -55,7 +55,7 @@ const WalletScreen: React.FC = () => {
   const [balances, setBalances] = useState<{ [key: string]: string }>({
     HEZ: '0.00',
     PEZ: '0.00',
-    wUSDT: '0.00',
+    USDT: '0.00',
   });
 
   const tokens: Token[] = [
@@ -78,9 +78,9 @@ const WalletScreen: React.FC = () => {
       isLive: true,
     },
     {
-      symbol: 'wUSDT',
-      name: 'Wrapped USDT',
-      balance: balances.wUSDT,
+      symbol: 'USDT',
+      name: 'Tether USD',
+      balance: balances.USDT,
       value: '$0.00',
       change: '+0.00%',
       logo: '💵',
@@ -152,24 +152,24 @@ const WalletScreen: React.FC = () => {
           console.log('PEZ asset not found or not accessible');
         }
 
-        // Fetch wUSDT balance (asset ID 2)
-        let wusdtBalance = '0.00';
+        // Fetch USDT balance (wUSDT - asset ID 2)
+        let usdtBalance = '0.00';
         try {
           if (api.query.assets?.account) {
-            const wusdtAsset: any = await api.query.assets.account(2, selectedAccount.address);
-            if (wusdtAsset.isSome) {
-              const wusdtData = wusdtAsset.unwrap();
-              wusdtBalance = (Number(wusdtData.balance.toString()) / 1e12).toFixed(2);
+            const usdtAsset: any = await api.query.assets.account(2, selectedAccount.address);
+            if (usdtAsset.isSome) {
+              const usdtData = usdtAsset.unwrap();
+              usdtBalance = (Number(usdtData.balance.toString()) / 1e12).toFixed(2);
             }
           }
         } catch (err) {
-          console.log('wUSDT asset not found or not accessible');
+          console.log('USDT asset not found or not accessible');
         }
 
         setBalances({
           HEZ: hezBalance,
           PEZ: pezBalance,
-          wUSDT: wusdtBalance,
+          USDT: usdtBalance,
         });
       } catch (err) {
         console.error('Failed to fetch balances:', err);
@@ -283,8 +283,8 @@ const WalletScreen: React.FC = () => {
               } else if (selectedToken.symbol === 'PEZ') {
                 // Send PEZ asset (asset ID 1)
                 tx = api.tx.assets.transfer(1, recipientAddress, amountInUnits);
-              } else if (selectedToken.symbol === 'wUSDT') {
-                // Send wUSDT asset (asset ID 2)
+              } else if (selectedToken.symbol === 'USDT') {
+                // Send USDT (wUSDT on blockchain - asset ID 2)
                 tx = api.tx.assets.transfer(2, recipientAddress, amountInUnits);
               } else {
                 throw new Error('Unsupported token');
