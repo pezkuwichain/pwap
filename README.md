@@ -36,7 +36,7 @@ The primary web interface for Pezkuwi blockchain at [pezkuwichain.app](https://p
 - ✅ DEX/Swap interface
 - ✅ Transaction history
 - ✅ Multi-language support (EN, TR, KMR, CKB, AR, FA)
-- ⏳ Governance dropdown (pending - live blockchain integration)
+- ✅ Governance dropdown with live blockchain integration
 
 **Get Started:**
 ```bash
@@ -68,44 +68,64 @@ Branded version of Polkadot.js Apps for Pezkuwi blockchain.
 
 ### 3. `mobile/` - Mobile Application
 
-**Status:** 🚧 In Development - Early Stage (~15% Complete)
+**Status:** 🚧 In Development (~50% Complete)
 
-Native mobile app for iOS and Android.
+React Native Expo app for iOS and Android with full blockchain integration.
 
 **Current Progress:**
 - ✅ Welcome screen with language selection
-- ✅ Human verification flow
+- ✅ Multi-language support (6 languages with RTL)
 - ✅ Authentication (Sign In/Up)
-- ✅ Main dashboard navigation
-- ⏳ Wallet integration
+- ✅ Main dashboard navigation (5-tab bottom nav)
+- ✅ Wallet integration with Polkadot.js
+- ✅ Live blockchain data (HEZ, PEZ, USDT)
+- ✅ Send/receive transactions
+- ✅ Be Citizen screen
+- ✅ Referral system integration
 - ⏳ Full feature parity with web
 
-**Technology:** TBD (React Native / Flutter / Ionic)
+**Technology:** React Native + Expo + TypeScript
 
 **Get Started:**
-- See `mobile/README.md` for current status and plans
+```bash
+cd mobile
+npm install
+npm start
+```
 
 ### 4. `shared/` - Shared Code
 
-**Status:** ✅ Foundation Ready
+**Status:** ✅ Fully Organized
 
-Common code, types, and utilities used across all platforms.
+Common code, types, and utilities used across all platforms (web, mobile, SDK UI).
 
 **Structure:**
 ```
 shared/
 ├── types/          # TypeScript type definitions
+│   ├── blockchain.ts  # Blockchain types (WalletAccount, Transaction, etc.)
+│   └── tokens.ts      # Token & DEX types (TokenInfo, PoolInfo, etc.)
 ├── utils/          # Helper functions (formatting, validation)
-├── blockchain/     # Blockchain utilities (Polkadot API wrappers)
-└── constants/      # App constants and configuration
+├── blockchain/     # Blockchain utilities (Polkadot API wrappers, endpoints)
+├── constants/      # App constants (tokens, colors, languages)
+└── i18n/           # Internationalization (translations for 6 languages)
+    └── locales/    # Translation JSON files
 ```
 
 **Usage:**
 ```typescript
-// In web or mobile projects
-import { formatAddress } from '../shared/utils';
-import { PEZKUWI_NETWORK } from '../shared/blockchain';
-import type { WalletAccount } from '../shared/types';
+// Token types and constants
+import { TokenInfo, KNOWN_TOKENS } from '../../../shared/types/tokens';
+import { KURDISTAN_COLORS, TOKEN_DISPLAY_SYMBOLS } from '../../../shared/constants';
+
+// Blockchain utilities
+import { DEFAULT_ENDPOINT, BLOCKCHAIN_ENDPOINTS } from '../../../shared/blockchain/polkadot';
+
+// i18n
+import { translations, LANGUAGES, isRTL } from '../../../shared/i18n';
+
+// Formatting utilities
+import { formatAddress, formatTokenAmount } from '../../../shared/utils/formatting';
 ```
 
 ## 🎯 Development Roadmap
@@ -114,24 +134,28 @@ import type { WalletAccount } from '../shared/types';
 - [x] Reorganize repository structure
 - [x] Create shared utilities foundation
 - [x] Set up placeholder directories
+- [x] Centralize common code (i18n, types, constants)
 
-### Phase 2: Polkadot SDK UI (Next)
+### Phase 2: Web App Completion ✅
+- [x] Implement governance dropdown with live data
+- [x] Complete blockchain data integration
+- [x] Delegation and proposals pages
+- [x] Forum with moderation
+
+### Phase 3: Mobile Development 🚧
+- [x] Choose technology stack (React Native + Expo)
+- [x] Implement wallet integration with Polkadot.js
+- [x] Live blockchain integration (HEZ, PEZ, USDT)
+- [x] Bottom navigation with 5 tabs
+- [ ] Connect Be Citizen to citizenship-crypto
+- [ ] Integrate referral with pallet_referral
+- [ ] Achieve feature parity with web
+
+### Phase 4: Polkadot SDK UI (Future)
 - [ ] Clone and configure Polkadot.js Apps
 - [ ] Apply Pezkuwi branding
 - [ ] Set up deployment pipeline
 - [ ] Integrate with main web app
-
-### Phase 3: Web App Completion
-- [ ] Implement governance dropdown with live data
-- [ ] Complete blockchain data integration
-- [ ] Production optimization
-- [ ] Security audit
-
-### Phase 4: Mobile Development
-- [ ] Choose technology stack
-- [ ] Implement wallet integration
-- [ ] Achieve feature parity with web
-- [ ] Beta testing and release
 
 ## 🚀 Quick Start
 
@@ -153,6 +177,13 @@ npm install
 npm run dev
 ```
 
+### Run Mobile App
+```bash
+cd mobile
+npm install
+npm start
+```
+
 ### Build for Production
 ```bash
 cd web
@@ -164,10 +195,12 @@ npm run build
 All applications support:
 - 🇬🇧 English (EN)
 - 🇹🇷 Türkçe (TR)
-- Kurdistan Kurdish - Kurmanji (KMR)
-- Kurdistan Kurdish - Sorani (CKB)
+- ☀️ Kurmancî (KMR) - Kurdish Kurmanji
+- ☀️ سۆرانی (CKB) - Kurdish Sorani
 - 🇸🇦 العربية (AR)
 - 🇮🇷 فارسی (FA)
+
+RTL (Right-to-Left) support for CKB, AR, FA.
 
 ## 📝 Documentation
 
