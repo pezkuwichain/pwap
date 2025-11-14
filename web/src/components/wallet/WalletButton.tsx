@@ -55,7 +55,7 @@ export const WalletButton: React.FC = () => {
             <Wallet className="h-4 w-4 text-kesk" />
             <div className="text-left">
               <div className="text-sm font-medium">{formatAddress(address!)}</div>
-              <div className="text-xs text-muted-foreground">{formatBalance(balance)} PZK</div>
+              <div className="text-xs text-muted-foreground">{formatBalance(balance)} HEZ</div>
             </div>
             {!isCorrectNetwork && (
               <Badge variant="destructive" className="ml-2 bg-sor">
@@ -74,7 +74,7 @@ export const WalletButton: React.FC = () => {
         </div>
         <div className="px-2 py-1.5">
           <div className="text-sm text-muted-foreground">Balance</div>
-          <div className="text-sm font-medium">{formatBalance(balance)} PZK</div>
+          <div className="text-sm font-medium">{formatBalance(balance)} HEZ</div>
         </div>
         <div className="px-2 py-1.5">
           <div className="text-sm text-muted-foreground">Network</div>

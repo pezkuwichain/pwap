@@ -91,7 +91,7 @@ export const TreasuryOverview: React.FC = () => {
           Live Blockchain Data
         </Badge>
         <span className="text-sm text-muted-foreground">
-          {proposals.length} active proposals • {metrics.totalBalance.toFixed(2)} PZKW in treasury
+          {proposals.length} active proposals • {metrics.totalBalance.toFixed(2)} HEZ in treasury
         </span>
       </div>
 

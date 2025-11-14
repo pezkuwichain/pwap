@@ -208,7 +208,7 @@ const ProposalWizard: React.FC<ProposalWizardProps> = ({ onComplete, onCancel })
                     type="number"
                     value={proposalData.budget}
                     onChange={(e) => setProposalData({...proposalData, budget: e.target.value})}
-                    placeholder="Amount in PZK"
+                    placeholder="Amount in HEZ"
                   />
                 </div>
               )}
@@ -308,7 +308,7 @@ const ProposalWizard: React.FC<ProposalWizardProps> = ({ onComplete, onCancel })
                 {proposalData.budget && (
                   <div>
                     <span className="font-semibold">{t('proposals.fields.budget')}:</span>
-                    <p className="text-gray-700">{proposalData.budget} PZK</p>
+                    <p className="text-gray-700">{proposalData.budget} HEZ</p>
                   </div>
                 )}
               </div>

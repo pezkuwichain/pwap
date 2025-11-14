@@ -159,7 +159,7 @@ const DelegateProfile: React.FC = () => {
                 <Input
                   id="minDelegation"
                   type="number"
-                  placeholder="Min PZK"
+                  placeholder="Min HEZ"
                   value={profileData.minDelegation}
                   onChange={(e) => setProfileData({...profileData, minDelegation: e.target.value})}
                 />
@@ -169,7 +169,7 @@ const DelegateProfile: React.FC = () => {
                 <Input
                   id="maxDelegation"
                   type="number"
-                  placeholder="Max PZK"
+                  placeholder="Max HEZ"
                   value={profileData.maxDelegation}
                   onChange={(e) => setProfileData({...profileData, maxDelegation: e.target.value})}
                 />
@@ -231,7 +231,7 @@ const DelegateProfile: React.FC = () => {
           </Card>
           <Card>
             <CardContent className="p-4">
-              <div className="text-2xl font-bold text-yellow-600">0 PZK</div>
+              <div className="text-2xl font-bold text-yellow-600">0 HEZ</div>
               <div className="text-sm text-gray-600">{t('delegation.totalReceived')}</div>
             </CardContent>
           </Card>
@@ -259,7 +259,7 @@ const DelegateProfile: React.FC = () => {
           <div>
             <h4 className="font-semibold mb-2">{t('delegation.delegationLimits')}</h4>
             <p className="text-gray-700">
-              Min: {profileData.minDelegation} PZK | Max: {profileData.maxDelegation} PZK
+              Min: {profileData.minDelegation} HEZ | Max: {profileData.maxDelegation} HEZ
             </p>
           </div>
         </div>
