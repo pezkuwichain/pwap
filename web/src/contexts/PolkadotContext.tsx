@@ -6,6 +6,7 @@ import type { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
 interface PolkadotContextType {
   api: ApiPromise | null;
   isApiReady: boolean;
+  isConnected: boolean;
   accounts: InjectedAccountWithMeta[];
   selectedAccount: InjectedAccountWithMeta | null;
   setSelectedAccount: (account: InjectedAccountWithMeta | null) => void;
@@ -119,6 +120,7 @@ export const PolkadotProvider: React.FC<PolkadotProviderProps> = ({
   const value: PolkadotContextType = {
     api,
     isApiReady,
+    isConnected: isApiReady, // Alias for backward compatibility
     accounts,
     selectedAccount,
     setSelectedAccount,
