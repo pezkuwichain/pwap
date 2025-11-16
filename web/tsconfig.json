@@ -14,11 +14,12 @@
       "@pezkuwi/theme": ["../shared/theme"],
       "@pezkuwi/types": ["../shared/types"]
     },
-    "noImplicitAny": false,
-    "noUnusedParameters": false,
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
     "skipLibCheck": true,
-    "allowJs": true,
-    "noUnusedLocals": false,
-    "strictNullChecks": false
+    "allowJs": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
   }
 }
