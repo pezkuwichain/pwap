@@ -13,7 +13,6 @@ import { ASSET_IDS, formatBalance, parseAmount } from '@pezkuwi/lib/wallet';
 import { useToast } from '@/hooks/use-toast';
 import { KurdistanSun } from './KurdistanSun';
 import { PriceChart } from './trading/PriceChart';
-import { LimitOrders } from './trading/LimitOrders';
 
 // Available tokens for swap
 const AVAILABLE_TOKENS = [
@@ -1107,13 +1106,6 @@ const TokenSwap = () => {
             </div>
           )}
         </Card>
-
-        {/* Limit Orders Section */}
-        <LimitOrders
-          fromToken={fromToken}
-          toToken={toToken}
-          currentPrice={exchangeRate}
-        />
       </div>
 
       <div>
