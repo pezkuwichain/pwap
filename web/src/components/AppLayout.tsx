@@ -32,6 +32,8 @@ import { useWallet } from '@/contexts/WalletContext';
 import { supabase } from '@/lib/supabase';
 import { PolkadotWalletButton } from './PolkadotWalletButton';
 import { DEXDashboard } from './dex/DEXDashboard';
+import EducationPlatform from '../pages/EducationPlatform';
+
 const AppLayout: React.FC = () => {
   const navigate = useNavigate();
   const [walletModalOpen, setWalletModalOpen] = useState(false);
@@ -46,6 +48,7 @@ const AppLayout: React.FC = () => {
   const [showStaking, setShowStaking] = useState(false);
   const [showMultiSig, setShowMultiSig] = useState(false);
   const [showDEX, setShowDEX] = useState(false);
+  const [showEducation, setShowEducation] = useState(false);
   const { t } = useTranslation();
   const { isConnected } = useWebSocket();
   const { account } = useWallet();
@@ -196,6 +199,17 @@ const AppLayout: React.FC = () => {
                       </button>
                     </div>
                   </div>
+
+                  <button
+                    onClick={() => {
+                      setShowEducation(true);
+                      navigate('/education');
+                    }}
+                    className="text-gray-300 hover:text-white transition-colors flex items-center gap-1 text-sm"
+                  >
+                    <Award className="w-4 h-4" />
+                    Education
+                  </button>
 
                   <button
                     onClick={() => navigate('/profile/settings')}
@@ -368,6 +382,10 @@ const AppLayout: React.FC = () => {
               <MultiSigWallet />
             </div>
           </div>
+        ) : showEducation ? (
+          <div className="pt-20 min-h-screen bg-gray-950">
+            <EducationPlatform />
+          </div>
         ) : (
           <>
             <HeroSection />
@@ -392,7 +410,7 @@ const AppLayout: React.FC = () => {
         )}
         
 
-        {(showDEX || showProposalWizard || showDelegation || showForum || showModeration || showTreasury || showStaking || showMultiSig) && (
+        {(showDEX || showProposalWizard || showDelegation || showForum || showModeration || showTreasury || showStaking || showMultiSig || showEducation) && (
           <div className="fixed bottom-8 right-8 z-50">
             <button
               onClick={() => {
@@ -404,6 +422,8 @@ const AppLayout: React.FC = () => {
                 setShowTreasury(false);
                 setShowStaking(false);
                 setShowMultiSig(false);
+                setShowEducation(false);
+                setShowEducation(false);
               }}
               className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-full shadow-lg flex items-center gap-2 transition-all"
             >

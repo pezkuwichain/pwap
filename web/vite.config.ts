@@ -31,8 +31,10 @@ export default defineConfig(({ mode }) => ({
       "@pezkuwi/utils": path.resolve(__dirname, "../shared/utils"),
       "@pezkuwi/theme": path.resolve(__dirname, "../shared/theme"),
       "@pezkuwi/types": path.resolve(__dirname, "../shared/types"),
+      "@pezkuwi/components": path.resolve(__dirname, "../shared/components"),
+      "@shared": path.resolve(__dirname, "../shared"),
     },
-    dedupe: ['@polkadot/util-crypto', '@polkadot/util', '@polkadot/api', '@polkadot/extension-dapp', '@polkadot/keyring'],
+    dedupe: ['react', 'lucide-react', 'sonner', '@polkadot/util-crypto', '@polkadot/util', '@polkadot/api', '@polkadot/extension-dapp', '@polkadot/keyring'],
   },
   optimizeDeps: {
     include: ['@polkadot/util-crypto', '@polkadot/util', '@polkadot/api', '@polkadot/extension-dapp', '@polkadot/keyring'],

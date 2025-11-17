@@ -405,7 +405,7 @@ export const translations = {
       statusRejected: 'Your citizenship application has been rejected. Please check for notifications or contact support for more information.',
     },
     // Referral Tab - YENİ EKLENDİ
-    referral: {
+    referralTab: {
       title: 'Referral Program',
       subtitle: 'Invite friends and earn rewards',
       code: 'Your Referral Code',
@@ -420,7 +420,7 @@ export const translations = {
       copiedLinkMessage: 'Your referral link is copied to the clipboard.'
     },
     // Profile Tab - YENİ EKLENDİ
-    profile: {
+    profileTab: {
       notLoggedIn: 'Please log in to view your profile.',
       editProfile: 'Edit Profile',
       walletAddress: 'Wallet Address',
@@ -860,7 +860,7 @@ export const translations = {
       statusRejected: 'داواکاری هاوڵاتیبوونت ڕەتکرایەوە. تکایە سەیری ئاگادارکردنەوەکان بکە یان بۆ زانیاری زیاتر پەیوەندی بە پشتگیرییەوە بکە.',
     },
     // Referral Tab - YENİ EKLENDİ
-    referral: {
+    referralTab: {
       title: 'بەرنامەی ئاماژەدان',
       subtitle: 'هاوڕێکانت بانگهێشت بکە و خەڵات بەدەست بهێنە',
       code: 'کۆدی ئاماژەدانەکەت',
@@ -875,7 +875,7 @@ export const translations = {
       copiedLinkMessage: 'لینکی ئamaژەدانەکەت بۆ کلیپبۆرد کۆپی کرا.'
     },
     // Profile Tab - YENİ EKLENDİ
-    profile: {
+    profileTab: {
       notLoggedIn: 'تکایە بۆ بینینی پڕۆفایلەکەت بچۆ ژوورەوە.',
       editProfile: 'دەستکاری پڕۆفایل',
       walletAddress: 'ناونیشانی جزدان',
@@ -1311,7 +1311,7 @@ export const translations = {
       statusRejected: 'Serlêdana weya hemwelatiyê hate red kirin. Ji kerema xwe ji bo bêtir agahdarî agahdariyan kontrol bikin an bi piştgiriyê re têkilî daynin.',
     },
     // Referral Tab - YENİ EKLENDİ
-    referral: {
+    referralTab: {
       title: 'Programa Referansê',
       subtitle: 'Hevalên xwe vexwîne û xelatan qezenc bike',
       code: 'Koda We ya Referansê',
@@ -1326,7 +1326,7 @@ export const translations = {
       copiedLinkMessage: 'Lînka weya referansê li clipboardê hat kopî kirin.'
     },
     // Profile Tab - YENİ EKLENDİ
-    profile: {
+    profileTab: {
       notLoggedIn: 'Ji kerema xwe ji bo dîtina profîla xwe têkevin.',
       editProfile: 'Profîlê Biguherîne',
       walletAddress: 'Navnîşana Berîkê',
@@ -1762,7 +1762,7 @@ export const translations = {
       statusRejected: 'تم رفض طلب المواطنة الخاص بك. يرجى التحقق من الإشعارات أو الاتصال بالدعم لمزيد من المعلومات.',
     },
     // Referral Tab - YENİ EKLENDİ
-    referral: {
+    referralTab: {
       title: 'برنامج الإحالة',
       subtitle: 'ادعُ الأصدقاء واكسب المكافآت',
       code: 'رمز الإحالة الخاص بك',
@@ -1777,7 +1777,7 @@ export const translations = {
       copiedLinkMessage: 'تم نسخ رابط الإحالة الخاص بك إلى الحافظة.'
     },
     // Profile Tab - YENİ EKLENDİ
-    profile: {
+    profileTab: {
       notLoggedIn: 'يرجى تسجيل الدخول لعرض ملفك الشخصي.',
       editProfile: 'تعديل الملف الشخصي',
       walletAddress: 'عنوان المحفظة',
@@ -2136,22 +2136,22 @@ export const translations = {
       statusRejected: 'Vatandaşlık başvurunuz reddedildi. Lütfen bildirimleri kontrol edin veya daha fazla bilgi için destek ile iletişime geçin.',
     },
     // Referral Tab - YENİ EKLENDİ
-    referral: {
+    referralTab: {
       title: 'Yönlendirme Programı',
       subtitle: 'Arkadaşlarını davet et ve ödüller kazan',
-      code: 'Yönlendirme Kodunuz',
-      link: 'Yönlendirme Linkiniz',
+      code: 'Yönlendirme Kodun',
+      link: 'Yönlendirme Bağlantın',
       count: 'Toplam Davet Edilen',
       people: 'Kişi',
       errorNoUser: 'Yönlendirme bilgilerini görmek için giriş yapmalısınız.',
-      errorFetch: 'Yönlendirme bilgileri alınamadı. Lütfen yenilemek için aşağı çekin.',
+      errorFetch: 'Yönlendirme bilgileri alınamadı. Lütfen yenilemek için çekin.',
       copiedCodeTitle: 'Kod Kopyalandı',
-      copiedCodeMessage: 'Yönlendirme kodunuz panoya kopyalandı.',
-      copiedLinkTitle: 'Link Kopyalandı',
-      copiedLinkMessage: 'Yönlendirme linkiniz panoya kopyalandı.'
+      copiedCodeMessage: 'Yönlendirme kodun panoya kopyalandı.',
+      copiedLinkTitle: 'Bağlantı Kopyalandı',
+      copiedLinkMessage: 'Yönlendirme bağlantın panoya kopyalandı.'
     },
     // Profile Tab - YENİ EKLENDİ
-    profile: {
+    profileTab: {
       notLoggedIn: 'Profilinizi görüntülemek için lütfen giriş yapın.',
       editProfile: 'Profili Düzenle',
       walletAddress: 'Cüzdan Adresi',
@@ -2510,29 +2510,29 @@ export const translations = {
       statusRejected: 'درخواست شهروندی شما رد شده است. لطفاً اعلان‌ها را بررسی کنید یا برای اطلاعات بیشتر با پشتیبانی تماس بگیرید.',
     },
     // Referral Tab - YENİ EKLENDİ
-    referral: {
+    referralTab: {
       title: 'برنامه ارجاع',
       subtitle: 'دوستان خود را دعوت کنید و پاداش بگیرید',
       code: 'کد ارجاع شما',
       link: 'لینک ارجاع شما',
-      count: 'مجموع دعوت‌شدگان',
+      count: 'مجموع دعوت شدگان',
       people: 'نفر',
       errorNoUser: 'برای مشاهده اطلاعات ارجاع باید وارد شوید.',
-      errorFetch: 'اطلاعات ارجاع بازیابی نشد. لطفاً برای تازه‌سازی صفحه را به پایین بکشید.',
+      errorFetch: 'اطلاعات ارجاع دریافت نشد. لطفاً برای تازه کردن بکشید.',
       copiedCodeTitle: 'کد کپی شد',
-      copiedCodeMessage: 'کد ارجاع شما در کلیپ‌بورد کپی شد.',
+      copiedCodeMessage: 'کد ارجاع شما در کلیپ بورد کپی شد.',
       copiedLinkTitle: 'لینک کپی شد',
-      copiedLinkMessage: 'لینک ارجاع شما در کلیپ‌Bورد کپی شد.'
+      copiedLinkMessage: 'لینک ارجاع شما در کلیپ بورد کپی شد.'
     },
     // Profile Tab - YENİ EKLENDİ
-    profile: {
+    profileTab: {
       notLoggedIn: 'لطفاً برای مشاهده پروفایل خود وارد شوید.',
       editProfile: 'ویرایش پروفایل',
       walletAddress: 'آدرس کیف پول',
       changePassword: 'تغییر رمز عبور',
       security: 'امنیت و 2FA',
-      signOutAlertTitle: 'خروج از حساب',
-      signOutAlertMessage: 'آیا برای خروج از حساب مطمئن هستید؟',
+      signOutAlertTitle: 'خروج از سیستم',
+      signOutAlertMessage: 'آیا مطمئن هستید که می خواهید از سیستم خارج شوید؟',
     },
     // Send Modal - YENİ EKLENDİ
     sendModal: {
