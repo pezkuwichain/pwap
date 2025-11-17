@@ -2,17 +2,16 @@
  * Perwerde Education Platform
  *
  * Decentralized education system for Digital Kurdistan
- * - Browse courses
+ * - Browse courses from blockchain
  * - Enroll in courses
  * - Track learning progress
  * - Earn educational credentials
  */
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   GraduationCap,
   BookOpen,
@@ -22,44 +21,126 @@ import {
   Star,
   TrendingUp,
   CheckCircle,
-  AlertCircle,
   Play,
+  ExternalLink,
 } from 'lucide-react';
+import { usePolkadot } from '@/contexts/PolkadotContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from '@/components/ui/use-toast';
+import { AsyncComponent, LoadingState } from '@pezkuwi/components/AsyncComponent';
+import {
+  getActiveCourses,
+  getStudentProgress,
+  getStudentCourses,
+  getCourseById,
+  isEnrolled,
+  type Course,
+  type StudentProgress,
+  formatIPFSLink,
+  getCourseDifficulty,
+} from '@pezkuwi/lib/perwerde';
+import { web3FromAddress } from '@polkadot/extension-dapp';
+import { handleBlockchainError, handleBlockchainSuccess } from '@pezkuwi/lib/error-handler';
 
 export default function EducationPlatform() {
-  // Mock data - will be replaced with blockchain integration
-  const courses = [
-    {
-      id: 1,
-      title: 'Kurdish Language & Literature',
-      instructor: 'Prof. Hêmin Xelîl',
-      students: 1247,
-      rating: 4.8,
-      duration: '8 weeks',
-      level: 'Beginner',
-      status: 'Active',
-    },
-    {
-      id: 2,
-      title: 'Blockchain Technology Fundamentals',
-      instructor: 'Dr. Sara Hasan',
-      students: 856,
-      rating: 4.9,
-      duration: '6 weeks',
-      level: 'Intermediate',
-      status: 'Active',
-    },
-    {
-      id: 3,
-      title: 'Kurdish History & Culture',
-      instructor: 'Prof. Azad Muhammed',
-      students: 2103,
-      rating: 4.7,
-      duration: '10 weeks',
-      level: 'Beginner',
-      status: 'Active',
-    },
-  ];
+  const { api, selectedAccount, isApiReady } = usePolkadot();
+  const { user } = useAuth();
+
+  const [loading, setLoading] = useState(true);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [studentProgress, setStudentProgress] = useState<StudentProgress | null>(null);
+  const [enrolledCourseIds, setEnrolledCourseIds] = useState<number[]>([]);
+
+  // Fetch data
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!api || !isApiReady) return;
+
+      try {
+        setLoading(true);
+        const coursesData = await getActiveCourses(api);
+        setCourses(coursesData);
+
+        // If user is logged in, fetch their progress
+        if (selectedAccount) {
+          const [progress, enrolledIds] = await Promise.all([
+            getStudentProgress(api, selectedAccount.address),
+            getStudentCourses(api, selectedAccount.address),
+          ]);
+
+          setStudentProgress(progress);
+          setEnrolledCourseIds(enrolledIds);
+        }
+      } catch (error) {
+        console.error('Failed to load education data:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to load courses data',
+          variant: 'destructive',
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+
+    // Refresh every 30 seconds
+    const interval = setInterval(fetchData, 30000);
+    return () => clearInterval(interval);
+  }, [api, isApiReady, selectedAccount]);
+
+  const handleEnroll = async (courseId: number) => {
+    if (!api || !selectedAccount) {
+      toast({
+        title: 'Error',
+        description: 'Please connect your wallet first',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      const injector = await web3FromAddress(selectedAccount.address);
+      const tx = api.tx.perwerde.enroll(courseId);
+
+      await tx.signAndSend(
+        selectedAccount.address,
+        { signer: injector.signer },
+        ({ status, dispatchError }) => {
+          if (status.isInBlock) {
+            if (dispatchError) {
+              handleBlockchainError(dispatchError, api, toast);
+            } else {
+              handleBlockchainSuccess('perwerde.enrolled', toast);
+              // Refresh data
+              setTimeout(async () => {
+                if (api && selectedAccount) {
+                  const [progress, enrolledIds] = await Promise.all([
+                    getStudentProgress(api, selectedAccount.address),
+                    getStudentCourses(api, selectedAccount.address),
+                  ]);
+                  setStudentProgress(progress);
+                  setEnrolledCourseIds(enrolledIds);
+                }
+              }, 2000);
+            }
+          }
+        }
+      );
+    } catch (error: any) {
+      console.error('Enroll failed:', error);
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to enroll in course',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  if (loading) {
+    return <LoadingState message="Loading education platform..." />;
+  }
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
@@ -74,188 +155,197 @@ export default function EducationPlatform() {
         </p>
       </div>
 
-      {/* Integration Notice */}
-      <Alert className="mb-8 bg-yellow-900/20 border-yellow-500/30">
-        <AlertCircle className="h-4 w-4 text-yellow-500" />
-        <AlertDescription className="text-yellow-200">
-          <strong>Blockchain Integration In Progress:</strong> This platform will connect to the Perwerde pallet
-          for decentralized course management, credential issuance, and educator rewards. Current data is for
-          demonstration purposes.
-        </AlertDescription>
-      </Alert>
-
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <Card className="bg-gray-900 border-gray-800">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                <BookOpen className="w-6 h-6 text-blue-400" />
+      {studentProgress && (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <Card className="bg-gray-900 border-gray-800">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                  <BookOpen className="w-6 h-6 text-blue-400" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-white">{studentProgress.totalCourses}</div>
+                  <div className="text-sm text-gray-400">Enrolled Courses</div>
+                </div>
               </div>
-              <div>
-                <div className="text-2xl font-bold text-white">127</div>
-                <div className="text-sm text-gray-400">Active Courses</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        <Card className="bg-gray-900 border-gray-800">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-lg bg-green-500/10 flex items-center justify-center">
-                <Users className="w-6 h-6 text-green-400" />
+          <Card className="bg-gray-900 border-gray-800">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-lg bg-green-500/10 flex items-center justify-center">
+                  <CheckCircle className="w-6 h-6 text-green-400" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-white">{studentProgress.completedCourses}</div>
+                  <div className="text-sm text-gray-400">Completed</div>
+                </div>
               </div>
-              <div>
-                <div className="text-2xl font-bold text-white">12.4K</div>
-                <div className="text-sm text-gray-400">Students</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        <Card className="bg-gray-900 border-gray-800">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-lg bg-purple-500/10 flex items-center justify-center">
-                <GraduationCap className="w-6 h-6 text-purple-400" />
+          <Card className="bg-gray-900 border-gray-800">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                  <TrendingUp className="w-6 h-6 text-purple-400" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-white">{studentProgress.activeCourses}</div>
+                  <div className="text-sm text-gray-400">In Progress</div>
+                </div>
               </div>
-              <div>
-                <div className="text-2xl font-bold text-white">342</div>
-                <div className="text-sm text-gray-400">Instructors</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        <Card className="bg-gray-900 border-gray-800">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-lg bg-yellow-500/10 flex items-center justify-center">
-                <Award className="w-6 h-6 text-yellow-400" />
+          <Card className="bg-gray-900 border-gray-800">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-lg bg-yellow-500/10 flex items-center justify-center">
+                  <Award className="w-6 h-6 text-yellow-400" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-white">{studentProgress.totalPoints}</div>
+                  <div className="text-sm text-gray-400">Total Points</div>
+                </div>
               </div>
-              <div>
-                <div className="text-2xl font-bold text-white">8.9K</div>
-                <div className="text-sm text-gray-400">Certificates Issued</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* Courses List */}
       <div>
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-white">Featured Courses</h2>
-          <Button className="bg-green-600 hover:bg-green-700">
-            <Play className="w-4 h-4 mr-2" />
-            Create Course
-          </Button>
+          <h2 className="text-2xl font-bold text-white">
+            {courses.length > 0 ? `Available Courses (${courses.length})` : 'No Courses Available'}
+          </h2>
         </div>
 
-        <div className="grid gap-6">
-          {courses.map((course) => (
-            <Card key={course.id} className="bg-gray-900 border-gray-800 hover:border-green-500/50 transition-colors">
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between gap-6">
-                  {/* Course Info */}
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-xl font-bold text-white">{course.title}</h3>
-                      <Badge className="bg-green-500/10 text-green-400 border-green-500/30">
-                        {course.status}
-                      </Badge>
-                    </div>
+        {courses.length === 0 ? (
+          <Card className="bg-gray-900 border-gray-800">
+            <CardContent className="p-12 text-center">
+              <BookOpen className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-gray-400 mb-2">No Active Courses</h3>
+              <p className="text-gray-500 mb-6">
+                Check back later for new educational content. Courses will be added by educators.
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid gap-6">
+            {courses.map((course) => {
+              const isUserEnrolled = enrolledCourseIds.includes(course.id);
 
-                    <div className="flex items-center gap-4 text-sm text-gray-400 mb-4">
-                      <div className="flex items-center gap-1">
-                        <GraduationCap className="w-4 h-4" />
-                        {course.instructor}
+              return (
+                <Card
+                  key={course.id}
+                  className="bg-gray-900 border-gray-800 hover:border-green-500/50 transition-colors"
+                >
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between gap-6">
+                      {/* Course Info */}
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h3 className="text-xl font-bold text-white">{course.name}</h3>
+                          <Badge className="bg-green-500/10 text-green-400 border-green-500/30">
+                            #{course.id}
+                          </Badge>
+                          {isUserEnrolled && (
+                            <Badge className="bg-blue-500/10 text-blue-400 border-blue-500/30">
+                              Enrolled
+                            </Badge>
+                          )}
+                        </div>
+
+                        <p className="text-gray-400 mb-4">{course.description}</p>
+
+                        <div className="flex items-center gap-4 text-sm text-gray-400">
+                          <div className="flex items-center gap-1">
+                            <GraduationCap className="w-4 h-4" />
+                            {course.owner.slice(0, 8)}...{course.owner.slice(-6)}
+                          </div>
+                          {course.contentLink && (
+                            <a
+                              href={formatIPFSLink(course.contentLink)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-1 text-green-400 hover:text-green-300"
+                            >
+                              <ExternalLink className="w-4 h-4" />
+                              Course Materials
+                            </a>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Users className="w-4 h-4" />
-                        {course.students.toLocaleString()} students
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Clock className="w-4 h-4" />
-                        {course.duration}
+
+                      {/* Actions */}
+                      <div className="flex flex-col gap-2">
+                        {isUserEnrolled ? (
+                          <>
+                            <Button className="bg-blue-600 hover:bg-blue-700">
+                              <Play className="w-4 h-4 mr-2" />
+                              Continue Learning
+                            </Button>
+                            <Button variant="outline">View Progress</Button>
+                          </>
+                        ) : (
+                          <>
+                            <Button
+                              className="bg-green-600 hover:bg-green-700"
+                              onClick={() => handleEnroll(course.id)}
+                              disabled={!selectedAccount}
+                            >
+                              Enroll Now
+                            </Button>
+                            <Button variant="outline">View Details</Button>
+                          </>
+                        )}
                       </div>
                     </div>
-
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-1">
-                        <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
-                        <span className="text-white font-bold">{course.rating}</span>
-                        <span className="text-gray-400 text-sm">(4.8/5.0)</span>
-                      </div>
-                      <Badge variant="outline">{course.level}</Badge>
-                    </div>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex flex-col gap-2">
-                    <Button className="bg-green-600 hover:bg-green-700">
-                      Enroll Now
-                    </Button>
-                    <Button variant="outline">View Details</Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        )}
       </div>
 
-      {/* My Learning Section */}
-      <div className="mt-12">
-        <h2 className="text-2xl font-bold text-white mb-6">My Learning Progress</h2>
-        <Card className="bg-gray-900 border-gray-800">
-          <CardContent className="p-8 text-center">
-            <TrendingUp className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-gray-400 mb-2">No Courses Enrolled Yet</h3>
-            <p className="text-gray-500 mb-6">
-              Start your learning journey! Enroll in courses to track your progress and earn credentials.
-            </p>
-            <Button className="bg-green-600 hover:bg-green-700">
-              Browse All Courses
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Blockchain Features Notice */}
+      {/* Blockchain Features */}
       <Card className="mt-8 bg-gray-900 border-gray-800">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-white">
             <CheckCircle className="w-5 h-5 text-green-500" />
-            Upcoming Blockchain Features
+            Blockchain-Powered Education
           </CardTitle>
         </CardHeader>
         <CardContent>
           <ul className="grid grid-cols-2 gap-4 text-sm">
             <li className="flex items-center gap-2 text-gray-300">
               <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-              Decentralized course creation & hosting
+              Decentralized course hosting (IPFS)
             </li>
             <li className="flex items-center gap-2 text-gray-300">
               <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-              NFT-based certificates & credentials
+              On-chain enrollment & completion tracking
             </li>
             <li className="flex items-center gap-2 text-gray-300">
               <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-              Educator rewards in HEZ tokens
+              Points-based achievement system
             </li>
             <li className="flex items-center gap-2 text-gray-300">
               <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-              Peer review & quality assurance
+              Trust score integration
             </li>
             <li className="flex items-center gap-2 text-gray-300">
               <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-              Skill-based Tiki role assignments
+              Transparent educator verification
             </li>
             <li className="flex items-center gap-2 text-gray-300">
               <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-              Decentralized governance for education
+              Immutable learning records
             </li>
           </ul>
         </CardContent>

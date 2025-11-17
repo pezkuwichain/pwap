@@ -226,6 +226,36 @@ const ERROR_MESSAGES: Record<string, ErrorMessage> = {
     kmr: 'Ev pozîsyona hukûmetê berê hatiye dagirtin.',
   },
 
+  // Perwerde (Education) errors
+  'perwerde.CourseNotFound': {
+    en: 'Course not found. Please check the course ID.',
+    kmr: 'Ders nehat dîtin. Ji kerema xwe ID-ya dersê kontrol bike.',
+  },
+  'perwerde.AlreadyEnrolled': {
+    en: 'You are already enrolled in this course.',
+    kmr: 'We berê di vî dersê de tomar bûyî.',
+  },
+  'perwerde.NotEnrolled': {
+    en: 'You must enroll in this course first before completing it.',
+    kmr: 'Pêşî divê we di vî dersê de tomar bibin da ku temam bikin.',
+  },
+  'perwerde.CourseNotActive': {
+    en: 'This course is archived and no longer accepting enrollments.',
+    kmr: 'Ev ders di arşîvê de ye û êdî tomaran qebûl nake.',
+  },
+  'perwerde.CourseAlreadyCompleted': {
+    en: 'You have already completed this course.',
+    kmr: 'We berê ev ders temam kiriye.',
+  },
+  'perwerde.NotCourseOwner': {
+    en: 'Only the course owner can perform this action.',
+    kmr: 'Tenê xwediyê dersê dikare vê çalakiyê bike.',
+  },
+  'perwerde.TooManyCourses': {
+    en: 'Course enrollment limit reached. Please complete some courses first.',
+    kmr: 'Sînorê tomarkirina dersê gihîşt. Ji kerema xwe pêşî hin dersan temam bikin.',
+  },
+
   // System/General errors
   'system.CallFiltered': {
     en: 'This action is not permitted by the system filters.',
@@ -454,6 +484,24 @@ export const SUCCESS_MESSAGES: Record<string, SuccessMessage> = {
   'welati.electionFinalized': {
     en: 'Election finalized! {{winners}} elected. Turnout: {{turnout}}%',
     kmr: 'Hilbijartin temam bû! {{winners}} hate hilbijartin. Beşdarî: {{turnout}}%',
+  },
+
+  // Perwerde (Education)
+  'perwerde.courseCreated': {
+    en: 'Course "{{name}}" created successfully! Course ID: #{{id}}',
+    kmr: 'Dersa "{{name}}" bi serkeftî hate afirandin! ID-ya Dersê: #{{id}}',
+  },
+  'perwerde.enrolled': {
+    en: 'Successfully enrolled in course! Start learning now.',
+    kmr: 'Bi serkeftî di dersê de tomar bûn! Niha dest bi hînbûnê bike.',
+  },
+  'perwerde.completed': {
+    en: 'Congratulations! Course completed. Points earned: {{points}}',
+    kmr: 'Pîroz be! Ders temam bû. Xalên bidestxistî: {{points}}',
+  },
+  'perwerde.archived': {
+    en: 'Course archived successfully. No new enrollments will be accepted.',
+    kmr: 'Ders bi serkeftî hate arşîvkirin. Tomarên nû nayên qebûlkirin.',
   },
 };
 
