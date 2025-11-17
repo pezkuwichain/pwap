@@ -2,8 +2,12 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 
-// Import shared translations
-import { translations } from '@pezkuwi/i18n';
+// Import LOCAL .ts translations
+import en from './locales/en';
+import tr from './locales/tr';
+import kmr from './locales/kmr';
+import ar from './locales/ar';
+import fa from './locales/fa';
 
 export const languages = {
   en: { name: 'English', flag: '🇬🇧', dir: 'ltr' },
@@ -15,12 +19,12 @@ export const languages = {
 };
 
 const resources = {
-  en: { translation: translations.en },
-  tr: { translation: translations.tr },
-  'ku-kurmanji': { translation: translations['ku-kurmanji'] },
-  'ku-sorani': { translation: translations['ku-sorani'] },
-  ar: { translation: translations.ar },
-  fa: { translation: translations.fa }
+  en: { translation: en },
+  tr: { translation: tr },
+  'ku-kurmanji': { translation: kmr },
+  'ku-sorani': { translation: kmr },
+  ar: { translation: ar },
+  fa: { translation: fa }
 };
 
 i18n
