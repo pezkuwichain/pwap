@@ -27,7 +27,6 @@ import RewardDistribution from './RewardDistribution';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useWebSocket } from '@/contexts/WebSocketContext';
 import { StakingDashboard } from './staking/StakingDashboard';
-import { P2PMarket } from './p2p/P2PMarket';
 import { MultiSigWallet } from './wallet/MultiSigWallet';
 import { useWallet } from '@/contexts/WalletContext';
 import { supabase } from '@/lib/supabase';
@@ -45,7 +44,6 @@ const AppLayout: React.FC = () => {
   const [showTreasury, setShowTreasury] = useState(false);
   const [treasuryTab, setTreasuryTab] = useState('overview');
   const [showStaking, setShowStaking] = useState(false);
-  const [showP2P, setShowP2P] = useState(false);
   const [showMultiSig, setShowMultiSig] = useState(false);
   const [showDEX, setShowDEX] = useState(false);
   const { t } = useTranslation();
@@ -181,13 +179,6 @@ const AppLayout: React.FC = () => {
                       >
                         <Droplet className="w-4 h-4" />
                         DEX Pools
-                      </button>
-                      <button
-                        onClick={() => setShowP2P(true)}
-                        className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2"
-                      >
-                        <ArrowRightLeft className="w-4 h-4" />
-                        P2P Market
                       </button>
                       <button
                         onClick={() => setShowStaking(true)}
@@ -363,20 +354,6 @@ const AppLayout: React.FC = () => {
               <StakingDashboard />
             </div>
           </div>
-        ) : showP2P ? (
-          <div className="pt-20 min-h-screen bg-gray-950">
-            <div className="max-w-full mx-auto px-4">
-              <div className="text-center mb-12">
-                <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-green-500 via-yellow-400 to-red-500 bg-clip-text text-transparent">
-                  P2P Trading Market
-                </h2>
-                <p className="text-gray-400 text-lg max-w-3xl mx-auto">
-                  Trade tokens directly with other users
-                </p>
-              </div>
-              <P2PMarket />
-            </div>
-          </div>
         ) : showMultiSig ? (
           <div className="pt-20 min-h-screen bg-gray-950">
             <div className="max-w-full mx-auto px-4">
@@ -415,7 +392,7 @@ const AppLayout: React.FC = () => {
         )}
         
 
-        {(showDEX || showProposalWizard || showDelegation || showForum || showModeration || showTreasury || showStaking || showP2P || showMultiSig) && (
+        {(showDEX || showProposalWizard || showDelegation || showForum || showModeration || showTreasury || showStaking || showMultiSig) && (
           <div className="fixed bottom-8 right-8 z-50">
             <button
               onClick={() => {
@@ -426,7 +403,6 @@ const AppLayout: React.FC = () => {
                 setShowModeration(false);
                 setShowTreasury(false);
                 setShowStaking(false);
-                setShowP2P(false);
                 setShowMultiSig(false);
               }}
               className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-full shadow-lg flex items-center gap-2 transition-all"

@@ -1,6 +1,11 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { User } from '@supabase/supabase-js';
+
+// Session timeout configuration
+const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
+const ACTIVITY_CHECK_INTERVAL_MS = 60 * 1000; // Check every 1 minute
+const LAST_ACTIVITY_KEY = 'last_activity_timestamp';
 
 interface AuthContextType {
   user: User | null;
@@ -11,23 +16,6 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   checkAdminStatus: () => Promise<boolean>;
 }
-
-// Demo/Founder account credentials from environment variables
-// ⚠️ SECURITY: Never hardcode credentials in source code!
-const FOUNDER_ACCOUNT = {
-  email: import.meta.env.VITE_DEMO_FOUNDER_EMAIL || '',
-  password: import.meta.env.VITE_DEMO_FOUNDER_PASSWORD || '',
-  id: import.meta.env.VITE_DEMO_FOUNDER_ID || 'founder-001',
-  user_metadata: {
-    full_name: 'Satoshi Qazi Muhammed',
-    phone: '+9647700557978',
-    recovery_email: 'satoshi@pezkuwichain.io',
-    founder: true
-  }
-};
-
-// Check if demo mode is enabled
-const DEMO_MODE_ENABLED = import.meta.env.VITE_ENABLE_DEMO_MODE === 'true';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -43,6 +31,66 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+
+  // ========================================
+  // SESSION TIMEOUT MANAGEMENT
+  // ========================================
+
+  // Update last activity timestamp
+  const updateLastActivity = useCallback(() => {
+    localStorage.setItem(LAST_ACTIVITY_KEY, Date.now().toString());
+  }, []);
+
+  // Check if session has timed out
+  const checkSessionTimeout = useCallback(async () => {
+    if (!user) return;
+
+    const lastActivity = localStorage.getItem(LAST_ACTIVITY_KEY);
+    if (!lastActivity) {
+      updateLastActivity();
+      return;
+    }
+
+    const lastActivityTime = parseInt(lastActivity, 10);
+    const now = Date.now();
+    const inactiveTime = now - lastActivityTime;
+
+    if (inactiveTime >= SESSION_TIMEOUT_MS) {
+      console.log('⏱️ Session timeout - logging out due to inactivity');
+      await signOut();
+    }
+  }, [user]);
+
+  // Setup activity listeners
+  useEffect(() => {
+    if (!user) return;
+
+    // Update activity on user interactions
+    const activityEvents = ['mousedown', 'keydown', 'scroll', 'touchstart'];
+
+    const handleActivity = () => {
+      updateLastActivity();
+    };
+
+    // Register event listeners
+    activityEvents.forEach((event) => {
+      window.addEventListener(event, handleActivity);
+    });
+
+    // Initial activity timestamp
+    updateLastActivity();
+
+    // Check for timeout periodically
+    const timeoutChecker = setInterval(checkSessionTimeout, ACTIVITY_CHECK_INTERVAL_MS);
+
+    // Cleanup
+    return () => {
+      activityEvents.forEach((event) => {
+        window.removeEventListener(event, handleActivity);
+      });
+      clearInterval(timeoutChecker);
+    };
+  }, [user, updateLastActivity, checkSessionTimeout]);
 
   useEffect(() => {
     // Check active sessions and sets the user
@@ -89,42 +137,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signIn = async (email: string, password: string) => {
-    // Check if demo mode is enabled and this is the founder account
-    if (DEMO_MODE_ENABLED && email === FOUNDER_ACCOUNT.email && password === FOUNDER_ACCOUNT.password) {
-      // Try Supabase first
-      try {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        
-        if (!error && data.user) {
-          await checkAdminStatus();
-          return { error: null };
-        }
-      } catch {
-        // Supabase not available
-      }
-
-      // Fallback to demo mode for founder account
-      const demoUser = {
-        id: FOUNDER_ACCOUNT.id,
-        email: FOUNDER_ACCOUNT.email,
-        user_metadata: FOUNDER_ACCOUNT.user_metadata,
-        email_confirmed_at: new Date().toISOString(),
-        created_at: new Date().toISOString(),
-      } as User;
-      
-      setUser(demoUser);
-      setIsAdmin(true);
-      
-      // Store in localStorage for persistence
-      localStorage.setItem('demo_user', JSON.stringify(demoUser));
-      
-      return { error: null };
-    }
-
-    // For other accounts, use Supabase
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -186,20 +198,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signOut = async () => {
-    localStorage.removeItem('demo_user');
     setIsAdmin(false);
+    setUser(null);
+    localStorage.removeItem(LAST_ACTIVITY_KEY);
     await supabase.auth.signOut();
   };
-
-  // Check for demo user on mount
-  useEffect(() => {
-    const demoUser = localStorage.getItem('demo_user');
-    if (demoUser && !user) {
-      const parsedUser = JSON.parse(demoUser);
-      setUser(parsedUser);
-      setIsAdmin(true);
-    }
-  }, []);
 
   return (
     <AuthContext.Provider value={{ 

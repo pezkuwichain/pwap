@@ -21,6 +21,8 @@ import {
   parseAmount,
   type StakingInfo
 } from '@pezkuwi/lib/staking';
+import { LoadingState } from '@pezkuwi/components/AsyncComponent';
+import { handleBlockchainError, handleBlockchainSuccess } from '@pezkuwi/lib/error-handler';
 
 export const StakingDashboard: React.FC = () => {
   const { t } = useTranslation();
@@ -119,22 +121,10 @@ export const StakingDashboard: React.FC = () => {
             console.log('Transaction in block:', status.asInBlock.toHex());
 
             if (dispatchError) {
-              let errorMessage = 'Transaction failed';
-              if (dispatchError.isModule) {
-                const decoded = api.registry.findMetaError(dispatchError.asModule);
-                errorMessage = `${decoded.section}.${decoded.name}: ${decoded.docs.join(' ')}`;
-              }
-              toast({
-                title: 'Error',
-                description: errorMessage,
-                variant: 'destructive',
-              });
+              handleBlockchainError(dispatchError, api, toast);
               setIsLoading(false);
             } else {
-              toast({
-                title: 'Success',
-                description: `Bonded ${bondAmount} HEZ successfully`,
-              });
+              handleBlockchainSuccess('staking.bonded', toast, { amount: bondAmount });
               setBondAmount('');
               refreshBalances();
               // Refresh staking data after a delay
@@ -183,22 +173,10 @@ export const StakingDashboard: React.FC = () => {
         ({ status, dispatchError }) => {
           if (status.isInBlock) {
             if (dispatchError) {
-              let errorMessage = 'Nomination failed';
-              if (dispatchError.isModule) {
-                const decoded = api.registry.findMetaError(dispatchError.asModule);
-                errorMessage = `${decoded.section}.${decoded.name}: ${decoded.docs.join(' ')}`;
-              }
-              toast({
-                title: 'Error',
-                description: errorMessage,
-                variant: 'destructive',
-              });
+              handleBlockchainError(dispatchError, api, toast);
               setIsLoading(false);
             } else {
-              toast({
-                title: 'Success',
-                description: `Nominated ${selectedValidators.length} validator(s)`,
-              });
+              handleBlockchainSuccess('staking.nominated', toast, { count: selectedValidators.length.toString() });
               // Refresh staking data
               setTimeout(() => {
                 if (api && selectedAccount) {
@@ -241,21 +219,12 @@ export const StakingDashboard: React.FC = () => {
         ({ status, dispatchError }) => {
           if (status.isInBlock) {
             if (dispatchError) {
-              let errorMessage = 'Unbond failed';
-              if (dispatchError.isModule) {
-                const decoded = api.registry.findMetaError(dispatchError.asModule);
-                errorMessage = `${decoded.section}.${decoded.name}: ${decoded.docs.join(' ')}`;
-              }
-              toast({
-                title: 'Error',
-                description: errorMessage,
-                variant: 'destructive',
-              });
+              handleBlockchainError(dispatchError, api, toast);
               setIsLoading(false);
             } else {
-              toast({
-                title: 'Success',
-                description: `Unbonded ${unbondAmount} HEZ. Withdrawal available in ${bondingDuration} eras`,
+              handleBlockchainSuccess('staking.unbonded', toast, {
+                amount: unbondAmount,
+                duration: bondingDuration.toString()
               });
               setUnbondAmount('');
               setTimeout(() => {
@@ -421,11 +390,7 @@ export const StakingDashboard: React.FC = () => {
   };
 
   if (isLoadingData) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-gray-400">Loading staking data...</div>
-      </div>
-    );
+    return <LoadingState message="Loading staking data..." />;
   }
 
   return (
