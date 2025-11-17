@@ -1,416 +1,372 @@
+import { ApiPromise } from '@polkadot/api';
+import { SubmittableExtrinsic } from '@polkadot/api/types';
+import { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
+import { toast } from 'sonner';
+import { supabase } from '@/lib/supabase';
+
 /**
- * Perwerde (Education) Pallet Integration
- *
- * This module provides helper functions for interacting with the Perwerde pallet,
- * which handles:
- * - Course creation and management
- * - Student enrollment
- * - Course completion tracking
- * - Education points/scores
+ * Course data structure matching blockchain pallet
  */
-
-import type { ApiPromise } from '@polkadot/api';
-import type { Option } from '@polkadot/types';
-
-// ============================================================================
-// TYPE DEFINITIONS
-// ============================================================================
-
-export type CourseStatus = 'Active' | 'Archived';
-
 export interface Course {
   id: number;
   owner: string;
   name: string;
   description: string;
-  contentLink: string;
-  status: CourseStatus;
-  createdAt: number;
+  content_link: string; // IPFS hash
+  status: 'Active' | 'Archived';
+  created_at: string;
 }
 
+/**
+ * Enrollment data structure
+ */
 export interface Enrollment {
-  student: string;
-  courseId: number;
-  enrolledAt: number;
-  completedAt?: number;
-  pointsEarned: number;
-  isCompleted: boolean;
-}
-
-export interface StudentProgress {
-  totalCourses: number;
-  completedCourses: number;
-  totalPoints: number;
-  activeCourses: number;
-}
-
-// ============================================================================
-// QUERY FUNCTIONS (Read-only)
-// ============================================================================
-
-/**
- * Get all courses (active and archived)
- */
-export async function getAllCourses(api: ApiPromise): Promise<Course[]> {
-  const nextId = await api.query.perwerde.nextCourseId();
-  const currentId = (nextId.toJSON() as number) || 0;
-
-  const courses: Course[] = [];
-
-  for (let i = 0; i < currentId; i++) {
-    const courseOption = await api.query.perwerde.courses(i);
-
-    if (courseOption.isSome) {
-      const courseData = courseOption.unwrap().toJSON() as any;
-
-      courses.push({
-        id: i,
-        owner: courseData.owner,
-        name: hexToString(courseData.name),
-        description: hexToString(courseData.description),
-        contentLink: hexToString(courseData.contentLink),
-        status: courseData.status as CourseStatus,
-        createdAt: courseData.createdAt,
-      });
-    }
-  }
-
-  return courses;
+  id: string;
+  student_address: string;
+  course_id: number;
+  enrolled_at: string;
+  completed_at?: string;
+  points_earned: number;
+  is_completed: boolean;
 }
 
 /**
- * Get active courses only
- */
-export async function getActiveCourses(api: ApiPromise): Promise<Course[]> {
-  const allCourses = await getAllCourses(api);
-  return allCourses.filter((course) => course.status === 'Active');
-}
-
-/**
- * Get course by ID
- */
-export async function getCourseById(api: ApiPromise, courseId: number): Promise<Course | null> {
-  const courseOption = await api.query.perwerde.courses(courseId);
-
-  if (courseOption.isNone) {
-    return null;
-  }
-
-  const courseData = courseOption.unwrap().toJSON() as any;
-
-  return {
-    id: courseId,
-    owner: courseData.owner,
-    name: hexToString(courseData.name),
-    description: hexToString(courseData.description),
-    contentLink: hexToString(courseData.contentLink),
-    status: courseData.status as CourseStatus,
-    createdAt: courseData.createdAt,
-  };
-}
-
-/**
- * Get student's enrolled courses
- */
-export async function getStudentCourses(api: ApiPromise, studentAddress: string): Promise<number[]> {
-  const coursesOption = await api.query.perwerde.studentCourses(studentAddress);
-
-  if (coursesOption.isNone || coursesOption.isEmpty) {
-    return [];
-  }
-
-  return (coursesOption.toJSON() as number[]) || [];
-}
-
-/**
- * Get enrollment details for a student in a specific course
- */
-export async function getEnrollment(
-  api: ApiPromise,
-  studentAddress: string,
-  courseId: number
-): Promise<Enrollment | null> {
-  const enrollmentOption = await api.query.perwerde.enrollments([studentAddress, courseId]);
-
-  if (enrollmentOption.isNone) {
-    return null;
-  }
-
-  const enrollmentData = enrollmentOption.unwrap().toJSON() as any;
-
-  return {
-    student: enrollmentData.student,
-    courseId: enrollmentData.courseId,
-    enrolledAt: enrollmentData.enrolledAt,
-    completedAt: enrollmentData.completedAt || undefined,
-    pointsEarned: enrollmentData.pointsEarned || 0,
-    isCompleted: !!enrollmentData.completedAt,
-  };
-}
-
-/**
- * Get student's progress summary
- */
-export async function getStudentProgress(api: ApiPromise, studentAddress: string): Promise<StudentProgress> {
-  const courseIds = await getStudentCourses(api, studentAddress);
-
-  let completedCourses = 0;
-  let totalPoints = 0;
-
-  for (const courseId of courseIds) {
-    const enrollment = await getEnrollment(api, studentAddress, courseId);
-
-    if (enrollment) {
-      if (enrollment.isCompleted) {
-        completedCourses++;
-        totalPoints += enrollment.pointsEarned;
-      }
-    }
-  }
-
-  return {
-    totalCourses: courseIds.length,
-    completedCourses,
-    totalPoints,
-    activeCourses: courseIds.length - completedCourses,
-  };
-}
-
-/**
- * Get Perwerde score for a student (sum of all earned points)
- */
-export async function getPerwerdeScore(api: ApiPromise, studentAddress: string): Promise<number> {
-  try {
-    // Try to call the get_perwerde_score runtime API
-    // This might not exist in all versions, fallback to manual calculation
-    const score = await api.call.perwerdeApi?.getPerwerdeScore(studentAddress);
-    return score ? (score.toJSON() as number) : 0;
-  } catch (error) {
-    // Fallback: manually sum all points
-    const progress = await getStudentProgress(api, studentAddress);
-    return progress.totalPoints;
-  }
-}
-
-/**
- * Check if student is enrolled in a course
- */
-export async function isEnrolled(
-  api: ApiPromise,
-  studentAddress: string,
-  courseId: number
-): Promise<boolean> {
-  const enrollment = await getEnrollment(api, studentAddress, courseId);
-  return enrollment !== null;
-}
-
-/**
- * Get course enrollment statistics
- */
-export async function getCourseStats(
-  api: ApiPromise,
-  courseId: number
-): Promise<{
-  totalEnrollments: number;
-  completions: number;
-  averagePoints: number;
-}> {
-  // Note: This requires iterating through all enrollments, which can be expensive
-  // In production, consider caching or maintaining separate counters
-
-  const entries = await api.query.perwerde.enrollments.entries();
-
-  let totalEnrollments = 0;
-  let completions = 0;
-  let totalPoints = 0;
-
-  for (const [key, value] of entries) {
-    const enrollmentData = value.toJSON() as any;
-    const enrollmentCourseId = (key.args[1] as any).toNumber();
-
-    if (enrollmentCourseId === courseId) {
-      totalEnrollments++;
-
-      if (enrollmentData.completedAt) {
-        completions++;
-        totalPoints += enrollmentData.pointsEarned || 0;
-      }
-    }
-  }
-
-  return {
-    totalEnrollments,
-    completions,
-    averagePoints: completions > 0 ? Math.round(totalPoints / completions) : 0,
-  };
-}
-
-// ============================================================================
-// TRANSACTION FUNCTIONS
-// ============================================================================
-
-/**
- * Create a new course
- * @requires AdminOrigin (only admin can create courses in current implementation)
+ * Create a new course on blockchain and sync to Supabase
+ * 
+ * Flow:
+ * 1. Call blockchain create_course extrinsic
+ * 2. Wait for block inclusion
+ * 3. Extract course_id from event
+ * 4. Insert to Supabase with blockchain course_id
  */
 export async function createCourse(
   api: ApiPromise,
-  signer: any,
+  account: InjectedAccountWithMeta,
   name: string,
   description: string,
-  contentLink: string
-): Promise<void> {
-  const tx = api.tx.perwerde.createCourse(name, description, contentLink);
+  ipfsHash: string
+): Promise<number> {
+  try {
+    // Convert strings to bounded vecs (Vec<u8>)
+    const nameVec = Array.from(new TextEncoder().encode(name));
+    const descVec = Array.from(new TextEncoder().encode(description));
+    const linkVec = Array.from(new TextEncoder().encode(ipfsHash));
 
-  return new Promise((resolve, reject) => {
-    tx.signAndSend(signer, ({ status, dispatchError }) => {
-      if (status.isInBlock) {
-        if (dispatchError) {
-          reject(dispatchError);
-        } else {
-          resolve();
+    // Create extrinsic
+    const extrinsic = api.tx.perwerde.createCourse(nameVec, descVec, linkVec);
+
+    // Sign and send
+    const courseId = await new Promise<number>((resolve, reject) => {
+      let unsub: () => void;
+
+      extrinsic.signAndSend(
+        account.address,
+        ({ status, events, dispatchError }) => {
+          if (dispatchError) {
+            if (dispatchError.isModule) {
+              const decoded = api.registry.findMetaError(dispatchError.asModule);
+              reject(new Error(`${decoded.section}.${decoded.name}: ${decoded.docs}`));
+            } else {
+              reject(new Error(dispatchError.toString()));
+            }
+            if (unsub) unsub();
+            return;
+          }
+
+          if (status.isInBlock || status.isFinalized) {
+            // Find CourseCreated event
+            const courseCreatedEvent = events.find(
+              ({ event }) =>
+                event.section === 'perwerde' && event.method === 'CourseCreated'
+            );
+
+            if (courseCreatedEvent) {
+              const courseId = courseCreatedEvent.event.data[0].toString();
+              resolve(parseInt(courseId));
+            } else {
+              reject(new Error('CourseCreated event not found'));
+            }
+
+            if (unsub) unsub();
+          }
         }
-      }
+      ).then((unsubscribe) => {
+        unsub = unsubscribe;
+      });
     });
-  });
+
+    // Insert to Supabase
+    const { error: supabaseError } = await supabase.from('courses').insert({
+      id: courseId,
+      owner: account.address,
+      name,
+      description,
+      content_link: ipfsHash,
+      status: 'Active',
+      created_at: new Date().toISOString(),
+    });
+
+    if (supabaseError) {
+      console.error('Supabase insert failed:', supabaseError);
+      toast.error('Course created on blockchain but failed to sync to database');
+    } else {
+      toast.success(`Course created with ID: ${courseId}`);
+    }
+
+    return courseId;
+  } catch (error) {
+    console.error('Create course error:', error);
+    toast.error(error instanceof Error ? error.message : 'Failed to create course');
+    throw error;
+  }
 }
 
 /**
- * Enroll in a course
+ * Enroll student in a course
  */
 export async function enrollInCourse(
   api: ApiPromise,
-  signerAddress: string,
+  account: InjectedAccountWithMeta,
   courseId: number
 ): Promise<void> {
-  const tx = api.tx.perwerde.enroll(courseId);
+  try {
+    const extrinsic = api.tx.perwerde.enroll(courseId);
 
-  return new Promise((resolve, reject) => {
-    tx.signAndSend(signerAddress, ({ status, dispatchError }) => {
-      if (status.isInBlock) {
-        if (dispatchError) {
-          reject(dispatchError);
-        } else {
-          resolve();
+    await new Promise<void>((resolve, reject) => {
+      let unsub: () => void;
+
+      extrinsic.signAndSend(
+        account.address,
+        ({ status, events, dispatchError }) => {
+          if (dispatchError) {
+            if (dispatchError.isModule) {
+              const decoded = api.registry.findMetaError(dispatchError.asModule);
+              reject(new Error(`${decoded.section}.${decoded.name}: ${decoded.docs}`));
+            } else {
+              reject(new Error(dispatchError.toString()));
+            }
+            if (unsub) unsub();
+            return;
+          }
+
+          if (status.isInBlock || status.isFinalized) {
+            resolve();
+            if (unsub) unsub();
+          }
         }
-      }
+      ).then((unsubscribe) => {
+        unsub = unsubscribe;
+      });
     });
-  });
+
+    // Insert enrollment to Supabase
+    const { error: supabaseError } = await supabase.from('enrollments').insert({
+      student_address: account.address,
+      course_id: courseId,
+      enrolled_at: new Date().toISOString(),
+      is_completed: false,
+      points_earned: 0,
+    });
+
+    if (supabaseError) {
+      console.error('Supabase enrollment insert failed:', supabaseError);
+      toast.error('Enrolled on blockchain but failed to sync to database');
+    } else {
+      toast.success('Successfully enrolled in course');
+    }
+  } catch (error) {
+    console.error('Enroll error:', error);
+    toast.error(error instanceof Error ? error.message : 'Failed to enroll in course');
+    throw error;
+  }
 }
 
 /**
- * Complete a course
- * @requires Course owner to call this for student
+ * Mark course as completed (student self-completes)
  */
 export async function completeCourse(
   api: ApiPromise,
-  signer: any,
-  studentAddress: string,
+  account: InjectedAccountWithMeta,
   courseId: number,
   points: number
 ): Promise<void> {
-  const tx = api.tx.perwerde.completeCourse(courseId, points);
+  try {
+    const extrinsic = api.tx.perwerde.completeCourse(courseId, points);
 
-  return new Promise((resolve, reject) => {
-    tx.signAndSend(signer, ({ status, dispatchError }) => {
-      if (status.isInBlock) {
-        if (dispatchError) {
-          reject(dispatchError);
-        } else {
-          resolve();
+    await new Promise<void>((resolve, reject) => {
+      let unsub: () => void;
+
+      extrinsic.signAndSend(
+        account.address,
+        ({ status, dispatchError }) => {
+          if (dispatchError) {
+            if (dispatchError.isModule) {
+              const decoded = api.registry.findMetaError(dispatchError.asModule);
+              reject(new Error(`${decoded.section}.${decoded.name}: ${decoded.docs}`));
+            } else {
+              reject(new Error(dispatchError.toString()));
+            }
+            if (unsub) unsub();
+            return;
+          }
+
+          if (status.isInBlock || status.isFinalized) {
+            resolve();
+            if (unsub) unsub();
+          }
         }
-      }
+      ).then((unsubscribe) => {
+        unsub = unsubscribe;
+      });
     });
-  });
+
+    // Update enrollment in Supabase
+    const { error: supabaseError } = await supabase
+      .from('enrollments')
+      .update({
+        is_completed: true,
+        completed_at: new Date().toISOString(),
+        points_earned: points,
+      })
+      .eq('student_address', account.address)
+      .eq('course_id', courseId);
+
+    if (supabaseError) {
+      console.error('Supabase completion update failed:', supabaseError);
+      toast.error('Completed on blockchain but failed to sync to database');
+    } else {
+      toast.success(`Course completed! Earned ${points} points`);
+    }
+  } catch (error) {
+    console.error('Complete course error:', error);
+    toast.error(error instanceof Error ? error.message : 'Failed to complete course');
+    throw error;
+  }
 }
 
 /**
- * Archive a course
- * @requires Course owner
+ * Archive a course (admin/owner only)
  */
 export async function archiveCourse(
   api: ApiPromise,
-  signer: any,
+  account: InjectedAccountWithMeta,
   courseId: number
 ): Promise<void> {
-  const tx = api.tx.perwerde.archiveCourse(courseId);
+  try {
+    const extrinsic = api.tx.perwerde.archiveCourse(courseId);
 
-  return new Promise((resolve, reject) => {
-    tx.signAndSend(signer, ({ status, dispatchError }) => {
-      if (status.isInBlock) {
-        if (dispatchError) {
-          reject(dispatchError);
-        } else {
-          resolve();
+    await new Promise<void>((resolve, reject) => {
+      let unsub: () => void;
+
+      extrinsic.signAndSend(
+        account.address,
+        ({ status, dispatchError }) => {
+          if (dispatchError) {
+            if (dispatchError.isModule) {
+              const decoded = api.registry.findMetaError(dispatchError.asModule);
+              reject(new Error(`${decoded.section}.${decoded.name}: ${decoded.docs}`));
+            } else {
+              reject(new Error(dispatchError.toString()));
+            }
+            if (unsub) unsub();
+            return;
+          }
+
+          if (status.isInBlock || status.isFinalized) {
+            resolve();
+            if (unsub) unsub();
+          }
         }
-      }
+      ).then((unsubscribe) => {
+        unsub = unsubscribe;
+      });
     });
-  });
-}
 
-// ============================================================================
-// HELPER FUNCTIONS
-// ============================================================================
+    // Update course status in Supabase
+    const { error: supabaseError } = await supabase
+      .from('courses')
+      .update({ status: 'Archived' })
+      .eq('id', courseId);
 
-/**
- * Convert hex string to UTF-8 string
- */
-function hexToString(hex: any): string {
-  if (!hex) return '';
-
-  // If it's already a string, return it
-  if (typeof hex === 'string' && !hex.startsWith('0x')) {
-    return hex;
-  }
-
-  // If it's a hex string, convert it
-  const hexStr = hex.toString().replace(/^0x/, '');
-  let str = '';
-
-  for (let i = 0; i < hexStr.length; i += 2) {
-    const code = parseInt(hexStr.substr(i, 2), 16);
-    if (code !== 0) {
-      // Skip null bytes
-      str += String.fromCharCode(code);
+    if (supabaseError) {
+      console.error('Supabase archive update failed:', supabaseError);
+      toast.error('Archived on blockchain but failed to sync to database');
+    } else {
+      toast.success('Course archived');
     }
-  }
-
-  return str.trim();
-}
-
-/**
- * Get course difficulty label (based on points threshold)
- */
-export function getCourseDifficulty(averagePoints: number): {
-  label: string;
-  color: string;
-} {
-  if (averagePoints >= 100) {
-    return { label: 'Advanced', color: 'red' };
-  } else if (averagePoints >= 50) {
-    return { label: 'Intermediate', color: 'yellow' };
-  } else {
-    return { label: 'Beginner', color: 'green' };
+  } catch (error) {
+    console.error('Archive course error:', error);
+    toast.error(error instanceof Error ? error.message : 'Failed to archive course');
+    throw error;
   }
 }
 
 /**
- * Format IPFS link to gateway URL
+ * Get Perwerde score for a student (from blockchain)
  */
-export function formatIPFSLink(ipfsHash: string): string {
-  if (!ipfsHash) return '';
+export async function getPerwerdeScore(
+  api: ApiPromise,
+  studentAddress: string
+): Promise<number> {
+  try {
+    // This would require a custom RPC or query if exposed
+    // For now, calculate from Supabase
+    const { data, error } = await supabase
+      .from('enrollments')
+      .select('points_earned')
+      .eq('student_address', studentAddress)
+      .eq('is_completed', true);
 
-  // If already a full URL, return it
-  if (ipfsHash.startsWith('http')) {
-    return ipfsHash;
+    if (error) throw error;
+
+    const totalPoints = data?.reduce((sum, e) => sum + e.points_earned, 0) || 0;
+    return totalPoints;
+  } catch (error) {
+    console.error('Get Perwerde score error:', error);
+    return 0;
   }
+}
 
-  // If starts with ipfs://, convert to gateway
-  if (ipfsHash.startsWith('ipfs://')) {
-    const hash = ipfsHash.replace('ipfs://', '');
-    return `https://ipfs.io/ipfs/${hash}`;
+/**
+ * Fetch all courses from Supabase
+ */
+export async function getCourses(status?: 'Active' | 'Archived'): Promise<Course[]> {
+  try {
+    let query = supabase.from('courses').select('*').order('created_at', { ascending: false });
+
+    if (status) {
+      query = query.eq('status', status);
+    }
+
+    const { data, error } = await query;
+
+    if (error) throw error;
+
+    return data || [];
+  } catch (error) {
+    console.error('Get courses error:', error);
+    toast.error('Failed to fetch courses');
+    return [];
   }
+}
 
-  // If it's just a hash, add gateway
-  return `https://ipfs.io/ipfs/${ipfsHash}`;
+/**
+ * Fetch student enrollments
+ */
+export async function getStudentEnrollments(studentAddress: string): Promise<Enrollment[]> {
+  try {
+    const { data, error } = await supabase
+      .from('enrollments')
+      .select('*')
+      .eq('student_address', studentAddress)
+      .order('enrolled_at', { ascending: false });
+
+    if (error) throw error;
+
+    return data || [];
+  } catch (error) {
+    console.error('Get enrollments error:', error);
+    toast.error('Failed to fetch enrollments');
+    return [];
+  }
 }

@@ -10,7 +10,7 @@ import { TrendingUp, Coins, Lock, Clock, Award, AlertCircle, CheckCircle2 } from
 import { useTranslation } from 'react-i18next';
 import { usePolkadot } from '@/contexts/PolkadotContext';
 import { useWallet } from '@/contexts/WalletContext';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
 import { web3FromAddress } from '@polkadot/extension-dapp';
 import {
   getStakingInfo,
@@ -22,6 +22,7 @@ import {
   type StakingInfo
 } from '@pezkuwi/lib/staking';
 import { LoadingState } from '@pezkuwi/components/AsyncComponent';
+import { ValidatorPoolDashboard } from './ValidatorPoolDashboard';
 import { handleBlockchainError, handleBlockchainSuccess } from '@pezkuwi/lib/error-handler';
 
 export const StakingDashboard: React.FC = () => {
@@ -71,11 +72,7 @@ export const StakingDashboard: React.FC = () => {
         }
       } catch (error) {
         console.error('Failed to fetch staking data:', error);
-        toast({
-          title: 'Error',
-          description: 'Failed to fetch staking information',
-          variant: 'destructive',
-        });
+        toast.error('Failed to fetch staking information');
       } finally {
         setIsLoadingData(false);
       }
@@ -140,11 +137,7 @@ export const StakingDashboard: React.FC = () => {
       );
     } catch (error: any) {
       console.error('Bond failed:', error);
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to bond tokens',
-        variant: 'destructive',
-      });
+      toast.error(error.message || 'Failed to bond tokens');
       setIsLoading(false);
     }
   };
@@ -153,11 +146,7 @@ export const StakingDashboard: React.FC = () => {
     if (!api || !selectedAccount || selectedValidators.length === 0) return;
 
     if (!stakingInfo || parseFloat(stakingInfo.bonded) === 0) {
-      toast({
-        title: 'Error',
-        description: 'You must bond tokens before nominating validators',
-        variant: 'destructive',
-      });
+      toast.error('You must bond tokens before nominating validators');
       return;
     }
 
@@ -190,11 +179,7 @@ export const StakingDashboard: React.FC = () => {
       );
     } catch (error: any) {
       console.error('Nomination failed:', error);
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to nominate validators',
-        variant: 'destructive',
-      });
+      toast.error(error.message || 'Failed to nominate validators');
       setIsLoading(false);
     }
   };
@@ -239,11 +224,7 @@ export const StakingDashboard: React.FC = () => {
       );
     } catch (error: any) {
       console.error('Unbond failed:', error);
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to unbond tokens',
-        variant: 'destructive',
-      });
+      toast.error(error.message || 'Failed to unbond tokens');
       setIsLoading(false);
     }
   };
@@ -252,10 +233,7 @@ export const StakingDashboard: React.FC = () => {
     if (!api || !selectedAccount) return;
 
     if (!stakingInfo || parseFloat(stakingInfo.redeemable) === 0) {
-      toast({
-        title: 'Info',
-        description: 'No tokens available to withdraw',
-      });
+      toast.info('No tokens available to withdraw');
       return;
     }
 
@@ -277,17 +255,10 @@ export const StakingDashboard: React.FC = () => {
                 const decoded = api.registry.findMetaError(dispatchError.asModule);
                 errorMessage = `${decoded.section}.${decoded.name}: ${decoded.docs.join(' ')}`;
               }
-              toast({
-                title: 'Error',
-                description: errorMessage,
-                variant: 'destructive',
-              });
+              toast.error(errorMessage);
               setIsLoading(false);
             } else {
-              toast({
-                title: 'Success',
-                description: `Withdrew ${stakingInfo.redeemable} HEZ`,
-              });
+              toast.success(`Withdrew ${stakingInfo.redeemable} HEZ`);
               refreshBalances();
               setTimeout(() => {
                 if (api && selectedAccount) {
@@ -301,11 +272,7 @@ export const StakingDashboard: React.FC = () => {
       );
     } catch (error: any) {
       console.error('Withdrawal failed:', error);
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to withdraw tokens',
-        variant: 'destructive',
-      });
+      toast.error(error.message || 'Failed to withdraw tokens');
       setIsLoading(false);
     }
   };
@@ -314,11 +281,7 @@ export const StakingDashboard: React.FC = () => {
     if (!api || !selectedAccount) return;
 
     if (!stakingInfo || parseFloat(stakingInfo.bonded) === 0) {
-      toast({
-        title: 'Error',
-        description: 'You must bond tokens before starting score tracking',
-        variant: 'destructive',
-      });
+      toast.error('You must bond tokens before starting score tracking');
       return;
     }
 
@@ -338,17 +301,10 @@ export const StakingDashboard: React.FC = () => {
                 const decoded = api.registry.findMetaError(dispatchError.asModule);
                 errorMessage = `${decoded.section}.${decoded.name}: ${decoded.docs.join(' ')}`;
               }
-              toast({
-                title: 'Error',
-                description: errorMessage,
-                variant: 'destructive',
-              });
+              toast.error(errorMessage);
               setIsLoading(false);
             } else {
-              toast({
-                title: 'Success',
-                description: 'Score tracking started successfully! Your staking score will now accumulate over time.',
-              });
+              toast.success('Score tracking started successfully! Your staking score will now accumulate over time.');
               // Refresh staking data after a delay
               setTimeout(() => {
                 if (api && selectedAccount) {
@@ -362,11 +318,7 @@ export const StakingDashboard: React.FC = () => {
       );
     } catch (error: any) {
       console.error('Start score tracking failed:', error);
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to start score tracking',
-        variant: 'destructive',
-      });
+      toast.error(error.message || 'Failed to start score tracking');
       setIsLoading(false);
     }
   };
@@ -378,10 +330,7 @@ export const StakingDashboard: React.FC = () => {
       } else {
         // Max 16 nominations
         if (prev.length >= 16) {
-          toast({
-            title: 'Limit Reached',
-            description: 'Maximum 16 validators can be nominated',
-          });
+          toast.info('Maximum 16 validators can be nominated');
           return prev;
         }
         return [...prev, validator];
@@ -492,10 +441,7 @@ export const StakingDashboard: React.FC = () => {
                 <Button
                   size="sm"
                   onClick={() => {
-                    toast({
-                      title: 'Coming Soon',
-                      description: 'Claim PEZ rewards functionality will be available soon',
-                    });
+                    toast.info('Claim PEZ rewards functionality will be available soon');
                   }}
                   disabled={isLoading}
                   className="mt-2 w-full bg-orange-600 hover:bg-orange-700"
@@ -520,16 +466,17 @@ export const StakingDashboard: React.FC = () => {
       {/* Main Staking Interface */}
       <Card className="bg-gray-900 border-gray-800">
         <CardHeader>
-          <CardTitle className="text-xl text-white">Validator Nomination Staking</CardTitle>
+          <CardTitle className="text-xl text-white">Staking</CardTitle>
           <CardDescription className="text-gray-400">
-            Bond HEZ and nominate validators to earn staking rewards
+            Stake HEZ to secure the network and earn rewards.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="stake">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="stake">Stake</TabsTrigger>
               <TabsTrigger value="nominate">Nominate</TabsTrigger>
+              <TabsTrigger value="pool">Validator Pool</TabsTrigger>
               <TabsTrigger value="unstake">Unstake</TabsTrigger>
             </TabsList>
 
@@ -616,6 +563,11 @@ export const StakingDashboard: React.FC = () => {
               >
                 Nominate Validators
               </Button>
+            </TabsContent>
+
+            {/* VALIDATOR POOL TAB */}
+            <TabsContent value="pool" className="space-y-4">
+              <ValidatorPoolDashboard />
             </TabsContent>
 
             {/* UNSTAKE TAB */}
