@@ -21,7 +21,7 @@ import { TreasuryOverview } from './treasury/TreasuryOverview';
 import { FundingProposal } from './treasury/FundingProposal';
 import { SpendingHistory } from './treasury/SpendingHistory';
 import { MultiSigApproval } from './treasury/MultiSigApproval';
-import { Github, FileText, ExternalLink, Shield, Award, User, FileEdit, Users2, MessageSquare, ShieldCheck, Wifi, WifiOff, Wallet, DollarSign, PiggyBank, History, Key, TrendingUp, ArrowRightLeft, Lock, LogIn, LayoutDashboard, Settings, UserCog, Repeat, Users, Droplet } from 'lucide-react';
+import { Github, FileText, ExternalLink, Shield, Award, User, FileEdit, Users2, MessageSquare, ShieldCheck, Wifi, WifiOff, Wallet, DollarSign, PiggyBank, History, Key, TrendingUp, ArrowRightLeft, Lock, LogIn, LayoutDashboard, Settings, UserCog, Repeat, Users, Droplet, Mail } from 'lucide-react';
 import GovernanceInterface from './GovernanceInterface';
 import RewardDistribution from './RewardDistribution';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -293,17 +293,29 @@ const AppLayout: React.FC = () => {
       <main>
         {/* Conditional Rendering for Features */}
         {showDEX ? (
-          <DEXDashboard />
+          <div className="pt-20 min-h-screen bg-gray-950">
+            <div className="max-w-full mx-auto px-4">
+              <DEXDashboard />
+            </div>
+          </div>
         ) : showProposalWizard ? (
-          <ProposalWizard 
-            onComplete={(proposal) => {
-              console.log('Proposal created:', proposal);
-              setShowProposalWizard(false);
-            }}
-            onCancel={() => setShowProposalWizard(false)}
-          />
+          <div className="pt-20 min-h-screen bg-gray-950">
+            <div className="max-w-full mx-auto px-4">
+              <ProposalWizard
+                onComplete={(proposal) => {
+                  console.log('Proposal created:', proposal);
+                  setShowProposalWizard(false);
+                }}
+                onCancel={() => setShowProposalWizard(false)}
+              />
+            </div>
+          </div>
         ) : showDelegation ? (
-          <DelegationManager />
+          <div className="pt-20 min-h-screen bg-gray-950">
+            <div className="max-w-full mx-auto px-4">
+              <DelegationManager />
+            </div>
+          </div>
         ) : showForum ? (
           <div className="pt-20 min-h-screen bg-gray-950">
             <div className="max-w-full mx-auto px-4">
@@ -454,87 +466,97 @@ const AppLayout: React.FC = () => {
 
       {/* Footer */}
       <footer className="bg-gray-950 border-t border-gray-800 py-12">
-              <div className="mt-4 space-y-1 text-sm text-gray-400">
-                <p>📧 info@pezkuwichain.io</p>
-                <p>📧 info@pezkuwichain.app</p>
-              </div>
         <div className="max-w-full mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          {/* Contact Info */}
+          <div className="mb-8 space-y-2 text-sm text-gray-400 text-center">
+            <p className="flex items-center justify-center gap-2">
+              <Mail className="w-4 h-4" />
+              info@pezkuwichain.io
+            </p>
+            <p className="flex items-center justify-center gap-2">
+              <Mail className="w-4 h-4" />
+              info@pezkuwichain.app
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-left">
             <div>
               <h3 className="text-lg font-semibold mb-4 bg-gradient-to-r from-green-500 to-yellow-400 bg-clip-text text-transparent">
                 PezkuwiChain
               </h3>
               <p className="text-gray-400 text-sm">
-                {t('footer.description', 'Decentralized governance for Kurdistan')}
+                Decentralized governance platform
               </p>
             </div>
-            
+
             <div>
-              <h4 className="text-white font-semibold mb-4">{t('footer.about')}</h4>
-              <ul className="space-y-2">
+              <h4 className="text-white font-semibold mb-4 text-left">About</h4>
+              <ul className="space-y-2 text-left">
                 <li>
                   <a
                     href="https://raw.githubusercontent.com/pezkuwichain/DKSweb/main/public/Whitepaper.pdf"
                     download="Pezkuwi_Whitepaper.pdf"
-                    className="text-gray-400 hover:text-white text-sm flex items-center"
+                    className="text-gray-400 hover:text-white text-sm inline-flex items-center"
                   >
-                    {t('nav.docs')}
+                    Whitepaper
                     <ExternalLink className="w-3 h-3 ml-1" />
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-400 hover:text-white text-sm">
+                  <a href="https://github.com/pezkuwichain" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white text-sm inline-flex items-center">
                     GitHub
+                    <ExternalLink className="w-3 h-3 ml-1" />
                   </a>
                 </li>
               </ul>
             </div>
-            
+
             <div>
-              <h4 className="text-white font-semibold mb-4">{t('footer.developers')}</h4>
-              <ul className="space-y-2">
+              <h4 className="text-white font-semibold mb-4 text-left">Developers</h4>
+              <ul className="space-y-2 text-left">
                 <li>
-                  <a href="#" className="text-gray-400 hover:text-white text-sm">
+                  <a href="https://explorer.pezkuwichain.io" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white text-sm inline-flex items-center">
                     API
+                    <ExternalLink className="w-3 h-3 ml-1" />
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-400 hover:text-white text-sm">
+                  <a href="https://sdk.pezkuwichain.io" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white text-sm inline-flex items-center">
                     SDK
+                    <ExternalLink className="w-3 h-3 ml-1" />
                   </a>
                 </li>
               </ul>
             </div>
-            
+
             <div>
-              <h4 className="text-white font-semibold mb-4">{t('footer.community')}</h4>
-              <ul className="space-y-2">
+              <h4 className="text-white font-semibold mb-4 text-left">Community</h4>
+              <ul className="space-y-2 text-left">
                 <li>
-                  <a href="https://discord.gg/pezkuwichain" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white text-sm flex items-center">
+                  <a href="https://discord.gg/pezkuwichain" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white text-sm inline-flex items-center">
                     Discord
                     <ExternalLink className="w-3 h-3 ml-1" />
                   </a>
                 </li>
                 <li>
-                  <a href="https://x.com/PezkuwiChain" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white text-sm flex items-center">
+                  <a href="https://x.com/PezkuwiChain" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white text-sm inline-flex items-center">
                     Twitter/X
                     <ExternalLink className="w-3 h-3 ml-1" />
                   </a>
                 </li>
                 <li>
-                  <a href="https://t.me/PezkuwiApp" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white text-sm flex items-center">
+                  <a href="https://t.me/PezkuwiApp" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white text-sm inline-flex items-center">
                     Telegram
                     <ExternalLink className="w-3 h-3 ml-1" />
                   </a>
                 </li>
                 <li>
-                  <a href="https://www.youtube.com/@SatoshiQazi" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white text-sm flex items-center">
+                  <a href="https://www.youtube.com/@SatoshiQazi" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white text-sm inline-flex items-center">
                     YouTube
                     <ExternalLink className="w-3 h-3 ml-1" />
                   </a>
                 </li>
                 <li>
-                  <a href="https://facebook.com/profile.php?id=61582484611719" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white text-sm flex items-center">
+                  <a href="https://facebook.com/profile.php?id=61582484611719" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white text-sm inline-flex items-center">
                     Facebook
                     <ExternalLink className="w-3 h-3 ml-1" />
                   </a>
@@ -545,7 +567,7 @@ const AppLayout: React.FC = () => {
           
           <div className="mt-8 pt-8 border-t border-gray-800 text-center">
             <p className="text-gray-400 text-sm">
-              © 2024 PezkuwiChain. {t('footer.rights')}
+              © 2024 PezkuwiChain. All rights reserved.
             </p>
           </div>
         </div>
