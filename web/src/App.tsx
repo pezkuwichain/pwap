@@ -10,15 +10,20 @@ import AdminPanel from '@/pages/AdminPanel';
 import WalletDashboard from './pages/WalletDashboard';
 import ReservesDashboardPage from './pages/ReservesDashboardPage';
 import BeCitizen from './pages/BeCitizen';
+import Citizens from './pages/Citizens';
+import CitizensIssues from './pages/citizens/CitizensIssues';
+import GovernmentEntrance from './pages/citizens/GovernmentEntrance';
 import Elections from './pages/Elections';
 import EducationPlatform from './pages/EducationPlatform';
 import P2PPlatform from './pages/P2PPlatform';
+import { DEXDashboard } from './components/dex/DEXDashboard';
 import { AppProvider } from '@/contexts/AppContext';
 import { PolkadotProvider } from '@/contexts/PolkadotContext';
 import { WalletProvider } from '@/contexts/WalletContext';
 import { WebSocketProvider } from '@/contexts/WebSocketContext';
 import { IdentityProvider } from '@/contexts/IdentityContext';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { DashboardProvider } from '@/contexts/DashboardContext';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import NotFound from '@/pages/NotFound';
 import { Toaster } from '@/components/ui/toaster';
@@ -36,14 +41,18 @@ function App() {
               <WalletProvider>
                 <WebSocketProvider>
                   <IdentityProvider>
-                    <Router>
-                    <Routes>
+                    <DashboardProvider>
+                      <Router>
+                      <Routes>
                       <Route path="/login" element={<Login />} />
 
                       <Route path="/email-verification" element={<EmailVerification />} />
                       <Route path="/reset-password" element={<PasswordReset />} />
                       <Route path="/" element={<Index />} />
                       <Route path="/be-citizen" element={<BeCitizen />} />
+                      <Route path="/citizens" element={<Citizens />} />
+                      <Route path="/citizens/issues" element={<CitizensIssues />} />
+                      <Route path="/citizens/government" element={<GovernmentEntrance />} />
                       <Route path="/dashboard" element={
                         <ProtectedRoute>
                           <Dashboard />
@@ -84,9 +93,15 @@ function App() {
                           <P2PPlatform />
                         </ProtectedRoute>
                       } />
+                      <Route path="/dex" element={
+                        <ProtectedRoute>
+                          <DEXDashboard />
+                        </ProtectedRoute>
+                      } />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
-                    </Router>
+                      </Router>
+                    </DashboardProvider>
                   </IdentityProvider>
                 </WebSocketProvider>
               </WalletProvider>

@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useWallet } from '@/contexts/WalletContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import TokenSwap from '@/components/TokenSwap';
 import PoolDashboard from '@/components/PoolDashboard';
 import { CreatePoolModal } from './CreatePoolModal';
 import { InitializeHezPoolModal } from './InitializeHezPoolModal';
-import { ArrowRightLeft, Droplet, Settings } from 'lucide-react';
+import { ArrowRightLeft, Droplet, Settings, Home } from 'lucide-react';
 import { isFounderWallet } from '@pezkuwi/utils/auth';
 
 export const DEXDashboard: React.FC = () => {
+  const navigate = useNavigate();
   const { account } = useWallet();
   const [activeTab, setActiveTab] = useState('swap');
 
