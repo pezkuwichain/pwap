@@ -38,6 +38,9 @@ const EducationPlatform = lazy(() => import('./pages/EducationPlatform'));
 const P2PPlatform = lazy(() => import('./pages/P2PPlatform'));
 const DEXDashboard = lazy(() => import('./components/dex/DEXDashboard').then(m => ({ default: m.DEXDashboard })));
 const Presale = lazy(() => import('./pages/Presale'));
+const PresaleList = lazy(() => import('./pages/launchpad/PresaleList'));
+const PresaleDetail = lazy(() => import('./pages/launchpad/PresaleDetail'));
+const CreatePresale = lazy(() => import('./pages/launchpad/CreatePresale'));
 const NotFound = lazy(() => import('@/pages/NotFound'));
 
 // Loading component
@@ -139,6 +142,9 @@ function App() {
                                 </ProtectedRoute>
                               } />
                               <Route path="/presale" element={<Presale />} />
+                              <Route path="/launchpad" element={<PresaleList />} />
+                              <Route path="/launchpad/:id" element={<PresaleDetail />} />
+                              <Route path="/launchpad/create" element={<CreatePresale />} />
                               <Route path="*" element={<NotFound />} />
                             </Routes>
                           </Suspense>
