@@ -60,7 +60,7 @@ export function useTreasury() {
         let pendingCount = 0;
 
         if (proposalsData) {
-          proposalsData.forEach(([key, value]: any) => {
+          proposalsData.forEach(([key, value]: [unknown, unknown]) => {
             const index = key.args[0].toNumber();
             const proposal = value.unwrap();
             const valueAmount = parseInt(proposal.value.toString()) / 1e12;

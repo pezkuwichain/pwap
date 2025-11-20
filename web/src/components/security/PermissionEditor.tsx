@@ -58,12 +58,12 @@ const PERMISSION_CATEGORIES = {
 export function PermissionEditor() {
   const [roles, setRoles] = useState<Role[]>([]);
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
     loadRoles();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadRoles = async () => {
@@ -78,7 +78,7 @@ export function PermissionEditor() {
       if (data && data.length > 0) {
         setSelectedRole(data[0]);
       }
-    } catch (error) {
+    } catch {
       console.error('Error loading roles:', error);
       toast({
         title: 'Error',
@@ -119,7 +119,7 @@ export function PermissionEditor() {
         title: 'Success',
         description: 'Permissions updated successfully',
       });
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to save permissions',

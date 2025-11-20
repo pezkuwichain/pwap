@@ -11,8 +11,8 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   isAdmin: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string, username: string, referralCode?: string) => Promise<{ error: any }>;
+  signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, username: string, referralCode?: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   checkAdminStatus: () => Promise<boolean>;
 }
@@ -38,6 +38,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Update last activity timestamp
   const updateLastActivity = useCallback(() => {
+     
     localStorage.setItem(LAST_ACTIVITY_KEY, Date.now().toString());
   }, []);
 
@@ -48,6 +49,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const lastActivity = localStorage.getItem(LAST_ACTIVITY_KEY);
     if (!lastActivity) {
       updateLastActivity();
+     
+     
       return;
     }
 
@@ -70,6 +73,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const handleActivity = () => {
       updateLastActivity();
+     
+     
     };
 
     // Register event listeners
@@ -79,6 +84,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Initial activity timestamp
     updateLastActivity();
+     
+     
 
     // Check for timeout periodically
     const timeoutChecker = setInterval(checkSessionTimeout, ACTIVITY_CHECK_INTERVAL_MS);
@@ -91,6 +98,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       clearInterval(timeoutChecker);
     };
   }, [user, updateLastActivity, checkSessionTimeout]);
+     
 
   useEffect(() => {
     // Check active sessions and sets the user
@@ -162,7 +170,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('❌ Admin access denied');
       setIsAdmin(false);
       return false;
-    } catch (err) {
+    } catch {
       console.error('Admin check error:', err);
       setIsAdmin(false);
       return false;
@@ -181,7 +189,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       
       return { error };
-    } catch (err) {
+    } catch {
       return { 
         error: { 
           message: 'Authentication service unavailable. Please try again later.' 
@@ -212,7 +220,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           referred_by: referralCode || null,
         });
         
-        // If there's a referral code, track it
+        // If there&apos;s a referral code, track it
         if (referralCode) {
           // You can add logic here to reward the referrer
           // For example, update their referral count or add rewards
@@ -221,7 +229,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       return { error };
-    } catch (err) {
+    } catch {
       return { 
         error: { 
           message: 'Registration service unavailable. Please try again later.' 

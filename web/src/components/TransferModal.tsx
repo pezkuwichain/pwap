@@ -124,7 +124,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, s
       const unsub = await transfer.signAndSend(
         selectedAccount.address,
         { signer: injector.signer },
-        ({ status, events, dispatchError }) => {
+        ({ status, dispatchError }) => {
           if (status.isInBlock) {
             console.log(`Transaction included in block: ${status.asInBlock}`);
             setTxHash(status.asInBlock.toHex());
@@ -170,14 +170,14 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, s
           }
         }
       );
-    } catch (error: any) {
+    } catch (error) {
       console.error('Transfer error:', error);
       setTxStatus('error');
       setIsTransferring(false);
-      
+
       toast({
         title: "Transfer Failed",
-        description: error.message || "An error occurred during transfer",
+        description: error instanceof Error ? error.message : "An error occurred during transfer",
         variant: "destructive",
       });
     }

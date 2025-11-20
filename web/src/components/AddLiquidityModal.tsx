@@ -14,6 +14,18 @@ interface AddLiquidityModalProps {
   asset1?: number;  // Pool's second asset ID
 }
 
+interface AssetDetails {
+  minBalance?: string | number;
+}
+
+interface AssetAccountData {
+  balance: string | number;
+}
+
+interface Balances {
+  [key: string]: number;
+}
+
 // Helper to get display name (users see HEZ not wHEZ, PEZ, USDT not wUSDT)
 const getDisplayName = (assetId: number): string => {
   if (assetId === ASSET_IDS.WHEZ || assetId === 0) return 'HEZ';
@@ -86,8 +98,8 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
         console.log('🔍 Querying minimum balances for assets:', { asset0, asset1 });
 
         if (assetDetails0.isSome && assetDetails1.isSome) {
-          const details0 = assetDetails0.unwrap().toJSON() as any;
-          const details1 = assetDetails1.unwrap().toJSON() as any;
+          const details0 = assetDetails0.unwrap().toJSON() as AssetDetails;
+          const details1 = assetDetails1.unwrap().toJSON() as AssetDetails;
 
           console.log('📦 Asset details:', {
             asset0: details0,
@@ -115,7 +127,7 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
           console.warn('⚠️ Asset details not found, using defaults');
         }
 
-        // Also check if there's a MintMinLiquidity constant in assetConversion pallet
+        // Also check if there&apos;s a MintMinLiquidity constant in assetConversion pallet
         if (api.consts.assetConversion) {
           const mintMinLiq = api.consts.assetConversion.mintMinLiquidity;
           if (mintMinLiq) {
@@ -166,8 +178,8 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
           const balance1Data = await api.query.assets.account(asset1, poolAccountId);
 
           if (balance0Data.isSome && balance1Data.isSome) {
-            const data0 = balance0Data.unwrap().toJSON() as any;
-            const data1 = balance1Data.unwrap().toJSON() as any;
+            const data0 = balance0Data.unwrap().toJSON() as AssetAccountData;
+            const data1 = balance1Data.unwrap().toJSON() as AssetAccountData;
 
             const reserve0 = Number(data0.balance) / Math.pow(10, asset0Decimals);
             const reserve1 = Number(data1.balance) / Math.pow(10, asset1Decimals);
@@ -190,7 +202,7 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
             console.log('Pool is empty - manual input allowed');
           }
         } else {
-          // Pool doesn't exist yet - completely empty
+          // Pool doesn&apos;t exist yet - completely empty
           setCurrentPrice(null);
           setIsPoolEmpty(true);
           console.log('Pool does not exist yet - manual input allowed');
@@ -214,7 +226,7 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
     } else if (!amount0 && !isPoolEmpty) {
       setAmount1('');
     }
-    // If pool is empty, don't auto-calculate - let user input both amounts
+    // If pool is empty, don&apos;t auto-calculate - let user input both amounts
   }, [amount0, currentPrice, asset1Decimals, isPoolEmpty]);
 
   const handleAddLiquidity = async () => {
@@ -244,8 +256,8 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
         return;
       }
 
-      const balance0 = (balances as any)[asset0BalanceKey] || 0;
-      const balance1 = (balances as any)[asset1BalanceKey] || 0;
+      const balance0 = (balances as Balances)[asset0BalanceKey] || 0;
+      const balance1 = (balances as Balances)[asset1BalanceKey] || 0;
 
       if (parseFloat(amount0) > balance0) {
         setError(`Insufficient ${asset0Name} balance`);
@@ -364,8 +376,8 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
 
   if (!isOpen) return null;
 
-  const balance0 = (balances as any)[asset0BalanceKey] || 0;
-  const balance1 = (balances as any)[asset1BalanceKey] || 0;
+  const balance0 = (balances as Balances)[asset0BalanceKey] || 0;
+  const balance1 = (balances as Balances)[asset1BalanceKey] || 0;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">

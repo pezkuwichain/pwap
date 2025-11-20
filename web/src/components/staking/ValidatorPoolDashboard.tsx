@@ -66,7 +66,7 @@ export function ValidatorPoolDashboard() {
       await joinValidatorPool(api, selectedAccount, category);
       toast.success(`Joined the ${category} pool`);
       fetchData();
-    } catch (error: any) {
+    } catch (error) {
       console.error('Join pool error:', error);
       // Error toast already shown in joinValidatorPool
     } finally {
@@ -81,7 +81,7 @@ export function ValidatorPoolDashboard() {
       await leaveValidatorPool(api, selectedAccount);
       toast.success('Left the validator pool');
       fetchData();
-    } catch (error: any) {
+    } catch (error) {
       console.error('Leave pool error:', error);
       // Error toast already shown in leaveValidatorPool
     } finally {
@@ -96,7 +96,7 @@ export function ValidatorPoolDashboard() {
       await updateValidatorCategory(api, selectedAccount, newCategory);
       toast.success(`Switched to ${newCategory}`);
       fetchData();
-    } catch (error: any) {
+    } catch (error) {
       console.error('Switch category error:', error);
       // Error toast already shown in updateValidatorCategory
     } finally {

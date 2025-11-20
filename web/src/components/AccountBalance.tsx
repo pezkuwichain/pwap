@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { usePolkadot } from '@/contexts/PolkadotContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Wallet, TrendingUp, ArrowUpRight, ArrowDownRight, RefreshCw, Award, Plus, Coins, Send, Shield, Users } from 'lucide-react';
+import { Wallet, TrendingUp, ArrowDownRight, RefreshCw, Award, Plus, Coins, Send, Shield, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ASSET_IDS, getAssetSymbol } from '@pezkuwi/lib/wallet';
 import { AddTokenModal } from './AddTokenModal';
@@ -168,7 +168,7 @@ export const AccountBalance: React.FC = () => {
             const assetData = assetBalance.unwrap();
             const balance = assetData.balance.toString();
 
-            const metadata = assetMetadata.toJSON() as any;
+            const metadata = assetMetadata.toJSON() as { symbol?: string; name?: string; decimals?: number };
 
             // Decode hex strings properly
             let symbol = metadata.symbol || '';
@@ -310,15 +310,15 @@ export const AccountBalance: React.FC = () => {
     setIsAddTokenModalOpen(false);
   };
 
-  // Remove token handler
-  const handleRemoveToken = (assetId: number) => {
-    const updatedTokenIds = customTokenIds.filter(id => id !== assetId);
-    setCustomTokenIds(updatedTokenIds);
-    localStorage.setItem('customTokenIds', JSON.stringify(updatedTokenIds));
-
-    // Remove from displayed tokens
-    setOtherTokens(prev => prev.filter(t => t.assetId !== assetId));
-  };
+  // Remove token handler (unused but kept for future feature)
+  // const handleRemoveToken = (assetId: number) => {
+  //   const updatedTokenIds = customTokenIds.filter(id => id !== assetId);
+  //   setCustomTokenIds(updatedTokenIds);
+  //   localStorage.setItem('customTokenIds', JSON.stringify(updatedTokenIds));
+  //
+  //   // Remove from displayed tokens
+  //   setOtherTokens(prev => prev.filter(t => t.assetId !== assetId));
+  // };
 
   useEffect(() => {
     fetchBalance();
@@ -439,6 +439,7 @@ export const AccountBalance: React.FC = () => {
       if (unsubscribePez) unsubscribePez();
       if (unsubscribeUsdt) unsubscribeUsdt();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [api, isApiReady, selectedAccount]);
 
   if (!selectedAccount) {

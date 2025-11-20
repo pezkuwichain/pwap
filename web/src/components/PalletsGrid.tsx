@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Code, Database, TrendingUp, Gift, UserCheck, Award } from 'lucide-react';
+import { Code, Database, TrendingUp, Gift, Award } from 'lucide-react';
 
 interface Pallet {
   id: string;
@@ -61,7 +61,7 @@ const PalletsGrid: React.FC = () => {
             Core Runtime Pallets
           </h2>
           <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-            Modular blockchain components powering PezkuwiChain's advanced features
+            Modular blockchain components powering PezkuwiChain&apos;s advanced features
           </p>
         </div>
 

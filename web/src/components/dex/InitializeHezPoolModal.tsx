@@ -144,13 +144,13 @@ export const InitializeHezPoolModal: React.FC<InitializeHezPoolModalProps> = ({
           }
         }
       );
-    } catch (error: any) {
+    } catch (error) {
       console.error('Wrap failed:', error);
-      setErrorMessage(error.message || 'Transaction failed');
+      setErrorMessage(error instanceof Error ? error.message : 'Transaction failed');
       setTxStatus('error');
       toast({
         title: 'Error',
-        description: error.message || 'Wrap failed',
+        description: error instanceof Error ? error.message : 'Wrap failed',
         variant: 'destructive',
       });
     }

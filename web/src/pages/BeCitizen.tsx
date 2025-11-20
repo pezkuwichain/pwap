@@ -110,7 +110,7 @@ const BeCitizen: React.FC = () => {
                 <div>
                   <h3 className="text-2xl font-bold text-red-700 mb-3">Ready to Join?</h3>
                   <p className="text-gray-800 font-medium mb-6">
-                    Whether you're already a citizen or want to become one, start your journey here.
+                    Whether you&apos;re already a citizen or want to become one, start your journey here.
                   </p>
                 </div>
 

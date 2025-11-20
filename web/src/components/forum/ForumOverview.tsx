@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+// Tabs not currently used from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { LoadingState } from '@pezkuwi/components/AsyncComponent';
 import {
@@ -24,19 +24,17 @@ import {
   AlertTriangle,
   Info,
   CheckCircle,
-  Eye,
-  Loader2
+  Eye
 } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+// import { useTranslation } from 'react-i18next';
 import { useForum } from '@/hooks/useForum';
 import { DiscussionThread } from './DiscussionThread';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatDistanceToNow } from 'date-fns';
 
 export function ForumOverview() {
-  const { t } = useTranslation();
   const { user } = useAuth();
-  const { announcements, categories, discussions, loading, error, reactToDiscussion } = useForum();
+  const { announcements, categories, discussions, loading, reactToDiscussion } = useForum();
   const [selectedDiscussion, setSelectedDiscussion] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('recent');

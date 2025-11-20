@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { usePolkadot } from '@/contexts/PolkadotContext';
-import { Loader2, CheckCircle, XCircle, Clock, User, Mail, MapPin, FileText, AlertTriangle } from 'lucide-react';
+import { Loader2, CheckCircle, XCircle, Clock, User, Mail, FileText, AlertTriangle } from 'lucide-react';
 import { COMMISSIONS } from '@/config/commissions';
 import {
   Table,
@@ -54,7 +54,9 @@ export function KycApprovalTab() {
     }
 
     loadPendingApplications();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [api, isApiReady]);
+     
 
   const loadPendingApplications = async () => {
     if (!api || !isApiReady) {
@@ -72,13 +74,13 @@ export function KycApprovalTab() {
 
       for (const [key, value] of entries) {
         const address = key.args[0].toString();
-        const application = value.toJSON() as any;
+        const application = value.toJSON() as Record<string, unknown>;
 
         // Get identity info for this address
         try {
           const identity = await api.query.identityKyc.identities(address);
           if (!identity.isEmpty) {
-            const identityData = identity.toJSON() as any;
+            const identityData = identity.toJSON() as Record<string, unknown>;
             identityMap.set(address, {
               name: identityData.name || 'Unknown',
               email: identityData.email || 'No email'
@@ -215,7 +217,7 @@ export function KycApprovalTab() {
           console.error('Failed to sign and send:', error);
           toast({
             title: 'Transaction Error',
-            description: error.message || 'Failed to submit transaction',
+            description: error instanceof Error ? error.message : 'Failed to submit transaction',
             variant: 'destructive',
           });
           reject(error);
@@ -229,11 +231,11 @@ export function KycApprovalTab() {
         setSelectedApp(null);
       }, 2000);
 
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error approving KYC:', error);
       toast({
         title: 'Error',
-        description: error.message || 'Failed to approve KYC',
+        description: error instanceof Error ? error.message : 'Failed to approve KYC',
         variant: 'destructive',
       });
     } finally {
@@ -315,11 +317,11 @@ export function KycApprovalTab() {
         setSelectedApp(null);
       }, 2000);
 
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error rejecting KYC:', error);
       toast({
         title: 'Error',
-        description: error.message || 'Failed to reject KYC',
+        description: error instanceof Error ? error.message : 'Failed to reject KYC',
         variant: 'destructive',
       });
     } finally {
@@ -513,7 +515,7 @@ export function KycApprovalTab() {
                 <AlertDescription className="text-sm">
                   <strong>Important:</strong> Approving this application will:
                   <ul className="list-disc list-inside mt-2 space-y-1">
-                    <li>Unreserve the applicant's deposit</li>
+                    <li>Unreserve the applicant&apos;s deposit</li>
                     <li>Mint a Welati (Citizen) NFT automatically</li>
                     <li>Enable trust score tracking</li>
                     <li>Grant governance voting rights</li>

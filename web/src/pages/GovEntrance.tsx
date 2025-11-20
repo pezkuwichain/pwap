@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { usePolkadot } from '@/contexts/PolkadotContext';
 import { useDashboard } from '@/contexts/DashboardContext';
 import {
   ArrowLeft,
@@ -16,13 +15,12 @@ import {
   XCircle,
   Clock,
   TrendingUp,
-  AlertCircle,
-  Home
+  AlertCircle
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export default function GovEntrance() {
-  const { api, isApiReady, selectedAccount } = usePolkadot();
+  // usePolkadot removed
   const { nftDetails, kycStatus, loading: dashboardLoading } = useDashboard();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -30,7 +28,9 @@ export default function GovEntrance() {
 
   useEffect(() => {
     checkGovernmentRole();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nftDetails, dashboardLoading]);
+     
 
   const checkGovernmentRole = () => {
     if (dashboardLoading) {

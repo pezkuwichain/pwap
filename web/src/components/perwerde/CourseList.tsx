@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { GraduationCap, BookOpen, ExternalLink, Play } from 'lucide-react';
@@ -53,7 +53,7 @@ export function CourseList({ enrolledCourseIds, onEnroll }: CourseListProps) {
     try {
       await enrollInCourse(api, selectedAccount, courseId);
       onEnroll();
-    } catch (error: any) {
+    } catch (error) {
       console.error('Enroll failed:', error);
     }
   };

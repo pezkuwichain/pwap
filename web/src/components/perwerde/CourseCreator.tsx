@@ -42,9 +42,9 @@ export function CourseCreator({ onCourseCreated }: CourseCreatorProps) {
       try {
         ipfsHash = await uploadToIPFS(file);
         toast.success(`Content uploaded: ${ipfsHash.slice(0, 10)}...`);
-      } catch (ipfsError) {
+      } catch {
         toast.error('IPFS upload failed');
-        return; // STOP - don't call blockchain
+        return; // STOP - don&apos;t call blockchain
       }
 
       // 2. Create course on blockchain
@@ -55,7 +55,7 @@ export function CourseCreator({ onCourseCreated }: CourseCreatorProps) {
       setName('');
       setDescription('');
       setContent('');
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to create course:', error);
       // toast already shown in createCourse()
     } finally {

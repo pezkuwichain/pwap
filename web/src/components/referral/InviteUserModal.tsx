@@ -108,7 +108,7 @@ export const InviteUserModal: React.FC<InviteUserModalProps> = ({ isOpen, onClos
           setInviteeAddress('');
         }
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to initiate referral:', err);
       setInitiateError(err.message || 'Failed to initiate referral');
       setInitiating(false);
@@ -124,7 +124,7 @@ export const InviteUserModal: React.FC<InviteUserModalProps> = ({ isOpen, onClos
             Invite Friends to PezkuwiChain
           </DialogTitle>
           <DialogDescription className="text-gray-400">
-            Share your referral link. When your friends complete KYC, you'll earn trust score points!
+            Share your referral link. When your friends complete KYC, you&apos;ll earn trust score points!
           </DialogDescription>
         </DialogHeader>
 
@@ -164,7 +164,7 @@ export const InviteUserModal: React.FC<InviteUserModalProps> = ({ isOpen, onClos
           <div className="space-y-2 bg-blue-900/20 border border-blue-600/30 rounded-lg p-4">
             <Label className="text-blue-300">Or Pre-Register a Friend (Advanced)</Label>
             <p className="text-xs text-gray-400 mb-2">
-              If you know your friend's wallet address, you can pre-register them on-chain.
+              If you know your friend&apos;s wallet address, you can pre-register them on-chain.
               They must then complete KYC to finalize the referral.
             </p>
             <div className="flex gap-2">

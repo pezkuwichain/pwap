@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
   Vote, Users, Gavel, FileText, TrendingUpIcon,
-  Clock, CheckCircle, XCircle, AlertCircle,
-  BarChart3, PieChart, Activity, Shield
+  CheckCircle,
+  PieChart, Activity, Shield
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';

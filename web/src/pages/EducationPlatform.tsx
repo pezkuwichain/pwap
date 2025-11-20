@@ -8,7 +8,7 @@ import { StudentDashboard } from '@/components/perwerde/StudentDashboard';
 import { CourseCreator } from '@/components/perwerde/CourseCreator';
 import { getStudentEnrollments, type Enrollment } from '@shared/lib/perwerde';
 import { toast } from 'sonner';
-import { AsyncComponent, LoadingState } from '@shared/components/AsyncComponent';
+// import { AsyncComponent, LoadingState } from '@shared/components/AsyncComponent';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 

@@ -66,6 +66,7 @@ export function useForum() {
 
   useEffect(() => {
     fetchForumData();
+     
 
     // Subscribe to real-time updates
     const discussionsSubscription = supabase

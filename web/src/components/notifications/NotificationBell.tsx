@@ -31,6 +31,7 @@ export default function NotificationBell() {
   useEffect(() => {
     if (user) {
       loadNotifications();
+     
       subscribeToNotifications();
     }
   }, [user]);

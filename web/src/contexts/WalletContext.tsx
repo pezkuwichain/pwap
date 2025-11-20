@@ -29,7 +29,7 @@ interface WalletContextType {
   connectWallet: () => Promise<void>;
   disconnect: () => void;
   switchAccount: (account: InjectedAccountWithMeta) => void;
-  signTransaction: (tx: any) => Promise<string>;
+  signTransaction: (tx: unknown) => Promise<string>;
   signMessage: (message: string) => Promise<string>;
   refreshBalances: () => Promise<void>;  // Refresh all token balances
 }
@@ -139,9 +139,10 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     try {
       setError(null);
       await polkadot.connectWallet();
-    } catch (err: any) {
+    } catch (err) {
       console.error('Wallet connection failed:', err);
-      setError(err.message || WALLET_ERRORS.CONNECTION_FAILED);
+      const errorMessage = err instanceof Error ? err.message : WALLET_ERRORS.CONNECTION_FAILED;
+      setError(errorMessage);
     }
   }, [polkadot]);
 
@@ -158,7 +159,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }, [polkadot]);
 
   // Sign and submit transaction
-  const signTransaction = useCallback(async (tx: any): Promise<string> => {
+  const signTransaction = useCallback(async (tx: unknown): Promise<string> => {
     if (!polkadot.api || !polkadot.selectedAccount) {
       throw new Error(WALLET_ERRORS.API_NOT_READY);
     }
@@ -174,9 +175,9 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       );
 
       return hash.toHex();
-    } catch (error: any) {
+    } catch (error) {
       console.error('Transaction failed:', error);
-      throw new Error(error.message || WALLET_ERRORS.TRANSACTION_FAILED);
+      throw new Error(error instanceof Error ? error.message : WALLET_ERRORS.TRANSACTION_FAILED);
     }
   }, [polkadot.api, polkadot.selectedAccount]);
 
@@ -201,9 +202,9 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       });
 
       return signature;
-    } catch (error: any) {
+    } catch (error) {
       console.error('Message signing failed:', error);
-      throw new Error(error.message || 'Failed to sign message');
+      throw new Error(error instanceof Error ? error.message : 'Failed to sign message');
     }
   }, [polkadot.selectedAccount]);
 

@@ -310,7 +310,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                 </Button>
                 
                 <div className="text-sm text-gray-400 text-center">
-                  Don't have Polkadot.js?{' '}
+                  Don&apos;t have Polkadot.js?{' '}
                   <a
                     href="https://polkadot.js.org/extension/"
                     target="_blank"

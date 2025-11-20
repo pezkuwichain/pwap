@@ -53,7 +53,9 @@ export const ReservesDashboard: React.FC<ReservesDashboardProps> = ({
     // Auto-refresh every 30 seconds
     const interval = setInterval(fetchReserveData, 30000);
     return () => clearInterval(interval);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [api, isApiReady, offChainReserve]);
+     
 
   const getHealthColor = () => {
     if (collateralRatio >= 105) return 'text-green-500';

@@ -205,17 +205,17 @@ const ChainSpecs: React.FC = () => {
             <div>
               <h4 className="text-lg font-semibold text-white mb-4">Connection Example</h4>
               <div className="bg-gray-900 rounded-lg p-4 font-mono text-sm">
-                <div className="text-gray-400 mb-2">// Using @polkadot/api</div>
+                <div className="text-gray-400 mb-2">{`// Using @polkadot/api`}</div>
                 <div className="text-cyan-400">import</div>
                 <div className="text-white ml-2">{'{ ApiPromise, WsProvider }'}</div>
                 <div className="text-cyan-400">from</div>
-                <div className="text-green-400 mb-3">'@polkadot/api';</div>
+                <div className="text-green-400 mb-3">&apos;@polkadot/api&apos;;</div>
                 
                 <div className="text-cyan-400">const</div>
                 <div className="text-white ml-2">provider =</div>
                 <div className="text-cyan-400 ml-2">new</div>
                 <div className="text-yellow-400 ml-2">WsProvider(</div>
-                <div className="text-green-400 ml-4">'{selectedSpec.endpoint}'</div>
+                <div className="text-green-400 ml-4">&apos;{selectedSpec.endpoint}&apos;</div>
                 <div className="text-yellow-400">);</div>
                 
                 <div className="text-cyan-400 mt-2">const</div>

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { usePolkadot } from '@/contexts/PolkadotContext';
-import { Loader2, ThumbsUp, ThumbsDown, CheckCircle, Clock, RefreshCw } from 'lucide-react';
+import { Loader2, ThumbsUp, ThumbsDown, Clock, RefreshCw } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -22,7 +22,7 @@ interface Proposal {
   ayes: string[];
   nays: string[];
   end: number;
-  call?: any;
+  call?: unknown;
 }
 
 export function CommissionVotingTab() {
@@ -41,7 +41,9 @@ export function CommissionVotingTab() {
 
     checkMembership();
     loadProposals();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [api, isApiReady, selectedAccount]);
+     
 
   const checkMembership = async () => {
     if (!api || !selectedAccount) {
@@ -99,14 +101,14 @@ export function CommissionVotingTab() {
           }
 
           // Get the actual proposal index from the chain
-          const proposalIndex = (voteData as any).index?.toNumber() || i;
+          const proposalIndex = (voteData as Record<string, unknown>).index?.toNumber() || i;
 
           proposalList.push({
             hash: hash.toHex(),
             proposalIndex: proposalIndex,
             threshold: voteData.threshold.toNumber(),
-            ayes: voteData.ayes.map((a: any) => a.toString()),
-            nays: voteData.nays.map((n: any) => n.toString()),
+            ayes: voteData.ayes.map((a: { toString: () => string }) => a.toString()),
+            nays: voteData.nays.map((n: { toString: () => string }) => n.toString()),
             end: voteData.end.toNumber(),
             call: proposalCall?.toHuman(),
           });
@@ -219,7 +221,7 @@ export function CommissionVotingTab() {
           console.error('Failed to sign and send:', error);
           toast({
             title: 'Transaction Error',
-            description: error.message || 'Failed to submit transaction',
+            description: error instanceof Error ? error.message : 'Failed to submit transaction',
             variant: 'destructive',
           });
           reject(error);
@@ -231,11 +233,11 @@ export function CommissionVotingTab() {
         loadProposals();
       }, 2000);
 
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error voting:', error);
       toast({
         title: 'Error',
-        description: error.message || 'Failed to vote',
+        description: error instanceof Error ? error.message : 'Failed to vote',
         variant: 'destructive',
       });
     } finally {
@@ -347,7 +349,7 @@ export function CommissionVotingTab() {
           console.error('Failed to sign and send:', error);
           toast({
             title: 'Transaction Error',
-            description: error.message || 'Failed to submit transaction',
+            description: error instanceof Error ? error.message : 'Failed to submit transaction',
             variant: 'destructive',
           });
           reject(error);
@@ -358,11 +360,11 @@ export function CommissionVotingTab() {
         loadProposals();
       }, 2000);
 
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error executing:', error);
       toast({
         title: 'Error',
-        description: error.message || 'Failed to execute proposal',
+        description: error instanceof Error ? error.message : 'Failed to execute proposal',
         variant: 'destructive',
       });
     } finally {
@@ -370,7 +372,7 @@ export function CommissionVotingTab() {
     }
   };
 
-  const getProposalDescription = (call: any): string => {
+  const getProposalDescription = (call: Record<string, unknown>): string => {
     if (!call) return 'Unknown proposal';
 
     try {
@@ -479,10 +481,10 @@ export function CommissionVotingTab() {
             }
           }
         );
-      } catch (error: any) {
+      } catch (error) {
         toast({
           title: 'Error',
-          description: error.message || 'Failed to join commission',
+          description: error instanceof Error ? error.message : 'Failed to join commission',
           variant: 'destructive',
         });
       }

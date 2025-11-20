@@ -23,7 +23,7 @@ export default function PasswordReset() {
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('password-reset', {
+      const { error } = await supabase.functions.invoke('password-reset', {
         body: { action: 'request', email }
       });
 
@@ -35,10 +35,10 @@ export default function PasswordReset() {
       });
       
       setEmail('');
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: "Error",
-        description: error.message || "Failed to send reset email",
+        description: error instanceof Error ? error.message : "Failed to send reset email",
         variant: "destructive"
       });
     } finally {
@@ -70,7 +70,7 @@ export default function PasswordReset() {
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('password-reset', {
+      const { error } = await supabase.functions.invoke('password-reset', {
         body: { action: 'reset', token, newPassword: password }
       });
 
@@ -82,10 +82,10 @@ export default function PasswordReset() {
       });
       
       navigate('/login');
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: "Error",
-        description: error.message || "Failed to reset password",
+        description: error instanceof Error ? error.message : "Failed to reset password",
         variant: "destructive"
       });
     } finally {

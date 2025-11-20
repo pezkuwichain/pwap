@@ -4,10 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { InviteUserModal } from './InviteUserModal';
 import { Users, UserPlus, Trophy, Award, Loader2 } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
 
 export const ReferralDashboard: React.FC = () => {
-  const { t } = useTranslation();
   const { stats, myReferrals, loading } = useReferral();
   const [showInviteModal, setShowInviteModal] = useState(false);
 

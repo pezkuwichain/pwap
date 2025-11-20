@@ -2,7 +2,6 @@ import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { usePolkadot } from '@/contexts/PolkadotContext';
@@ -10,8 +9,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useDashboard } from '@/contexts/DashboardContext';
 import { FileText, Building2, Home, Bell, ChevronLeft, ChevronRight, Upload, User, Sun, ShieldCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getCitizenSession } from '@pezkuwi/lib/citizenship-workflow';
-import { getUserRoleCategories, getTikiDisplayName } from '@pezkuwi/lib/tiki';
+// import { getCitizenSession } from '@pezkuwi/lib/citizenship-workflow';
+import { getUserRoleCategories } from '@pezkuwi/lib/tiki';
 import { supabase } from '@/lib/supabase';
 
 // Mock announcements data
@@ -41,7 +40,7 @@ export default function Citizens() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { profile, nftDetails, kycStatus, citizenNumber, loading } = useDashboard();
+  const { profile, nftDetails, citizenNumber, loading } = useDashboard();
   const [currentAnnouncementIndex, setCurrentAnnouncementIndex] = useState(0);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
@@ -117,12 +116,12 @@ export default function Citizens() {
       };
 
       reader.readAsDataURL(file);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Photo upload error:', error);
       setUploadingPhoto(false);
       toast({
         title: "Yükleme hatası (Upload error)",
-        description: error.message || "Fotoğraf yüklenemedi (Could not upload photo)",
+        description: error instanceof Error ? error.message : "Fotoğraf yüklenemedi (Could not upload photo)",
         variant: "destructive"
       });
     }
@@ -253,6 +252,7 @@ export default function Citizens() {
     business: [],
     judicial: []
   };
+  console.log('Role categories:', roleCategories);
 
   const currentAnnouncement = announcements[currentAnnouncementIndex];
 
@@ -409,7 +409,7 @@ export default function Citizens() {
                     <div className="text-[10px] font-bold text-black truncate">{profile?.full_name || 'N/A'}</div>
                   </div>
                   <div className="px-2 py-0.5" style={{ marginTop: '30px' }}>
-                    <div className="text-[7px] text-gray-600 uppercase tracking-wide">Father's Name</div>
+                    <div className="text-[7px] text-gray-600 uppercase tracking-wide">Father&apos;s Name</div>
                     <div className="text-[10px] font-bold text-black truncate">{profile?.father_name || 'N/A'}</div>
                   </div>
                   <div className="px-2 py-0.5" style={{ marginTop: '27px' }}>

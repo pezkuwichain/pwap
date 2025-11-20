@@ -60,9 +60,9 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
         // LP token ID is derived from pool ID
         // For now, we'll query the pool's LP token supply
         // In a real implementation, you'd need to query the specific LP token for the user
-        const lpAssetId = api.query.assetConversion.nextPoolAssetId
-          ? await api.query.assetConversion.nextPoolAssetId()
-          : null;
+        if (api.query.assetConversion.nextPoolAssetId) {
+          await api.query.assetConversion.nextPoolAssetId();
+        }
 
         // This is a simplified version - you'd need to track LP tokens properly
         setLpTokenBalance('0'); // Placeholder
@@ -153,9 +153,9 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
           }
         }
       );
-    } catch (error: any) {
+    } catch (error) {
       console.error('Remove liquidity failed:', error);
-      setErrorMessage(error.message || 'Transaction failed');
+      setErrorMessage(error instanceof Error ? error.message : 'Transaction failed');
       setTxStatus('error');
     }
   };
@@ -190,7 +190,7 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
           <div className="flex items-start gap-2 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
             <Info className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
             <span className="text-sm text-blue-400">
-              Remove liquidity to receive your tokens back. You'll burn LP tokens in proportion to your withdrawal.
+              Remove liquidity to receive your tokens back. You&apos;ll burn LP tokens in proportion to your withdrawal.
             </span>
           </div>
 

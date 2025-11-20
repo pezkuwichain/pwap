@@ -41,7 +41,7 @@ export const ExistingCitizenAuth: React.FC<ExistingCitizenAuthProps> = ({ onClos
       const isValid = await verifyCitizenNumber(api, citizenNumber, selectedAccount.address);
 
       if (!isValid) {
-        setError(`Invalid Citizen Number or it doesn't match your wallet`);
+        setError(`Invalid Citizen Number or it doesn&apos;t match your wallet`);
         setStep('error');
         return;
       }
@@ -50,7 +50,7 @@ export const ExistingCitizenAuth: React.FC<ExistingCitizenAuthProps> = ({ onClos
       const authChallenge = generateAuthChallenge(citizenNumber);
       setChallenge(authChallenge);
       setStep('signing');
-    } catch (err) {
+    } catch {
       console.error('Verification error:', err);
       setError('Failed to verify Citizen Number');
       setStep('error');
@@ -96,7 +96,7 @@ export const ExistingCitizenAuth: React.FC<ExistingCitizenAuthProps> = ({ onClos
         onClose();
         window.location.href = '/citizens';
       }, 2000);
-    } catch (err) {
+    } catch {
       console.error('Signature error:', err);
       setError('Failed to sign authentication challenge');
       setStep('error');
@@ -106,7 +106,7 @@ export const ExistingCitizenAuth: React.FC<ExistingCitizenAuthProps> = ({ onClos
   const handleConnectWallet = async () => {
     try {
       await connectWallet();
-    } catch (err) {
+    } catch {
       setError('Failed to connect wallet');
     }
   };

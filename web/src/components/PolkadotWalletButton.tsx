@@ -13,17 +13,16 @@ import { Wallet, Check, ExternalLink, Copy, LogOut } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export const PolkadotWalletButton: React.FC = () => {
-  const { 
-    accounts, 
-    selectedAccount, 
-    setSelectedAccount, 
-    connectWallet, 
+  const {
+    accounts,
+    selectedAccount,
+    setSelectedAccount,
+    connectWallet,
     disconnectWallet,
-    error 
+    error
   } = usePolkadot();
-  
+
   const [isOpen, setIsOpen] = useState(false);
-  const [balance, setBalance] = useState<string>('0');
   const { toast } = useToast();
 
   const handleConnect = async () => {
@@ -205,7 +204,7 @@ export const PolkadotWalletButton: React.FC = () => {
               </div>
 
               <p className="text-xs text-gray-500">
-                After installing, refresh this page and click "Connect Wallet" again.
+                After installing, refresh this page and click &quot;Connect Wallet&quot; again.
               </p>
             </div>
           </DialogContent>
