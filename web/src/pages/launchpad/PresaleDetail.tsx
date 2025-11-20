@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import { usePolkadot } from '@/contexts/PolkadotContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -13,7 +12,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Loader2,
   ArrowLeft,
-  TrendingUp,
   Users,
   Clock,
   Target,
@@ -24,14 +22,27 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
+interface PresaleData {
+  owner: string;
+  paymentAsset: number;
+  rewardAsset: number;
+  tokensForSale: string;
+  startBlock: number;
+  endBlock: number;
+  status: { Active?: null; Finalized?: null; Cancelled?: null };
+  isWhitelist: boolean;
+  minContribution: string;
+  maxContribution: string;
+  hardCap: string;
+}
+
 export default function PresaleDetail() {
   const { id } = useParams();
-  const { t } = useTranslation();
   const { api, selectedAccount, isApiReady } = usePolkadot();
   const { balances } = useWallet();
   const navigate = useNavigate();
 
-  const [presale, setPresale] = useState<any>(null);
+  const [presale, setPresale] = useState<PresaleData | null>(null);
   const [loading, setLoading] = useState(true);
   const [contributing, setContributing] = useState(false);
   const [refunding, setRefunding] = useState(false);
@@ -40,14 +51,6 @@ export default function PresaleDetail() {
   const [currentBlock, setCurrentBlock] = useState(0);
   const [totalRaised, setTotalRaised] = useState('0');
   const [contributorsCount, setContributorsCount] = useState(0);
-
-  useEffect(() => {
-    if (isApiReady && id) {
-      loadPresaleData();
-      const interval = setInterval(loadPresaleData, 10000);
-      return () => clearInterval(interval);
-    }
-  }, [api, selectedAccount, isApiReady, id]);
 
   const loadPresaleData = async () => {
     if (!api || !id) return;
@@ -58,35 +61,46 @@ export default function PresaleDetail() {
 
       const presaleData = await api.query.presale.presales(parseInt(id));
 
-      if (presaleData.isNone) {
-        toast.error('Presale not found');
-        navigate('/launchpad');
-        return;
+      if (presaleData.isSome) {
+        const data = presaleData.unwrap().toJSON() as PresaleData;
+        setPresale(data);
+
+        const raised = await api.query.presale.totalRaised(parseInt(id));
+        setTotalRaised((raised.toString() / 1_000_000).toFixed(2));
+
+        const contributors = await api.query.presale.contributors(parseInt(id));
+        if (contributors.isSome) {
+          const contributorsList = contributors.unwrap();
+          setContributorsCount(contributorsList.length);
+        }
+
+        if (selectedAccount) {
+          const contribution = await api.query.presale.contributions(
+            parseInt(id),
+            selectedAccount.address
+          );
+          if (contribution.isSome) {
+            const contrib = contribution.unwrap();
+            setMyContribution((contrib.amount.toString() / 1_000_000).toFixed(2));
+          }
+        }
       }
 
-      const presaleInfo = presaleData.unwrap();
-      setPresale(presaleInfo.toHuman());
-
-      const raised = await api.query.presale.totalRaised(parseInt(id));
-      setTotalRaised(raised.toString());
-
-      const contributors = await api.query.presale.contributors(parseInt(id));
-      setContributorsCount(contributors.length);
-
-      if (selectedAccount) {
-        const contribution = await api.query.presale.contributions(
-          parseInt(id),
-          selectedAccount.address
-        );
-        setMyContribution(contribution.toString());
-      }
+      setLoading(false);
     } catch (error) {
-      console.error('Error loading presale:', error);
-      toast.error('Failed to load presale data');
-    } finally {
+      console.error('Load presale error:', error);
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (isApiReady && id) {
+      loadPresaleData();
+      const interval = setInterval(loadPresaleData, 10000);
+      return () => clearInterval(interval);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [api, selectedAccount, isApiReady, id]);
 
   const handleContribute = async () => {
     if (!api || !selectedAccount || !amount || !id) return;
@@ -122,9 +136,9 @@ export default function PresaleDetail() {
           setContributing(false);
         }
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error('Contribution error:', error);
-      toast.error(error.message || 'Failed to contribute');
+      toast.error((error as Error).message || 'Failed to contribute');
       setContributing(false);
     }
   };
@@ -154,9 +168,9 @@ export default function PresaleDetail() {
           setRefunding(false);
         }
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error('Refund error:', error);
-      toast.error(error.message || 'Failed to refund');
+      toast.error((error as Error).message || 'Failed to refund');
       setRefunding(false);
     }
   };

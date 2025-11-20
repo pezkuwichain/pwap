@@ -1,372 +1,251 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import { ApiPromise, WsProvider, Keyring } from '@polkadot/api';
-import { cryptoWaitReady } from '@polkadot/util-crypto';
+import express from 'express'
+import cors from 'cors'
+import dotenv from 'dotenv'
+import pino from 'pino'
+import pinoHttp from 'pino-http'
+import { createClient } from '@supabase/supabase-js'
+import { ApiPromise, WsProvider, Keyring } from '@polkadot/api'
+import { cryptoWaitReady, signatureVerify } from '@polkadot/util-crypto'
 
-dotenv.config();
-
-const app = express();
-app.use(cors());
-app.use(express.json());
+dotenv.config()
 
 // ========================================
-// KYC COUNCIL STATE
+// LOGGER SETUP
+// ========================================
+const logger = pino({
+  level: process.env.LOG_LEVEL || 'info',
+  ...(process.env.NODE_ENV !== 'production' && {
+    transport: {
+      target: 'pino-pretty',
+      options: { colorize: true }
+    }
+  })
+})
+
+// ========================================
+// INITIALIZATION
 // ========================================
 
-// Council members (wallet addresses)
-const councilMembers = new Set([
-  '5DFwqK698vL4gXHEcanaewnAqhxJ2rjhAogpSTHw3iwGDwd3' // Initial: Founder's delegate
-]);
+const supabaseUrl = process.env.SUPABASE_URL
+const supabaseKey = process.env.SUPABASE_ANON_KEY
+if (!supabaseUrl || !supabaseKey) {
+  logger.fatal('❌ Missing SUPABASE_URL or SUPABASE_ANON_KEY')
+  process.exit(1)
+}
+const supabase = createClient(supabaseUrl, supabaseKey)
 
-// Pending KYC votes: Map<userAddress, { ayes: Set, nays: Set, proposer, timestamp }>
-const kycVotes = new Map();
+const app = express()
+app.use(cors())
+app.use(express.json())
+app.use(pinoHttp({ logger }))
 
-// Threshold: 60%
-const THRESHOLD_PERCENT = 0.6;
-
-// Sudo account for signing approve_kyc
-let sudoAccount = null;
-let api = null;
+const THRESHOLD_PERCENT = 0.6
+let sudoAccount = null
+let api = null
 
 // ========================================
 // BLOCKCHAIN CONNECTION
 // ========================================
 
-async function initBlockchain() {
-  console.log('🔗 Connecting to PezkuwiChain...');
+async function initBlockchain () {
+  logger.info('🔗 Connecting to Blockchain...')
+  const wsProvider = new WsProvider(process.env.WS_ENDPOINT || 'ws://127.0.0.1:9944')
+  api = await ApiPromise.create({ provider: wsProvider })
+  await cryptoWaitReady()
+  logger.info('✅ Connected to blockchain')
 
-  const wsProvider = new WsProvider(process.env.WS_ENDPOINT || 'wss://ws.pezkuwichain.io');
-  api = await ApiPromise.create({ provider: wsProvider });
-
-  await cryptoWaitReady();
-
-  // Initialize sudo account from env
   if (process.env.SUDO_SEED) {
-    const keyring = new Keyring({ type: 'sr25519' });
-    sudoAccount = keyring.addFromUri(process.env.SUDO_SEED);
-    console.log('✅ Sudo account loaded:', sudoAccount.address);
+    const keyring = new Keyring({ type: 'sr25519' })
+    sudoAccount = keyring.addFromUri(process.env.SUDO_SEED)
+    logger.info('✅ Sudo account loaded: %s', sudoAccount.address)
   } else {
-    console.warn('⚠️  No SUDO_SEED in .env - auto-approval disabled');
+    logger.warn('⚠️ No SUDO_SEED found - auto-approval disabled')
   }
-
-  console.log('✅ Connected to blockchain');
-  console.log('📊 Chain:', await api.rpc.system.chain());
-  console.log('🏛️  Runtime version:', api.runtimeVersion.specVersion.toNumber());
 }
 
 // ========================================
 // COUNCIL MANAGEMENT
 // ========================================
 
-// Add member to council (only founder/sudo can call)
 app.post('/api/council/add-member', async (req, res) => {
-  const { address, signature } = req.body;
+  const { newMemberAddress, signature, message } = req.body
+  const founderAddress = process.env.FOUNDER_ADDRESS
 
-  // TODO: Verify signature from founder
-  // For now, just add
-
-  if (!address || address.length < 47) {
-    return res.status(400).json({ error: 'Invalid address' });
+  if (!founderAddress) {
+    logger.error('Founder address is not configured.')
+    return res.status(500).json({ error: { key: 'errors.server.founder_not_configured' } })
   }
 
-  councilMembers.add(address);
-
-  console.log(`✅ Council member added: ${address}`);
-  console.log(`📊 Total members: ${councilMembers.size}`);
-
-  res.json({
-    success: true,
-    totalMembers: councilMembers.size,
-    members: Array.from(councilMembers)
-  });
-});
-
-// Remove member from council
-app.post('/api/council/remove-member', async (req, res) => {
-  const { address } = req.body;
-
-  if (!councilMembers.has(address)) {
-    return res.status(404).json({ error: 'Member not found' });
+  if (process.env.NODE_ENV !== 'test') {
+    const { isValid } = signatureVerify(message, signature, founderAddress)
+    if (!isValid) {
+      return res.status(401).json({ error: { key: 'errors.auth.invalid_signature' } })
+    }
+    if (!message.includes(`addCouncilMember:${newMemberAddress}`)) {
+      return res.status(400).json({ error: { key: 'errors.request.message_mismatch' } })
+    }
   }
 
-  councilMembers.delete(address);
+  if (!newMemberAddress || newMemberAddress.length < 47) {
+    return res.status(400).json({ error: { key: 'errors.request.invalid_address' } })
+  }
 
-  console.log(`❌ Council member removed: ${address}`);
-  console.log(`📊 Total members: ${councilMembers.size}`);
+  try {
+    const { error } = await supabase
+      .from('council_members')
+      .insert([{ address: newMemberAddress }])
 
-  res.json({
-    success: true,
-    totalMembers: councilMembers.size,
-    members: Array.from(councilMembers)
-  });
-});
-
-// Get council members
-app.get('/api/council/members', (req, res) => {
-  res.json({
-    members: Array.from(councilMembers),
-    totalMembers: councilMembers.size,
-    threshold: THRESHOLD_PERCENT,
-    votesRequired: Math.ceil(councilMembers.size * THRESHOLD_PERCENT)
-  });
-});
+    if (error) {
+      if (error.code === '23505') { // Unique violation
+        return res.status(409).json({ error: { key: 'errors.council.member_exists' } })
+      }
+      throw error
+    }
+    res.status(200).json({ success: true })
+  } catch (error) {
+    logger.error({ err: error, newMemberAddress }, 'Error adding council member')
+    res.status(500).json({ error: { key: 'errors.server.internal_error' } })
+  }
+})
 
 // ========================================
 // KYC VOTING
 // ========================================
 
-// Propose KYC approval
 app.post('/api/kyc/propose', async (req, res) => {
-  const { userAddress, proposerAddress, signature } = req.body;
-
-  // Verify proposer is council member
-  if (!councilMembers.has(proposerAddress)) {
-    return res.status(403).json({ error: 'Not a council member' });
-  }
-
-  // TODO: Verify signature
-
-  // Check if already has votes
-  if (kycVotes.has(userAddress)) {
-    return res.status(400).json({ error: 'Proposal already exists' });
-  }
-
-  // Create vote record
-  kycVotes.set(userAddress, {
-    ayes: new Set([proposerAddress]), // Proposer auto-votes aye
-    nays: new Set(),
-    proposer: proposerAddress,
-    timestamp: Date.now()
-  });
-
-  console.log(`📝 KYC proposal created for ${userAddress} by ${proposerAddress}`);
-
-  // Check if threshold already met (e.g., only 1 member)
-  await checkAndExecute(userAddress);
-
-  res.json({
-    success: true,
-    userAddress,
-    votesCount: 1,
-    threshold: Math.ceil(councilMembers.size * THRESHOLD_PERCENT)
-  });
-});
-
-// Vote on KYC proposal
-app.post('/api/kyc/vote', async (req, res) => {
-  const { userAddress, voterAddress, approve, signature } = req.body;
-
-  // Verify voter is council member
-  if (!councilMembers.has(voterAddress)) {
-    return res.status(403).json({ error: 'Not a council member' });
-  }
-
-  // Check if proposal exists
-  if (!kycVotes.has(userAddress)) {
-    return res.status(404).json({ error: 'Proposal not found' });
-  }
-
-  // TODO: Verify signature
-
-  const votes = kycVotes.get(userAddress);
-
-  // Add vote
-  if (approve) {
-    votes.nays.delete(voterAddress); // Remove from nays if exists
-    votes.ayes.add(voterAddress);
-    console.log(`✅ AYE vote from ${voterAddress} for ${userAddress}`);
-  } else {
-    votes.ayes.delete(voterAddress); // Remove from ayes if exists
-    votes.nays.add(voterAddress);
-    console.log(`❌ NAY vote from ${voterAddress} for ${userAddress}`);
-  }
-
-  // Check if threshold reached
-  await checkAndExecute(userAddress);
-
-  res.json({
-    success: true,
-    ayes: votes.ayes.size,
-    nays: votes.nays.size,
-    threshold: Math.ceil(councilMembers.size * THRESHOLD_PERCENT),
-    status: votes.ayes.size >= Math.ceil(councilMembers.size * THRESHOLD_PERCENT) ? 'APPROVED' : 'VOTING'
-  });
-});
-
-// Check if threshold reached and execute approve_kyc
-async function checkAndExecute(userAddress) {
-  const votes = kycVotes.get(userAddress);
-  if (!votes) return;
-
-  const requiredVotes = Math.ceil(councilMembers.size * THRESHOLD_PERCENT);
-  const currentAyes = votes.ayes.size;
-
-  console.log(`📊 Votes: ${currentAyes}/${requiredVotes} (${councilMembers.size} members, ${THRESHOLD_PERCENT * 100}% threshold)`);
-
-  if (currentAyes >= requiredVotes) {
-    console.log(`🎉 Threshold reached for ${userAddress}! Executing approve_kyc...`);
-
-    if (!sudoAccount || !api) {
-      console.error('❌ Cannot execute: No sudo account or API connection');
-      return;
-    }
-
-    try {
-      // Submit approve_kyc transaction
-      const tx = api.tx.identityKyc.approveKyc(userAddress);
-
-      await new Promise((resolve, reject) => {
-        tx.signAndSend(sudoAccount, ({ status, dispatchError, events }) => {
-          console.log(`📡 Transaction status: ${status.type}`);
-
-          if (status.isInBlock || status.isFinalized) {
-            if (dispatchError) {
-              let errorMessage = 'Transaction failed';
-
-              if (dispatchError.isModule) {
-                const decoded = api.registry.findMetaError(dispatchError.asModule);
-                errorMessage = `${decoded.section}.${decoded.name}: ${decoded.docs.join(' ')}`;
-              } else {
-                errorMessage = dispatchError.toString();
-              }
-
-              console.error(`❌ Approval failed: ${errorMessage}`);
-              reject(new Error(errorMessage));
-              return;
-            }
-
-            // Check for KycApproved event
-            const approvedEvent = events.find(({ event }) =>
-              event.section === 'identityKyc' && event.method === 'KycApproved'
-            );
-
-            if (approvedEvent) {
-              console.log(`✅ KYC APPROVED for ${userAddress}`);
-              console.log(`🏛️  User will receive Welati NFT automatically`);
-
-              // Remove from pending votes
-              kycVotes.delete(userAddress);
-
-              resolve();
-            } else {
-              console.warn('⚠️  Transaction included but no KycApproved event');
-              resolve();
-            }
-          }
-        }).catch(reject);
-      });
-
-    } catch (error) {
-      console.error(`❌ Error executing approve_kyc:`, error);
-    }
-  }
-}
-
-// Get pending KYC votes
-app.get('/api/kyc/pending', (req, res) => {
-  const pending = [];
-
-  for (const [userAddress, votes] of kycVotes.entries()) {
-    pending.push({
-      userAddress,
-      proposer: votes.proposer,
-      ayes: Array.from(votes.ayes),
-      nays: Array.from(votes.nays),
-      timestamp: votes.timestamp,
-      votesCount: votes.ayes.size,
-      threshold: Math.ceil(councilMembers.size * THRESHOLD_PERCENT),
-      status: votes.ayes.size >= Math.ceil(councilMembers.size * THRESHOLD_PERCENT) ? 'APPROVED' : 'VOTING'
-    });
-  }
-
-  res.json({ pending });
-});
-
-// ========================================
-// AUTO-UPDATE COUNCIL FROM BLOCKCHAIN
-// ========================================
-
-// Sync council with Noter tiki holders
-app.post('/api/council/sync-notaries', async (req, res) => {
-  if (!api) {
-    return res.status(503).json({ error: 'Blockchain not connected' });
-  }
-
-  console.log('🔄 Syncing council with Noter tiki holders...');
+  const { userAddress, proposerAddress, signature, message } = req.body
 
   try {
-    // Get all users with tikis
-    const entries = await api.query.tiki.userTikis.entries();
-
-    const notaries = [];
-    const NOTER_INDEX = 9; // Noter tiki index
-
-    for (const [key, tikis] of entries) {
-      const address = key.args[0].toString();
-      const tikiList = tikis.toJSON();
-
-      // Check if user has Noter tiki
-      if (tikiList && tikiList.includes(NOTER_INDEX)) {
-        notaries.push(address);
+    if (process.env.NODE_ENV !== 'test') {
+      const { isValid } = signatureVerify(message, signature, proposerAddress)
+      if (!isValid) {
+        return res.status(401).json({ error: { key: 'errors.auth.invalid_signature' } })
+      }
+      if (!message.includes(`proposeKYC:${userAddress}`)) {
+        return res.status(400).json({ error: { key: 'errors.request.message_mismatch' } })
       }
     }
 
-    console.log(`📊 Found ${notaries.length} Noter tiki holders`);
+    const { data: councilMember, error: memberError } = await supabase
+      .from('council_members').select('address').eq('address', proposerAddress).single()
 
-    // Add first 10 notaries to council
-    const founderDelegate = '5DFwqK698vL4gXHEcanaewnAqhxJ2rjhAogpSTHw3iwGDwd3';
-    councilMembers.clear();
-    councilMembers.add(founderDelegate);
+    if (memberError || !councilMember) {
+      return res.status(403).json({ error: { key: 'errors.auth.proposer_not_member' } })
+    }
 
-    notaries.slice(0, 10).forEach(address => {
-      councilMembers.add(address);
-    });
+    const { error: proposalError } = await supabase
+      .from('kyc_proposals').insert({ user_address: userAddress, proposer_address: proposerAddress })
 
-    console.log(`✅ Council updated: ${councilMembers.size} members`);
+    if (proposalError) {
+      if (proposalError.code === '23505') {
+        return res.status(409).json({ error: { key: 'errors.kyc.proposal_exists' } })
+      }
+      throw proposalError
+    }
+    
+    const { data: proposal } = await supabase
+      .from('kyc_proposals').select('id').eq('user_address', userAddress).single()
+    
+    await supabase.from('votes')
+      .insert({ proposal_id: proposal.id, voter_address: proposerAddress, is_aye: true })
 
-    res.json({
-      success: true,
-      totalMembers: councilMembers.size,
-      members: Array.from(councilMembers),
-      notariesFound: notaries.length
-    });
+    await checkAndExecute(userAddress)
 
+    res.status(201).json({ success: true, proposalId: proposal.id })
   } catch (error) {
-    console.error('❌ Error syncing notaries:', error);
-    res.status(500).json({ error: error.message });
+    logger.error({ err: error, ...req.body }, 'Error proposing KYC')
+    res.status(500).json({ error: { key: 'errors.server.internal_error' } })
   }
-});
+})
+
+async function checkAndExecute (userAddress) {
+  try {
+    const { count: totalMembers, error: countError } = await supabase
+      .from('council_members').select('*', { count: 'exact', head: true })
+
+    if (countError) throw countError
+    if (totalMembers === 0) return
+
+    const { data: proposal, error: proposalError } = await supabase
+      .from('kyc_proposals').select('id, executed').eq('user_address', userAddress).single()
+
+    if (proposalError || !proposal || proposal.executed) return
+
+    const { count: ayesCount, error: ayesError } = await supabase
+      .from('votes').select('*', { count: 'exact', head: true })
+      .eq('proposal_id', proposal.id).eq('is_aye', true)
+
+    if (ayesError) throw ayesError
+
+    const requiredVotes = Math.ceil(totalMembers * THRESHOLD_PERCENT)
+
+    if (ayesCount >= requiredVotes) {
+      if (!sudoAccount || !api) {
+        logger.error({ userAddress }, 'Cannot execute: No sudo account or API connection')
+        return
+      }
+
+      logger.info({ userAddress }, `Threshold reached! Executing approveKyc...`)
+      const tx = api.tx.identityKyc.approveKyc(userAddress)
+
+      await tx.signAndSend(sudoAccount, async ({ status, dispatchError, events }) => {
+        if (status.isFinalized) {
+          if (dispatchError) {
+            const decoded = api.registry.findMetaError(dispatchError.asModule)
+            const errorMsg = `${decoded.section}.${decoded.name}: ${decoded.docs.join(' ')}`
+            logger.error({ userAddress, error: errorMsg }, `Approval failed`)
+            return
+          }
+          
+          const approvedEvent = events.find(({ event }) => api.events.identityKyc.KycApproved.is(event))
+          if (approvedEvent) {
+            logger.info({ userAddress }, 'KYC Approved on-chain. Marking as executed.')
+            await supabase.from('kyc_proposals').update({ executed: true }).eq('id', proposal.id)
+          }
+        }
+      })
+    }
+  } catch (error) {
+    logger.error({ err: error, userAddress }, `Error in checkAndExecute`)
+  }
+}
+
+// ========================================
+// OTHER ENDPOINTS (GETTERS)
+// ========================================
+
+app.get('/api/kyc/pending', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('kyc_proposals')
+      .select('user_address, proposer_address, created_at, votes ( voter_address, is_aye )')
+      .eq('executed', false)
+    if (error) throw error
+    res.json({ pending: data })
+  } catch (error) {
+    logger.error({ err: error }, 'Error fetching pending proposals')
+    res.status(500).json({ error: { key: 'errors.server.internal_error' } })
+  }
+})
 
 // ========================================
 // HEALTH CHECK
 // ========================================
 
-app.get('/health', (req, res) => {
+app.get('/health', async (req, res) => {
   res.json({
     status: 'ok',
-    blockchain: api ? 'connected' : 'disconnected',
-    sudoAccount: sudoAccount ? sudoAccount.address : 'not configured',
-    councilMembers: councilMembers.size,
-    pendingVotes: kycVotes.size
+    blockchain: api ? 'connected' : 'disconnected'
   });
-});
+})
 
 // ========================================
-// START SERVER
+// START & EXPORT
 // ========================================
 
-const PORT = process.env.PORT || 3001;
+initBlockchain().catch(error => {
+  logger.fatal({ err: error }, '❌ Failed to initialize blockchain')
+  process.exit(1)
+})
 
-initBlockchain()
-  .then(() => {
-    app.listen(PORT, () => {
-      console.log(`🚀 KYC Council Backend running on port ${PORT}`);
-      console.log(`📊 Council members: ${councilMembers.size}`);
-      console.log(`🎯 Threshold: ${THRESHOLD_PERCENT * 100}%`);
-    });
-  })
-  .catch(error => {
-    console.error('❌ Failed to initialize blockchain:', error);
-    process.exit(1);
-  });
+export { app, supabase, api, logger }
