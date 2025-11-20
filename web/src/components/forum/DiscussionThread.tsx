@@ -4,8 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ThumbsUp, ThumbsDown, MessageSquare, Shield, Award, TrendingUp, AlertTriangle, MoreVertical, Flag, Edit, Trash2, Loader2 } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { ThumbsUp, ThumbsDown, MessageSquare, Shield, MoreVertical, Flag, Edit, Trash2 } from 'lucide-react';
+// import { useTranslation } from 'react-i18next';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useWebSocket } from '@/contexts/WebSocketContext';
 import { useToast } from '@/hooks/use-toast';
@@ -27,10 +27,8 @@ interface Comment {
 }
 
 export function DiscussionThread({ proposalId }: { proposalId: string }) {
-  const { t } = useTranslation();
   const { toast } = useToast();
   const { subscribe, unsubscribe, sendMessage, isConnected } = useWebSocket();
-  const [isLoading, setIsLoading] = useState(false);
   const [comments, setComments] = useState<Comment[]>([
     {
       id: '1',
@@ -83,7 +81,7 @@ export function DiscussionThread({ proposalId }: { proposalId: string }) {
 
   // WebSocket subscriptions for real-time updates
   useEffect(() => {
-    const handleNewComment = (data: any) => {
+    const handleNewComment = (data: Record<string, unknown>) => {
       const newComment: Comment = {
         ...data,
         isLive: true,
@@ -103,7 +101,7 @@ export function DiscussionThread({ proposalId }: { proposalId: string }) {
       setComments(prev => updateVoteCounts(prev, data.commentId, data.upvotes, data.downvotes));
     };
 
-    const handleSentimentUpdate = (data: { proposalId: string; sentiment: any }) => {
+    const handleSentimentUpdate = (data: { proposalId: string; sentiment: Record<string, unknown> }) => {
       if (data.proposalId === proposalId) {
         // Update sentiment visualization in parent component
         console.log('Sentiment updated:', data.sentiment);
@@ -119,7 +117,9 @@ export function DiscussionThread({ proposalId }: { proposalId: string }) {
       unsubscribe('vote', handleVoteUpdate);
       unsubscribe('sentiment', handleSentimentUpdate);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subscribe, unsubscribe, proposalId, toast]);
+     
 
   const updateVoteCounts = (comments: Comment[], targetId: string, upvotes: number, downvotes: number): Comment[] => {
     return comments.map(comment => {
@@ -154,6 +154,7 @@ export function DiscussionThread({ proposalId }: { proposalId: string }) {
         timestamp: Date.now(),
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [comments, isConnected, sendMessage, proposalId]);
 
   const findComment = (comments: Comment[], targetId: string): Comment | null => {

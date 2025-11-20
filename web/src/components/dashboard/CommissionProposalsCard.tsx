@@ -13,7 +13,7 @@ interface Proposal {
   ayes: string[];
   nays: string[];
   end: number;
-  call?: any;
+  call?: Record<string, unknown>;
 }
 
 export function CommissionProposalsCard() {
@@ -29,6 +29,7 @@ export function CommissionProposalsCard() {
     if (!api || !isApiReady) return;
     checkMembership();
     loadProposals();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [api, isApiReady, selectedAccount]);
 
   const checkMembership = async () => {
@@ -72,14 +73,14 @@ export function CommissionProposalsCard() {
           }
 
           // Get the actual proposal index from the chain
-          const proposalIndex = (voteData as any).index?.toNumber() || i;
+          const proposalIndex = (voteData as Record<string, unknown>).index?.toNumber() || i;
 
           proposalList.push({
             hash: hash.toHex(),
             proposalIndex: proposalIndex,
             threshold: voteData.threshold.toNumber(),
-            ayes: voteData.ayes.map((a: any) => a.toString()),
-            nays: voteData.nays.map((n: any) => n.toString()),
+            ayes: voteData.ayes.map((a: { toString: () => string }) => a.toString()),
+            nays: voteData.nays.map((n: { toString: () => string }) => n.toString()),
             end: voteData.end.toNumber(),
             call: proposalCall?.toHuman(),
           });
@@ -165,7 +166,7 @@ export function CommissionProposalsCard() {
         ).catch((error) => {
           toast({
             title: 'Transaction Error',
-            description: error.message || 'Failed to submit transaction',
+            description: error instanceof Error ? error.message : 'Failed to submit transaction',
             variant: 'destructive',
           });
           reject(error);
@@ -173,10 +174,10 @@ export function CommissionProposalsCard() {
       });
 
       setTimeout(() => loadProposals(), 2000);
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: 'Error',
-        description: error.message || 'Failed to vote',
+        description: error instanceof Error ? error.message : 'Failed to vote',
         variant: 'destructive',
       });
     } finally {
@@ -280,7 +281,7 @@ export function CommissionProposalsCard() {
         ).catch((error) => {
           toast({
             title: 'Transaction Error',
-            description: error.message || 'Failed to submit transaction',
+            description: error instanceof Error ? error.message : 'Failed to submit transaction',
             variant: 'destructive',
           });
           reject(error);
@@ -288,10 +289,10 @@ export function CommissionProposalsCard() {
       });
 
       setTimeout(() => loadProposals(), 2000);
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: 'Error',
-        description: error.message || 'Failed to execute proposal',
+        description: error instanceof Error ? error.message : 'Failed to execute proposal',
         variant: 'destructive',
       });
     } finally {

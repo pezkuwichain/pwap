@@ -8,10 +8,10 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { FileText, DollarSign, Code, Users, ChevronRight, ChevronLeft, Check } from 'lucide-react';
+import { DollarSign, Code, Users, ChevronRight, ChevronLeft, Check } from 'lucide-react';
 
 interface ProposalWizardProps {
-  onComplete: (proposal: any) => void;
+  onComplete: (proposal: Record<string, unknown>) => void;
   onCancel: () => void;
 }
 

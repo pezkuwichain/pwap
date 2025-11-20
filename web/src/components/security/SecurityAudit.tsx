@@ -3,8 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/lib/supabase';
-import { Shield, AlertTriangle, CheckCircle, XCircle, TrendingUp, Users, Key, Activity } from 'lucide-react';
-import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { Shield, AlertTriangle, CheckCircle, XCircle, Users, Key, Activity } from 'lucide-react';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 interface SecurityMetrics {
   totalUsers: number;
@@ -34,7 +34,7 @@ export function SecurityAudit() {
     securityScore: 0,
   });
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
-  const [loading, setLoading] = useState(true);
+  // const _loading = useState(true);
 
   useEffect(() => {
     loadSecurityData();

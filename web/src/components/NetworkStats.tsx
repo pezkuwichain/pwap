@@ -44,7 +44,7 @@ export const NetworkStats: React.FC = () => {
             try {
               const nominators = await api.query.staking.nominators.entries();
               nominatorCount = nominators.length;
-            } catch (err) {
+            } catch {
               console.warn('Staking pallet not available, nominators = 0');
             }
 

@@ -15,7 +15,7 @@ const SPECIFIC_ADDRESSES = {
 const ReservesDashboardPage = () => {
   const navigate = useNavigate();
   const [isBridgeOpen, setIsBridgeOpen] = useState(false);
-  const [offChainReserve, setOffChainReserve] = useState(10000); // Example: $10,000 USDT
+  const [offChainReserve] = useState(10000); // Example: $10,000 USDT
 
   return (
     <div className="min-h-screen bg-gray-950 pt-24 pb-12">

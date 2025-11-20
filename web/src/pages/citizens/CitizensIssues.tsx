@@ -16,7 +16,6 @@ import {
   Plus,
   ThumbsUp,
   ThumbsDown,
-  Filter,
   Search,
   MessageSquare,
   AlertCircle,
@@ -88,8 +87,8 @@ interface LegislationProposal {
 
 export default function CitizensIssues() {
   const { api, isApiReady, selectedAccount } = usePolkadot();
-  const { user } = useAuth();
-  const { nftDetails } = useDashboard();
+  const {} = useAuth();
+  const {} = useDashboard();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -100,8 +99,6 @@ export default function CitizensIssues() {
   const [issues, setIssues] = useState<Issue[]>([]);
   const [filteredIssues, setFilteredIssues] = useState<Issue[]>([]);
   const [userVotes, setUserVotes] = useState<Map<number, boolean>>(new Map());
-  const [categoryFilter, setCategoryFilter] = useState<string>('all');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [newIssueDescription, setNewIssueDescription] = useState('');
@@ -132,12 +129,15 @@ export default function CitizensIssues() {
   useEffect(() => {
     if (isApiReady && selectedAccount) {
       fetchAllData();
+     
     }
   }, [isApiReady, selectedAccount, activeTab]);
+     
 
   useEffect(() => {
     applyFilters();
-  }, [issues, categoryFilter, statusFilter, searchQuery]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [issues, categorystatussearchQuery]);
 
   const fetchAllData = async () => {
     setLoading(true);
@@ -327,6 +327,7 @@ export default function CitizensIssues() {
 
       candidatesEntries.forEach(([key, value]) => {
         const address = key.args[0].toString();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const candidateData: any = value.toJSON();
         candidates.push({
           address,
@@ -481,6 +482,7 @@ export default function CitizensIssues() {
 
       candidatesEntries.forEach(([key, value]) => {
         const address = key.args[0].toString();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const candidateData: any = value.toJSON();
         candidates.push({
           address,
@@ -636,6 +638,7 @@ export default function CitizensIssues() {
 
       proposalsEntries.forEach(([key, value]) => {
         const proposalId = key.args[0].toNumber();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const proposalData: any = value.toJSON();
         proposals.push({
           id: proposalId,

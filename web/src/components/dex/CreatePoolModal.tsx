@@ -212,9 +212,9 @@ export const CreatePoolModal: React.FC<CreatePoolModalProps> = ({
           }
         }
       );
-    } catch (error: any) {
+    } catch (error) {
       console.error('Pool creation failed:', error);
-      setErrorMessage(error.message || 'Transaction failed');
+      setErrorMessage(error instanceof Error ? error.message : 'Transaction failed');
       setTxStatus('error');
     }
   };

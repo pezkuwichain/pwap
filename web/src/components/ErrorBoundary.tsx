@@ -180,7 +180,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
 /**
  * Smaller error boundary for individual routes
- * Less intrusive, doesn't take over the whole screen
+ * Less intrusive, doesn&apos;t take over the whole screen
  */
 export const RouteErrorBoundary: React.FC<{
   children: ReactNode;

@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { usePolkadot } from '@/contexts/PolkadotContext';
 import { Loader2, Plus, CheckCircle, AlertTriangle, Shield } from 'lucide-react';
@@ -15,7 +14,6 @@ export function CommissionSetupTab() {
 
   const [loading, setLoading] = useState(true);
   const [commissionMembers, setCommissionMembers] = useState<string[]>([]);
-  const [proxyMembers, setProxyMembers] = useState<string[]>([]);
   const [setupComplete, setSetupComplete] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [newMemberAddress, setNewMemberAddress] = useState('');
@@ -23,7 +21,9 @@ export function CommissionSetupTab() {
   useEffect(() => {
     if (!api || !isApiReady) return;
     checkSetup();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [api, isApiReady]);
+     
 
   const checkSetup = async () => {
     if (!api) return;
@@ -35,7 +35,7 @@ export function CommissionSetupTab() {
       const memberList = members.toJSON() as string[];
 
       setCommissionMembers(memberList);
-      // Commission is initialized if there's at least one member
+      // Commission is initialized if there&apos;s at least one member
       setSetupComplete(memberList.length > 0);
 
       console.log('Commission members:', memberList);
@@ -149,11 +149,11 @@ export function CommissionSetupTab() {
           }
         );
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error adding member:', error);
       toast({
         title: 'Error',
-        description: error.message || 'Failed to add member',
+        description: error instanceof Error ? error.message : 'Failed to add member',
         variant: 'destructive',
       });
     } finally {
@@ -239,7 +239,7 @@ export function CommissionSetupTab() {
           console.error('Failed to sign and send:', error);
           toast({
             title: 'Transaction Error',
-            description: error.message || 'Failed to submit transaction',
+            description: error instanceof Error ? error.message : 'Failed to submit transaction',
             variant: 'destructive',
           });
           reject(error);
@@ -249,11 +249,11 @@ export function CommissionSetupTab() {
       // Reload setup status
       setTimeout(() => checkSetup(), 2000);
 
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error initializing commission:', error);
       toast({
         title: 'Error',
-        description: error.message || 'Failed to initialize commission',
+        description: error instanceof Error ? error.message : 'Failed to initialize commission',
         variant: 'destructive',
       });
     } finally {

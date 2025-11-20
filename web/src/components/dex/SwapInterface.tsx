@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { usePolkadot } from '@/contexts/PolkadotContext';
 import { useWallet } from '@/contexts/WalletContext';
-import { ArrowDownUp, AlertCircle, Loader2, CheckCircle, Info, Settings, AlertTriangle } from 'lucide-react';
+import { ArrowDownUp, AlertCircle, Loader2, Info, Settings, AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,7 +31,7 @@ const USER_TOKENS = [
   { symbol: 'USDT', emoji: '💵', assetId: 2, name: 'USDT', decimals: 6, displaySymbol: 'USDT' },
 ] as const;
 
-export const SwapInterface: React.FC<SwapInterfaceProps> = ({ initialPool, pools }) => {
+export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
   const { api, isApiReady } = usePolkadot();
   const { account, signer } = useWallet();
   const { toast } = useToast();
@@ -171,7 +171,6 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ initialPool, pools
 
   const handleSwapDirection = () => {
     const tempToken = fromToken;
-    const tempAmount = fromAmount;
     const tempBalance = fromBalance;
 
     setFromToken(toToken);
@@ -321,13 +320,13 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ initialPool, pools
           }
         }
       );
-    } catch (error: any) {
+    } catch (error) {
       console.error('Swap failed:', error);
-      setErrorMessage(error.message || 'Transaction failed');
+      setErrorMessage(error instanceof Error ? error.message : 'Transaction failed');
       setTxStatus('error');
       toast({
         title: 'Error',
-        description: error.message || 'Swap transaction failed',
+        description: error instanceof Error ? error.message : 'Swap transaction failed',
         variant: 'destructive',
       });
     }

@@ -8,7 +8,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Loader2, AlertTriangle, CheckCircle, User, Users as UsersIcon, MapPin, Briefcase, Mail, Clock, Check, X, AlertCircle } from 'lucide-react';
+import { Loader2, AlertTriangle, CheckCircle, User, Users as UsersIcon, MapPin, Briefcase, Mail, Check, X, AlertCircle } from 'lucide-react';
 import { usePolkadot } from '@/contexts/PolkadotContext';
 import type { CitizenshipData, Region, MaritalStatus } from '@pezkuwi/lib/citizenship-workflow';
 import { FOUNDER_ADDRESS, submitKycApplication, subscribeToKycApproval, getKycStatus } from '@pezkuwi/lib/citizenship-workflow';
@@ -31,7 +31,6 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
   const [kycApproved, setKycApproved] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [agreed, setAgreed] = useState(false);
-  const [checkingStatus, setCheckingStatus] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [applicationHash, setApplicationHash] = useState<string>('');
 
@@ -91,9 +90,9 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
         }
       });
 
-    } catch (err: any) {
+    } catch (err) {
       console.error('Approval error:', err);
-      setError(err.message || 'Failed to approve application');
+      setError((err as Error).message || 'Failed to approve application');
       setConfirming(false);
     }
   };
@@ -460,19 +459,19 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="fatherName">Navê Bavê Te (Father's Name) *</Label>
+            <Label htmlFor="fatherName">Navê Bavê Te (Father&apos;s Name) *</Label>
             <Input {...register('fatherName', { required: true })} placeholder="e.g., Şêrko" />
             {errors.fatherName && <p className="text-xs text-red-500">Required</p>}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="grandfatherName">Navê Bavkalê Te (Grandfather's Name) *</Label>
+            <Label htmlFor="grandfatherName">Navê Bavkalê Te (Grandfather&apos;s Name) *</Label>
             <Input {...register('grandfatherName', { required: true })} placeholder="e.g., Welat" />
             {errors.grandfatherName && <p className="text-xs text-red-500">Required</p>}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="motherName">Navê Dayika Te (Mother's Name) *</Label>
+            <Label htmlFor="motherName">Navê Dayika Te (Mother&apos;s Name) *</Label>
             <Input {...register('motherName', { required: true })} placeholder="e.g., Gula" />
             {errors.motherName && <p className="text-xs text-red-500">Required</p>}
           </div>
@@ -533,7 +532,7 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
 
               {childrenCount && childrenCount > 0 && (
                 <div className="space-y-3">
-                  <Label>Navên Zarokan (Children's Names)</Label>
+                  <Label>Navên Zarokan (Children&apos;s Names)</Label>
                   {Array.from({ length: childrenCount }).map((_, i) => (
                     <div key={i} className="grid grid-cols-2 gap-2">
                       <Input

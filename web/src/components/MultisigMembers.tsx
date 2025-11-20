@@ -17,12 +17,22 @@ interface MultisigMembersProps {
   showMultisigAddress?: boolean;
 }
 
+interface MultisigMember {
+  address: string;
+  displayName: string;
+  emoji: string;
+  role: string;
+  isTiki: boolean;
+  trustScore?: number;
+  balance?: string;
+}
+
 export const MultisigMembers: React.FC<MultisigMembersProps> = ({
   specificAddresses = {},
   showMultisigAddress = true,
 }) => {
   const { api, isApiReady } = usePolkadot();
-  const [members, setMembers] = useState<any[]>([]);
+  const [members, setMembers] = useState<MultisigMember[]>([]);
   const [multisigAddress, setMultisigAddress] = useState('');
   const [loading, setLoading] = useState(true);
 

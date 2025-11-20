@@ -181,9 +181,9 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
           }
         }
       );
-    } catch (error: any) {
+    } catch (error) {
       console.error('Add liquidity failed:', error);
-      setErrorMessage(error.message || 'Transaction failed');
+      setErrorMessage(error instanceof Error ? error.message : 'Transaction failed');
       setTxStatus('error');
     }
   };
@@ -238,7 +238,7 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
           <div className="flex items-start gap-2 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
             <Info className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
             <span className="text-sm text-blue-400">
-              Add liquidity in proportion to the pool's current ratio. You'll receive LP tokens representing your share.
+              Add liquidity in proportion to the pool&apos;s current ratio. You&apos;ll receive LP tokens representing your share.
             </span>
           </div>
 

@@ -17,7 +17,7 @@ const GovernanceInterface: React.FC = () => {
             </span>
           </h2>
           <p className="text-gray-400 text-lg max-w-3xl mx-auto">
-            Participate in PezkuwiChain's decentralized governance. Vote on proposals, elect representatives, and shape the future of the network.
+            Participate in PezkuwiChain&apos;s decentralized governance. Vote on proposals, elect representatives, and shape the future of the network.
           </p>
         </div>
 

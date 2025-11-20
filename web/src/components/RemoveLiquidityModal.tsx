@@ -39,7 +39,6 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
   isOpen,
   onClose,
   lpPosition,
-  lpTokenId,
   asset0,
   asset1,
 }) => {
@@ -70,7 +69,7 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
           // wHEZ is an asset in the assets pallet
           const assetDetails0 = await api.query.assets.asset(ASSET_IDS.WHEZ);
           if (assetDetails0.isSome) {
-            const details0 = assetDetails0.unwrap().toJSON() as any;
+            const details0 = assetDetails0.unwrap().toJSON() as Record<string, unknown>;
             const min0 = Number(details0.minBalance) / Math.pow(10, getAssetDecimals(asset0));
             setMinBalance0(min0);
             console.log(`📊 ${getDisplayTokenName(asset0)} minBalance: ${min0}`);
@@ -79,7 +78,7 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
           // Other assets (PEZ, wUSDT, etc.)
           const assetDetails0 = await api.query.assets.asset(asset0);
           if (assetDetails0.isSome) {
-            const details0 = assetDetails0.unwrap().toJSON() as any;
+            const details0 = assetDetails0.unwrap().toJSON() as Record<string, unknown>;
             const min0 = Number(details0.minBalance) / Math.pow(10, getAssetDecimals(asset0));
             setMinBalance0(min0);
             console.log(`📊 ${getDisplayTokenName(asset0)} minBalance: ${min0}`);
@@ -90,7 +89,7 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
           // wHEZ is an asset in the assets pallet
           const assetDetails1 = await api.query.assets.asset(ASSET_IDS.WHEZ);
           if (assetDetails1.isSome) {
-            const details1 = assetDetails1.unwrap().toJSON() as any;
+            const details1 = assetDetails1.unwrap().toJSON() as Record<string, unknown>;
             const min1 = Number(details1.minBalance) / Math.pow(10, getAssetDecimals(asset1));
             setMinBalance1(min1);
             console.log(`📊 ${getDisplayTokenName(asset1)} minBalance: ${min1}`);
@@ -99,7 +98,7 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
           // Other assets (PEZ, wUSDT, etc.)
           const assetDetails1 = await api.query.assets.asset(asset1);
           if (assetDetails1.isSome) {
-            const details1 = assetDetails1.unwrap().toJSON() as any;
+            const details1 = assetDetails1.unwrap().toJSON() as Record<string, unknown>;
             const min1 = Number(details1.minBalance) / Math.pow(10, getAssetDecimals(asset1));
             setMinBalance1(min1);
             console.log(`📊 ${getDisplayTokenName(asset1)} minBalance: ${min1}`);

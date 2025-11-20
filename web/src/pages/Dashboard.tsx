@@ -9,7 +9,7 @@ import { usePolkadot } from '@/contexts/PolkadotContext';
 import { supabase } from '@/lib/supabase';
 import { User, Mail, Phone, Globe, MapPin, Calendar, Shield, AlertCircle, ArrowLeft, Award, Users, TrendingUp, UserMinus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { fetchUserTikis, calculateTikiScore, getPrimaryRole, getTikiDisplayName, getTikiColor, getTikiEmoji, getUserRoleCategories, getAllTikiNFTDetails, generateCitizenNumber, type TikiNFTDetails } from '@pezkuwi/lib/tiki';
+import { fetchUserTikis, getPrimaryRole, getTikiDisplayName, getTikiColor, getTikiEmoji, getUserRoleCategories, getAllTikiNFTDetails, generateCitizenNumber, type TikiNFTDetails } from '@pezkuwi/lib/tiki';
 import { getAllScores, type UserScores } from '@pezkuwi/lib/scores';
 import { getKycStatus } from '@pezkuwi/lib/kyc';
 import { ReferralDashboard } from '@/components/referral/ReferralDashboard';
@@ -21,7 +21,7 @@ export default function Dashboard() {
   const { api, isApiReady, selectedAccount } = usePolkadot();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
   const [tikis, setTikis] = useState<string[]>([]);
   const [scores, setScores] = useState<UserScores>({
@@ -44,8 +44,11 @@ export default function Dashboard() {
     fetchProfile();
     if (selectedAccount && api && isApiReady) {
       fetchScoresAndTikis();
+     
+     
     }
   }, [user, selectedAccount, api, isApiReady]);
+     
 
   const fetchProfile = async () => {
     if (!user) return;
@@ -64,7 +67,7 @@ export default function Dashboard() {
 
       // Auto-sync user metadata from Auth to profiles if missing
       if (data) {
-        const needsUpdate: any = {};
+        const needsUpdate: Record<string, string> = {};
 
         // Sync full_name from Auth metadata if not set in profiles
         if (!data.full_name && user.user_metadata?.full_name) {
@@ -96,7 +99,7 @@ export default function Dashboard() {
       }
 
       // Note: Email verification is handled by Supabase Auth (user.email_confirmed_at)
-      // We don't store it in profiles table to avoid duplication
+      // We don&apos;t store it in profiles table to avoid duplication
 
       setProfile(data);
     } catch (error) {
@@ -107,6 +110,7 @@ export default function Dashboard() {
   };
 
   const fetchScoresAndTikis = async () => {
+     
     if (!selectedAccount || !api) return;
 
     setLoadingScores(true);
@@ -177,7 +181,7 @@ export default function Dashboard() {
         title: "Verification Email Sent",
         description: "Please check your email inbox and spam folder",
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error sending verification email:', error);
 
       // Provide more detailed error message
@@ -272,6 +276,8 @@ export default function Dashboard() {
               // Refresh data after a short delay
               setTimeout(() => {
                 fetchScoresAndTikis();
+     
+     
               }, 2000);
             }
           });
@@ -280,11 +286,12 @@ export default function Dashboard() {
         }
       });
 
-    } catch (err: any) {
+    } catch (err) {
       console.error('Renunciation error:', err);
+      const errorMsg = err instanceof Error ? err.message : 'Failed to renounce citizenship';
       toast({
         title: "Error",
-        description: err.message || 'Failed to renounce citizenship',
+        description: errorMsg,
         variant: "destructive"
       });
       setRenouncingCitizenship(false);
@@ -575,7 +582,7 @@ export default function Dashboard() {
                   <div className="border-t pt-4">
                     <h4 className="font-medium mb-3">All Roles ({tikis.length})</h4>
                     <div className="flex flex-wrap gap-2">
-                      {tikis.map((tiki, index) => (
+                      {tikis.map((tiki, /*index*/) => (
                         <Badge
                           key={index}
                           variant="outline"
@@ -657,7 +664,7 @@ export default function Dashboard() {
                         {nftDetails.roleNFTs.length > 0 && (
                           <div className="space-y-2">
                             <p className="text-sm text-muted-foreground font-medium">Additional Role NFTs:</p>
-                            {nftDetails.roleNFTs.map((nft, index) => (
+                            {nftDetails.roleNFTs.map((nft, /*index*/) => (
                               <div
                                 key={`${nft.collectionId}-${nft.itemId}`}
                                 className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3"

@@ -3,14 +3,14 @@ import { useToast } from '@/hooks/use-toast';
 
 interface WebSocketMessage {
   type: 'comment' | 'vote' | 'sentiment' | 'mention' | 'reply' | 'proposal_update';
-  data: any;
+  data: Record<string, unknown>;
   timestamp: number;
 }
 
 interface WebSocketContextType {
   isConnected: boolean;
-  subscribe: (event: string, callback: (data: any) => void) => void;
-  unsubscribe: (event: string, callback: (data: any) => void) => void;
+  subscribe: (event: string, callback: (data: Record<string, unknown>) => void) => void;
+  unsubscribe: (event: string, callback: (data: Record<string, unknown>) => void) => void;
   sendMessage: (message: WebSocketMessage) => void;
   reconnect: () => void;
 }
@@ -29,7 +29,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [isConnected, setIsConnected] = useState(false);
   const ws = useRef<WebSocket | null>(null);
   const reconnectTimeout = useRef<NodeJS.Timeout>();
-  const eventListeners = useRef<Map<string, Set<(data: any) => void>>>(new Map());
+  const eventListeners = useRef<Map<string, Set<(data: Record<string, unknown>) => void>>>(new Map());
   const { toast } = useToast();
   
   // Connection state management
@@ -136,14 +136,14 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     };
   }, [connect]);
 
-  const subscribe = useCallback((event: string, callback: (data: any) => void) => {
+  const subscribe = useCallback((event: string, callback: (data: Record<string, unknown>) => void) => {
     if (!eventListeners.current.has(event)) {
       eventListeners.current.set(event, new Set());
     }
     eventListeners.current.get(event)?.add(callback);
   }, []);
 
-  const unsubscribe = useCallback((event: string, callback: (data: any) => void) => {
+  const unsubscribe = useCallback((event: string, callback: (data: Record<string, unknown>) => void) => {
     eventListeners.current.get(event)?.delete(callback);
   }, []);
 

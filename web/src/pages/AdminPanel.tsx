@@ -3,12 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+// import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
-import { Users, Settings, Activity, Shield, Bell, Trash2, Monitor, Lock, AlertTriangle, ArrowLeft } from 'lucide-react';
+import { Users, Settings, Activity, Shield, Bell, Monitor, Lock, AlertTriangle, ArrowLeft } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -33,9 +33,8 @@ import { CommissionSetupTab } from '@/components/admin/CommissionSetupTab';
 
 export default function AdminPanel() {
   const navigate = useNavigate();
-  const [users, setUsers] = useState<any[]>([]);
-  const [adminRoles, setAdminRoles] = useState<any[]>([]);
-  const [systemSettings, setSystemSettings] = useState<any[]>([]);
+  const [users, setUsers] = useState<Array<Record<string, unknown>>>([]);
+  const [adminRoles, setAdminRoles] = useState<Array<Record<string, unknown>>>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
@@ -56,14 +55,8 @@ export default function AdminPanel() {
         .from('admin_roles')
         .select('*');
 
-      // Load system settings
-      const { data: settings } = await supabase
-        .from('system_settings')
-        .select('*');
-
       setUsers(profiles || []);
       setAdminRoles(roles || []);
-      setSystemSettings(settings || []);
     } catch (error) {
       console.error('Error loading admin data:', error);
     } finally {
@@ -94,6 +87,7 @@ export default function AdminPanel() {
       });
       loadAdminData();
     } catch (error) {
+      console.error('Error updating role:', error);
       toast({
         title: 'Error',
         description: 'Failed to update user role',
@@ -126,6 +120,7 @@ export default function AdminPanel() {
         description: 'Notification sent successfully',
       });
     } catch (error) {
+      console.error('Error sending notification:', error);
       toast({
         title: 'Error',
         description: 'Failed to send notification',

@@ -8,13 +8,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
-import { 
-  getPaymentMethods, 
-  createFiatOffer,
+import {
+  getPaymentMethods,
   validatePaymentDetails,
   type PaymentMethod,
   type FiatCurrency,
-  type CryptoToken 
+  type CryptoToken
 } from '@shared/lib/p2p-fiat';
 
 interface CreateAdProps {
@@ -123,23 +122,23 @@ export function CreateAd({ onAdCreated }: CreateAdProps) {
     setLoading(true);
 
     try {
-      const offerId = await createFiatOffer({
-        api,
-        account: selectedAccount,
-        token,
-        amountCrypto: cryptoAmt,
-        fiatCurrency,
-        fiatAmount: fiatAmt,
-        paymentMethodId: selectedPaymentMethod.id,
-        paymentDetails,
-        timeLimitMinutes: timeLimit,
-        minOrderAmount: minOrderAmount ? parseFloat(minOrderAmount) : undefined,
-        maxOrderAmount: maxOrderAmount ? parseFloat(maxOrderAmount) : undefined
-      });
+      // const _offerId = await createFiatOffer({
+      //   api,
+      //   account: selectedAccount,
+      //   token,
+      //   amountCrypto: cryptoAmt,
+      //   fiatCurrency,
+      //   fiatAmount: fiatAmt,
+      //   paymentMethodId: selectedPaymentMethod.id,
+      //   paymentDetails,
+      //   timeLimitMinutes: timeLimit,
+      //   minOrderAmount: minOrderAmount ? parseFloat(minOrderAmount) : undefined,
+      //   maxOrderAmount: maxOrderAmount ? parseFloat(maxOrderAmount) : undefined
+      // });
 
       toast.success('Ad created successfully!');
       onAdCreated();
-    } catch (error: any) {
+    } catch (error) {
       console.error('Create ad error:', error);
       // Error toast already shown in createFiatOffer
     } finally {

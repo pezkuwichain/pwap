@@ -49,7 +49,12 @@ const TokenSwap = () => {
   console.log('🔍 Final balances:', { fromBalance, toBalance });
 
   // Liquidity pool data
-  const [liquidityPools, setLiquidityPools] = useState<any[]>([]);
+  interface LiquidityPool {
+    key: string;
+    data: unknown;
+    tvl: number;
+  }
+  const [liquidityPools, setLiquidityPools] = useState<LiquidityPool[]>([]);
   const [isLoadingPools, setIsLoadingPools] = useState(false);
 
   // Transaction history
@@ -89,7 +94,7 @@ const TokenSwap = () => {
     }
 
     const amountIn = parseFloat(fromAmount);
-    const { reserve0, reserve1, asset0, asset1 } = poolReserves;
+    const { reserve0, reserve1, asset0 } = poolReserves;
 
     // Determine which reserve is input and which is output
     const fromAssetId = fromToken === 'HEZ' ? 0 : ASSET_IDS[fromToken as keyof typeof ASSET_IDS];
@@ -208,7 +213,7 @@ const TokenSwap = () => {
         console.log('🔍 Pool isEmpty?', poolInfo.isEmpty, 'exists?', !poolInfo.isEmpty);
 
         if (poolInfo && !poolInfo.isEmpty) {
-          const pool = poolInfo.toJSON() as any;
+          const pool = poolInfo.toJSON() as Record<string, unknown>;
           console.log('🔍 Pool data:', pool);
 
           try {
@@ -250,8 +255,8 @@ const TokenSwap = () => {
             console.log('🔍 Reserve0 isEmpty?', reserve0Query.isEmpty);
             console.log('🔍 Reserve1 isEmpty?', reserve1Query.isEmpty);
 
-            const reserve0Data = reserve0Query.toJSON() as any;
-            const reserve1Data = reserve1Query.toJSON() as any;
+            const reserve0Data = reserve0Query.toJSON() as Record<string, unknown>;
+            const reserve1Data = reserve1Query.toJSON() as Record<string, unknown>;
 
             console.log('🔍 Reserve0 JSON:', reserve0Data);
             console.log('🔍 Reserve1 JSON:', reserve1Data);
@@ -326,7 +331,7 @@ const TokenSwap = () => {
         const poolsEntries = await api.query.assetConversion.pools.entries();
 
         if (poolsEntries && poolsEntries.length > 0) {
-          const pools = poolsEntries.map(([key, value]: any) => {
+          const pools = poolsEntries.map(([key, value]: [unknown, unknown]) => {
             const poolData = value.toJSON();
             const poolKey = key.toHuman();
             
@@ -337,7 +342,7 @@ const TokenSwap = () => {
             
             // Parse asset IDs from pool key
             const assets = poolKey?.[0] || [];
-            const asset1 = assets[0]?.NativeOrAsset?.Asset || '?';
+            //const _asset1 = assets[0]?.NativeOrAsset?.Asset || '?';
             const asset2 = assets[1]?.NativeOrAsset?.Asset || '?';
             
             return {
@@ -389,16 +394,16 @@ const TokenSwap = () => {
             const blockHash = await api.rpc.chain.getBlockHash(blockNum);
             const apiAt = await api.at(blockHash);
             const events = await apiAt.query.system.events();
-            const block = await api.rpc.chain.getBlock(blockHash);
+            //const block = await api.rpc.chain.getBlock(blockHash);
             const timestamp = Date.now() - ((currentBlockNumber - blockNum) * 6000); // Estimate 6s per block
 
-            events.forEach((record: any) => {
+            events.forEach((record: { event: { data: unknown[] } }) => {
               const { event } = record;
 
               // Check for AssetConversion::SwapExecuted event
               if (api.events.assetConversion?.SwapExecuted?.is(event)) {
                 // SwapExecuted has 5 fields: (who, send_to, amountIn, amountOut, path)
-                const [who, sendTo, amountIn, amountOut, path] = event.data;
+                const [who, , amountIn, amountOut, path] = event.data;
 
                 // Parse path to get token symbols - path is Vec<MultiAsset>
                 let fromAssetId = 0;
@@ -411,7 +416,7 @@ const TokenSwap = () => {
                   if (Array.isArray(pathArray) && pathArray.length >= 2) {
                     // Extract asset IDs from path
                     const asset0 = pathArray[0];
-                    const asset1 = pathArray[1];
+                    //const _asset1 = pathArray[1];
 
                     // Each element is a tuple where index 0 is the asset ID
                     if (Array.isArray(asset0) && asset0.length >= 1) {
@@ -692,11 +697,11 @@ const TokenSwap = () => {
                         const apiAt = await api.at(blockHash);
                         const events = await apiAt.query.system.events();
                         const timestamp = Date.now() - ((currentBlockNumber - blockNum) * 6000);
-                        events.forEach((record: any) => {
+                        events.forEach((record: { event: { data: unknown[] } }) => {
                           const { event } = record;
                           if (api.events.assetConversion?.SwapExecuted?.is(event)) {
                             // SwapExecuted has 5 fields: (who, send_to, amountIn, amountOut, path)
-                            const [who, sendTo, amountIn, amountOut, path] = event.data;
+                            const [who, , amountIn, amountOut, path] = event.data;
 
                             // Parse path (same logic as main history fetch)
                             let fromAssetId = 0;
@@ -707,7 +712,7 @@ const TokenSwap = () => {
 
                               if (Array.isArray(pathArray) && pathArray.length >= 2) {
                                 const asset0 = pathArray[0];
-                                const asset1 = pathArray[1];
+                                //const _asset1 = pathArray[1];
 
                                 // Each element is a tuple where index 0 is the asset ID
                                 if (Array.isArray(asset0) && asset0.length >= 1) {
@@ -763,11 +768,11 @@ const TokenSwap = () => {
           }
         }
       );
-    } catch (error: any) {
+    } catch (error) {
       console.error('Swap failed:', error);
       toast({
         title: 'Error',
-        description: error.message || 'Swap transaction failed',
+        description: error instanceof Error ? error.message : 'Swap transaction failed',
         variant: 'destructive',
       });
       setIsSwapping(false);
@@ -1056,7 +1061,7 @@ const TokenSwap = () => {
               <Alert className="bg-red-900/20 border-red-500/30">
                 <AlertTriangle className="h-4 w-4 text-red-500" />
                 <AlertDescription className="text-red-300 text-sm">
-                  High price impact! Your trade will significantly affect the pool price. Consider a smaller amount or check if there's better liquidity.
+                  High price impact! Your trade will significantly affect the pool price. Consider a smaller amount or check if there&apos;s better liquidity.
                 </AlertDescription>
               </Alert>
             )}

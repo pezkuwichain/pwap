@@ -15,7 +15,7 @@ interface IdentityContextType {
   profile: IdentityProfile | null;
   isVerifying: boolean;
   startKYC: (data: KYCData) => Promise<void>;
-  updatePrivacySettings: (settings: any) => void;
+  updatePrivacySettings: (settings: Record<string, boolean>) => void;
   addBadge: (badge: Badge) => void;
   assignRole: (role: Role) => void;
   refreshReputation: () => void;
@@ -66,7 +66,8 @@ export function IdentityProvider({ children }: { children: React.ReactNode }) {
       // Simulate KYC verification process
       await new Promise(resolve => setTimeout(resolve, 3000));
       
-      const zkProof = generateZKProof(data);
+      // Generate ZK proof for privacy
+      generateZKProof(data);
       
       const updatedProfile: IdentityProfile = {
         ...profile,
@@ -91,7 +92,7 @@ export function IdentityProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const updatePrivacySettings = (settings: any) => {
+  const updatePrivacySettings = (settings: Record<string, boolean>) => {
     if (!profile) return;
     
     const updatedProfile = {

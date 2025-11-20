@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { PieChart, Clock, TrendingDown, Coins, ArrowRightLeft } from 'lucide-react';
+import { PieChart, ArrowRightLeft } from 'lucide-react';
 
 const TokenomicsSection: React.FC = () => {
   const [selectedToken, setSelectedToken] = useState<'PEZ' | 'HEZ'>('PEZ');
-  const [monthsPassed, setMonthsPassed] = useState(0);
-  const [currentRelease, setCurrentRelease] = useState(0);
+  const [monthsPassed] = useState(0);
   
   const halvingPeriod = Math.floor(monthsPassed / 48);
-  const monthsUntilNextHalving = 48 - (monthsPassed % 48);
+  //const _monthsUntilNextHalving = 48 - (monthsPassed % 48);
   
   useEffect(() => {
     const baseAmount = selectedToken === 'PEZ' ? 74218750 : 37109375;
-    const release = baseAmount / Math.pow(2, halvingPeriod);
-    setCurrentRelease(release);
+    // Calculate release amount for future use
+    const releaseAmount = baseAmount / Math.pow(2, halvingPeriod);
+    console.log('Release amount:', releaseAmount);
   }, [monthsPassed, halvingPeriod, selectedToken]);
 
   const pezDistribution = [

@@ -77,7 +77,7 @@ export function useDelegation(userAddress?: string) {
         let userTotalDelegated = BigInt(0);
 
         if (votingEntries) {
-          votingEntries.forEach(([key, value]: any) => {
+          votingEntries.forEach(([key, value]: [unknown, unknown]) => {
             const accountId = key.args[0].toString();
             const votingInfo = value.unwrap();
 
@@ -130,7 +130,7 @@ export function useDelegation(userAddress?: string) {
           let proposalsCreated = 0;
 
           if (votingHistory) {
-            const votes = votingHistory.toJSON() as any;
+            const votes = votingHistory.toJSON() as Record<string, unknown>;
             if (votes?.votes) {
               proposalsCreated = votes.votes.length;
               proposalsPassed = Math.floor(proposalsCreated * 0.85); // Estimate

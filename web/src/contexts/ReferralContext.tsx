@@ -124,7 +124,7 @@ export function ReferralProvider({ children }: { children: ReactNode }) {
         description: 'Please sign the transaction...',
       });
 
-      await initiateReferral(api, { address: account, meta: { source: 'polkadot-js' } } as any, referredAddress);
+      await initiateReferral(api, { address: account, meta: { source: 'polkadot-js' } } as Record<string, unknown>, referredAddress);
 
       toast({
         title: 'Success!',
@@ -134,7 +134,7 @@ export function ReferralProvider({ children }: { children: ReactNode }) {
       // Refresh stats after successful invitation
       await fetchStats();
       return true;
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error inviting user:', error);
 
       let errorMessage = 'Failed to send referral invitation';

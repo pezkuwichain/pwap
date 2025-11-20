@@ -117,7 +117,9 @@ export default function GovernmentEntrance() {
 
   useEffect(() => {
     checkGovernmentAccess();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nftDetails, dashboardLoading]);
+     
 
   useEffect(() => {
     if (isApiReady && selectedAccount) {
@@ -126,6 +128,7 @@ export default function GovernmentEntrance() {
       fetchPresidentialCandidates();
       fetchUserVotes();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isApiReady, selectedAccount]);
 
   const checkGovernmentAccess = () => {

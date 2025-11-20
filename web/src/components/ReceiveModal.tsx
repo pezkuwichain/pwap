@@ -49,7 +49,7 @@ export const ReceiveModal: React.FC<ReceiveModalProps> = ({ isOpen, onClose }) =
       });
 
       setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
+    } catch {
       toast({
         title: "Copy Failed",
         description: "Failed to copy address to clipboard",

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, Vote, Trophy, Clock, AlertCircle, CheckCircle } from 'lucide-react';
+import { Vote, Trophy, AlertCircle, CheckCircle } from 'lucide-react';
 
 interface Election {
   id: number;
@@ -26,7 +26,6 @@ interface Candidate {
 }
 
 const ElectionsInterface: React.FC = () => {
-  const [selectedElection, setSelectedElection] = useState<Election | null>(null);
   const [votedCandidates, setVotedCandidates] = useState<string[]>([]);
 
   const activeElections: Election[] = [

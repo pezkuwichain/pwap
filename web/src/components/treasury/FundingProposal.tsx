@@ -6,15 +6,14 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { useTranslation } from 'react-i18next';
 import { 
   Plus, 
   Trash2, 
-  Calculator,
-  FileText,
-  Users,
-  Calendar,
-  DollarSign,
+  
+  
+  
+  
+  
   AlertCircle
 } from 'lucide-react';
 
@@ -35,7 +34,6 @@ interface Milestone {
 }
 
 export const FundingProposal: React.FC = () => {
-  const { t } = useTranslation();
   const [proposalTitle, setProposalTitle] = useState('');
   const [proposalDescription, setProposalDescription] = useState('');
   const [category, setCategory] = useState('');
@@ -60,7 +58,7 @@ export const FundingProposal: React.FC = () => {
     setBudgetItems(budgetItems.filter(item => item.id !== id));
   };
 
-  const updateBudgetItem = (id: string, field: keyof BudgetItem, value: any) => {
+  const updateBudgetItem = (id: string, field: keyof BudgetItem, value: string | number) => {
     setBudgetItems(budgetItems.map(item => 
       item.id === id ? { ...item, [field]: value } : item
     ));
@@ -80,7 +78,7 @@ export const FundingProposal: React.FC = () => {
     setMilestones(milestones.filter(m => m.id !== id));
   };
 
-  const updateMilestone = (id: string, field: keyof Milestone, value: any) => {
+  const updateMilestone = (id: string, field: keyof Milestone, value: string | number) => {
     setMilestones(milestones.map(m => 
       m.id === id ? { ...m, [field]: value } : m
     ));
@@ -279,7 +277,7 @@ export const FundingProposal: React.FC = () => {
             <div className="flex items-center gap-2 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg text-gray-900">
               <AlertCircle className="h-5 w-5 text-yellow-600" />
               <span className="text-sm text-gray-900">
-                Milestone total (${totalMilestoneAmount.toLocaleString()}) doesn't match budget total (${totalBudget.toLocaleString()})
+                Milestone total (${totalMilestoneAmount.toLocaleString()}) doesn&apos;t match budget total (${totalBudget.toLocaleString()})
               </span>
             </div>
           )}

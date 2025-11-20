@@ -60,7 +60,7 @@ export const CitizenRoute: React.FC<RouteGuardProps> = ({
   fallbackPath = '/be-citizen',
 }) => {
   const { api, isApiReady, selectedAccount } = usePolkadot();
-  const { user } = useAuth();
+  const {} = useAuth();
   const [isCitizen, setIsCitizen] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
 

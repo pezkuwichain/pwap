@@ -5,11 +5,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import HeroSection from './HeroSection';
 import TokenomicsSection from './TokenomicsSection';
 import PalletsGrid from './PalletsGrid';
-import TeamSection from './TeamSection';
 import ChainSpecs from './ChainSpecs';
 import TrustScoreCalculator from './TrustScoreCalculator';
 import { NetworkStats } from './NetworkStats';
-import { WalletButton } from './wallet/WalletButton';
 import { WalletModal } from './wallet/WalletModal';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import NotificationBell from './notifications/NotificationBell';
@@ -21,7 +19,7 @@ import { TreasuryOverview } from './treasury/TreasuryOverview';
 import { FundingProposal } from './treasury/FundingProposal';
 import { SpendingHistory } from './treasury/SpendingHistory';
 import { MultiSigApproval } from './treasury/MultiSigApproval';
-import { Github, FileText, ExternalLink, Shield, Award, User, FileEdit, Users2, MessageSquare, ShieldCheck, Wifi, WifiOff, Wallet, DollarSign, PiggyBank, History, Key, TrendingUp, ArrowRightLeft, Lock, LogIn, LayoutDashboard, Settings, UserCog, Repeat, Users, Droplet, Mail } from 'lucide-react';
+import { ExternalLink, Award, FileEdit, Users2, MessageSquare, ShieldCheck, Wifi, WifiOff, Wallet, DollarSign, PiggyBank, History, Key, TrendingUp, ArrowRightLeft, Lock, LogIn, LayoutDashboard, Settings, Users, Droplet, Mail } from 'lucide-react';
 import GovernanceInterface from './GovernanceInterface';
 import RewardDistribution from './RewardDistribution';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -38,7 +36,6 @@ import EducationPlatform from '../pages/EducationPlatform';
 const AppLayout: React.FC = () => {
   const navigate = useNavigate();
   const [walletModalOpen, setWalletModalOpen] = useState(false);
-  const [transactionModalOpen, setTransactionModalOpen] = useState(false);
   const { user, signOut } = useAuth();
   const [showProposalWizard, setShowProposalWizard] = useState(false);
   const [showDelegation, setShowDelegation] = useState(false);
@@ -53,8 +50,8 @@ const AppLayout: React.FC = () => {
   const [showP2P, setShowP2P] = useState(false);
   const { t } = useTranslation();
   const { isConnected } = useWebSocket();
-  const { account } = useWallet();
-  const [isAdmin, setIsAdmin] = useState(false);
+  useWallet();
+  const [, _setIsAdmin] = useState(false);
 
   // Check if user is admin
   React.useEffect(() => {
@@ -69,9 +66,9 @@ const AppLayout: React.FC = () => {
         if (error) {
           console.warn('Admin check error:', error);
         }
-        setIsAdmin(!!data);
+        _setIsAdmin(!!data);
       } else {
-        setIsAdmin(false);
+        _setIsAdmin(false);
       }
     };
     checkAdminStatus();

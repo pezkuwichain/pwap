@@ -6,7 +6,7 @@ import { getAllTikiNFTDetails, generateCitizenNumber, type TikiNFTDetails } from
 import { getKycStatus } from '@pezkuwi/lib/kyc';
 
 interface DashboardData {
-  profile: any | null;
+  profile: Record<string, unknown> | null | null;
   nftDetails: { citizenNFT: TikiNFTDetails | null; roleNFTs: TikiNFTDetails[]; totalNFTs: number };
   kycStatus: string;
   citizenNumber: string;
@@ -18,7 +18,7 @@ const DashboardContext = createContext<DashboardData | undefined>(undefined);
 export function DashboardProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const { api, isApiReady, selectedAccount } = usePolkadot();
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<Record<string, unknown> | null>(null);
   const [nftDetails, setNftDetails] = useState<{ citizenNFT: TikiNFTDetails | null; roleNFTs: TikiNFTDetails[]; totalNFTs: number }>({
     citizenNFT: null,
     roleNFTs: [],
@@ -31,6 +31,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     fetchProfile();
     if (selectedAccount && api && isApiReady) {
       fetchScoresAndTikis();
+     
     }
   }, [user, selectedAccount, api, isApiReady]);
 

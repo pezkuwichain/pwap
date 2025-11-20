@@ -15,7 +15,7 @@ import { Loader2, AlertTriangle, Clock } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePolkadot } from '@/contexts/PolkadotContext';
 import { toast } from 'sonner';
-import { acceptFiatOffer, type P2PFiatOffer } from '@shared/lib/p2p-fiat';
+import { type P2PFiatOffer } from '@shared/lib/p2p-fiat';
 
 interface TradeModalProps {
   offer: P2PFiatOffer;
@@ -60,19 +60,19 @@ export function TradeModal({ offer, onClose }: TradeModalProps) {
     setLoading(true);
 
     try {
-      const tradeId = await acceptFiatOffer({
-        api,
-        account: selectedAccount,
-        offerId: offer.id,
-        amount: cryptoAmount
-      });
+      // const _tradeId = await acceptFiatOffer({
+      //   api,
+      //   account: selectedAccount,
+      //   offerId: offer.id,
+      //   amount: cryptoAmount
+      // });
 
       toast.success('Trade initiated! Proceed to payment.');
       onClose();
       
       // TODO: Navigate to trade page
       // navigate(`/p2p/trade/${tradeId}`);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Accept offer error:', error);
       // Error toast already shown in acceptFiatOffer
     } finally {
