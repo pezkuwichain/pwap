@@ -36,14 +36,6 @@ export default function PresaleList() {
   const [loading, setLoading] = useState(true);
   const [currentBlock, setCurrentBlock] = useState(0);
 
-  useEffect(() => {
-    if (isApiReady) {
-      loadPresales();
-      const interval = setInterval(loadPresales, 15000);
-      return () => clearInterval(interval);
-    }
-  }, [api, isApiReady]);
-
   const loadPresales = async () => {
     if (!api) return;
 
@@ -95,6 +87,15 @@ export default function PresaleList() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (isApiReady) {
+      loadPresales();
+      const interval = setInterval(loadPresales, 15000);
+      return () => clearInterval(interval);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [api, isApiReady]);
 
   const getTimeRemaining = (startBlock: number, duration: number) => {
     const endBlock = startBlock + duration;

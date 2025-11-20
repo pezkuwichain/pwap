@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { usePolkadot } from '@/contexts/PolkadotContext';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
@@ -9,12 +8,11 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, Loader2, AlertCircle, CheckCircle2, Rocket } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertCircle, Rocket } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function CreatePresale() {
-  const { t } = useTranslation();
-  const { api, selectedAccount, isApiReady } = usePolkadot();
+  const { api, selectedAccount } = usePolkadot();
   const navigate = useNavigate();
 
   const [creating, setCreating] = useState(false);
@@ -162,9 +160,9 @@ export default function CreatePresale() {
           });
         }
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error('Create presale error:', error);
-      toast.error(error.message || 'Failed to create presale');
+      toast.error((error as Error).message || 'Failed to create presale');
       setCreating(false);
     }
   };
