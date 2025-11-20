@@ -60,6 +60,17 @@ export default tseslint.config(
       },
     },
   },
+  // Override for UI components and contexts - allow non-component exports
+  {
+    files: [
+      "src/components/ui/**/*.{ts,tsx}",
+      "src/contexts/**/*.{ts,tsx}",
+      "src/components/theme-provider.tsx",
+    ],
+    rules: {
+      "react-refresh/only-export-components": "off",
+    },
+  },
   // Global recommended rules
   ...tseslint.configs.recommended
 );
