@@ -150,7 +150,7 @@ export default function Presale() {
 
   const calculatePezReceived = (wusdtAmount: string): number => {
     const amount = parseFloat(wusdtAmount);
-    return isNaN(amount) ? 0 : amount * 100; // 1 wUSDT = 100 PEZ
+    return isNaN(amount) ? 0 : amount * 20; // 1 wUSDT = 20 PEZ
   };
 
   const progressPercentage = () => {
@@ -182,7 +182,7 @@ export default function Presale() {
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Conversion Rate:</span>
-                <span className="font-medium">1 wUSDT = 100 PEZ</span>
+                <span className="font-medium">1 wUSDT = 20 PEZ</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Accepted Token:</span>
@@ -318,7 +318,7 @@ export default function Presale() {
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Conversion Rate:</span>
-                    <span className="font-medium">1 wUSDT = 100 PEZ</span>
+                    <span className="font-medium">1 wUSDT = 20 PEZ</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Distribution:</span>
