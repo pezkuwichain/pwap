@@ -33,20 +33,20 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Install dependencies
-        # Use workspace root package-lock.json
+        working-directory: ./web
         run: npm ci
 
       - name: Run Linter
-        # Use web workspace for linting
-        run: npm run lint -w web
+        working-directory: ./web
+        run: npm run lint
 
       - name: Run Tests
-        # Use web workspace for testing
-        run: npm run test -w web -- --run
+        working-directory: ./web
+        run: npm run test
 
       - name: Build Project
-        # Use web workspace for building
-        run: npm run build -w web
+        working-directory: ./web
+        run: npm run build
 
   # ========================================
   # SECURITY CHECKS (INFORMATIVE)
