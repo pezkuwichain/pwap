@@ -30,7 +30,7 @@ interface Balances {
 const getDisplayName = (assetId: number): string => {
   if (assetId === ASSET_IDS.WHEZ || assetId === 0) return 'HEZ';
   if (assetId === ASSET_IDS.PEZ || assetId === 1) return 'PEZ';
-  if (assetId === ASSET_IDS.WUSDT || assetId === 2) return 'USDT';
+  if (assetId === ASSET_IDS.WUSDT || assetId === 1000) return 'USDT';
   return getAssetSymbol(assetId);
 };
 
@@ -38,13 +38,13 @@ const getDisplayName = (assetId: number): string => {
 const getBalanceKey = (assetId: number): string => {
   if (assetId === ASSET_IDS.WHEZ || assetId === 0) return 'HEZ';
   if (assetId === ASSET_IDS.PEZ || assetId === 1) return 'PEZ';
-  if (assetId === ASSET_IDS.WUSDT || assetId === 2) return 'USDT';
+  if (assetId === ASSET_IDS.WUSDT || assetId === 1000) return 'USDT';
   return getAssetSymbol(assetId);
 };
 
 // Helper to get decimals for asset
 const getAssetDecimals = (assetId: number): number => {
-  if (assetId === ASSET_IDS.WUSDT || assetId === 2) return 6; // wUSDT has 6 decimals
+  if (assetId === ASSET_IDS.WUSDT || assetId === 1000) return 6; // wUSDT has 6 decimals
   return 12; // wHEZ, PEZ have 12 decimals
 };
 

@@ -18,7 +18,7 @@ import { PriceChart } from './trading/PriceChart';
 const AVAILABLE_TOKENS = [
   { symbol: 'HEZ', emoji: '🟡', assetId: 0, name: 'HEZ', badge: true, displaySymbol: 'HEZ' },
   { symbol: 'PEZ', emoji: '🟣', assetId: 1, name: 'PEZ', badge: true, displaySymbol: 'PEZ' },
-  { symbol: 'USDT', emoji: '💵', assetId: 2, name: 'USDT', badge: true, displaySymbol: 'USDT' },
+  { symbol: 'USDT', emoji: '💵', assetId: 1000, name: 'USDT', badge: true, displaySymbol: 'USDT' },
 ] as const;
 
 const TokenSwap = () => {
@@ -182,7 +182,7 @@ const TokenSwap = () => {
         const getPoolAssetId = (token: string) => {
           if (token === 'HEZ') return 0; // wHEZ
           if (token === 'PEZ') return 1;
-          if (token === 'USDT') return 2;
+          if (token === 'USDT') return 1000;
           return ASSET_IDS[token as keyof typeof ASSET_IDS];
         };
 
@@ -271,9 +271,9 @@ const TokenSwap = () => {
               // Use correct decimals for each asset
               // asset1=0 (wHEZ): 12 decimals
               // asset1=1 (PEZ): 12 decimals
-              // asset2=2 (wUSDT): 6 decimals
-              const decimals0 = asset1 === 2 ? 6 : 12; // asset1 is the smaller ID
-              const decimals1 = asset2 === 2 ? 6 : 12; // asset2 is the larger ID
+              // asset2=1000 (wUSDT): 6 decimals
+              const decimals0 = asset1 === 1000 ? 6 : 12; // asset1 is the smaller ID
+              const decimals1 = asset2 === 1000 ? 6 : 12; // asset2 is the larger ID
 
               const reserve0 = Number(BigInt(balance0Hex)) / (10 ** decimals0);
               const reserve1 = Number(BigInt(balance1Hex)) / (10 ** decimals1);
@@ -581,7 +581,7 @@ const TokenSwap = () => {
         // HEZ → Any Asset: wrap(HEZ→wHEZ) then swap(wHEZ→Asset)
         const wrapTx = api.tx.tokenWrapper.wrap(amountIn.toString());
         // Map token symbol to asset ID
-        const toAssetId = toToken === 'PEZ' ? 1 : toToken === 'USDT' ? 2 : ASSET_IDS[toToken as keyof typeof ASSET_IDS];
+        const toAssetId = toToken === 'PEZ' ? 1 : toToken === 'USDT' ? 1000 : ASSET_IDS[toToken as keyof typeof ASSET_IDS];
         const swapPath = [0, toAssetId]; // wHEZ → target asset
         const swapTx = api.tx.assetConversion.swapExactTokensForTokens(
           swapPath,
@@ -595,7 +595,7 @@ const TokenSwap = () => {
       } else if (toToken === 'HEZ') {
         // Any Asset → HEZ: swap(Asset→wHEZ) then unwrap(wHEZ→HEZ)
         // Map token symbol to asset ID
-        const fromAssetId = fromToken === 'PEZ' ? 1 : fromToken === 'USDT' ? 2 : ASSET_IDS[fromToken as keyof typeof ASSET_IDS];
+        const fromAssetId = fromToken === 'PEZ' ? 1 : fromToken === 'USDT' ? 1000 : ASSET_IDS[fromToken as keyof typeof ASSET_IDS];
         const swapPath = [fromAssetId, 0]; // source asset → wHEZ
         const swapTx = api.tx.assetConversion.swapExactTokensForTokens(
           swapPath,
@@ -610,8 +610,8 @@ const TokenSwap = () => {
       } else {
         // Direct swap between assets (PEZ ↔ USDT, etc.)
         // Map token symbols to asset IDs
-        const fromAssetId = fromToken === 'PEZ' ? 1 : fromToken === 'USDT' ? 2 : ASSET_IDS[fromToken as keyof typeof ASSET_IDS];
-        const toAssetId = toToken === 'PEZ' ? 1 : toToken === 'USDT' ? 2 : ASSET_IDS[toToken as keyof typeof ASSET_IDS];
+        const fromAssetId = fromToken === 'PEZ' ? 1 : fromToken === 'USDT' ? 1000 : ASSET_IDS[fromToken as keyof typeof ASSET_IDS];
+        const toAssetId = toToken === 'PEZ' ? 1 : toToken === 'USDT' ? 1000 : ASSET_IDS[toToken as keyof typeof ASSET_IDS];
         const swapPath = [fromAssetId, toAssetId];
 
         tx = api.tx.assetConversion.swapExactTokensForTokens(

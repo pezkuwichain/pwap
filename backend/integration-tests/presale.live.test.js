@@ -30,7 +30,7 @@ let sudo, alice, bob;
 
 // Asset IDs (assumed from mock.rs)
 const PEZ_ASSET_ID = 1;
-const WUSDT_ASSET_ID = 2; // Assuming wUSDT has 6 decimals
+const WUSDT_ASSET_ID = 1000; // wUSDT has 6 decimals (matches runtime WUSDT_ASSET_ID)
 
 // Helper to wait for N finalized blocks
 const waitForBlocks = async (count) => {

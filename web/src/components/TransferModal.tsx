@@ -48,7 +48,7 @@ interface Token {
 const TOKENS: Token[] = [
   { symbol: 'HEZ', name: 'Hez Token', decimals: 12, color: 'from-green-600 to-yellow-400' },
   { symbol: 'PEZ', name: 'Pez Token', assetId: 1, decimals: 12, color: 'from-blue-600 to-purple-400' },
-  { symbol: 'USDT', name: 'Tether USD', assetId: 2, decimals: 6, color: 'from-green-500 to-green-600' },
+  { symbol: 'USDT', name: 'Tether USD', assetId: 1000, decimals: 6, color: 'from-green-500 to-green-600' },
   { symbol: 'BTC', name: 'Bitcoin', assetId: 3, decimals: 8, color: 'from-orange-500 to-yellow-500' },
   { symbol: 'ETH', name: 'Ethereum', assetId: 4, decimals: 18, color: 'from-purple-500 to-blue-500' },
   { symbol: 'DOT', name: 'Polkadot', assetId: 5, decimals: 10, color: 'from-pink-500 to-red-500' },
@@ -72,7 +72,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, s
     assetId: selectedAsset.assetId,
     decimals: selectedAsset.decimals,
     color: selectedAsset.assetId === 0 ? 'from-green-600 to-yellow-400' :
-           selectedAsset.assetId === 2 ? 'from-emerald-500 to-teal-500' :
+           selectedAsset.assetId === 1000 ? 'from-emerald-500 to-teal-500' :
            'from-cyan-500 to-blue-500',
   } : TOKENS.find(t => t.symbol === selectedToken) || TOKENS[0];
 

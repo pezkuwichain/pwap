@@ -16,7 +16,7 @@ import { RemoveLiquidityModal } from '@/components/RemoveLiquidityModal';
 const getDisplayTokenName = (assetId: number): string => {
   if (assetId === ASSET_IDS.WHEZ || assetId === 0) return 'HEZ';
   if (assetId === ASSET_IDS.PEZ || assetId === 1) return 'PEZ';
-  if (assetId === ASSET_IDS.WUSDT || assetId === 2) return 'USDT';
+  if (assetId === ASSET_IDS.WUSDT || assetId === 1000) return 'USDT';
   return getAssetSymbol(assetId); // Fallback for other assets
 };
 

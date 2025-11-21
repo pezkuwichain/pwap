@@ -14,6 +14,7 @@ interface PolkadotContextType {
   connectWallet: () => Promise<void>;
   disconnectWallet: () => void;
   error: string | null;
+  sudoKey: string | null;
 }
 
 const PolkadotContext = createContext<PolkadotContextType | undefined>(undefined);
@@ -32,6 +33,7 @@ export const PolkadotProvider: React.FC<PolkadotProviderProps> = ({
   const [accounts, setAccounts] = useState<InjectedAccountWithMeta[]>([]);
   const [selectedAccount, setSelectedAccount] = useState<InjectedAccountWithMeta | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [sudoKey, setSudoKey] = useState<string | null>(null);
 
   // Wrapper to trigger events when wallet changes
   const handleSetSelectedAccount = (account: InjectedAccountWithMeta | null) => {
@@ -86,6 +88,16 @@ export const PolkadotProvider: React.FC<PolkadotProviderProps> = ({
 
             if (import.meta.env.DEV) console.log(`📡 Chain: ${chain}`);
             if (import.meta.env.DEV) console.log(`🖥️  Node: ${nodeName} v${nodeVersion}`);
+          }
+
+          // Fetch sudo key from blockchain
+          try {
+            const sudoAccount = await apiInstance.query.sudo.key();
+            const sudoAddress = sudoAccount.toString();
+            setSudoKey(sudoAddress);
+            if (import.meta.env.DEV) console.log(`🔑 Sudo key: ${sudoAddress}`);
+          } catch (err) {
+            if (import.meta.env.DEV) console.warn('⚠️ Failed to fetch sudo key (sudo pallet may not be available):', err);
           }
 
           return;
@@ -216,6 +228,7 @@ export const PolkadotProvider: React.FC<PolkadotProviderProps> = ({
     connectWallet,
     disconnectWallet,
     error,
+    sudoKey,
   };
 
   return (
