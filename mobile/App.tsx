@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { initializeI18n } from './src/i18n';
 import { ErrorBoundary } from './src/components/ErrorBoundary';
 import { LanguageProvider } from './src/contexts/LanguageContext';
+import { AuthProvider } from './src/contexts/AuthContext';
 import { PolkadotProvider } from './src/contexts/PolkadotContext';
 import { BiometricAuthProvider } from './src/contexts/BiometricAuthContext';
 import AppNavigator from './src/navigation/AppNavigator';
@@ -38,14 +39,16 @@ export default function App() {
 
   return (
     <ErrorBoundary>
-      <PolkadotProvider>
-        <LanguageProvider>
-          <BiometricAuthProvider>
-            <StatusBar style="auto" />
-            <AppNavigator />
-          </BiometricAuthProvider>
-        </LanguageProvider>
-      </PolkadotProvider>
+      <AuthProvider>
+        <PolkadotProvider>
+          <LanguageProvider>
+            <BiometricAuthProvider>
+              <StatusBar style="auto" />
+              <AppNavigator />
+            </BiometricAuthProvider>
+          </LanguageProvider>
+        </PolkadotProvider>
+      </AuthProvider>
     </ErrorBoundary>
   );
 }
