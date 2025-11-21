@@ -11,7 +11,7 @@ import {
   checkBridgeStatus,
   fetchAssetHubUsdtInfo,
   configureXcmBridge,
-  verifyWUsdtAsset,
+  
   createWUsdtHezPool,
   ASSET_HUB_USDT_ID,
   WUSDT_ASSET_ID,
@@ -47,25 +47,10 @@ export const XCMBridgeSetupModal: React.FC<XCMBridgeSetupModalProps> = ({
   const [wusdtAmount, setWusdtAmount] = useState('1000');
   const [hezAmount, setHezAmount] = useState('10');
 
-  // Reset when modal opens/closes
-  useEffect(() => {
-    if (!isOpen) {
-      setStep('idle');
-      setStatusMessage('');
-      setErrorMessage('');
-      setShowPoolCreation(false);
-    } else {
-      // Auto-check status when opened
-      if (api && isApiReady && account) {
-        performInitialCheck();
-      }
-    }
-  }, [isOpen, api, isApiReady, account]);
-
   /**
    * Perform initial status check
    */
-  const performInitialCheck = async () => {
+  const performInitialCheck = useCallback(async () => {
     if (!api || !isApiReady) return;
 
     setStep('checking');
@@ -89,7 +74,22 @@ export const XCMBridgeSetupModal: React.FC<XCMBridgeSetupModalProps> = ({
       setErrorMessage(error instanceof Error ? error.message : 'Status check failed');
       setStep('error');
     }
-  };
+  }, [api, isApiReady]);
+
+  // Reset when modal opens/closes
+  useEffect(() => {
+    if (!isOpen) {
+      setStep('idle');
+      setStatusMessage('');
+      setErrorMessage('');
+      setShowPoolCreation(false);
+    } else {
+      // Auto-check status when opened
+      if (api && isApiReady && account) {
+        performInitialCheck();
+      }
+    }
+  }, [isOpen, api, isApiReady, account, performInitialCheck]);
 
   /**
    * Configure XCM bridge
