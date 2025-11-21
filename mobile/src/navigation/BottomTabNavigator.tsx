@@ -9,6 +9,7 @@ import WalletScreen from '../screens/WalletScreen';
 import SwapScreen from '../screens/SwapScreen';
 import P2PScreen from '../screens/P2PScreen';
 import EducationScreen from '../screens/EducationScreen';
+import ForumScreen from '../screens/ForumScreen';
 import BeCitizenScreen from '../screens/BeCitizenScreen';
 import ReferralScreen from '../screens/ReferralScreen';
 import ProfileScreen from '../screens/ProfileScreen';
@@ -19,6 +20,7 @@ export type BottomTabParamList = {
   Swap: undefined;
   P2P: undefined;
   Education: undefined;
+  Forum: undefined;
   BeCitizen: undefined;
   Referral: undefined;
   Profile: undefined;
@@ -107,6 +109,18 @@ const BottomTabNavigator: React.FC = () => {
           tabBarIcon: ({ color, focused }) => (
             <Text style={[styles.icon, { color }]}>
               {focused ? '🎓' : '📚'}
+            </Text>
+          ),
+        }}
+      />
+
+      <Tab.Screen
+        name="Forum"
+        component={ForumScreen}
+        options={{
+          tabBarIcon: ({ color, focused }) => (
+            <Text style={[styles.icon, { color }]}>
+              {focused ? '💬' : '📝'}
             </Text>
           ),
         }}
