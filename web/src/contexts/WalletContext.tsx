@@ -239,7 +239,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     if (polkadot.selectedAccount && polkadot.isApiReady) {
       updateBalance(polkadot.selectedAccount.address);
     }
-  }, [polkadot.selectedAccount, polkadot.isApiReady]);
+  }, [polkadot.selectedAccount, polkadot.isApiReady, updateBalance]);
 
   // Sync error state with PolkadotContext
   useEffect(() => {

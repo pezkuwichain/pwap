@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePolkadot } from '@/contexts/PolkadotContext';
 import { supabase } from '@/lib/supabase';
@@ -27,15 +27,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   const [kycStatus, setKycStatus] = useState<string>('NotStarted');
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchProfile();
-    if (selectedAccount && api && isApiReady) {
-      fetchScoresAndTikis();
-     
-    }
-  }, [user, selectedAccount, api, isApiReady]);
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     if (!user) {
       setLoading(false);
       return;
@@ -59,9 +51,9 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
-  const fetchScoresAndTikis = async () => {
+  const fetchScoresAndTikis = useCallback(async () => {
     if (!selectedAccount || !api) return;
 
     setLoading(true);
@@ -76,7 +68,15 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedAccount, api]);
+
+  useEffect(() => {
+    fetchProfile();
+    if (selectedAccount && api && isApiReady) {
+      fetchScoresAndTikis();
+
+    }
+  }, [user, selectedAccount, api, isApiReady, fetchProfile, fetchScoresAndTikis]);
 
   const citizenNumber = nftDetails.citizenNFT
     ? generateCitizenNumber(nftDetails.citizenNFT.owner, nftDetails.citizenNFT.collectionId, nftDetails.citizenNFT.itemId)

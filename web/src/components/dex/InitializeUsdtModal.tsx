@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { ASSET_IDS, ASSET_CONFIGS } from '../../../shared/lib/wallet';
 
 interface InitializeUsdtModalProps {
   isOpen: boolean;
