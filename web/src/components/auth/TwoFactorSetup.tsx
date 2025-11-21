@@ -59,11 +59,11 @@ export function TwoFactorSetup() {
 
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('two-factor-auth', {
-        body: { 
-          action: 'enable', 
+      const { error } = await supabase.functions.invoke('two-factor-auth', {
+        body: {
+          action: 'enable',
           userId: user?.id,
-          code: verificationCode 
+          code: verificationCode
         }
       });
 
@@ -90,7 +90,7 @@ export function TwoFactorSetup() {
   const handleDisable = async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('two-factor-auth', {
+      const { error } = await supabase.functions.invoke('two-factor-auth', {
         body: { action: 'disable', userId: user?.id }
       });
 

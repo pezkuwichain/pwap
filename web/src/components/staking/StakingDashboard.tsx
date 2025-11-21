@@ -5,9 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
-import { TrendingUp, Coins, Lock, Clock, Award, AlertCircle, CheckCircle2 } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+// import { Badge } from '@/components/ui/badge';
+import { AlertCircle, CheckCircle2 } from 'lucide-react';
 import { usePolkadot } from '@/contexts/PolkadotContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { toast } from 'sonner';
@@ -26,7 +25,6 @@ import { ValidatorPoolDashboard } from './ValidatorPoolDashboard';
 import { handleBlockchainError, handleBlockchainSuccess } from '@pezkuwi/lib/error-handler';
 
 export const StakingDashboard: React.FC = () => {
-  const { t } = useTranslation();
   const { api, selectedAccount, isApiReady } = usePolkadot();
   const { balances, refreshBalances } = useWallet();
 
@@ -34,7 +32,6 @@ export const StakingDashboard: React.FC = () => {
   const [validators, setValidators] = useState<string[]>([]);
   const [minNominatorBond, setMinNominatorBond] = useState('0');
   const [bondingDuration, setBondingDuration] = useState(28);
-  const [currentEra, setCurrentEra] = useState(0);
 
   const [bondAmount, setBondAmount] = useState('');
   const [unbondAmount, setUnbondAmount] = useState('');
@@ -64,14 +61,15 @@ export const StakingDashboard: React.FC = () => {
         setValidators(activeVals);
         setMinNominatorBond(minBond);
         setBondingDuration(duration);
-        setCurrentEra(era);
+        // Track current era for future use
+        if (import.meta.env.DEV) console.log('Current era:', era);
 
         // Pre-select current nominations if any
         if (info.nominations.length > 0) {
           setSelectedValidators(info.nominations);
         }
       } catch (error) {
-        console.error('Failed to fetch staking data:', error);
+        if (import.meta.env.DEV) console.error('Failed to fetch staking data:', error);
         toast.error('Failed to fetch staking information');
       } finally {
         setIsLoadingData(false);
@@ -113,9 +111,9 @@ export const StakingDashboard: React.FC = () => {
       await tx.signAndSend(
         selectedAccount.address,
         { signer: injector.signer },
-        ({ status, events, dispatchError }) => {
+        ({ status, dispatchError }) => {
           if (status.isInBlock) {
-            console.log('Transaction in block:', status.asInBlock.toHex());
+            if (import.meta.env.DEV) console.log('Transaction in block:', status.asInBlock.toHex());
 
             if (dispatchError) {
               handleBlockchainError(dispatchError, api, toast);
@@ -135,9 +133,9 @@ export const StakingDashboard: React.FC = () => {
           }
         }
       );
-    } catch (error: any) {
-      console.error('Bond failed:', error);
-      toast.error(error.message || 'Failed to bond tokens');
+    } catch (error) {
+      if (import.meta.env.DEV) console.error('Bond failed:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to bond tokens');
       setIsLoading(false);
     }
   };
@@ -177,9 +175,9 @@ export const StakingDashboard: React.FC = () => {
           }
         }
       );
-    } catch (error: any) {
-      console.error('Nomination failed:', error);
-      toast.error(error.message || 'Failed to nominate validators');
+    } catch (error) {
+      if (import.meta.env.DEV) console.error('Nomination failed:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to nominate validators');
       setIsLoading(false);
     }
   };
@@ -222,9 +220,9 @@ export const StakingDashboard: React.FC = () => {
           }
         }
       );
-    } catch (error: any) {
-      console.error('Unbond failed:', error);
-      toast.error(error.message || 'Failed to unbond tokens');
+    } catch (error) {
+      if (import.meta.env.DEV) console.error('Unbond failed:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to unbond tokens');
       setIsLoading(false);
     }
   };
@@ -270,9 +268,9 @@ export const StakingDashboard: React.FC = () => {
           }
         }
       );
-    } catch (error: any) {
-      console.error('Withdrawal failed:', error);
-      toast.error(error.message || 'Failed to withdraw tokens');
+    } catch (error) {
+      if (import.meta.env.DEV) console.error('Withdrawal failed:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to withdraw tokens');
       setIsLoading(false);
     }
   };
@@ -316,9 +314,9 @@ export const StakingDashboard: React.FC = () => {
           }
         }
       );
-    } catch (error: any) {
-      console.error('Start score tracking failed:', error);
-      toast.error(error.message || 'Failed to start score tracking');
+    } catch (error) {
+      if (import.meta.env.DEV) console.error('Start score tracking failed:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to start score tracking');
       setIsLoading(false);
     }
   };

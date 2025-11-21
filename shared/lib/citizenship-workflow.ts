@@ -146,8 +146,9 @@ export async function hasPendingApplication(
  * Get all Tiki roles for a user
  */
 // Tiki enum mapping from pallet-tiki
+// IMPORTANT: Must match exact order in /Pezkuwi-SDK/pezkuwi/pallets/tiki/src/lib.rs
 const TIKI_ROLES = [
-  'Hemwelatî', 'Parlementer', 'SerokiMeclise', 'Serok', 'Wezir', 'EndameDiwane', 'Dadger',
+  'Welati', 'Parlementer', 'SerokiMeclise', 'Serok', 'Wezir', 'EndameDiwane', 'Dadger',
   'Dozger', 'Hiquqnas', 'Noter', 'Xezinedar', 'Bacgir', 'GerinendeyeCavkaniye', 'OperatorêTorê',
   'PisporêEwlehiyaSîber', 'GerinendeyeDaneye', 'Berdevk', 'Qeydkar', 'Balyoz', 'Navbeynkar',
   'ParêzvaneÇandî', 'Mufetîs', 'KalîteKontrolker', 'Mela', 'Feqî', 'Perwerdekar', 'Rewsenbîr',
@@ -188,7 +189,7 @@ export async function getUserTikis(
 
 /**
  * Check if user has Welati (Citizen) Tiki
- * Backend checks for "Hemwelatî" (actual blockchain role name)
+ * Blockchain uses "Welati" as the actual role name
  */
 export async function hasCitizenTiki(
   api: ApiPromise,
@@ -198,7 +199,6 @@ export async function hasCitizenTiki(
     const tikis = await getUserTikis(api, address);
 
     const citizenTiki = tikis.find(t =>
-      t.role.toLowerCase() === 'hemwelatî' ||
       t.role.toLowerCase() === 'welati' ||
       t.role.toLowerCase() === 'citizen'
     );
@@ -227,7 +227,6 @@ export async function verifyNftOwnership(
     return tikis.some(tiki =>
       tiki.id === nftNumber &&
       (
-        tiki.role.toLowerCase() === 'hemwelatî' ||
         tiki.role.toLowerCase() === 'welati' ||
         tiki.role.toLowerCase() === 'citizen'
       )
@@ -623,40 +622,128 @@ export function subscribeToKycApproval(
 
 export const FOUNDER_ADDRESS = '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY'; // Satoshi Qazi Muhammed
 
+export interface AuthChallenge {
+  message: string;
+  nonce: string;
+  timestamp: number;
+}
+
 /**
  * Generate authentication challenge for existing citizens
  */
-export function generateAuthChallenge(tikiNumber: string): string {
+export function generateAuthChallenge(tikiNumber: string): AuthChallenge {
   const timestamp = Date.now();
-  return `pezkuwi-auth-${tikiNumber}-${timestamp}`;
+  const nonce = Math.random().toString(36).substring(2, 15);
+  const message = `Sign this message to prove you own Citizen #${tikiNumber}`;
+
+  return {
+    message,
+    nonce: `pezkuwi-auth-${tikiNumber}-${timestamp}-${nonce}`,
+    timestamp
+  };
 }
 
 /**
  * Sign challenge with user's account
  */
-export async function signChallenge(challenge: string, signer: any): Promise<string> {
-  // This would use Polkadot.js signing
-  // For now, return placeholder
-  return `signed-${challenge}`;
+export async function signChallenge(
+  account: InjectedAccountWithMeta,
+  challenge: AuthChallenge
+): Promise<string> {
+  try {
+    const injector = await web3FromAddress(account.address);
+
+    if (!injector?.signer?.signRaw) {
+      throw new Error('Signer not available');
+    }
+
+    // Sign the challenge nonce
+    const signResult = await injector.signer.signRaw({
+      address: account.address,
+      data: challenge.nonce,
+      type: 'bytes'
+    });
+
+    return signResult.signature;
+  } catch (error) {
+    console.error('Failed to sign challenge:', error);
+    throw error;
+  }
 }
 
 /**
- * Verify signature
+ * Verify signature (simplified - in production, verify on backend)
  */
-export function verifySignature(challenge: string, signature: string, address: string): boolean {
-  // Implement signature verification
-  return true;
+export async function verifySignature(
+  signature: string,
+  challenge: AuthChallenge,
+  address: string
+): Promise<boolean> {
+  try {
+    // For now, just check that signature exists and is valid hex
+    // In production, you would verify the signature cryptographically
+    if (!signature || signature.length < 10) {
+      return false;
+    }
+
+    // Basic validation: signature should be hex string starting with 0x
+    const isValidHex = /^0x[0-9a-fA-F]+$/.test(signature);
+
+    return isValidHex;
+  } catch (error) {
+    console.error('Signature verification error:', error);
+    return false;
+  }
+}
+
+export interface CitizenSession {
+  tikiNumber: string;
+  walletAddress: string;
+  sessionToken: string;
+  lastAuthenticated: number;
+  expiresAt: number;
 }
 
 /**
- * Save citizen session
+ * Save citizen session (new format)
  */
-export function saveCitizenSession(tikiNumber: string, address: string): void {
-  localStorage.setItem('pezkuwi_citizen_session', JSON.stringify({
-    tikiNumber,
-    address,
-    timestamp: Date.now()
-  }));
+export function saveCitizenSession(tikiNumber: string, address: string): void;
+export function saveCitizenSession(session: CitizenSession): void;
+export function saveCitizenSession(tikiNumberOrSession: string | CitizenSession, address?: string): void {
+  if (typeof tikiNumberOrSession === 'string') {
+    // Old format for backward compatibility
+    localStorage.setItem('pezkuwi_citizen_session', JSON.stringify({
+      tikiNumber: tikiNumberOrSession,
+      address,
+      timestamp: Date.now()
+    }));
+  } else {
+    // New format with full session data
+    localStorage.setItem('pezkuwi_citizen_session', JSON.stringify(tikiNumberOrSession));
+  }
+}
+
+/**
+ * Get citizen session
+ */
+export async function getCitizenSession(): Promise<CitizenSession | null> {
+  try {
+    const sessionData = localStorage.getItem('pezkuwi_citizen_session');
+    if (!sessionData) return null;
+
+    const session = JSON.parse(sessionData);
+
+    // Check if it's the new format with expiresAt
+    if (session.expiresAt) {
+      return session as CitizenSession;
+    }
+
+    // Old format - return null to force re-authentication
+    return null;
+  } catch (error) {
+    console.error('Error retrieving citizen session:', error);
+    return null;
+  }
 }
 
 /**

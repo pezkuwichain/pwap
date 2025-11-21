@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { BookOpen, CheckCircle, Award } from 'lucide-react';
 import { usePolkadot } from '@/contexts/PolkadotContext';
 import { toast } from 'sonner';
 import { LoadingState } from '@shared/components/AsyncComponent';
-import { getStudentEnrollments, completeCourse, type Enrollment } from '@shared/lib/perwerde';
+import { completeCourse, type Enrollment } from '@shared/lib/perwerde';
 
 interface StudentDashboardProps {
   enrollments: Enrollment[];
@@ -25,12 +24,12 @@ export function StudentDashboard({ enrollments, loading, onCourseCompleted }: St
     }
 
     try {
-      // For now, let's assume a fixed number of points for completion
+      // For now, let&apos;s assume a fixed number of points for completion
       const points = 10;
       await completeCourse(api, selectedAccount, courseId, points);
       onCourseCompleted();
-    } catch (error: any) {
-      console.error('Failed to complete course:', error);
+    } catch (error) {
+      if (import.meta.env.DEV) console.error('Failed to complete course:', error);
     }
   };
 

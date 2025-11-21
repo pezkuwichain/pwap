@@ -1,35 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+// import { Button } from '@/components/ui/button';
+// import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useTranslation } from 'react-i18next';
 import { useTreasury } from '@/hooks/useTreasury';
 import {
   DollarSign,
   TrendingUp,
   TrendingDown,
-  PieChart,
+  
   Activity,
   AlertCircle,
   CheckCircle,
   Clock,
   ArrowUpRight,
-  ArrowDownRight,
-  Loader2
+  ArrowDownRight
 } from 'lucide-react';
 import { LoadingState } from '@pezkuwi/components/AsyncComponent';
-
-interface TreasuryMetrics {
-  totalBalance: number;
-  monthlyIncome: number;
-  monthlyExpenses: number;
-  pendingProposals: number;
-  approvedBudget: number;
-  healthScore: number;
-}
 
 interface BudgetCategory {
   id: string;
@@ -41,7 +30,6 @@ interface BudgetCategory {
 }
 
 export const TreasuryOverview: React.FC = () => {
-  const { t } = useTranslation();
   const { metrics, proposals, loading, error } = useTreasury();
 
   const [categories] = useState<BudgetCategory[]>([

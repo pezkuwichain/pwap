@@ -11,8 +11,8 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   isAdmin: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string, username: string, referralCode?: string) => Promise<{ error: any }>;
+  signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, username: string, referralCode?: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   checkAdminStatus: () => Promise<boolean>;
 }
@@ -38,7 +38,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Update last activity timestamp
   const updateLastActivity = useCallback(() => {
+     
     localStorage.setItem(LAST_ACTIVITY_KEY, Date.now().toString());
+  }, []);
+
+  const signOut = useCallback(async () => {
+    setIsAdmin(false);
+    setUser(null);
+    localStorage.removeItem(LAST_ACTIVITY_KEY);
+    await supabase.auth.signOut();
   }, []);
 
   // Check if session has timed out
@@ -56,10 +64,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const inactiveTime = now - lastActivityTime;
 
     if (inactiveTime >= SESSION_TIMEOUT_MS) {
-      console.log('⏱️ Session timeout - logging out due to inactivity');
+      if (import.meta.env.DEV) console.log('⏱️ Session timeout - logging out due to inactivity');
       await signOut();
     }
-  }, [user]);
+  }, [user, updateLastActivity, signOut]);
 
   // Setup activity listeners
   useEffect(() => {
@@ -70,6 +78,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const handleActivity = () => {
       updateLastActivity();
+     
+     
     };
 
     // Register event listeners
@@ -79,6 +89,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Initial activity timestamp
     updateLastActivity();
+     
+     
 
     // Check for timeout periodically
     const timeoutChecker = setInterval(checkSessionTimeout, ACTIVITY_CHECK_INTERVAL_MS);
@@ -92,49 +104,83 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, [user, updateLastActivity, checkSessionTimeout]);
 
+
+  const checkAdminStatus = useCallback(async () => {
+    // Admin wallet whitelist (blockchain-based auth)
+    const ADMIN_WALLETS = [
+      '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY', // Founder (original)
+      '5DFwqK698vL4gXHEcanaewnAqhxJ2rjhAogpSTHw3iwGDwd3', // Founder delegate (initial KYC member)
+      '5GgTgG9sRmPQAYU1RsTejZYnZRjwzKZKWD3awtuqjHioki45', // Founder (current dev wallet)
+    ];
+
+    try {
+      // PRIMARY: Check wallet-based admin (blockchain auth)
+      const connectedWallet = localStorage.getItem('selectedWallet');
+      if (import.meta.env.DEV) console.log('🔍 Admin check - Connected wallet:', connectedWallet);
+      if (import.meta.env.DEV) console.log('🔍 Admin check - Whitelist:', ADMIN_WALLETS);
+
+      if (connectedWallet && ADMIN_WALLETS.includes(connectedWallet)) {
+        if (import.meta.env.DEV) console.log('✅ Admin access granted (wallet-based)');
+        setIsAdmin(true);
+        return true;
+      }
+
+      // SECONDARY: Check Supabase admin_roles (if wallet not in whitelist)
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data, error } = await supabase
+          .from('admin_roles')
+          .select('role')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (!error && data && ['admin', 'super_admin'].includes(data.role)) {
+          if (import.meta.env.DEV) console.log('✅ Admin access granted (Supabase-based)');
+          setIsAdmin(true);
+          return true;
+        }
+      }
+
+      if (import.meta.env.DEV) console.log('❌ Admin access denied');
+      setIsAdmin(false);
+      return false;
+    } catch (err) {
+      if (import.meta.env.DEV) console.error('Admin check error:', err);
+      setIsAdmin(false);
+      return false;
+    }
+  }, []);
+
   useEffect(() => {
     // Check active sessions and sets the user
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
-      if (session?.user) {
-        checkAdminStatus();
-      }
+      checkAdminStatus(); // Check admin status regardless of Supabase session
       setLoading(false);
     }).catch(() => {
-      // If Supabase is not available, continue without auth
+      // If Supabase is not available, still check wallet-based admin
+      checkAdminStatus();
       setLoading(false);
     });
 
     // Listen for changes on auth state
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
-      if (session?.user) {
-        checkAdminStatus();
-      }
+      checkAdminStatus(); // Check admin status on auth change
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
-  }, []);
+    // Listen for wallet changes (from PolkadotContext)
+    const handleWalletChange = () => {
+      checkAdminStatus();
+    };
+    window.addEventListener('walletChanged', handleWalletChange);
 
-  const checkAdminStatus = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return false;
-
-      const { data, error } = await supabase
-        .from('admin_roles')
-        .select('role')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      const adminStatus = !error && data && ['admin', 'super_admin'].includes(data.role);
-      setIsAdmin(adminStatus);
-      return adminStatus;
-    } catch {
-      return false;
-    }
-  };
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener('walletChanged', handleWalletChange);
+    };
+  }, [checkAdminStatus]);
 
   const signIn = async (email: string, password: string) => {
     try {
@@ -148,7 +194,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       
       return { error };
-    } catch (err) {
+    } catch {
       return { 
         error: { 
           message: 'Authentication service unavailable. Please try again later.' 
@@ -179,16 +225,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           referred_by: referralCode || null,
         });
         
-        // If there's a referral code, track it
+        // If there&apos;s a referral code, track it
         if (referralCode) {
           // You can add logic here to reward the referrer
           // For example, update their referral count or add rewards
-          console.log(`User registered with referral code: ${referralCode}`);
+          if (import.meta.env.DEV) console.log(`User registered with referral code: ${referralCode}`);
         }
       }
 
       return { error };
-    } catch (err) {
+    } catch {
       return { 
         error: { 
           message: 'Registration service unavailable. Please try again later.' 
@@ -197,22 +243,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signOut = async () => {
-    setIsAdmin(false);
-    setUser(null);
-    localStorage.removeItem(LAST_ACTIVITY_KEY);
-    await supabase.auth.signOut();
-  };
-
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      loading, 
+    <AuthContext.Provider value={{
+      user,
+      loading,
       isAdmin,
-      signIn, 
-      signUp, 
+      signIn,
+      signUp,
       signOut,
-      checkAdminStatus 
+      checkAdminStatus
     }}>
       {children}
     </AuthContext.Provider>

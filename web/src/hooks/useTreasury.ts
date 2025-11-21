@@ -60,7 +60,7 @@ export function useTreasury() {
         let pendingCount = 0;
 
         if (proposalsData) {
-          proposalsData.forEach(([key, value]: any) => {
+          proposalsData.forEach(([key, value]: [unknown, unknown]) => {
             const index = key.args[0].toNumber();
             const proposal = value.unwrap();
             const valueAmount = parseInt(proposal.value.toString()) / 1e12;
@@ -96,7 +96,7 @@ export function useTreasury() {
         setProposals(proposalsList);
 
       } catch (err) {
-        console.error('Error fetching treasury data:', err);
+        if (import.meta.env.DEV) console.error('Error fetching treasury data:', err);
         setError(err instanceof Error ? err.message : 'Failed to fetch treasury data');
       } finally {
         setLoading(false);

@@ -5,12 +5,9 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useTranslation } from 'react-i18next';
-import { 
-  Download, 
-  Filter, 
+import {
+  Download,
   Search,
-  ArrowUpDown,
   FileText,
   CheckCircle,
   XCircle,
@@ -32,11 +29,10 @@ interface Transaction {
 }
 
 export const SpendingHistory: React.FC = () => {
-  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
-  const [sortBy, setSortBy] = useState('date');
+  // const sortBy = useState('date');
 
   const [transactions] = useState<Transaction[]>([
     {
@@ -47,178 +43,130 @@ export const SpendingHistory: React.FC = () => {
       amount: 85000,
       status: 'completed',
       proposalId: 'PROP-001',
-      recipient: 'Dev Team Multisig',
+      recipient: 'Dev Team Multi-sig',
       approvers: ['Alice', 'Bob', 'Charlie']
     },
     {
       id: '2',
       date: '2024-01-10',
-      description: 'Marketing Campaign - Social Media',
+      description: 'Marketing Campaign - Q1',
       category: 'Marketing',
-      amount: 25000,
+      amount: 45000,
       status: 'completed',
       proposalId: 'PROP-002',
-      recipient: 'Marketing Agency',
-      approvers: ['Alice', 'Diana']
+      recipient: 'Marketing Department',
+      approvers: ['Alice', 'David']
     },
     {
       id: '3',
       date: '2024-01-08',
-      description: 'Infrastructure Upgrade - Servers',
+      description: 'Infrastructure Upgrade',
       category: 'Infrastructure',
-      amount: 45000,
+      amount: 120000,
       status: 'pending',
       proposalId: 'PROP-003',
-      recipient: 'Cloud Provider',
-      approvers: ['Bob']
+      recipient: 'Infrastructure Team',
+      approvers: ['Alice', 'Bob']
     },
     {
       id: '4',
       date: '2024-01-05',
-      description: 'Community Hackathon Prizes',
+      description: 'Community Event Sponsorship',
       category: 'Community',
-      amount: 15000,
-      status: 'completed',
+      amount: 25000,
+      status: 'rejected',
       proposalId: 'PROP-004',
-      recipient: 'Hackathon Winners',
-      approvers: ['Alice', 'Bob', 'Eve']
+      recipient: 'Event Organizers',
+      approvers: []
     },
     {
       id: '5',
-      date: '2024-01-03',
-      description: 'Research Grant - DeFi Protocol',
-      category: 'Research',
-      amount: 50000,
-      status: 'rejected',
+      date: '2023-12-28',
+      description: 'Emergency Security Patch',
+      category: 'Development',
+      amount: 35000,
+      status: 'completed',
       proposalId: 'PROP-005',
-      recipient: 'Research Lab',
-      approvers: []
+      recipient: 'Security Team',
+      approvers: ['Alice', 'Bob', 'Charlie', 'David']
     }
   ]);
 
-  const getStatusIcon = (status: string) => {
+  const filtered = transactions.filter(tx => {
+    const matchesSearch = tx.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = filterCategory === 'all' || tx.category === filterCategory;
+    const matchesStatus = filterStatus === 'all' || tx.status === filterStatus;
+    return matchesSearch && matchesCategory && matchesStatus;
+  });
+
+  const getStatusBadge = (status: string) => {
     switch (status) {
       case 'completed':
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
+        return <Badge className="bg-green-600"><CheckCircle className="w-3 h-3 mr-1" />Completed</Badge>;
       case 'pending':
-        return <Clock className="h-4 w-4 text-yellow-500" />;
+        return <Badge className="bg-yellow-600"><Clock className="w-3 h-3 mr-1" />Pending</Badge>;
       case 'rejected':
-        return <XCircle className="h-4 w-4 text-red-500" />;
+        return <Badge className="bg-red-600"><XCircle className="w-3 h-3 mr-1" />Rejected</Badge>;
       default:
         return null;
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return <Badge className="bg-green-100 text-green-800">Completed</Badge>;
-      case 'pending':
-        return <Badge className="bg-yellow-100 text-yellow-800">Pending</Badge>;
-      case 'rejected':
-        return <Badge className="bg-red-100 text-red-800">Rejected</Badge>;
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case 'Development':
+        return <TrendingUp className="w-4 h-4 text-blue-500" />;
+      case 'Marketing':
+        return <FileText className="w-4 h-4 text-purple-500" />;
+      case 'Infrastructure':
+        return <TrendingDown className="w-4 h-4 text-orange-500" />;
       default:
-        return <Badge>{status}</Badge>;
+        return null;
     }
   };
 
-  const filteredTransactions = transactions.filter(tx => {
-    const matchesSearch = tx.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         tx.recipient.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = filterCategory === 'all' || tx.category === filterCategory;
-    const matchesStatus = filterStatus === 'all' || tx.status === filterStatus;
-    
-    return matchesSearch && matchesCategory && matchesStatus;
-  });
-
-  const totalSpent = transactions
-    .filter(tx => tx.status === 'completed')
-    .reduce((sum, tx) => sum + tx.amount, 0);
-
-  const pendingAmount = transactions
-    .filter(tx => tx.status === 'pending')
-    .reduce((sum, tx) => sum + tx.amount, 0);
-
   return (
     <div className="space-y-6">
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Total Spent (YTD)</p>
-                <p className="text-2xl font-bold">${(totalSpent / 1000).toFixed(0)}k</p>
-              </div>
-              <TrendingUp className="h-8 w-8 text-green-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Pending Approvals</p>
-                <p className="text-2xl font-bold">${(pendingAmount / 1000).toFixed(0)}k</p>
-              </div>
-              <Clock className="h-8 w-8 text-yellow-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Transactions</p>
-                <p className="text-2xl font-bold">{transactions.length}</p>
-              </div>
-              <FileText className="h-8 w-8 text-blue-500" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Filters and Search */}
-      <Card>
+      <Card className="bg-gray-900 border-gray-800">
         <CardHeader>
-          <CardTitle>Transaction History</CardTitle>
-          <CardDescription>View and export treasury spending records</CardDescription>
+          <CardTitle className="text-white">Treasury Spending History</CardTitle>
+          <CardDescription className="text-gray-400">
+            Track all treasury expenditures and approved proposals
+          </CardDescription>
         </CardHeader>
+
         <CardContent>
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
+          <div className="flex gap-4 mb-6">
             <div className="flex-1">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
                 <Input
                   placeholder="Search transactions..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 bg-gray-800 border-gray-700 text-white"
                 />
               </div>
             </div>
-            
+
             <Select value={filterCategory} onValueChange={setFilterCategory}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Category" />
+              <SelectTrigger className="w-48 bg-gray-800 border-gray-700 text-white">
+                <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-gray-800 border-gray-700">
                 <SelectItem value="all">All Categories</SelectItem>
                 <SelectItem value="Development">Development</SelectItem>
                 <SelectItem value="Marketing">Marketing</SelectItem>
                 <SelectItem value="Infrastructure">Infrastructure</SelectItem>
                 <SelectItem value="Community">Community</SelectItem>
-                <SelectItem value="Research">Research</SelectItem>
               </SelectContent>
             </Select>
 
             <Select value={filterStatus} onValueChange={setFilterStatus}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Status" />
+              <SelectTrigger className="w-40 bg-gray-800 border-gray-700 text-white">
+                <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-gray-800 border-gray-700">
                 <SelectItem value="all">All Status</SelectItem>
                 <SelectItem value="completed">Completed</SelectItem>
                 <SelectItem value="pending">Pending</SelectItem>
@@ -226,61 +174,41 @@ export const SpendingHistory: React.FC = () => {
               </SelectContent>
             </Select>
 
-            <Button variant="outline">
-              <Download className="h-4 w-4 mr-2" />
-              Export CSV
+            <Button className="bg-blue-600 hover:bg-blue-700">
+              <Download className="w-4 h-4 mr-2" />
+              Export
             </Button>
           </div>
 
-          {/* Transactions Table */}
-          <div className="rounded-md border">
+          <div className="bg-gray-800 rounded-lg overflow-hidden">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Approvers</TableHead>
-                  <TableHead>Actions</TableHead>
+                <TableRow className="border-gray-700 hover:bg-gray-750">
+                  <TableHead className="text-gray-400">Date</TableHead>
+                  <TableHead className="text-gray-400">Description</TableHead>
+                  <TableHead className="text-gray-400">Category</TableHead>
+                  <TableHead className="text-gray-400">Amount</TableHead>
+                  <TableHead className="text-gray-400">Status</TableHead>
+                  <TableHead className="text-gray-400">Proposal ID</TableHead>
+                  <TableHead className="text-gray-400">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredTransactions.map((tx) => (
-                  <TableRow key={tx.id}>
-                    <TableCell className="font-medium">{tx.date}</TableCell>
+                {filtered.map((tx) => (
+                  <TableRow key={tx.id} className="border-gray-700 hover:bg-gray-750">
+                    <TableCell className="text-gray-300">{tx.date}</TableCell>
                     <TableCell>
-                      <div>
-                        <p className="font-medium">{tx.description}</p>
-                        <p className="text-sm text-muted-foreground">{tx.recipient}</p>
+                      <div className="flex items-center gap-2">
+                        {getCategoryIcon(tx.category)}
+                        <span className="text-white">{tx.description}</span>
                       </div>
                     </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{tx.category}</Badge>
-                    </TableCell>
-                    <TableCell className="font-semibold">
+                    <TableCell className="text-gray-300">{tx.category}</TableCell>
+                    <TableCell className="text-white font-mono">
                       ${tx.amount.toLocaleString()}
                     </TableCell>
                     <TableCell>{getStatusBadge(tx.status)}</TableCell>
-                    <TableCell>
-                      <div className="flex -space-x-2">
-                        {tx.approvers.slice(0, 3).map((approver, i) => (
-                          <div
-                            key={i}
-                            className="h-8 w-8 rounded-full bg-primary/10 border-2 border-background flex items-center justify-center text-xs font-medium"
-                            title={approver}
-                          >
-                            {approver[0]}
-                          </div>
-                        ))}
-                        {tx.approvers.length > 3 && (
-                          <div className="h-8 w-8 rounded-full bg-muted border-2 border-background flex items-center justify-center text-xs">
-                            +{tx.approvers.length - 3}
-                          </div>
-                        )}
-                      </div>
-                    </TableCell>
+                    <TableCell className="text-gray-300 font-mono">{tx.proposalId}</TableCell>
                     <TableCell>
                       <Button variant="ghost" size="sm">View</Button>
                     </TableCell>

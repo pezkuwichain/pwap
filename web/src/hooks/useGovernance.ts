@@ -48,7 +48,7 @@ export function useGovernance() {
         // Fetch Treasury Proposals
         const proposalsData = await api.query.treasury?.proposals?.entries();
         if (proposalsData) {
-          const parsedProposals: Proposal[] = proposalsData.map(([key, value]: any) => {
+          const parsedProposals: Proposal[] = proposalsData.map(([key, value]: [unknown, unknown]) => {
             const proposalIndex = key.args[0].toNumber();
             const proposal = value.unwrap();
 
@@ -71,7 +71,7 @@ export function useGovernance() {
         // Fetch Democracy Referenda
         const referendaData = await api.query.democracy?.referendumInfoOf?.entries();
         if (referendaData) {
-          const parsedReferenda: Referendum[] = referendaData.map(([key, value]: any) => {
+          const parsedReferenda: Referendum[] = referendaData.map(([key, value]: [unknown, unknown]) => {
             const index = key.args[0].toNumber();
             const info = value.unwrap();
 
@@ -98,7 +98,7 @@ export function useGovernance() {
         }
 
       } catch (err) {
-        console.error('Error fetching governance data:', err);
+        if (import.meta.env.DEV) console.error('Error fetching governance data:', err);
         setError(err instanceof Error ? err.message : 'Failed to fetch governance data');
       } finally {
         setLoading(false);

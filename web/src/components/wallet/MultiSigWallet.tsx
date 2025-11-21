@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Shield, Users, Key, CheckCircle, XCircle, Clock, Send } from 'lucide-react';
+import { Key, Send } from 'lucide-react';
 
 interface MultiSigTransaction {
   id: string;
@@ -50,11 +50,11 @@ export const MultiSigWallet: React.FC = () => {
   ];
 
   const handleCreateTransaction = () => {
-    console.log('Creating multi-sig transaction:', { amount, recipient, description });
+    if (import.meta.env.DEV) console.log('Creating multi-sig transaction:', { amount, recipient, description });
   };
 
   const handleSign = (txId: string) => {
-    console.log('Signing transaction:', txId);
+    if (import.meta.env.DEV) console.log('Signing transaction:', txId);
   };
 
   return (

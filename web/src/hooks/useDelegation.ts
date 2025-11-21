@@ -77,7 +77,7 @@ export function useDelegation(userAddress?: string) {
         let userTotalDelegated = BigInt(0);
 
         if (votingEntries) {
-          votingEntries.forEach(([key, value]: any) => {
+          votingEntries.forEach(([key, value]: [unknown, unknown]) => {
             const accountId = key.args[0].toString();
             const votingInfo = value.unwrap();
 
@@ -130,7 +130,7 @@ export function useDelegation(userAddress?: string) {
           let proposalsCreated = 0;
 
           if (votingHistory) {
-            const votes = votingHistory.toJSON() as any;
+            const votes = votingHistory.toJSON() as Record<string, unknown>;
             if (votes?.votes) {
               proposalsCreated = votes.votes.length;
               proposalsPassed = Math.floor(proposalsCreated * 0.85); // Estimate
@@ -184,7 +184,7 @@ export function useDelegation(userAddress?: string) {
         });
 
       } catch (err) {
-        console.error('Error fetching delegation data:', err);
+        if (import.meta.env.DEV) console.error('Error fetching delegation data:', err);
         setError(err instanceof Error ? err.message : 'Failed to fetch delegation data');
       } finally {
         setLoading(false);
@@ -216,7 +216,7 @@ export function useDelegation(userAddress?: string) {
 
       return tx;
     } catch (err) {
-      console.error('Error creating delegation transaction:', err);
+      if (import.meta.env.DEV) console.error('Error creating delegation transaction:', err);
       throw err;
     }
   };
@@ -230,7 +230,7 @@ export function useDelegation(userAddress?: string) {
       const tx = api.tx.democracy.undelegate();
       return tx;
     } catch (err) {
-      console.error('Error creating undelegate transaction:', err);
+      if (import.meta.env.DEV) console.error('Error creating undelegate transaction:', err);
       throw err;
     }
   };

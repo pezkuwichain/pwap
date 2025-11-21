@@ -66,6 +66,7 @@ export function useForum() {
 
   useEffect(() => {
     fetchForumData();
+     
 
     // Subscribe to real-time updates
     const discussionsSubscription = supabase
@@ -94,6 +95,7 @@ export function useForum() {
       discussionsSubscription.unsubscribe();
       announcementsSubscription.unsubscribe();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchForumData = async () => {
@@ -120,7 +122,7 @@ export function useForum() {
       if (error) throw error;
       setAnnouncements(data || []);
     } catch (err) {
-      console.error('Error fetching announcements:', err);
+      if (import.meta.env.DEV) console.error('Error fetching announcements:', err);
     }
   };
 
@@ -135,7 +137,7 @@ export function useForum() {
       if (error) throw error;
       setCategories(data || []);
     } catch (err) {
-      console.error('Error fetching categories:', err);
+      if (import.meta.env.DEV) console.error('Error fetching categories:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch categories');
     }
   };
@@ -175,7 +177,7 @@ export function useForum() {
 
       setDiscussions(discussionsWithReactions);
     } catch (err) {
-      console.error('Error fetching discussions:', err);
+      if (import.meta.env.DEV) console.error('Error fetching discussions:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch discussions');
     }
   };
@@ -205,7 +207,7 @@ export function useForum() {
       await fetchDiscussions();
       return data;
     } catch (err) {
-      console.error('Error creating discussion:', err);
+      if (import.meta.env.DEV) console.error('Error creating discussion:', err);
       throw err;
     }
   };
@@ -251,7 +253,7 @@ export function useForum() {
 
       await fetchDiscussions();
     } catch (err) {
-      console.error('Error reacting to discussion:', err);
+      if (import.meta.env.DEV) console.error('Error reacting to discussion:', err);
       throw err;
     }
   };

@@ -14,11 +14,23 @@ interface AddLiquidityModalProps {
   asset1?: number;  // Pool's second asset ID
 }
 
+interface AssetDetails {
+  minBalance?: string | number;
+}
+
+interface AssetAccountData {
+  balance: string | number;
+}
+
+interface Balances {
+  [key: string]: number;
+}
+
 // Helper to get display name (users see HEZ not wHEZ, PEZ, USDT not wUSDT)
 const getDisplayName = (assetId: number): string => {
   if (assetId === ASSET_IDS.WHEZ || assetId === 0) return 'HEZ';
   if (assetId === ASSET_IDS.PEZ || assetId === 1) return 'PEZ';
-  if (assetId === ASSET_IDS.WUSDT || assetId === 2) return 'USDT';
+  if (assetId === ASSET_IDS.WUSDT || assetId === 1000) return 'USDT';
   return getAssetSymbol(assetId);
 };
 
@@ -26,13 +38,13 @@ const getDisplayName = (assetId: number): string => {
 const getBalanceKey = (assetId: number): string => {
   if (assetId === ASSET_IDS.WHEZ || assetId === 0) return 'HEZ';
   if (assetId === ASSET_IDS.PEZ || assetId === 1) return 'PEZ';
-  if (assetId === ASSET_IDS.WUSDT || assetId === 2) return 'USDT';
+  if (assetId === ASSET_IDS.WUSDT || assetId === 1000) return 'USDT';
   return getAssetSymbol(assetId);
 };
 
 // Helper to get decimals for asset
 const getAssetDecimals = (assetId: number): number => {
-  if (assetId === ASSET_IDS.WUSDT || assetId === 2) return 6; // wUSDT has 6 decimals
+  if (assetId === ASSET_IDS.WUSDT || assetId === 1000) return 6; // wUSDT has 6 decimals
   return 12; // wHEZ, PEZ have 12 decimals
 };
 
@@ -83,13 +95,13 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
         const assetDetails0 = await api.query.assets.asset(asset0);
         const assetDetails1 = await api.query.assets.asset(asset1);
 
-        console.log('🔍 Querying minimum balances for assets:', { asset0, asset1 });
+        if (import.meta.env.DEV) console.log('🔍 Querying minimum balances for assets:', { asset0, asset1 });
 
         if (assetDetails0.isSome && assetDetails1.isSome) {
-          const details0 = assetDetails0.unwrap().toJSON() as any;
-          const details1 = assetDetails1.unwrap().toJSON() as any;
+          const details0 = assetDetails0.unwrap().toJSON() as AssetDetails;
+          const details1 = assetDetails1.unwrap().toJSON() as AssetDetails;
 
-          console.log('📦 Asset details:', {
+          if (import.meta.env.DEV) console.log('📦 Asset details:', {
             asset0: details0,
             asset1: details1
           });
@@ -100,7 +112,7 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
           const minBalance0 = Number(minBalance0Raw) / Math.pow(10, asset0Decimals);
           const minBalance1 = Number(minBalance1Raw) / Math.pow(10, asset1Decimals);
 
-          console.log('📊 Minimum deposit requirements from assets:', {
+          if (import.meta.env.DEV) console.log('📊 Minimum deposit requirements from assets:', {
             asset0: asset0Name,
             minBalance0Raw,
             minBalance0,
@@ -112,26 +124,26 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
           setMinDeposit0(minBalance0);
           setMinDeposit1(minBalance1);
         } else {
-          console.warn('⚠️ Asset details not found, using defaults');
+          if (import.meta.env.DEV) console.warn('⚠️ Asset details not found, using defaults');
         }
 
-        // Also check if there's a MintMinLiquidity constant in assetConversion pallet
+        // Also check if there&apos;s a MintMinLiquidity constant in assetConversion pallet
         if (api.consts.assetConversion) {
           const mintMinLiq = api.consts.assetConversion.mintMinLiquidity;
           if (mintMinLiq) {
-            console.log('🔧 AssetConversion MintMinLiquidity constant:', mintMinLiq.toString());
+            if (import.meta.env.DEV) console.log('🔧 AssetConversion MintMinLiquidity constant:', mintMinLiq.toString());
           }
 
           const liquidityWithdrawalFee = api.consts.assetConversion.liquidityWithdrawalFee;
           if (liquidityWithdrawalFee) {
-            console.log('🔧 AssetConversion LiquidityWithdrawalFee:', liquidityWithdrawalFee.toHuman());
+            if (import.meta.env.DEV) console.log('🔧 AssetConversion LiquidityWithdrawalFee:', liquidityWithdrawalFee.toHuman());
           }
 
           // Log all assetConversion constants
-          console.log('🔧 All assetConversion constants:', Object.keys(api.consts.assetConversion));
+          if (import.meta.env.DEV) console.log('🔧 All assetConversion constants:', Object.keys(api.consts.assetConversion));
         }
       } catch (err) {
-        console.error('❌ Error fetching minimum balances:', err);
+        if (import.meta.env.DEV) console.error('❌ Error fetching minimum balances:', err);
         // Keep default 0.01 if query fails
       }
     };
@@ -166,8 +178,8 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
           const balance1Data = await api.query.assets.account(asset1, poolAccountId);
 
           if (balance0Data.isSome && balance1Data.isSome) {
-            const data0 = balance0Data.unwrap().toJSON() as any;
-            const data1 = balance1Data.unwrap().toJSON() as any;
+            const data0 = balance0Data.unwrap().toJSON() as AssetAccountData;
+            const data1 = balance1Data.unwrap().toJSON() as AssetAccountData;
 
             const reserve0 = Number(data0.balance) / Math.pow(10, asset0Decimals);
             const reserve1 = Number(data1.balance) / Math.pow(10, asset1Decimals);
@@ -177,26 +189,26 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
             if (reserve0 >= MINIMUM_LIQUIDITY && reserve1 >= MINIMUM_LIQUIDITY) {
               setCurrentPrice(reserve1 / reserve0);
               setIsPoolEmpty(false);
-              console.log('Pool has liquidity - auto-calculating ratio:', reserve1 / reserve0);
+              if (import.meta.env.DEV) console.log('Pool has liquidity - auto-calculating ratio:', reserve1 / reserve0);
             } else {
               setCurrentPrice(null);
               setIsPoolEmpty(true);
-              console.log('Pool is empty or has dust only - manual input allowed');
+              if (import.meta.env.DEV) console.log('Pool is empty or has dust only - manual input allowed');
             }
           } else {
             // No reserves found - pool is empty
             setCurrentPrice(null);
             setIsPoolEmpty(true);
-            console.log('Pool is empty - manual input allowed');
+            if (import.meta.env.DEV) console.log('Pool is empty - manual input allowed');
           }
         } else {
-          // Pool doesn't exist yet - completely empty
+          // Pool doesn&apos;t exist yet - completely empty
           setCurrentPrice(null);
           setIsPoolEmpty(true);
-          console.log('Pool does not exist yet - manual input allowed');
+          if (import.meta.env.DEV) console.log('Pool does not exist yet - manual input allowed');
         }
       } catch (err) {
-        console.error('Error fetching pool price:', err);
+        if (import.meta.env.DEV) console.error('Error fetching pool price:', err);
         // On error, assume pool is empty to allow manual input
         setCurrentPrice(null);
         setIsPoolEmpty(true);
@@ -214,7 +226,7 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
     } else if (!amount0 && !isPoolEmpty) {
       setAmount1('');
     }
-    // If pool is empty, don't auto-calculate - let user input both amounts
+    // If pool is empty, don&apos;t auto-calculate - let user input both amounts
   }, [amount0, currentPrice, asset1Decimals, isPoolEmpty]);
 
   const handleAddLiquidity = async () => {
@@ -244,8 +256,8 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
         return;
       }
 
-      const balance0 = (balances as any)[asset0BalanceKey] || 0;
-      const balance1 = (balances as any)[asset1BalanceKey] || 0;
+      const balance0 = (balances as Balances)[asset0BalanceKey] || 0;
+      const balance1 = (balances as Balances)[asset1BalanceKey] || 0;
 
       if (parseFloat(amount0) > balance0) {
         setError(`Insufficient ${asset0Name} balance`);
@@ -307,9 +319,9 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
         { signer: injector.signer },
         ({ status, events, dispatchError }) => {
           if (status.isInBlock) {
-            console.log('Transaction in block:', status.asInBlock.toHex());
+            if (import.meta.env.DEV) console.log('Transaction in block:', status.asInBlock.toHex());
           } else if (status.isFinalized) {
-            console.log('Transaction finalized:', status.asFinalized.toHex());
+            if (import.meta.env.DEV) console.log('Transaction finalized:', status.asFinalized.toHex());
 
             // Check for errors
             const hasError = events.some(({ event }) =>
@@ -324,23 +336,23 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
                   const decoded = api.registry.findMetaError(dispatchError.asModule);
                   const { docs, name, section } = decoded;
                   errorMessage = `${section}.${name}: ${docs.join(' ')}`;
-                  console.error('Dispatch error:', errorMessage);
+                  if (import.meta.env.DEV) console.error('Dispatch error:', errorMessage);
                 } else {
                   errorMessage = dispatchError.toString();
-                  console.error('Dispatch error:', errorMessage);
+                  if (import.meta.env.DEV) console.error('Dispatch error:', errorMessage);
                 }
               }
 
               events.forEach(({ event }) => {
                 if (api.events.system.ExtrinsicFailed.is(event)) {
-                  console.error('ExtrinsicFailed event:', event.toHuman());
+                  if (import.meta.env.DEV) console.error('ExtrinsicFailed event:', event.toHuman());
                 }
               });
 
               setError(errorMessage);
               setIsLoading(false);
             } else {
-              console.log('Transaction successful');
+              if (import.meta.env.DEV) console.log('Transaction successful');
               setSuccess(true);
               setIsLoading(false);
               setAmount0('');
@@ -356,7 +368,7 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
         }
       );
     } catch (err) {
-      console.error('Error adding liquidity:', err);
+      if (import.meta.env.DEV) console.error('Error adding liquidity:', err);
       setError(err instanceof Error ? err.message : 'Failed to add liquidity');
       setIsLoading(false);
     }
@@ -364,8 +376,8 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
 
   if (!isOpen) return null;
 
-  const balance0 = (balances as any)[asset0BalanceKey] || 0;
-  const balance1 = (balances as any)[asset1BalanceKey] || 0;
+  const balance0 = (balances as Balances)[asset0BalanceKey] || 0;
+  const balance1 = (balances as Balances)[asset1BalanceKey] || 0;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">

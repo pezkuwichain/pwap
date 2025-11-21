@@ -26,6 +26,7 @@ export function AdList({ type }: AdListProps) {
 
   useEffect(() => {
     fetchOffers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [type, user]);
 
   const fetchOffers = async () => {
@@ -69,7 +70,7 @@ export function AdList({ type }: AdListProps) {
 
       setOffers(enrichedOffers);
     } catch (error) {
-      console.error('Fetch offers error:', error);
+      if (import.meta.env.DEV) console.error('Fetch offers error:', error);
     } finally {
       setLoading(false);
     }
@@ -196,6 +197,7 @@ export function AdList({ type }: AdListProps) {
           onClose={() => {
             setSelectedOffer(null);
             fetchOffers(); // Refresh list
+     
           }}
         />
       )}

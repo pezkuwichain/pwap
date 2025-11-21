@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { FileText, Vote, Clock, TrendingUp, Users, AlertCircle, Loader2, Activity } from 'lucide-react';
+import { Clock, Users, AlertCircle, Activity } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
@@ -43,7 +42,7 @@ const ProposalsList: React.FC = () => {
       proposer: p.proposer,
       type: 'treasury' as const,
       status: p.status as 'active' | 'passed' | 'rejected' | 'pending',
-      ayeVotes: 0, // Treasury proposals don't have votes until they become referenda
+      ayeVotes: 0, // Treasury proposals don&apos;t have votes until they become referenda
       nayVotes: 0,
       totalVotes: 0,
       quorum: 0,

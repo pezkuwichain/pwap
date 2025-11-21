@@ -44,15 +44,15 @@ export const NetworkStats: React.FC = () => {
             try {
               const nominators = await api.query.staking.nominators.entries();
               nominatorCount = nominators.length;
-            } catch (err) {
-              console.warn('Staking pallet not available, nominators = 0');
+            } catch {
+              if (import.meta.env.DEV) console.warn('Staking pallet not available, nominators = 0');
             }
 
             setValidatorCount(validators.length);
             setNominatorCount(nominatorCount);
             setPeers(health.peers.toNumber());
           } catch (err) {
-            console.error('Failed to update network stats:', err);
+            if (import.meta.env.DEV) console.error('Failed to update network stats:', err);
           }
         };
 
@@ -63,7 +63,7 @@ export const NetworkStats: React.FC = () => {
         intervalId = setInterval(updateNetworkStats, 3000);
 
       } catch (err) {
-        console.error('Failed to subscribe to blocks:', err);
+        if (import.meta.env.DEV) console.error('Failed to subscribe to blocks:', err);
       }
     };
 

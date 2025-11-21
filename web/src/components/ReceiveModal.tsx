@@ -33,7 +33,9 @@ export const ReceiveModal: React.FC<ReceiveModalProps> = ({ isOpen, onClose }) =
           dark: '#ffffff',
           light: '#0f172a'
         }
-      }).then(setQrCodeDataUrl).catch(console.error);
+      }).then(setQrCodeDataUrl).catch((err) => {
+        if (import.meta.env.DEV) console.error('QR code generation failed:', err);
+      });
     }
   }, [selectedAccount, isOpen]);
 
@@ -49,7 +51,7 @@ export const ReceiveModal: React.FC<ReceiveModalProps> = ({ isOpen, onClose }) =
       });
 
       setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
+    } catch {
       toast({
         title: "Copy Failed",
         description: "Failed to copy address to clipboard",

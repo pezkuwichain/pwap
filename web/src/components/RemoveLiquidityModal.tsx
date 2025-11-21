@@ -11,7 +11,7 @@ import { ASSET_IDS, getAssetSymbol } from '@pezkuwi/lib/wallet';
 const getDisplayTokenName = (assetId: number): string => {
   if (assetId === ASSET_IDS.WHEZ || assetId === 0) return 'HEZ';
   if (assetId === ASSET_IDS.PEZ || assetId === 1) return 'PEZ';
-  if (assetId === ASSET_IDS.WUSDT || assetId === 2) return 'USDT';
+  if (assetId === ASSET_IDS.WUSDT || assetId === 1000) return 'USDT';
   return getAssetSymbol(assetId);
 };
 
@@ -39,7 +39,6 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
   isOpen,
   onClose,
   lpPosition,
-  lpTokenId,
   asset0,
   asset1,
 }) => {
@@ -60,7 +59,7 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
 
     const fetchMinBalances = async () => {
       try {
-        console.log(`🔍 Fetching minBalances for pool: asset0=${asset0} (${getDisplayTokenName(asset0)}), asset1=${asset1} (${getDisplayTokenName(asset1)})`);
+        if (import.meta.env.DEV) console.log(`🔍 Fetching minBalances for pool: asset0=${asset0} (${getDisplayTokenName(asset0)}), asset1=${asset1} (${getDisplayTokenName(asset1)})`);
 
         // For wHEZ (asset ID 0), we need to fetch from assets pallet
         // For native HEZ, we would need existentialDeposit from balances
@@ -70,19 +69,19 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
           // wHEZ is an asset in the assets pallet
           const assetDetails0 = await api.query.assets.asset(ASSET_IDS.WHEZ);
           if (assetDetails0.isSome) {
-            const details0 = assetDetails0.unwrap().toJSON() as any;
+            const details0 = assetDetails0.unwrap().toJSON() as Record<string, unknown>;
             const min0 = Number(details0.minBalance) / Math.pow(10, getAssetDecimals(asset0));
             setMinBalance0(min0);
-            console.log(`📊 ${getDisplayTokenName(asset0)} minBalance: ${min0}`);
+            if (import.meta.env.DEV) console.log(`📊 ${getDisplayTokenName(asset0)} minBalance: ${min0}`);
           }
         } else {
           // Other assets (PEZ, wUSDT, etc.)
           const assetDetails0 = await api.query.assets.asset(asset0);
           if (assetDetails0.isSome) {
-            const details0 = assetDetails0.unwrap().toJSON() as any;
+            const details0 = assetDetails0.unwrap().toJSON() as Record<string, unknown>;
             const min0 = Number(details0.minBalance) / Math.pow(10, getAssetDecimals(asset0));
             setMinBalance0(min0);
-            console.log(`📊 ${getDisplayTokenName(asset0)} minBalance: ${min0}`);
+            if (import.meta.env.DEV) console.log(`📊 ${getDisplayTokenName(asset0)} minBalance: ${min0}`);
           }
         }
 
@@ -90,23 +89,23 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
           // wHEZ is an asset in the assets pallet
           const assetDetails1 = await api.query.assets.asset(ASSET_IDS.WHEZ);
           if (assetDetails1.isSome) {
-            const details1 = assetDetails1.unwrap().toJSON() as any;
+            const details1 = assetDetails1.unwrap().toJSON() as Record<string, unknown>;
             const min1 = Number(details1.minBalance) / Math.pow(10, getAssetDecimals(asset1));
             setMinBalance1(min1);
-            console.log(`📊 ${getDisplayTokenName(asset1)} minBalance: ${min1}`);
+            if (import.meta.env.DEV) console.log(`📊 ${getDisplayTokenName(asset1)} minBalance: ${min1}`);
           }
         } else {
           // Other assets (PEZ, wUSDT, etc.)
           const assetDetails1 = await api.query.assets.asset(asset1);
           if (assetDetails1.isSome) {
-            const details1 = assetDetails1.unwrap().toJSON() as any;
+            const details1 = assetDetails1.unwrap().toJSON() as Record<string, unknown>;
             const min1 = Number(details1.minBalance) / Math.pow(10, getAssetDecimals(asset1));
             setMinBalance1(min1);
-            console.log(`📊 ${getDisplayTokenName(asset1)} minBalance: ${min1}`);
+            if (import.meta.env.DEV) console.log(`📊 ${getDisplayTokenName(asset1)} minBalance: ${min1}`);
           }
         }
       } catch (err) {
-        console.error('Error fetching minBalances:', err);
+        if (import.meta.env.DEV) console.error('Error fetching minBalances:', err);
       }
     };
 
@@ -129,7 +128,7 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
 
     setMaxRemovablePercentage(safeMaxPercent > 0 ? safeMaxPercent : 99);
 
-    console.log(`🔒 Max removable: ${safeMaxPercent}% (asset0: ${maxPercent0.toFixed(2)}%, asset1: ${maxPercent1.toFixed(2)}%)`);
+    if (import.meta.env.DEV) console.log(`🔒 Max removable: ${safeMaxPercent}% (asset0: ${maxPercent0.toFixed(2)}%, asset1: ${maxPercent1.toFixed(2)}%)`);
   }, [minBalance0, minBalance1, lpPosition.asset0Amount, lpPosition.asset1Amount]);
 
   const handleRemoveLiquidity = async () => {
@@ -187,9 +186,9 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
         { signer: injector.signer },
         ({ status, events }) => {
           if (status.isInBlock) {
-            console.log('Transaction in block');
+            if (import.meta.env.DEV) console.log('Transaction in block');
           } else if (status.isFinalized) {
-            console.log('Transaction finalized');
+            if (import.meta.env.DEV) console.log('Transaction finalized');
 
             // Check for errors
             const hasError = events.some(({ event }) =>
@@ -213,7 +212,7 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
         }
       );
     } catch (err) {
-      console.error('Error removing liquidity:', err);
+      if (import.meta.env.DEV) console.error('Error removing liquidity:', err);
       setError(err instanceof Error ? err.message : 'Failed to remove liquidity');
       setIsLoading(false);
     }

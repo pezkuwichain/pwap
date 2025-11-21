@@ -50,7 +50,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     // Log error to console
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
+    if (import.meta.env.DEV) console.error('ErrorBoundary caught an error:', error, errorInfo);
 
     // Update state with error details
     this.setState({
@@ -180,7 +180,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
 /**
  * Smaller error boundary for individual routes
- * Less intrusive, doesn't take over the whole screen
+ * Less intrusive, doesn&apos;t take over the whole screen
  */
 export const RouteErrorBoundary: React.FC<{
   children: ReactNode;

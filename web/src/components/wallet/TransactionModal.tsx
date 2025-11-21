@@ -18,16 +18,15 @@ interface TransactionModalProps {
   isOpen: boolean;
   onClose: () => void;
   type: 'send' | 'vote' | 'delegate';
-  data?: any;
+  data?: Record<string, unknown>;
 }
 
-export const TransactionModal: React.FC<TransactionModalProps> = ({ 
-  isOpen, 
-  onClose, 
-  type,
-  data 
+export const TransactionModal: React.FC<TransactionModalProps> = ({
+  isOpen,
+  onClose,
+  type
 }) => {
-  const { address, signTransaction, signMessage } = useWallet();
+  const { signTransaction, signMessage } = useWallet();
   const [recipient, setRecipient] = useState('');
   const [amount, setAmount] = useState('');
   const [message, setMessage] = useState('');
@@ -53,8 +52,9 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
 
       const hash = await signTransaction(tx);
       setTxHash(hash);
-    } catch (err: any) {
-      setError(err.message || 'Transaction failed');
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Transaction failed';
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -72,8 +72,9 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
     try {
       const signature = await signMessage(message);
       setTxHash(signature);
-    } catch (err: any) {
-      setError(err.message || 'Failed to sign message');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to sign message';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

@@ -40,11 +40,11 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({ isOpen, 
 
     setIsLoading(true);
     try {
-      console.log('Fetching transactions...');
+      if (import.meta.env.DEV) console.log('Fetching transactions...');
       const currentBlock = await api.rpc.chain.getBlock();
       const currentBlockNumber = currentBlock.block.header.number.toNumber();
 
-      console.log('Current block number:', currentBlockNumber);
+      if (import.meta.env.DEV) console.log('Current block number:', currentBlockNumber);
       
       const txList: Transaction[] = [];
       const blocksToCheck = Math.min(200, currentBlockNumber);
@@ -56,17 +56,17 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({ isOpen, 
           const blockHash = await api.rpc.chain.getBlockHash(blockNumber);
           const block = await api.rpc.chain.getBlock(blockHash);
 
-          // Try to get timestamp, but don't fail if state is pruned
+          // Try to get timestamp, but don&apos;t fail if state is pruned
           let timestamp = 0;
           try {
             const ts = await api.query.timestamp.now.at(blockHash);
             timestamp = ts.toNumber();
-          } catch (error) {
+          } catch {
             // State pruned, use current time as fallback
             timestamp = Date.now();
           }
           
-          console.log(`Block #${blockNumber}: ${block.block.extrinsics.length} extrinsics`);
+          if (import.meta.env.DEV) console.log(`Block #${blockNumber}: ${block.block.extrinsics.length} extrinsics`);
           
           // Check each extrinsic in the block
           block.block.extrinsics.forEach((extrinsic, index) => {
@@ -77,7 +77,7 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({ isOpen, 
 
             const { method, signer } = extrinsic;
             
-            console.log(`  Extrinsic #${index}: ${method.section}.${method.method}, signer: ${signer.toString()}`);
+            if (import.meta.env.DEV) console.log(`  Extrinsic #${index}: ${method.section}.${method.method}, signer: ${signer.toString()}`);
             
             // Check if transaction involves our account
             const fromAddress = signer.toString();
@@ -168,7 +168,7 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({ isOpen, 
             // Parse DEX operations
             else if (method.section === 'dex') {
               if (method.method === 'swap') {
-                const [path, amountIn] = method.args;
+                const [, amountIn] = method.args;
                 txList.push({
                   blockNumber,
                   extrinsicIndex: index,
@@ -223,16 +223,16 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({ isOpen, 
             }
           });
         } catch (blockError) {
-          console.warn(`Error processing block #${blockNumber}:`, blockError);
+          if (import.meta.env.DEV) console.warn(`Error processing block #${blockNumber}:`, blockError);
           // Continue to next block
         }
       }
       
-      console.log('Found transactions:', txList.length);
+      if (import.meta.env.DEV) console.log('Found transactions:', txList.length);
       
       setTransactions(txList);
-    } catch (error) {
-      console.error('Failed to fetch transactions:', error);
+    } catch {
+      if (import.meta.env.DEV) console.error('Failed to fetch transactions:', error);
       toast({
         title: "Error",
         description: "Failed to fetch transaction history",
@@ -247,7 +247,9 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({ isOpen, 
     if (isOpen) {
       fetchTransactions();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, api, isApiReady, selectedAccount]);
+     
 
   const formatAmount = (amount: string, decimals: number = 12) => {
     const value = parseInt(amount) / Math.pow(10, decimals);
@@ -302,7 +304,7 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({ isOpen, 
               </p>
             </div>
           ) : (
-            transactions.map((tx, index) => (
+            transactions.map((tx) => (
               <div
                 key={`${tx.blockNumber}-${tx.extrinsicIndex}`}
                 className="bg-gray-800/50 border border-gray-700 rounded-lg p-4 hover:bg-gray-800 transition-colors"

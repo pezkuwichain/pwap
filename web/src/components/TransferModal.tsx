@@ -48,7 +48,7 @@ interface Token {
 const TOKENS: Token[] = [
   { symbol: 'HEZ', name: 'Hez Token', decimals: 12, color: 'from-green-600 to-yellow-400' },
   { symbol: 'PEZ', name: 'Pez Token', assetId: 1, decimals: 12, color: 'from-blue-600 to-purple-400' },
-  { symbol: 'USDT', name: 'Tether USD', assetId: 2, decimals: 6, color: 'from-green-500 to-green-600' },
+  { symbol: 'USDT', name: 'Tether USD', assetId: 1000, decimals: 6, color: 'from-green-500 to-green-600' },
   { symbol: 'BTC', name: 'Bitcoin', assetId: 3, decimals: 8, color: 'from-orange-500 to-yellow-500' },
   { symbol: 'ETH', name: 'Ethereum', assetId: 4, decimals: 18, color: 'from-purple-500 to-blue-500' },
   { symbol: 'DOT', name: 'Polkadot', assetId: 5, decimals: 10, color: 'from-pink-500 to-red-500' },
@@ -72,7 +72,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, s
     assetId: selectedAsset.assetId,
     decimals: selectedAsset.decimals,
     color: selectedAsset.assetId === 0 ? 'from-green-600 to-yellow-400' :
-           selectedAsset.assetId === 2 ? 'from-emerald-500 to-teal-500' :
+           selectedAsset.assetId === 1000 ? 'from-emerald-500 to-teal-500' :
            'from-cyan-500 to-blue-500',
   } : TOKENS.find(t => t.symbol === selectedToken) || TOKENS[0];
 
@@ -124,14 +124,14 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, s
       const unsub = await transfer.signAndSend(
         selectedAccount.address,
         { signer: injector.signer },
-        ({ status, events, dispatchError }) => {
+        ({ status, dispatchError }) => {
           if (status.isInBlock) {
-            console.log(`Transaction included in block: ${status.asInBlock}`);
+            if (import.meta.env.DEV) console.log(`Transaction included in block: ${status.asInBlock}`);
             setTxHash(status.asInBlock.toHex());
           }
 
           if (status.isFinalized) {
-            console.log(`Transaction finalized: ${status.asFinalized}`);
+            if (import.meta.env.DEV) console.log(`Transaction finalized: ${status.asFinalized}`);
             
             // Check for errors
             if (dispatchError) {
@@ -170,14 +170,14 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, s
           }
         }
       );
-    } catch (error: any) {
-      console.error('Transfer error:', error);
+    } catch (error) {
+      if (import.meta.env.DEV) console.error('Transfer error:', error);
       setTxStatus('error');
       setIsTransferring(false);
-      
+
       toast({
         title: "Transfer Failed",
-        description: error.message || "An error occurred during transfer",
+        description: error instanceof Error ? error.message : "An error occurred during transfer",
         variant: "destructive",
       });
     }
@@ -269,8 +269,8 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, s
                 id="recipient"
                 value={recipient}
                 onChange={(e) => setRecipient(e.target.value)}
-                placeholder="5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"
-                className="bg-gray-800 border-gray-700 text-white mt-2"
+                placeholder="Recipient address"
+                className="bg-gray-800 border-gray-700 text-white mt-2 placeholder:text-gray-500 placeholder:opacity-50"
                 disabled={isTransferring}
               />
             </div>
@@ -283,8 +283,8 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, s
                 step={selectedToken === 'HEZ' || selectedToken === 'PEZ' ? '0.0001' : '0.000001'}
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                placeholder="0.0000"
-                className="bg-gray-800 border-gray-700 text-white mt-2"
+                placeholder="Amount"
+                className="bg-gray-800 border-gray-700 text-white mt-2 placeholder:text-gray-500 placeholder:opacity-50"
                 disabled={isTransferring}
               />
               <div className="text-xs text-gray-500 mt-1">
