@@ -129,8 +129,9 @@ export default function CitizensIssues() {
   useEffect(() => {
     if (isApiReady && selectedAccount) {
       fetchAllData();
-     
+
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isApiReady, selectedAccount, activeTab]);
      
 

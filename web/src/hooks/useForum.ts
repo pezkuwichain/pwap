@@ -95,6 +95,7 @@ export function useForum() {
       discussionsSubscription.unsubscribe();
       announcementsSubscription.unsubscribe();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchForumData = async () => {
