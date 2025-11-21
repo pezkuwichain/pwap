@@ -7,6 +7,8 @@ import {
   RefreshControl,
   Alert,
   Pressable,
+  TouchableOpacity,
+  FlatList,
 } from 'react-native';
 import { usePolkadot } from '../contexts/PolkadotContext';
 import { AppColors, KurdistanColors } from '../theme/colors';
@@ -31,6 +33,27 @@ interface Proposal {
   endBlock: number;
 }
 
+interface Election {
+  id: number;
+  type: 'Presidential' | 'Parliamentary' | 'Constitutional Court';
+  status: 'Registration' | 'Campaign' | 'Voting' | 'Completed';
+  candidates: Candidate[];
+  totalVotes: number;
+  endBlock: number;
+  currentBlock: number;
+}
+
+interface Candidate {
+  id: string;
+  name: string;
+  votes: number;
+  percentage: number;
+  party?: string;
+  trustScore: number;
+}
+
+type TabType = 'proposals' | 'elections' | 'parliament';
+
 /**
  * Governance Screen
  * View proposals, vote, participate in governance
@@ -38,16 +61,22 @@ interface Proposal {
  */
 export default function GovernanceScreen() {
   const { api, selectedAccount, isApiReady } = usePolkadot();
+  const [activeTab, setActiveTab] = useState<TabType>('proposals');
   const [proposals, setProposals] = useState<Proposal[]>([]);
+  const [elections, setElections] = useState<Election[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(null);
+  const [selectedElection, setSelectedElection] = useState<Election | null>(null);
   const [voteSheetVisible, setVoteSheetVisible] = useState(false);
+  const [electionSheetVisible, setElectionSheetVisible] = useState(false);
   const [voting, setVoting] = useState(false);
+  const [votedCandidates, setVotedCandidates] = useState<string[]>([]);
 
   useEffect(() => {
     if (isApiReady && selectedAccount) {
       fetchProposals();
+      fetchElections();
     }
   }, [isApiReady, selectedAccount]);
 
@@ -100,6 +129,43 @@ export default function GovernanceScreen() {
     }
   };
 
+  const fetchElections = async () => {
+    try {
+      // Mock elections data
+      // In production, this would fetch from pallet-tiki or election pallet
+      const mockElections: Election[] = [
+        {
+          id: 1,
+          type: 'Presidential',
+          status: 'Voting',
+          totalVotes: 45678,
+          endBlock: 1000000,
+          currentBlock: 995000,
+          candidates: [
+            { id: '1', name: 'Candidate A', votes: 23456, percentage: 51.3, trustScore: 850 },
+            { id: '2', name: 'Candidate B', votes: 22222, percentage: 48.7, trustScore: 780 }
+          ]
+        },
+        {
+          id: 2,
+          type: 'Parliamentary',
+          status: 'Campaign',
+          totalVotes: 12340,
+          endBlock: 1200000,
+          currentBlock: 995000,
+          candidates: [
+            { id: '3', name: 'Candidate C', votes: 5678, percentage: 46.0, party: 'Green Party', trustScore: 720 },
+            { id: '4', name: 'Candidate D', votes: 4567, percentage: 37.0, party: 'Democratic Alliance', trustScore: 690 },
+            { id: '5', name: 'Candidate E', votes: 2095, percentage: 17.0, party: 'Independent', trustScore: 650 }
+          ]
+        }
+      ];
+      setElections(mockElections);
+    } catch (error) {
+      console.error('Error fetching elections:', error);
+    }
+  };
+
   const handleVote = async (approve: boolean) => {
     if (!selectedProposal) return;
 
@@ -132,6 +198,46 @@ export default function GovernanceScreen() {
     }
   };
 
+  const handleElectionVote = (candidateId: string) => {
+    if (!selectedElection) return;
+
+    if (selectedElection.type === 'Parliamentary') {
+      // Multiple selection for Parliamentary
+      setVotedCandidates(prev =>
+        prev.includes(candidateId)
+          ? prev.filter(id => id !== candidateId)
+          : [...prev, candidateId]
+      );
+    } else {
+      // Single selection for Presidential
+      setVotedCandidates([candidateId]);
+    }
+  };
+
+  const submitElectionVote = async () => {
+    if (votedCandidates.length === 0) {
+      Alert.alert('Error', 'Please select at least one candidate');
+      return;
+    }
+
+    try {
+      setVoting(true);
+      // TODO: Submit votes to blockchain via pallet-tiki
+      // await api.tx.tiki.voteInElection(electionId, candidateIds).signAndSend(...)
+
+      Alert.alert('Success', 'Your vote has been recorded!');
+      setElectionSheetVisible(false);
+      setSelectedElection(null);
+      setVotedCandidates([]);
+      fetchElections();
+    } catch (error: any) {
+      console.error('Election voting error:', error);
+      Alert.alert('Error', error.message || 'Failed to submit vote');
+    } finally {
+      setVoting(false);
+    }
+  };
+
   if (loading && proposals.length === 0) {
     return (
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -144,6 +250,44 @@ export default function GovernanceScreen() {
 
   return (
     <View style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Governance</Text>
+        <Text style={styles.headerSubtitle}>
+          Participate in digital democracy
+        </Text>
+      </View>
+
+      {/* Tabs */}
+      <View style={styles.tabs}>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'proposals' && styles.activeTab]}
+          onPress={() => setActiveTab('proposals')}
+        >
+          <Text style={[styles.tabText, activeTab === 'proposals' && styles.activeTabText]}>
+            Proposals ({proposals.length})
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'elections' && styles.activeTab]}
+          onPress={() => setActiveTab('elections')}
+        >
+          <Text style={[styles.tabText, activeTab === 'elections' && styles.activeTabText]}>
+            Elections ({elections.length})
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'parliament' && styles.activeTab]}
+          onPress={() => setActiveTab('parliament')}
+        >
+          <Text style={[styles.tabText, activeTab === 'parliament' && styles.activeTabText]}>
+            Parliament
+          </Text>
+        </TouchableOpacity>
+      </View>
+
       <ScrollView
         contentContainerStyle={styles.content}
         refreshControl={
@@ -152,18 +296,11 @@ export default function GovernanceScreen() {
             onRefresh={() => {
               setRefreshing(true);
               fetchProposals();
+              fetchElections();
             }}
           />
         }
       >
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Governance</Text>
-          <Text style={styles.headerSubtitle}>
-            Participate in digital democracy
-          </Text>
-        </View>
-
         {/* Stats */}
         <View style={styles.statsRow}>
           <Card style={styles.statCard}>
@@ -171,31 +308,97 @@ export default function GovernanceScreen() {
             <Text style={styles.statLabel}>Active Proposals</Text>
           </Card>
           <Card style={styles.statCard}>
-            <Text style={styles.statValue}>1,234</Text>
-            <Text style={styles.statLabel}>Total Voters</Text>
+            <Text style={styles.statValue}>{elections.length}</Text>
+            <Text style={styles.statLabel}>Active Elections</Text>
           </Card>
         </View>
 
-        {/* Proposals List */}
-        <Text style={styles.sectionTitle}>Active Proposals</Text>
-        {proposals.length === 0 ? (
-          <Card style={styles.emptyCard}>
-            <Text style={styles.emptyText}>No active proposals</Text>
-            <Text style={styles.emptySubtext}>
-              Check back later for new governance proposals
-            </Text>
-          </Card>
-        ) : (
-          proposals.map((proposal) => (
-            <ProposalCard
-              key={proposal.index}
-              proposal={proposal}
-              onPress={() => {
-                setSelectedProposal(proposal);
-                setVoteSheetVisible(true);
-              }}
-            />
-          ))
+        {/* Tab Content */}
+        {activeTab === 'proposals' && (
+          <>
+            <Text style={styles.sectionTitle}>Active Proposals</Text>
+            {proposals.length === 0 ? (
+              <Card style={styles.emptyCard}>
+                <Text style={styles.emptyText}>No active proposals</Text>
+                <Text style={styles.emptySubtext}>
+                  Check back later for new governance proposals
+                </Text>
+              </Card>
+            ) : (
+              proposals.map((proposal) => (
+                <ProposalCard
+                  key={proposal.index}
+                  proposal={proposal}
+                  onPress={() => {
+                    setSelectedProposal(proposal);
+                    setVoteSheetVisible(true);
+                  }}
+                />
+              ))
+            )}
+          </>
+        )}
+
+        {activeTab === 'elections' && (
+          <>
+            <Text style={styles.sectionTitle}>Active Elections</Text>
+            {elections.length === 0 ? (
+              <Card style={styles.emptyCard}>
+                <Text style={styles.emptyText}>No active elections</Text>
+                <Text style={styles.emptySubtext}>
+                  Check back later for upcoming elections
+                </Text>
+              </Card>
+            ) : (
+              elections.map((election) => (
+                <ElectionCard
+                  key={election.id}
+                  election={election}
+                  onPress={() => {
+                    setSelectedElection(election);
+                    setVotedCandidates([]);
+                    setElectionSheetVisible(true);
+                  }}
+                />
+              ))
+            )}
+          </>
+        )}
+
+        {activeTab === 'parliament' && (
+          <>
+            <Text style={styles.sectionTitle}>Parliament Status</Text>
+            <Card style={styles.parliamentCard}>
+              <View style={styles.parliamentRow}>
+                <Text style={styles.parliamentLabel}>Active Members</Text>
+                <Text style={styles.parliamentValue}>0 / 27</Text>
+              </View>
+              <View style={styles.parliamentRow}>
+                <Text style={styles.parliamentLabel}>Current Session</Text>
+                <Badge label="In Session" variant="success" size="small" />
+              </View>
+              <View style={styles.parliamentRow}>
+                <Text style={styles.parliamentLabel}>Pending Votes</Text>
+                <Text style={styles.parliamentValue}>5</Text>
+              </View>
+            </Card>
+
+            <Text style={styles.sectionTitle}>Dîwan (Constitutional Court)</Text>
+            <Card style={styles.parliamentCard}>
+              <View style={styles.parliamentRow}>
+                <Text style={styles.parliamentLabel}>Active Judges</Text>
+                <Text style={styles.parliamentValue}>0 / 9</Text>
+              </View>
+              <View style={styles.parliamentRow}>
+                <Text style={styles.parliamentLabel}>Pending Reviews</Text>
+                <Text style={styles.parliamentValue}>3</Text>
+              </View>
+              <View style={styles.parliamentRow}>
+                <Text style={styles.parliamentLabel}>Recent Decisions</Text>
+                <Text style={styles.parliamentValue}>12</Text>
+              </View>
+            </Card>
+          </>
         )}
 
         {/* Info Card */}
@@ -265,9 +468,147 @@ export default function GovernanceScreen() {
           </View>
         )}
       </BottomSheet>
+
+      {/* Election Vote Bottom Sheet */}
+      <BottomSheet
+        visible={electionSheetVisible}
+        onClose={() => setElectionSheetVisible(false)}
+        title={selectedElection ? `${selectedElection.type} Election` : 'Election'}
+        height={600}
+      >
+        {selectedElection && (
+          <View>
+            <View style={styles.electionHeader}>
+              <Badge
+                label={selectedElection.status}
+                variant={selectedElection.status === 'Voting' ? 'info' : 'success'}
+                size="small"
+              />
+              <Text style={styles.electionVotes}>
+                {selectedElection.totalVotes.toLocaleString()} votes cast
+              </Text>
+            </View>
+
+            <Text style={styles.electionInstruction}>
+              {selectedElection.type === 'Parliamentary'
+                ? 'You can select multiple candidates'
+                : 'Select one candidate'}
+            </Text>
+
+            {/* Candidates List */}
+            <ScrollView style={styles.candidatesList}>
+              {selectedElection.candidates.map((candidate) => (
+                <TouchableOpacity
+                  key={candidate.id}
+                  style={[
+                    styles.candidateCard,
+                    votedCandidates.includes(candidate.id) && styles.candidateCardSelected
+                  ]}
+                  onPress={() => handleElectionVote(candidate.id)}
+                >
+                  <View style={styles.candidateHeader}>
+                    <View>
+                      <Text style={styles.candidateName}>{candidate.name}</Text>
+                      {candidate.party && (
+                        <Text style={styles.candidateParty}>{candidate.party}</Text>
+                      )}
+                      <Text style={styles.candidateTrust}>
+                        Trust Score: {candidate.trustScore}
+                      </Text>
+                    </View>
+                    <View style={styles.candidateStats}>
+                      <Text style={styles.candidatePercentage}>
+                        {candidate.percentage.toFixed(1)}%
+                      </Text>
+                      <Text style={styles.candidateVotes}>
+                        {candidate.votes.toLocaleString()} votes
+                      </Text>
+                    </View>
+                  </View>
+                  <View style={styles.progressBar}>
+                    <View
+                      style={[
+                        styles.progressFill,
+                        { width: `${candidate.percentage}%` }
+                      ]}
+                    />
+                  </View>
+                  {votedCandidates.includes(candidate.id) && (
+                    <View style={styles.selectedBadge}>
+                      <Text style={styles.selectedText}>✓ Selected</Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+
+            {/* Submit Vote Button */}
+            <Button
+              title={`Submit ${votedCandidates.length > 0 ? `(${votedCandidates.length})` : ''} Vote`}
+              onPress={submitElectionVote}
+              loading={voting}
+              disabled={voting || votedCandidates.length === 0}
+              variant="primary"
+              fullWidth
+              style={{ marginTop: 16 }}
+            />
+          </View>
+        )}
+      </BottomSheet>
     </View>
   );
 }
+
+const ElectionCard: React.FC<{
+  election: Election;
+  onPress: () => void;
+}> = ({ election, onPress }) => {
+  const blocksLeft = election.endBlock - election.currentBlock;
+
+  return (
+    <Card onPress={onPress} style={styles.electionCard}>
+      <View style={styles.electionCardHeader}>
+        <View>
+          <Text style={styles.electionType}>{election.type}</Text>
+          <Text style={styles.electionStatus}>{election.status}</Text>
+        </View>
+        <Badge
+          label={election.status}
+          variant={election.status === 'Voting' ? 'info' : 'warning'}
+          size="small"
+        />
+      </View>
+
+      <View style={styles.electionStats}>
+        <View style={styles.electionStat}>
+          <Text style={styles.electionStatLabel}>Candidates</Text>
+          <Text style={styles.electionStatValue}>{election.candidates.length}</Text>
+        </View>
+        <View style={styles.electionStat}>
+          <Text style={styles.electionStatLabel}>Total Votes</Text>
+          <Text style={styles.electionStatValue}>
+            {election.totalVotes.toLocaleString()}
+          </Text>
+        </View>
+        <View style={styles.electionStat}>
+          <Text style={styles.electionStatLabel}>Blocks Left</Text>
+          <Text style={styles.electionStatValue}>
+            {blocksLeft.toLocaleString()}
+          </Text>
+        </View>
+      </View>
+
+      {election.candidates.length > 0 && (
+        <View style={styles.leadingCandidate}>
+          <Text style={styles.leadingLabel}>Leading:</Text>
+          <Text style={styles.leadingName}>
+            {election.candidates[0].name} ({election.candidates[0].percentage.toFixed(1)}%)
+          </Text>
+        </View>
+      )}
+    </Card>
+  );
+};
 
 const ProposalCard: React.FC<{
   proposal: Proposal;
@@ -486,5 +827,182 @@ const styles = StyleSheet.create({
   },
   voteButtons: {
     gap: 12,
+  },
+  tabs: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+    backgroundColor: AppColors.background,
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 12,
+    alignItems: 'center',
+    borderBottomWidth: 2,
+    borderBottomColor: 'transparent',
+  },
+  activeTab: {
+    borderBottomColor: KurdistanColors.kesk,
+  },
+  tabText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#666',
+  },
+  activeTabText: {
+    color: KurdistanColors.kesk,
+  },
+  electionCard: {
+    marginBottom: 12,
+    padding: 16,
+  },
+  electionCardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 16,
+  },
+  electionType: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: AppColors.text,
+    marginBottom: 4,
+  },
+  electionStatus: {
+    fontSize: 14,
+    color: AppColors.textSecondary,
+  },
+  electionStats: {
+    flexDirection: 'row',
+    gap: 16,
+    marginBottom: 12,
+  },
+  electionStat: {
+    flex: 1,
+  },
+  electionStatLabel: {
+    fontSize: 11,
+    color: AppColors.textSecondary,
+    marginBottom: 4,
+  },
+  electionStatValue: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: AppColors.text,
+  },
+  leadingCandidate: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: AppColors.border,
+  },
+  leadingLabel: {
+    fontSize: 12,
+    color: AppColors.textSecondary,
+    marginRight: 8,
+  },
+  leadingName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: KurdistanColors.kesk,
+  },
+  electionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  electionVotes: {
+    fontSize: 14,
+    color: AppColors.textSecondary,
+  },
+  electionInstruction: {
+    fontSize: 14,
+    color: AppColors.textSecondary,
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  candidatesList: {
+    maxHeight: 350,
+  },
+  candidateCard: {
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: AppColors.border,
+    marginBottom: 12,
+    backgroundColor: '#FFFFFF',
+  },
+  candidateCardSelected: {
+    borderColor: KurdistanColors.kesk,
+    backgroundColor: '#F0F9F4',
+  },
+  candidateHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  candidateName: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: AppColors.text,
+    marginBottom: 4,
+  },
+  candidateParty: {
+    fontSize: 12,
+    color: AppColors.textSecondary,
+    marginBottom: 2,
+  },
+  candidateTrust: {
+    fontSize: 11,
+    color: '#666',
+  },
+  candidateStats: {
+    alignItems: 'flex-end',
+  },
+  candidatePercentage: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: KurdistanColors.kesk,
+    marginBottom: 2,
+  },
+  candidateVotes: {
+    fontSize: 11,
+    color: AppColors.textSecondary,
+  },
+  selectedBadge: {
+    marginTop: 8,
+    padding: 8,
+    backgroundColor: KurdistanColors.kesk,
+    borderRadius: 6,
+    alignItems: 'center',
+  },
+  selectedText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+  parliamentCard: {
+    marginBottom: 16,
+    padding: 16,
+  },
+  parliamentRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  parliamentLabel: {
+    fontSize: 14,
+    color: AppColors.textSecondary,
+  },
+  parliamentValue: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: AppColors.text,
   },
 });
