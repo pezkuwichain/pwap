@@ -6,9 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Users, TrendingUp, Shield, Clock, ChevronRight, Award, Loader2, Activity } from 'lucide-react';
+import { Users, TrendingUp, Shield, Clock, ChevronRight, Award, Activity } from 'lucide-react';
 import DelegateProfile from './DelegateProfile';
 import { useDelegation } from '@/hooks/useDelegation';
 import { usePolkadot } from '@/contexts/PolkadotContext';
@@ -19,7 +18,7 @@ const DelegationManager: React.FC = () => {
   const { t } = useTranslation();
   const { selectedAccount } = usePolkadot();
   const { delegates, userDelegations, stats, loading, error } = useDelegation(selectedAccount?.address);
-  const [selectedDelegate, setSelectedDelegate] = useState<any>(null);
+  const [selectedDelegate, setSelectedDelegate] = useState<Record<string, unknown> | null>(null);
   const [delegationAmount, setDelegationAmount] = useState('');
   const [delegationPeriod, setDelegationPeriod] = useState('3months');
 
@@ -30,7 +29,7 @@ const DelegationManager: React.FC = () => {
   };
 
   const handleDelegate = () => {
-    console.log('Delegating:', {
+    if (import.meta.env.DEV) console.log('Delegating:', {
       delegate: selectedDelegate,
       amount: delegationAmount,
       period: delegationPeriod
@@ -257,7 +256,7 @@ const DelegationManager: React.FC = () => {
                   <Card>
                     <CardContent className="pt-6 text-center text-gray-500">
                       {selectedAccount
-                        ? "You haven't delegated any voting power yet."
+                        ? "You haven&apos;t delegated any voting power yet."
                         : "Connect your wallet to view your delegations."}
                     </CardContent>
                   </Card>

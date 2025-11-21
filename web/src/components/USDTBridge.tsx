@@ -15,6 +15,7 @@ import {
   formatWUSDT,
 } from '@pezkuwi/lib/usdt';
 import { isMultisigMember } from '@pezkuwi/lib/multisig';
+import { ASSET_IDS } from '@pezkuwi/lib/wallet';
 
 interface USDTBridgeProps {
   isOpen: boolean;
@@ -78,7 +79,7 @@ export const USDTBridge: React.FC<USDTBridgeProps> = ({
       );
       setDepositAmount('');
     } catch (err) {
-      console.error('Deposit error:', err);
+      if (import.meta.env.DEV) console.error('Deposit error:', err);
       setError(err instanceof Error ? err.message : 'Deposit failed');
     } finally {
       setIsLoading(false);
@@ -115,7 +116,7 @@ export const USDTBridge: React.FC<USDTBridgeProps> = ({
 
       // Burn wUSDT
       const amountBN = BigInt(Math.floor(amount * 1e6)); // 6 decimals
-      const burnTx = api.tx.assets.burn(2, selectedAccount.address, amountBN.toString());
+      const burnTx = api.tx.assets.burn(ASSET_IDS.WUSDT, selectedAccount.address, amountBN.toString());
 
       await burnTx.signAndSend(selectedAccount.address, { signer: injector.signer }, ({ status }) => {
         if (status.isFinalized) {
@@ -130,7 +131,7 @@ export const USDTBridge: React.FC<USDTBridgeProps> = ({
         }
       });
     } catch (err) {
-      console.error('Withdrawal error:', err);
+      if (import.meta.env.DEV) console.error('Withdrawal error:', err);
       setError(err instanceof Error ? err.message : 'Withdrawal failed');
       setIsLoading(false);
     }
@@ -214,8 +215,8 @@ export const USDTBridge: React.FC<USDTBridgeProps> = ({
                 type="number"
                 value={depositAmount}
                 onChange={(e) => setDepositAmount(e.target.value)}
-                placeholder="0.00"
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500"
+                placeholder="Amount"
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 placeholder:text-gray-500 placeholder:opacity-50"
                 disabled={isLoading}
               />
             </div>
@@ -279,9 +280,9 @@ export const USDTBridge: React.FC<USDTBridgeProps> = ({
                 type="number"
                 value={withdrawAmount}
                 onChange={(e) => setWithdrawAmount(e.target.value)}
-                placeholder="0.00"
+                placeholder="Amount"
                 max={wusdtBalance}
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500"
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 placeholder:text-gray-500 placeholder:opacity-50"
                 disabled={isLoading}
               />
               <button
@@ -300,8 +301,8 @@ export const USDTBridge: React.FC<USDTBridgeProps> = ({
                 type="text"
                 value={withdrawAddress}
                 onChange={(e) => setWithdrawAddress(e.target.value)}
-                placeholder="Enter bank account or crypto address"
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500"
+                placeholder="Bank account or crypto address"
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 placeholder:text-gray-500 placeholder:opacity-50"
                 disabled={isLoading}
               />
             </div>

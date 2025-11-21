@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, MessageCircle, AtSign, Heart, Award, TrendingUp, X, Check, Settings } from 'lucide-react';
+import { Bell, MessageCircle, AtSign, Heart, Award, TrendingUp, X, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -9,7 +9,6 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useWebSocket } from '@/contexts/WebSocketContext';
 import { useToast } from '@/hooks/use-toast';
-import { useTranslation } from 'react-i18next';
 
 interface Notification {
   id: string;
@@ -26,7 +25,6 @@ interface Notification {
 }
 
 export const NotificationCenter: React.FC = () => {
-  const { t } = useTranslation();
   const { subscribe, unsubscribe } = useWebSocket();
   const { toast } = useToast();
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -48,7 +46,7 @@ export const NotificationCenter: React.FC = () => {
     }
 
     // Subscribe to WebSocket events
-    const handleMention = (data: any) => {
+    const handleMention = (data: Record<string, unknown>) => {
       const notification: Notification = {
         id: Date.now().toString(),
         type: 'mention',
@@ -62,7 +60,7 @@ export const NotificationCenter: React.FC = () => {
       addNotification(notification);
     };
 
-    const handleReply = (data: any) => {
+    const handleReply = (data: Record<string, unknown>) => {
       const notification: Notification = {
         id: Date.now().toString(),
         type: 'reply',
@@ -83,6 +81,7 @@ export const NotificationCenter: React.FC = () => {
       unsubscribe('mention', handleMention);
       unsubscribe('reply', handleReply);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subscribe, unsubscribe]);
 
   const addNotification = (notification: Notification) => {

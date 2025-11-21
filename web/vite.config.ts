@@ -1,16 +1,22 @@
-import { defineConfig } from "vite";
+/// <reference types="vitest" />
+import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => ({
+export default defineConfig(() => ({
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './src/tests/setup.ts',
+  },
   server: {
     host: "::",
-    port: 8081,
+    port: 8082,
+    strictPort: false, // Allow automatic port selection if 8082 is busy
     hmr: {
       protocol: 'ws',
       host: 'localhost',
-      port: 8081,
     },
     watch: {
       usePolling: true,
@@ -43,6 +49,20 @@ export default defineConfig(({ mode }) => ({
         global: 'globalThis'
       }
     }
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'polkadot': ['@polkadot/api', '@polkadot/extension-dapp', '@polkadot/keyring', '@polkadot/util', '@polkadot/util-crypto'],
+          'vendor': ['react', 'react-dom', 'react-router-dom'],
+          'ui': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-select', '@radix-ui/react-tabs', '@radix-ui/react-toast'],
+          'forms': ['react-hook-form', '@hookform/resolvers', 'zod'],
+          'i18n': ['i18next', 'react-i18next', 'i18next-browser-languagedetector']
+        }
+      }
+    },
+    chunkSizeWarningLimit: 600
   },
   assetsInclude: ['**/*.json'],
 }));

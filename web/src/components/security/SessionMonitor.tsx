@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
-import { Monitor, Shield, LogOut, AlertTriangle, Activity } from 'lucide-react';
+import { Monitor, Shield, LogOut, Activity } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface Session {
@@ -44,8 +44,8 @@ export function SessionMonitor() {
 
       if (error) throw error;
       setSessions(data || []);
-    } catch (error) {
-      console.error('Error loading sessions:', error);
+    } catch {
+      if (import.meta.env.DEV) console.error('Error loading sessions:', error);
     } finally {
       setLoading(false);
     }
@@ -65,7 +65,7 @@ export function SessionMonitor() {
         description: 'The session has been successfully terminated.',
       });
       loadSessions();
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to terminate session',

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { GraduationCap, BookOpen, ExternalLink, Play } from 'lucide-react';
@@ -26,7 +26,7 @@ export function CourseList({ enrolledCourseIds, onEnroll }: CourseListProps) {
         const activeCourses = await getCourses('Active');
         setCourses(activeCourses);
       } catch (error) {
-        console.error('Failed to fetch courses:', error);
+        if (import.meta.env.DEV) console.error('Failed to fetch courses:', error);
         toast({
           title: 'Error',
           description: 'Failed to fetch courses',
@@ -53,8 +53,8 @@ export function CourseList({ enrolledCourseIds, onEnroll }: CourseListProps) {
     try {
       await enrollInCourse(api, selectedAccount, courseId);
       onEnroll();
-    } catch (error: any) {
-      console.error('Enroll failed:', error);
+    } catch (error) {
+      if (import.meta.env.DEV) console.error('Enroll failed:', error);
     }
   };
 

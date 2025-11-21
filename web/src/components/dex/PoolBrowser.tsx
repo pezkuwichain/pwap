@@ -3,7 +3,7 @@ import { usePolkadot } from '@/contexts/PolkadotContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, Droplet, BarChart3, Search, Plus } from 'lucide-react';
+import { TrendingUp, Droplet, Search, Plus } from 'lucide-react';
 import { PoolInfo } from '@/types/dex';
 import { fetchPools, formatTokenBalance } from '@pezkuwi/utils/dex';
 import { isFounderWallet } from '@pezkuwi/utils/auth';
@@ -27,7 +27,6 @@ export const PoolBrowser: React.FC<PoolBrowserProps> = ({
   const [pools, setPools] = useState<PoolInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState<'tvl' | 'volume' | 'apr'>('tvl');
 
   const isFounder = account ? isFounderWallet(account.address) : false;
 
@@ -40,7 +39,7 @@ export const PoolBrowser: React.FC<PoolBrowserProps> = ({
         const poolsData = await fetchPools(api);
         setPools(poolsData);
       } catch (error) {
-        console.error('Failed to load pools:', error);
+        if (import.meta.env.DEV) console.error('Failed to load pools:', error);
       } finally {
         setLoading(false);
       }

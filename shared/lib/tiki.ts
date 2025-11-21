@@ -9,9 +9,10 @@ import type { ApiPromise } from '@polkadot/api';
 // ========================================
 // TIKI TYPES (from Rust enum)
 // ========================================
+// IMPORTANT: Must match /Pezkuwi-SDK/pezkuwi/pallets/tiki/src/lib.rs
 export enum Tiki {
   // Otomatik - KYC sonrası
-  Hemwelatî = 'Hemwelatî',
+  Welati = 'Welati',
 
   // Seçilen roller (Elected)
   Parlementer = 'Parlementer',
@@ -81,7 +82,7 @@ export enum RoleAssignmentType {
 
 // Tiki to Display Name mapping (English)
 export const TIKI_DISPLAY_NAMES: Record<string, string> = {
-  Hemwelatî: 'Citizen',
+  Welati: 'Citizen',
   Parlementer: 'Parliament Member',
   SerokiMeclise: 'Speaker of Parliament',
   Serok: 'President',
@@ -171,7 +172,7 @@ export const TIKI_SCORES: Record<string, number> = {
   Qeydkar: 25,
   ParêzvaneÇandî: 25,
   Sêwirmend: 20,
-  Hemwelatî: 10,
+  Welati: 10,
   Pêseng: 5, // Default for unlisted
 };
 
@@ -191,7 +192,7 @@ export const ROLE_CATEGORIES: Record<string, string[]> = {
   Economic: ['Bazargan'],
   Leadership: ['RêveberêProjeyê', 'Pêseng'],
   Quality: ['KalîteKontrolker'],
-  Citizen: ['Hemwelatî'],
+  Citizen: ['Welati'],
 };
 
 // ========================================
@@ -241,7 +242,7 @@ export const fetchUserTikis = async (
 };
 
 /**
- * Check if user is a citizen (has Hemwelatî tiki)
+ * Check if user is a citizen (has Welati tiki)
  * @param api - Polkadot API instance
  * @param address - User's substrate address
  * @returns boolean
@@ -396,4 +397,283 @@ export const getTikiBadgeVariant = (tiki: string): 'default' | 'secondary' | 'de
   if (score >= 150) return 'default'; // Purple/blue for high ranks
   if (score >= 70) return 'secondary'; // Gray for mid ranks
   return 'outline'; // Outline for low ranks
+};
+
+// ========================================
+// NFT DETAILS FUNCTIONS
+// ========================================
+
+/**
+ * Tiki NFT Details interface
+ */
+export interface TikiNFTDetails {
+  collectionId: number;
+  itemId: number;
+  owner: string;
+  tikiRole: string;
+  tikiDisplayName: string;
+  tikiScore: number;
+  tikiColor: string;
+  tikiEmoji: string;
+  mintedAt?: number;
+  metadata?: any;
+}
+
+/**
+ * Fetch detailed NFT information for a user's tiki roles
+ * @param api - Polkadot API instance
+ * @param address - User's substrate address
+ * @returns Array of TikiNFTDetails
+ */
+export const fetchUserTikiNFTs = async (
+  api: ApiPromise,
+  address: string
+): Promise<TikiNFTDetails[]> => {
+  try {
+    if (!api || !api.query.tiki) {
+      console.warn('Tiki pallet not available on this chain');
+      return [];
+    }
+
+    // Query UserTikis storage - returns list of role enums
+    const userTikis = await api.query.tiki.userTikis(address);
+
+    if (!userTikis || userTikis.isEmpty) {
+      return [];
+    }
+
+    const tikisArray = userTikis.toJSON() as string[];
+    const nftDetails: TikiNFTDetails[] = [];
+
+    // UserTikis doesn't store NFT IDs, only roles
+    // We return role information here but without actual NFT collection/item IDs
+    for (const tikiRole of tikisArray) {
+      nftDetails.push({
+        collectionId: 42, // Tiki collection is always 42
+        itemId: 0, // We don't have individual item IDs from UserTikis storage
+        owner: address,
+        tikiRole,
+        tikiDisplayName: getTikiDisplayName(tikiRole),
+        tikiScore: TIKI_SCORES[tikiRole] || 5,
+        tikiColor: getTikiColor(tikiRole),
+        tikiEmoji: getTikiEmoji(tikiRole),
+        metadata: null
+      });
+    }
+
+    return nftDetails;
+
+  } catch (error) {
+    console.error('Error fetching user tiki NFTs:', error);
+    return [];
+  }
+};
+
+/**
+ * Fetch citizen NFT details for a user
+ * @param api - Polkadot API instance
+ * @param address - User's substrate address
+ * @returns TikiNFTDetails for citizen NFT or null
+ */
+export const getCitizenNFTDetails = async (
+  api: ApiPromise,
+  address: string
+): Promise<TikiNFTDetails | null> => {
+  try {
+    if (!api || !api.query.tiki) {
+      return null;
+    }
+
+    // Query CitizenNft storage - returns only item ID (u32)
+    const citizenNft = await api.query.tiki.citizenNft(address);
+
+    if (citizenNft.isEmpty) {
+      return null;
+    }
+
+    // CitizenNft returns just the item ID (u32), collection is always 42
+    const itemId = citizenNft.toJSON() as number;
+    const collectionId = 42; // Tiki collection is hardcoded as 42
+
+    if (typeof itemId !== 'number') {
+      return null;
+    }
+
+    // Try to fetch metadata
+    let metadata: any = null;
+    try {
+      const nftMetadata = await api.query.nfts.item(collectionId, itemId);
+      if (nftMetadata && !nftMetadata.isEmpty) {
+        metadata = nftMetadata.toJSON();
+      }
+    } catch (e) {
+      console.warn('Could not fetch citizen NFT metadata:', e);
+    }
+
+    return {
+      collectionId,
+      itemId,
+      owner: address,
+      tikiRole: 'Welati',
+      tikiDisplayName: getTikiDisplayName('Welati'),
+      tikiScore: TIKI_SCORES['Welati'] || 10,
+      tikiColor: getTikiColor('Welati'),
+      tikiEmoji: getTikiEmoji('Welati'),
+      metadata
+    };
+
+  } catch (error) {
+    console.error('Error fetching citizen NFT details:', error);
+    return null;
+  }
+};
+
+/**
+ * Fetch all NFT details including collection and item IDs
+ * @param api - Polkadot API instance
+ * @param address - User's substrate address
+ * @returns Complete NFT details with collection/item IDs
+ */
+export const getAllTikiNFTDetails = async (
+  api: ApiPromise,
+  address: string
+): Promise<{
+  citizenNFT: TikiNFTDetails | null;
+  roleNFTs: TikiNFTDetails[];
+  totalNFTs: number;
+}> => {
+  try {
+    // Only fetch citizen NFT because it's the only one with stored item ID
+    // Role assignments in UserTikis don't have associated NFT item IDs
+    const citizenNFT = await getCitizenNFTDetails(api, address);
+
+    return {
+      citizenNFT,
+      roleNFTs: [], // Don't show role NFTs because UserTikis doesn't store item IDs
+      totalNFTs: citizenNFT ? 1 : 0
+    };
+
+  } catch (error) {
+    console.error('Error fetching all tiki NFT details:', error);
+    return {
+      citizenNFT: null,
+      roleNFTs: [],
+      totalNFTs: 0
+    };
+  }
+};
+
+/**
+ * Generates a deterministic 6-digit Citizen Number
+ * Formula: Based on owner address + collection ID + item ID
+ * Always returns the same number for the same inputs (deterministic)
+ */
+export const generateCitizenNumber = (
+  ownerAddress: string,
+  collectionId: number,
+  itemId: number
+): string => {
+  // Create a simple hash from the inputs
+  let hash = 0;
+
+  // Hash the address
+  for (let i = 0; i < ownerAddress.length; i++) {
+    hash = ((hash << 5) - hash) + ownerAddress.charCodeAt(i);
+    hash = hash & hash; // Convert to 32bit integer
+  }
+
+  // Add collection ID and item ID to the hash
+  hash += collectionId * 1000 + itemId;
+
+  // Ensure positive number
+  hash = Math.abs(hash);
+
+  // Get last 6 digits and pad with zeros if needed
+  const sixDigit = (hash % 1000000).toString().padStart(6, '0');
+
+  return sixDigit;
+};
+
+/**
+ * Verifies Citizen Number by checking if it matches the user's NFT data
+ * Format: #collectionId-itemId-6digitNumber
+ * Example: #42-0-123456
+ */
+export const verifyCitizenNumber = async (
+  api: any,
+  citizenNumber: string,
+  walletAddress: string
+): Promise<boolean> => {
+  try {
+    console.log('🔍 Verifying Citizen Number...');
+    console.log('  Input:', citizenNumber);
+    console.log('  Wallet:', walletAddress);
+
+    // Parse citizen number: #42-0-123456
+    const cleanNumber = citizenNumber.trim().replace('#', '');
+    const parts = cleanNumber.split('-');
+    console.log('  Parsed parts:', parts);
+
+    if (parts.length !== 3) {
+      console.error('❌ Invalid citizen number format. Expected: #collectionId-itemId-6digits');
+      return false;
+    }
+
+    const collectionId = parseInt(parts[0]);
+    const itemId = parseInt(parts[1]);
+    const providedSixDigit = parts[2];
+    console.log('  Collection ID:', collectionId);
+    console.log('  Item ID:', itemId);
+    console.log('  Provided 6-digit:', providedSixDigit);
+
+    // Validate parts
+    if (isNaN(collectionId) || isNaN(itemId) || providedSixDigit.length !== 6) {
+      console.error('❌ Invalid citizen number format');
+      return false;
+    }
+
+    // Get user's NFT data from blockchain
+    console.log('  Querying blockchain for wallet:', walletAddress);
+    const itemIdResult = await api.query.tiki.citizenNft(walletAddress);
+    console.log('  Blockchain query result:', itemIdResult.toString());
+    console.log('  Blockchain query result (JSON):', itemIdResult.toJSON());
+
+    if (itemIdResult.isEmpty) {
+      console.error('❌ No citizen NFT found for this address');
+      return false;
+    }
+
+    // Handle Option<u32> type - check if it's Some or None
+    const actualItemId = itemIdResult.isSome ? itemIdResult.unwrap().toNumber() : null;
+
+    if (actualItemId === null) {
+      console.error('❌ No citizen NFT found for this address (None value)');
+      return false;
+    }
+
+    console.log('  Actual Item ID from blockchain:', actualItemId);
+
+    // Check if collection and item IDs match
+    if (collectionId !== 42 || itemId !== actualItemId) {
+      console.error(`❌ NFT mismatch. Provided: #${collectionId}-${itemId}, Blockchain has: #42-${actualItemId}`);
+      return false;
+    }
+
+    // Generate expected citizen number
+    const expectedSixDigit = generateCitizenNumber(walletAddress, collectionId, itemId);
+    console.log('  Expected 6-digit:', expectedSixDigit);
+    console.log('  Provided 6-digit:', providedSixDigit);
+
+    // Compare provided vs expected
+    if (providedSixDigit !== expectedSixDigit) {
+      console.error(`❌ Citizen number mismatch. Expected: ${expectedSixDigit}, Got: ${providedSixDigit}`);
+      return false;
+    }
+
+    console.log('✅ Citizen Number verified successfully!');
+    return true;
+  } catch (error) {
+    console.error('❌ Error verifying citizen number:', error);
+    return false;
+  }
 };

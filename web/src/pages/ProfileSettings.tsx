@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -10,9 +10,9 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+// import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, User, Mail, Shield, Bell, Palette, Globe, ArrowLeft } from 'lucide-react';
+import {  User, Shield, Bell, Palette, ArrowLeft } from 'lucide-react';
 import { TwoFactorSetup } from '@/components/auth/TwoFactorSetup';
 export default function ProfileSettings() {
   const navigate = useNavigate();
@@ -34,13 +34,7 @@ export default function ProfileSettings() {
     two_factor_enabled: false
   });
 
-  useEffect(() => {
-    if (user) {
-      loadProfile();
-    }
-  }, [user]);
-
-  const loadProfile = async () => {
+  const loadProfile = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
@@ -49,7 +43,7 @@ export default function ProfileSettings() {
         .maybeSingle();
 
       if (error) {
-        console.error('Error loading profile:', error);
+        if (import.meta.env.DEV) console.error('Error loading profile:', error);
         return;
       }
 
@@ -70,15 +64,22 @@ export default function ProfileSettings() {
         });
       }
     } catch (error) {
-      console.error('Error loading profile:', error);
+      if (import.meta.env.DEV) console.error('Error loading profile:', error);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      loadProfile();
+
+    }
+  }, [user, loadProfile]);
 
   const updateProfile = async () => {
     setLoading(true);
     try {
       // Call the secure upsert function
-      const { data, error } = await supabase.rpc('upsert_user_profile', {
+      const { error } = await supabase.rpc('upsert_user_profile', {
         p_username: profile.username || '',
         p_full_name: profile.full_name || null,
         p_bio: profile.bio || null,
@@ -101,8 +102,9 @@ export default function ProfileSettings() {
 
       // Reload profile to ensure state is in sync
       await loadProfile();
-    } catch (error: any) {
-      console.error('Profile update failed:', error);
+     
+    } catch (error) {
+      if (import.meta.env.DEV) console.error('Profile update failed:', error);
       toast({
         title: 'Error',
         description: error?.message || 'Failed to update profile',
@@ -117,7 +119,7 @@ export default function ProfileSettings() {
     setLoading(true);
     try {
       // Call the upsert function with current profile data + notification settings
-      const { data, error } = await supabase.rpc('upsert_user_profile', {
+      const { error } = await supabase.rpc('upsert_user_profile', {
         p_username: profile.username || '',
         p_full_name: profile.full_name || null,
         p_bio: profile.bio || null,
@@ -137,7 +139,7 @@ export default function ProfileSettings() {
         title: 'Success',
         description: 'Notification settings updated',
       });
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: 'Error',
         description: error?.message || 'Failed to update notification settings',
@@ -148,7 +150,9 @@ export default function ProfileSettings() {
     }
   };
 
-  const updateSecuritySettings = async () => {
+  // Security settings updater (for future UI use)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const updateSecuritySettings = useCallback(async () => {
     setLoading(true);
     try {
       const { error } = await supabase
@@ -165,7 +169,8 @@ export default function ProfileSettings() {
         title: 'Success',
         description: 'Security settings updated',
       });
-    } catch (error) {
+    } catch (err) {
+      if (import.meta.env.DEV) console.error('Security settings error:', err);
       toast({
         title: 'Error',
         description: 'Failed to update security settings',
@@ -174,7 +179,7 @@ export default function ProfileSettings() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [profile, user, toast]);
 
   const changePassword = async () => {
     const newPassword = prompt('Enter new password:');
@@ -192,7 +197,8 @@ export default function ProfileSettings() {
         title: 'Success',
         description: 'Password changed successfully',
       });
-    } catch (error) {
+    } catch (err) {
+      if (import.meta.env.DEV) console.error('Password change error:', err);
       toast({
         title: 'Error',
         description: 'Failed to change password',

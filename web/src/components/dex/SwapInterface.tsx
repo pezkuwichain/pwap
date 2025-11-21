@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { usePolkadot } from '@/contexts/PolkadotContext';
 import { useWallet } from '@/contexts/WalletContext';
-import { ArrowDownUp, AlertCircle, Loader2, CheckCircle, Info, Settings, AlertTriangle } from 'lucide-react';
+import { ArrowDownUp, AlertCircle, Loader2, Info, Settings, AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,10 +28,10 @@ type TransactionStatus = 'idle' | 'signing' | 'submitting' | 'success' | 'error'
 const USER_TOKENS = [
   { symbol: 'HEZ', emoji: '🟡', assetId: 0, name: 'HEZ', decimals: 12, displaySymbol: 'HEZ' }, // actually wHEZ (asset 0)
   { symbol: 'PEZ', emoji: '🟣', assetId: 1, name: 'PEZ', decimals: 12, displaySymbol: 'PEZ' },
-  { symbol: 'USDT', emoji: '💵', assetId: 2, name: 'USDT', decimals: 6, displaySymbol: 'USDT' },
+  { symbol: 'USDT', emoji: '💵', assetId: 1000, name: 'USDT', decimals: 6, displaySymbol: 'USDT' },
 ] as const;
 
-export const SwapInterface: React.FC<SwapInterfaceProps> = ({ initialPool, pools }) => {
+export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
   const { api, isApiReady } = usePolkadot();
   const { account, signer } = useWallet();
   const { toast } = useToast();
@@ -82,7 +82,7 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ initialPool, pools
           const freeBalance = balance.data.free.toString();
           setFromBalance(freeBalance);
         } catch (error) {
-          console.error('Failed to fetch HEZ balance:', error);
+          if (import.meta.env.DEV) console.error('Failed to fetch HEZ balance:', error);
           setFromBalance('0');
         }
       } else if (fromAssetId !== null) {
@@ -90,7 +90,7 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ initialPool, pools
           const balanceData = await api.query.assets.account(fromAssetId, account);
           setFromBalance(balanceData.isSome ? balanceData.unwrap().balance.toString() : '0');
         } catch (error) {
-          console.error('Failed to fetch from balance:', error);
+          if (import.meta.env.DEV) console.error('Failed to fetch from balance:', error);
           setFromBalance('0');
         }
       }
@@ -102,7 +102,7 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ initialPool, pools
           const freeBalance = balance.data.free.toString();
           setToBalance(freeBalance);
         } catch (error) {
-          console.error('Failed to fetch HEZ balance:', error);
+          if (import.meta.env.DEV) console.error('Failed to fetch HEZ balance:', error);
           setToBalance('0');
         }
       } else if (toAssetId !== null) {
@@ -110,7 +110,7 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ initialPool, pools
           const balanceData = await api.query.assets.account(toAssetId, account);
           setToBalance(balanceData.isSome ? balanceData.unwrap().balance.toString() : '0');
         } catch (error) {
-          console.error('Failed to fetch to balance:', error);
+          if (import.meta.env.DEV) console.error('Failed to fetch to balance:', error);
           setToBalance('0');
         }
       }
@@ -139,7 +139,7 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ initialPool, pools
 
       setToAmount(toAmountDisplay);
     } catch (error) {
-      console.error('Failed to calculate output:', error);
+      if (import.meta.env.DEV) console.error('Failed to calculate output:', error);
       setToAmount('');
     }
   }, [fromAmount, activePool, fromTokenInfo, toTokenInfo, fromAssetId, toAssetId]);
@@ -171,7 +171,6 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ initialPool, pools
 
   const handleSwapDirection = () => {
     const tempToken = fromToken;
-    const tempAmount = fromAmount;
     const tempBalance = fromBalance;
 
     setFromToken(toToken);
@@ -218,7 +217,7 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ initialPool, pools
         toTokenInfo.decimals
       );
 
-      console.log('💰 Swap transaction:', {
+      if (import.meta.env.DEV) console.log('💰 Swap transaction:', {
         from: fromToken,
         to: toToken,
         amount: fromAmount,
@@ -321,13 +320,13 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ initialPool, pools
           }
         }
       );
-    } catch (error: any) {
-      console.error('Swap failed:', error);
-      setErrorMessage(error.message || 'Transaction failed');
+    } catch (error) {
+      if (import.meta.env.DEV) console.error('Swap failed:', error);
+      setErrorMessage(error instanceof Error ? error.message : 'Transaction failed');
       setTxStatus('error');
       toast({
         title: 'Error',
-        description: error.message || 'Swap transaction failed',
+        description: error instanceof Error ? error.message : 'Swap transaction failed',
         variant: 'destructive',
       });
     }

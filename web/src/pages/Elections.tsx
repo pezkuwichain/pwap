@@ -29,9 +29,8 @@ import {
   Building,
 } from 'lucide-react';
 import { usePolkadot } from '@/contexts/PolkadotContext';
-import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/components/ui/use-toast';
-import { AsyncComponent, LoadingState } from '@pezkuwi/components/AsyncComponent';
+import { LoadingState } from '@pezkuwi/components/AsyncComponent';
 import {
   getActiveElections,
   getElectionCandidates,
@@ -47,18 +46,17 @@ import {
   type CollectiveProposal,
   type CandidateInfo,
 } from '@pezkuwi/lib/welati';
-import { handleBlockchainError, handleBlockchainSuccess } from '@pezkuwi/lib/error-handler';
-import { web3FromAddress } from '@polkadot/extension-dapp';
+// import { handleBlockchainError, handleBlockchainSuccess } from '@pezkuwi/lib/error-handler';
+// import { web3FromAddress } from '@polkadot/extension-dapp';
 
 export default function Elections() {
-  const { api, selectedAccount, isApiReady } = usePolkadot();
-  const { user } = useAuth();
+  const { api, isApiReady } = usePolkadot();
 
   const [loading, setLoading] = useState(true);
   const [elections, setElections] = useState<ElectionInfo[]>([]);
   const [proposals, setProposals] = useState<CollectiveProposal[]>([]);
-  const [officials, setOfficials] = useState<any>({});
-  const [ministers, setMinisters] = useState<any>({});
+  const [officials, setOfficials] = useState<Record<string, unknown>>({});
+  const [ministers, setMinisters] = useState<Record<string, unknown>>({});
 
   // Fetch data
   useEffect(() => {
@@ -79,7 +77,7 @@ export default function Elections() {
         setOfficials(officialsData);
         setMinisters(ministersData);
       } catch (error) {
-        console.error('Failed to load elections data:', error);
+        if (import.meta.env.DEV) console.error('Failed to load elections data:', error);
         toast({
           title: 'Error',
           description: 'Failed to load elections data',
@@ -177,9 +175,10 @@ export default function Elections() {
 // ELECTION CARD
 // ============================================================================
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function ElectionCard({ election, api }: { election: ElectionInfo; api: any }) {
   const [candidates, setCandidates] = useState<CandidateInfo[]>([]);
-  const [timeLeft, setTimeLeft] = useState<any>(null);
+  const [timeLeft, setTimeLeft] = useState<string | null>(null);
 
   const typeLabel = getElectionTypeLabel(election.electionType);
   const statusLabel = getElectionStatusLabel(election.status);
@@ -302,8 +301,9 @@ function ElectionCard({ election, api }: { election: ElectionInfo; api: any }) {
 // PROPOSAL CARD
 // ============================================================================
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function ProposalCard({ proposal, api }: { proposal: CollectiveProposal; api: any }) {
-  const [timeLeft, setTimeLeft] = useState<any>(null);
+  const [timeLeft, setTimeLeft] = useState<string | null>(null);
 
   const totalVotes = proposal.ayeVotes + proposal.nayVotes + proposal.abstainVotes;
   const ayePercent = totalVotes > 0 ? Math.round((proposal.ayeVotes / totalVotes) * 100) : 0;
@@ -393,6 +393,7 @@ function ProposalCard({ proposal, api }: { proposal: CollectiveProposal; api: an
 // GOVERNMENT OFFICIALS
 // ============================================================================
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function GovernmentOfficials({ officials, ministers }: { officials: any; ministers: any }) {
   return (
     <div className="space-y-6">
@@ -427,11 +428,12 @@ function GovernmentOfficials({ officials, ministers }: { officials: any; ministe
         </CardHeader>
         <CardContent className="grid gap-3">
           {Object.entries(ministers).map(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ([role, address]: [string, any]) =>
               address && (
                 <OfficeRow
                   key={role}
-                  title={getMinisterRoleLabel(role as any).en}
+                  title={getMinisterRoleLabel(role as Record<string, unknown>).en}
                   address={address}
                   icon={Users}
                 />
@@ -446,6 +448,7 @@ function GovernmentOfficials({ officials, ministers }: { officials: any; ministe
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function OfficeRow({ title, address, icon: Icon }: { title: string; address: string; icon: any }) {
   return (
     <div className="flex items-center justify-between p-3 bg-gray-800/30 rounded-lg">

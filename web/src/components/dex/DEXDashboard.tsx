@@ -1,22 +1,27 @@
 import React, { useState } from 'react';
+// import { useNavigate } from 'react-router-dom';
 import { useWallet } from '@/contexts/WalletContext';
+import { usePolkadot } from '@/contexts/PolkadotContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import TokenSwap from '@/components/TokenSwap';
 import PoolDashboard from '@/components/PoolDashboard';
 import { CreatePoolModal } from './CreatePoolModal';
 import { InitializeHezPoolModal } from './InitializeHezPoolModal';
+import { InitializeUsdtModal } from './InitializeUsdtModal';
 import { ArrowRightLeft, Droplet, Settings } from 'lucide-react';
 import { isFounderWallet } from '@pezkuwi/utils/auth';
 
 export const DEXDashboard: React.FC = () => {
   const { account } = useWallet();
+  const { sudoKey } = usePolkadot();
   const [activeTab, setActiveTab] = useState('swap');
 
   // Admin modal states
   const [showCreatePoolModal, setShowCreatePoolModal] = useState(false);
   const [showInitializeHezPoolModal, setShowInitializeHezPoolModal] = useState(false);
+  const [showInitializeUsdtModal, setShowInitializeUsdtModal] = useState(false);
 
-  const isFounder = account ? isFounderWallet(account) : false;
+  const isFounder = account ? isFounderWallet(account, sudoKey) : false;
 
   const handleCreatePool = () => {
     setShowCreatePoolModal(true);
@@ -25,6 +30,7 @@ export const DEXDashboard: React.FC = () => {
   const handleModalClose = () => {
     setShowCreatePoolModal(false);
     setShowInitializeHezPoolModal(false);
+    setShowInitializeUsdtModal(false);
   };
 
   const handleSuccess = async () => {
@@ -115,6 +121,19 @@ export const DEXDashboard: React.FC = () => {
                     </button>
                   </div>
 
+                  <div className="p-6 bg-gray-900 border border-green-900/30 rounded-lg">
+                    <h3 className="text-xl font-bold text-white mb-2">USDT Token Minting</h3>
+                    <p className="text-gray-400 mb-6">
+                      Mint wUSDT tokens for testing and liquidity provision
+                    </p>
+                    <button
+                      onClick={() => setShowInitializeUsdtModal(true)}
+                      className="w-full px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium"
+                    >
+                      Mint wUSDT
+                    </button>
+                  </div>
+
                   <div className="p-6 bg-gray-900 border border-gray-800 rounded-lg">
                     <h3 className="text-xl font-bold text-white mb-2">Pool Management</h3>
                     <p className="text-gray-400 mb-6">
@@ -150,6 +169,12 @@ export const DEXDashboard: React.FC = () => {
 
       <InitializeHezPoolModal
         isOpen={showInitializeHezPoolModal}
+        onClose={handleModalClose}
+        onSuccess={handleSuccess}
+      />
+
+      <InitializeUsdtModal
+        isOpen={showInitializeUsdtModal}
         onClose={handleModalClose}
         onSuccess={handleSuccess}
       />

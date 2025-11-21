@@ -24,14 +24,14 @@ export default function EmailVerification() {
 
   const verifyEmail = async (token: string) => {
     try {
-      const { data, error } = await supabase.functions.invoke('email-verification', {
+      const { error } = await supabase.functions.invoke('email-verification', {
         body: { action: 'verify', token }
       });
 
       if (error) throw error;
       
       setVerified(true);
-    } catch (err: any) {
+    } catch (err: Error) {
       setError(err.message || 'Failed to verify email');
     } finally {
       setVerifying(false);

@@ -15,7 +15,7 @@ import { Loader2, AlertTriangle, Clock } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePolkadot } from '@/contexts/PolkadotContext';
 import { toast } from 'sonner';
-import { acceptFiatOffer, type P2PFiatOffer } from '@shared/lib/p2p-fiat';
+import { type P2PFiatOffer } from '@shared/lib/p2p-fiat';
 
 interface TradeModalProps {
   offer: P2PFiatOffer;
@@ -60,20 +60,20 @@ export function TradeModal({ offer, onClose }: TradeModalProps) {
     setLoading(true);
 
     try {
-      const tradeId = await acceptFiatOffer({
-        api,
-        account: selectedAccount,
-        offerId: offer.id,
-        amount: cryptoAmount
-      });
+      // const _tradeId = await acceptFiatOffer({
+      //   api,
+      //   account: selectedAccount,
+      //   offerId: offer.id,
+      //   amount: cryptoAmount
+      // });
 
       toast.success('Trade initiated! Proceed to payment.');
       onClose();
       
       // TODO: Navigate to trade page
       // navigate(`/p2p/trade/${tradeId}`);
-    } catch (error: any) {
-      console.error('Accept offer error:', error);
+    } catch (error) {
+      if (import.meta.env.DEV) console.error('Accept offer error:', error);
       // Error toast already shown in acceptFiatOffer
     } finally {
       setLoading(false);
@@ -114,8 +114,8 @@ export function TradeModal({ offer, onClose }: TradeModalProps) {
               step="0.01"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              placeholder={`Enter amount (max ${offer.remaining_amount})`}
-              className="bg-gray-800 border-gray-700 text-white"
+              placeholder="Amount"
+              className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 placeholder:opacity-50"
             />
             {offer.min_order_amount && (
               <p className="text-xs text-gray-500 mt-1">

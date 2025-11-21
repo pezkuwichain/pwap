@@ -6,9 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { AlertTriangle, Shield, Ban, CheckCircle, Clock, Flag, User, MessageSquare, TrendingUp } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { AlertTriangle, Shield, Ban, CheckCircle, Clock, Flag, User } from 'lucide-react';
+// import { useTranslation } from 'react-i18next';
 
 interface Report {
   id: string;
@@ -22,7 +21,6 @@ interface Report {
 }
 
 export function ModerationPanel() {
-  const { t } = useTranslation();
   const [autoModeration, setAutoModeration] = useState(true);
   const [sentimentThreshold, setSentimentThreshold] = useState(30);
 

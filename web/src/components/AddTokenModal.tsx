@@ -41,7 +41,7 @@ export const AddTokenModal: React.FC<AddTokenModalProps> = ({
       await onAddToken(id);
       setAssetId('');
       setError('');
-    } catch (err) {
+    } catch {
       setError('Failed to add token. Please check the asset ID and try again.');
     } finally {
       setIsLoading(false);

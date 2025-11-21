@@ -7,7 +7,6 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { usePolkadot } from '@/contexts/PolkadotContext';
-import { useWallet } from '@/contexts/WalletContext';
 import { ASSET_IDS, getAssetSymbol } from '@pezkuwi/lib/wallet';
 import { AddLiquidityModal } from '@/components/AddLiquidityModal';
 import { RemoveLiquidityModal } from '@/components/RemoveLiquidityModal';
@@ -17,7 +16,7 @@ import { RemoveLiquidityModal } from '@/components/RemoveLiquidityModal';
 const getDisplayTokenName = (assetId: number): string => {
   if (assetId === ASSET_IDS.WHEZ || assetId === 0) return 'HEZ';
   if (assetId === ASSET_IDS.PEZ || assetId === 1) return 'PEZ';
-  if (assetId === ASSET_IDS.WUSDT || assetId === 2) return 'USDT';
+  if (assetId === ASSET_IDS.WUSDT || assetId === 1000) return 'USDT';
   return getAssetSymbol(assetId); // Fallback for other assets
 };
 
@@ -45,7 +44,6 @@ interface LPPosition {
 
 const PoolDashboard = () => {
   const { api, isApiReady, selectedAccount } = usePolkadot();
-  const { balances } = useWallet();
 
   const [poolData, setPoolData] = useState<PoolData | null>(null);
   const [lpPosition, setLPPosition] = useState<LPPosition | null>(null);
@@ -82,7 +80,7 @@ const PoolDashboard = () => {
 
         setAvailablePools(existingPools);
 
-        // Set default pool to first available if current selection doesn't exist
+        // Set default pool to first available if current selection doesn&apos;t exist
         if (existingPools.length > 0) {
           const currentPoolKey = selectedPool;
           const poolExists = existingPools.some(
@@ -94,12 +92,13 @@ const PoolDashboard = () => {
           }
         }
       } catch (err) {
-        console.error('Error discovering pools:', err);
+        if (import.meta.env.DEV) console.error('Error discovering pools:', err);
       }
     };
 
     discoverPools();
-  }, [api, isApiReady]);
+  }, [api, isApiReady, selectedPool]);
+     
 
   // Fetch pool data
   useEffect(() => {
@@ -119,7 +118,7 @@ const PoolDashboard = () => {
         const poolInfo = await api.query.assetConversion.pools(poolId);
 
         if (poolInfo.isSome) {
-          const lpTokenData = poolInfo.unwrap().toJSON() as any;
+          const lpTokenData = poolInfo.unwrap().toJSON() as Record<string, unknown>;
           const lpTokenId = lpTokenData.lpToken;
 
           // Derive pool account using AccountIdConverter
@@ -153,12 +152,12 @@ const PoolDashboard = () => {
           const asset2Decimals = getAssetDecimals(asset2);
 
           if (asset0BalanceData.isSome) {
-            const asset0Data = asset0BalanceData.unwrap().toJSON() as any;
+            const asset0Data = asset0BalanceData.unwrap().toJSON() as Record<string, unknown>;
             reserve0 = Number(asset0Data.balance) / Math.pow(10, asset1Decimals);
           }
 
           if (asset1BalanceData.isSome) {
-            const asset1Data = asset1BalanceData.unwrap().toJSON() as any;
+            const asset1Data = asset1BalanceData.unwrap().toJSON() as Record<string, unknown>;
             reserve1 = Number(asset1Data.balance) / Math.pow(10, asset2Decimals);
           }
 
@@ -179,7 +178,7 @@ const PoolDashboard = () => {
           setError('Pool not found');
         }
       } catch (err) {
-        console.error('Error fetching pool data:', err);
+        if (import.meta.env.DEV) console.error('Error fetching pool data:', err);
         setError(err instanceof Error ? err.message : 'Failed to fetch pool data');
       } finally {
         setIsLoading(false);
@@ -194,14 +193,14 @@ const PoolDashboard = () => {
         const lpBalance = await api.query.poolAssets.account(lpTokenId, selectedAccount.address);
 
         if (lpBalance.isSome) {
-          const lpData = lpBalance.unwrap().toJSON() as any;
+          const lpData = lpBalance.unwrap().toJSON() as Record<string, unknown>;
           const userLpBalance = Number(lpData.balance) / 1e12;
 
           // Query total LP supply
           const lpAssetData = await api.query.poolAssets.asset(lpTokenId);
 
           if (lpAssetData.isSome) {
-            const assetInfo = lpAssetData.unwrap().toJSON() as any;
+            const assetInfo = lpAssetData.unwrap().toJSON() as Record<string, unknown>;
             const totalSupply = Number(assetInfo.supply) / 1e12;
 
             // Calculate user's share
@@ -220,7 +219,7 @@ const PoolDashboard = () => {
           }
         }
       } catch (err) {
-        console.error('Error fetching LP position:', err);
+        if (import.meta.env.DEV) console.error('Error fetching LP position:', err);
       }
     };
 

@@ -3,12 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+// import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
-import { Users, Settings, Activity, Shield, Bell, Trash2, Monitor, Lock, AlertTriangle, ArrowLeft } from 'lucide-react';
+import { Users, Settings, Activity, Shield, Bell, Monitor, Lock, AlertTriangle, ArrowLeft } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -27,11 +27,14 @@ import {
 import { SessionMonitor } from '@/components/security/SessionMonitor';
 import { PermissionEditor } from '@/components/security/PermissionEditor';
 import { SecurityAudit } from '@/components/security/SecurityAudit';
+import { KycApprovalTab } from '@/components/admin/KycApprovalTab';
+import { CommissionVotingTab } from '@/components/admin/CommissionVotingTab';
+import { CommissionSetupTab } from '@/components/admin/CommissionSetupTab';
+
 export default function AdminPanel() {
   const navigate = useNavigate();
-  const [users, setUsers] = useState<any[]>([]);
-  const [adminRoles, setAdminRoles] = useState<any[]>([]);
-  const [systemSettings, setSystemSettings] = useState<any[]>([]);
+  const [users, setUsers] = useState<Array<Record<string, unknown>>>([]);
+  const [adminRoles, setAdminRoles] = useState<Array<Record<string, unknown>>>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
@@ -52,16 +55,10 @@ export default function AdminPanel() {
         .from('admin_roles')
         .select('*');
 
-      // Load system settings
-      const { data: settings } = await supabase
-        .from('system_settings')
-        .select('*');
-
       setUsers(profiles || []);
       setAdminRoles(roles || []);
-      setSystemSettings(settings || []);
     } catch (error) {
-      console.error('Error loading admin data:', error);
+      if (import.meta.env.DEV) console.error('Error loading admin data:', error);
     } finally {
       setLoading(false);
     }
@@ -90,6 +87,7 @@ export default function AdminPanel() {
       });
       loadAdminData();
     } catch (error) {
+      if (import.meta.env.DEV) console.error('Error updating role:', error);
       toast({
         title: 'Error',
         description: 'Failed to update user role',
@@ -122,6 +120,7 @@ export default function AdminPanel() {
         description: 'Notification sent successfully',
       });
     } catch (error) {
+      if (import.meta.env.DEV) console.error('Error sending notification:', error);
       toast({
         title: 'Error',
         description: 'Failed to send notification',
@@ -149,37 +148,57 @@ export default function AdminPanel() {
       </button>
       <h1 className="text-3xl font-bold mb-8">Admin Panel</h1>
 
-      <Tabs defaultValue="users" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-7">
-          <TabsTrigger value="users">
-            <Users className="mr-2 h-4 w-4" />
-            Users
+      <Tabs defaultValue="setup" className="space-y-4">
+        <TabsList className="grid w-full grid-cols-10 h-auto">
+          <TabsTrigger value="setup" className="flex-col h-auto py-3">
+            <Shield className="h-4 w-4 mb-1" />
+            <span className="text-xs leading-tight">Commission<br/>Setup</span>
           </TabsTrigger>
-          <TabsTrigger value="roles">
-            <Shield className="mr-2 h-4 w-4" />
-            Roles
+          <TabsTrigger value="kyc" className="flex-col h-auto py-3">
+            <Users className="h-4 w-4 mb-1" />
+            <span className="text-xs leading-tight">KYC<br/>Approvals</span>
           </TabsTrigger>
-          <TabsTrigger value="sessions">
-            <Monitor className="mr-2 h-4 w-4" />
-            Sessions
+          <TabsTrigger value="voting" className="flex-col h-auto py-3">
+            <Activity className="h-4 w-4 mb-1" />
+            <span className="text-xs leading-tight">Commission<br/>Voting</span>
           </TabsTrigger>
-          <TabsTrigger value="permissions">
-            <Lock className="mr-2 h-4 w-4" />
-            Permissions
+          <TabsTrigger value="users" className="flex-col h-auto py-3">
+            <Users className="h-4 w-4 mb-1" />
+            <span className="text-xs leading-tight">Users</span>
           </TabsTrigger>
-          <TabsTrigger value="security">
-            <AlertTriangle className="mr-2 h-4 w-4" />
-            Security
+          <TabsTrigger value="roles" className="flex-col h-auto py-3">
+            <Shield className="h-4 w-4 mb-1" />
+            <span className="text-xs leading-tight">Roles</span>
           </TabsTrigger>
-          <TabsTrigger value="activity">
-            <Activity className="mr-2 h-4 w-4" />
-            Activity
+          <TabsTrigger value="sessions" className="flex-col h-auto py-3">
+            <Monitor className="h-4 w-4 mb-1" />
+            <span className="text-xs leading-tight">Sessions</span>
           </TabsTrigger>
-          <TabsTrigger value="settings">
-            <Settings className="mr-2 h-4 w-4" />
-            Settings
+          <TabsTrigger value="permissions" className="flex-col h-auto py-3">
+            <Lock className="h-4 w-4 mb-1" />
+            <span className="text-xs leading-tight">Permissions</span>
+          </TabsTrigger>
+          <TabsTrigger value="security" className="flex-col h-auto py-3">
+            <AlertTriangle className="h-4 w-4 mb-1" />
+            <span className="text-xs leading-tight">Security</span>
+          </TabsTrigger>
+          <TabsTrigger value="activity" className="flex-col h-auto py-3">
+            <Activity className="h-4 w-4 mb-1" />
+            <span className="text-xs leading-tight">Activity</span>
+          </TabsTrigger>
+          <TabsTrigger value="settings" className="flex-col h-auto py-3">
+            <Settings className="h-4 w-4 mb-1" />
+            <span className="text-xs leading-tight">Settings</span>
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="kyc">
+          <KycApprovalTab />
+        </TabsContent>
+
+        <TabsContent value="voting">
+          <CommissionVotingTab />
+        </TabsContent>
 
         <TabsContent value="users">
           <Card>
@@ -322,6 +341,9 @@ export default function AdminPanel() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+        <TabsContent value="setup">
+          <CommissionSetupTab />
         </TabsContent>
       </Tabs>
     </div>

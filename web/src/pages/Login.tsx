@@ -48,12 +48,12 @@ const Login: React.FC = () => {
         if (error.message?.includes('Invalid login credentials')) {
           setError('Email or password is incorrect. Please try again.');
         } else {
-          setError(error.message || 'Login failed. Please try again.');
+          setError(error instanceof Error ? error.message : 'Login failed. Please try again.');
         }
       } else {
         navigate('/');
       }
-    } catch (err) {
+    } catch {
       setError('Login failed. Please try again.');
     } finally {
       setLoading(false);
@@ -90,7 +90,7 @@ const Login: React.FC = () => {
       } else {
         navigate('/');
       }
-    } catch (err) {
+    } catch {
       setError('Signup failed. Please try again.');
     } finally {
       setLoading(false);
@@ -107,9 +107,10 @@ const Login: React.FC = () => {
       } else {
         setError('Please select an account from your Polkadot.js extension');
       }
-    } catch (err: any) {
-      console.error('Wallet connection failed:', err);
-      if (err.message?.includes('extension')) {
+    } catch (err) {
+      if (import.meta.env.DEV) console.error('Wallet connection failed:', err);
+      const errorMsg = err instanceof Error ? err.message : '';
+      if (errorMsg?.includes('extension')) {
         setError('Polkadot.js extension not found. Please install it first.');
       } else {
         setError('Failed to connect wallet. Please try again.');
@@ -320,8 +321,8 @@ const Login: React.FC = () => {
                     <Input
                       id="referral-code"
                       type="text"
-                      placeholder={t('login.enterReferralCode', 'Enter referral code')}
-                      className="pl-10 bg-gray-800 border-gray-700 text-white"
+                      placeholder={t('login.enterReferralCode', 'Referral code (optional)')}
+                      className="pl-10 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 placeholder:opacity-50"
                       value={signupData.referralCode}
                       onChange={(e) => setSignupData({...signupData, referralCode: e.target.value})}
                     />

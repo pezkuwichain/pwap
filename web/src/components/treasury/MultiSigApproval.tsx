@@ -5,15 +5,14 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useTranslation } from 'react-i18next';
 import { 
-  Shield, 
+   
   CheckCircle, 
   XCircle, 
   Clock,
   Users,
   AlertTriangle,
-  FileText,
+  
   DollarSign
 } from 'lucide-react';
 
@@ -37,7 +36,6 @@ interface Approval {
 }
 
 export const MultiSigApproval: React.FC = () => {
-  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('pending');
   
   const [approvals] = useState<Approval[]>([
