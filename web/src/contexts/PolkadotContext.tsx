@@ -124,6 +124,7 @@ export const PolkadotProvider: React.FC<PolkadotProviderProps> = ({
         api.disconnect();
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [endpoint]);
 
   // Auto-restore wallet on page load

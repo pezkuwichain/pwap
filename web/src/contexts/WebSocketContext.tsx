@@ -17,6 +17,13 @@ interface WebSocketContextType {
 
 const WebSocketContext = createContext<WebSocketContextType | null>(null);
 
+const ENDPOINTS = [
+  'ws://localhost:8082',                 // Local Vite dev server
+  'ws://127.0.0.1:9944',                // Local development node (primary)
+  'ws://localhost:9944',                 // Local development node (alternative)
+  'wss://ws.pezkuwichain.io',           // Production WebSocket (fallback)
+];
+
 export const useWebSocket = () => {
   const context = useContext(WebSocketContext);
   if (!context) {
@@ -31,18 +38,11 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const reconnectTimeout = useRef<NodeJS.Timeout>();
   const eventListeners = useRef<Map<string, Set<(data: Record<string, unknown>) => void>>>(new Map());
   const { toast } = useToast();
-  
+
   // Connection state management
   const currentEndpoint = useRef<string>('');
   const hasShownFinalError = useRef(false);
   const connectionAttempts = useRef(0);
-  
-  const ENDPOINTS = [
-    'ws://localhost:8082',                 // Local Vite dev server
-    'ws://127.0.0.1:9944',                // Local development node (primary)
-    'ws://localhost:9944',                 // Local development node (alternative)
-    'wss://ws.pezkuwichain.io',           // Production WebSocket (fallback)
-  ];
 
   const connect = useCallback((endpointIndex: number = 0) => {
     // If we've tried all endpoints, show error once and stop
