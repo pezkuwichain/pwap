@@ -27,7 +27,7 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ onSignIn, onNavigateToSignU
 
   const handleSignIn = () => {
     // TODO: Implement actual authentication
-    console.log('Sign in:', { email, password });
+    if (__DEV__) console.log('Sign in:', { email, password });
     onSignIn();
   };
 

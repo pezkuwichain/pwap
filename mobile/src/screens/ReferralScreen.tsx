@@ -67,10 +67,10 @@ const ReferralScreen: React.FC = () => {
       });
 
       if (result.action === Share.sharedAction) {
-        console.log('Shared successfully');
+        if (__DEV__) console.log('Shared successfully');
       }
     } catch (error) {
-      console.error('Error sharing:', error);
+      if (__DEV__) console.error('Error sharing:', error);
     }
   };
 

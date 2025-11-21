@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { initializeI18n } from './src/i18n';
+import { ErrorBoundary } from './src/components/ErrorBoundary';
 import { LanguageProvider } from './src/contexts/LanguageContext';
 import { PolkadotProvider } from './src/contexts/PolkadotContext';
+import { BiometricAuthProvider } from './src/contexts/BiometricAuthContext';
 import AppNavigator from './src/navigation/AppNavigator';
 import { KurdistanColors } from './src/theme/colors';
 
@@ -35,12 +37,16 @@ export default function App() {
   }
 
   return (
-    <PolkadotProvider>
-      <LanguageProvider>
-        <StatusBar style="auto" />
-        <AppNavigator />
-      </LanguageProvider>
-    </PolkadotProvider>
+    <ErrorBoundary>
+      <PolkadotProvider>
+        <LanguageProvider>
+          <BiometricAuthProvider>
+            <StatusBar style="auto" />
+            <AppNavigator />
+          </BiometricAuthProvider>
+        </LanguageProvider>
+      </PolkadotProvider>
+    </ErrorBoundary>
   );
 }
 
