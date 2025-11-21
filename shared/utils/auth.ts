@@ -3,18 +3,29 @@
  * Security-critical: Founder wallet detection and permissions
  */
 
-// SECURITY: Founder wallet address for beta testnet
-// This address has sudo rights and can perform privileged operations
-export const FOUNDER_ADDRESS = '5GgTgG9sRmPQAYU1RsTejZYnZRjwzKZKWD3awtuqjHioki45';
+// DEPRECATED: Hardcoded founder address (kept for fallback only)
+// Modern approach: Fetch sudo key dynamically from blockchain
+export const FOUNDER_ADDRESS_FALLBACK = '5GgTgG9sRmPQAYU1RsTejZYnZRjwzKZKWD3awtuqjHioki45';
 
 /**
- * Check if given address is the founder wallet
+ * Check if given address is the sudo account (admin/founder)
  * @param address - Substrate address to check
- * @returns true if address matches founder, false otherwise
+ * @param sudoKey - Sudo key fetched from blockchain (if available)
+ * @returns true if address matches sudo key or fallback founder address
  */
-export const isFounderWallet = (address: string | null | undefined): boolean => {
+export const isFounderWallet = (
+  address: string | null | undefined,
+  sudoKey?: string | null
+): boolean => {
   if (!address) return false;
-  return address === FOUNDER_ADDRESS;
+
+  // Priority 1: Use dynamic sudo key from blockchain if available
+  if (sudoKey && sudoKey !== '') {
+    return address === sudoKey;
+  }
+
+  // Priority 2: Fallback to hardcoded founder address (for compatibility)
+  return address === FOUNDER_ADDRESS_FALLBACK;
 };
 
 /**
@@ -48,11 +59,13 @@ export enum DexPermission {
  * Check if user has permission for a specific DEX operation
  * @param address - User's wallet address
  * @param permission - Required permission level
+ * @param sudoKey - Sudo key fetched from blockchain (if available)
  * @returns true if user has permission
  */
 export const hasPermission = (
   address: string | null | undefined,
-  permission: DexPermission
+  permission: DexPermission,
+  sudoKey?: string | null
 ): boolean => {
   if (!address || !isValidSubstrateAddress(address)) {
     return false;
@@ -67,7 +80,7 @@ export const hasPermission = (
 
   // Founder-only operations
   if (founderOnly.includes(permission)) {
-    return isFounderWallet(address);
+    return isFounderWallet(address, sudoKey);
   }
 
   // Everyone can view and trade
@@ -77,10 +90,14 @@ export const hasPermission = (
 /**
  * Get user role string for display
  * @param address - User's wallet address
+ * @param sudoKey - Sudo key fetched from blockchain (if available)
  * @returns Human-readable role
  */
-export const getUserRole = (address: string | null | undefined): string => {
+export const getUserRole = (
+  address: string | null | undefined,
+  sudoKey?: string | null
+): string => {
   if (!address) return 'Guest';
-  if (isFounderWallet(address)) return 'Founder (Admin)';
+  if (isFounderWallet(address, sudoKey)) return 'Sudo (Admin)';
   return 'User';
 };

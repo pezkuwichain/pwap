@@ -55,21 +55,21 @@ export const KNOWN_TOKENS: Record<number, TokenInfo> = {
     symbol: 'wHEZ',
     name: 'Wrapped HEZ',
     decimals: 12,
-    logo: '🟡',
+    logo: '/shared/images/hez_logo.png',
   },
   1: {
     id: 1,
     symbol: 'PEZ',
     name: 'Pezkuwi Token',
     decimals: 12,
-    logo: '🟣',
+    logo: '/shared/images/pez_logo.jpg',
   },
-  2: {
-    id: 2,
+  1000: {
+    id: 1000,
     symbol: 'wUSDT',
     name: 'Wrapped USDT',
     decimals: 6,
-    logo: '💵',
+    logo: '/shared/images/USDT(hez)logo.png',
   },
 };
 

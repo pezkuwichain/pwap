@@ -28,7 +28,7 @@ type TransactionStatus = 'idle' | 'signing' | 'submitting' | 'success' | 'error'
 const USER_TOKENS = [
   { symbol: 'HEZ', emoji: '🟡', assetId: 0, name: 'HEZ', decimals: 12, displaySymbol: 'HEZ' }, // actually wHEZ (asset 0)
   { symbol: 'PEZ', emoji: '🟣', assetId: 1, name: 'PEZ', decimals: 12, displaySymbol: 'PEZ' },
-  { symbol: 'USDT', emoji: '💵', assetId: 2, name: 'USDT', decimals: 6, displaySymbol: 'USDT' },
+  { symbol: 'USDT', emoji: '💵', assetId: 1000, name: 'USDT', decimals: 6, displaySymbol: 'USDT' },
 ] as const;
 
 export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
