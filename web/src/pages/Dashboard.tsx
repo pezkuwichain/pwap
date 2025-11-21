@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -40,17 +40,7 @@ export default function Dashboard() {
     totalNFTs: 0
   });
 
-  useEffect(() => {
-    fetchProfile();
-    if (selectedAccount && api && isApiReady) {
-      fetchScoresAndTikis();
-     
-     
-    }
-  }, [user, selectedAccount, api, isApiReady]);
-     
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     if (!user) return;
 
     try {
@@ -107,10 +97,10 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
-  const fetchScoresAndTikis = async () => {
-     
+  const fetchScoresAndTikis = useCallback(async () => {
+
     if (!selectedAccount || !api) return;
 
     setLoadingScores(true);
@@ -135,7 +125,16 @@ export default function Dashboard() {
     } finally {
       setLoadingScores(false);
     }
-  };
+  }, [selectedAccount, api]);
+
+  useEffect(() => {
+    fetchProfile();
+    if (selectedAccount && api && isApiReady) {
+      fetchScoresAndTikis();
+
+
+    }
+  }, [user, selectedAccount, api, isApiReady, fetchProfile, fetchScoresAndTikis]);
 
   const sendVerificationEmail = async () => {
     if (!user?.email) {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -34,16 +34,9 @@ export default function ProfileSettings() {
     two_factor_enabled: false
   });
 
-  useEffect(() => {
-    if (user) {
-      loadProfile();
-     
-    }
-  }, [user]);
-
-  const loadProfile = async () => {
+  const loadProfile = useCallback(async () => {
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user?.id)
@@ -73,7 +66,14 @@ export default function ProfileSettings() {
     } catch (error) {
       if (import.meta.env.DEV) console.error('Error loading profile:', error);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      loadProfile();
+
+    }
+  }, [user, loadProfile]);
 
   const updateProfile = async () => {
     setLoading(true);
