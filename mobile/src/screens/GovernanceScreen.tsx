@@ -121,7 +121,7 @@ export default function GovernanceScreen() {
 
       setProposals(proposalsList);
     } catch (error) {
-      console.error('Error fetching proposals:', error);
+      if (__DEV__) console.error('Error fetching proposals:', error);
       Alert.alert('Error', 'Failed to load proposals');
     } finally {
       setLoading(false);
@@ -162,7 +162,7 @@ export default function GovernanceScreen() {
       ];
       setElections(mockElections);
     } catch (error) {
-      console.error('Error fetching elections:', error);
+      if (__DEV__) console.error('Error fetching elections:', error);
     }
   };
 
@@ -191,7 +191,7 @@ export default function GovernanceScreen() {
         }
       });
     } catch (error: any) {
-      console.error('Voting error:', error);
+      if (__DEV__) console.error('Voting error:', error);
       Alert.alert('Error', error.message || 'Failed to submit vote');
     } finally {
       setVoting(false);
@@ -231,7 +231,7 @@ export default function GovernanceScreen() {
       setVotedCandidates([]);
       fetchElections();
     } catch (error: any) {
-      console.error('Election voting error:', error);
+      if (__DEV__) console.error('Election voting error:', error);
       Alert.alert('Error', error.message || 'Failed to submit vote');
     } finally {
       setVoting(false);

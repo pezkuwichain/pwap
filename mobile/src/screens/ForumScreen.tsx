@@ -134,7 +134,7 @@ const ForumScreen: React.FC = () => {
       await new Promise((resolve) => setTimeout(resolve, 500));
       setThreads(MOCK_THREADS);
     } catch (error) {
-      console.error('Failed to fetch threads:', error);
+      if (__DEV__) console.error('Failed to fetch threads:', error);
     } finally {
       setLoading(false);
       setRefreshing(false);

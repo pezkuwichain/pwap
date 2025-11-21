@@ -64,7 +64,7 @@ const P2PScreen: React.FC = () => {
 
       setOffers(enrichedOffers);
     } catch (error) {
-      console.error('Fetch offers error:', error);
+      if (__DEV__) console.error('Fetch offers error:', error);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -191,7 +191,7 @@ const P2PScreen: React.FC = () => {
         variant="primary"
         onPress={() => {
           // TODO: Open trade modal
-          console.log('Trade with offer:', item.id);
+          if (__DEV__) console.log('Trade with offer:', item.id);
         }}
         style={styles.tradeButton}
       >

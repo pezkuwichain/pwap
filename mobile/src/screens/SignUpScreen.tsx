@@ -32,7 +32,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSignUp, onNavigateToSignI
       alert('Passwords do not match!');
       return;
     }
-    console.log('Sign up:', { email, password });
+    if (__DEV__) console.log('Sign up:', { email, password });
     onSignUp();
   };
 
