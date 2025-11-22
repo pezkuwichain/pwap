@@ -61,7 +61,7 @@ export default function LockScreen() {
         Alert.alert('Error', 'Incorrect PIN. Please try again.');
         setPin('');
       }
-    } catch (error) {
+    } catch (_error) {
       Alert.alert('Error', 'Failed to verify PIN');
     } finally {
       setVerifying(false);

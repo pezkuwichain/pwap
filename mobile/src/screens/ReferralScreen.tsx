@@ -14,7 +14,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
 import { usePolkadot } from '../contexts/PolkadotContext';
-import AppColors, { KurdistanColors } from '../theme/colors';
+import { KurdistanColors } from '../theme/colors';
 
 interface ReferralStats {
   totalReferrals: number;
@@ -32,14 +32,11 @@ interface Referral {
 }
 
 const ReferralScreen: React.FC = () => {
-  const { t } = useTranslation();
-  const { selectedAccount, api, connectWallet } = usePolkadot();
-  const [isConnected, setIsConnected] = useState(false);
+  const { t: _t } = useTranslation();
+  const { selectedAccount, api: _api, connectWallet } = usePolkadot();
+  const isConnected = !!selectedAccount;
 
-  // Check connection status
-  useEffect(() => {
-    setIsConnected(!!selectedAccount);
-  }, [selectedAccount]);
+  // Removed setState in effect - derive from selectedAccount directly
 
   // Generate referral code from wallet address
   const referralCode = selectedAccount
@@ -85,7 +82,7 @@ const ReferralScreen: React.FC = () => {
       });
 
       if (result.action === Share.sharedAction) {
-        if (__DEV__) console.log('Shared successfully');
+        if (__DEV__) console.warn('Shared successfully');
       }
     } catch (error) {
       if (__DEV__) console.error('Error sharing:', error);

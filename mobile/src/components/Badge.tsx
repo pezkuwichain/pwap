@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, ViewStyle } from 'react-native';
-import { AppColors, KurdistanColors } from '../theme/colors';
+import { KurdistanColors } from '../theme/colors';
 
 interface BadgeProps {
   label: string;

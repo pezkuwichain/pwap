@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   SafeAreaView,
-  ScrollView,
   TouchableOpacity,
   FlatList,
   ActivityIndicator,
@@ -29,7 +28,7 @@ import {
 type TabType = 'all' | 'my-courses';
 
 const EducationScreen: React.FC = () => {
-  const { t } = useTranslation();
+  const { t: _t } = useTranslation();
   const { api, isApiReady, selectedAccount, getKeyPair } = usePolkadot();
 
   const [activeTab, setActiveTab] = useState<TabType>('all');

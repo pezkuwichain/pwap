@@ -21,7 +21,6 @@ import { usePolkadot } from '../contexts/PolkadotContext';
 // Import from shared library
 import {
   getActiveOffers,
-  getUserReputation,
   type P2PFiatOffer,
   type P2PReputation,
 } from '../../../shared/lib/p2p-fiat';
@@ -34,7 +33,7 @@ interface OfferWithReputation extends P2PFiatOffer {
 type TabType = 'buy' | 'sell' | 'my-offers';
 
 const P2PScreen: React.FC = () => {
-  const { t } = useTranslation();
+  const { t: _t } = useTranslation();
   const { selectedAccount } = usePolkadot();
 
   const [activeTab, setActiveTab] = useState<TabType>('buy');
