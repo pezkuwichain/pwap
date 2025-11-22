@@ -15,12 +15,12 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
 import { usePolkadot } from '../contexts/PolkadotContext';
 import { submitKycApplication, uploadToIPFS } from '@pezkuwi/lib/citizenship-workflow';
-import AppColors, { KurdistanColors } from '../theme/colors';
+import { KurdistanColors } from '../theme/colors';
 
 const BeCitizenScreen: React.FC = () => {
-  const { t } = useTranslation();
+  const { t: _t } = useTranslation();
   const { api, selectedAccount } = usePolkadot();
-  const [isExistingCitizen, setIsExistingCitizen] = useState(false);
+  const [_isExistingCitizen, _setIsExistingCitizen] = useState(false);
   const [currentStep, setCurrentStep] = useState<'choice' | 'new' | 'existing'>('choice');
   const [isSubmitting, setIsSubmitting] = useState(false);
 

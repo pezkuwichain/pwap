@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { I18nManager } from 'react-native';
-import { useTranslation } from 'react-i18next';
 import { saveLanguage, getCurrentLanguage, isRTL, LANGUAGE_KEY } from '../i18n';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -14,24 +13,23 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const { i18n } = useTranslation();
   const [currentLanguage, setCurrentLanguage] = useState(getCurrentLanguage());
   const [hasSelectedLanguage, setHasSelectedLanguage] = useState(false);
   const [currentIsRTL, setCurrentIsRTL] = useState(isRTL());
 
-  useEffect(() => {
-    // Check if user has already selected a language
-    checkLanguageSelection();
-  }, []);
-
-  const checkLanguageSelection = async () => {
+  const checkLanguageSelection = React.useCallback(async () => {
     try {
       const saved = await AsyncStorage.getItem(LANGUAGE_KEY);
       setHasSelectedLanguage(!!saved);
     } catch (error) {
       if (__DEV__) console.error('Failed to check language selection:', error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    // Check if user has already selected a language
+    checkLanguageSelection();
+  }, [checkLanguageSelection]);
 
   const changeLanguage = async (languageCode: string) => {
     try {

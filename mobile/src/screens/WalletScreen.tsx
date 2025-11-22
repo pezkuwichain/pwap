@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
-import AppColors, { KurdistanColors } from '../theme/colors';
+import { KurdistanColors } from '../theme/colors';
 import { usePolkadot } from '../contexts/PolkadotContext';
 
 interface Token {
@@ -148,8 +148,8 @@ const WalletScreen: React.FC = () => {
               pezBalance = (Number(pezData.balance.toString()) / 1e12).toFixed(2);
             }
           }
-        } catch (err) {
-          if (__DEV__) console.log('PEZ asset not found or not accessible');
+        } catch (_err) {
+          if (__DEV__) console.warn('PEZ asset not found or not accessible');
         }
 
         // Fetch USDT balance (wUSDT - asset ID 2)
@@ -162,8 +162,8 @@ const WalletScreen: React.FC = () => {
               usdtBalance = (Number(usdtData.balance.toString()) / 1e12).toFixed(2);
             }
           }
-        } catch (err) {
-          if (__DEV__) console.log('USDT asset not found or not accessible');
+        } catch (_err) {
+          if (__DEV__) console.warn('USDT asset not found or not accessible');
         }
 
         setBalances({
@@ -171,8 +171,8 @@ const WalletScreen: React.FC = () => {
           PEZ: pezBalance,
           USDT: usdtBalance,
         });
-      } catch (err) {
-        if (__DEV__) console.error('Failed to fetch balances:', err);
+      } catch (_err) {
+        if (__DEV__) console.error('Failed to fetch balances:', _err);
         Alert.alert('Error', 'Failed to fetch token balances');
       } finally {
         setIsLoadingBalances(false);
@@ -197,8 +197,8 @@ const WalletScreen: React.FC = () => {
       // Connect existing wallet
       await connectWallet();
       Alert.alert('Connected', 'Wallet connected successfully!');
-    } catch (err) {
-      if (__DEV__) console.error('Failed to connect wallet:', err);
+    } catch (_err) {
+      if (__DEV__) console.error('Failed to connect wallet:', _err);
       Alert.alert('Error', 'Failed to connect wallet');
     }
   };
@@ -219,8 +219,8 @@ const WalletScreen: React.FC = () => {
         `Your wallet has been created!\n\nAddress: ${address.substring(0, 10)}...\n\nIMPORTANT: Save your recovery phrase:\n${mnemonic}\n\nStore it securely - you'll need it to recover your wallet!`,
         [{ text: 'OK', onPress: () => connectWallet() }]
       );
-    } catch (err) {
-      if (__DEV__) console.error('Failed to create wallet:', err);
+    } catch (_err) {
+      if (__DEV__) console.error('Failed to create wallet:', _err);
       Alert.alert('Error', 'Failed to create wallet');
     }
   };
@@ -291,11 +291,11 @@ const WalletScreen: React.FC = () => {
               }
 
               // Sign and send transaction
-              await tx.signAndSend(keypair, ({ status, events }: any) => {
+              await tx.signAndSend(keypair, ({ status, events: _events }: any) => {
                 if (status.isInBlock) {
-                  console.log(`Transaction included in block: ${status.asInBlock}`);
+                  if (__DEV__) console.warn(`Transaction included in block: ${status.asInBlock}`);
                 } else if (status.isFinalized) {
-                  console.log(`Transaction finalized: ${status.asFinalized}`);
+                  if (__DEV__) console.warn(`Transaction finalized: ${status.asFinalized}`);
 
                   setSendModalVisible(false);
                   setRecipientAddress('');
@@ -311,10 +311,10 @@ const WalletScreen: React.FC = () => {
                   // The useEffect will automatically refresh after 30s, but we could trigger it manually here
                 }
               });
-            } catch (err) {
-              console.error('Transaction failed:', err);
+            } catch (_err) {
+              console.error('Transaction failed:', _err);
               setIsSending(false);
-              Alert.alert('Error', `Transaction failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
+              Alert.alert('Error', `Transaction failed: ${_err instanceof Error ? _err.message : 'Unknown error'}`);
             }
           },
         },

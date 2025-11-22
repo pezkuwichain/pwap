@@ -45,7 +45,7 @@ const AVAILABLE_TOKENS: Token[] = [
 ];
 
 const SwapScreen: React.FC = () => {
-  const { t } = useTranslation();
+  const { t: _t } = useTranslation();
   const { api, isApiReady, selectedAccount, getKeyPair } = usePolkadot();
 
   const [state, setState] = useState<SwapState>({
@@ -97,16 +97,16 @@ const SwapScreen: React.FC = () => {
             } else {
               newBalances[token.symbol] = '0.0000';
             }
-          } catch (error) {
-            if (__DEV__) console.log(`No balance for ${token.symbol}`);
+          } catch (_error) {
+            if (__DEV__) console.warn(`No balance for ${token.symbol}`);
             newBalances[token.symbol] = '0.0000';
           }
         }
       }
 
       setBalances(newBalances);
-    } catch (error) {
-      if (__DEV__) console.error('Failed to fetch balances:', error);
+    } catch (_error) {
+      if (__DEV__) console.error('Failed to fetch balances:', _error);
     }
   }, [api, isApiReady, selectedAccount]);
 
@@ -158,8 +158,8 @@ const SwapScreen: React.FC = () => {
 
       setPoolReserves({ reserve1, reserve2 });
       setState((prev) => ({ ...prev, loading: false }));
-    } catch (error) {
-      if (__DEV__) console.error('Failed to fetch pool reserves:', error);
+    } catch (_error) {
+      if (__DEV__) console.error('Failed to fetch pool reserves:', _error);
       Alert.alert('Error', 'Failed to fetch pool information.');
       setState((prev) => ({ ...prev, loading: false }));
     }
@@ -213,8 +213,8 @@ const SwapScreen: React.FC = () => {
 
       setState((prev) => ({ ...prev, toAmount: toAmountFormatted }));
       setPriceImpact(impact);
-    } catch (error) {
-      if (__DEV__) console.error('Calculation error:', error);
+    } catch (_error) {
+      if (__DEV__) console.error('Calculation error:', _error);
       setState((prev) => ({ ...prev, toAmount: '' }));
     }
   }, [state.fromAmount, state.fromToken, state.toToken, poolReserves]);
@@ -327,7 +327,7 @@ const SwapScreen: React.FC = () => {
       const path = [state.fromToken.assetId, state.toToken.assetId];
 
       if (__DEV__) {
-        console.log('Swap params:', {
+        if (__DEV__) console.warn('Swap params:', {
           path,
           amountIn,
           amountOutMin,
@@ -348,8 +348,8 @@ const SwapScreen: React.FC = () => {
       await new Promise<void>((resolve, reject) => {
         let unsub: (() => void) | undefined;
 
-        tx.signAndSend(keyPair, ({ status, events, dispatchError }) => {
-          if (__DEV__) console.log('Transaction status:', status.type);
+        tx.signAndSend(keyPair, ({ status, events: _events, dispatchError }) => {
+          if (__DEV__) console.warn('Transaction status:', status.type);
 
           if (dispatchError) {
             if (dispatchError.isModule) {
@@ -367,7 +367,7 @@ const SwapScreen: React.FC = () => {
           }
 
           if (status.isInBlock || status.isFinalized) {
-            if (__DEV__) console.log('Transaction included in block');
+            if (__DEV__) console.warn('Transaction included in block');
             resolve();
             if (unsub) unsub();
           }

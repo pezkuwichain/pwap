@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -113,7 +113,7 @@ const MOCK_THREADS: ForumThread[] = [
 type ViewType = 'categories' | 'threads';
 
 const ForumScreen: React.FC = () => {
-  const { t } = useTranslation();
+  const { t: _t } = useTranslation();
 
   const [viewType, setViewType] = useState<ViewType>('categories');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
