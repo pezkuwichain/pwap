@@ -24,6 +24,7 @@ const LAST_UNLOCK_TIME_KEY = '@last_unlock_time'; // Local only
 interface BiometricAuthContextType {
   isBiometricSupported: boolean;
   isBiometricEnrolled: boolean;
+  isBiometricAvailable: boolean;
   biometricType: 'fingerprint' | 'facial' | 'iris' | 'none';
   isBiometricEnabled: boolean;
   isLocked: boolean;
@@ -52,6 +53,9 @@ export const BiometricAuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isBiometricEnabled, setIsBiometricEnabled] = useState(false);
   const [isLocked, setIsLocked] = useState(true);
   const [autoLockTimer, setAutoLockTimerState] = useState(5); // Default 5 minutes
+
+  // Computed: biometrics are available if hardware supports AND user has enrolled
+  const isBiometricAvailable = isBiometricSupported && isBiometricEnrolled;
 
   /**
    * Check if app should auto-lock
@@ -300,15 +304,13 @@ export const BiometricAuthProvider: React.FC<{ children: React.ReactNode }> = ({
    * Unlock the app
    * Saves timestamp LOCALLY for auto-lock
    */
-  const unlock = async () => {
+  const unlock = () => {
     setIsLocked(false);
 
-    // Save unlock time LOCALLY for auto-lock check
-    try {
-      await AsyncStorage.setItem(LAST_UNLOCK_TIME_KEY, Date.now().toString());
-    } catch (error) {
+    // Save unlock time LOCALLY for auto-lock check (async without await)
+    AsyncStorage.setItem(LAST_UNLOCK_TIME_KEY, Date.now().toString()).catch((error) => {
       if (__DEV__) console.error('Save unlock time error:', error);
-    }
+    });
   };
 
   return (
@@ -316,6 +318,7 @@ export const BiometricAuthProvider: React.FC<{ children: React.ReactNode }> = ({
       value={{
         isBiometricSupported,
         isBiometricEnrolled,
+        isBiometricAvailable,
         biometricType,
         isBiometricEnabled,
         isLocked,

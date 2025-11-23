@@ -8,7 +8,7 @@ import {
   ScrollView,
   StatusBar,
   Alert,
-} from 'react';
+} from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '../contexts/LanguageContext';
 import { languages } from '../i18n';

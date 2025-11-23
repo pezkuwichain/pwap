@@ -84,6 +84,9 @@ export const ListItemSkeleton: React.FC = () => (
   </View>
 );
 
+// Export LoadingSkeleton as an alias for compatibility
+export const LoadingSkeleton = Skeleton;
+
 const styles = StyleSheet.create({
   skeleton: {
     backgroundColor: AppColors.border,

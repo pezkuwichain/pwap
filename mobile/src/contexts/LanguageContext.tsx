@@ -1,13 +1,21 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { I18nManager } from 'react-native';
-import { saveLanguage, getCurrentLanguage, isRTL, LANGUAGE_KEY } from '../i18n';
+import { saveLanguage, getCurrentLanguage, isRTL, LANGUAGE_KEY, languages } from '../i18n';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+interface Language {
+  code: string;
+  name: string;
+  nativeName: string;
+  rtl: boolean;
+}
 
 interface LanguageContextType {
   currentLanguage: string;
   changeLanguage: (languageCode: string) => Promise<void>;
   isRTL: boolean;
   hasSelectedLanguage: boolean;
+  availableLanguages: Language[];
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -59,6 +67,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
         changeLanguage,
         isRTL: currentIsRTL,
         hasSelectedLanguage,
+        availableLanguages: languages,
       }}
     >
       {children}
@@ -69,7 +78,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
 export const useLanguage = (): LanguageContextType => {
   const context = useContext(LanguageContext);
   if (!context) {
-    throw new Error('useLanguage must be used within a LanguageProvider');
+    throw new Error('useLanguage must be used within LanguageProvider');
   }
   return context;
 };
