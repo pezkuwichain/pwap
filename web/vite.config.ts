@@ -10,6 +10,11 @@ export default defineConfig(() => ({
     globals: true,
     environment: 'jsdom',
     setupFiles: './src/tests/setup.ts',
+    alias: {
+      'vite-plugin-node-polyfills/shims/buffer': path.resolve(__dirname, './src/tests/mocks/buffer-shim.ts'),
+      'vite-plugin-node-polyfills/shims/global': path.resolve(__dirname, './src/tests/mocks/global-shim.ts'),
+      'vite-plugin-node-polyfills/shims/process': path.resolve(__dirname, './src/tests/mocks/process-shim.ts'),
+    },
   },
   server: {
     host: "::",
