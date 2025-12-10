@@ -58,7 +58,7 @@ const SidebarNav: React.FC<{ structure: object, onLinkClick: () => void, onSDKCl
         );
     };
 
-    const renderNav = (struct: any) => {
+    const renderNav = (struct: Record<string, unknown>) => {
         return Object.entries(struct).map(([key, value]) => {
             if (typeof value === 'string') {
                 // Check if it's the SDK docs special link
@@ -204,8 +204,8 @@ const Docs: React.FC = () => {
                 const sanitized = DOMPurify.sanitize(parsed);
                 setContent(sanitized);
 
-            } catch (e: any) {
-                setError(e.message);
+            } catch (e: unknown) {
+                setError(e instanceof Error ? e.message : 'Unknown error');
                 setContent('');
             } finally {
                 setIsLoading(false);

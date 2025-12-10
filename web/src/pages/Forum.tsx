@@ -1,6 +1,6 @@
 import React from 'react';
 import Layout from '@/components/Layout';
-import { Plus, MessageSquare, Eye, TrendingUp, Search } from 'lucide-react';
+import { Plus, MessageSquare, Eye, Search } from 'lucide-react';
 
 const Forum: React.FC = () => {
 

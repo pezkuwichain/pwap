@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ExternalLink, Globe, Book, Compass, FileCode, HandCoins, Users, Wrench, MessageCircle, GitFork, Server, Activity, Zap, Database, Radio, Layers, ArrowLeft } from 'lucide-react';
+import { ExternalLink, Globe, Book, Compass, FileCode, HandCoins, Users, Wrench, MessageCircle, Server, Activity, Zap, Database, Radio, Layers, ArrowLeft } from 'lucide-react';
 
 interface SubdomainItem {
   name: string;
@@ -41,7 +41,7 @@ const subdomainList: SubdomainItem[] = [
 ];
 
 const Subdomains: React.FC = () => {
-  const { t } = useTranslation();
+  useTranslation();
   const navigate = useNavigate();
 
   const mainServices = subdomainList.filter(s => s.category === 'main');
