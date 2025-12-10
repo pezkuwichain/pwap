@@ -3,17 +3,40 @@
  *
  * Handles Asset Hub USDT → wUSDT bridge configuration
  * User-friendly abstraction over complex XCM operations
+ *
+ * ALFA TESTNET MODE: Mock XCM for standalone chain testing
+ * BETA+ MODE: Real XCM with Rococo/Westend Asset Hub
  */
 
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import type { Signer } from '@polkadot/api/types';
 
-// Westend Asset Hub endpoint
+// Detect mock mode (alfa testnet)
+const IS_MOCK_MODE = typeof process !== 'undefined'
+  ? process.env.VITE_MOCK_XCM === 'true'
+  : typeof import.meta !== 'undefined'
+    ? import.meta.env?.VITE_MOCK_XCM === 'true'
+    : false;
+
+// Mock XCM state management (localStorage)
+const MOCK_XCM_STORAGE_KEY = 'pezkuwi_mock_xcm_configured';
+
+function getMockXcmConfigured(): boolean {
+  if (typeof window === 'undefined') return false;
+  return localStorage.getItem(MOCK_XCM_STORAGE_KEY) === 'true';
+}
+
+function setMockXcmConfigured(configured: boolean): void {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(MOCK_XCM_STORAGE_KEY, String(configured));
+}
+
+// Westend Asset Hub endpoint (production)
 export const ASSET_HUB_ENDPOINT = 'wss://westend-asset-hub-rpc.polkadot.io';
 
 // Known Asset IDs
 export const ASSET_HUB_USDT_ID = 1984; // USDT on Asset Hub
-export const WUSDT_ASSET_ID = 1000;     // wUSDT on PezkuwiChain
+export const WUSDT_ASSET_ID = 1000;     // wUSDT on PezkuwiChain (was 2, now 1000)
 export const ASSET_HUB_PARACHAIN_ID = 1000;
 
 /**
@@ -42,6 +65,12 @@ export interface AssetHubUsdtInfo {
  * Connect to Asset Hub
  */
 export async function connectToAssetHub(): Promise<ApiPromise> {
+  if (IS_MOCK_MODE) {
+    console.log('[MOCK XCM] Simulating Asset Hub connection for alfa testnet');
+    // Return null to signal mock mode - calling code will handle gracefully
+    return null as any;
+  }
+
   try {
     const provider = new WsProvider(ASSET_HUB_ENDPOINT);
     const api = await ApiPromise.create({ provider });
@@ -60,6 +89,17 @@ export async function connectToAssetHub(): Promise<ApiPromise> {
 export async function fetchAssetHubUsdtInfo(
   assetHubApi?: ApiPromise
 ): Promise<AssetHubUsdtInfo> {
+  if (IS_MOCK_MODE) {
+    console.log('[MOCK XCM] Returning simulated Asset Hub USDT info');
+    return {
+      id: ASSET_HUB_USDT_ID,
+      name: 'Tether USD',
+      symbol: 'USDT',
+      decimals: 6,
+      supply: '1000000000000000', // 1 billion USDT (simulated)
+    };
+  }
+
   let api = assetHubApi;
   let shouldDisconnect = false;
 
@@ -105,6 +145,19 @@ export async function checkBridgeStatus(
     // Check if wUSDT asset exists
     const wusdtAsset = await api.query.assets.asset(WUSDT_ASSET_ID);
     const wusdtExists = wusdtAsset.isSome;
+
+    // Mock mode: Simulate successful bridge setup
+    if (IS_MOCK_MODE) {
+      const isConfigured = getMockXcmConfigured();
+      console.log('[MOCK XCM] Returning simulated bridge status for alfa testnet (configured:', isConfigured, ')');
+      return {
+        isConfigured,
+        assetHubLocation: isConfigured ? `ParaId(${ASSET_HUB_PARACHAIN_ID})` : null,
+        usdtMapping: isConfigured ? WUSDT_ASSET_ID : null,
+        assetHubConnected: true, // Simulated connection success
+        wusdtExists,
+      };
+    }
 
     // Try to connect to Asset Hub
     let assetHubConnected = false;
@@ -153,6 +206,25 @@ export async function configureXcmBridge(
 ): Promise<string> {
   if (!api.tx.sudo) {
     throw new Error('Sudo pallet not available');
+  }
+
+  // Mock mode: Simulate successful configuration
+  if (IS_MOCK_MODE) {
+    console.log('[MOCK XCM] Simulating XCM bridge configuration for alfa testnet');
+
+    onStatusUpdate?.('Preparing XCM configuration...');
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    onStatusUpdate?.('Simulating sudo transaction...');
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    onStatusUpdate?.('Mock XCM bridge configured successfully!');
+
+    // Store mock configuration state
+    setMockXcmConfigured(true);
+
+    // Return mock transaction hash
+    return '0x' + '0'.repeat(64);
   }
 
   try {

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+// Force reload for mock XCM update
+import React, { useState, useEffect, useCallback } from 'react';
 import { usePolkadot } from '@/contexts/PolkadotContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { X, AlertCircle, Loader2, CheckCircle, Info, ExternalLink, Zap } from 'lucide-react';

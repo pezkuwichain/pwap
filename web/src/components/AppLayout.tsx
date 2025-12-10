@@ -266,8 +266,7 @@ const AppLayout: React.FC = () => {
               )}
 
               <a
-                href="https://raw.githubusercontent.com/pezkuwichain/DKSweb/main/public/Whitepaper.pdf"
-                download="Pezkuwi_Whitepaper.pdf"
+                href="/docs"
                 className="text-gray-300 hover:text-white transition-colors text-sm"
               >
                 Docs
@@ -518,13 +517,13 @@ const AppLayout: React.FC = () => {
               <h4 className="text-white font-semibold mb-4 text-left">Developers</h4>
               <ul className="space-y-2 text-left">
                 <li>
-                  <a href="https://explorer.pezkuwichain.io" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white text-sm inline-flex items-center">
+                  <a href="/api" className="text-gray-400 hover:text-white text-sm inline-flex items-center">
                     API
                     <ExternalLink className="w-3 h-3 ml-1" />
                   </a>
                 </li>
                 <li>
-                  <a href="https://sdk.pezkuwichain.io" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white text-sm inline-flex items-center">
+                  <a href="/developers" className="text-gray-400 hover:text-white text-sm inline-flex items-center">
                     SDK
                     <ExternalLink className="w-3 h-3 ml-1" />
                   </a>

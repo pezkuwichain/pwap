@@ -42,13 +42,31 @@ export const NETWORK_ENDPOINTS: Record<string, NetworkConfig> = {
     description: 'Staging environment for pre-production testing',
   },
 
-  // Development Testnet
-  TESTNET: {
-    name: 'Pezkuwi Testnet',
-    endpoint: 'https://testnet.pezkuwichain.io',
-    wsEndpoint: 'wss://testnet.pezkuwichain.io',
+  // Alfa Testnet
+  ALFA: {
+    name: 'Pezkuwi Alfa Testnet',
+    endpoint: 'https://alfa.pezkuwichain.io',
+    wsEndpoint: 'wss://alfa.pezkuwichain.io',
     type: 'development',
-    description: 'Development testnet for feature testing',
+    description: 'Alfa testnet for early feature testing',
+  },
+
+  // Development Environment
+  DEV: {
+    name: 'Pezkuwi Development',
+    endpoint: 'https://dev.pezkuwichain.io',
+    wsEndpoint: 'wss://dev.pezkuwichain.io',
+    type: 'development',
+    description: 'Development environment for feature testing',
+  },
+
+  // Local Development
+  LOCAL: {
+    name: 'Local Development',
+    endpoint: 'http://127.0.0.1:9944',
+    wsEndpoint: 'ws://127.0.0.1:9944',
+    type: 'development',
+    description: 'Local development node',
   },
 };
 
@@ -57,8 +75,8 @@ export const NETWORK_ENDPOINTS: Record<string, NetworkConfig> = {
  */
 export const DEFAULT_NETWORK =
   process.env.NODE_ENV === 'production'
-    ? NETWORK_ENDPOINTS.BETA  // Currently using Beta for production
-    : NETWORK_ENDPOINTS.TESTNET;
+    ? NETWORK_ENDPOINTS.BETA // Currently using Beta for production
+    : NETWORK_ENDPOINTS.DEV;
 
 /**
  * Port Configuration
@@ -99,6 +117,23 @@ export function getAllNetworks(): NetworkConfig[] {
 }
 
 /**
+ * Get the current network configuration based on the VITE_NETWORK environment variable.
+ * This serves as the single source of truth for the application's network configuration.
+ * @returns {NetworkConfig} The active network configuration.
+ */
+export const getCurrentNetworkConfig = (): NetworkConfig => {
+  const networkName = (import.meta.env.VITE_NETWORK || 'local').toUpperCase();
+  const validNetworkKeys = Object.keys(NETWORK_ENDPOINTS);
+
+  if (validNetworkKeys.includes(networkName)) {
+    return NETWORK_ENDPOINTS[networkName as keyof typeof NETWORK_ENDPOINTS];
+  }
+
+  // Fallback to a default or local configuration if the name is invalid
+  return NETWORK_ENDPOINTS.LOCAL;
+};
+
+/**
  * Check if endpoint is available
  */
 export async function checkEndpoint(endpoint: string): Promise<boolean> {
@@ -109,3 +144,4 @@ export async function checkEndpoint(endpoint: string): Promise<boolean> {
     return false;
   }
 }
+export const NETWORKS = NETWORK_ENDPOINTS;

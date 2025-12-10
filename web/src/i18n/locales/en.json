@@ -235,10 +235,29 @@
     "proposalUpdate": "Proposal status changed"
   },
   "websocket": {
-    "connected": "Connected",
-    "disconnected": "Disconnected",
-    "reconnecting": "Reconnecting...",
-    "liveUpdates": "Live updates enabled",
-    "offlineMode": "Offline mode"
+      "connected": "Connected",
+      "disconnected": "Disconnected",
+      "reconnecting": "Reconnecting...",
+      "liveUpdates": "Live updates enabled",
+      "offlineMode": "Offline mode"
+    },
+    "chainSpecs": {
+      "title": "Chain Specifications",
+      "subtitle": "Multiple network environments for development, testing, and production",
+      "services": "Services",
+      "subdomainsTitle": "Subdomains",
+      "availableServices": "{{count}} available services",
+      "viewExplorer": "View Explorer",
+      "connectionExample": "Connection Example",
+      "networkStats": "Network Stats",
+      "blockTime": "Block Time",
+      "finality": "Finality",
+      "consensus": "Consensus",
+      "runtime": "Runtime",
+      "websocketEndpoint": "WebSocket Endpoint",
+      "chainId": "Chain ID",
+      "features": "Features",
+      "availableSubdomains": "Available Subdomains"
+    }
   }
-}
+  

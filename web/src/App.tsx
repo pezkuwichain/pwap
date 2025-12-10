@@ -42,6 +42,26 @@ const PresaleList = lazy(() => import('./pages/launchpad/PresaleList'));
 const PresaleDetail = lazy(() => import('./pages/launchpad/PresaleDetail'));
 const CreatePresale = lazy(() => import('./pages/launchpad/CreatePresale'));
 const NotFound = lazy(() => import('@/pages/NotFound'));
+const Explorer = lazy(() => import('@/pages/Explorer'));
+const Docs = lazy(() => import('@/pages/Docs'));
+const Wallet = lazy(() => import('@/pages/Wallet'));
+const Api = lazy(() => import('@/pages/Api'));
+const Faucet = lazy(() => import('@/pages/Faucet'));
+const Developers = lazy(() => import('@/pages/Developers'));
+const Grants = lazy(() => import('@/pages/Grants'));
+const Wiki = lazy(() => import('@/pages/Wiki'));
+const Forum = lazy(() => import('@/pages/Forum'));
+const Telemetry = lazy(() => import('@/pages/Telemetry'));
+const Subdomains = lazy(() => import('@/pages/Subdomains'));
+
+// Network pages
+const Mainnet = lazy(() => import('@/pages/networks/Mainnet'));
+const Staging = lazy(() => import('@/pages/networks/Staging'));
+const Testnet = lazy(() => import('@/pages/networks/Testnet'));
+const Beta = lazy(() => import('@/pages/networks/Beta'));
+const Alfa = lazy(() => import('@/pages/networks/Alfa'));
+const Development = lazy(() => import('@/pages/networks/Development'));
+const Local = lazy(() => import('@/pages/networks/Local'));
 
 // Loading component
 const PageLoader = () => (
@@ -92,6 +112,25 @@ function App() {
                               <Route path="/email-verification" element={<EmailVerification />} />
                               <Route path="/reset-password" element={<PasswordReset />} />
                               <Route path="/" element={<Index />} />
+                              <Route path="/explorer" element={<Explorer />} />
+                              <Route path="/docs/*" element={<Docs />} />
+                              <Route path="/wallet" element={<Wallet />} />
+                              <Route path="/api" element={<Api />} />
+                              <Route path="/faucet" element={<Faucet />} />
+                              <Route path="/developers" element={<Developers />} />
+                              <Route path="/grants" element={<Grants />} />
+                              <Route path="/wiki" element={<Wiki />} />
+                              <Route path="/forum" element={<Forum />} />
+                              <Route path="/telemetry" element={<Telemetry />} />
+                              <Route path="/subdomains" element={<Subdomains />} />
+                              {/* Network pages */}
+                              <Route path="/mainnet" element={<Mainnet />} />
+                              <Route path="/staging" element={<Staging />} />
+                              <Route path="/testnet" element={<Testnet />} />
+                              <Route path="/beta" element={<Beta />} />
+                              <Route path="/alfa" element={<Alfa />} />
+                              <Route path="/development" element={<Development />} />
+                              <Route path="/local" element={<Local />} />
                               <Route path="/be-citizen" element={<BeCitizen />} />
                               <Route path="/citizens" element={<Citizens />} />
                               <Route path="/citizens/issues" element={<CitizensIssues />} />
@@ -111,7 +150,7 @@ function App() {
                                   <AdminPanel />
                                 </ProtectedRoute>
                               } />
-                              <Route path="/wallet" element={
+                              <Route path="/wallet-dashboard" element={
                                 <ProtectedRoute>
                                   <WalletDashboard />
                                 </ProtectedRoute>

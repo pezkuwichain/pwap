@@ -2,6 +2,7 @@
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
 // https://vitejs.dev/config/
 export default defineConfig(() => ({
@@ -23,12 +24,9 @@ export default defineConfig(() => ({
     },
   },
   plugins: [
-    react()
+    react(),
+    nodePolyfills(),
   ].filter(Boolean),
-  define: {
-    'global': 'globalThis',
-    'process.env': {}
-  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -43,15 +41,18 @@ export default defineConfig(() => ({
     dedupe: ['react', 'lucide-react', 'sonner', '@polkadot/util-crypto', '@polkadot/util', '@polkadot/api', '@polkadot/extension-dapp', '@polkadot/keyring'],
   },
   optimizeDeps: {
-    include: ['@polkadot/util-crypto', '@polkadot/util', '@polkadot/api', '@polkadot/extension-dapp', '@polkadot/keyring'],
-    esbuildOptions: {
-      define: {
-        global: 'globalThis'
-      }
-    }
+    include: ['@polkadot/util-crypto', '@polkadot/util', '@polkadot/api', '@polkadot/extension-dapp', '@polkadot/keyring', 'buffer'],
   },
   build: {
     rollupOptions: {
+      external: [],
+      onwarn(warning, warn) {
+        // Suppress the buffer shim warning - it's handled by vite-plugin-node-polyfills
+        if (warning.message?.includes('vite-plugin-node-polyfills/shims/buffer')) {
+          return;
+        }
+        warn(warning);
+      },
       output: {
         manualChunks: {
           'polkadot': ['@polkadot/api', '@polkadot/extension-dapp', '@polkadot/keyring', '@polkadot/util', '@polkadot/util-crypto'],

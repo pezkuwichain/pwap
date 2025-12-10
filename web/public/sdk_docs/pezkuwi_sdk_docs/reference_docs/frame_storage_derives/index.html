@@ -1,0 +1,146 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Learn about the details of what derives are needed for a type to be store-able in `frame` storage."><title>pezkuwi_sdk_docs::reference_docs::frame_storage_derives - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="pezkuwi_sdk_docs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.1 (ed61e7d7e 2025-11-07)" data-channel="1.91.1" data-search-js="search-e256b49e.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="icon" href="https://pezkuwichain.io/favicon.ico"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module frame_storage_derives</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../pezkuwi_sdk_docs/index.html">pezkuwi_<wbr>sdk_<wbr>docs</a><span class="version">0.0.1</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module frame_<wbr>storage_<wbr>derives</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#frame-storage-derives" title="Frame storage derives">Frame storage derives</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In pezkuwi_<wbr>sdk_<wbr>docs::<wbr>reference_<wbr>docs</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">pezkuwi_sdk_docs</a>::<wbr><a href="../index.html">reference_docs</a></div><h1>Module <span>frame_<wbr>storage_<wbr>derives</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/pezkuwi_sdk_docs/reference_docs/frame_storage_derives.rs.html#1-202">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Learn about the details of what derives are needed for a type to be store-able in <code>frame</code>
+storage.</p>
+<h2 id="frame-storage-derives"><a class="doc-anchor" href="#frame-storage-derives">§</a>Frame storage derives</h2>
+<blockquote>
+<p><strong>Note:</strong></p>
+<p>In all examples, a few lines of boilerplate have been hidden from each snippet for
+conciseness.</p>
+</blockquote>
+<p>Let’s begin by starting to store a <code>NewType</code> in a storage item:</p>
+
+<div class="example-wrap compile_fail"><a href="#" class="tooltip" title="This example deliberately fails to compile">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="attr">#[frame::pallet]
+</span><span class="kw">pub mod </span>pallet {
+	<span class="kw">pub struct </span>NewType(u32);
+	<span class="attr">#[pallet::storage]
+	</span><span class="kw">pub type </span>Something&lt;T&gt; = StorageValue&lt;<span class="kw">_</span>, NewType&gt;;
+}</code></pre></div>
+<p>This raises a number of compiler errors, like:</p>
+<div class="example-wrap"><pre class="language-text"><code>the trait `MaxEncodedLen` is not implemented for `NewType`, which is required by
+`frame::prelude::StorageValue&lt;_GeneratedPrefixForStorageSomething&lt;T&gt;, NewType&gt;:
+StorageInfoTrait`</code></pre></div>
+<p>This implies the following set of traits that need to be derived for a type to be stored in
+<code>frame</code> storage:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[frame::pallet]
+</span><span class="kw">pub mod </span>pallet {
+	<span class="attr">#[derive(codec::Encode, codec::Decode, codec::MaxEncodedLen, scale_info::TypeInfo)]
+	</span><span class="kw">pub struct </span>NewType(u32);
+
+	<span class="attr">#[pallet::storage]
+	</span><span class="kw">pub type </span>Something&lt;T&gt; = StorageValue&lt;<span class="kw">_</span>, NewType&gt;;
+}</code></pre></div>
+<p>Next, let’s look at how this will differ if we are to store a type that is derived from <code>T</code> in
+storage, such as [<code>frame::prelude::BlockNumberFor</code>]:</p>
+
+<div class="example-wrap compile_fail"><a href="#" class="tooltip" title="This example deliberately fails to compile">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="attr">#[frame::pallet]
+</span><span class="kw">pub mod </span>pallet {
+	<span class="attr">#[derive(codec::Encode, codec::Decode, codec::MaxEncodedLen, scale_info::TypeInfo)]
+	</span><span class="kw">pub struct </span>NewType&lt;T: Config&gt;(BlockNumberFor&lt;T&gt;);
+
+	<span class="attr">#[pallet::storage]
+	</span><span class="kw">pub type </span>Something&lt;T: Config&gt; = StorageValue&lt;<span class="kw">_</span>, NewType&lt;T&gt;&gt;;
+}</code></pre></div>
+<p>Surprisingly, this will also raise a number of errors, like:</p>
+<div class="example-wrap"><pre class="language-text"><code>the trait `TypeInfo` is not implemented for `T`, which is required
+by`frame_support::pallet_prelude::StorageValue&lt;pallet_2::_GeneratedPrefixForStorageSomething&lt;T&gt;,
+pallet_2::NewType&lt;T&gt;&gt;:StorageEntryMetadataBuilder</code></pre></div>
+<p>Why is that? The underlying reason is that the <code>TypeInfo</code> <code>derive</code> macro will only work for
+<code>NewType</code> if all of <code>NewType</code>’s generics also implement <code>TypeInfo</code>. This is not the case for <code>T</code>
+in the example above.</p>
+<p>If you expand an instance of the derive, you will find something along the lines of:
+<code>impl&lt;T&gt; TypeInfo for NewType&lt;T&gt; where T: TypeInfo { ... }</code>. This is the reason why the
+<code>TypeInfo</code> trait is required for <code>T</code>.</p>
+<p>To fix this, we need to add a <code>#[scale_info(skip_type_params(T))]</code>
+attribute to <code>NewType</code>. This additional macro will instruct the <code>derive</code> to skip the bound on
+<code>T</code>.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[frame::pallet]
+</span><span class="kw">pub mod </span>pallet {
+	<span class="attr">#[derive(codec::Encode, codec::Decode, codec::MaxEncodedLen, scale_info::TypeInfo)]
+	#[scale_info(skip_type_params(T))]
+	</span><span class="kw">pub struct </span>NewType&lt;T: Config&gt;(BlockNumberFor&lt;T&gt;);
+
+	<span class="attr">#[pallet::storage]
+	</span><span class="kw">pub type </span>Something&lt;T: Config&gt; = StorageValue&lt;<span class="kw">_</span>, NewType&lt;T&gt;&gt;;
+}</code></pre></div>
+<p>Next, let’s say we wish to store <code>NewType</code> as [<code>frame::prelude::ValueQuery</code>], which means it
+must also implement <code>Default</code>. This should be as simple as adding <code>derive(Default)</code> to it,
+right?</p>
+
+<div class="example-wrap compile_fail"><a href="#" class="tooltip" title="This example deliberately fails to compile">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="attr">#[frame::pallet]
+</span><span class="kw">pub mod </span>pallet {
+	<span class="attr">#[derive(codec::Encode, codec::Decode, codec::MaxEncodedLen, scale_info::TypeInfo, Default)]
+	#[scale_info(skip_type_params(T))]
+	</span><span class="kw">pub struct </span>NewType&lt;T: Config&gt;(BlockNumberFor&lt;T&gt;);
+
+	<span class="attr">#[pallet::storage]
+	</span><span class="kw">pub type </span>Something&lt;T: Config&gt; = StorageValue&lt;<span class="kw">_</span>, NewType&lt;T&gt;, ValueQuery&gt;;
+}</code></pre></div>
+<p>Under the hood, the expansion of the <code>derive(Default)</code> will suffer from the same restriction as
+before: it will only work if <code>T: Default</code>, and <code>T</code> is not <code>Default</code>. Note that this is an
+expected issue: <code>T</code> is merely a wrapper of many other types, such as <code>BlockNumberFor&lt;T&gt;</code>.
+<code>BlockNumberFor&lt;T&gt;</code> should indeed implement <code>Default</code>, but <code>T</code> implementing <code>Default</code> is rather
+meaningless.</p>
+<p>To fix this, frame provides a set of macros that are analogous to normal rust derive macros, but
+work nicely on top of structs that are generic over <code>T: Config</code>. These macros are:</p>
+<ul>
+<li>[<code>frame::prelude::DefaultNoBound</code>]</li>
+<li>[<code>frame::prelude::DebugNoBound</code>]</li>
+<li>[<code>frame::prelude::PartialEqNoBound</code>]</li>
+<li>[<code>frame::prelude::EqNoBound</code>]</li>
+<li>[<code>frame::prelude::CloneNoBound</code>]</li>
+<li>[<code>frame::prelude::PartialOrdNoBound</code>]</li>
+<li>[<code>frame::prelude::OrdNoBound</code>]</li>
+</ul>
+<p>The above traits are almost certainly needed for your tests - to print your type, assert equality
+or clone it.</p>
+<p>We can fix the following example by using [<code>frame::prelude::DefaultNoBound</code>].</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[frame::pallet]
+</span><span class="kw">pub mod </span>pallet {
+	<span class="attr">#[derive(
+		codec::Encode,
+		codec::Decode,
+		codec::MaxEncodedLen,
+		scale_info::TypeInfo,
+		DefaultNoBound
+	)]
+	#[scale_info(skip_type_params(T))]
+	</span><span class="kw">pub struct </span>NewType&lt;T:Config&gt;(BlockNumberFor&lt;T&gt;);
+
+	<span class="attr">#[pallet::storage]
+	</span><span class="kw">pub type </span>Something&lt;T: Config&gt; = StorageValue&lt;<span class="kw">_</span>, NewType&lt;T&gt;, ValueQuery&gt;;
+}</code></pre></div>
+<p>Finally, if a custom type that is provided through <code>Config</code> is to be stored in the storage, it
+is subject to the same trait requirements. The following does not work:</p>
+
+<div class="example-wrap compile_fail"><a href="#" class="tooltip" title="This example deliberately fails to compile">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="attr">#[frame::pallet]
+</span><span class="kw">pub mod </span>pallet {
+	<span class="kw">use </span>frame::prelude::<span class="kw-2">*</span>;
+	<span class="attr">#[pallet::config]
+	</span><span class="kw">pub trait </span>Config: frame_system::Config {
+		<span class="kw">type </span>CustomType;
+	}
+	<span class="attr">#[pallet::pallet]
+	</span><span class="kw">pub struct </span>Pallet&lt;T&gt;(<span class="kw">_</span>);
+	<span class="attr">#[pallet::storage]
+	</span><span class="kw">pub type </span>Something&lt;T: Config&gt; = StorageValue&lt;<span class="kw">_</span>, T::CustomType&gt;;
+}</code></pre></div>
+<p>But adding the right trait bounds will fix it.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[frame::pallet]
+</span><span class="kw">pub mod </span>pallet {
+	<span class="kw">use </span>frame::prelude::<span class="kw-2">*</span>;
+	<span class="attr">#[pallet::config]
+	</span><span class="kw">pub trait </span>Config: frame_system::Config {
+		<span class="kw">type </span>CustomType: codec::FullCodec
+			+ codec::MaxEncodedLen
+			+ scale_info::TypeInfo
+			+ Debug
+			+ Default;
+	}
+	<span class="attr">#[pallet::pallet]
+	</span><span class="kw">pub struct </span>Pallet&lt;T&gt;(<span class="kw">_</span>);
+	<span class="attr">#[pallet::storage]
+	</span><span class="kw">pub type </span>Something&lt;T: Config&gt; = StorageValue&lt;<span class="kw">_</span>, T::CustomType&gt;;
+}</code></pre></div></div></details></section></div></main></body></html>

@@ -8,7 +8,7 @@ import PoolDashboard from '@/components/PoolDashboard';
 import { CreatePoolModal } from './CreatePoolModal';
 import { InitializeHezPoolModal } from './InitializeHezPoolModal';
 import { InitializeUsdtModal } from './InitializeUsdtModal';
-import { XCMBridgeSetupModal } from './XCMBridgeSetupModal';
+import { XCMConfigurationWizard } from '@/components/admin/XCMConfigurationWizard';
 import { ArrowRightLeft, Droplet, Settings } from 'lucide-react';
 import { isFounderWallet } from '@pezkuwi/utils/auth';
 
@@ -138,15 +138,15 @@ export const DEXDashboard: React.FC = () => {
                   </div>
 
                   <div className="p-6 bg-gray-900 border border-purple-900/30 rounded-lg">
-                    <h3 className="text-xl font-bold text-white mb-2">XCM Bridge Setup</h3>
+                    <h3 className="text-xl font-bold text-white mb-2">XCM Configuration Wizard</h3>
                     <p className="text-gray-400 mb-6">
-                      Configure Asset Hub USDT → wUSDT bridge with one click. Enables cross-chain USDT transfers from Westend Asset Hub.
+                      Complete 6-step parachain setup: Reserve ParaId, generate artifacts, register parachain, open HRMP channels, register foreign assets, and test XCM transfers.
                     </p>
                     <button
                       onClick={() => setShowXcmBridgeModal(true)}
                       className="w-full px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors font-medium"
                     >
-                      Configure XCM Bridge
+                      Open XCM Configuration Wizard
                     </button>
                   </div>
 
@@ -195,7 +195,7 @@ export const DEXDashboard: React.FC = () => {
         onSuccess={handleSuccess}
       />
 
-      <XCMBridgeSetupModal
+      <XCMConfigurationWizard
         isOpen={showXcmBridgeModal}
         onClose={handleModalClose}
         onSuccess={handleSuccess}

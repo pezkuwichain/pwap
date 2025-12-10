@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
-import { Server, Globe, TestTube, Code, Wifi, Copy, Check } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { Server, Globe, TestTube, Code, Wifi, Copy, Check, ExternalLink, Compass, Book, Briefcase, FileCode, HandCoins, Users, Wrench, MessageCircle, GitFork } from 'lucide-react';
+
+// ... (interface and const arrays remain the same) ...
 
 interface ChainSpec {
   id: string;
@@ -59,6 +63,17 @@ const chainSpecs: ChainSpec[] = [
     color: 'from-orange-500 to-orange-600'
   },
   {
+    id: 'alfa',
+    name: 'PezkuwiChain Alfa Testnet',
+    type: 'Development',
+    icon: <TestTube className="w-5 h-5" />,
+    endpoint: 'ws://127.0.0.1:8844',
+    chainId: 'pezkuwichain_alfa_testnet',
+    validators: 4,
+    features: ['4 Validators', 'Staking Active', 'Full Features'],
+    color: 'from-purple-500 to-pink-600'
+  },
+  {
     id: 'development',
     name: 'Development',
     type: 'Development',
@@ -82,9 +97,24 @@ const chainSpecs: ChainSpec[] = [
   }
 ];
 
+const subdomains = [
+    { name: 'Explorer', href: '/explorer', icon: <Compass />, external: false },
+    { name: 'Docs', href: '/docs', icon: <Book />, external: false },
+    { name: 'Wallet', href: '/wallet', icon: <Briefcase />, external: false },
+    { name: 'API', href: '/api', icon: <FileCode />, external: false },
+    { name: 'Faucet', href: '/faucet', icon: <HandCoins />, external: false },
+    { name: 'Developers', href: '/developers', icon: <Users />, external: false },
+    { name: 'Grants', href: '/grants', icon: <Wrench />, external: false },
+    { name: 'Wiki', href: '/wiki', icon: <MessageCircle />, external: false },
+    { name: 'Forum', href: '/forum', icon: <GitFork />, external: false },
+    { name: 'Telemetry', href: '/telemetry', icon: <Server />, external: false },
+]
+
 const ChainSpecs: React.FC = () => {
+  const { t } = useTranslation();
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [selectedSpec, setSelectedSpec] = useState<ChainSpec>(chainSpecs[0]);
+  const navigate = useNavigate();
 
   const copyToClipboard = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
@@ -97,18 +127,18 @@ const ChainSpecs: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
-            Chain Specifications
+            {t('chainSpecs.title')}
           </h2>
           <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-            Multiple network environments for development, testing, and production
+            {t('chainSpecs.subtitle')}
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {chainSpecs.map((spec) => (
             <div
               key={spec.id}
-              onClick={() => setSelectedSpec(spec)}
+              onClick={() => navigate(`/${spec.id}`)}
               className={`cursor-pointer p-4 rounded-xl border transition-all ${
                 selectedSpec.id === spec.id
                   ? 'bg-gray-900 border-purple-500'
@@ -136,6 +166,26 @@ const ChainSpecs: React.FC = () => {
               </div>
             </div>
           ))}
+
+          {/* Subdomains Box */}
+            <div
+              onClick={() => navigate('/subdomains')}
+              className="md:col-span-2 lg:col-span-1 cursor-pointer p-4 rounded-xl border transition-all bg-gray-950/50 border-gray-800 hover:border-gray-700"
+            >
+                <div className="flex items-start justify-between mb-3">
+                    <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 bg-opacity-20">
+                        <Compass className="w-5 h-5" />
+                    </div>
+                    <span className="px-2 py-1 text-xs rounded-full bg-gray-900/30 text-gray-400">
+                        {t('chainSpecs.services')}
+                    </span>
+                </div>
+                <h3 className="text-white font-semibold mb-2">{t('chainSpecs.subdomainsTitle')}</h3>
+                <div className="flex items-center text-sm text-gray-400">
+                    <ExternalLink className="w-3 h-3 mr-1" />
+                    <span>{t('chainSpecs.availableServices', { count: subdomains.length })}</span>
+                </div>
+            </div>
         </div>
 
         {/* Selected Chain Details */}
@@ -151,7 +201,7 @@ const ChainSpecs: React.FC = () => {
 
               <div className="space-y-4">
                 <div>
-                  <label className="text-gray-400 text-sm">WebSocket Endpoint</label>
+                  <label className="text-gray-400 text-sm">{t('chainSpecs.websocketEndpoint')}</label>
                   <div className="flex items-center mt-1">
                     <code className="flex-1 p-3 bg-gray-900 rounded-lg text-cyan-400 font-mono text-sm">
                       {selectedSpec.endpoint}
@@ -169,7 +219,7 @@ const ChainSpecs: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="text-gray-400 text-sm">Chain ID</label>
+                  <label className="text-gray-400 text-sm">{t('chainSpecs.chainId')}</label>
                   <div className="flex items-center mt-1">
                     <code className="flex-1 p-3 bg-gray-900 rounded-lg text-purple-400 font-mono text-sm">
                       {selectedSpec.chainId}
@@ -187,64 +237,26 @@ const ChainSpecs: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="text-gray-400 text-sm mb-2 block">Features</label>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedSpec.features.map((feature) => (
-                      <span
-                        key={feature}
-                        className="px-3 py-1 bg-gray-900 text-gray-300 text-sm rounded-full"
-                      >
-                        {feature}
-                      </span>
-                    ))}
-                  </div>
+                    <button
+                        onClick={() => navigate('/explorer')}
+                        className="w-full mt-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center transition-colors"
+                        >
+                        <Compass className="w-4 h-4 mr-2" />
+                        {t('chainSpecs.viewExplorer')}
+                    </button>
                 </div>
               </div>
             </div>
 
             <div>
-              <h4 className="text-lg font-semibold text-white mb-4">Connection Example</h4>
-              <div className="bg-gray-900 rounded-lg p-4 font-mono text-sm">
-                <div className="text-gray-400 mb-2">{`// Using @polkadot/api`}</div>
-                <div className="text-cyan-400">import</div>
-                <div className="text-white ml-2">{'{ ApiPromise, WsProvider }'}</div>
-                <div className="text-cyan-400">from</div>
-                <div className="text-green-400 mb-3">&apos;@polkadot/api&apos;;</div>
-                
-                <div className="text-cyan-400">const</div>
-                <div className="text-white ml-2">provider =</div>
-                <div className="text-cyan-400 ml-2">new</div>
-                <div className="text-yellow-400 ml-2">WsProvider(</div>
-                <div className="text-green-400 ml-4">&apos;{selectedSpec.endpoint}&apos;</div>
-                <div className="text-yellow-400">);</div>
-                
-                <div className="text-cyan-400 mt-2">const</div>
-                <div className="text-white ml-2">api =</div>
-                <div className="text-cyan-400 ml-2">await</div>
-                <div className="text-yellow-400 ml-2">ApiPromise.create</div>
-                <div className="text-white">({'{ provider }'});</div>
-              </div>
-
-              <div className="mt-4 p-4 bg-kurdish-green/20 rounded-lg border border-kurdish-green/30">
-                <h5 className="text-kurdish-green font-semibold mb-2">Network Stats</h5>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-gray-400">Block Time:</span>
-                    <span className="text-white ml-2">6s</span>
-                  </div>
-                  <div>
-                    <span className="text-gray-400">Finality:</span>
-                    <span className="text-white ml-2">GRANDPA</span>
-                  </div>
-                  <div>
-                    <span className="text-gray-400">Consensus:</span>
-                    <span className="text-white ml-2">Aura</span>
-                  </div>
-                  <div>
-                    <span className="text-gray-400">Runtime:</span>
-                    <span className="text-white ml-2">v1.0.0</span>
-                  </div>
-                </div>
+              <h4 className="text-lg font-semibold text-white mb-4">{t('chainSpecs.availableSubdomains')}</h4>
+               <div className="grid grid-cols-2 gap-4">
+                {subdomains.map(subdomain => (
+                    <div key={subdomain.name} onClick={() => navigate(subdomain.href)} className="flex items-center p-3 bg-gray-900 rounded-lg cursor-pointer hover:bg-gray-800 transition-colors">
+                        <div className="mr-3 text-cyan-400">{subdomain.icon}</div>
+                        <span className="font-semibold">{subdomain.name}</span>
+                    </div>
+                ))}
               </div>
             </div>
           </div>
