@@ -4,6 +4,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import GovernanceOverview from './governance/GovernanceOverview';
 import ProposalsList from './governance/ProposalsList';
 import ElectionsInterface from './governance/ElectionsInterface';
+import DelegationManager from './delegation/DelegationManager';
+import MyVotes from './governance/MyVotes';
+import GovernanceHistory from './governance/GovernanceHistory';
+
 const GovernanceInterface: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
 
@@ -62,21 +66,15 @@ const GovernanceInterface: React.FC = () => {
           </TabsContent>
 
           <TabsContent value="delegation" className="mt-6">
-            <div className="text-center py-12 text-gray-400">
-              Delegation interface coming soon...
-            </div>
+            <DelegationManager />
           </TabsContent>
 
           <TabsContent value="voting" className="mt-6">
-            <div className="text-center py-12 text-gray-400">
-              Voting history coming soon...
-            </div>
+            <MyVotes />
           </TabsContent>
 
           <TabsContent value="history" className="mt-6">
-            <div className="text-center py-12 text-gray-400">
-              Governance history coming soon...
-            </div>
+            <GovernanceHistory />
           </TabsContent>
         </Tabs>
       </div>

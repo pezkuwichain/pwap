@@ -20,11 +20,6 @@ import {
   Loader2,
   AlertCircle,
   Download,
-  Upload,
-  Send,
-  Link2,
-  Coins,
-  TestTube,
   ChevronRight,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -61,7 +56,7 @@ interface XCMConfigurationWizardProps {
 
 interface StepStatus {
   completed: boolean;
-  data?: any;
+  data?: unknown;
   error?: string;
 }
 

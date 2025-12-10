@@ -113,7 +113,7 @@ const subdomains = [
 const ChainSpecs: React.FC = () => {
   const { t } = useTranslation();
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [selectedSpec, setSelectedSpec] = useState<ChainSpec>(chainSpecs[0]);
+  const [selectedSpec] = useState<ChainSpec>(chainSpecs[0]);
   const navigate = useNavigate();
 
   const copyToClipboard = (text: string, id: string) => {

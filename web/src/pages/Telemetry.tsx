@@ -1,6 +1,6 @@
 import React from 'react';
 import Layout from '@/components/Layout';
-import { CheckCircle, Zap, Server, Globe } from 'lucide-react';
+import { Server, Globe } from 'lucide-react';
 
 const Telemetry: React.FC = () => {
 

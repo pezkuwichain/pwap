@@ -19,6 +19,7 @@ interface NetworkPageProps {
 }
 
 const NetworkPage: React.FC<NetworkPageProps> = ({
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   id,
   name,
   type,
