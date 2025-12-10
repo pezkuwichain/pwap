@@ -245,6 +245,24 @@ export default {
   'websocket.liveUpdates': 'Live updates enabled',
   'websocket.offlineMode': 'Offline mode',
 
+  // Chain Specs
+  'chainSpecs.title': 'Chain Specifications',
+  'chainSpecs.subtitle': 'Multiple network environments for development, testing, and production',
+  'chainSpecs.services': 'Services',
+  'chainSpecs.subdomainsTitle': 'Subdomains',
+  'chainSpecs.availableServices': '{{count}} available services',
+  'chainSpecs.viewExplorer': 'View Explorer',
+  'chainSpecs.connectionExample': 'Connection Example',
+  'chainSpecs.networkStats': 'Network Stats',
+  'chainSpecs.blockTime': 'Block Time',
+  'chainSpecs.finality': 'Finality',
+  'chainSpecs.consensus': 'Consensus',
+  'chainSpecs.runtime': 'Runtime',
+  'chainSpecs.websocketEndpoint': 'WebSocket Endpoint',
+  'chainSpecs.chainId': 'Chain ID',
+  'chainSpecs.features': 'Features',
+  'chainSpecs.availableSubdomains': 'Available Services',
+
   // Auth
   'auth.login': 'Login',
   'auth.logout': 'Logout',

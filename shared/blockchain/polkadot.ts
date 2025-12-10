@@ -3,46 +3,22 @@
  */
 
 import type { BlockchainNetwork } from '../types/blockchain';
+import { getCurrentNetworkConfig } from './endpoints';
 
 /**
  * Pezkuwi blockchain network configuration
+ * Uses BETA endpoint from centralized endpoints.ts (source of truth)
  */
 export const PEZKUWI_NETWORK: BlockchainNetwork = {
   name: 'Pezkuwi',
-  endpoint: 'wss://beta-rpc.pezkuwi.art',
+  endpoint: getCurrentNetworkConfig().wsEndpoint,
   chainId: 'pezkuwi',
 };
 
 /**
- * Common blockchain endpoints
- */
-export const BLOCKCHAIN_ENDPOINTS = {
-  mainnet: 'wss://mainnet.pezkuwichain.io',
-  testnet: 'wss://ws.pezkuwichain.io',
-  local: 'ws://127.0.0.1:9944',
-} as const;
-
-/**
- * Get the appropriate WebSocket endpoint based on environment
- */
-function getWebSocketEndpoint(): string {
-  const network = import.meta.env.VITE_NETWORK || 'local';
-
-  switch (network) {
-    case 'mainnet':
-      return import.meta.env.VITE_WS_ENDPOINT_MAINNET || BLOCKCHAIN_ENDPOINTS.mainnet;
-    case 'testnet':
-      return import.meta.env.VITE_WS_ENDPOINT_TESTNET || BLOCKCHAIN_ENDPOINTS.testnet;
-    case 'local':
-    default:
-      return import.meta.env.VITE_WS_ENDPOINT_LOCAL || BLOCKCHAIN_ENDPOINTS.local;
-  }
-}
-
-/**
  * Default endpoint (reads from environment variables)
  */
-export const DEFAULT_ENDPOINT = getWebSocketEndpoint();
+export const DEFAULT_ENDPOINT = getCurrentNetworkConfig().wsEndpoint;
 
 /**
  * Get block explorer URL for a transaction

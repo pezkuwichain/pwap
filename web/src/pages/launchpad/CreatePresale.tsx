@@ -19,7 +19,7 @@ export default function CreatePresale() {
 
   // Form state
   const [formData, setFormData] = useState({
-    paymentAsset: '2', // wUSDT
+    paymentAsset: '1000', // wUSDT
     rewardAsset: '1', // PEZ (or custom)
     tokensForSale: '10000000', // 10M tokens for sale (with 6 decimals = 10M)
     durationDays: '45',

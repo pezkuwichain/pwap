@@ -1,0 +1,11 @@
+flowchart LR
+	subgraph TeyrChain[A Pezkuwi TeyrChain]
+		TeyrChainNode[TeyrChain Node]
+		TeyrChainRuntime[TeyrChain Runtime]
+	end
+
+    FRAME -.-> TeyrChainRuntime
+    PezkuwiSDK[Pezkuwi SDK Node Libraries] -.-> TeyrChainNode
+
+    CumulusC[Cumulus Node Libraries] -.-> TeyrChainNode
+    CumulusR[Cumulus Runtime Libraries] -.-> TeyrChainRuntime

@@ -430,8 +430,8 @@ const TokenSwap = () => {
                   if (import.meta.env.DEV) console.warn('Failed to parse swap path:', err);
                 }
 
-                const fromTokenSymbol = fromAssetId === 0 ? 'wHEZ' : fromAssetId === 1 ? 'PEZ' : fromAssetId === 2 ? 'USDT' : `Asset${fromAssetId}`;
-                const toTokenSymbol = toAssetId === 0 ? 'wHEZ' : toAssetId === 1 ? 'PEZ' : toAssetId === 2 ? 'USDT' : `Asset${toAssetId}`;
+                const fromTokenSymbol = fromAssetId === 0 ? 'wHEZ' : fromAssetId === 1 ? 'PEZ' : fromAssetId === 1000 ? 'USDT' : `Asset${fromAssetId}`;
+                const toTokenSymbol = toAssetId === 0 ? 'wHEZ' : toAssetId === 1 ? 'PEZ' : toAssetId === 1000 ? 'USDT' : `Asset${toAssetId}`;
 
                 // Only show transactions from current user
                 if (who.toString() === selectedAccount.address) {
@@ -712,7 +712,7 @@ const TokenSwap = () => {
 
                               if (Array.isArray(pathArray) && pathArray.length >= 2) {
                                 const asset0 = pathArray[0];
-                                //const _asset1 = pathArray[1];
+                                const asset1 = pathArray[1];
 
                                 // Each element is a tuple where index 0 is the asset ID
                                 if (Array.isArray(asset0) && asset0.length >= 1) {
@@ -726,8 +726,8 @@ const TokenSwap = () => {
                               if (import.meta.env.DEV) console.warn('Failed to parse swap path in refresh:', err);
                             }
 
-                            const fromTokenSymbol = fromAssetId === 0 ? 'wHEZ' : fromAssetId === 1 ? 'PEZ' : fromAssetId === 2 ? 'USDT' : `Asset${fromAssetId}`;
-                            const toTokenSymbol = toAssetId === 0 ? 'wHEZ' : toAssetId === 1 ? 'PEZ' : toAssetId === 2 ? 'USDT' : `Asset${toAssetId}`;
+                            const fromTokenSymbol = fromAssetId === 0 ? 'wHEZ' : fromAssetId === 1 ? 'PEZ' : fromAssetId === 1000 ? 'USDT' : `Asset${fromAssetId}`;
+                            const toTokenSymbol = toAssetId === 0 ? 'wHEZ' : toAssetId === 1 ? 'PEZ' : toAssetId === 1000 ? 'USDT' : `Asset${toAssetId}`;
 
                             if (who.toString() === selectedAccount.address) {
                               transactions.push({

@@ -54,7 +54,7 @@ const PoolDashboard = () => {
 
   // Pool selection state
   const [availablePools, setAvailablePools] = useState<Array<[number, number]>>([]);
-  const [selectedPool, setSelectedPool] = useState<string>('1-2'); // Default: PEZ/wUSDT
+  const [selectedPool, setSelectedPool] = useState<string>('0-1'); // Default: wHEZ/PEZ
 
   // Discover available pools
   useEffect(() => {
@@ -62,25 +62,44 @@ const PoolDashboard = () => {
 
     const discoverPools = async () => {
       try {
-        // Check all possible pool combinations
+        // Check all possible pool combinations in both directions
+        // Pools can be stored as [A,B] or [B,A] depending on creation order
+        // Note: .env sets WUSDT to Asset ID based on VITE_ASSET_WUSDT
         const possiblePools: Array<[number, number]> = [
-          [ASSET_IDS.WHEZ, ASSET_IDS.PEZ],     // wHEZ/PEZ
-          [ASSET_IDS.WHEZ, ASSET_IDS.WUSDT],   // wHEZ/wUSDT
-          [ASSET_IDS.PEZ, ASSET_IDS.WUSDT],    // PEZ/wUSDT
+          [ASSET_IDS.WHEZ, ASSET_IDS.PEZ],     // wHEZ(0) / PEZ(1) -> Shows as HEZ-PEZ
+          [ASSET_IDS.PEZ, ASSET_IDS.WHEZ],     // PEZ(1) / wHEZ(0) -> Shows as HEZ-PEZ (reverse)
+          [ASSET_IDS.WHEZ, ASSET_IDS.WUSDT],   // wHEZ(0) / wUSDT -> Shows as HEZ-USDT
+          [ASSET_IDS.WUSDT, ASSET_IDS.WHEZ],   // wUSDT / wHEZ(0) -> Shows as HEZ-USDT (reverse)
+          [ASSET_IDS.PEZ, ASSET_IDS.WUSDT],    // PEZ(1) / wUSDT -> Shows as PEZ-USDT
+          [ASSET_IDS.WUSDT, ASSET_IDS.PEZ],    // wUSDT / PEZ(1) -> Shows as PEZ-USDT (reverse)
         ];
 
         const existingPools: Array<[number, number]> = [];
 
         for (const [asset0, asset1] of possiblePools) {
-          const poolInfo = await api.query.assetConversion.pools([asset0, asset1]);
-          if (poolInfo.isSome) {
-            existingPools.push([asset0, asset1]);
+          try {
+            const poolInfo = await api.query.assetConversion.pools([asset0, asset1]);
+            if (poolInfo.isSome) {
+              existingPools.push([asset0, asset1]);
+              if (import.meta.env.DEV) {
+                console.log(`✅ Found pool: ${asset0}-${asset1}`);
+              }
+            }
+          } catch (err) {
+            // Skip pools that error out (likely don't exist)
+            if (import.meta.env.DEV) {
+              console.log(`❌ Pool ${asset0}-${asset1} not found or error:`, err);
+            }
           }
+        }
+
+        if (import.meta.env.DEV) {
+          console.log('📊 Total pools found:', existingPools.length, existingPools);
         }
 
         setAvailablePools(existingPools);
 
-        // Set default pool to first available if current selection doesn&apos;t exist
+        // Set default pool to first available if current selection doesn't exist
         if (existingPools.length > 0) {
           const currentPoolKey = selectedPool;
           const poolExists = existingPools.some(

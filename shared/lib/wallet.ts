@@ -4,17 +4,7 @@
 // This file configures wallet connectivity for Substrate-based chains
 
 import type { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
-
-// ========================================
-// NETWORK ENDPOINTS
-// ========================================
-export const NETWORK_ENDPOINTS = {
-  local: import.meta.env.VITE_DEVELOPMENT_WS || 'ws://127.0.0.1:9944',
-  testnet: import.meta.env.VITE_TESTNET_WS || 'wss://testnet.pezkuwichain.io',
-  mainnet: import.meta.env.VITE_MAINNET_WS || 'wss://mainnet.pezkuwichain.io',
-  staging: import.meta.env.VITE_STAGING_WS || 'wss://staging.pezkuwichain.io',
-  beta: import.meta.env.VITE_BETA_WS || 'wss://beta.pezkuwichain.io',
-};
+import { getCurrentNetworkConfig } from '../blockchain/endpoints';
 
 // ========================================
 // CHAIN CONFIGURATION
@@ -38,7 +28,7 @@ export const CHAIN_CONFIG = {
 export const ASSET_IDS = {
   WHEZ: parseInt(import.meta.env.VITE_ASSET_WHEZ || '0'),  // Wrapped HEZ
   PEZ: parseInt(import.meta.env.VITE_ASSET_PEZ || '1'),    // PEZ utility token
-  WUSDT: parseInt(import.meta.env.VITE_ASSET_WUSDT || '1000'), // Wrapped USDT (6 decimals, matches SDK)
+  WUSDT: parseInt(import.meta.env.VITE_ASSET_WUSDT || '1000'), // Wrapped USDT (6 decimals, Asset ID 1000)
   USDT: parseInt(import.meta.env.VITE_ASSET_USDT || '3'),
   BTC: parseInt(import.meta.env.VITE_ASSET_BTC || '4'),
   ETH: parseInt(import.meta.env.VITE_ASSET_ETH || '5'),
@@ -146,8 +136,7 @@ export const getAssetSymbol = (assetId: number): string => {
  * @returns WebSocket endpoint URL
  */
 export const getCurrentEndpoint = (): string => {
-  const network = import.meta.env.VITE_NETWORK || 'local';
-  return NETWORK_ENDPOINTS[network as keyof typeof NETWORK_ENDPOINTS] || NETWORK_ENDPOINTS.local;
+  return getCurrentNetworkConfig().wsEndpoint;
 };
 
 // ========================================

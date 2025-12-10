@@ -10,6 +10,7 @@ export const NetworkStats: React.FC = () => {
   const [blockHash, setBlockHash] = useState<string>('');
   const [finalizedBlock, setFinalizedBlock] = useState<number>(0);
   const [validatorCount, setValidatorCount] = useState<number>(0);
+  const [collatorCount, setCollatorCount] = useState<number>(0);
   const [nominatorCount, setNominatorCount] = useState<number>(0);
   const [peers, setPeers] = useState<number>(0);
 
@@ -33,23 +34,51 @@ export const NetworkStats: React.FC = () => {
           setFinalizedBlock(header.number.toNumber());
         });
 
-        // Update validator count, nominator count, and peer count every 3 seconds
+        // Update validator count, collator count, nominator count, and peer count every 3 seconds
         const updateNetworkStats = async () => {
           try {
-            const validators = await api.query.session.validators();
             const health = await api.rpc.system.health();
 
-            // Count nominators
-            let nominatorCount = 0;
+            // 1. Fetch Validators
+            let vCount = 0;
             try {
-              const nominators = await api.query.staking.nominators.entries();
-              nominatorCount = nominators.length;
+              if (api.query.session?.validators) {
+                const validators = await api.query.session.validators();
+                if (validators) {
+                  vCount = validators.length;
+                }
+              }
+            } catch (err) {
+              if (import.meta.env.DEV) console.warn('Failed to fetch validators', err);
+            }
+
+            // 2. Fetch Collators (Invulnerables)
+            let cCount = 0;
+            try {
+              if (api.query.collatorSelection?.invulnerables) {
+                const invulnerables = await api.query.collatorSelection.invulnerables();
+                if (invulnerables) {
+                  cCount = invulnerables.length;
+                }
+              }
+            } catch (err) {
+              if (import.meta.env.DEV) console.warn('Failed to fetch collators', err);
+            }
+
+            // 3. Count Nominators
+            let nCount = 0;
+            try {
+              const nominators = await api.query.staking?.nominators.entries();
+              if (nominators) {
+                nCount = nominators.length;
+              }
             } catch {
               if (import.meta.env.DEV) console.warn('Staking pallet not available, nominators = 0');
             }
 
-            setValidatorCount(validators.length);
-            setNominatorCount(nominatorCount);
+            setValidatorCount(vCount);
+            setCollatorCount(cCount);
+            setNominatorCount(nCount);
             setPeers(health.peers.toNumber());
           } catch (err) {
             if (import.meta.env.DEV) console.error('Failed to update network stats:', err);
@@ -109,7 +138,7 @@ export const NetworkStats: React.FC = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
       {/* Connection Status */}
       <Card className="bg-gray-900 border-gray-800">
         <CardHeader className="pb-3">
@@ -179,7 +208,25 @@ export const NetworkStats: React.FC = () => {
             {validatorCount}
           </div>
           <div className="text-xs text-gray-500 mt-1">
-            Securing the network - LIVE
+            Validating blocks
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Collators */}
+      <Card className="bg-gray-900 border-gray-800">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-2">
+            <Users className="w-4 h-4 text-orange-500" />
+            Active Collators
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold text-white">
+            {collatorCount}
+          </div>
+          <div className="text-xs text-gray-500 mt-1">
+            Producing blocks
           </div>
         </CardContent>
       </Card>

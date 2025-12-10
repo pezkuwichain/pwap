@@ -1,0 +1,35 @@
+{
+  "Getting Started": {
+    "Introduction": "introduction.md",
+    "Whitepaper": "whitepaper/whitepaper.md"
+  },
+  "SDK Reference": {
+    "📚 Rust SDK Docs": "sdk://open",
+    "Runtimes & Pallets": "runtimes-pallets.md"
+  },
+  "General Docs": {
+    "AUDIT": "AUDIT.md",
+    "BACKPORT": "BACKPORT.md",
+    "RELEASE": "RELEASE.md",
+    "Workflow Rebranding": "workflow_rebranding.md"
+  },
+  "Contributor": {
+    "CODE OF CONDUCT": "contributor/CODE_OF_CONDUCT.md",
+    "Commands Readme": "contributor/commands-readme.md",
+    "Container": "contributor/container.md",
+    "CONTRIBUTING": "contributor/CONTRIBUTING.md",
+    "DEPRECATION CHECKLIST": "contributor/DEPRECATION_CHECKLIST.md",
+    "Docker": "contributor/docker.md",
+    "DOCUMENTATION GUIDELINES": "contributor/DOCUMENTATION_GUIDELINES.md",
+    "Markdown Linting": "contributor/markdown_linting.md",
+    "Prdoc": "contributor/prdoc.md",
+    "PULL REQUEST TEMPLATE": "contributor/PULL_REQUEST_TEMPLATE.md",
+    "SECURITY": "contributor/SECURITY.md",
+    "STYLE GUIDE": "contributor/STYLE_GUIDE.md",
+    "Weight Generation": "contributor/weight-generation.md"
+  },
+  "Whitepaper": {
+    "Whitepaper": "whitepaper/whitepaper.md"
+  },
+  "Introduction": "introduction.md"
+}
