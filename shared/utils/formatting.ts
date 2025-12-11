@@ -37,3 +37,46 @@ export function formatTokenAmount(amount: string | number, decimals = 18): strin
   const value = typeof amount === 'string' ? parseFloat(amount) : amount;
   return formatNumber(value / Math.pow(10, decimals), 4);
 }
+
+/**
+ * Format a date for display
+ * @param dateString - ISO date string or Date object
+ * @param options - Intl.DateTimeFormat options
+ * @returns Formatted date string
+ */
+export function formatDate(
+  dateString: string | Date,
+  options: Intl.DateTimeFormatOptions = {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  }
+): string {
+  if (!dateString) return '';
+  const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
+  return new Intl.DateTimeFormat('en-US', options).format(date);
+}
+
+/**
+ * Format relative time (e.g., "2 hours ago")
+ * @param dateString - ISO date string or Date object
+ * @returns Relative time string
+ */
+export function formatRelativeTime(dateString: string | Date): string {
+  if (!dateString) return '';
+  const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
+  const now = new Date();
+  const diff = now.getTime() - date.getTime();
+
+  const seconds = Math.floor(diff / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+
+  if (days > 0) return `${days}d ago`;
+  if (hours > 0) return `${hours}h ago`;
+  if (minutes > 0) return `${minutes}m ago`;
+  return 'just now';
+}
