@@ -85,7 +85,502 @@ Bu döküman, PezkuwiChain P2P trading platformunun OKX seviyesine çıkarılmas
   - AdList.tsx filter integration complete
 
 ### What's Remaining
-1. **Blockchain Integration**: Actual HEZ transfers to/from platform wallet (backend service needed)
+1. **Phase 5**: OKX-Style Internal Ledger Escrow System
+
+---
+
+# PHASE 5: OKX-Style Internal Ledger Escrow
+
+**Goal**: Implement OKX-style escrow where blockchain transactions only occur at deposit/withdraw
+
+**Duration**: 1 week
+
+**Prerequisites**: Phase 4 completed
+
+**Reference Documentation**:
+- `docs/p2p/P2P-USER-AGREEMENT.md` - User agreement (created 2025-12-11)
+- `docs/p2p/P2P-TRADING-GUIDE.md` - Trading guide (created 2025-12-11)
+- `docs/p2p/WHAT-IS-P2P.md` - P2P explainer (created 2025-12-11)
+
+## OKX Escrow Model (Research Summary)
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│                     OKX ESCROW MODEL                            │
+├────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  DEPOSIT (Blockchain TX)                                        │
+│  ════════════════════════                                       │
+│  User Wallet ───[blockchain tx]──→ Platform Wallet              │
+│                                    (Internal Balance: +amount)  │
+│                                                                 │
+│  P2P TRADE (Database Only - NO blockchain)                      │
+│  ═════════════════════════════════════════                      │
+│  Seller Internal Balance ──→ Escrow Lock (DB update)            │
+│  Escrow Lock ──→ Buyer Internal Balance (DB update)             │
+│                                                                 │
+│  WITHDRAW (Blockchain TX)                                       │
+│  ═════════════════════════                                      │
+│  Internal Balance: -amount                                      │
+│  Platform Wallet ───[blockchain tx]──→ User External Wallet     │
+│                                                                 │
+└────────────────────────────────────────────────────────────────┘
+```
+
+**Key Insights from OKX**:
+- OKX uses **centralized internal ledger** - NO blockchain transactions during P2P trades
+- Crypto is locked in OKX internal escrow (database), released to buyer's internal account
+- Blockchain transactions ONLY occur at deposit/withdraw from exchange
+- OKX moderators handle disputes, send crypto to deserving party
+- "Release Crypto" = instruction to update internal database balances
+- Zero trading fees for P2P
+
+## 5.1 Database Schema Updates
+
+### New Table: user_internal_balances
+```sql
+-- User internal balances (like exchange balances)
+CREATE TABLE user_internal_balances (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id),
+  token TEXT NOT NULL, -- 'HEZ', 'PEZ'
+  available_balance DECIMAL(20, 12) NOT NULL DEFAULT 0,
+  locked_balance DECIMAL(20, 12) NOT NULL DEFAULT 0, -- locked in escrow/pending
+  total_deposited DECIMAL(20, 12) NOT NULL DEFAULT 0,
+  total_withdrawn DECIMAL(20, 12) NOT NULL DEFAULT 0,
+  last_deposit_at TIMESTAMPTZ,
+  last_withdraw_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(user_id, token)
+);
+
+-- Deposit/Withdraw requests
+CREATE TABLE p2p_deposit_withdraw_requests (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id),
+  request_type TEXT NOT NULL CHECK (request_type IN ('deposit', 'withdraw')),
+  token TEXT NOT NULL,
+  amount DECIMAL(20, 12) NOT NULL,
+  wallet_address TEXT NOT NULL,
+  blockchain_tx_hash TEXT,
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'processing', 'completed', 'failed', 'cancelled')),
+  processed_at TIMESTAMPTZ,
+  processed_by UUID REFERENCES auth.users(id), -- admin/system
+  error_message TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Index for quick lookups
+CREATE INDEX idx_internal_balances_user ON user_internal_balances(user_id);
+CREATE INDEX idx_deposit_withdraw_status ON p2p_deposit_withdraw_requests(status);
+CREATE INDEX idx_deposit_withdraw_user ON p2p_deposit_withdraw_requests(user_id);
+```
+
+### Updated Functions
+```sql
+-- Atomic function for internal balance escrow lock (P2P trade acceptance)
+CREATE OR REPLACE FUNCTION lock_escrow_internal(
+  p_user_id UUID,
+  p_token TEXT,
+  p_amount DECIMAL(20, 12)
+) RETURNS JSON AS $$
+DECLARE
+  v_balance RECORD;
+BEGIN
+  -- Lock user's balance row
+  SELECT * INTO v_balance
+  FROM user_internal_balances
+  WHERE user_id = p_user_id AND token = p_token
+  FOR UPDATE;
+
+  IF v_balance IS NULL THEN
+    RETURN json_build_object('success', false, 'error', 'No balance found for this token');
+  END IF;
+
+  IF v_balance.available_balance < p_amount THEN
+    RETURN json_build_object('success', false, 'error', 'Insufficient balance. Available: ' || v_balance.available_balance);
+  END IF;
+
+  -- Move from available to locked
+  UPDATE user_internal_balances
+  SET
+    available_balance = available_balance - p_amount,
+    locked_balance = locked_balance + p_amount,
+    updated_at = NOW()
+  WHERE user_id = p_user_id AND token = p_token;
+
+  RETURN json_build_object('success', true, 'locked_amount', p_amount);
+END;
+$$ LANGUAGE plpgsql;
+
+-- Atomic function for escrow release (trade completion)
+CREATE OR REPLACE FUNCTION release_escrow_internal(
+  p_from_user_id UUID,
+  p_to_user_id UUID,
+  p_token TEXT,
+  p_amount DECIMAL(20, 12)
+) RETURNS JSON AS $$
+DECLARE
+  v_from_balance RECORD;
+BEGIN
+  -- Lock seller's balance row
+  SELECT * INTO v_from_balance
+  FROM user_internal_balances
+  WHERE user_id = p_from_user_id AND token = p_token
+  FOR UPDATE;
+
+  IF v_from_balance IS NULL OR v_from_balance.locked_balance < p_amount THEN
+    RETURN json_build_object('success', false, 'error', 'Insufficient locked balance');
+  END IF;
+
+  -- Reduce seller's locked balance
+  UPDATE user_internal_balances
+  SET
+    locked_balance = locked_balance - p_amount,
+    updated_at = NOW()
+  WHERE user_id = p_from_user_id AND token = p_token;
+
+  -- Increase buyer's available balance (upsert)
+  INSERT INTO user_internal_balances (user_id, token, available_balance)
+  VALUES (p_to_user_id, p_token, p_amount)
+  ON CONFLICT (user_id, token)
+  DO UPDATE SET
+    available_balance = user_internal_balances.available_balance + p_amount,
+    updated_at = NOW();
+
+  RETURN json_build_object('success', true, 'transferred_amount', p_amount);
+END;
+$$ LANGUAGE plpgsql;
+
+-- Atomic function for escrow refund (trade cancellation)
+CREATE OR REPLACE FUNCTION refund_escrow_internal(
+  p_user_id UUID,
+  p_token TEXT,
+  p_amount DECIMAL(20, 12)
+) RETURNS JSON AS $$
+BEGIN
+  -- Move from locked back to available
+  UPDATE user_internal_balances
+  SET
+    locked_balance = locked_balance - p_amount,
+    available_balance = available_balance + p_amount,
+    updated_at = NOW()
+  WHERE user_id = p_user_id AND token = p_token
+    AND locked_balance >= p_amount;
+
+  IF NOT FOUND THEN
+    RETURN json_build_object('success', false, 'error', 'Insufficient locked balance for refund');
+  END IF;
+
+  RETURN json_build_object('success', true, 'refunded_amount', p_amount);
+END;
+$$ LANGUAGE plpgsql;
+```
+
+### Checklist 5.1
+- [ ] Create `user_internal_balances` table
+- [ ] Create `p2p_deposit_withdraw_requests` table
+- [ ] Create `lock_escrow_internal()` function
+- [ ] Create `release_escrow_internal()` function
+- [ ] Create `refund_escrow_internal()` function
+- [ ] Configure RLS policies
+- [ ] Deploy migration to Supabase
+
+---
+
+## 5.2 Backend Withdrawal Service
+
+**Purpose**: Process blockchain transactions for deposits/withdrawals
+
+### Architecture
+```
+┌────────────────────────────────────────────────────────────┐
+│                    WITHDRAWAL SERVICE                       │
+├────────────────────────────────────────────────────────────┤
+│                                                             │
+│  [User clicks Withdraw]                                     │
+│         │                                                   │
+│         ▼                                                   │
+│  [Create withdraw request in DB]                            │
+│  status: 'pending'                                          │
+│         │                                                   │
+│         ▼                                                   │
+│  [Backend service picks up pending requests]                │
+│  (cron job or queue)                                        │
+│         │                                                   │
+│         ▼                                                   │
+│  [Sign and send blockchain transaction]                     │
+│  using platform private key (secure environment)            │
+│         │                                                   │
+│         ▼                                                   │
+│  [Update request status: 'completed']                       │
+│  [Deduct from internal balance]                             │
+│                                                             │
+└────────────────────────────────────────────────────────────┘
+```
+
+### Implementation Options
+
+**Option A: Supabase Edge Function** (Recommended for MVP)
+- Easy to deploy
+- Access to Supabase DB
+- Can use environment variables for private key
+- Limitations: 150s timeout, no persistent connections
+
+**Option B: Node.js Backend Service**
+- Full control
+- Can run as systemd service on VPS
+- Better for high volume
+- More complex setup
+
+### Supabase Edge Function Code (Option A)
+```typescript
+// supabase/functions/process-withdrawals/index.ts
+import { createClient } from '@supabase/supabase-js'
+import { ApiPromise, WsProvider, Keyring } from '@polkadot/api'
+
+const PLATFORM_SEED = Deno.env.get('PLATFORM_WALLET_SEED')!
+const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
+const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+const RPC_ENDPOINT = 'wss://rpc.pezkuwichain.io:9944'
+
+Deno.serve(async (req) => {
+  const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+
+  // Get pending withdrawal requests
+  const { data: pendingRequests, error } = await supabase
+    .from('p2p_deposit_withdraw_requests')
+    .select('*')
+    .eq('request_type', 'withdraw')
+    .eq('status', 'pending')
+    .limit(10)
+
+  if (error || !pendingRequests?.length) {
+    return new Response(JSON.stringify({ processed: 0 }))
+  }
+
+  // Connect to blockchain
+  const provider = new WsProvider(RPC_ENDPOINT)
+  const api = await ApiPromise.create({ provider })
+  const keyring = new Keyring({ type: 'sr25519' })
+  const platformAccount = keyring.addFromUri(PLATFORM_SEED)
+
+  let processed = 0
+
+  for (const request of pendingRequests) {
+    try {
+      // Mark as processing
+      await supabase
+        .from('p2p_deposit_withdraw_requests')
+        .update({ status: 'processing' })
+        .eq('id', request.id)
+
+      // Send blockchain transaction
+      const amount = BigInt(request.amount * 1e12)
+      const tx = api.tx.balances.transfer(request.wallet_address, amount)
+      const hash = await tx.signAndSend(platformAccount)
+
+      // Update status to completed
+      await supabase
+        .from('p2p_deposit_withdraw_requests')
+        .update({
+          status: 'completed',
+          blockchain_tx_hash: hash.toString(),
+          processed_at: new Date().toISOString()
+        })
+        .eq('id', request.id)
+
+      // Deduct from internal balance
+      await supabase
+        .from('user_internal_balances')
+        .update({
+          available_balance: supabase.raw('available_balance - ?', [request.amount]),
+          total_withdrawn: supabase.raw('total_withdrawn + ?', [request.amount]),
+          last_withdraw_at: new Date().toISOString()
+        })
+        .eq('user_id', request.user_id)
+        .eq('token', request.token)
+
+      processed++
+    } catch (err) {
+      // Mark as failed
+      await supabase
+        .from('p2p_deposit_withdraw_requests')
+        .update({
+          status: 'failed',
+          error_message: err.message
+        })
+        .eq('id', request.id)
+    }
+  }
+
+  await api.disconnect()
+
+  return new Response(JSON.stringify({ processed }))
+})
+```
+
+### Checklist 5.2
+- [ ] Choose implementation option (Edge Function vs Node.js)
+- [ ] Create Supabase Edge Function for withdrawals
+- [ ] Store platform private key securely (env variable)
+- [ ] Test withdrawal flow on testnet
+- [ ] Set up cron job to trigger function periodically
+- [ ] Add monitoring and alerts
+
+---
+
+## 5.3 Deposit Flow (User → Platform)
+
+### User Flow
+1. User clicks "Deposit" in app
+2. App shows platform wallet address + QR code
+3. User sends crypto from external wallet
+4. Backend service monitors for incoming transactions
+5. When confirmed, credit user's internal balance
+
+### Monitoring Options
+
+**Option A: Supabase Edge Function + Indexer**
+- Poll blockchain periodically for new deposits
+
+**Option B: Substrate Event Listener**
+- Listen to Transfer events in real-time
+- More complex but immediate
+
+### Simplified Deposit (Manual Confirmation)
+For MVP, users can manually confirm deposits:
+1. User sends crypto
+2. User enters TX hash in app
+3. Backend verifies TX on-chain
+4. Credits internal balance
+
+### Checklist 5.3
+- [ ] Create deposit UI with platform wallet address
+- [ ] Add QR code generation
+- [ ] Create deposit verification endpoint
+- [ ] Credit internal balance after verification
+- [ ] Add deposit history view
+
+---
+
+## 5.4 Updated p2p-fiat.ts Functions
+
+### Changes Required
+
+1. **createFiatOffer()**: Lock from internal balance instead of blockchain tx
+2. **acceptFiatOffer()**: Already atomic, no changes needed
+3. **confirmPaymentReceived()**: Release via internal ledger, not blockchain tx
+4. **cancelTrade()**: Refund to internal balance
+
+### Updated Function Signatures
+```typescript
+// NO blockchain tx - just internal balance update
+export async function createFiatOffer(params: CreateOfferParams): Promise<string> {
+  // 1. Lock seller's internal balance (DB call)
+  const { data: lockResult } = await supabase.rpc('lock_escrow_internal', {
+    p_user_id: userId,
+    p_token: token,
+    p_amount: amountCrypto
+  });
+
+  if (!lockResult.success) throw new Error(lockResult.error);
+
+  // 2. Create offer record (NO blockchain tx needed!)
+  // ... rest same as before
+}
+
+// NO blockchain tx - just internal balance transfer
+export async function confirmPaymentReceived(tradeId: string): Promise<void> {
+  // 1. Get trade details
+  const trade = await getTradeById(tradeId);
+
+  // 2. Release escrow internally (DB call)
+  const { data: releaseResult } = await supabase.rpc('release_escrow_internal', {
+    p_from_user_id: trade.seller_id,
+    p_to_user_id: trade.buyer_id,
+    p_token: trade.token,
+    p_amount: trade.crypto_amount
+  });
+
+  if (!releaseResult.success) throw new Error(releaseResult.error);
+
+  // 3. Update trade status
+  // ... same as before
+}
+```
+
+### Checklist 5.4
+- [ ] Update `createFiatOffer()` - use internal balance lock
+- [ ] Update `confirmPaymentReceived()` - use internal release
+- [ ] Update `cancelTrade()` - use internal refund
+- [ ] Remove `signAndSendWithPlatformKey()` placeholder
+- [ ] Add `getInternalBalance()` function
+- [ ] Add `requestWithdraw()` function
+- [ ] Add `requestDeposit()` function
+- [ ] Test full flow with internal balances
+
+---
+
+## 5.5 UI Components
+
+### New Components Needed
+
+1. **InternalBalanceCard.tsx** - Show available/locked balances
+2. **DepositModal.tsx** - Show platform address, QR code, verify deposit
+3. **WithdrawModal.tsx** - Enter amount, wallet address, submit request
+4. **TransactionHistory.tsx** - List deposits/withdrawals
+
+### Checklist 5.5
+- [ ] Create InternalBalanceCard.tsx
+- [ ] Create DepositModal.tsx
+- [ ] Create WithdrawModal.tsx
+- [ ] Create TransactionHistory.tsx
+- [ ] Integrate into P2PDashboard
+- [ ] Show balance in header
+
+---
+
+## Phase 5 Final Checklist
+
+### Database
+- [ ] `user_internal_balances` table created
+- [ ] `p2p_deposit_withdraw_requests` table created
+- [ ] All escrow functions created (lock/release/refund)
+- [ ] RLS policies configured
+- [ ] Migration deployed to Supabase
+
+### Backend Service
+- [ ] Withdrawal processing Edge Function created
+- [ ] Platform private key stored securely
+- [ ] Cron job configured for withdrawal processing
+- [ ] Deposit verification endpoint created
+
+### Frontend
+- [ ] Updated p2p-fiat.ts functions (no blockchain during trade)
+- [ ] InternalBalanceCard component
+- [ ] DepositModal component
+- [ ] WithdrawModal component
+- [ ] TransactionHistory component
+
+### Testing
+- [ ] Deposit HEZ to internal balance
+- [ ] Create P2P offer (locks internal balance)
+- [ ] Complete P2P trade (internal transfer)
+- [ ] Cancel P2P trade (internal refund)
+- [ ] Withdraw HEZ to external wallet
+- [ ] Full end-to-end flow works
+
+### Security
+- [ ] Platform private key in secure environment
+- [ ] Rate limiting on withdrawals
+- [ ] Withdrawal amount limits
+- [ ] Admin approval for large withdrawals
+- [ ] Audit logging for all balance changes
+
+**Phase 5 Status: 0% - Not Started**
 
 ---
 

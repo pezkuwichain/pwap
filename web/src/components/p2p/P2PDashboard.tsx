@@ -8,7 +8,11 @@ import { PlusCircle, Home, ClipboardList, TrendingUp, CheckCircle2, Clock, Store
 import { AdList } from './AdList';
 import { CreateAd } from './CreateAd';
 import { NotificationBell } from './NotificationBell';
-import { QuickFilterBar, DEFAULT_FILTERS, type P2PFilters } from './OrderFilters';
+import { QuickFilterBar } from './OrderFilters';
+import { InternalBalanceCard } from './InternalBalanceCard';
+import { DepositModal } from './DepositModal';
+import { WithdrawModal } from './WithdrawModal';
+import { DEFAULT_FILTERS, type P2PFilters } from './types';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 
@@ -22,8 +26,15 @@ export function P2PDashboard() {
   const [showCreateAd, setShowCreateAd] = useState(false);
   const [userStats, setUserStats] = useState<UserStats>({ activeTrades: 0, completedTrades: 0, totalVolume: 0 });
   const [filters, setFilters] = useState<P2PFilters>(DEFAULT_FILTERS);
+  const [showDepositModal, setShowDepositModal] = useState(false);
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  const [balanceRefreshKey, setBalanceRefreshKey] = useState(0);
   const navigate = useNavigate();
   const { user } = useAuth();
+
+  const handleBalanceUpdated = () => {
+    setBalanceRefreshKey(prev => prev + 1);
+  };
 
   // Fetch user stats
   useEffect(() => {
@@ -104,42 +115,54 @@ export function P2PDashboard() {
         </div>
       </div>
 
-      {/* Stats Cards */}
+      {/* Stats Cards and Balance Card */}
       {user && (
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          <Card className="bg-gray-900 border-gray-800">
-            <CardContent className="py-4 flex items-center gap-3">
-              <div className="p-2 bg-yellow-500/20 rounded-lg">
-                <Clock className="w-5 h-5 text-yellow-400" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-white">{userStats.activeTrades}</p>
-                <p className="text-sm text-gray-400">Active Trades</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="bg-gray-900 border-gray-800">
-            <CardContent className="py-4 flex items-center gap-3">
-              <div className="p-2 bg-green-500/20 rounded-lg">
-                <CheckCircle2 className="w-5 h-5 text-green-400" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-white">{userStats.completedTrades}</p>
-                <p className="text-sm text-gray-400">Completed</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="bg-gray-900 border-gray-800">
-            <CardContent className="py-4 flex items-center gap-3">
-              <div className="p-2 bg-blue-500/20 rounded-lg">
-                <TrendingUp className="w-5 h-5 text-blue-400" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-white">${userStats.totalVolume.toLocaleString()}</p>
-                <p className="text-sm text-gray-400">Volume</p>
-              </div>
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
+          {/* Internal Balance Card - Takes more space */}
+          <div className="lg:col-span-1">
+            <InternalBalanceCard
+              key={balanceRefreshKey}
+              onDeposit={() => setShowDepositModal(true)}
+              onWithdraw={() => setShowWithdrawModal(true)}
+            />
+          </div>
+
+          {/* Stats Cards */}
+          <div className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <Card className="bg-gray-900 border-gray-800">
+              <CardContent className="py-4 flex items-center gap-3">
+                <div className="p-2 bg-yellow-500/20 rounded-lg">
+                  <Clock className="w-5 h-5 text-yellow-400" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-white">{userStats.activeTrades}</p>
+                  <p className="text-sm text-gray-400">Active Trades</p>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="bg-gray-900 border-gray-800">
+              <CardContent className="py-4 flex items-center gap-3">
+                <div className="p-2 bg-green-500/20 rounded-lg">
+                  <CheckCircle2 className="w-5 h-5 text-green-400" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-white">{userStats.completedTrades}</p>
+                  <p className="text-sm text-gray-400">Completed</p>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="bg-gray-900 border-gray-800">
+              <CardContent className="py-4 flex items-center gap-3">
+                <div className="p-2 bg-blue-500/20 rounded-lg">
+                  <TrendingUp className="w-5 h-5 text-blue-400" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-white">${userStats.totalVolume.toLocaleString()}</p>
+                  <p className="text-sm text-gray-400">Volume</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       )}
 
@@ -179,6 +202,20 @@ export function P2PDashboard() {
           </Tabs>
         </>
       )}
+
+      {/* Deposit Modal */}
+      <DepositModal
+        isOpen={showDepositModal}
+        onClose={() => setShowDepositModal(false)}
+        onSuccess={handleBalanceUpdated}
+      />
+
+      {/* Withdraw Modal */}
+      <WithdrawModal
+        isOpen={showWithdrawModal}
+        onClose={() => setShowWithdrawModal(false)}
+        onSuccess={handleBalanceUpdated}
+      />
     </div>
   );
 }

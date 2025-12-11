@@ -9,7 +9,7 @@ import { TradeModal } from './TradeModal';
 import { MerchantTierBadge } from './MerchantTierBadge';
 import { getUserReputation, type P2PFiatOffer, type P2PReputation } from '@shared/lib/p2p-fiat';
 import { supabase } from '@/lib/supabase';
-import type { P2PFilters } from './OrderFilters';
+import type { P2PFilters } from './types';
 
 interface AdListProps {
   type: 'buy' | 'sell' | 'my-ads';
