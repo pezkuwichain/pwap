@@ -44,6 +44,12 @@ export function TradeModal({ offer, onClose }: TradeModalProps) {
       return;
     }
 
+    // Prevent self-trading
+    if (offer.seller_id === user.id) {
+      toast.error('You cannot trade with your own offer');
+      return;
+    }
+
     if (!isValidAmount) {
       toast.error('Invalid amount');
       return;

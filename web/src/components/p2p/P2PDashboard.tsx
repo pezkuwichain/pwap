@@ -4,10 +4,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { PlusCircle, Home, ClipboardList, TrendingUp, CheckCircle2, Clock } from 'lucide-react';
+import { PlusCircle, Home, ClipboardList, TrendingUp, CheckCircle2, Clock, Store } from 'lucide-react';
 import { AdList } from './AdList';
 import { CreateAd } from './CreateAd';
 import { NotificationBell } from './NotificationBell';
+import { QuickFilterBar, DEFAULT_FILTERS, type P2PFilters } from './OrderFilters';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 
@@ -20,6 +21,7 @@ interface UserStats {
 export function P2PDashboard() {
   const [showCreateAd, setShowCreateAd] = useState(false);
   const [userStats, setUserStats] = useState<UserStats>({ activeTrades: 0, completedTrades: 0, totalVolume: 0 });
+  const [filters, setFilters] = useState<P2PFilters>(DEFAULT_FILTERS);
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -78,6 +80,14 @@ export function P2PDashboard() {
         </Button>
         <div className="flex items-center gap-2">
           <NotificationBell />
+          <Button
+            variant="outline"
+            onClick={() => navigate('/p2p/merchant')}
+            className="border-gray-700 hover:bg-gray-800"
+          >
+            <Store className="w-4 h-4 mr-2" />
+            Merchant
+          </Button>
           <Button
             variant="outline"
             onClick={() => navigate('/p2p/orders')}
@@ -147,22 +157,27 @@ export function P2PDashboard() {
       {showCreateAd ? (
         <CreateAd onAdCreated={() => setShowCreateAd(false)} />
       ) : (
-        <Tabs defaultValue="buy">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="buy">Buy</TabsTrigger>
-            <TabsTrigger value="sell">Sell</TabsTrigger>
-            <TabsTrigger value="my-ads">My Ads</TabsTrigger>
-          </TabsList>
-          <TabsContent value="buy">
-            <AdList type="buy" />
-          </TabsContent>
-          <TabsContent value="sell">
-            <AdList type="sell" />
-          </TabsContent>
-          <TabsContent value="my-ads">
-            <AdList type="my-ads" />
-          </TabsContent>
-        </Tabs>
+        <>
+          {/* Quick Filter Bar */}
+          <QuickFilterBar filters={filters} onFiltersChange={setFilters} />
+
+          <Tabs defaultValue="buy">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="buy">Buy</TabsTrigger>
+              <TabsTrigger value="sell">Sell</TabsTrigger>
+              <TabsTrigger value="my-ads">My Ads</TabsTrigger>
+            </TabsList>
+            <TabsContent value="buy">
+              <AdList type="buy" filters={filters} />
+            </TabsContent>
+            <TabsContent value="sell">
+              <AdList type="sell" filters={filters} />
+            </TabsContent>
+            <TabsContent value="my-ads">
+              <AdList type="my-ads" filters={filters} />
+            </TabsContent>
+          </Tabs>
+        </>
       )}
     </div>
   );
