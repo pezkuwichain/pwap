@@ -51,62 +51,120 @@ export function AdList({ type, filters }: AdListProps) {
     try {
       let offersData: P2PFiatOffer[] = [];
 
+      // Build base query
+      let query = supabase.from('p2p_fiat_offers').select('*');
+
       if (type === 'buy') {
         // Buy tab = show SELL offers (user wants to buy from sellers)
-        // Include ALL offers (user can see their own but can't trade with them)
-        const { data } = await supabase
-          .from('p2p_fiat_offers')
-          .select('*')
-          .eq('ad_type', 'sell')
-          .eq('status', 'open')
-          .gt('remaining_amount', 0)
-          .order('created_at', { ascending: false });
-
-        offersData = data || [];
+        query = query.eq('ad_type', 'sell').eq('status', 'open').gt('remaining_amount', 0);
       } else if (type === 'sell') {
         // Sell tab = show BUY offers (user wants to sell to buyers)
-        // Include ALL offers (user can see their own but can't trade with them)
-        const { data } = await supabase
-          .from('p2p_fiat_offers')
-          .select('*')
-          .eq('ad_type', 'buy')
-          .eq('status', 'open')
-          .gt('remaining_amount', 0)
-          .order('created_at', { ascending: false });
-
-        offersData = data || [];
+        query = query.eq('ad_type', 'buy').eq('status', 'open').gt('remaining_amount', 0);
       } else if (type === 'my-ads' && user) {
         // My offers - show all of user's offers
-        const { data } = await supabase
-          .from('p2p_fiat_offers')
-          .select('*')
-          .eq('seller_id', user.id)
-          .order('created_at', { ascending: false });
-
-        offersData = data || [];
+        query = query.eq('seller_id', user.id);
       }
 
-      // Enrich with reputation and payment method
+      // Apply filters if provided
+      if (filters) {
+        // Token filter
+        if (filters.token && filters.token !== 'all') {
+          query = query.eq('token', filters.token);
+        }
+
+        // Fiat currency filter
+        if (filters.fiatCurrency && filters.fiatCurrency !== 'all') {
+          query = query.eq('fiat_currency', filters.fiatCurrency);
+        }
+
+        // Payment method filter
+        if (filters.paymentMethods && filters.paymentMethods.length > 0) {
+          query = query.in('payment_method_id', filters.paymentMethods);
+        }
+
+        // Amount range filter
+        if (filters.minAmount !== null) {
+          query = query.gte('remaining_amount', filters.minAmount);
+        }
+        if (filters.maxAmount !== null) {
+          query = query.lte('remaining_amount', filters.maxAmount);
+        }
+
+        // Sort order
+        const sortColumn = filters.sortBy === 'price' ? 'price_per_unit' :
+                          filters.sortBy === 'completion_rate' ? 'created_at' :
+                          filters.sortBy === 'trades' ? 'created_at' :
+                          'created_at';
+        query = query.order(sortColumn, { ascending: filters.sortOrder === 'asc' });
+      } else {
+        query = query.order('created_at', { ascending: false });
+      }
+
+      const { data } = await query;
+      offersData = data || [];
+
+      // Enrich with reputation, payment method, and merchant tier
       const enrichedOffers = await Promise.all(
         offersData.map(async (offer) => {
-          const [reputation, paymentMethod] = await Promise.all([
+          const [reputation, paymentMethod, merchantTier] = await Promise.all([
             getUserReputation(offer.seller_id),
             supabase
               .from('payment_methods')
               .select('method_name')
               .eq('id', offer.payment_method_id)
+              .single(),
+            supabase
+              .from('p2p_merchant_tiers')
+              .select('tier')
+              .eq('user_id', offer.seller_id)
               .single()
           ]);
 
           return {
             ...offer,
             seller_reputation: reputation || undefined,
-            payment_method_name: paymentMethod.data?.method_name
+            payment_method_name: paymentMethod.data?.method_name,
+            merchant_tier: merchantTier.data?.tier as 'lite' | 'super' | 'diamond' | undefined
           };
         })
       );
 
-      setOffers(enrichedOffers);
+      // Apply client-side filters (completion rate, merchant tier)
+      let filteredOffers = enrichedOffers;
+
+      if (filters) {
+        // Completion rate filter (needs reputation data)
+        if (filters.minCompletionRate > 0) {
+          filteredOffers = filteredOffers.filter(offer => {
+            if (!offer.seller_reputation) return false;
+            const rate = (offer.seller_reputation.completed_trades / (offer.seller_reputation.total_trades || 1)) * 100;
+            return rate >= filters.minCompletionRate;
+          });
+        }
+
+        // Merchant tier filter
+        if (filters.merchantTiers && filters.merchantTiers.length > 0) {
+          filteredOffers = filteredOffers.filter(offer => {
+            if (!offer.merchant_tier) return false;
+            // If super is selected, include super and diamond
+            // If diamond is selected, include only diamond
+            if (filters.merchantTiers.includes('diamond')) {
+              return offer.merchant_tier === 'diamond';
+            }
+            if (filters.merchantTiers.includes('super')) {
+              return offer.merchant_tier === 'super' || offer.merchant_tier === 'diamond';
+            }
+            return filters.merchantTiers.includes(offer.merchant_tier);
+          });
+        }
+
+        // Verified only filter
+        if (filters.verifiedOnly) {
+          filteredOffers = filteredOffers.filter(offer => offer.seller_reputation?.verified_merchant);
+        }
+      }
+
+      setOffers(filteredOffers);
     } catch (error) {
       if (import.meta.env.DEV) console.error('Fetch offers error:', error);
     } finally {
