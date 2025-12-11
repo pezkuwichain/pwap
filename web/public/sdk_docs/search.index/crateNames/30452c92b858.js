@@ -1,1 +1,0 @@
-rd_("A`pezkuwi_sdk_docs")
