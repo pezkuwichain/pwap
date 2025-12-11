@@ -27,9 +27,5 @@
     "SECURITY": "contributor/SECURITY.md",
     "STYLE GUIDE": "contributor/STYLE_GUIDE.md",
     "Weight Generation": "contributor/weight-generation.md"
-  },
-  "Whitepaper": {
-    "Whitepaper": "whitepaper/whitepaper.md"
-  },
-  "Introduction": "introduction.md"
+  }
 }

@@ -36,6 +36,9 @@ const GovernmentEntrance = lazy(() => import('./pages/citizens/GovernmentEntranc
 const Elections = lazy(() => import('./pages/Elections'));
 const EducationPlatform = lazy(() => import('./pages/EducationPlatform'));
 const P2PPlatform = lazy(() => import('./pages/P2PPlatform'));
+const P2PTrade = lazy(() => import('./pages/P2PTrade'));
+const P2POrders = lazy(() => import('./pages/P2POrders'));
+const P2PDispute = lazy(() => import('./pages/P2PDispute'));
 const DEXDashboard = lazy(() => import('./components/dex/DEXDashboard').then(m => ({ default: m.DEXDashboard })));
 const Presale = lazy(() => import('./pages/Presale'));
 const PresaleList = lazy(() => import('./pages/launchpad/PresaleList'));
@@ -174,6 +177,21 @@ function App() {
                               <Route path="/p2p" element={
                                 <ProtectedRoute>
                                   <P2PPlatform />
+                                </ProtectedRoute>
+                              } />
+                              <Route path="/p2p/trade/:tradeId" element={
+                                <ProtectedRoute>
+                                  <P2PTrade />
+                                </ProtectedRoute>
+                              } />
+                              <Route path="/p2p/orders" element={
+                                <ProtectedRoute>
+                                  <P2POrders />
+                                </ProtectedRoute>
+                              } />
+                              <Route path="/p2p/dispute/:disputeId" element={
+                                <ProtectedRoute>
+                                  <P2PDispute />
                                 </ProtectedRoute>
                               } />
                               <Route path="/dex" element={
