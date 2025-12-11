@@ -42,7 +42,7 @@ const Login: React.FC = () => {
     setLoading(true);
     
     try {
-      const { error } = await signIn(loginData.email, loginData.password);
+      const { error } = await signIn(loginData.email, loginData.password, rememberMe);
       
       if (error) {
         if (error.message?.includes('Invalid login credentials')) {

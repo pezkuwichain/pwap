@@ -6,12 +6,13 @@ import { User } from '@supabase/supabase-js';
 const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
 const ACTIVITY_CHECK_INTERVAL_MS = 60 * 1000; // Check every 1 minute
 const LAST_ACTIVITY_KEY = 'last_activity_timestamp';
+const REMEMBER_ME_KEY = 'remember_me';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   isAdmin: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
+  signIn: (email: string, password: string, rememberMe?: boolean) => Promise<{ error: Error | null }>;
   signUp: (email: string, password: string, username: string, referralCode?: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   checkAdminStatus: () => Promise<boolean>;
@@ -46,12 +47,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsAdmin(false);
     setUser(null);
     localStorage.removeItem(LAST_ACTIVITY_KEY);
+    localStorage.removeItem(REMEMBER_ME_KEY);
     await supabase.auth.signOut();
   }, []);
 
   // Check if session has timed out
   const checkSessionTimeout = useCallback(async () => {
     if (!user) return;
+
+    // Skip timeout check if "Remember Me" is enabled
+    const rememberMe = localStorage.getItem(REMEMBER_ME_KEY);
+    if (rememberMe === 'true') {
+      return; // Don't timeout if user chose to be remembered
+    }
 
     const lastActivity = localStorage.getItem(LAST_ACTIVITY_KEY);
     if (!lastActivity) {
@@ -182,23 +190,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, [checkAdminStatus]);
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string, rememberMe: boolean = false) => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
-      
+
       if (!error && data.user) {
+        // Store remember me preference
+        if (rememberMe) {
+          localStorage.setItem(REMEMBER_ME_KEY, 'true');
+        } else {
+          localStorage.removeItem(REMEMBER_ME_KEY);
+        }
         await checkAdminStatus();
       }
-      
+
       return { error };
     } catch {
-      return { 
-        error: { 
-          message: 'Authentication service unavailable. Please try again later.' 
-        } 
+      return {
+        error: {
+          message: 'Authentication service unavailable. Please try again later.'
+        }
       };
     }
   };
