@@ -39,6 +39,7 @@ const P2PPlatform = lazy(() => import('./pages/P2PPlatform'));
 const P2PTrade = lazy(() => import('./pages/P2PTrade'));
 const P2POrders = lazy(() => import('./pages/P2POrders'));
 const P2PDispute = lazy(() => import('./pages/P2PDispute'));
+const P2PMerchantDashboard = lazy(() => import('./pages/P2PMerchantDashboard'));
 const DEXDashboard = lazy(() => import('./components/dex/DEXDashboard').then(m => ({ default: m.DEXDashboard })));
 const Presale = lazy(() => import('./pages/Presale'));
 const PresaleList = lazy(() => import('./pages/launchpad/PresaleList'));
@@ -192,6 +193,11 @@ function App() {
                               <Route path="/p2p/dispute/:disputeId" element={
                                 <ProtectedRoute>
                                   <P2PDispute />
+                                </ProtectedRoute>
+                              } />
+                              <Route path="/p2p/merchant" element={
+                                <ProtectedRoute>
+                                  <P2PMerchantDashboard />
                                 </ProtectedRoute>
                               } />
                               <Route path="/dex" element={

@@ -30,6 +30,8 @@ import { SecurityAudit } from '@/components/security/SecurityAudit';
 import { KycApprovalTab } from '@/components/admin/KycApprovalTab';
 import { CommissionVotingTab } from '@/components/admin/CommissionVotingTab';
 import { CommissionSetupTab } from '@/components/admin/CommissionSetupTab';
+import { DisputeResolutionPanel } from '@/components/admin/DisputeResolutionPanel';
+import { Gavel } from 'lucide-react';
 
 export default function AdminPanel() {
   const navigate = useNavigate();
@@ -149,7 +151,7 @@ export default function AdminPanel() {
       <h1 className="text-3xl font-bold mb-8">Admin Panel</h1>
 
       <Tabs defaultValue="setup" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-10 h-auto">
+        <TabsList className="grid w-full grid-cols-11 h-auto">
           <TabsTrigger value="setup" className="flex-col h-auto py-3">
             <Shield className="h-4 w-4 mb-1" />
             <span className="text-xs leading-tight">Commission<br/>Setup</span>
@@ -161,6 +163,10 @@ export default function AdminPanel() {
           <TabsTrigger value="voting" className="flex-col h-auto py-3">
             <Activity className="h-4 w-4 mb-1" />
             <span className="text-xs leading-tight">Commission<br/>Voting</span>
+          </TabsTrigger>
+          <TabsTrigger value="disputes" className="flex-col h-auto py-3">
+            <Gavel className="h-4 w-4 mb-1" />
+            <span className="text-xs leading-tight">P2P<br/>Disputes</span>
           </TabsTrigger>
           <TabsTrigger value="users" className="flex-col h-auto py-3">
             <Users className="h-4 w-4 mb-1" />
@@ -198,6 +204,10 @@ export default function AdminPanel() {
 
         <TabsContent value="voting">
           <CommissionVotingTab />
+        </TabsContent>
+
+        <TabsContent value="disputes">
+          <DisputeResolutionPanel />
         </TabsContent>
 
         <TabsContent value="users">
