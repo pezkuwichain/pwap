@@ -6,7 +6,17 @@ import refreshPlugin from "eslint-plugin-react-refresh";
 
 export default tseslint.config(
   {
-    ignores: ["dist/**", "node_modules/**", "eslint.config.js", "postcss.config.js", "public/sdk_docs/**", "*.cjs"],
+    ignores: [
+      "dist/**",
+      "node_modules/**",
+      "eslint.config.js",
+      "postcss.config.js",
+      "public/sdk_docs/**",
+      "**/*.cjs",
+      "*.cjs",
+      "generate-docs-structure.cjs",
+      "rebrand-rustdoc.cjs",
+    ],
   },
   // Config for Node files
   {
