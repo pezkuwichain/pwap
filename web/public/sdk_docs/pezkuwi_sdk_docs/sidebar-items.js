@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["external_resources","guides","meta_contributing","pezkuwi_sdk","reference_docs"]};

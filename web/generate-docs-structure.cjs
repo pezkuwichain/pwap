@@ -3,7 +3,12 @@ const path = require('path');
 const { spawnSync } = require('child_process');
 
 // --- Configuration ---
-const pezkuwiSdkRoot = path.join(__dirname, '..', '..', 'Pezkuwi-SDK');
+// Try multiple possible locations for Pezkuwi-SDK (local dev vs CI)
+const possibleSdkPaths = [
+    path.join(__dirname, '..', '..', 'Pezkuwi-SDK'),  // Local: /home/user/Pezkuwi-SDK
+    path.join(__dirname, '..', 'Pezkuwi-SDK'),        // CI: /home/runner/work/pwap/pwap/Pezkuwi-SDK
+];
+const pezkuwiSdkRoot = possibleSdkPaths.find(p => fs.existsSync(p)) || possibleSdkPaths[0];
 const sdkDocsSourcePath = path.join(pezkuwiSdkRoot, 'docs', 'sdk');
 const mainDocsSourcePath = path.join(pezkuwiSdkRoot, 'docs'); // This is where whitepaper.md etc. are
 const publicPath = path.join(__dirname, 'public');

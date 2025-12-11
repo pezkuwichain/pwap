@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["async_backing_guide","enable_elastic_scaling","enable_metadata_hash","enable_pov_reclaim","handling_teyrchain_forks","your_first_node","your_first_pallet","your_first_runtime"]};

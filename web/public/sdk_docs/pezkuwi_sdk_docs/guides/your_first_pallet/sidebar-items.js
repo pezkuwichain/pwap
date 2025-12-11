@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["pallet","pallet_v2","shell_pallet"]};
