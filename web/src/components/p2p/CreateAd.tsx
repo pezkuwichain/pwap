@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { useWallet } from '@/contexts/WalletContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 import {
   getPaymentMethods,
   validatePaymentDetails,
@@ -22,13 +23,14 @@ interface CreateAdProps {
 
 export function CreateAd({ onAdCreated }: CreateAdProps) {
   const { user } = useAuth();
-  const { api, selectedAccount } = usePolkadot();
+  const { account } = useWallet();
   
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod | null>(null);
   const [loading, setLoading] = useState(false);
   
   // Form fields
+  const [adType, setAdType] = useState<'buy' | 'sell'>('sell');
   const [token, setToken] = useState<CryptoToken>('HEZ');
   const [amountCrypto, setAmountCrypto] = useState('');
   const [fiatCurrency, setFiatCurrency] = useState<FiatCurrency>('TRY');
@@ -73,8 +75,11 @@ export function CreateAd({ onAdCreated }: CreateAdProps) {
   };
 
   const handleCreateAd = async () => {
-    if (!api || !selectedAccount || !user) {
+    console.log('🔥 handleCreateAd called', { account, user: user?.id });
+
+    if (!account || !user) {
       toast.error('Please connect your wallet and log in');
+      console.log('❌ No account or user', { account, user });
       return;
     }
 
@@ -122,25 +127,41 @@ export function CreateAd({ onAdCreated }: CreateAdProps) {
     setLoading(true);
 
     try {
-      // const _offerId = await createFiatOffer({
-      //   api,
-      //   account: selectedAccount,
-      //   token,
-      //   amountCrypto: cryptoAmt,
-      //   fiatCurrency,
-      //   fiatAmount: fiatAmt,
-      //   paymentMethodId: selectedPaymentMethod.id,
-      //   paymentDetails,
-      //   timeLimitMinutes: timeLimit,
-      //   minOrderAmount: minOrderAmount ? parseFloat(minOrderAmount) : undefined,
-      //   maxOrderAmount: maxOrderAmount ? parseFloat(maxOrderAmount) : undefined
-      // });
+      // Insert offer into Supabase
+      // Note: payment_details_encrypted is stored as JSON string (encryption handled server-side in prod)
+      const { data, error } = await supabase
+        .from('p2p_fiat_offers')
+        .insert({
+          seller_id: user.id,
+          seller_wallet: account,
+          ad_type: adType,
+          token,
+          amount_crypto: cryptoAmt,
+          remaining_amount: cryptoAmt,
+          fiat_currency: fiatCurrency,
+          fiat_amount: fiatAmt,
+          payment_method_id: selectedPaymentMethod.id,
+          payment_details_encrypted: JSON.stringify(paymentDetails),
+          time_limit_minutes: timeLimit,
+          min_order_amount: minOrderAmount ? parseFloat(minOrderAmount) : null,
+          max_order_amount: maxOrderAmount ? parseFloat(maxOrderAmount) : null,
+          status: 'open'
+        })
+        .select()
+        .single();
 
+      if (error) {
+        console.error('❌ Supabase error:', error);
+        toast.error(error.message || 'Failed to create offer');
+        return;
+      }
+
+      console.log('✅ Offer created successfully:', data);
       toast.success('Ad created successfully!');
       onAdCreated();
     } catch (error) {
       if (import.meta.env.DEV) console.error('Create ad error:', error);
-      // Error toast already shown in createFiatOffer
+      toast.error('Failed to create offer');
     } finally {
       setLoading(false);
     }
@@ -155,6 +176,34 @@ export function CreateAd({ onAdCreated }: CreateAdProps) {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Ad Type Selection */}
+        <div>
+          <Label>I want to</Label>
+          <div className="grid grid-cols-2 gap-2 mt-2">
+            <Button
+              type="button"
+              variant={adType === 'sell' ? 'default' : 'outline'}
+              className={adType === 'sell' ? 'bg-red-600 hover:bg-red-700' : ''}
+              onClick={() => setAdType('sell')}
+            >
+              Sell {token}
+            </Button>
+            <Button
+              type="button"
+              variant={adType === 'buy' ? 'default' : 'outline'}
+              className={adType === 'buy' ? 'bg-green-600 hover:bg-green-700' : ''}
+              onClick={() => setAdType('buy')}
+            >
+              Buy {token}
+            </Button>
+          </div>
+          <p className="text-xs text-gray-400 mt-1">
+            {adType === 'sell'
+              ? 'You will receive fiat payment and send crypto to buyer'
+              : 'You will send fiat payment and receive crypto from seller'}
+          </p>
+        </div>
+
         {/* Crypto Details */}
         <div className="grid grid-cols-2 gap-4">
           <div>

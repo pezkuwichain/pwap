@@ -8,10 +8,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 import { MerchantTierBadge } from '@/components/p2p/MerchantTierBadge';
 import { MerchantApplication } from '@/components/p2p/MerchantApplication';
+import { CreateAd } from '@/components/p2p/CreateAd';
 import {
   AreaChart,
   Area,
@@ -66,6 +68,10 @@ interface ActiveAd {
   status: string;
   created_at: string;
   is_featured: boolean;
+  ad_type: 'buy' | 'sell';
+  min_order_amount?: number;
+  max_order_amount?: number;
+  time_limit_minutes: number;
 }
 
 interface MerchantTier {
@@ -75,20 +81,11 @@ interface MerchantTier {
   featured_ads_allowed: number;
 }
 
-// Mock data for charts (will be replaced with real data)
-const generateChartData = () => {
-  const data = [];
-  for (let i = 29; i >= 0; i--) {
-    const date = new Date();
-    date.setDate(date.getDate() - i);
-    data.push({
-      date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-      volume: Math.floor(Math.random() * 5000) + 1000,
-      trades: Math.floor(Math.random() * 10) + 1
-    });
-  }
-  return data;
-};
+interface ChartDataPoint {
+  date: string;
+  volume: number;
+  trades: number;
+}
 
 export default function P2PMerchantDashboard() {
   const navigate = useNavigate();
@@ -96,10 +93,19 @@ export default function P2PMerchantDashboard() {
   const [stats, setStats] = useState<MerchantStats | null>(null);
   const [tierInfo, setTierInfo] = useState<MerchantTier | null>(null);
   const [activeAds, setActiveAds] = useState<ActiveAd[]>([]);
-  const [chartData] = useState(generateChartData());
+  const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [autoReplyOpen, setAutoReplyOpen] = useState(false);
   const [autoReplyMessage, setAutoReplyMessage] = useState('');
   const [savingAutoReply, setSavingAutoReply] = useState(false);
+  const [createAdOpen, setCreateAdOpen] = useState(false);
+
+  // Edit ad state
+  const [editAdOpen, setEditAdOpen] = useState(false);
+  const [editingAd, setEditingAd] = useState<ActiveAd | null>(null);
+  const [editFiatAmount, setEditFiatAmount] = useState('');
+  const [editMinOrder, setEditMinOrder] = useState('');
+  const [editMaxOrder, setEditMaxOrder] = useState('');
+  const [savingEdit, setSavingEdit] = useState(false);
 
   // Fetch merchant data
   const fetchData = useCallback(async () => {
@@ -144,6 +150,46 @@ export default function P2PMerchantDashboard() {
       if (adsData) {
         setActiveAds(adsData);
       }
+
+      // Fetch chart data - last 30 days trades
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+      const { data: tradesData } = await supabase
+        .from('p2p_fiat_trades')
+        .select('created_at, fiat_amount, status')
+        .or(`seller_id.eq.${user.id},buyer_id.eq.${user.id}`)
+        .gte('created_at', thirtyDaysAgo.toISOString())
+        .order('created_at', { ascending: true });
+
+      // Group trades by day
+      const tradesByDay: Record<string, { volume: number; trades: number }> = {};
+
+      // Initialize all 30 days with 0
+      for (let i = 29; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        const dateKey = date.toISOString().split('T')[0];
+        tradesByDay[dateKey] = { volume: 0, trades: 0 };
+      }
+
+      // Fill in actual data
+      tradesData?.forEach((trade) => {
+        const dateKey = new Date(trade.created_at).toISOString().split('T')[0];
+        if (tradesByDay[dateKey]) {
+          tradesByDay[dateKey].volume += trade.fiat_amount || 0;
+          tradesByDay[dateKey].trades += 1;
+        }
+      });
+
+      // Convert to array for chart
+      const chartDataArray: ChartDataPoint[] = Object.entries(tradesByDay).map(([date, data]) => ({
+        date: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        volume: data.volume,
+        trades: data.trades
+      }));
+
+      setChartData(chartDataArray);
     } catch (error) {
       console.error('Error fetching merchant data:', error);
     } finally {
@@ -191,6 +237,52 @@ export default function P2PMerchantDashboard() {
     } catch (error) {
       console.error('Error deleting ad:', error);
       toast.error('Failed to delete ad');
+    }
+  };
+
+  // Open edit modal with ad data
+  const openEditModal = (ad: ActiveAd) => {
+    setEditingAd(ad);
+    setEditFiatAmount(ad.fiat_amount.toString());
+    setEditMinOrder(ad.min_order_amount?.toString() || '');
+    setEditMaxOrder(ad.max_order_amount?.toString() || '');
+    setEditAdOpen(true);
+  };
+
+  // Save ad edits
+  const saveAdEdit = async () => {
+    if (!editingAd) return;
+
+    const fiatAmt = parseFloat(editFiatAmount);
+    if (!fiatAmt || fiatAmt <= 0) {
+      toast.error('Invalid fiat amount');
+      return;
+    }
+
+    setSavingEdit(true);
+    try {
+      const updateData: Record<string, unknown> = {
+        fiat_amount: fiatAmt,
+        min_order_amount: editMinOrder ? parseFloat(editMinOrder) : null,
+        max_order_amount: editMaxOrder ? parseFloat(editMaxOrder) : null,
+      };
+
+      const { error } = await supabase
+        .from('p2p_fiat_offers')
+        .update(updateData)
+        .eq('id', editingAd.id);
+
+      if (error) throw error;
+
+      toast.success('Ad updated successfully');
+      setEditAdOpen(false);
+      setEditingAd(null);
+      fetchData();
+    } catch (error) {
+      console.error('Error updating ad:', error);
+      toast.error('Failed to update ad');
+    } finally {
+      setSavingEdit(false);
     }
   };
 
@@ -423,7 +515,7 @@ export default function P2PMerchantDashboard() {
             </h2>
             <Button
               className="bg-kurdish-green hover:bg-kurdish-green-dark"
-              onClick={() => navigate('/p2p/create-ad')}
+              onClick={() => setCreateAdOpen(true)}
             >
               <Plus className="h-4 w-4 mr-1" />
               Create New Ad
@@ -437,7 +529,7 @@ export default function P2PMerchantDashboard() {
                 <p className="text-muted-foreground mb-4">
                   You don&apos;t have any active ads yet.
                 </p>
-                <Button onClick={() => navigate('/p2p/create-ad')}>
+                <Button onClick={() => setCreateAdOpen(true)}>
                   <Plus className="h-4 w-4 mr-1" />
                   Create Your First Ad
                 </Button>
@@ -496,7 +588,7 @@ export default function P2PMerchantDashboard() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => navigate(`/p2p/edit-ad/${ad.id}`)}
+                          onClick={() => openEditModal(ad)}
                           title="Edit"
                         >
                           <Edit className="h-4 w-4" />
@@ -651,6 +743,108 @@ export default function P2PMerchantDashboard() {
             >
               {savingAutoReply && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Save Message
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create Ad Modal */}
+      <Dialog open={createAdOpen} onOpenChange={setCreateAdOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Create New P2P Offer</DialogTitle>
+            <DialogDescription>
+              Lock your crypto in escrow and set your price
+            </DialogDescription>
+          </DialogHeader>
+          <CreateAd onAdCreated={() => {
+            setCreateAdOpen(false);
+            fetchData();
+          }} />
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Ad Modal */}
+      <Dialog open={editAdOpen} onOpenChange={setEditAdOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Ad</DialogTitle>
+            <DialogDescription>
+              Update your ad price and order limits
+            </DialogDescription>
+          </DialogHeader>
+          {editingAd && (
+            <div className="space-y-4">
+              {/* Ad Info (Read-only) */}
+              <div className="p-4 bg-muted rounded-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-muted-foreground">Ad Type</span>
+                  <Badge variant={editingAd.ad_type === 'sell' ? 'default' : 'secondary'}>
+                    {editingAd.ad_type === 'sell' ? 'Selling' : 'Buying'} {editingAd.token}
+                  </Badge>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Amount</span>
+                  <span className="font-medium">{editingAd.amount_crypto} {editingAd.token}</span>
+                </div>
+              </div>
+
+              {/* Fiat Amount */}
+              <div>
+                <Label htmlFor="editFiatAmount">Total Fiat Amount ({editingAd.fiat_currency})</Label>
+                <Input
+                  id="editFiatAmount"
+                  type="number"
+                  step="0.01"
+                  value={editFiatAmount}
+                  onChange={(e) => setEditFiatAmount(e.target.value)}
+                  placeholder="Enter fiat amount"
+                />
+                {editFiatAmount && editingAd.amount_crypto > 0 && (
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Price per {editingAd.token}: {(parseFloat(editFiatAmount) / editingAd.amount_crypto).toFixed(2)} {editingAd.fiat_currency}
+                  </p>
+                )}
+              </div>
+
+              {/* Order Limits */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="editMinOrder">Min Order ({editingAd.token})</Label>
+                  <Input
+                    id="editMinOrder"
+                    type="number"
+                    step="0.01"
+                    value={editMinOrder}
+                    onChange={(e) => setEditMinOrder(e.target.value)}
+                    placeholder="Optional"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="editMaxOrder">Max Order ({editingAd.token})</Label>
+                  <Input
+                    id="editMaxOrder"
+                    type="number"
+                    step="0.01"
+                    value={editMaxOrder}
+                    onChange={(e) => setEditMaxOrder(e.target.value)}
+                    placeholder="Optional"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditAdOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              className="bg-kurdish-green hover:bg-kurdish-green-dark"
+              onClick={saveAdEdit}
+              disabled={savingEdit}
+            >
+              {savingEdit && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Save Changes
             </Button>
           </DialogFooter>
         </DialogContent>
