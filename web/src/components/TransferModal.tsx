@@ -45,6 +45,17 @@ interface Token {
   color: string;
 }
 
+// Token logo mapping
+const TOKEN_LOGOS: Record<string, string> = {
+  HEZ: '/tokens/HEZ.png',
+  PEZ: '/tokens/PEZ.png',
+  USDT: '/tokens/USDT.png',
+  BTC: '/tokens/BTC.png',
+  ETH: '/tokens/ETH.png',
+  DOT: '/tokens/DOT.png',
+  BNB: '/tokens/BNB.png',
+};
+
 const TOKENS: Token[] = [
   { symbol: 'HEZ', name: 'Hez Token', decimals: 12, color: 'from-green-600 to-yellow-400' },
   { symbol: 'PEZ', name: 'Pez Token', assetId: 1, decimals: 12, color: 'from-blue-600 to-purple-400' },
@@ -252,7 +263,11 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, s
                         className="text-white hover:bg-gray-700 focus:bg-gray-700"
                       >
                         <div className="flex items-center gap-2">
-                          <div className={`w-3 h-3 rounded-full bg-gradient-to-r ${token.color}`}></div>
+                          <img
+                            src={TOKEN_LOGOS[token.symbol]}
+                            alt={token.symbol}
+                            className="w-5 h-5 rounded-full object-cover"
+                          />
                           <span className="font-semibold">{token.symbol}</span>
                           <span className="text-gray-400 text-sm">- {token.name}</span>
                         </div>
