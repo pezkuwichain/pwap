@@ -105,7 +105,7 @@ export function P2PDashboard() {
             className="border-gray-700 hover:bg-gray-800"
           >
             <ClipboardList className="w-4 h-4 mr-2" />
-            My Orders
+            My Trades
             {userStats.activeTrades > 0 && (
               <Badge className="ml-2 bg-yellow-500 text-black">
                 {userStats.activeTrades}

@@ -274,7 +274,7 @@ export function NotificationBell() {
               }}
               className="justify-center text-gray-400 hover:text-white cursor-pointer"
             >
-              View all orders
+              View all trades
             </DropdownMenuItem>
           </>
         )}

@@ -278,7 +278,7 @@ export default function P2PDispute() {
               The dispute you are looking for does not exist or you do not have access.
             </p>
             <Button onClick={() => navigate('/p2p/orders')}>
-              Go to My Orders
+              Go to My Trades
             </Button>
           </CardContent>
         </Card>

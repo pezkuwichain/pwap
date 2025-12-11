@@ -404,7 +404,7 @@ export default function P2PTrade() {
           className="text-gray-400 hover:text-white"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          My Orders
+          My Trades
         </Button>
         <div className="flex-1" />
         <Button
