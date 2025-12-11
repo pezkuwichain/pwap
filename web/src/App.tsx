@@ -44,7 +44,6 @@ const CreatePresale = lazy(() => import('./pages/launchpad/CreatePresale'));
 const NotFound = lazy(() => import('@/pages/NotFound'));
 const Explorer = lazy(() => import('@/pages/Explorer'));
 const Docs = lazy(() => import('@/pages/Docs'));
-const Wallet = lazy(() => import('@/pages/Wallet'));
 const Api = lazy(() => import('@/pages/Api'));
 const Faucet = lazy(() => import('@/pages/Faucet'));
 const Developers = lazy(() => import('@/pages/Developers'));
@@ -114,7 +113,7 @@ function App() {
                               <Route path="/" element={<Index />} />
                               <Route path="/explorer" element={<Explorer />} />
                               <Route path="/docs/*" element={<Docs />} />
-                              <Route path="/wallet" element={<Wallet />} />
+                              <Route path="/wallet" element={<WalletDashboard />} />
                               <Route path="/api" element={<Api />} />
                               <Route path="/faucet" element={<Faucet />} />
                               <Route path="/developers" element={<Developers />} />
