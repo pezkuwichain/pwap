@@ -124,7 +124,7 @@ export interface AcceptOfferParams {
 // CONSTANTS
 // =====================================================
 
-const PLATFORM_ESCROW_ADDRESS = '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY';
+const PLATFORM_ESCROW_ADDRESS = '5DFwqK698vL4gXHEcanaewnAqhxJ2rjhAogpSTHw3iwGDwd3';
 
 const ASSET_IDS = {
   HEZ: null, // Native token
@@ -292,11 +292,18 @@ export async function createFiatOffer(params: CreateOfferParams): Promise<string
 
     if (offerError) throw offerError;
 
-    // 4. Update escrow balance
-    await supabase.rpc('increment_escrow_balance', {
-      p_token: token,
-      p_amount: amountCrypto
-    });
+    // 4. Record escrow in platform_escrow table
+    await supabase
+      .from('p2p_platform_escrow')
+      .insert({
+        offer_id: offer.id,
+        seller_id: offer.seller_id,
+        seller_wallet: account.address,
+        token,
+        amount: amountCrypto,
+        blockchain_tx_lock: txHash,
+        status: 'locked'
+      });
 
     // 5. Audit log
     await logAction('offer', offer.id, 'create_offer', {
@@ -324,103 +331,76 @@ export async function createFiatOffer(params: CreateOfferParams): Promise<string
  * Accept a P2P fiat offer (buyer)
  */
 export async function acceptFiatOffer(params: AcceptOfferParams): Promise<string> {
-  const { api, account, offerId, amount } = params;
+  const { account, offerId, amount } = params;
 
   try {
-    // 1. Get offer details
+    // 1. Get current user
+    const { data: user } = await supabase.auth.getUser();
+    if (!user.user) throw new Error('Not authenticated');
+
+    // 2. Get offer to determine amount if not specified
     const { data: offer, error: offerError } = await supabase
       .from('p2p_fiat_offers')
-      .select('*')
+      .select('remaining_amount, min_buyer_completed_trades, min_buyer_reputation')
       .eq('id', offerId)
       .single();
 
     if (offerError) throw offerError;
     if (!offer) throw new Error('Offer not found');
-    if (offer.status !== 'open') throw new Error('Offer is not available');
 
-    // 2. Determine trade amount
     const tradeAmount = amount || offer.remaining_amount;
-    
-    if (offer.min_order_amount && tradeAmount < offer.min_order_amount) {
-      throw new Error(`Minimum order: ${offer.min_order_amount} ${offer.token}`);
-    }
-    
-    if (offer.max_order_amount && tradeAmount > offer.max_order_amount) {
-      throw new Error(`Maximum order: ${offer.max_order_amount} ${offer.token}`);
-    }
 
-    if (tradeAmount > offer.remaining_amount) {
-      throw new Error('Insufficient remaining amount');
-    }
+    // 3. Check buyer reputation requirements
+    if (offer.min_buyer_completed_trades > 0 || offer.min_buyer_reputation > 0) {
+      const { data: reputation } = await supabase
+        .from('p2p_reputation')
+        .select('completed_trades, reputation_score')
+        .eq('user_id', user.user.id)
+        .single();
 
-    const tradeFiatAmount = (tradeAmount / offer.amount_crypto) * offer.fiat_amount;
-
-    // 3. Check buyer reputation
-    const { data: user } = await supabase.auth.getUser();
-    if (!user.user) throw new Error('Not authenticated');
-
-    const { data: reputation } = await supabase
-      .from('p2p_reputation')
-      .select('*')
-      .eq('user_id', user.user.id)
-      .single();
-
-    if (reputation) {
+      if (!reputation) {
+        throw new Error('Seller requires experienced buyers');
+      }
       if (reputation.completed_trades < offer.min_buyer_completed_trades) {
         throw new Error(`Minimum ${offer.min_buyer_completed_trades} completed trades required`);
       }
       if (reputation.reputation_score < offer.min_buyer_reputation) {
         throw new Error(`Minimum reputation score ${offer.min_buyer_reputation} required`);
       }
-    } else if (offer.min_buyer_completed_trades > 0 || offer.min_buyer_reputation > 0) {
-      throw new Error('Seller requires experienced buyers');
     }
 
-    // 4. Create trade
-    const paymentDeadline = new Date(Date.now() + offer.time_limit_minutes * 60 * 1000);
+    // 4. Call atomic database function (prevents race condition)
+    // This uses FOR UPDATE lock to ensure only one buyer can claim the amount
+    const { data: result, error: rpcError } = await supabase.rpc('accept_p2p_offer', {
+      p_offer_id: offerId,
+      p_buyer_id: user.user.id,
+      p_buyer_wallet: account.address,
+      p_amount: tradeAmount
+    });
 
-    const { data: trade, error: tradeError } = await supabase
-      .from('p2p_fiat_trades')
-      .insert({
-        offer_id: offerId,
-        seller_id: offer.seller_id,
-        buyer_id: user.user.id,
-        buyer_wallet: account.address,
-        crypto_amount: tradeAmount,
-        fiat_amount: tradeFiatAmount,
-        price_per_unit: offer.price_per_unit,
-        escrow_locked_amount: tradeAmount,
-        escrow_locked_at: new Date().toISOString(),
-        status: 'pending',
-        payment_deadline: paymentDeadline.toISOString()
-      })
-      .select()
-      .single();
+    if (rpcError) throw rpcError;
 
-    if (tradeError) throw tradeError;
+    // Parse result (may be string or object depending on Supabase version)
+    const response = typeof result === 'string' ? JSON.parse(result) : result;
 
-    // 5. Update offer remaining amount
-    await supabase
-      .from('p2p_fiat_offers')
-      .update({
-        remaining_amount: offer.remaining_amount - tradeAmount,
-        status: offer.remaining_amount - tradeAmount === 0 ? 'locked' : 'open'
-      })
-      .eq('id', offerId);
+    if (!response.success) {
+      throw new Error(response.error || 'Failed to accept offer');
+    }
 
-    // 6. Audit log
-    await logAction('trade', trade.id, 'accept_offer', {
+    // 5. Audit log
+    await logAction('trade', response.trade_id, 'accept_offer', {
       offer_id: offerId,
-      crypto_amount: tradeAmount,
-      fiat_amount: tradeFiatAmount
+      crypto_amount: response.crypto_amount,
+      fiat_amount: response.fiat_amount
     });
 
     toast.success('Trade started! Send payment within time limit.');
-    
-    return trade.id;
-  } catch (error: any) {
+
+    return response.trade_id;
+  } catch (error: unknown) {
     console.error('Accept offer error:', error);
-    toast.error(error.message || 'Failed to accept offer');
+    const message = error instanceof Error ? error.message : 'Failed to accept offer';
+    toast.error(message);
     throw error;
   }
 }
@@ -566,28 +546,36 @@ async function signAndSendTx(
   account: InjectedAccountWithMeta,
   tx: any
 ): Promise<string> {
+  // Get signer from Polkadot.js extension
+  const { web3FromSource } = await import('@polkadot/extension-dapp');
+  const injector = await web3FromSource(account.meta.source);
+
   return new Promise((resolve, reject) => {
     let unsub: () => void;
 
-    tx.signAndSend(account.address, ({ status, txHash, dispatchError }: any) => {
-      if (dispatchError) {
-        if (dispatchError.isModule) {
-          const decoded = api.registry.findMetaError(dispatchError.asModule);
-          reject(new Error(`${decoded.section}.${decoded.name}`));
-        } else {
-          reject(new Error(dispatchError.toString()));
+    tx.signAndSend(
+      account.address,
+      { signer: injector.signer },
+      ({ status, txHash, dispatchError }: any) => {
+        if (dispatchError) {
+          if (dispatchError.isModule) {
+            const decoded = api.registry.findMetaError(dispatchError.asModule);
+            reject(new Error(`${decoded.section}.${decoded.name}`));
+          } else {
+            reject(new Error(dispatchError.toString()));
+          }
+          if (unsub) unsub();
+          return;
         }
-        if (unsub) unsub();
-        return;
-      }
 
-      if (status.isInBlock || status.isFinalized) {
-        resolve(txHash.toString());
-        if (unsub) unsub();
+        if (status.isInBlock || status.isFinalized) {
+          resolve(txHash.toString());
+          if (unsub) unsub();
+        }
       }
-    }).then((unsubscribe: () => void) => {
+    ).then((unsubscribe: () => void) => {
       unsub = unsubscribe;
-    });
+    }).catch(reject);
   });
 }
 

@@ -6,19 +6,23 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Loader2, Shield, Zap } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { TradeModal } from './TradeModal';
-import { getActiveOffers, getUserReputation, type P2PFiatOffer, type P2PReputation } from '@shared/lib/p2p-fiat';
+import { MerchantTierBadge } from './MerchantTierBadge';
+import { getUserReputation, type P2PFiatOffer, type P2PReputation } from '@shared/lib/p2p-fiat';
 import { supabase } from '@/lib/supabase';
+import type { P2PFilters } from './OrderFilters';
 
 interface AdListProps {
   type: 'buy' | 'sell' | 'my-ads';
+  filters?: P2PFilters;
 }
 
 interface OfferWithReputation extends P2PFiatOffer {
   seller_reputation?: P2PReputation;
   payment_method_name?: string;
+  merchant_tier?: 'lite' | 'super' | 'diamond';
 }
 
-export function AdList({ type }: AdListProps) {
+export function AdList({ type, filters }: AdListProps) {
   const { user } = useAuth();
   const [offers, setOffers] = useState<OfferWithReputation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -26,8 +30,21 @@ export function AdList({ type }: AdListProps) {
 
   useEffect(() => {
     fetchOffers();
+
+    // Refresh data when user returns to the tab (visibility change)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchOffers();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [type, user]);
+  }, [type, user, filters]);
 
   const fetchOffers = async () => {
     setLoading(true);
@@ -35,16 +52,37 @@ export function AdList({ type }: AdListProps) {
       let offersData: P2PFiatOffer[] = [];
 
       if (type === 'buy') {
-        // Buy = looking for sell offers
-        offersData = await getActiveOffers();
+        // Buy tab = show SELL offers (user wants to buy from sellers)
+        // Include ALL offers (user can see their own but can't trade with them)
+        const { data } = await supabase
+          .from('p2p_fiat_offers')
+          .select('*')
+          .eq('ad_type', 'sell')
+          .eq('status', 'open')
+          .gt('remaining_amount', 0)
+          .order('created_at', { ascending: false });
+
+        offersData = data || [];
+      } else if (type === 'sell') {
+        // Sell tab = show BUY offers (user wants to sell to buyers)
+        // Include ALL offers (user can see their own but can't trade with them)
+        const { data } = await supabase
+          .from('p2p_fiat_offers')
+          .select('*')
+          .eq('ad_type', 'buy')
+          .eq('status', 'open')
+          .gt('remaining_amount', 0)
+          .order('created_at', { ascending: false });
+
+        offersData = data || [];
       } else if (type === 'my-ads' && user) {
-        // My offers
+        // My offers - show all of user's offers
         const { data } = await supabase
           .from('p2p_fiat_offers')
           .select('*')
           .eq('seller_id', user.id)
           .order('created_at', { ascending: false });
-        
+
         offersData = data || [];
       }
 
@@ -112,6 +150,9 @@ export function AdList({ type }: AdListProps) {
                     <p className="font-semibold text-white">
                       {offer.seller_wallet.slice(0, 6)}...{offer.seller_wallet.slice(-4)}
                     </p>
+                    {offer.merchant_tier && (
+                      <MerchantTierBadge tier={offer.merchant_tier} size="sm" />
+                    )}
                     {offer.seller_reputation?.verified_merchant && (
                       <Shield className="w-4 h-4 text-blue-400" title="Verified Merchant" />
                     )}
@@ -161,11 +202,17 @@ export function AdList({ type }: AdListProps) {
               </div>
 
               {/* Action */}
-              <div className="flex justify-end">
-                <Button 
+              <div className="flex flex-col items-end gap-1">
+                {offer.seller_id === user?.id && type !== 'my-ads' && (
+                  <Badge variant="outline" className="text-xs bg-blue-500/10 text-blue-400 border-blue-500/30">
+                    Your Ad
+                  </Badge>
+                )}
+                <Button
                   onClick={() => setSelectedOffer(offer)}
-                  disabled={type === 'my-ads'}
+                  disabled={type === 'my-ads' || offer.seller_id === user?.id}
                   className="w-full md:w-auto"
+                  title={offer.seller_id === user?.id ? "You can't trade with your own ad" : ''}
                 >
                   {type === 'buy' ? 'Buy' : 'Sell'} {offer.token}
                 </Button>
