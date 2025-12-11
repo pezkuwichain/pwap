@@ -68,6 +68,23 @@ export const AccountBalance: React.FC = () => {
     }
   };
 
+  // Token logo mapping
+  const TOKEN_LOGOS: Record<string, string> = {
+    HEZ: '/tokens/HEZ.png',
+    PEZ: '/tokens/PEZ.png',
+    USDT: '/tokens/USDT.png',
+    wUSDT: '/tokens/USDT.png',
+    BNB: '/tokens/BNB.png',
+    BTC: '/tokens/BTC.png',
+    DOT: '/tokens/DOT.png',
+    ETH: '/tokens/ETH.png',
+  };
+
+  // Get token logo URL
+  const getTokenLogo = (symbol: string): string | null => {
+    return TOKEN_LOGOS[symbol] || TOKEN_LOGOS[symbol.toUpperCase()] || null;
+  };
+
   // Get token color based on assetId
   const getTokenColor = (assetId: number) => {
     const colors = {
@@ -461,9 +478,12 @@ export const AccountBalance: React.FC = () => {
       <Card className="bg-gradient-to-br from-green-900/30 to-yellow-900/30 border-green-500/30">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg font-medium text-gray-300">
-              HEZ Balance
-            </CardTitle>
+            <div className="flex items-center gap-3">
+              <img src="/tokens/HEZ.png" alt="HEZ" className="w-10 h-10 rounded-full" />
+              <CardTitle className="text-lg font-medium text-gray-300">
+                HEZ Balance
+              </CardTitle>
+            </div>
             <Button
               variant="ghost"
               size="icon"
@@ -517,9 +537,12 @@ export const AccountBalance: React.FC = () => {
       {/* PEZ Balance Card */}
       <Card className="bg-gradient-to-br from-blue-900/30 to-purple-900/30 border-blue-500/30">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-medium text-gray-300">
-            PEZ Token Balance
-          </CardTitle>
+          <div className="flex items-center gap-3">
+            <img src="/tokens/PEZ.png" alt="PEZ" className="w-10 h-10 rounded-full" />
+            <CardTitle className="text-lg font-medium text-gray-300">
+              PEZ Token Balance
+            </CardTitle>
+          </div>
         </CardHeader>
         <CardContent>
           <div>
@@ -542,9 +565,12 @@ export const AccountBalance: React.FC = () => {
       {/* USDT Balance Card */}
       <Card className="bg-gradient-to-br from-emerald-900/30 to-teal-900/30 border-emerald-500/30">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-medium text-gray-300">
-            USDT Balance
-          </CardTitle>
+          <div className="flex items-center gap-3">
+            <img src="/tokens/USDT.png" alt="USDT" className="w-10 h-10 rounded-full" />
+            <CardTitle className="text-lg font-medium text-gray-300">
+              USDT Balance
+            </CardTitle>
+          </div>
         </CardHeader>
         <CardContent>
           <div>
@@ -680,11 +706,19 @@ export const AccountBalance: React.FC = () => {
                   >
                     <div className="flex items-center gap-4 flex-1">
                       {/* Token Logo */}
-                      <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${tokenColor.bg} flex items-center justify-center border ${tokenColor.border} shadow-lg`}>
-                        <span className={`text-base font-bold ${tokenColor.text}`}>
-                          {token.symbol.slice(0, 2).toUpperCase()}
-                        </span>
-                      </div>
+                      {getTokenLogo(token.symbol) ? (
+                        <img
+                          src={getTokenLogo(token.symbol)!}
+                          alt={token.symbol}
+                          className="w-12 h-12 rounded-full shadow-lg object-cover"
+                        />
+                      ) : (
+                        <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${tokenColor.bg} flex items-center justify-center border ${tokenColor.border} shadow-lg`}>
+                          <span className={`text-base font-bold ${tokenColor.text}`}>
+                            {token.symbol.slice(0, 2).toUpperCase()}
+                          </span>
+                        </div>
+                      )}
 
                       {/* Token Info */}
                       <div className="flex-1">
