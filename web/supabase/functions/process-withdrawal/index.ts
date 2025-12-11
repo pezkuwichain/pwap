@@ -19,13 +19,13 @@
  *    e. Mark as completed
  */
 
-// @ts-ignore - Deno imports
+// @ts-expect-error - Deno imports
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-// @ts-ignore - Deno imports
+// @ts-expect-error - Deno imports
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-// @ts-ignore - Polkadot imports for Deno
+// @ts-expect-error - Polkadot imports for Deno
 import { ApiPromise, WsProvider, Keyring } from "https://esm.sh/@polkadot/api@11.0.2";
-// @ts-ignore - Deno imports
+// @ts-expect-error - Deno imports
 import { cryptoWaitReady } from "https://esm.sh/@polkadot/util-crypto@12.6.2";
 
 // Configuration

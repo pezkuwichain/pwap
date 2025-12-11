@@ -16,11 +16,11 @@
  * 5. Creates audit record
  */
 
-// @ts-ignore - Deno imports
+// @ts-expect-error - Deno imports
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-// @ts-ignore - Deno imports
+// @ts-expect-error - Deno imports
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-// @ts-ignore - Polkadot imports for Deno
+// @ts-expect-error - Polkadot imports for Deno
 import { ApiPromise, WsProvider } from "https://esm.sh/@polkadot/api@11.0.2";
 
 // Configuration
@@ -66,7 +66,7 @@ function findTransferInEvents(
 
     // Asset transfer (PEZ)
     if (token === "PEZ" && event.section === "assets" && event.method === "Transferred") {
-      const [_assetId, from, to, amount] = event.data as [
+      const [, from, to, amount] = event.data as [
         unknown,
         { toString: () => string },
         { toString: () => string },
