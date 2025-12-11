@@ -158,25 +158,27 @@ function main() {
         const finalStructure = {};
         const generalDocs = {};
 
+        // Add "Getting Started" as the first category
+        finalStructure['Getting Started'] = {
+            'Introduction': 'introduction.md',
+            'Whitepaper': 'whitepaper/whitepaper.md'
+        };
+
+        // Items to skip (already handled in Getting Started or SDK Reference)
+        const skipItems = ['Introduction', 'Whitepaper', 'Mermaid'];
+
         // Iterate through the raw structure to categorize
         for (const key in rawStructure) {
+            // Skip items already handled
+            if (skipItems.includes(key)) {
+                continue;
+            }
             // Check if the item is a string (a file) and if its base name is in the generalCategoryFileNames list
             if (typeof rawStructure[key] === 'string' && generalCategoryFileNames.includes(path.basename(rawStructure[key]))) {
                 generalDocs[key] = rawStructure[key];
             } else {
                 finalStructure[key] = rawStructure[key]; // Keep as is (folder or other direct file)
             }
-        }
-
-        // Add "Getting Started" as the first category
-        finalStructure['Getting Started'] = {
-            'Introduction': 'introduction.md'
-        };
-
-        // Move whitepaper to Getting Started if it exists, and remove from rawStructure to prevent duplication
-        if (rawStructure['Whitepaper']) {
-            finalStructure['Getting Started']['Whitepaper'] = 'whitepaper/whitepaper.md';
-            delete rawStructure['Whitepaper'];
         }
 
         // Add SDK Reference section (always visible)

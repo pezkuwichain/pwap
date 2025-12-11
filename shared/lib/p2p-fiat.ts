@@ -683,3 +683,140 @@ export async function getUserReputation(userId: string): Promise<P2PReputation |
     return null;
   }
 }
+
+/**
+ * Get a specific trade by ID
+ */
+export async function getTradeById(tradeId: string): Promise<P2PFiatTrade | null> {
+  try {
+    const { data, error } = await supabase
+      .from('p2p_fiat_trades')
+      .select('*')
+      .eq('id', tradeId)
+      .single();
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error('Get trade by ID error:', error);
+    return null;
+  }
+}
+
+/**
+ * Cancel a trade (buyer only, before payment sent)
+ */
+export async function cancelTrade(
+  tradeId: string,
+  cancelledBy: string,
+  reason?: string
+): Promise<void> {
+  try {
+    // 1. Get trade details
+    const { data: trade, error: tradeError } = await supabase
+      .from('p2p_fiat_trades')
+      .select('*')
+      .eq('id', tradeId)
+      .single();
+
+    if (tradeError) throw tradeError;
+    if (!trade) throw new Error('Trade not found');
+
+    // Only allow cancellation if pending
+    if (trade.status !== 'pending') {
+      throw new Error('Trade cannot be cancelled at this stage');
+    }
+
+    // 2. Update trade status
+    const { error: updateError } = await supabase
+      .from('p2p_fiat_trades')
+      .update({
+        status: 'cancelled',
+        cancelled_by: cancelledBy,
+        cancel_reason: reason,
+      })
+      .eq('id', tradeId);
+
+    if (updateError) throw updateError;
+
+    // 3. Restore offer remaining amount
+    const { data: offer } = await supabase
+      .from('p2p_fiat_offers')
+      .select('remaining_amount')
+      .eq('id', trade.offer_id)
+      .single();
+
+    if (offer) {
+      await supabase
+        .from('p2p_fiat_offers')
+        .update({
+          remaining_amount: offer.remaining_amount + trade.crypto_amount,
+          status: 'open',
+        })
+        .eq('id', trade.offer_id);
+    }
+
+    // 4. Audit log
+    await logAction('trade', tradeId, 'cancel_trade', {
+      cancelled_by: cancelledBy,
+      reason,
+    });
+
+    toast.success('Trade cancelled successfully');
+  } catch (error: unknown) {
+    console.error('Cancel trade error:', error);
+    const message = error instanceof Error ? error.message : 'Failed to cancel trade';
+    toast.error(message);
+    throw error;
+  }
+}
+
+/**
+ * Update user reputation after trade completion
+ */
+export async function updateUserReputation(
+  userId: string,
+  tradeCompleted: boolean
+): Promise<void> {
+  try {
+    // Get current reputation
+    const { data: currentRep } = await supabase
+      .from('p2p_reputation')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+
+    if (currentRep) {
+      // Update existing reputation
+      await supabase
+        .from('p2p_reputation')
+        .update({
+          total_trades: currentRep.total_trades + 1,
+          completed_trades: tradeCompleted
+            ? currentRep.completed_trades + 1
+            : currentRep.completed_trades,
+          cancelled_trades: tradeCompleted
+            ? currentRep.cancelled_trades
+            : currentRep.cancelled_trades + 1,
+          reputation_score: tradeCompleted
+            ? Math.min(100, currentRep.reputation_score + 1)
+            : Math.max(0, currentRep.reputation_score - 2),
+        })
+        .eq('user_id', userId);
+    } else {
+      // Create new reputation record
+      await supabase.from('p2p_reputation').insert({
+        user_id: userId,
+        total_trades: 1,
+        completed_trades: tradeCompleted ? 1 : 0,
+        cancelled_trades: tradeCompleted ? 0 : 1,
+        reputation_score: tradeCompleted ? 50 : 48,
+        trust_level: 'new',
+        verified_merchant: false,
+        fast_trader: false,
+      });
+    }
+  } catch (error) {
+    console.error('Update reputation error:', error);
+  }
+}
