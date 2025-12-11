@@ -34,6 +34,7 @@ The primary web interface for Pezkuwi blockchain at [pezkuwichain.app](https://p
 - ✅ Live blockchain data
 - ✅ Staking dashboard
 - ✅ DEX/Swap interface
+- ✅ P2P Fiat Trading with atomic escrow
 - ✅ Transaction history
 - ✅ Multi-language support (EN, TR, KMR, CKB, AR, FA)
 - ✅ Governance dropdown with live blockchain integration
@@ -142,7 +143,16 @@ import { formatAddress, formatTokenAmount } from '../../../shared/utils/formatti
 - [x] Delegation and proposals pages
 - [x] Forum with moderation
 
-### Phase 3: Mobile Development 🚧
+### Phase 3: P2P Fiat Trading ✅
+- [x] P2P marketplace UI (Buy/Sell/My Ads tabs)
+- [x] Merchant dashboard with offer management
+- [x] Atomic escrow system with race condition protection
+- [x] Platform wallet escrow (5DFwqK698v...)
+- [x] PostgreSQL FOR UPDATE lock for concurrent trades
+- [x] Trade lifecycle (pending → payment_sent → completed)
+- [x] Edit/Pause/Resume offer functionality
+
+### Phase 4: Mobile Development 🚧
 - [x] Choose technology stack (React Native + Expo)
 - [x] Implement wallet integration with Polkadot.js
 - [x] Live blockchain integration (HEZ, PEZ, USDT)
@@ -151,7 +161,7 @@ import { formatAddress, formatTokenAmount } from '../../../shared/utils/formatti
 - [ ] Integrate referral with pallet_referral
 - [ ] Achieve feature parity with web
 
-### Phase 4: Polkadot SDK UI (Future)
+### Phase 5: Polkadot SDK UI (Future)
 - [ ] Clone and configure Polkadot.js Apps
 - [ ] Apply Pezkuwi branding
 - [ ] Set up deployment pipeline
