@@ -50,6 +50,7 @@ const Developers = lazy(() => import('@/pages/Developers'));
 const Grants = lazy(() => import('@/pages/Grants'));
 const Wiki = lazy(() => import('@/pages/Wiki'));
 const Forum = lazy(() => import('@/pages/Forum'));
+const ForumTopic = lazy(() => import('@/pages/ForumTopic'));
 const Telemetry = lazy(() => import('@/pages/Telemetry'));
 const Subdomains = lazy(() => import('@/pages/Subdomains'));
 
@@ -120,6 +121,7 @@ function App() {
                               <Route path="/grants" element={<Grants />} />
                               <Route path="/wiki" element={<Wiki />} />
                               <Route path="/forum" element={<Forum />} />
+                              <Route path="/forum/:id" element={<ForumTopic />} />
                               <Route path="/telemetry" element={<Telemetry />} />
                               <Route path="/subdomains" element={<Subdomains />} />
                               {/* Network pages */}
