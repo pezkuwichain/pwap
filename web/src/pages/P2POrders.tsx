@@ -75,7 +75,7 @@ export default function P2POrders() {
       setTrades(tradesWithOffers);
     } catch (error) {
       console.error('Fetch trades error:', error);
-      toast.error('Failed to load orders');
+      toast.error('Failed to load trades');
     } finally {
       setLoading(false);
     }
@@ -250,7 +250,7 @@ export default function P2POrders() {
           <CardContent className="py-12 text-center">
             <AlertTriangle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
             <h2 className="text-xl font-semibold text-white mb-2">Login Required</h2>
-            <p className="text-gray-400 mb-6">Please log in to view your P2P orders.</p>
+            <p className="text-gray-400 mb-6">Please log in to view your P2P trades.</p>
             <Button onClick={() => navigate('/login')}>Log In</Button>
           </CardContent>
         </Card>
@@ -285,7 +285,7 @@ export default function P2POrders() {
 
       {/* Title */}
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-white">My Orders</h1>
+        <h1 className="text-3xl font-bold text-white">My Trades</h1>
         <p className="text-gray-400">View and manage your P2P trades</p>
       </div>
 
