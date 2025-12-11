@@ -54,7 +54,7 @@ const WalletDashboard: React.FC = () => {
           try {
             const ts = await api.query.timestamp.now.at(blockHash);
             timestamp = ts.toNumber();
-          } catch (error) {
+          } catch {
             timestamp = Date.now();
           }
 
@@ -148,7 +148,7 @@ const WalletDashboard: React.FC = () => {
             // Parse DEX operations
             else if (method.section === 'dex') {
               if (method.method === 'swap') {
-                const [path, amountIn] = method.args;
+                const [, amountIn] = method.args;
                 txList.push({
                   blockNumber,
                   extrinsicIndex: index,
@@ -189,7 +189,7 @@ const WalletDashboard: React.FC = () => {
               });
             }
           });
-        } catch (blockError) {
+        } catch {
           // Continue to next block
         }
       }
@@ -206,17 +206,12 @@ const WalletDashboard: React.FC = () => {
     if (selectedAccount && api && isApiReady) {
       fetchRecentTransactions();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedAccount, api, isApiReady]);
 
   const formatAmount = (amount: string, decimals: number = 12) => {
     const value = parseInt(amount) / Math.pow(10, decimals);
     return value.toFixed(4);
-  };
-
-  const formatTimestamp = (timestamp?: number) => {
-    if (!timestamp) return 'Unknown';
-    const date = new Date(timestamp);
-    return date.toLocaleString();
   };
 
   const isIncoming = (tx: Transaction) => {
@@ -315,7 +310,7 @@ const WalletDashboard: React.FC = () => {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {recentTransactions.map((tx, index) => (
+                  {recentTransactions.map((tx) => (
                     <div
                       key={`${tx.blockNumber}-${tx.extrinsicIndex}`}
                       className="bg-gray-800/50 border border-gray-700 rounded-lg p-3 hover:bg-gray-800 transition-colors"
