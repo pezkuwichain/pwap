@@ -14,10 +14,16 @@ jobs:
   quality-gate:
     name: Build, Lint & Test
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Checkout Pezkuwi-SDK (for docs generation)
+        uses: actions/checkout@v4
+        with:
+          repository: pezkuwichain/pezkuwi-sdk
+          path: Pezkuwi-SDK
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
