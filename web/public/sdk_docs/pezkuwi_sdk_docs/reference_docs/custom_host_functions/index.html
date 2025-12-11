@@ -1,0 +1,40 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Learn about how to add custom host functions to the node."><title>pezkuwi_sdk_docs::reference_docs::custom_host_functions - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="pezkuwi_sdk_docs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.1 (ed61e7d7e 2025-11-07)" data-channel="1.91.1" data-search-js="search-e256b49e.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="icon" href="https://pezkuwichain.io/favicon.ico"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module custom_host_functions</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../pezkuwi_sdk_docs/index.html">pezkuwi_<wbr>sdk_<wbr>docs</a><span class="version">0.0.1</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module custom_<wbr>host_<wbr>functions</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#custom-host-functions" title="Custom Host Functions">Custom Host Functions</a><ul><li><a href="#finding-host-functions" title="Finding Host Functions">Finding Host Functions</a></li><li><a href="#adding-new-host-functions" title="Adding New Host Functions">Adding New Host Functions</a></li></ul></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In pezkuwi_<wbr>sdk_<wbr>docs::<wbr>reference_<wbr>docs</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">pezkuwi_sdk_docs</a>::<wbr><a href="../index.html">reference_docs</a></div><h1>Module <span>custom_<wbr>host_<wbr>functions</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/pezkuwi_sdk_docs/reference_docs/custom_host_functions.rs.html#1-27">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Learn about how to add custom host functions to the node.</p>
+<h2 id="custom-host-functions"><a class="doc-anchor" href="#custom-host-functions">§</a>Custom Host Functions</h2>
+<p>Host functions are functions that the wasm instance can use to communicate with the node. Learn
+more about this in <a href="../wasm_meta_protocol/index.html" title="mod pezkuwi_sdk_docs::reference_docs::wasm_meta_protocol"><code>crate::reference_docs::wasm_meta_protocol</code></a>.</p>
+<h3 id="finding-host-functions"><a class="doc-anchor" href="#finding-host-functions">§</a>Finding Host Functions</h3>
+<p>To declare a set of functions as host functions, you need to use the <code>#[runtime_interface]</code>
+([<code>sp_runtime_interface</code>]) attribute macro. The most notable set of host functions are those
+that allow the runtime to access the chain state, namely [<code>sp_io::storage</code>]. Some other notable
+host functions are also defined in [<code>sp_io</code>].</p>
+<h3 id="adding-new-host-functions"><a class="doc-anchor" href="#adding-new-host-functions">§</a>Adding New Host Functions</h3>
+<blockquote>
+<p>Adding a new host function is a big commitment and should be done with care. Namely, the nodes
+in the network need to support all host functions forever in order to be able to sync
+historical blocks.</p>
+</blockquote>
+<p>Adding host functions is only possible when you are using a node-template, so that you have
+access to the boilerplate of building your node.</p>
+<p>A group of host functions can always be grouped to gether as a tuple:</p>
+
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="attr">#[cfg(not(substrate_runtime))]
+</span><span class="kw">pub type </span>SubstrateHostFunctions = (
+	storage::HostFunctions,
+	default_child_storage::HostFunctions,
+	misc::HostFunctions,
+	wasm_tracing::HostFunctions,
+	offchain::HostFunctions,
+	crypto::HostFunctions,
+	hashing::HostFunctions,
+	allocator::HostFunctions,
+	panic_handler::HostFunctions,
+	logging::HostFunctions,
+	<span class="kw">crate</span>::trie::HostFunctions,
+	offchain_index::HostFunctions,
+	transaction_index::HostFunctions,
+);</code></pre></div>
+<p>The host functions are attached to the node side’s [<code>sc_executor::WasmExecutor</code>]. For example in
+the minimal template, the setup looks as follows:</p>
+
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">type </span>FullClient =
+	sc_service::TFullClient&lt;Block, RuntimeApi, WasmExecutor&lt;HostFunctions&gt;&gt;;</code></pre></div></div></details></section></div></main></body></html>
