@@ -41,7 +41,20 @@ export interface ValidationRule {
   required?: boolean;
 }
 
-export type FiatCurrency = 'TRY' | 'IQD' | 'IRR' | 'EUR' | 'USD';
+// Fiat currencies including Kurdish Diaspora countries
+export type FiatCurrency =
+  | 'TRY'  // Turkish Lira (Turkey - 15M+ Kurds)
+  | 'IQD'  // Iraqi Dinar (Kurdistan Region - 6M+ Kurds)
+  | 'IRR'  // Iranian Rial (Rojhilat - 8M+ Kurds)
+  | 'EUR'  // Euro (Germany, France, Netherlands, Belgium, Austria)
+  | 'USD'  // US Dollar
+  | 'GBP'  // British Pound (UK - 50K+ Kurds)
+  | 'SEK'  // Swedish Krona (Sweden - 100K+ Kurds)
+  | 'CHF'  // Swiss Franc (Switzerland - 30K+ Kurds)
+  | 'NOK'  // Norwegian Krone (Norway - 30K+ Kurds)
+  | 'DKK'  // Danish Krone (Denmark - 25K+ Kurds)
+  | 'AUD'  // Australian Dollar (Australia - 20K+ Kurds)
+  | 'CAD'; // Canadian Dollar (Canada - 30K+ Kurds)
 export type CryptoToken = 'HEZ' | 'PEZ';
 
 export type OfferStatus = 'open' | 'paused' | 'locked' | 'completed' | 'cancelled';
