@@ -241,11 +241,21 @@ export function CreateAd({ onAdCreated }: CreateAdProps) {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="TRY">🇹🇷 Turkish Lira (TRY)</SelectItem>
-                <SelectItem value="IQD">🇮🇶 Iraqi Dinar (IQD)</SelectItem>
-                <SelectItem value="IRR">🇮🇷 Iranian Rial (IRR)</SelectItem>
-                <SelectItem value="EUR">🇪🇺 Euro (EUR)</SelectItem>
+                {/* Primary regions - Kurdistan & neighboring */}
+                <SelectItem value="TRY">🇹🇷 Turkish Lira (TRY) - Bakur</SelectItem>
+                <SelectItem value="IQD">🇮🇶 Iraqi Dinar (IQD) - Başûr</SelectItem>
+                <SelectItem value="IRR">🇮🇷 Iranian Rial (IRR) - Rojhilat</SelectItem>
+                {/* Eurozone diaspora */}
+                <SelectItem value="EUR">🇪🇺 Euro (EUR) - EU</SelectItem>
+                {/* Other diaspora regions */}
                 <SelectItem value="USD">🇺🇸 US Dollar (USD)</SelectItem>
+                <SelectItem value="GBP">🇬🇧 British Pound (GBP)</SelectItem>
+                <SelectItem value="SEK">🇸🇪 Swedish Krona (SEK)</SelectItem>
+                <SelectItem value="CHF">🇨🇭 Swiss Franc (CHF)</SelectItem>
+                <SelectItem value="NOK">🇳🇴 Norwegian Krone (NOK)</SelectItem>
+                <SelectItem value="DKK">🇩🇰 Danish Krone (DKK)</SelectItem>
+                <SelectItem value="AUD">🇦🇺 Australian Dollar (AUD)</SelectItem>
+                <SelectItem value="CAD">🇨🇦 Canadian Dollar (CAD)</SelectItem>
               </SelectContent>
             </Select>
           </div>
