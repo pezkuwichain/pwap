@@ -1,19 +1,19 @@
-// Copyright 2017-2025 @polkadot/app-referenda authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-referenda authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { Hash } from '@polkadot/types/interfaces';
-import type { PalletConvictionVotingTally, PalletRankedCollectiveTally, PalletReferendaDeposit, PalletReferendaReferendumStatusConvictionVotingTally, PalletReferendaReferendumStatusRankedCollectiveTally, PalletReferendaTrackDetails } from '@polkadot/types/lookup';
-import type { BN } from '@polkadot/util';
-import type { HexString } from '@polkadot/util/types';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { Hash } from '@pezkuwi/types/interfaces';
+import type { PezpalletConvictionVotingTally, PezpalletRankedCollectiveTally, PezpalletReferendaDeposit, PezpalletReferendaReferendumStatusConvictionVotingTally, PezpalletReferendaReferendumStatusRankedCollectiveTally, PezpalletReferendaTrackDetails } from '@pezkuwi/types/lookup';
+import type { BN } from '@pezkuwi/util';
+import type { HexString } from '@pezkuwi/util/types';
 import type { Referendum, ReferendumProps as Props } from '../types.js';
 
 import React, { useMemo } from 'react';
 
-import { Progress } from '@polkadot/react-components';
-import { useApi, usePreimage } from '@polkadot/react-hooks';
-import { getPreimageHash } from '@polkadot/react-hooks/usePreimage';
-import { CallExpander } from '@polkadot/react-params';
+import { Progress } from '@pezkuwi/react-components';
+import { useApi, usePreimage } from '@pezkuwi/react-hooks';
+import { getPreimageHash } from '@pezkuwi/react-hooks/usePreimage';
+import { CallExpander } from '@pezkuwi/react-params';
 
 import { useTranslation } from '../translate.js';
 import Deposits from './Deposits/index.js';
@@ -23,21 +23,21 @@ import { unwrapDeposit } from './util.js';
 import Votes from './Votes.js';
 
 interface Expanded {
-  decisionDeposit: PalletReferendaDeposit | null;
+  decisionDeposit: PezpalletReferendaDeposit | null;
   periods: {
     periodEnd: BN | null;
     prepareEnd: BN | null;
     decideEnd: BN | null;
     confirmEnd: BN | null;
   };
-  ongoing: PalletReferendaReferendumStatusConvictionVotingTally | PalletReferendaReferendumStatusRankedCollectiveTally;
+  ongoing: PezpalletReferendaReferendumStatusConvictionVotingTally | PezpalletReferendaReferendumStatusRankedCollectiveTally;
   proposalHash?: HexString;
-  submissionDeposit: PalletReferendaDeposit | null;
-  tally: PalletConvictionVotingTally | PalletRankedCollectiveTally;
+  submissionDeposit: PezpalletReferendaDeposit | null;
+  tally: PezpalletConvictionVotingTally | PezpalletRankedCollectiveTally;
   tallyTotal: BN;
 }
 
-function expandOngoing (api: ApiPromise, info: Referendum['info'], track?: PalletReferendaTrackDetails): Expanded {
+function expandOngoing (api: ApiPromise, info: Referendum['info'], track?: PezpalletReferendaTrackDetails): Expanded {
   const ongoing = info.asOngoing;
   const proposalHash = getPreimageHash(api, ongoing.proposal || (ongoing as unknown as { proposalHash: Hash }).proposalHash).proposalHash;
   let prepareEnd: BN | null = null;

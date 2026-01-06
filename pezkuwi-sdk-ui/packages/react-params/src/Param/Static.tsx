@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/react-params authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-params authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Codec } from '@polkadot/types/types';
+import type { Codec } from '@pezkuwi/types/types';
 import type { RawParam } from '../types.js';
 
 import React, { useMemo } from 'react';
 
-import { Static, styled } from '@polkadot/react-components';
+import { Static, styled } from '@pezkuwi/react-components';
 
 import { useTranslation } from '../translate.js';
 import { toHumanJson } from '../valueToText.js';

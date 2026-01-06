@@ -1,10 +1,10 @@
-// Copyright 2017-2025 @polkadot/app-bounties authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-bounties authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveBalancesAll } from '@polkadot/api-derive/types';
-import type { Balance } from '@polkadot/types/interfaces';
+import type { DeriveBalancesAll } from '@pezkuwi/api-derive/types';
+import type { Balance } from '@pezkuwi/types/interfaces';
 
-import { createNamedHook, useApi, useCall } from '@polkadot/react-hooks';
+import { createNamedHook, useApi, useCall } from '@pezkuwi/react-hooks';
 
 function useBalanceImpl (accountId: string | null): Balance | undefined {
   const { api } = useApi();

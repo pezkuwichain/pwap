@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/app-accounts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-accounts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { SubmittableExtrinsic } from '@polkadot/api/types';
-import type { AccountId, Call, H256, Multisig } from '@polkadot/types/interfaces';
-import type { CallFunction } from '@polkadot/types/types';
+import type { SubmittableExtrinsic } from '@pezkuwi/api/types';
+import type { AccountId, Call, H256, Multisig } from '@pezkuwi/types/interfaces';
+import type { CallFunction } from '@pezkuwi/types/types';
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
-import { AddressMini, Dropdown, Expander, Input, InputAddress, MarkError, Modal, styled, Toggle, TxButton } from '@polkadot/react-components';
-import { useAccounts, useApi, useWeight } from '@polkadot/react-hooks';
-import { Call as CallDisplay } from '@polkadot/react-params';
-import { assert, isHex } from '@polkadot/util';
+import { AddressMini, Dropdown, Expander, Input, InputAddress, MarkError, Modal, styled, Toggle, TxButton } from '@pezkuwi/react-components';
+import { useAccounts, useApi, useWeight } from '@pezkuwi/react-hooks';
+import { Call as CallDisplay } from '@pezkuwi/react-params';
+import { assert, isHex } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 

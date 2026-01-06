@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-coretime authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-coretime authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { RelayName, SaleParameters } from '../types.js';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { Dropdown, styled } from '@polkadot/react-components';
-import { defaultHighlight } from '@polkadot/react-components/styles';
-import { useApi } from '@polkadot/react-hooks';
+import { Dropdown, styled } from '@pezkuwi/react-components';
+import { defaultHighlight } from '@pezkuwi/react-components/styles';
+import { useApi } from '@pezkuwi/react-hooks';
 
 import { useCoretimeContext } from '../CoretimeContext.js';
 import { useTranslation } from '../translate.js';

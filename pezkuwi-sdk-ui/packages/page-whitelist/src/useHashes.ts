@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/app-preimages authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-preimages authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Changes } from '@polkadot/react-hooks/useEventChanges';
-import type { StorageKey } from '@polkadot/types';
-import type { EventRecord, Hash } from '@polkadot/types/interfaces';
-import type { HexString } from '@polkadot/util/types';
+import type { Changes } from '@pezkuwi/react-hooks/useEventChanges';
+import type { StorageKey } from '@pezkuwi/types';
+import type { EventRecord, Hash } from '@pezkuwi/types/interfaces';
+import type { HexString } from '@pezkuwi/util/types';
 
 import { useMemo } from 'react';
 
-import { createNamedHook, useApi, useEventChanges, useMapKeys } from '@polkadot/react-hooks';
+import { createNamedHook, useApi, useEventChanges, useMapKeys } from '@pezkuwi/react-hooks';
 
 const OPT_HASH = {
   transform: (keys: StorageKey<[Hash]>[]): Hash[] =>

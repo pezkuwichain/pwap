@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { GenericExtrinsic, Vec } from '@polkadot/types';
-import type { AccountId, EventRecord } from '@polkadot/types/interfaces';
-import type { AnyTuple } from '@polkadot/types-codec/types';
+import type { GenericExtrinsic, Vec } from '@pezkuwi/types';
+import type { AccountId, EventRecord } from '@pezkuwi/types/interfaces';
+import type { AnyTuple } from '@pezkuwi/types-codec/types';
 
-import { stringToHex } from '@polkadot/util';
+import { stringToHex } from '@pezkuwi/util';
 
 export const isEventFromMyAccounts = (newEvent: EventRecord, extrinsics: Vec<GenericExtrinsic<AnyTuple>>, author: AccountId | undefined, allAccounts: string[]) => {
   const { event, phase } = newEvent;

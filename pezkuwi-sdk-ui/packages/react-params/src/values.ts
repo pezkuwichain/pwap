@@ -1,10 +1,10 @@
-// Copyright 2017-2025 @polkadot/react-params authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-params authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Registry, TypeDef } from '@polkadot/types/types';
+import type { Registry, TypeDef } from '@pezkuwi/types/types';
 import type { RawParam } from './types.js';
 
-import { isUndefined } from '@polkadot/util';
+import { isUndefined } from '@pezkuwi/util';
 
 import getInitValue from './initValue.js';
 

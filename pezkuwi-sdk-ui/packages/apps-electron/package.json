@@ -1,18 +1,18 @@
 {
   "author": "Jaco Greeff <jacogr@gmail.com>",
-  "bugs": "https://github.com/polkadot-js/apps/issues",
+  "bugs": "https://github.com/pezkuwichain/pezkuwi-web-app-projects/issues",
   "description": "An Apps portal into the Polkadot network",
   "engines": {
     "node": ">=18"
   },
-  "homepage": "https://github.com/polkadot-js/apps/tree/master/packages/apps-electron#readme",
+  "homepage": "https://github.com/pezkuwichain/pezkuwi-web-app-projects/tree/master/packages/apps-electron#readme",
   "license": "Apache-2.0",
-  "name": "@polkadot/apps-electron",
+  "name": "@pezkuwi/apps-electron",
   "private": true,
   "repository": {
     "directory": "packages/apps-electron",
     "type": "git",
-    "url": "https://github.com/polkadot-js/apps.git"
+    "url": "https://github.com/pezkuwichain/pezkuwi-web-app-projects.git"
   },
   "sideEffects": false,
   "version": "0.168.2-0-x",
@@ -22,7 +22,7 @@
     "electron-updater": "^6.1.7"
   },
   "devDependencies": {
-    "@polkadot/dev": "^0.83.3",
+    "@pezkuwi/dev": "^0.85.2",
     "@types/tmp": "^0.2.6",
     "copy-webpack-plugin": "^11.0.0",
     "electron": "28.0.0",

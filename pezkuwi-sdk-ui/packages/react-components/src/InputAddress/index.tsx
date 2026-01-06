@@ -1,18 +1,18 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { DropdownItemProps } from 'semantic-ui-react';
-import type { KeyringOption$Type, KeyringOptions, KeyringSectionOption } from '@polkadot/ui-keyring/options/types';
+import type { KeyringOption$Type, KeyringOptions, KeyringSectionOption } from '@pezkuwi/ui-keyring/options/types';
 import type { Option } from './types.js';
 
 import React from 'react';
 import store from 'store';
 
-import { withMulti, withObservable } from '@polkadot/react-api/hoc';
-import { keyring } from '@polkadot/ui-keyring';
-import { createOptionItem } from '@polkadot/ui-keyring/options/item';
-import { isNull, isUndefined } from '@polkadot/util';
-import { isAddress } from '@polkadot/util-crypto';
+import { withMulti, withObservable } from '@pezkuwi/react-api/hoc';
+import { keyring } from '@pezkuwi/ui-keyring';
+import { createOptionItem } from '@pezkuwi/ui-keyring/options/item';
+import { isNull, isUndefined } from '@pezkuwi/util';
+import { isAddress } from '@pezkuwi/util-crypto';
 
 import Dropdown from '../Dropdown.js';
 import Static from '../Static.js';

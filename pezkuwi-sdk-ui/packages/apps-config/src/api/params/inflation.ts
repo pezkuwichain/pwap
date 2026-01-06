@@ -1,7 +1,7 @@
-// Copyright 2017-2025 @polkadot/apps-config authors & contributors
+// Copyright 2017-2025 @pezkuwi/apps-config authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
+import type { ApiPromise } from '@pezkuwi/api';
 
 import { CERE_NETWORK_GENESIS, CERE_NETWORK_TESTNET_GENESIS, DOCK_POS_TESTNET_GENESIS, JOYSTREAM_GENESIS, KUSAMA_GENESIS, NEATCOIN_GENESIS, NFTMART_GENESIS, POLKADOT_GENESIS, VARA_NETWORK_GENESIS, VARA_NETWORK_TESTNET_GENESIS, ZKVERIFY_GENESIS, ZKVERIFY_VOLTA_GENESIS } from '../constants.js';
 

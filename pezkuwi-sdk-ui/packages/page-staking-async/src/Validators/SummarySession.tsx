@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/app-staking-async authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking-async authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveSessionProgress } from '@polkadot/api-derive/types';
-import type { Forcing } from '@polkadot/types/interfaces';
+import type { DeriveSessionProgress } from '@pezkuwi/api-derive/types';
+import type { Forcing } from '@pezkuwi/types/interfaces';
 
 import React, { useMemo } from 'react';
 
-import { CardSummary } from '@polkadot/react-components';
-import { useApi, useBlockInterval, useCall, useStakingAsyncApis } from '@polkadot/react-hooks';
-import { BN, BN_THREE, BN_TWO, BN_ZERO, formatNumber } from '@polkadot/util';
+import { CardSummary } from '@pezkuwi/react-components';
+import { useApi, useBlockInterval, useCall, useStakingAsyncApis } from '@pezkuwi/react-hooks';
+import { BN, BN_THREE, BN_TWO, BN_ZERO, formatNumber } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 

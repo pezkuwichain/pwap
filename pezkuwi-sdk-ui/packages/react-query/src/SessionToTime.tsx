@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/react-query authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-query authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveSessionProgress } from '@polkadot/api-derive/types';
-import type { BN } from '@polkadot/util';
+import type { DeriveSessionProgress } from '@pezkuwi/api-derive/types';
+import type { BN } from '@pezkuwi/util';
 
 import React, { useMemo } from 'react';
 
-import { useApi, useCall } from '@polkadot/react-hooks';
-import { BN_ZERO } from '@polkadot/util';
+import { useApi, useCall } from '@pezkuwi/react-hooks';
+import { BN_ZERO } from '@pezkuwi/util';
 
 import BlockToTime from './BlockToTime.js';
 

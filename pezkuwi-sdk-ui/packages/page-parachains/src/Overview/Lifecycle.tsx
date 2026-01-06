@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/app-parachains authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { PolkadotRuntimeParachainsParasParaLifecycle } from '@polkadot/types/lookup';
+import type { PezkuwiRuntimeTeyrchainsParasParaLifecycle } from '@pezkuwi/types/lookup';
 import type { QueuedAction } from '../types.js';
 
 import React from 'react';
 
-import { SessionToTime } from '@polkadot/react-query';
+import { SessionToTime } from '@pezkuwi/react-query';
 
 interface Props {
-  lifecycle: PolkadotRuntimeParachainsParasParaLifecycle | null;
+  lifecycle: PezkuwiRuntimeTeyrchainsParasParaLifecycle | null;
   nextAction?: QueuedAction;
 }
 

@@ -1,7 +1,7 @@
-// Copyright 2017-2025 @polkadot/app-assets authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-assets authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { StagingXcmV3MultiLocation } from '@polkadot/types/lookup';
+import type { StagingXcmV3MultiLocation } from '@pezkuwi/types/lookup';
 import type { ForeignAssetInfo } from '../useForeignAssetInfos.js';
 
 import React from 'react';

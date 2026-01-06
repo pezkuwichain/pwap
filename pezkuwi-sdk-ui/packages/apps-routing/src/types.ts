@@ -1,10 +1,10 @@
-// Copyright 2017-2025 @polkadot/apps-routing authors & contributors
+// Copyright 2017-2025 @pezkuwi/apps-routing authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { IconName } from '@fortawesome/fontawesome-svg-core';
 import type React from 'react';
-import type { ApiPromise } from '@polkadot/api';
-import type { AppProps, BareProps } from '@polkadot/react-components/types';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { AppProps, BareProps } from '@pezkuwi/react-components/types';
 
 export type RouteGroup = 'accounts' | 'developer' | 'governance' | 'network' | 'files' | 'settings';
 

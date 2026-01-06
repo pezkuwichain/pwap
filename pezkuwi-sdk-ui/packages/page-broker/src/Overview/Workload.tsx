@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/app-broker authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-broker authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { PalletBrokerConfigRecord, RegionInfo } from '@polkadot/react-hooks/types';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { PezpalletBrokerConfigRecord, RegionInfo } from '@pezkuwi/react-hooks/types';
 import type { CoreWorkloadType, CoreWorkplanType, InfoRow } from '../types.js';
 
 import React, { useEffect, useMemo, useState } from 'react';
 
-import { ExpandButton } from '@polkadot/react-components';
-import { useRegions, useToggle } from '@polkadot/react-hooks';
-import { useCoretimeConsts } from '@polkadot/react-hooks/useCoretimeConsts';
+import { ExpandButton } from '@pezkuwi/react-components';
+import { useRegions, useToggle } from '@pezkuwi/react-hooks';
+import { useCoretimeConsts } from '@pezkuwi/react-hooks/useCoretimeConsts';
 
 import { useBrokerContext } from '../BrokerContext.js';
 import { estimateTime, formatRowInfo } from '../utils.js';
@@ -21,7 +21,7 @@ interface Props {
   core: number;
   workload: CoreWorkloadType[] | undefined
   workplan?: CoreWorkplanType[] | undefined
-  config: PalletBrokerConfigRecord
+  config: PezpalletBrokerConfigRecord
 }
 
 function Workload ({ api, config, core, workload, workplan }: Props): React.ReactElement<Props> {

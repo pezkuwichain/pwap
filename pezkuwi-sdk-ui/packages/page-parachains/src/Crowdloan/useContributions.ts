@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-parachains authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveContributions, DeriveOwnContributions } from '@polkadot/api-derive/types';
-import type { Balance, ParaId } from '@polkadot/types/interfaces';
+import type { DeriveContributions, DeriveOwnContributions } from '@pezkuwi/api-derive/types';
+import type { Balance, ParaId } from '@pezkuwi/types/interfaces';
 
 import { useEffect, useState } from 'react';
 
-import { createNamedHook, useAccounts, useApi, useCall } from '@polkadot/react-hooks';
-import { encodeAddress } from '@polkadot/util-crypto';
+import { createNamedHook, useAccounts, useApi, useCall } from '@pezkuwi/react-hooks';
+import { encodeAddress } from '@pezkuwi/util-crypto';
 
 interface Result extends DeriveContributions {
   hasLoaded: boolean;

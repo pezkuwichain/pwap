@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveSessionProgress, DeriveStakingAccount } from '@polkadot/api-derive/types';
+import type { DeriveSessionProgress, DeriveStakingAccount } from '@pezkuwi/api-derive/types';
 
 import React, { useMemo } from 'react';
 
-import { useApi, useCall, useStakingAsyncApis } from '@polkadot/react-hooks';
-import { BlockToTime, FormatBalance } from '@polkadot/react-query';
-import { BN, BN_ONE, BN_ZERO, formatBalance, formatNumber } from '@polkadot/util';
+import { useApi, useCall, useStakingAsyncApis } from '@pezkuwi/react-hooks';
+import { BlockToTime, FormatBalance } from '@pezkuwi/react-query';
+import { BN, BN_ONE, BN_ZERO, formatBalance, formatNumber } from '@pezkuwi/util';
 
 import Icon from './Icon.js';
 import { styled } from './styled.js';

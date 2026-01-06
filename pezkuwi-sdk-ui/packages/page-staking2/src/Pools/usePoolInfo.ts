@@ -1,21 +1,21 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Bytes, Option } from '@polkadot/types';
-import type { FrameSystemAccountInfo, PalletNominationPoolsBondedPoolInner, PalletNominationPoolsRewardPool, PalletStakingNominations } from '@polkadot/types/lookup';
-import type { BN } from '@polkadot/util';
+import type { Bytes, Option } from '@pezkuwi/types';
+import type { PezframeSystemAccountInfo, PezpalletNominationPoolsBondedPoolInner, PezpalletNominationPoolsRewardPool, PezpalletStakingNominations } from '@pezkuwi/types/lookup';
+import type { BN } from '@pezkuwi/util';
 import type { PoolInfo, PoolInfoBase } from './types.js';
 
 import { useMemo } from 'react';
 
-import { createNamedHook, useApi, useCallMulti } from '@polkadot/react-hooks';
-import { BN_ZERO, bnMax } from '@polkadot/util';
+import { createNamedHook, useApi, useCallMulti } from '@pezkuwi/react-hooks';
+import { BN_ZERO, bnMax } from '@pezkuwi/util';
 
 import usePoolAccounts from './usePoolAccounts.js';
 
 const OPT_MULTI = {
   defaultValue: null,
-  transform: ([optBonded, metadata, optReward, optNominating, accountInfo]: [Option<PalletNominationPoolsBondedPoolInner>, Bytes, Option<PalletNominationPoolsRewardPool>, Option<PalletStakingNominations>, FrameSystemAccountInfo]): PoolInfoBase | null =>
+  transform: ([optBonded, metadata, optReward, optNominating, accountInfo]: [Option<PezpalletNominationPoolsBondedPoolInner>, Bytes, Option<PezpalletNominationPoolsRewardPool>, Option<PezpalletStakingNominations>, PezframeSystemAccountInfo]): PoolInfoBase | null =>
     optBonded.isSome && optReward.isSome
       ? {
         bonded: optBonded.unwrap(),

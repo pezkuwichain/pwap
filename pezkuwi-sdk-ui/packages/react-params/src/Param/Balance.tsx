@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @polkadot/react-params authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-params authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Props } from '../types.js';
@@ -6,8 +6,8 @@ import type { Props } from '../types.js';
 import React, { useCallback, useState } from 'react';
 
 // circular dep :(
-import InputBalance from '@polkadot/react-components/InputBalance';
-import { BN } from '@polkadot/util';
+import InputBalance from '@pezkuwi/react-components/InputBalance';
+import { BN } from '@pezkuwi/util';
 
 import Bare from './Bare.js';
 

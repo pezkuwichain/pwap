@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/react-query authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-query authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Bytes, Option } from '@polkadot/types';
-import type { PalletIdentityRegistration } from '@polkadot/types/lookup';
-import type { ITuple } from '@polkadot/types/types';
-import type { HexString } from '@polkadot/util/types';
+import type { Bytes, Option } from '@pezkuwi/types';
+import type { PezpalletIdentityRegistration } from '@pezkuwi/types/lookup';
+import type { ITuple } from '@pezkuwi/types/types';
+import type { HexString } from '@pezkuwi/util/types';
 
 import React, { useEffect, useState } from 'react';
 
-import { useApi, useCall } from '@polkadot/react-hooks';
+import { useApi, useCall } from '@pezkuwi/react-hooks';
 
 import Dropdown from '../Dropdown.js';
 import Input from '../Input.js';
@@ -35,7 +35,7 @@ const JUDGEMENT_ENUM = [
 ];
 
 const OPT_ID = {
-  transform: (optId: Option<ITuple<[PalletIdentityRegistration, Option<Bytes>]>>): HexString | null => {
+  transform: (optId: Option<ITuple<[PezpalletIdentityRegistration, Option<Bytes>]>>): HexString | null => {
     const id = optId.isSome
       ? optId.unwrap()
       : null;
@@ -45,7 +45,7 @@ const OPT_ID = {
       ? null
       : Array.isArray(id)
         ? id[0].info.hash.toHex()
-        : (id as unknown as PalletIdentityRegistration).info.hash.toHex();
+        : (id as unknown as PezpalletIdentityRegistration).info.hash.toHex();
   }
 };
 

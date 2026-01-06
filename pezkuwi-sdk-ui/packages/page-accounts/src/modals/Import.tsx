@@ -1,18 +1,18 @@
-// Copyright 2017-2025 @polkadot/app-accounts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-accounts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Dispatch, SetStateAction } from 'react';
-import type { KeyringPair, KeyringPair$Json } from '@polkadot/keyring/types';
-import type { ActionStatus } from '@polkadot/react-components/Status/types';
-import type { HexString } from '@polkadot/util/types';
+import type { KeyringPair, KeyringPair$Json } from '@pezkuwi/keyring/types';
+import type { ActionStatus } from '@pezkuwi/react-components/Status/types';
+import type { HexString } from '@pezkuwi/util/types';
 import type { ModalProps } from '../types.js';
 
 import React, { useCallback, useMemo, useState } from 'react';
 
-import { AddressRow, Button, InputAddress, InputFile, MarkError, MarkWarning, Modal, Password } from '@polkadot/react-components';
-import { useApi } from '@polkadot/react-hooks';
-import { keyring } from '@polkadot/ui-keyring';
-import { assert, nextTick, u8aToString } from '@polkadot/util';
+import { AddressRow, Button, InputAddress, InputFile, MarkError, MarkWarning, Modal, Password } from '@pezkuwi/react-components';
+import { useApi } from '@pezkuwi/react-hooks';
+import { keyring } from '@pezkuwi/ui-keyring';
+import { assert, nextTick, u8aToString } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 import ExternalWarning from './ExternalWarning.js';

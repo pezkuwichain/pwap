@@ -4,7 +4,7 @@
 // This file handles all tiki-related blockchain interactions
 // Based on: /Pezkuwi-SDK/pezkuwi/pallets/tiki/src/lib.rs
 
-import type { ApiPromise } from '@polkadot/api';
+import type { ApiPromise } from '@pezkuwi/api';
 
 // ========================================
 // TIKI TYPES (from Rust enum)

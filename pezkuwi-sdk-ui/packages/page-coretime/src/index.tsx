@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/app-coretime authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-coretime authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
 
-import { useApi } from '@polkadot/react-hooks';
+import { useApi } from '@pezkuwi/react-hooks';
 
 import { CoretimeProvider } from './CoretimeContext.js';
 import CoretimePage from './CoretimePage.js';

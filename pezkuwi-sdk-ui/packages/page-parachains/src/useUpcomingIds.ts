@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/app-parachains authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Option, StorageKey } from '@polkadot/types';
-import type { ParaId } from '@polkadot/types/interfaces';
-import type { PolkadotRuntimeParachainsParasParaLifecycle } from '@polkadot/types/lookup';
+import type { Option, StorageKey } from '@pezkuwi/types';
+import type { ParaId } from '@pezkuwi/types/interfaces';
+import type { PezkuwiRuntimeTeyrchainsParasParaLifecycle } from '@pezkuwi/types/lookup';
 
-import { createNamedHook, useApi, useEventTrigger, useMapEntries } from '@polkadot/react-hooks';
+import { createNamedHook, useApi, useEventTrigger, useMapEntries } from '@pezkuwi/react-hooks';
 
 const OPT_ENTRIES = {
-  transform: (entries: [StorageKey<[ParaId]>, Option<PolkadotRuntimeParachainsParasParaLifecycle>][]): ParaId[] =>
+  transform: (entries: [StorageKey<[ParaId]>, Option<PezkuwiRuntimeTeyrchainsParasParaLifecycle>][]): ParaId[] =>
     entries
       .map(([{ args: [paraId] }, optValue]): ParaId | null => {
         const value = optValue.unwrapOr(null);

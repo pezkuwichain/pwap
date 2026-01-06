@@ -1,18 +1,18 @@
-// Copyright 2017-2025 @polkadot/app-extrinsics authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-extrinsics authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { SubmittableExtrinsic, SubmittableExtrinsicFunction } from '@polkadot/api/types';
-import type { Call, ExtrinsicPayload } from '@polkadot/types/interfaces';
-import type { HexString } from '@polkadot/util/types';
+import type { SubmittableExtrinsic, SubmittableExtrinsicFunction } from '@pezkuwi/api/types';
+import type { Call, ExtrinsicPayload } from '@pezkuwi/types/interfaces';
+import type { HexString } from '@pezkuwi/util/types';
 import type { DecodedExtrinsic } from './types.js';
 
 import React, { useCallback, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { Input, InputExtrinsic, MarkError, styled } from '@polkadot/react-components';
-import { useApi } from '@polkadot/react-hooks';
-import { Call as CallDisplay } from '@polkadot/react-params';
-import { assert, compactToU8a, isHex, u8aConcat, u8aEq } from '@polkadot/util';
+import { Input, InputExtrinsic, MarkError, styled } from '@pezkuwi/react-components';
+import { useApi } from '@pezkuwi/react-hooks';
+import { Call as CallDisplay } from '@pezkuwi/react-params';
+import { assert, compactToU8a, isHex, u8aConcat, u8aEq } from '@pezkuwi/util';
 
 import Decoded from './Decoded.js';
 import { useTranslation } from './translate.js';

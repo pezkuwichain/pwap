@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { PopupWindowProps as Props } from './types.js';
@@ -6,7 +6,7 @@ import type { PopupWindowProps as Props } from './types.js';
 import React from 'react';
 import { createPortal } from 'react-dom';
 
-import { usePopupWindow } from '@polkadot/react-hooks/usePopupWindow';
+import { usePopupWindow } from '@pezkuwi/react-hooks/usePopupWindow';
 
 import { styled } from '../styled.js';
 

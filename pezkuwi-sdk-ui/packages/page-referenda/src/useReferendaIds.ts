@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-referenda authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-referenda authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Changes } from '@polkadot/react-hooks/useEventChanges';
-import type { StorageKey, u32 } from '@polkadot/types';
-import type { EventRecord } from '@polkadot/types/interfaces';
-import type { BN } from '@polkadot/util';
-import type { PalletReferenda } from './types.js';
+import type { Changes } from '@pezkuwi/react-hooks/useEventChanges';
+import type { StorageKey, u32 } from '@pezkuwi/types';
+import type { EventRecord } from '@pezkuwi/types/interfaces';
+import type { BN } from '@pezkuwi/util';
+import type { PezpalletReferenda } from './types.js';
 
-import { createNamedHook, useApi, useEventChanges, useMapKeys } from '@polkadot/react-hooks';
+import { createNamedHook, useApi, useEventChanges, useMapKeys } from '@pezkuwi/react-hooks';
 
 const OPT_ID = {
   transform: (keys: StorageKey<[u32]>[]): u32[] =>
@@ -29,7 +29,7 @@ function filter (records: EventRecord[]): Changes<u32> {
   return { added, removed };
 }
 
-function useReferendaIdsImpl (palletReferenda: PalletReferenda): BN[] | undefined {
+function useReferendaIdsImpl (palletReferenda: PezpalletReferenda): BN[] | undefined {
   const { api } = useApi();
   const startValue = useMapKeys(api.query[palletReferenda].referendumInfoFor, [], OPT_ID);
 

@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/app-democracy authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-democracy authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { BN } from '@polkadot/util';
-import type { HexString } from '@polkadot/util/types';
+import type { BN } from '@pezkuwi/util';
+import type { HexString } from '@pezkuwi/util/types';
 
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { Input, InputAddress, InputBalance, InputNumber, Modal, TxButton } from '@polkadot/react-components';
-import { useApi, useCall, usePreimage } from '@polkadot/react-hooks';
-import { Available } from '@polkadot/react-query';
-import { BN_ZERO, isFunction, isHex } from '@polkadot/util';
+import { Input, InputAddress, InputBalance, InputNumber, Modal, TxButton } from '@pezkuwi/react-components';
+import { useApi, useCall, usePreimage } from '@pezkuwi/react-hooks';
+import { Available } from '@pezkuwi/react-query';
+import { BN_ZERO, isFunction, isHex } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 

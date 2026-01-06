@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/app-claims authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-claims authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { StatementKind } from '@polkadot/types/interfaces';
+import type { StatementKind } from '@pezkuwi/types/interfaces';
 
 import React from 'react';
 
-import { styled } from '@polkadot/react-components';
+import { styled } from '@pezkuwi/react-components';
 
 import { useTranslation } from './translate.js';
 import { getStatement } from './util.js';

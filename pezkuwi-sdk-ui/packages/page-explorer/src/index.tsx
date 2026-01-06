@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/app-explorer authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-explorer authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { TabItem } from '@polkadot/react-components/types';
-import type { KeyedEvent } from '@polkadot/react-hooks/ctx/types';
+import type { TabItem } from '@pezkuwi/react-components/types';
+import type { KeyedEvent } from '@pezkuwi/react-hooks/ctx/types';
 
 import React, { useMemo, useRef } from 'react';
 import { Route, Routes } from 'react-router';
 
-import { Tabs } from '@polkadot/react-components';
-import { useApi, useBlockAuthors, useBlockEvents } from '@polkadot/react-hooks';
-import { isFunction } from '@polkadot/util';
+import { Tabs } from '@pezkuwi/react-components';
+import { useApi, useBlockAuthors, useBlockEvents } from '@pezkuwi/react-hooks';
+import { isFunction } from '@pezkuwi/util';
 
 import Api from './Api/index.js';
 import BlockInfo from './BlockInfo/index.js';

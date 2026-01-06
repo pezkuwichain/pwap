@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-bounties authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-bounties authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveCollectiveProposal } from '@polkadot/api-derive/types';
-import type { PalletBountiesBountyStatus } from '@polkadot/types/lookup';
+import type { DeriveCollectiveProposal } from '@pezkuwi/api-derive/types';
+import type { PezpalletBountiesBountyStatus } from '@pezkuwi/types/lookup';
 
 import React, { useRef } from 'react';
 
-import { LabelHelp, styled } from '@polkadot/react-components';
+import { LabelHelp, styled } from '@pezkuwi/react-components';
 
 import { proposalNameToDisplay } from '../helpers/extendedStatuses.js';
 import { useTranslation } from '../translate.js';
@@ -14,7 +14,7 @@ import { useTranslation } from '../translate.js';
 interface Props {
   className?: string;
   proposal: DeriveCollectiveProposal;
-  status: PalletBountiesBountyStatus;
+  status: PezpalletBountiesBountyStatus;
 }
 
 function VotingDescriptionInfo ({ className, proposal, status }: Props): React.ReactElement<Props> {

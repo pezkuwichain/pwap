@@ -3,7 +3,7 @@
 // ========================================
 // Handles wUSDT minting, burning, and reserve management
 
-import type { ApiPromise } from '@polkadot/api';
+import type { ApiPromise } from '@pezkuwi/api';
 import { ASSET_IDS, ASSET_CONFIGS } from './wallet';
 import { getMultisigMembers, createMultisigTx } from './multisig';
 

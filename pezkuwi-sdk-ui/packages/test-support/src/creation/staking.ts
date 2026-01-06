@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-bounties authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-bounties authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { PalletStakingStakingLedger } from '@polkadot/types/lookup';
+import type { PezpalletStakingStakingLedger } from '@pezkuwi/types/lookup';
 
-import { TypeRegistry } from '@polkadot/types/create';
-import { BN } from '@polkadot/util';
+import { TypeRegistry } from '@pezkuwi/types/create';
+import { BN } from '@pezkuwi/util';
 
-export function makeStakingLedger (active: BN | number | string): PalletStakingStakingLedger {
+export function makeStakingLedger (active: BN | number | string): PezpalletStakingStakingLedger {
   const reg = new TypeRegistry();
 
   // Constructing the whole StakingLedger structure is hard,
@@ -16,5 +16,5 @@ export function makeStakingLedger (active: BN | number | string): PalletStakingS
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   return {
     active: reg.createType('Compact<Balance>', reg.createType('Balance', new BN(active)))
-  } as PalletStakingStakingLedger;
+  } as PezpalletStakingStakingLedger;
 }

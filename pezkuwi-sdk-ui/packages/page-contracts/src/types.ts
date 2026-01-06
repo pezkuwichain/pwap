@@ -1,10 +1,10 @@
-// Copyright 2017-2025 @polkadot/app-contracts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-contracts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type React from 'react';
-import type { Abi } from '@polkadot/api-contract';
-import type { WeightV2 } from '@polkadot/types/interfaces';
-import type { BN } from '@polkadot/util';
+import type { Abi } from '@pezkuwi/api-contract';
+import type { WeightV2 } from '@pezkuwi/types/interfaces';
+import type { BN } from '@pezkuwi/util';
 
 export interface CodeJson {
   abi?: string | null;

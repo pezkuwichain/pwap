@@ -1,17 +1,17 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Option, u32 } from '@polkadot/types';
-import type { PalletStakingActiveEraInfo } from '@polkadot/types/lookup';
-import type { BN } from '@polkadot/util';
+import type { Option, u32 } from '@pezkuwi/types';
+import type { PezpalletStakingActiveEraInfo } from '@pezkuwi/types/lookup';
+import type { BN } from '@pezkuwi/util';
 import type { SessionInfo } from './types.js';
 
 import { useMemo } from 'react';
 
-import { createNamedHook, useApi, useCall } from '@polkadot/react-hooks';
+import { createNamedHook, useApi, useCall } from '@pezkuwi/react-hooks';
 
 const OPT_ACTIVEERA = {
-  transform: (activeEra: Option<PalletStakingActiveEraInfo>): BN | null =>
+  transform: (activeEra: Option<PezpalletStakingActiveEraInfo>): BN | null =>
     activeEra.isSome
       ? activeEra.unwrap().index
       : null

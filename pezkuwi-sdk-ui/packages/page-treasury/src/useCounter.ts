@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/app-treasury authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-treasury authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveTreasuryProposals } from '@polkadot/api-derive/types';
+import type { DeriveTreasuryProposals } from '@pezkuwi/api-derive/types';
 
 import { useMemo } from 'react';
 
-import { createNamedHook, useAccounts, useApi, useCall } from '@polkadot/react-hooks';
+import { createNamedHook, useAccounts, useApi, useCall } from '@pezkuwi/react-hooks';
 
 function useCounterImpl (): number {
   const { hasAccounts } = useAccounts();

@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { SiDef } from '@polkadot/util/types';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { SiDef } from '@pezkuwi/util/types';
 import type { BitLength } from './types.js';
 
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { useApi } from '@polkadot/react-hooks';
-import { BN, BN_ONE, BN_TEN, BN_TWO, BN_ZERO, formatBalance, isBn, isUndefined } from '@polkadot/util';
+import { useApi } from '@pezkuwi/react-hooks';
+import { BN, BN_ONE, BN_TEN, BN_TWO, BN_ZERO, formatBalance, isBn, isUndefined } from '@pezkuwi/util';
 
 import { TokenUnit } from './InputConsts/units.js';
 import Input, { KEYS_PRE } from './Input.js';

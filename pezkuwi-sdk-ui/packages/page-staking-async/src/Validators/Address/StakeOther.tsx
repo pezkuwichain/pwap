@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/app-staking-async authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking-async authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { u32 } from '@polkadot/types';
+import type { u32 } from '@pezkuwi/types';
 import type { NominatorValue } from './types.js';
 
 import React, { useMemo } from 'react';
 
-import { AddressMini, ExpanderScroll } from '@polkadot/react-components';
-import { useApi } from '@polkadot/react-hooks';
-import { FormatBalance } from '@polkadot/react-query';
-import { BN, BN_ZERO } from '@polkadot/util';
+import { AddressMini, ExpanderScroll } from '@pezkuwi/react-components';
+import { useApi } from '@pezkuwi/react-hooks';
+import { FormatBalance } from '@pezkuwi/react-query';
+import { BN, BN_ZERO } from '@pezkuwi/util';
 
 interface Props {
   stakeOther?: BN;

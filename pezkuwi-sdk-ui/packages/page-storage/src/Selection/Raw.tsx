@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-storage authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-storage authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ComponentProps as Props } from '../types.js';
 
 import React, { useCallback, useState } from 'react';
 
-import { Button, Input } from '@polkadot/react-components';
-import { compactAddLength, u8aToU8a } from '@polkadot/util';
+import { Button, Input } from '@pezkuwi/react-components';
+import { compactAddLength, u8aToU8a } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 

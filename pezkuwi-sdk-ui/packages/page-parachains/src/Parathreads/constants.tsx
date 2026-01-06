@@ -1,7 +1,7 @@
-// Copyright 2017-2025 @polkadot/app-parachains authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { BN, BN_ONE, BN_THOUSAND } from '@polkadot/util';
+import { BN, BN_ONE, BN_THOUSAND } from '@pezkuwi/util';
 
 export const LOWEST_PUBLIC_ID = new BN(2_000);
 

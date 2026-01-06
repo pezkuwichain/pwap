@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/react-params authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-params authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Vec } from '@polkadot/types';
-import type { KeyValue as Pair } from '@polkadot/types/interfaces';
+import type { Vec } from '@pezkuwi/types';
+import type { KeyValue as Pair } from '@pezkuwi/types/interfaces';
 import type { Props, RawParam } from '../types.js';
 
 import React, { useCallback, useState } from 'react';
 
-import { assert, isHex, u8aToHex, u8aToString } from '@polkadot/util';
+import { assert, isHex, u8aToHex, u8aToString } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 import Base from './Base.js';

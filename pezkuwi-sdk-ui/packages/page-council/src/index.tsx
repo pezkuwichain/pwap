@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/app-council authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-council authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveCollectiveProposal } from '@polkadot/api-derive/types';
-import type { AccountId } from '@polkadot/types/interfaces';
+import type { DeriveCollectiveProposal } from '@pezkuwi/api-derive/types';
+import type { AccountId } from '@pezkuwi/types/interfaces';
 
 import React, { useMemo } from 'react';
 import { Route, Routes } from 'react-router';
 import { useLocation } from 'react-router-dom';
 
-import { Tabs } from '@polkadot/react-components';
-import { useApi, useCall } from '@polkadot/react-hooks';
+import { Tabs } from '@pezkuwi/react-components';
+import { useApi, useCall } from '@pezkuwi/react-hooks';
 
 import Motions from './Motions/index.js';
 import Overview from './Overview/index.js';

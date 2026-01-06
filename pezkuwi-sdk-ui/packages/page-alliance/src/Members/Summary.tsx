@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-alliance authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-alliance authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Member as MemberType, Rule } from '../types.js';
 
 import React from 'react';
 
-import { CardSummary, SummaryBox } from '@polkadot/react-components';
-import { useIpfsLink } from '@polkadot/react-hooks';
-import { formatNumber } from '@polkadot/util';
+import { CardSummary, SummaryBox } from '@pezkuwi/react-components';
+import { useIpfsLink } from '@pezkuwi/react-hooks';
+import { formatNumber } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 

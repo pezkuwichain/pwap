@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-referenda authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-referenda authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { BN } from '@polkadot/util';
-import type { PalletReferenda, TrackDescription } from '../../types.js';
+import type { BN } from '@pezkuwi/util';
+import type { PezpalletReferenda, TrackDescription } from '../../types.js';
 
 import React from 'react';
 
-import { Dropdown, styled } from '@polkadot/react-components';
+import { Dropdown, styled } from '@pezkuwi/react-components';
 
 import { useTranslation } from '../../translate.js';
 import useTrackOptions from './useTrackOptions.js';
@@ -16,7 +16,7 @@ interface Props {
   exclude?: (BN | number)[];
   include?: (BN | number)[];
   onChange: (trackId: number) => void;
-  palletReferenda: PalletReferenda;
+  palletReferenda: PezpalletReferenda;
   tracks: TrackDescription[];
 }
 

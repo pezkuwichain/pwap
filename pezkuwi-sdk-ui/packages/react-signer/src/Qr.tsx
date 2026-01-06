@@ -1,10 +1,10 @@
-// Copyright 2017-2025 @polkadot/react-signer authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-signer authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useCallback, useState } from 'react';
 
-import { Columar, MarkError, QrDisplayPayload, QrScanSignature, Spinner, styled } from '@polkadot/react-components';
-import { isHex } from '@polkadot/util';
+import { Columar, MarkError, QrDisplayPayload, QrScanSignature, Spinner, styled } from '@pezkuwi/react-components';
+import { isHex } from '@pezkuwi/util';
 
 import { useTranslation } from './translate.js';
 

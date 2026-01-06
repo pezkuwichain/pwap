@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @polkadot/app-ranked authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-ranked authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { PalletColl, PalletPoll } from './types.js';
@@ -6,8 +6,8 @@ import type { PalletColl, PalletPoll } from './types.js';
 import React, { useMemo } from 'react';
 import { Route, Routes } from 'react-router';
 
-import Referenda, { useCounter } from '@polkadot/app-referenda/Referenda';
-import { Tabs } from '@polkadot/react-components';
+import Referenda, { useCounter } from '@pezkuwi/app-referenda/Referenda';
+import { Tabs } from '@pezkuwi/react-components';
 
 import Members from './Members/index.js';
 import { useTranslation } from './translate.js';

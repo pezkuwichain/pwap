@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/app-explorer authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-explorer authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { SignedBlockExtended } from '@polkadot/api-derive/types';
-import type { GenericExtrinsic, u32 } from '@polkadot/types';
-import type { Block } from '@polkadot/types/interfaces';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { SignedBlockExtended } from '@pezkuwi/api-derive/types';
+import type { GenericExtrinsic, u32 } from '@pezkuwi/types';
+import type { Block } from '@pezkuwi/types/interfaces';
 import type { Detail, Result } from './types.js';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { createNamedHook, useApi, useCall } from '@polkadot/react-hooks';
+import { createNamedHook, useApi, useCall } from '@pezkuwi/react-hooks';
 
 const INITIAL_ITEMS = 50;
 const MAX_ITEMS = INITIAL_ITEMS;

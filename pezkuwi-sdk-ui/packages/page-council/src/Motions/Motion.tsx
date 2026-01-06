@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/app-council authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-council authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveCollectiveProposal } from '@polkadot/api-derive/types';
-import type { AccountId } from '@polkadot/types/interfaces';
+import type { DeriveCollectiveProposal } from '@pezkuwi/api-derive/types';
+import type { AccountId } from '@pezkuwi/types/interfaces';
 
 import React, { useMemo } from 'react';
 
-import ProposalCell from '@polkadot/app-democracy/Overview/ProposalCell';
-import { Icon, LinkExternal, Table } from '@polkadot/react-components';
-import { useAccounts, useCollectiveInstance, useVotingStatus } from '@polkadot/react-hooks';
-import { BlockToTime } from '@polkadot/react-query';
-import { formatNumber } from '@polkadot/util';
+import ProposalCell from '@pezkuwi/app-democracy/Overview/ProposalCell';
+import { Icon, LinkExternal, Table } from '@pezkuwi/react-components';
+import { useAccounts, useCollectiveInstance, useVotingStatus } from '@pezkuwi/react-hooks';
+import { BlockToTime } from '@pezkuwi/react-query';
+import { formatNumber } from '@pezkuwi/util';
 
 import Close from './Close.js';
 import Voters from './Voters.js';

@@ -1,21 +1,21 @@
-// Copyright 2017-2025 @polkadot/app-staking-async authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking-async authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { DeriveHeartbeatAuthor } from '@polkadot/api-derive/types';
-import type { NominatedBy as NominatedByType, ValidatorInfo } from '@polkadot/app-staking/types';
-import type { Option } from '@polkadot/types';
-import type { SlashingSpans, ValidatorPrefs } from '@polkadot/types/interfaces';
-import type { BN } from '@polkadot/util';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { DeriveHeartbeatAuthor } from '@pezkuwi/api-derive/types';
+import type { NominatedBy as NominatedByType, ValidatorInfo } from '@pezkuwi/app-staking/types';
+import type { Option } from '@pezkuwi/types';
+import type { SlashingSpans, ValidatorPrefs } from '@pezkuwi/types/interfaces';
+import type { BN } from '@pezkuwi/util';
 import type { NominatorValue } from './types.js';
 
 import React, { useMemo } from 'react';
 
-import { AddressSmall, Columar, Icon, LinkExternal, Table, Tag } from '@polkadot/react-components';
-import { checkVisibility } from '@polkadot/react-components/util';
-import { useApi, useCall, useDeriveAccountInfo, useToggle } from '@polkadot/react-hooks';
-import { FormatBalance } from '@polkadot/react-query';
-import { BN_ZERO } from '@polkadot/util';
+import { AddressSmall, Columar, Icon, LinkExternal, Table, Tag } from '@pezkuwi/react-components';
+import { checkVisibility } from '@pezkuwi/react-components/util';
+import { useApi, useCall, useDeriveAccountInfo, useToggle } from '@pezkuwi/react-hooks';
+import { FormatBalance } from '@pezkuwi/react-query';
+import { BN_ZERO } from '@pezkuwi/util';
 
 import { useTranslation } from '../../translate.js';
 import NominatedBy from './NominatedBy.js';

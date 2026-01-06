@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-gilt authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-gilt authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Vec } from '@polkadot/types';
-import type { BalanceOf, ProxyDefinition } from '@polkadot/types/interfaces';
-import type { ITuple } from '@polkadot/types/types';
+import type { Vec } from '@pezkuwi/types';
+import type { BalanceOf, ProxyDefinition } from '@pezkuwi/types/interfaces';
+import type { ITuple } from '@pezkuwi/types/types';
 
 import { useEffect, useState } from 'react';
 
-import { createNamedHook, useAccounts, useApi, useIsMountedRef } from '@polkadot/react-hooks';
+import { createNamedHook, useAccounts, useApi, useIsMountedRef } from '@pezkuwi/react-hooks';
 
 type ProxyResult = ITuple<[Vec<ProxyDefinition>, BalanceOf]>;
 

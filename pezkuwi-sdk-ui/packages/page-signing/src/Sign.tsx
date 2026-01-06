@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/app-signing authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-signing authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Signer } from '@polkadot/api/types';
-import type { KeyringPair } from '@polkadot/keyring/types';
+import type { Signer } from '@pezkuwi/api/types';
+import type { KeyringPair } from '@pezkuwi/keyring/types';
 
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { web3FromSource } from '@polkadot/extension-dapp';
-import { Button, Input, InputAddress, Output, Static, styled } from '@polkadot/react-components';
-import { useToggle } from '@polkadot/react-hooks';
-import { keyring } from '@polkadot/ui-keyring';
-import { isFunction, isHex, u8aToHex, u8aWrapBytes } from '@polkadot/util';
+import { web3FromSource } from '@pezkuwi/extension-dapp';
+import { Button, Input, InputAddress, Output, Static, styled } from '@pezkuwi/react-components';
+import { useToggle } from '@pezkuwi/react-hooks';
+import { keyring } from '@pezkuwi/ui-keyring';
+import { isFunction, isHex, u8aToHex, u8aWrapBytes } from '@pezkuwi/util';
 
 import { useTranslation } from './translate.js';
 import Unlock from './Unlock.js';

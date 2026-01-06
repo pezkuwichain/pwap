@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-/// <reference types="@polkadot/dev-test/globals.d.ts" />
+/// <reference types="@pezkuwi/dev-test/globals.d.ts" />
 
-import { stringify } from '@polkadot/util';
+import { stringify } from '@pezkuwi/util';
 
 import { getMemoValue, isDifferent } from './useMemoValue.js';
 

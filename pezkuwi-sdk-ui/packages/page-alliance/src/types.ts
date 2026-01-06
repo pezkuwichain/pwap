@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/app-alliance authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-alliance authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { PalletAllianceCid, PalletAllianceMemberRole } from '@polkadot/types/lookup';
-import type { BN } from '@polkadot/util';
+import type { PezpalletAllianceCid, PezpalletAllianceMemberRole } from '@pezkuwi/types/lookup';
+import type { BN } from '@pezkuwi/util';
 
 export interface Cid {
-  cid: PalletAllianceCid;
+  cid: PezpalletAllianceCid;
   ipfs: string | null;
   key: string;
 }
@@ -13,7 +13,7 @@ export interface Cid {
 export interface Member {
   accountId: string;
   // Founder here is deprecated
-  role: PalletAllianceMemberRole['type'] | 'Founder';
+  role: PezpalletAllianceMemberRole['type'] | 'Founder';
 }
 
 export interface MemberInfo {

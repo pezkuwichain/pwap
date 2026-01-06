@@ -1,6 +1,6 @@
-// This file is part of Substrate.
+// This file is part of Bizinikiwi.
 
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd. and Dijital Kurdistan Tech Institute
 // SPDX-License-Identifier: Apache-2.0
 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,12 +21,15 @@
 
 extern crate alloc;
 use alloc::{vec, vec::Vec};
-use first_pallet::pallet_v2 as our_first_pallet;
-use frame::{
-	prelude::*,
-	runtime::{apis, prelude::*},
+use first_pezpallet::pezpallet_v2 as our_first_pallet;
+use pezframe::{deps::pezsp_genesis_builder::DEV_RUNTIME_PRESET, prelude::*, runtime::prelude::*};
+use pezpallet_transaction_payment_rpc_runtime_api::{FeeDetails, RuntimeDispatchInfo};
+use pezsp_keyring::Sr25519Keyring;
+use pezsp_runtime::{
+	traits::Block as BlockT,
+	transaction_validity::{TransactionSource, TransactionValidity},
+	ApplyExtrinsicResult,
 };
-use pallet_transaction_payment_rpc_runtime_api::{FeeDetails, RuntimeDispatchInfo};
 
 #[docify::export]
 #[runtime_version]
@@ -45,15 +48,15 @@ pub const VERSION: RuntimeVersion = RuntimeVersion {
 construct_runtime!(
 	pub struct Runtime {
 		// Mandatory for all runtimes
-		System: frame_system,
+		System: pezframe_system,
 
 		// A number of other pallets from FRAME.
-		Timestamp: pallet_timestamp,
-		Balances: pallet_balances,
-		Sudo: pallet_sudo,
-		TransactionPayment: pallet_transaction_payment,
+		Timestamp: pezpallet_timestamp,
+		Balances: pezpallet_balances,
+		Sudo: pezpallet_sudo,
+		TransactionPayment: pezpallet_transaction_payment,
 
-		// Our local pallet
+		// Our local pezpallet
 		FirstPallet: our_first_pallet,
 	}
 );
@@ -62,19 +65,19 @@ construct_runtime!(
 mod runtime_types {
 	use super::*;
 	pub(super) type SignedExtra = (
-		// `frame` already provides all the signed extensions from `frame-system`. We just add the
-		// one related to tx-payment here.
-		frame::runtime::types_common::SystemTransactionExtensionsOf<Runtime>,
-		pallet_transaction_payment::ChargeTransactionPayment<Runtime>,
+		// `frame` already provides all the signed extensions from `pezframe-system`. We just add
+		// the one related to tx-payment here.
+		pezframe::runtime::types_common::SystemTransactionExtensionsOf<Runtime>,
+		pezpallet_transaction_payment::ChargeTransactionPayment<Runtime>,
 	);
 
-	pub(super) type Block = frame::runtime::types_common::BlockOf<Runtime, SignedExtra>;
-	pub(super) type Header = HeaderFor<Runtime>;
+	pub(super) type Block = pezframe::runtime::types_common::BlockOf<Runtime, SignedExtra>;
+	pub(super) type _Header = HeaderFor<Runtime>;
 
 	pub(super) type RuntimeExecutive = Executive<
 		Runtime,
 		Block,
-		frame_system::ChainContext<Runtime>,
+		pezframe_system::ChainContext<Runtime>,
 		Runtime,
 		AllPalletsWithSystem,
 	>;
@@ -89,32 +92,32 @@ mod config_impls {
 		pub const Version: RuntimeVersion = VERSION;
 	}
 
-	#[derive_impl(frame_system::config_preludes::SolochainDefaultConfig)]
-	impl frame_system::Config for Runtime {
+	#[derive_impl(pezframe_system::config_preludes::SolochainDefaultConfig)]
+	impl pezframe_system::Config for Runtime {
 		type Block = Block;
 		type Version = Version;
 		type AccountData =
-			pallet_balances::AccountData<<Runtime as pallet_balances::Config>::Balance>;
+			pezpallet_balances::AccountData<<Runtime as pezpallet_balances::Config>::Balance>;
 	}
 
-	#[derive_impl(pallet_balances::config_preludes::TestDefaultConfig)]
-	impl pallet_balances::Config for Runtime {
+	#[derive_impl(pezpallet_balances::config_preludes::TestDefaultConfig)]
+	impl pezpallet_balances::Config for Runtime {
 		type AccountStore = System;
 	}
 
-	#[derive_impl(pallet_sudo::config_preludes::TestDefaultConfig)]
-	impl pallet_sudo::Config for Runtime {}
+	#[derive_impl(pezpallet_sudo::config_preludes::TestDefaultConfig)]
+	impl pezpallet_sudo::Config for Runtime {}
 
-	#[derive_impl(pallet_timestamp::config_preludes::TestDefaultConfig)]
-	impl pallet_timestamp::Config for Runtime {}
+	#[derive_impl(pezpallet_timestamp::config_preludes::TestDefaultConfig)]
+	impl pezpallet_timestamp::Config for Runtime {}
 
-	#[derive_impl(pallet_transaction_payment::config_preludes::TestDefaultConfig)]
-	impl pallet_transaction_payment::Config for Runtime {
-		type OnChargeTransaction = pallet_transaction_payment::FungibleAdapter<Balances, ()>;
+	#[derive_impl(pezpallet_transaction_payment::config_preludes::TestDefaultConfig)]
+	impl pezpallet_transaction_payment::Config for Runtime {
+		type OnChargeTransaction = pezpallet_transaction_payment::FungibleAdapter<Balances, ()>;
 		// We specify a fixed length to fee here, which essentially means all transactions charge
 		// exactly 1 unit of fee.
-		type LengthToFee = FixedFee<1, <Self as pallet_balances::Config>::Balance>;
-		type WeightToFee = NoFee<<Self as pallet_balances::Config>::Balance>;
+		type LengthToFee = FixedFee<1, <Self as pezpallet_balances::Config>::Balance>;
+		type WeightToFee = NoFee<<Self as pezpallet_balances::Config>::Balance>;
 	}
 }
 
@@ -130,7 +133,7 @@ pub mod genesis_config_presets {
 		interface::{Balance, MinimumBalance},
 		BalancesConfig, RuntimeGenesisConfig, SudoConfig,
 	};
-	use frame::deps::frame_support::build_struct_json_patch;
+	use pezframe::deps::pezframe_support::build_struct_json_patch;
 	use serde_json::Value;
 
 	/// Returns a development genesis config preset.
@@ -169,21 +172,21 @@ pub mod genesis_config_presets {
 }
 
 impl_runtime_apis! {
-	impl apis::Core<Block> for Runtime {
+	impl pezsp_api::Core<Block> for Runtime {
 		fn version() -> RuntimeVersion {
 			VERSION
 		}
 
-		fn execute_block(block: <Block as frame::traits::Block>::LazyBlock) {
+		fn execute_block(block: <Block as BlockT>::LazyBlock) {
 			RuntimeExecutive::execute_block(block)
 		}
 
-		fn initialize_block(header: &Header) -> ExtrinsicInclusionMode {
+		fn initialize_block(header: &<Block as BlockT>::Header) -> ExtrinsicInclusionMode {
 			RuntimeExecutive::initialize_block(header)
 		}
 	}
 
-	impl apis::Metadata<Block> for Runtime {
+	impl pezsp_api::Metadata<Block> for Runtime {
 		fn metadata() -> OpaqueMetadata {
 			OpaqueMetadata::new(Runtime::metadata().into())
 		}
@@ -197,62 +200,62 @@ impl_runtime_apis! {
 		}
 	}
 
-	impl apis::BlockBuilder<Block> for Runtime {
-		fn apply_extrinsic(extrinsic: ExtrinsicFor<Runtime>) -> ApplyExtrinsicResult {
+	impl pezsp_block_builder::BlockBuilder<Block> for Runtime {
+		fn apply_extrinsic(extrinsic: <Block as BlockT>::Extrinsic) -> ApplyExtrinsicResult {
 			RuntimeExecutive::apply_extrinsic(extrinsic)
 		}
 
-		fn finalize_block() -> HeaderFor<Runtime> {
+		fn finalize_block() -> <Block as BlockT>::Header {
 			RuntimeExecutive::finalize_block()
 		}
 
-		fn inherent_extrinsics(data: InherentData) -> Vec<ExtrinsicFor<Runtime>> {
+		fn inherent_extrinsics(data: InherentData) -> Vec<<Block as BlockT>::Extrinsic> {
 			data.create_extrinsics()
 		}
 
 		fn check_inherents(
-			block: <Block as frame::traits::Block>::LazyBlock,
+			block: <Block as BlockT>::LazyBlock,
 			data: InherentData,
 		) -> CheckInherentsResult {
 			data.check_extrinsics(&block)
 		}
 	}
 
-	impl apis::TaggedTransactionQueue<Block> for Runtime {
+	impl pezsp_transaction_pool::runtime_api::TaggedTransactionQueue<Block> for Runtime {
 		fn validate_transaction(
 			source: TransactionSource,
-			tx: ExtrinsicFor<Runtime>,
-			block_hash: <Runtime as frame_system::Config>::Hash,
+			tx: <Block as BlockT>::Extrinsic,
+			block_hash: <Block as BlockT>::Hash,
 		) -> TransactionValidity {
 			RuntimeExecutive::validate_transaction(source, tx, block_hash)
 		}
 	}
 
-	impl apis::OffchainWorkerApi<Block> for Runtime {
-		fn offchain_worker(header: &HeaderFor<Runtime>) {
+	impl pezsp_offchain::OffchainWorkerApi<Block> for Runtime {
+		fn offchain_worker(header: &<Block as BlockT>::Header) {
 			RuntimeExecutive::offchain_worker(header)
 		}
 	}
 
-	impl apis::SessionKeys<Block> for Runtime {
+	impl pezsp_session::SessionKeys<Block> for Runtime {
 		fn generate_session_keys(_seed: Option<Vec<u8>>) -> Vec<u8> {
 			Default::default()
 		}
 
 		fn decode_session_keys(
 			_encoded: Vec<u8>,
-		) -> Option<Vec<(Vec<u8>, apis::KeyTypeId)>> {
+		) -> Option<Vec<(Vec<u8>, pezsp_core::crypto::KeyTypeId)>> {
 			Default::default()
 		}
 	}
 
-	impl apis::AccountNonceApi<Block, interface::AccountId, interface::Nonce> for Runtime {
+	impl pezframe_system_rpc_runtime_api::AccountNonceApi<Block, interface::AccountId, interface::Nonce> for Runtime {
 		fn account_nonce(account: interface::AccountId) -> interface::Nonce {
 			System::account_nonce(account)
 		}
 	}
 
-	impl apis::GenesisBuilder<Block> for Runtime {
+	impl pezsp_genesis_builder::GenesisBuilder<Block> for Runtime {
 		fn build_state(config: Vec<u8>) -> GenesisBuilderResult {
 			build_state::<RuntimeGenesisConfig>(config)
 		}
@@ -266,14 +269,14 @@ impl_runtime_apis! {
 		}
 	}
 
-	impl pallet_transaction_payment_rpc_runtime_api::TransactionPaymentApi<
+	impl pezpallet_transaction_payment_rpc_runtime_api::TransactionPaymentApi<
 		Block,
 		interface::Balance,
 	> for Runtime {
-		fn query_info(uxt: ExtrinsicFor<Runtime>, len: u32) -> RuntimeDispatchInfo<interface::Balance> {
+		fn query_info(uxt: <Block as BlockT>::Extrinsic, len: u32) -> RuntimeDispatchInfo<interface::Balance> {
 			TransactionPayment::query_info(uxt, len)
 		}
-		fn query_fee_details(uxt: ExtrinsicFor<Runtime>, len: u32) -> FeeDetails<interface::Balance> {
+		fn query_fee_details(uxt: <Block as BlockT>::Extrinsic, len: u32) -> FeeDetails<interface::Balance> {
 			TransactionPayment::query_fee_details(uxt, len)
 		}
 		fn query_weight_to_fee(weight: Weight) -> interface::Balance {
@@ -285,15 +288,15 @@ impl_runtime_apis! {
 	}
 }
 
-/// Just a handy re-definition of some types based on what is already provided to the pallet
+/// Just a handy re-definition of some types based on what is already provided to the pezpallet
 /// configs.
 pub mod interface {
 	use super::Runtime;
-	use frame::prelude::frame_system;
+	use pezframe::prelude::pezframe_system;
 
-	pub type AccountId = <Runtime as frame_system::Config>::AccountId;
-	pub type Nonce = <Runtime as frame_system::Config>::Nonce;
-	pub type Hash = <Runtime as frame_system::Config>::Hash;
-	pub type Balance = <Runtime as pallet_balances::Config>::Balance;
-	pub type MinimumBalance = <Runtime as pallet_balances::Config>::ExistentialDeposit;
+	pub type AccountId = <Runtime as pezframe_system::Config>::AccountId;
+	pub type Nonce = <Runtime as pezframe_system::Config>::Nonce;
+	pub type Hash = <Runtime as pezframe_system::Config>::Hash;
+	pub type Balance = <Runtime as pezpallet_balances::Config>::Balance;
+	pub type MinimumBalance = <Runtime as pezpallet_balances::Config>::ExistentialDeposit;
 }

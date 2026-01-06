@@ -1,17 +1,17 @@
-// Copyright 2017-2025 @polkadot/react-query authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-query authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { IconName } from '@fortawesome/fontawesome-svg-core';
-import type { DeriveAccountRegistration } from '@polkadot/api-derive/types';
-import type { AccountId, AccountIndex, Address } from '@polkadot/types/interfaces';
+import type { DeriveAccountRegistration } from '@pezkuwi/api-derive/types';
+import type { AccountId, AccountIndex, Address } from '@pezkuwi/types/interfaces';
 
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 
-import { statics } from '@polkadot/react-api/statics';
-import { useApi, useDeriveAccountInfo } from '@polkadot/react-hooks';
-import { AccountSidebarCtx } from '@polkadot/react-hooks/ctx/AccountSidebar';
-import { formatNumber, isCodec, isFunction, isU8a, stringToU8a, u8aEmpty, u8aEq, u8aToBn } from '@polkadot/util';
-import { decodeAddress } from '@polkadot/util-crypto';
+import { statics } from '@pezkuwi/react-api/statics';
+import { useApi, useDeriveAccountInfo } from '@pezkuwi/react-hooks';
+import { AccountSidebarCtx } from '@pezkuwi/react-hooks/ctx/AccountSidebar';
+import { formatNumber, isCodec, isFunction, isU8a, stringToU8a, u8aEmpty, u8aEq, u8aToBn } from '@pezkuwi/util';
+import { decodeAddress } from '@pezkuwi/util-crypto';
 
 import { getAddressName } from './util/index.js';
 import Badge from './Badge.js';

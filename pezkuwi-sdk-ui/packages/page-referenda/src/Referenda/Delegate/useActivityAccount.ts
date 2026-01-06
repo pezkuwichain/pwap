@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @polkadot/app-referenda authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-referenda authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { PalletVote } from '../../types.js';
@@ -6,7 +6,7 @@ import type { VoteResultItem } from './types.js';
 
 import { useMemo } from 'react';
 
-import { createNamedHook } from '@polkadot/react-hooks';
+import { createNamedHook } from '@pezkuwi/react-hooks';
 
 import useVotingFor from './useVotingFor.js';
 

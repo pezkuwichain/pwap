@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-alliance authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-alliance authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { bool, Option, UInt } from '@polkadot/types';
+import type { bool, Option, UInt } from '@pezkuwi/types';
 import type { MemberInfo } from './types.js';
 
 import { useMemo } from 'react';
 
-import { createNamedHook, useApi, useCall } from '@polkadot/react-hooks';
+import { createNamedHook, useApi, useCall } from '@pezkuwi/react-hooks';
 
 function useMemberInfoImpl (accountId: string): MemberInfo | undefined {
   const { api } = useApi();

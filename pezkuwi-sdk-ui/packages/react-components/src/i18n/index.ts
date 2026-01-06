@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { LanguageDetectorModule, Newable } from 'i18next';
@@ -7,7 +7,7 @@ import i18next from 'i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import { initReactI18next } from 'react-i18next';
 
-import { LANGUAGE_DEFAULT, settings } from '@polkadot/ui-settings';
+import { LANGUAGE_DEFAULT, settings } from '@pezkuwi/ui-settings';
 
 import Backend from './Backend.js';
 

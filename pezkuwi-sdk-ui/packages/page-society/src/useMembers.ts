@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-society authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-society authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveSocietyMember } from '@polkadot/api-derive/types';
+import type { DeriveSocietyMember } from '@pezkuwi/api-derive/types';
 import type { OwnMembers } from './types.js';
 
 import { useEffect, useState } from 'react';
 
-import { createNamedHook, useAccounts, useApi, useCall } from '@polkadot/react-hooks';
+import { createNamedHook, useAccounts, useApi, useCall } from '@pezkuwi/react-hooks';
 
 const EMPTY_MEMBERS: OwnMembers = { allMembers: [], isMember: false, ownMembers: [] };
 

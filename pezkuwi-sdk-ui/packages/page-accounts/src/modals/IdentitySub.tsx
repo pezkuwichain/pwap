@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/app-accounts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-accounts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Data, Option } from '@polkadot/types';
-import type { AccountId } from '@polkadot/types/interfaces';
-import type { ITuple } from '@polkadot/types/types';
+import type { Data, Option } from '@pezkuwi/types';
+import type { AccountId } from '@pezkuwi/types/interfaces';
+import type { ITuple } from '@pezkuwi/types/types';
 
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { Button, Columar, Input, InputAddress, Modal, Spinner, TxButton } from '@polkadot/react-components';
-import { useAccounts, useApi, useCall, useSubidentities } from '@polkadot/react-hooks';
-import { u8aToString } from '@polkadot/util';
+import { Button, Columar, Input, InputAddress, Modal, Spinner, TxButton } from '@pezkuwi/react-components';
+import { useAccounts, useApi, useCall, useSubidentities } from '@pezkuwi/react-hooks';
+import { u8aToString } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 

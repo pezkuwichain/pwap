@@ -1,24 +1,24 @@
 {
-  "bugs": "https://github.com/polkadot-js/apps/issues",
+  "bugs": "https://github.com/pezkuwichain/pezkuwi-web-app-projects/issues",
   "engines": {
     "node": ">=18"
   },
-  "homepage": "https://github.com/polkadot-js/apps/tree/master/packages/page-staking#readme",
+  "homepage": "https://github.com/pezkuwichain/pezkuwi-web-app-projects/tree/master/packages/page-staking#readme",
   "license": "Apache-2.0",
-  "name": "@polkadot/app-staking",
+  "name": "@pezkuwi/app-staking",
   "private": true,
   "repository": {
     "directory": "packages/page-staking",
     "type": "git",
-    "url": "https://github.com/polkadot-js/apps.git"
+    "url": "https://github.com/pezkuwichain/pezkuwi-web-app-projects.git"
   },
   "sideEffects": false,
   "type": "module",
   "version": "0.168.2-0-x",
   "dependencies": {
-    "@polkadot/app-explorer": "^0.168.2-0-x",
-    "@polkadot/react-components": "^0.168.2-0-x",
-    "@polkadot/react-query": "^0.168.2-0-x"
+    "@pezkuwi/app-explorer": "^0.168.2-0-x",
+    "@pezkuwi/react-components": "^0.168.2-0-x",
+    "@pezkuwi/react-query": "^0.168.2-0-x"
   },
   "peerDependencies": {
     "react": "*",

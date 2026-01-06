@@ -1,8 +1,8 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { Abi } from '@polkadot/api-contract';
-import { statics } from '@polkadot/react-api/statics';
+import { Abi } from '@pezkuwi/api-contract';
+import { statics } from '@pezkuwi/react-api/statics';
 
 import { getAddressMeta } from './getAddressMeta.js';
 

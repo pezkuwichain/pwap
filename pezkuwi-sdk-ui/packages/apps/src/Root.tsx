@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/apps authors & contributors
+// Copyright 2017-2025 @pezkuwi/apps authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ThemeDef } from '@polkadot/react-components/types';
-import type { KeyringStore } from '@polkadot/ui-keyring/types';
+import type { ThemeDef } from '@pezkuwi/react-components/types';
+import type { KeyringStore } from '@pezkuwi/ui-keyring/types';
 
 import React, { Suspense, useEffect, useState } from 'react';
 import { HashRouter } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 
-import { ApiCtxRoot } from '@polkadot/react-api';
-import { ApiStatsCtxRoot, BlockAuthorsCtxRoot, BlockEventsCtxRoot, KeyringCtxRoot, PayWithAssetCtxRoot, QueueCtxRoot, StakingAsyncApisCtxRoot, WindowSizeCtxRoot } from '@polkadot/react-hooks';
-import { settings } from '@polkadot/ui-settings';
+import { ApiCtxRoot } from '@pezkuwi/react-api';
+import { ApiStatsCtxRoot, BlockAuthorsCtxRoot, BlockEventsCtxRoot, KeyringCtxRoot, PayWithAssetCtxRoot, QueueCtxRoot, StakingAsyncApisCtxRoot, WindowSizeCtxRoot } from '@pezkuwi/react-hooks';
+import { settings } from '@pezkuwi/ui-settings';
 
 import BeforeApiInit from './overlays/BeforeInit.js';
 import Apps from './Apps.js';

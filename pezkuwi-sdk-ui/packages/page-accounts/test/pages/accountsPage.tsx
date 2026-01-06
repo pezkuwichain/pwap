@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/app-accounts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-accounts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Sidebar } from '@polkadot/test-support/pagesElements';
-import type { AccountOverrides } from '@polkadot/test-support/types';
+import type { Sidebar } from '@pezkuwi/test-support/pagesElements';
+import type { AccountOverrides } from '@pezkuwi/test-support/types';
 
 import { fireEvent, screen, within } from '@testing-library/react';
 import React from 'react';
 
-import { anAccount } from '@polkadot/test-support/creation/account';
-import { Page } from '@polkadot/test-support/pages/Page';
-import { assertText, clickButton } from '@polkadot/test-support/utils';
-import { settings } from '@polkadot/ui-settings';
+import { anAccount } from '@pezkuwi/test-support/creation/account';
+import { Page } from '@pezkuwi/test-support/pages/Page';
+import { assertText, clickButton } from '@pezkuwi/test-support/utils';
+import { settings } from '@pezkuwi/ui-settings';
 
 import AccountOverview from '../../src/Accounts/index.js';
 import { AccountRow } from '../pageElements/AccountRow.js';

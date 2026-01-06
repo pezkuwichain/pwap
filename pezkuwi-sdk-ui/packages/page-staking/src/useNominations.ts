@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Option, StorageKey } from '@polkadot/types';
-import type { Nominations } from '@polkadot/types/interfaces';
+import type { Option, StorageKey } from '@pezkuwi/types';
+import type { Nominations } from '@pezkuwi/types/interfaces';
 import type { NominatedByMap } from './types.js';
 
 import { useMemo } from 'react';
 
-import { createNamedHook, useApi, useCall } from '@polkadot/react-hooks';
+import { createNamedHook, useApi, useCall } from '@pezkuwi/react-hooks';
 
 function extractNominators (nominations: [StorageKey, Option<Nominations>][]): NominatedByMap {
   const mapped: NominatedByMap = {};

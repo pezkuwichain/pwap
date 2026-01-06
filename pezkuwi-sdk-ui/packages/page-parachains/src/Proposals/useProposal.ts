@@ -1,17 +1,17 @@
-// Copyright 2017-2025 @polkadot/app-parachains authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Option } from '@polkadot/types';
-import type { ParachainProposal, ParaId } from '@polkadot/types/interfaces';
+import type { Option } from '@pezkuwi/types';
+import type { TeyrchainProposal, ParaId } from '@pezkuwi/types/interfaces';
 import type { ProposalExt, ScheduledProposals } from '../types.js';
 
 import { useMemo } from 'react';
 
-import { createNamedHook, useApi, useCall } from '@polkadot/react-hooks';
+import { createNamedHook, useApi, useCall } from '@pezkuwi/react-hooks';
 
 function useProposalImpl (id: ParaId, approvedIds: ParaId[], scheduled: ScheduledProposals[]): ProposalExt {
   const { api } = useApi();
-  const opt = useCall<Option<ParachainProposal>>(api.query.proposeParachain.proposals, [id]);
+  const opt = useCall<Option<TeyrchainProposal>>(api.query.proposeParachain.proposals, [id]);
 
   return useMemo(
     (): ProposalExt => ({

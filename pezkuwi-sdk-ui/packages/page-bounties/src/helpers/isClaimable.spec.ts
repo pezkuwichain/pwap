@@ -1,10 +1,10 @@
-// Copyright 2017-2025 @polkadot/app-bounties authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-bounties authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-/// <reference types="@polkadot/dev-test/globals.d.ts" />
+/// <reference types="@pezkuwi/dev-test/globals.d.ts" />
 
-import { TypeRegistry } from '@polkadot/types/create';
-import { BN } from '@polkadot/util';
+import { TypeRegistry } from '@pezkuwi/types/create';
+import { BN } from '@pezkuwi/util';
 
 import { isClaimable } from './isClaimable.js';
 

@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-democracy authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-democracy authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveReferendumVote } from '@polkadot/api-derive/types';
-import type { Vote } from '@polkadot/types/interfaces';
+import type { DeriveReferendumVote } from '@pezkuwi/api-derive/types';
+import type { Vote } from '@pezkuwi/types/interfaces';
 
 import React from 'react';
 
-import { AddressMini } from '@polkadot/react-components';
+import { AddressMini } from '@pezkuwi/react-components';
 
 interface Props {
   vote: DeriveReferendumVote;

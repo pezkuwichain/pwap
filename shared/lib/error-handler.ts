@@ -3,8 +3,8 @@
 // ========================================
 // Convert blockchain errors to human-readable messages
 
-import type { ApiPromise } from '@polkadot/api';
-import type { DispatchError } from '@polkadot/types/interfaces';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { DispatchError } from '@pezkuwi/types/interfaces';
 
 // ========================================
 // ERROR MESSAGE MAPPINGS

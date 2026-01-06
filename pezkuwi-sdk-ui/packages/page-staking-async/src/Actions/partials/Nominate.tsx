@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/app-staking-async authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking-async authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { SortedTargets } from '@polkadot/app-staking/types';
-import type { u32 } from '@polkadot/types';
-import type { BN } from '@polkadot/util';
+import type { SortedTargets } from '@pezkuwi/app-staking/types';
+import type { u32 } from '@pezkuwi/types';
+import type { BN } from '@pezkuwi/util';
 import type { NominateInfo } from './types.js';
 
 import React, { useEffect, useState } from 'react';
 
-import { MAX_NOMINATIONS, STORE_FAVS_BASE } from '@polkadot/app-staking/constants';
-import { InputAddressMulti, MarkWarning, Modal, styled } from '@polkadot/react-components';
-import { useApi, useFavorites } from '@polkadot/react-hooks';
+import { MAX_NOMINATIONS, STORE_FAVS_BASE } from '@pezkuwi/app-staking/constants';
+import { InputAddressMulti, MarkWarning, Modal, styled } from '@pezkuwi/react-components';
+import { useApi, useFavorites } from '@pezkuwi/react-hooks';
 
 import { useTranslation } from '../../translate.js';
 import PoolInfo from './PoolInfo.js';

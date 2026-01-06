@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { LinkTypes } from '@polkadot/apps-config/links/types';
-import type { BN } from '@polkadot/util';
+import type { LinkTypes } from '@pezkuwi/apps-config/links/types';
+import type { BN } from '@pezkuwi/util';
 
 import React, { useMemo } from 'react';
 
-import { externalLinks } from '@polkadot/apps-config';
-import { useApi } from '@polkadot/react-hooks';
+import { externalLinks } from '@pezkuwi/apps-config';
+import { useApi } from '@pezkuwi/react-hooks';
 
 import { styled } from './styled.js';
 import { useTranslation } from './translate.js';

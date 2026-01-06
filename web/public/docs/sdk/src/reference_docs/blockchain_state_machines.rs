@@ -1,6 +1,6 @@
 //! # State Transition Function
 //!
-//! This document briefly explains how in the context of Substrate-based blockchains, we view the
+//! This document briefly explains how in the context of Bizinikiwi-based blockchains, we view the
 //! blockchain as a **decentralized state transition function**.
 //!
 //! Recall that a blockchain's main purpose is to help a permissionless set of entities to agree on
@@ -14,7 +14,7 @@
 //! function*.
 #![doc = simple_mermaid::mermaid!("../../../mermaid/stf_simple.mmd")]
 //!
-//! In Substrate-based blockchains, the state transition function is called the *Runtime*. This is
+//! In Bizinikiwi-based blockchains, the state transition function is called the *Runtime*. This is
 //! explained further in [`crate::reference_docs::wasm_meta_protocol`].
 //!
 //! With this in mind, we can paint a complete picture of a blockchain as a state machine:

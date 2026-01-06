@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/test-support authors & contributors
+// Copyright 2017-2025 @pezkuwi/test-support authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { KeyringPair } from '@polkadot/keyring/types';
+import type { KeyringPair } from '@pezkuwi/keyring/types';
 
-import { Keyring } from '@polkadot/keyring';
+import { Keyring } from '@pezkuwi/keyring';
 
 export function aliceSigner (): KeyringPair {
   const keyring = new Keyring({ type: 'sr25519' });

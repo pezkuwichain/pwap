@@ -1,10 +1,10 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useCallback, useEffect, useMemo } from 'react';
 
-import { useAccountInfo, useOutsideClick } from '@polkadot/react-hooks';
-import { keyring } from '@polkadot/ui-keyring';
+import { useAccountInfo, useOutsideClick } from '@pezkuwi/react-hooks';
+import { keyring } from '@pezkuwi/ui-keyring';
 
 import Tags from '../Tags.js';
 import AccountMenuButtons from './AccountMenuButtons.js';

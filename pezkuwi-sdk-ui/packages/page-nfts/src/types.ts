@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/app-nfts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-nfts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AccountId } from '@polkadot/types/interfaces';
-import type { PalletUniquesCollectionDetails, PalletUniquesCollectionMetadata } from '@polkadot/types/lookup';
-import type { BN } from '@polkadot/util';
+import type { AccountId } from '@pezkuwi/types/interfaces';
+import type { PezpalletUniquesCollectionDetails, PezpalletUniquesCollectionMetadata } from '@pezkuwi/types/lookup';
+import type { BN } from '@pezkuwi/util';
 
 export interface CollectionSupportedMetadata {
   name: string | null;
@@ -11,20 +11,20 @@ export interface CollectionSupportedMetadata {
 }
 
 export interface CollectionInfo {
-  details: PalletUniquesCollectionDetails | null;
+  details: PezpalletUniquesCollectionDetails | null;
   id: BN;
   isAdminMe: boolean;
   isIssuerMe: boolean;
   isFreezerMe: boolean;
   isOwnerMe: boolean;
   key: string;
-  metadata: PalletUniquesCollectionMetadata | null;
+  metadata: PezpalletUniquesCollectionMetadata | null;
   ipfsData: CollectionSupportedMetadata | null;
 }
 
 export interface CollectionInfoComplete extends CollectionInfo {
-  details: PalletUniquesCollectionDetails;
-  metadata: PalletUniquesCollectionMetadata;
+  details: PezpalletUniquesCollectionDetails;
+  metadata: PezpalletUniquesCollectionMetadata;
 }
 
 export interface AccountItem {

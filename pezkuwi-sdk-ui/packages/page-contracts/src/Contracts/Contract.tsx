@@ -1,19 +1,19 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ContractPromise } from '@polkadot/api-contract';
-import type { ContractCallOutcome } from '@polkadot/api-contract/types';
-import type { ActionStatus } from '@polkadot/react-components/Status/types';
-import type { Option } from '@polkadot/types';
-import type { ContractInfo } from '@polkadot/types/interfaces';
+import type { ContractPromise } from '@pezkuwi/api-contract';
+import type { ContractCallOutcome } from '@pezkuwi/api-contract/types';
+import type { ActionStatus } from '@pezkuwi/react-components/Status/types';
+import type { Option } from '@pezkuwi/types';
+import type { ContractInfo } from '@pezkuwi/types/interfaces';
 import type { ContractLink } from './types.js';
 
 import React, { useCallback } from 'react';
 
-import { AddressInfo, AddressMini, Button, Forget, styled } from '@polkadot/react-components';
-import { useApi, useCall, useToggle } from '@polkadot/react-hooks';
-import { keyring } from '@polkadot/ui-keyring';
-import { isUndefined } from '@polkadot/util';
+import { AddressInfo, AddressMini, Button, Forget, styled } from '@pezkuwi/react-components';
+import { useApi, useCall, useToggle } from '@pezkuwi/react-hooks';
+import { keyring } from '@pezkuwi/ui-keyring';
+import { isUndefined } from '@pezkuwi/util';
 
 import Messages from '../shared/Messages.js';
 import { useTranslation } from '../translate.js';

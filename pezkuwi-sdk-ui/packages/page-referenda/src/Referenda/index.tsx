@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/app-referenda authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-referenda authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { BN } from '@polkadot/util';
-import type { PalletReferenda, PalletVote, ReferendaGroup } from '../types.js';
+import type { BN } from '@pezkuwi/util';
+import type { PezpalletReferenda, PalletVote, ReferendaGroup } from '../types.js';
 
 import React, { useMemo, useState } from 'react';
 
-import AddPreimage from '@polkadot/app-preimages/Preimages/Add';
-import { Button, Dropdown, styled } from '@polkadot/react-components';
-import { useAccounts, useApi, useCall } from '@polkadot/react-hooks';
-import { BN_ZERO } from '@polkadot/util';
+import AddPreimage from '@pezkuwi/app-preimages/Preimages/Add';
+import { Button, Dropdown, styled } from '@pezkuwi/react-components';
+import { useAccounts, useApi, useCall } from '@pezkuwi/react-hooks';
+import { BN_ZERO } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 import useReferenda from '../useReferenda.js';
@@ -25,7 +25,7 @@ interface Props {
   className?: string;
   isConvictionVote?: boolean;
   members?: string[];
-  palletReferenda: PalletReferenda;
+  palletReferenda: PezpalletReferenda;
   palletVote: PalletVote;
   ranks?: BN[];
 }

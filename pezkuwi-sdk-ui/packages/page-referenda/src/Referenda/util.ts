@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-referenda authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-referenda authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { PalletReferendaDeposit } from '@polkadot/types/lookup';
+import type { PezpalletReferendaDeposit } from '@pezkuwi/types/lookup';
 import type { Referendum } from '../types.js';
 
-import { Option } from '@polkadot/types';
+import { Option } from '@pezkuwi/types';
 
-export function unwrapDeposit (value: PalletReferendaDeposit | Option<PalletReferendaDeposit>): PalletReferendaDeposit | null {
+export function unwrapDeposit (value: PezpalletReferendaDeposit | Option<PezpalletReferendaDeposit>): PezpalletReferendaDeposit | null {
   return value instanceof Option
     ? value.unwrapOr(null)
     : value;

@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { SubmittableExtrinsic } from '@polkadot/api/types';
-import type { u32 } from '@polkadot/types';
-import type { EraIndex } from '@polkadot/types/interfaces';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { SubmittableExtrinsic } from '@pezkuwi/api/types';
+import type { u32 } from '@pezkuwi/types';
+import type { EraIndex } from '@pezkuwi/types/interfaces';
 import type { PayoutValidator } from './types.js';
 
 import React, { useEffect, useMemo, useState } from 'react';
 
-import { AddressMini, Button, InputAddress, Modal, Static, styled, TxButton } from '@polkadot/react-components';
-import { useApi, useToggle, useTxBatch } from '@polkadot/react-hooks';
+import { AddressMini, Button, InputAddress, Modal, Static, styled, TxButton } from '@pezkuwi/react-components';
+import { useApi, useToggle, useTxBatch } from '@pezkuwi/react-hooks';
 
 import { useTranslation } from '../translate.js';
 

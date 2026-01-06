@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/app-bounties authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-bounties authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 /* global jest, expect */
 
 import type { RenderResult } from '@testing-library/react';
-import type { ApiPromise } from '@polkadot/api';
-import type { DeriveCollectiveProposal } from '@polkadot/api-derive/types';
-import type { ApiProps } from '@polkadot/react-api/types';
-import type { PartialQueueTxExtrinsic, QueueProps, QueueTxExtrinsicAdd } from '@polkadot/react-components/Status/types';
-import type { BountyIndex } from '@polkadot/types/interfaces';
-import type { PalletBountiesBounty, PalletBountiesBountyStatus } from '@polkadot/types/lookup';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { DeriveCollectiveProposal } from '@pezkuwi/api-derive/types';
+import type { ApiProps } from '@pezkuwi/react-api/types';
+import type { PartialQueueTxExtrinsic, QueueProps, QueueTxExtrinsicAdd } from '@pezkuwi/react-components/Status/types';
+import type { BountyIndex } from '@pezkuwi/types/interfaces';
+import type { PezpalletBountiesBounty, PezpalletBountiesBountyStatus } from '@pezkuwi/types/lookup';
 import type { BountyApi } from '../../src/hooks/index.js';
 
 import { fireEvent, render, within } from '@testing-library/react';
@@ -17,14 +17,14 @@ import React, { Suspense } from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 
-import { POLKADOT_GENESIS } from '@polkadot/apps-config';
-import { lightTheme } from '@polkadot/react-components';
-import { KeyringCtxRoot } from '@polkadot/react-hooks';
-import { ApiCtx } from '@polkadot/react-hooks/ctx/Api';
-import { QueueCtx } from '@polkadot/react-hooks/ctx/Queue';
-import { balanceOf } from '@polkadot/test-support/creation/balance';
-import { BountyFactory } from '@polkadot/test-support/creation/bounties';
-import { TypeRegistry } from '@polkadot/types/create';
+import { POLKADOT_GENESIS } from '@pezkuwi/apps-config';
+import { lightTheme } from '@pezkuwi/react-components';
+import { KeyringCtxRoot } from '@pezkuwi/react-hooks';
+import { ApiCtx } from '@pezkuwi/react-hooks/ctx/Api';
+import { QueueCtx } from '@pezkuwi/react-hooks/ctx/Queue';
+import { balanceOf } from '@pezkuwi/test-support/creation/balance';
+import { BountyFactory } from '@pezkuwi/test-support/creation/bounties';
+import { TypeRegistry } from '@pezkuwi/types/create';
 
 import Bounties from '../../src/Bounties.js';
 import { mockBountyHooks } from '../hooks/defaults.js';
@@ -57,11 +57,11 @@ interface RenderedBountiesPage {
 }
 
 export class BountiesPage {
-  aBounty: ({ status, value }?: Partial<PalletBountiesBounty>) => PalletBountiesBounty;
+  aBounty: ({ status, value }?: Partial<PezpalletBountiesBounty>) => PezpalletBountiesBounty;
   aBountyIndex: (index?: number) => BountyIndex;
-  aBountyStatus: (status: string) => PalletBountiesBountyStatus;
-  bountyStatusWith: ({ curator, status }: { curator?: string, status?: string, }) => PalletBountiesBountyStatus;
-  bountyWith: ({ status, value }: { status?: string, value?: number }) => PalletBountiesBounty;
+  aBountyStatus: (status: string) => PezpalletBountiesBountyStatus;
+  bountyStatusWith: ({ curator, status }: { curator?: string, status?: string, }) => PezpalletBountiesBountyStatus;
+  bountyWith: ({ status, value }: { status?: string, value?: number }) => PezpalletBountiesBounty;
 
   findByRole?: FindOne;
   findByText?: FindOne;
@@ -75,7 +75,7 @@ export class BountiesPage {
     ({ aBounty: this.aBounty, aBountyIndex: this.aBountyIndex, aBountyStatus: this.aBountyStatus, bountyStatusWith: this.bountyStatusWith, bountyWith: this.bountyWith } = new BountyFactory(api));
   }
 
-  renderOne (bounty: PalletBountiesBounty, proposals: DeriveCollectiveProposal[] = [], description = '', index = this.aBountyIndex()): RenderedBountiesPage {
+  renderOne (bounty: PezpalletBountiesBounty, proposals: DeriveCollectiveProposal[] = [], description = '', index = this.aBountyIndex()): RenderedBountiesPage {
     return this.renderMany({ bounties: [{ bounty, description, index, proposals }] });
   }
 

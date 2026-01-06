@@ -56,8 +56,8 @@
 //!   security as the Relay Chain.
 //!   Learn about this process called [Approval Checking](https://pezkuwichain.io/blog/polkadot-v1-0-sharding-and-economic-security#approval-checking-and-finality).
 //! * A framework to build blockchains: In order to materialize the ecosystem of teyrchains, an easy
-//!   blockchain framework must exist. This is [Substrate](crate::pezkuwi_sdk::substrate),
-//!   [FRAME](crate::pezkuwi_sdk::frame_runtime) and [Cumulus](crate::pezkuwi_sdk::cumulus).
+//!   blockchain framework must exist. This is [Bizinikiwi](crate::pezkuwi_sdk::bizinikiwi),
+//!   [FRAME](crate::pezkuwi_sdk::frame_runtime) and [Pezcumulus](crate::pezkuwi_sdk::pezcumulus).
 //! * A communication language between blockchains: In order for these blockchains to communicate,
 //!   they need a shared language. [XCM](crate::pezkuwi_sdk::xcm) is one such language, and the one
 //!   that is most endorsed in the Pezkuwi ecosystem.

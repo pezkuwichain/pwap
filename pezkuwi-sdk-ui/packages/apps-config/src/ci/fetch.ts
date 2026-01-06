@@ -1,7 +1,7 @@
-// Copyright 2017-2025 @polkadot/apps-config authors & contributors
+// Copyright 2017-2025 @pezkuwi/apps-config authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { fetch } from '@polkadot/x-fetch';
+import { fetch } from '@pezkuwi/x-fetch';
 
 function fetchWithTimeout (url: string, timeout = 2_000): Promise<Response | null> {
   let controller: AbortController | null = new AbortController();

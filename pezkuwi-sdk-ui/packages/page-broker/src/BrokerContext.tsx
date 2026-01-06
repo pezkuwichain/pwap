@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/app-broker authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-broker authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ReactNode } from 'react';
-import type { ApiPromise } from '@polkadot/api';
-import type { BrokerStatus, ChainConstants, PalletBrokerConfigRecord, PalletBrokerSaleInfoRecord } from '@polkadot/react-hooks/types';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { BrokerStatus, ChainConstants, PezpalletBrokerConfigRecord, PezpalletBrokerSaleInfoRecord } from '@pezkuwi/react-hooks/types';
 import type { CurrentRegion } from './types.js';
 
 import React, { createContext, useContext, useMemo } from 'react';
 
-import { useBrokerConfig, useBrokerSalesInfo, useBrokerStatus, useCoretimeConsts } from '@polkadot/react-hooks';
+import { useBrokerConfig, useBrokerSalesInfo, useBrokerStatus, useCoretimeConsts } from '@pezkuwi/react-hooks';
 
 import { estimateTime } from './utils.js';
 
@@ -19,10 +19,10 @@ interface BrokerProviderProps {
 }
 
 interface BrokerContextProps {
-  config: PalletBrokerConfigRecord | null,
+  config: PezpalletBrokerConfigRecord | null,
   coretimeConsts: ChainConstants | null,
   currentRegion: CurrentRegion,
-  saleInfo: PalletBrokerSaleInfoRecord | null,
+  saleInfo: PezpalletBrokerSaleInfoRecord | null,
   status: BrokerStatus | null,
 }
 

@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-bounties authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-bounties authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { IconName } from '@fortawesome/fontawesome-svg-core';
-import type { DeriveCollectiveProposal } from '@polkadot/api-derive/types';
-import type { PalletBountiesBountyStatus } from '@polkadot/types/lookup';
+import type { DeriveCollectiveProposal } from '@pezkuwi/api-derive/types';
+import type { PezpalletBountiesBountyStatus } from '@pezkuwi/types/lookup';
 
 import React, { useMemo } from 'react';
 
-import { AddressSmall, Icon, styled } from '@polkadot/react-components';
+import { AddressSmall, Icon, styled } from '@pezkuwi/react-components';
 
 import { getProposalToDisplay } from './helpers/extendedStatuses.js';
 import { useTranslation } from './translate.js';
@@ -16,7 +16,7 @@ interface Props {
   className?: string;
   option: 'ayes' | 'nays';
   proposals: DeriveCollectiveProposal[];
-  status: PalletBountiesBountyStatus;
+  status: PezpalletBountiesBountyStatus;
 }
 
 const icons: Record<string, IconName> = {

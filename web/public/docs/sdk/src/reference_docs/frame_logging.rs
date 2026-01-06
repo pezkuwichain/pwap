@@ -17,17 +17,17 @@
 //! }
 //! ```
 //!
-//! within the pallet, if you want to use the standard `println!`, it needs to be wrapped in
-//! [`sp_std::if_std`]. Of course, this means that this print code is only available to you in the
-//! `std` compiler flag, and never present in a wasm build.
+//! within the pezpallet, if you want to use the standard `println!`, it needs to be wrapped in
+//! [`pezsp_std::if_std`]. Of course, this means that this print code is only available to you in
+//! the `std` compiler flag, and never present in a wasm build.
 //!
 //! ```
-//! // somewhere in your pallet. This is not a real pallet code.
-//! mod pallet {
-//! 	struct Pallet;
-//! 	impl Pallet {
+//! // somewhere in your pezpallet. This is not a real pezpallet code.
+//! mod pezpallet {
+//! 	struct Pezpallet;
+//! 	impl Pezpallet {
 //! 		fn print() {
-//! 			sp_std::if_std! {
+//! 			pezsp_std::if_std! {
 //! 				println!("Hello, world!");
 //! 			}
 //! 		}
@@ -42,9 +42,9 @@
 //! 1. `log-level`, signifying how important it is.
 //! 2. `log-target`, signifying to which component it belongs.
 //!
-//! Add log statements to your pallet as such:
+//! Add log statements to your pezpallet as such:
 //!
-//! You can add the log crate to the `Cargo.toml` of the pallet.
+//! You can add the log crate to the `Cargo.toml` of the pezpallet.
 //!
 //! ```text
 //! #[dependencies]
@@ -57,49 +57,49 @@
 //! ]
 //! ```
 //!
-//! More conveniently, the `frame` umbrella crate re-exports the log crate as [`frame::log`].
+//! More conveniently, the `frame` umbrella crate re-exports the log crate as [`pezframe::log`].
 //!
-//! Then, the pallet can use this crate to emit log statements. In this statement, we use the info
-//! level, and the target is `pallet-example`.
+//! Then, the pezpallet can use this crate to emit log statements. In this statement, we use the
+//! info level, and the target is `pezpallet-example`.
 //!
 //! ```
-//! mod pallet {
-//! 	struct Pallet;
+//! mod pezpallet {
+//! 	struct Pezpallet;
 //!
-//! 	impl Pallet {
+//! 	impl Pezpallet {
 //! 		fn logs() {
-//! 			frame::log::info!(target: "pallet-example", "Hello, world!");
+//! 			pezframe::log::info!(target: "pezpallet-example", "Hello, world!");
 //! 		}
 //! 	}
 //! }
 //! ```
 //!
 //! This will in itself just emit the log messages, **but unless if captured by a logger, they will
-//! not go anywhere**. [`sp_api`] provides a handy function to enable the runtime logging:
+//! not go anywhere**. [`pezsp_api`] provides a handy function to enable the runtime logging:
 //!
 //! ```
 //! // in your test
 //! fn it_also_prints() {
-//! 	sp_api::init_runtime_logger();
-//! 	// call into your pallet, and now it will print `log` statements.
+//! 	pezsp_api::init_runtime_logger();
+//! 	// call into your pezpallet, and now it will print `log` statements.
 //! }
 //! ```
 //!
-//! Alternatively, you can use [`sp_tracing::try_init_simple`].
+//! Alternatively, you can use [`pezsp_tracing::try_init_simple`].
 //!
 //! `info`, `error` and `warn` logs are printed by default, but if you want lower level logs to also
 //! be printed, you must to add the following compiler flag:
 //!
 //! ```text
-//! RUST_LOG=pallet-example=trace cargo test
+//! RUST_LOG=pezpallet-example=trace cargo test
 //! ```
 //!
 //! ## Enabling Logs in Production
 //!
-//! All logs from the runtime are emitted by default, but there is a feature flag in [`sp_api`],
+//! All logs from the runtime are emitted by default, but there is a feature flag in [`pezsp_api`],
 //! called `disable-logging`, that can be used to disable all logs in the runtime. This is useful
 //! for production chains to reduce the size and overhead of the wasm runtime.
-#![doc = docify::embed!("../../substrate/primitives/api/src/lib.rs", init_runtime_logger)]
+#![doc = docify::embed!("../../bizinikiwi/primitives/api/src/lib.rs", init_runtime_logger)]
 //!
 //! Similar to the above, the proper `RUST_LOG` must also be passed to your compiler flag when
 //! compiling the runtime.
@@ -107,7 +107,7 @@
 //! ## Log Target Prefixing
 //!
 //! Many [`crate::pezkuwi_sdk::frame_runtime`] pallets emit logs with log target `runtime::<name of
-//! pallet>`, for example `runtime::system`. This then allows one to run a node with a wasm blob
+//! pezpallet>`, for example `runtime::system`. This then allows one to run a node with a wasm blob
 //! compiled with `LOG_TARGET=runtime=debug`, which enables the log target of all pallets who's log
 //! target starts with `runtime`.
 //!
@@ -115,8 +115,8 @@
 //!
 //! Under the hood, logging is another instance of host functions under the hood (as defined in
 //! [`crate::reference_docs::wasm_meta_protocol`]). The runtime uses a set of host functions under
-//! [`sp_io::logging`] and [`sp_io::misc`] to emit all logs and prints. You typically do not need to
-//! use these APIs directly.
+//! [`pezsp_io::logging`] and [`pezsp_io::misc`] to emit all logs and prints. You typically do not
+//! need to use these APIs directly.
 //!
 //! ## Using Logging in Production
 //!
@@ -124,12 +124,12 @@
 //! and can lead to consensus issues. This is because with the introduction of
 //! [`crate::guides::enable_pov_reclaim`], the node side code will track the storage changes, and
 //! tries to update the onchain record of the `proof_size` weight used (stored in
-//! [`frame_system::BlockWeight`]) after the block is executed.
+//! [`pezframe_system::BlockWeight`]) after the block is executed.
 //!
 //! If one node has a different log level enabled than the rest of the network, and the extra logs
 //! impose additional storage reads, then the amount of `proof_size` weight reclaimed into
-//! [`frame_system::BlockWeight`] will be different, causing a state root mismatch, which is
-//! typically a fatal error emitted from [`frame_executive`].
+//! [`pezframe_system::BlockWeight`] will be different, causing a state root mismatch, which is
+//! typically a fatal error emitted from [`pezframe_executive`].
 //!
 //! This also can also happen in a teyrchain context, and cause discrepancies between the relay
 //! chain and the teyrchain, when execution the Teyrchain Validation Function (PVF) on the relay
@@ -151,5 +151,5 @@
 //! }
 //! ```
 //!
-//! Please read [this issue](https://github.com/pezkuwichain/pezkuwi-sdk/issues/155) for one
+//! Please read [this issue](https://github.com/pezkuwichain/pezkuwi-sdk/issues/298) for one
 //! instance of the consensus issues caused by this mistake.

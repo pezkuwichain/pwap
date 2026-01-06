@@ -3,7 +3,7 @@
 // ========================================
 // Centralized score fetching from blockchain pallets
 
-import type { ApiPromise } from '@polkadot/api';
+import type { ApiPromise } from '@pezkuwi/api';
 
 // ========================================
 // TYPE DEFINITIONS

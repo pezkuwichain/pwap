@@ -1,10 +1,10 @@
-// Copyright 2017-2025 @polkadot/test-support authors & contributors
+// Copyright 2017-2025 @pezkuwi/test-support authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { BountyIndex } from '@polkadot/types/interfaces';
-import type { PalletBountiesBounty, PalletBountiesBountyStatus } from '@polkadot/types/lookup';
-import type { Registry } from '@polkadot/types/types';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { BountyIndex } from '@pezkuwi/types/interfaces';
+import type { PezpalletBountiesBounty, PezpalletBountiesBountyStatus } from '@pezkuwi/types/lookup';
+import type { Registry } from '@pezkuwi/types/types';
 
 import { balanceOf } from './balance.js';
 
@@ -20,27 +20,27 @@ export class BountyFactory {
   public aBountyIndex = (index = 0): BountyIndex =>
     this.#registry.createType('BountyIndex', index);
 
-  public defaultBounty = (): PalletBountiesBounty =>
-    this.#registry.createType<PalletBountiesBounty>('Bounty');
+  public defaultBounty = (): PezpalletBountiesBounty =>
+    this.#registry.createType<PezpalletBountiesBounty>('Bounty');
 
-  public aBountyStatus = (status: string): PalletBountiesBountyStatus =>
-    this.#registry.createType('PalletBountiesBountyStatus', status);
+  public aBountyStatus = (status: string): PezpalletBountiesBountyStatus =>
+    this.#registry.createType('PezpalletBountiesBountyStatus', status);
 
-  public bountyStatusWith = ({ curator = '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY', status = 'Active', updateDue = 100000 } = {}): PalletBountiesBountyStatus => {
+  public bountyStatusWith = ({ curator = '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY', status = 'Active', updateDue = 100000 } = {}): PezpalletBountiesBountyStatus => {
     if (status === 'Active') {
-      return this.#registry.createType('PalletBountiesBountyStatus', { active: { curator, updateDue }, status });
+      return this.#registry.createType('PezpalletBountiesBountyStatus', { active: { curator, updateDue }, status });
     }
 
     if (status === 'CuratorProposed') {
-      return this.#registry.createType('PalletBountiesBountyStatus', { curatorProposed: { curator }, status });
+      return this.#registry.createType('PezpalletBountiesBountyStatus', { curatorProposed: { curator }, status });
     }
 
     throw new Error('Unsupported status');
   };
 
-  public bountyWith = ({ status = 'Proposed', value = 1 } = {}): PalletBountiesBounty =>
+  public bountyWith = ({ status = 'Proposed', value = 1 } = {}): PezpalletBountiesBounty =>
     this.aBounty({ status: this.aBountyStatus(status), value: balanceOf(value) });
 
-  public aBounty = ({ fee = balanceOf(10), status = this.aBountyStatus('Proposed'), value = balanceOf(500) }: Partial<PalletBountiesBounty> = {}): PalletBountiesBounty =>
-    this.#registry.createType<PalletBountiesBounty>('Bounty', { fee, status, value });
+  public aBounty = ({ fee = balanceOf(10), status = this.aBountyStatus('Proposed'), value = balanceOf(500) }: Partial<PezpalletBountiesBounty> = {}): PezpalletBountiesBounty =>
+    this.#registry.createType<PezpalletBountiesBounty>('Bounty', { fee, status, value });
 }

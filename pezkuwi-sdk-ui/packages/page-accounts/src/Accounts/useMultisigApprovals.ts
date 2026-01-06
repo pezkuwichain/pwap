@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-accounts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-accounts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Option, StorageKey } from '@polkadot/types';
-import type { H256, Multisig } from '@polkadot/types/interfaces';
+import type { Option, StorageKey } from '@pezkuwi/types';
+import type { H256, Multisig } from '@pezkuwi/types/interfaces';
 
 import { useEffect, useRef, useState } from 'react';
 
-import { createNamedHook, useApi, useBlockEvents, useIncrement, useIsMountedRef } from '@polkadot/react-hooks';
+import { createNamedHook, useApi, useBlockEvents, useIncrement, useIsMountedRef } from '@pezkuwi/react-hooks';
 
 function useMultisigApprovalsImpl (address: string): [H256, Multisig][] | undefined {
   const { events } = useBlockEvents();

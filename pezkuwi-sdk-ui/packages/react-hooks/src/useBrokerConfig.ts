@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { Option } from '@polkadot/types';
-import type { PalletBrokerConfigRecord } from '@polkadot/types/lookup';
-import type { PalletBrokerConfigRecord as SimplifiedPalletBrokerConfigRecord } from './types.js';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { Option } from '@pezkuwi/types';
+import type { PezpalletBrokerConfigRecord } from '@pezkuwi/types/lookup';
+import type { PezpalletBrokerConfigRecord as SimplifiedPezpalletBrokerConfigRecord } from './types.js';
 
 import { useEffect, useState } from 'react';
 
-import { createNamedHook, useCall } from '@polkadot/react-hooks';
+import { createNamedHook, useCall } from '@pezkuwi/react-hooks';
 
-function extractInfo (config: Option<PalletBrokerConfigRecord>): SimplifiedPalletBrokerConfigRecord {
+function extractInfo (config: Option<PezpalletBrokerConfigRecord>): SimplifiedPezpalletBrokerConfigRecord {
   const c = config.unwrap();
 
   return {
@@ -26,9 +26,9 @@ function extractInfo (config: Option<PalletBrokerConfigRecord>): SimplifiedPalle
 }
 
 function useBrokerConfigImpl (api: ApiPromise, ready: boolean) {
-  const config = useCall<Option<PalletBrokerConfigRecord>>(ready && api?.query.broker.configuration);
+  const config = useCall<Option<PezpalletBrokerConfigRecord>>(ready && api?.query.broker.configuration);
 
-  const [state, setState] = useState<SimplifiedPalletBrokerConfigRecord | undefined>();
+  const [state, setState] = useState<SimplifiedPezpalletBrokerConfigRecord | undefined>();
 
   useEffect((): void => {
     !!config && !!config.isSome && !!config.toJSON() &&

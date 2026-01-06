@@ -1,18 +1,18 @@
-// Copyright 2017-2025 @polkadot/app-explorer authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-explorer authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { KeyedEvent } from '@polkadot/react-hooks/ctx/types';
-import type { GenericExtrinsic } from '@polkadot/types';
-import type { BlockNumber, Extrinsic } from '@polkadot/types/interfaces';
-import type { Vec } from '@polkadot/types-codec';
-import type { AnyTuple } from '@polkadot/types-codec/types';
-import type { BN } from '@polkadot/util';
+import type { KeyedEvent } from '@pezkuwi/react-hooks/ctx/types';
+import type { GenericExtrinsic } from '@pezkuwi/types';
+import type { BlockNumber, Extrinsic } from '@pezkuwi/types/interfaces';
+import type { Vec } from '@pezkuwi/types-codec';
+import type { AnyTuple } from '@pezkuwi/types-codec/types';
+import type { BN } from '@pezkuwi/util';
 
 import React, { useMemo } from 'react';
 
-import { styled, Table, Toggle } from '@polkadot/react-components';
-import { useAccounts, useToggle } from '@polkadot/react-hooks';
-import { isEventFromMyAccounts } from '@polkadot/react-hooks/utils/isEventFromMyAccounts';
+import { styled, Table, Toggle } from '@pezkuwi/react-components';
+import { useAccounts, useToggle } from '@pezkuwi/react-hooks';
+import { isEventFromMyAccounts } from '@pezkuwi/react-hooks/utils/isEventFromMyAccounts';
 
 import { useTranslation } from '../translate.js';
 import ExtrinsicDisplay from './Extrinsic.js';

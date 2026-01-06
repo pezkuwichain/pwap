@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { SortedTargets } from '../types.js';
@@ -6,9 +6,9 @@ import type { BondInfo, NominateInfo } from './partials/types.js';
 
 import React, { useCallback, useState } from 'react';
 
-import { BatchWarning, Button, Modal, TxButton } from '@polkadot/react-components';
-import { useApi, useToggle } from '@polkadot/react-hooks';
-import { isFunction } from '@polkadot/util';
+import { BatchWarning, Button, Modal, TxButton } from '@pezkuwi/react-components';
+import { useApi, useToggle } from '@pezkuwi/react-hooks';
+import { isFunction } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 import BondPartial from './partials/Bond.js';

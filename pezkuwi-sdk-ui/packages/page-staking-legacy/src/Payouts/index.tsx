@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveStakerReward } from '@polkadot/api-derive/types';
-import type { OwnPool } from '@polkadot/app-staking2/Pools/types';
-import type { StakerState } from '@polkadot/react-hooks/types';
+import type { DeriveStakerReward } from '@pezkuwi/api-derive/types';
+import type { OwnPool } from '@pezkuwi/app-staking2/Pools/types';
+import type { StakerState } from '@pezkuwi/react-hooks/types';
 import type { PayoutStash, PayoutValidator } from './types.js';
 
 import React, { useMemo, useRef, useState } from 'react';
 
-import { Button, MarkWarning, styled, Table, ToggleGroup } from '@polkadot/react-components';
-import { useApi, useBlockInterval, useCall, useOwnEraRewards } from '@polkadot/react-hooks';
-import { BN, BN_THREE } from '@polkadot/util';
+import { Button, MarkWarning, styled, Table, ToggleGroup } from '@pezkuwi/react-components';
+import { useApi, useBlockInterval, useCall, useOwnEraRewards } from '@pezkuwi/react-hooks';
+import { BN, BN_THREE } from '@pezkuwi/util';
 
 import ElectionBanner from '../ElectionBanner.js';
 import { useTranslation } from '../translate.js';

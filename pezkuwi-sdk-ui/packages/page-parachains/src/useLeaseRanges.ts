@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-parachains authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { u32 } from '@polkadot/types';
+import type { u32 } from '@pezkuwi/types';
 
 import { useMemo } from 'react';
 
-import { createNamedHook, useApi } from '@polkadot/react-hooks';
-import { BN } from '@polkadot/util';
+import { createNamedHook, useApi } from '@pezkuwi/react-hooks';
+import { BN } from '@pezkuwi/util';
 
 const RANGES_DEFAULT: [number, number][] = [
   [0, 0], [0, 1], [0, 2], [0, 3],

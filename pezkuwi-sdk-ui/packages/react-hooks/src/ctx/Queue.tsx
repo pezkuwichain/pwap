@@ -1,18 +1,18 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { SubmittableResult } from '@polkadot/api';
-import type { SubmittableExtrinsic } from '@polkadot/api/promise/types';
-import type { ActionStatus, ActionStatusPartial, PartialQueueTxExtrinsic, PartialQueueTxRpc, QueueProps, QueueStatus, QueueTx, QueueTxExtrinsic, QueueTxRpc, QueueTxStatus, SignerCallback } from '@polkadot/react-components/Status/types';
-import type { DispatchError, EventRecord } from '@polkadot/types/interfaces';
-import type { ITuple, Registry, SignerPayloadJSON } from '@polkadot/types/types';
+import type { SubmittableResult } from '@pezkuwi/api';
+import type { SubmittableExtrinsic } from '@pezkuwi/api/promise/types';
+import type { ActionStatus, ActionStatusPartial, PartialQueueTxExtrinsic, PartialQueueTxRpc, QueueProps, QueueStatus, QueueTx, QueueTxExtrinsic, QueueTxRpc, QueueTxStatus, SignerCallback } from '@pezkuwi/react-components/Status/types';
+import type { DispatchError, EventRecord } from '@pezkuwi/types/interfaces';
+import type { ITuple, Registry, SignerPayloadJSON } from '@pezkuwi/types/types';
 
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 
-import { getDispatchError, getIncompleteMessage } from '@polkadot/react-components/Status/checks';
-import { STATUS_COMPLETE } from '@polkadot/react-components/Status/constants';
-import { getContractAbi } from '@polkadot/react-components/util';
-import jsonrpc from '@polkadot/types/interfaces/jsonrpc';
+import { getDispatchError, getIncompleteMessage } from '@pezkuwi/react-components/Status/checks';
+import { STATUS_COMPLETE } from '@pezkuwi/react-components/Status/constants';
+import { getContractAbi } from '@pezkuwi/react-components/util';
+import jsonrpc from '@pezkuwi/types/interfaces/jsonrpc';
 
 export interface Props {
   children: React.ReactNode;

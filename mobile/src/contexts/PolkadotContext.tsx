@@ -1,10 +1,10 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { ApiPromise, WsProvider } from '@polkadot/api';
-import { Keyring } from '@polkadot/keyring';
-import { KeyringPair } from '@polkadot/keyring/types';
+import { ApiPromise, WsProvider } from '@pezkuwi/api';
+import { Keyring } from '@pezkuwi/keyring';
+import { KeyringPair } from '@pezkuwi/keyring/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
-import { cryptoWaitReady } from '@polkadot/util-crypto';
+import { cryptoWaitReady } from '@pezkuwi/util-crypto';
 import { DEFAULT_ENDPOINT } from '../../../shared/blockchain/polkadot';
 
 interface Account {

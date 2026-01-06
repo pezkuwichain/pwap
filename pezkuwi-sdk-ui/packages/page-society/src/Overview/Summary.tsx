@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/app-society authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-society authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveSociety } from '@polkadot/api-derive/types';
-import type { BN } from '@polkadot/util';
+import type { DeriveSociety } from '@pezkuwi/api-derive/types';
+import type { BN } from '@pezkuwi/util';
 
 import React, { useMemo } from 'react';
 
-import { CardSummary, styled, SummaryBox } from '@polkadot/react-components';
-import { useApi, useBestNumber, useCall } from '@polkadot/react-hooks';
-import { FormatBalance } from '@polkadot/react-query';
+import { CardSummary, styled, SummaryBox } from '@pezkuwi/react-components';
+import { useApi, useBestNumber, useCall } from '@pezkuwi/react-hooks';
+import { FormatBalance } from '@pezkuwi/react-query';
 
 import { useTranslation } from '../translate.js';
 

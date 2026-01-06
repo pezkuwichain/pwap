@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Validator } from '../../../types.js';
@@ -6,7 +6,7 @@ import type { UseHeartbeat } from '../../types.js';
 
 import React from 'react';
 
-import { AddressSmall, Table } from '@polkadot/react-components';
+import { AddressSmall, Table } from '@pezkuwi/react-components';
 
 import Status from '../Status.js';
 

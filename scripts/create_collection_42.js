@@ -9,7 +9,7 @@
  *   node scripts/create_collection_42.js [ws://127.0.0.1:9944]
  */
 
-const { ApiPromise, WsProvider, Keyring } = require('@polkadot/api');
+const { ApiPromise, WsProvider, Keyring } = require('@pezkuwi/api');
 
 async function createCollection42() {
   // Get WebSocket endpoint from args or use default

@@ -1,19 +1,19 @@
-// Copyright 2017-2025 @polkadot/app-preimages authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-preimages authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { SubmittableExtrinsic } from '@polkadot/api/types';
-import type { BN } from '@polkadot/util';
-import type { HexString } from '@polkadot/util/types';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { SubmittableExtrinsic } from '@pezkuwi/api/types';
+import type { BN } from '@pezkuwi/util';
+import type { HexString } from '@pezkuwi/util/types';
 import type { HashState } from './types.js';
 
 import React, { useCallback, useState } from 'react';
 
-import { InputBalance, Modal, Static } from '@polkadot/react-components';
-import { useApi } from '@polkadot/react-hooks';
-import { Extrinsic } from '@polkadot/react-params';
-import { BN_ZERO } from '@polkadot/util';
-import { blake2AsHex } from '@polkadot/util-crypto';
+import { InputBalance, Modal, Static } from '@pezkuwi/react-components';
+import { useApi } from '@pezkuwi/react-hooks';
+import { Extrinsic } from '@pezkuwi/react-params';
+import { BN_ZERO } from '@pezkuwi/util';
+import { blake2AsHex } from '@pezkuwi/util-crypto';
 
 import { useTranslation } from '../../translate.js';
 

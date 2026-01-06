@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Weight, WeightV2 } from '@polkadot/types/interfaces';
-import type { BN } from '@polkadot/util';
+import type { Weight, WeightV2 } from '@pezkuwi/types/interfaces';
+import type { BN } from '@pezkuwi/util';
 import type { UseWeight } from './types.js';
 
 import { useCallback, useMemo, useState } from 'react';
 
-import { createNamedHook, useApi, useBlockInterval } from '@polkadot/react-hooks';
-import { convertWeight } from '@polkadot/react-hooks/useWeight';
-import { BN_MILLION, BN_ONE, BN_TEN, BN_ZERO } from '@polkadot/util';
+import { createNamedHook, useApi, useBlockInterval } from '@pezkuwi/react-hooks';
+import { convertWeight } from '@pezkuwi/react-hooks/useWeight';
+import { BN_MILLION, BN_ONE, BN_TEN, BN_ZERO } from '@pezkuwi/util';
 
 function useWeightImpl (): UseWeight {
   const { api } = useApi();

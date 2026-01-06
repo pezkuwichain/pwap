@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-coretime authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-coretime authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { CoretimeInformation } from '@polkadot/react-hooks/types';
-import type { BlockNumber } from '@polkadot/types/interfaces';
+import type { CoretimeInformation } from '@pezkuwi/react-hooks/types';
+import type { BlockNumber } from '@pezkuwi/types/interfaces';
 
 import React, { useMemo } from 'react';
 
-import { styled } from '@polkadot/react-components';
-import { useApi, useCall } from '@polkadot/react-hooks';
+import { styled } from '@pezkuwi/react-components';
+import { useApi, useCall } from '@pezkuwi/react-hooks';
 
 import { PhaseName } from '../../constants.js';
 import { useTranslation } from '../../translate.js';

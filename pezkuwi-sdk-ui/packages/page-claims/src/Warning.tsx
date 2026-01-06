@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/app-claims authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-claims authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
 
-import { AddressMini, Card, styled } from '@polkadot/react-components';
+import { AddressMini, Card, styled } from '@pezkuwi/react-components';
 
 import { useTranslation } from './translate.js';
 import usePolkadotPreclaims from './usePolkadotPreclaims.js';

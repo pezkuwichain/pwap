@@ -6,7 +6,7 @@
 //! ## Background
 //!
 //! Pezkuwi-SDK offers the ability to query and subscribe storages directly. However what it does
-//! not have is [view functions](https://github.com/pezkuwichain/pezkuwi-sdk/issues/101). This is an
+//! not have is [view functions](https://github.com/pezkuwichain/pezkuwi-sdk/issues/247). This is an
 //! essential feature to avoid duplicated logic between runtime and the client SDK. Custom RPC was
 //! used as a solution. It allow the RPC node to expose new RPCs that clients can be used to query
 //! computed properties.
@@ -31,7 +31,7 @@
 //!
 //! ## Alternatives
 //!
-//! Generally, [`sc_rpc::state::StateBackend::call`] aka. `state_call` should be used instead of
+//! Generally, [`pezsc_rpc::state::StateBackend::call`] aka. `state_call` should be used instead of
 //! custom RPC.
 //!
 //! Usually, each custom RPC comes with a corresponding runtime API which implements the business
@@ -52,9 +52,9 @@
 //!
 //! For example, let's take a look at the process through which the account nonce can be queried
 //! through an RPC. First, a new runtime-api needs to be declared:
-#![doc = docify::embed!("../../substrate/frame/system/rpc/runtime-api/src/lib.rs", AccountNonceApi)]
+#![doc = docify::embed!("../../bizinikiwi/pezframe/system/rpc/runtime-api/src/lib.rs", AccountNonceApi)]
 //!
-//! This API is implemented at the runtime level, always inside [`sp_api::impl_runtime_apis!`].
+//! This API is implemented at the runtime level, always inside [`pezsp_api::impl_runtime_apis!`].
 //!
 //! As noted, this is already enough to make this API usable via `state_call`.
 //!
@@ -62,7 +62,7 @@
 //!
 //! Should you wish to implement the legacy approach of exposing this runtime-api as a custom
 //! RPC-api, then a custom RPC server has to be defined.
-#![doc = docify::embed!("../../substrate/utils/frame/rpc/system/src/lib.rs", SystemApi)]
+#![doc = docify::embed!("../../bizinikiwi/utils/pezframe/rpc/system/src/lib.rs", SystemApi)]
 //!
 //! ## Add a new RPC to the node (Legacy)
 //!

@@ -3,7 +3,7 @@
 // ========================================
 // This file configures wallet connectivity for Substrate-based chains
 
-import type { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
+import type { InjectedAccountWithMeta } from '@pezkuwi/extension-inject/types';
 import { getCurrentNetworkConfig } from '../blockchain/endpoints';
 
 // ========================================

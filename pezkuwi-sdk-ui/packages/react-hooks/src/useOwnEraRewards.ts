@@ -1,17 +1,17 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Dispatch, SetStateAction } from 'react';
-import type { ApiPromise } from '@polkadot/api';
-import type { DeriveEraPoints, DeriveEraRewards, DeriveStakerReward } from '@polkadot/api-derive/types';
-import type { u32, Vec } from '@polkadot/types';
-import type { EraIndex } from '@polkadot/types/interfaces';
-import type { PalletStakingStakingLedger } from '@polkadot/types/lookup';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { DeriveEraPoints, DeriveEraRewards, DeriveStakerReward } from '@pezkuwi/api-derive/types';
+import type { u32, Vec } from '@pezkuwi/types';
+import type { EraIndex } from '@pezkuwi/types/interfaces';
+import type { PezpalletStakingStakingLedger } from '@pezkuwi/types/lookup';
 import type { StakerState } from './types.js';
 
 import { useCallback, useEffect, useState } from 'react';
 
-import { BN_ZERO } from '@polkadot/util';
+import { BN_ZERO } from '@pezkuwi/util';
 
 import { createNamedHook } from './createNamedHook.js';
 import { useApi } from './useApi.js';
@@ -46,7 +46,7 @@ const EMPTY_STATE: State = {
   rewardCount: 0
 };
 
-function getLegacyRewards (ledger: PalletStakingStakingLedger, claimedRewardsEras?: Vec<u32>): u32[] {
+function getLegacyRewards (ledger: PezpalletStakingStakingLedger, claimedRewardsEras?: Vec<u32>): u32[] {
   const legacyRewards = ledger.legacyClaimedRewards || (ledger as unknown as { claimedRewards: u32[] }).claimedRewards || [];
 
   return legacyRewards.concat(claimedRewardsEras?.toArray() || []);

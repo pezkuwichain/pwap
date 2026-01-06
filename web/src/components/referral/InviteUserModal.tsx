@@ -79,7 +79,7 @@ export const InviteUserModal: React.FC<InviteUserModalProps> = ({ isOpen, onClos
     setInitiateSuccess(false);
 
     try {
-      const { web3FromAddress } = await import('@polkadot/extension-dapp');
+      const { web3FromAddress } = await import('@pezkuwi/extension-dapp');
       const injector = await web3FromAddress(selectedAccount.address);
 
       if (import.meta.env.DEV) console.log(`Initiating referral from ${selectedAccount.address} to ${inviteeAddress}...`);

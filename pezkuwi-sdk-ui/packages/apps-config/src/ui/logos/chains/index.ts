@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @polkadot/apps authors & contributors
+// Copyright 2017-2025 @pezkuwi/apps authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 // Do not edit. Auto-generated via node scripts/imgConvert.mjs
@@ -60,6 +60,7 @@ export { chainsPeaqPNG } from './generated/peaqPNG.js';
 export { chainsPendulumSVG } from './generated/pendulumSVG.js';
 export { chainsPeopleKusamaSVG } from './generated/people-kusamaSVG.js';
 export { chainsPeoplePolkadotSVG } from './generated/people-polkadotSVG.js';
+export { chainsPezkuwiPNG } from './generated/pezkuwiPNG.js';
 export { chainsPicassoSVG } from './generated/picassoSVG.js';
 export { chainsPolkadotCircleSVG } from './generated/polkadot-circleSVG.js';
 export { chainsPopNetworkSVG } from './generated/pop-networkSVG.js';

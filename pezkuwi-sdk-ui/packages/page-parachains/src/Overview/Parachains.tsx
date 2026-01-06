@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-parachains authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ParaId } from '@polkadot/types/interfaces';
+import type { ParaId } from '@pezkuwi/types/interfaces';
 import type { LeasePeriod, QueuedAction, ScheduledProposals } from '../types.js';
 
 import React, { useMemo, useRef } from 'react';
 
-import { Table } from '@polkadot/react-components';
-import { useBestNumber, useIsParasLinked } from '@polkadot/react-hooks';
+import { Table } from '@pezkuwi/react-components';
+import { useBestNumber, useIsParasLinked } from '@pezkuwi/react-hooks';
 
 import { useTranslation } from '../translate.js';
 import Parachain from './Parachain.js';

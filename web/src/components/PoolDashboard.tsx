@@ -141,8 +141,8 @@ const PoolDashboard = () => {
           const lpTokenId = lpTokenData.lpToken;
 
           // Derive pool account using AccountIdConverter
-          const { stringToU8a } = await import('@polkadot/util');
-          const { blake2AsU8a } = await import('@polkadot/util-crypto');
+          const { stringToU8a } = await import('@pezkuwi/util');
+          const { blake2AsU8a } = await import('@pezkuwi/util-crypto');
 
           // PalletId for AssetConversion: "py/ascon" (8 bytes)
           const PALLET_ID = stringToU8a('py/ascon');

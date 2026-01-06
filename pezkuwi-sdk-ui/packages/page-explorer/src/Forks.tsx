@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-explorer authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-explorer authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Header } from '@polkadot/types/interfaces';
+import type { Header } from '@pezkuwi/types/interfaces';
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { CardSummary, IdentityIcon, styled, SummaryBox } from '@polkadot/react-components';
-import { useApi } from '@polkadot/react-hooks';
-import { formatNumber } from '@polkadot/util';
+import { CardSummary, IdentityIcon, styled, SummaryBox } from '@pezkuwi/react-components';
+import { useApi } from '@pezkuwi/react-hooks';
+import { formatNumber } from '@pezkuwi/util';
 
 import { useTranslation } from './translate.js';
 

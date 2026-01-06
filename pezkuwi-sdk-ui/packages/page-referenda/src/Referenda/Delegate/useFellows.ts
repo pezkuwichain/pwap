@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-referenda authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-referenda authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { StorageKey } from '@polkadot/types';
-import type { AccountId } from '@polkadot/types/interfaces';
+import type { StorageKey } from '@pezkuwi/types';
+import type { AccountId } from '@pezkuwi/types/interfaces';
 
 import { useMemo } from 'react';
 
-import { createNamedHook, useApi, useMapKeys } from '@polkadot/react-hooks';
-import { isFunction } from '@polkadot/util';
+import { createNamedHook, useApi, useMapKeys } from '@pezkuwi/react-hooks';
+import { isFunction } from '@pezkuwi/util';
 
 const MEMBERS_OPT = {
   transform: (keys: StorageKey<[AccountId]>[]): string[] =>

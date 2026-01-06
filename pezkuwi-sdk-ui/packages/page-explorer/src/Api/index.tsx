@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/app-explorer authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-explorer authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ChartOptions } from 'chart.js';
-import type { ApiStats } from '@polkadot/react-hooks/ctx/types';
+import type { ApiStats } from '@pezkuwi/react-hooks/ctx/types';
 
 import React, { useMemo } from 'react';
 
-import { CardSummary, NextTick, styled, SummaryBox } from '@polkadot/react-components';
-import { useApiStats } from '@polkadot/react-hooks';
-import { formatNumber } from '@polkadot/util';
+import { CardSummary, NextTick, styled, SummaryBox } from '@pezkuwi/react-components';
+import { useApiStats } from '@pezkuwi/react-hooks';
+import { formatNumber } from '@pezkuwi/util';
 
 import Chart from '../Latency/Chart.js';
 import { useTranslation } from '../translate.js';

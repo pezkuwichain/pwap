@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Call } from '@polkadot/types/interfaces';
-import type { ICompact, INumber } from '@polkadot/types/types';
-import type { BN } from '@polkadot/util';
+import type { Call } from '@pezkuwi/types/interfaces';
+import type { ICompact, INumber } from '@pezkuwi/types/types';
+import type { BN } from '@pezkuwi/util';
 import type { V2WeightConstruct, WeightResult } from './types.js';
 
 import { useEffect, useState } from 'react';
 
-import { BN_ZERO, isFunction, nextTick, objectSpread } from '@polkadot/util';
+import { BN_ZERO, isFunction, nextTick, objectSpread } from '@pezkuwi/util';
 
 import { createNamedHook } from './createNamedHook.js';
 import { useApi } from './useApi.js';

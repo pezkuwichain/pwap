@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/app-settings authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-settings authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
 
-import { useApi } from '@polkadot/react-hooks';
+import { useApi } from '@pezkuwi/react-hooks';
 
 import useChainInfo from '../useChainInfo.js';
 import useRawMetadata from '../useRawMetadata.js';

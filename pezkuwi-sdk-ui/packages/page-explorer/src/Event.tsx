@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-explorer authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-explorer authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { EventRecord } from '@polkadot/types/interfaces';
+import type { EventRecord } from '@pezkuwi/types/interfaces';
 
 import React from 'react';
 
-import { Expander } from '@polkadot/react-components';
-import { Event as EventDisplay } from '@polkadot/react-params';
+import { Expander } from '@pezkuwi/react-components';
+import { Event as EventDisplay } from '@pezkuwi/react-params';
 
 interface Props {
   className?: string;

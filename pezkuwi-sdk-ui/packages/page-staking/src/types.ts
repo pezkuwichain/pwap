@@ -1,10 +1,10 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Inflation } from '@polkadot/react-hooks/types';
-import type { AccountId, Balance, BlockNumber, EraIndex, Hash, SessionIndex, ValidatorPrefs, ValidatorPrefsTo196 } from '@polkadot/types/interfaces';
-import type { SpStakingExposurePage, SpStakingPagedExposureMetadata } from '@polkadot/types/lookup';
-import type { BN } from '@polkadot/util';
+import type { Inflation } from '@pezkuwi/react-hooks/types';
+import type { AccountId, Balance, BlockNumber, EraIndex, Hash, SessionIndex, ValidatorPrefs, ValidatorPrefsTo196 } from '@pezkuwi/types/interfaces';
+import type { PezspStakingExposurePage, PezspStakingPagedExposureMetadata } from '@pezkuwi/types/lookup';
+import type { BN } from '@pezkuwi/util';
 
 export type Nominators = Record<string, string[]>;
 
@@ -52,8 +52,8 @@ export interface ValidatorInfo extends ValidatorInfoRank {
   bondShare: number;
   bondTotal: BN;
   commissionPer: number;
-  exposurePaged: SpStakingExposurePage;
-  exposureMeta: SpStakingPagedExposureMetadata
+  exposurePaged: PezspStakingExposurePage;
+  exposureMeta: PezspStakingPagedExposureMetadata
   isActive: boolean;
   isBlocking: boolean;
   isElected: boolean;

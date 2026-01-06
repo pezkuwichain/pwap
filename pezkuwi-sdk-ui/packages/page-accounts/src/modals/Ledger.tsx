@@ -1,20 +1,20 @@
-// Copyright 2017-2025 @polkadot/app-accounts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-accounts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 // This is for the use of `Ledger`
 //
 /* eslint-disable deprecation/deprecation */
 
-import type { ApiPromise } from '@polkadot/api';
-import type { Ledger, LedgerGeneric } from '@polkadot/hw-ledger';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { Ledger, LedgerGeneric } from '@pezkuwi/hw-ledger';
 
 import React, { useCallback, useRef, useState } from 'react';
 
-import { Button, Dropdown, Input, MarkError, Modal } from '@polkadot/react-components';
-import { useApi, useLedger } from '@polkadot/react-hooks';
-import { keyring } from '@polkadot/ui-keyring';
-import { settings } from '@polkadot/ui-settings';
-import { arrayRange } from '@polkadot/util';
+import { Button, Dropdown, Input, MarkError, Modal } from '@pezkuwi/react-components';
+import { useApi, useLedger } from '@pezkuwi/react-hooks';
+import { keyring } from '@pezkuwi/ui-keyring';
+import { settings } from '@pezkuwi/ui-settings';
+import { arrayRange } from '@pezkuwi/util';
 
 import Banner from '../Accounts/Banner.js';
 import { useTranslation } from '../translate.js';

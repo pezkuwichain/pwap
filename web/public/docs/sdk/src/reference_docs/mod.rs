@@ -20,17 +20,17 @@
 //! We call this class of documents "reference documents". Our goal should be to minimize the number
 //! of "reference" docs, as they incur maintenance burden.
 
-/// Learn how Substrate and FRAME use traits and associated types to make modules generic in a
+/// Learn how Bizinikiwi and FRAME use traits and associated types to make modules generic in a
 /// type-safe manner.
 pub mod trait_based_programming;
 
-/// Learn about the way Substrate and FRAME view their blockchains as state machines.
+/// Learn about the way Bizinikiwi and FRAME view their blockchains as state machines.
 pub mod blockchain_state_machines;
 
 /// The glossary.
 pub mod glossary;
 
-/// Learn about the WASM meta-protocol of all Substrate-based chains.
+/// Learn about the WASM meta-protocol of all Bizinikiwi-based chains.
 pub mod wasm_meta_protocol;
 
 /// Learn about the differences between smart contracts and a FRAME-based runtime. They are both
@@ -60,8 +60,8 @@ pub mod defensive_programming;
 /// `RuntimeCall`.
 pub mod frame_runtime_types;
 
-/// Learn about how to make a pallet/runtime that is fee-less and instead uses another mechanism to
-/// control usage and sybil attacks.
+/// Learn about how to make a pezpallet/runtime that is fee-less and instead uses another mechanism
+/// to control usage and sybil attacks.
 pub mod fee_less_runtime;
 
 /// Learn about metadata, the main means through which an upgradeable runtime communicates its
@@ -71,14 +71,14 @@ pub mod metadata;
 /// Learn about how to add custom host functions to the node.
 pub mod custom_host_functions;
 
-/// Learn about how frame-system handles `account-ids`, nonces, consumers and providers.
-pub mod frame_system_accounts;
+/// Learn about how pezframe-system handles `account-ids`, nonces, consumers and providers.
+pub mod pezframe_system_accounts;
 
-/// Advice for configuring your development environment for Substrate development.
+/// Advice for configuring your development environment for Bizinikiwi development.
 pub mod development_environment_advice;
 
 /// Learn about benchmarking and weight.
-pub mod frame_benchmarking_weight;
+pub mod pezframe_benchmarking_weight;
 
 /// Learn about the token-related logic in FRAME and how to apply it to your use case.
 pub mod frame_tokens;
@@ -86,7 +86,7 @@ pub mod frame_tokens;
 /// Learn about chain specification file and the genesis state of the blockchain.
 pub mod chain_spec_genesis;
 
-/// Learn about Substrate's CLI, and how it can be extended.
+/// Learn about Bizinikiwi's CLI, and how it can be extended.
 pub mod cli;
 
 /// Learn about Runtime Upgrades and best practices for writing Migrations.
@@ -112,5 +112,5 @@ pub mod custom_runtime_api_rpc;
 /// The [`pezkuwi-omni-node`](https://crates.io/crates/polkadot-omni-node) and its related binaries.
 pub mod omni_node;
 
-/// Learn about the state in Substrate.
+/// Learn about the state in Bizinikiwi.
 pub mod state;

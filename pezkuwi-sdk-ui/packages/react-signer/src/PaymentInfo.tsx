@@ -1,17 +1,17 @@
-// Copyright 2017-2025 @polkadot/react-signer authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-signer authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { SubmittableExtrinsic } from '@polkadot/api/promise/types';
-import type { DeriveBalancesAll } from '@polkadot/api-derive/types';
-import type { RuntimeDispatchInfo } from '@polkadot/types/interfaces';
+import type { SubmittableExtrinsic } from '@pezkuwi/api/promise/types';
+import type { DeriveBalancesAll } from '@pezkuwi/api-derive/types';
+import type { RuntimeDispatchInfo } from '@pezkuwi/types/interfaces';
 import type { ExtendedSignerOptions } from './types.js';
 
 import React, { useEffect, useState } from 'react';
 import { Trans } from 'react-i18next';
 
-import { Expander, MarkWarning } from '@polkadot/react-components';
-import { useApi, useCall, useIsMountedRef } from '@polkadot/react-hooks';
-import { BN, formatBalance, nextTick } from '@polkadot/util';
+import { Expander, MarkWarning } from '@pezkuwi/react-components';
+import { useApi, useCall, useIsMountedRef } from '@pezkuwi/react-hooks';
+import { BN, formatBalance, nextTick } from '@pezkuwi/util';
 
 import { useTranslation } from './translate.js';
 
@@ -42,7 +42,8 @@ function PaymentInfo ({ accountId, className = '', extrinsic, isHeader, signerOp
 
           if (signerOptions?.assetId) {
             const convertedFee = new BN((await api.call.assetConversionApi.quotePriceTokensForExactTokens(
-              signerOptions?.assetId as string,
+              // @ts-expect-error assetId type is runtime converted
+              signerOptions?.assetId,
               {
                 interior: 'Here',
                 parents: 1

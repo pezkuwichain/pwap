@@ -1,7 +1,7 @@
 import React from 'react';
 import { renderHook, act, waitFor } from '@testing-library/react-native';
 import { PolkadotProvider, usePolkadot } from '../PolkadotContext';
-import { ApiPromise } from '@polkadot/api';
+import { ApiPromise } from '@pezkuwi/api';
 
 // Wrapper for provider
 const wrapper = ({ children }: { children: React.ReactNode }) => (

@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/react-params authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-params authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DispatchError } from '@polkadot/types/interfaces';
+import type { DispatchError } from '@pezkuwi/types/interfaces';
 import type { Props as BaseProps } from '../types.js';
 
 import React, { useEffect, useState } from 'react';
 
-import { Input } from '@polkadot/react-components';
+import { Input } from '@pezkuwi/react-components';
 
 import { useTranslation } from '../translate.js';
 import Static from './Static.js';

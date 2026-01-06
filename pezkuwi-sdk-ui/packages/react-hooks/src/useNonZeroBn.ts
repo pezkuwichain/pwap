@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { BN } from '@polkadot/util';
+import type { BN } from '@pezkuwi/util';
 import type { FormField } from './useFormField.js';
 
 import { useMemo } from 'react';
 
-import { BN_ZERO, bnToBn } from '@polkadot/util';
+import { BN_ZERO, bnToBn } from '@pezkuwi/util';
 
 import { createNamedHook } from './createNamedHook.js';
 import { useFormField } from './useFormField.js';

@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/app-coretime authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-coretime authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useCallback, useMemo, useState } from 'react';
 
-import { useRelayEndpoints } from '@polkadot/react-hooks/useParaEndpoints';
+import { useRelayEndpoints } from '@pezkuwi/react-hooks/useParaEndpoints';
 
 interface UseSearchFilterProps {
   data: number[];

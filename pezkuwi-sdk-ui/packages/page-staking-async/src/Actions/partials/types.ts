@@ -1,7 +1,7 @@
-// Copyright 2017-2025 @polkadot/app-staking-async authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking-async authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { SubmittableExtrinsic } from '@polkadot/api/types';
+import type { SubmittableExtrinsic } from '@pezkuwi/api/types';
 
 export interface BondInfo {
   bondTx?: SubmittableExtrinsic<'promise'> | null;

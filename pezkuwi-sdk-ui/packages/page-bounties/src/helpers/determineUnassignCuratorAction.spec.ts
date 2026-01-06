@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/app-bounties authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-bounties authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-/// <reference types="@polkadot/dev-test/globals.d.ts" />
+/// <reference types="@pezkuwi/dev-test/globals.d.ts" />
 
-import { createAugmentedApi } from '@polkadot/test-support/api';
-import { BountyFactory } from '@polkadot/test-support/creation/bounties';
-import { BN } from '@polkadot/util';
+import { createAugmentedApi } from '@pezkuwi/test-support/api';
+import { BountyFactory } from '@pezkuwi/test-support/creation/bounties';
+import { BN } from '@pezkuwi/util';
 
 import { determineUnassignCuratorAction } from './determineUnassignCuratorAction.js';
 

@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveStakingAccount } from '@polkadot/api-derive/types';
-import type { Option } from '@polkadot/types';
-import type { SlashingSpans } from '@polkadot/types/interfaces';
-import type { BN } from '@polkadot/util';
+import type { DeriveStakingAccount } from '@pezkuwi/api-derive/types';
+import type { Option } from '@pezkuwi/types';
+import type { SlashingSpans } from '@pezkuwi/types/interfaces';
+import type { BN } from '@pezkuwi/util';
 
 import React from 'react';
 
-import { useAccounts, useApi, useCall } from '@polkadot/react-hooks';
-import { FormatBalance } from '@polkadot/react-query';
+import { useAccounts, useApi, useCall } from '@pezkuwi/react-hooks';
+import { FormatBalance } from '@pezkuwi/react-query';
 
 import { useTranslation } from './translate.js';
 import TxButton from './TxButton.js';

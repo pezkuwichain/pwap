@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AugmentedEvent } from '@polkadot/api/types';
-import type { Vec } from '@polkadot/types';
-import type { EventRecord } from '@polkadot/types/interfaces';
+import type { AugmentedEvent } from '@pezkuwi/api/types';
+import type { Vec } from '@pezkuwi/types';
+import type { EventRecord } from '@pezkuwi/types/interfaces';
 
 import { useEffect, useState } from 'react';
 

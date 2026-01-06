@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Option } from '@polkadot/types';
-import type { Codec } from '@polkadot/types/types';
+import type { Option } from '@pezkuwi/types';
+import type { Codec } from '@pezkuwi/types/types';
 import type { CodeStored } from '../types.js';
 
 import React, { useCallback } from 'react';
 
-import { Button, Card, CopyButton, Forget, styled } from '@polkadot/react-components';
-import { useApi, useCall, useToggle } from '@polkadot/react-hooks';
+import { Button, Card, CopyButton, Forget, styled } from '@pezkuwi/react-components';
+import { useApi, useCall, useToggle } from '@pezkuwi/react-hooks';
 
 import { CodeRow, Messages } from '../shared/index.js';
 import store from '../store.js';

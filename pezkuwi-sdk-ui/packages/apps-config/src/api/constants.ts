@@ -1,10 +1,10 @@
-// Copyright 2017-2025 @polkadot/apps-config authors & contributors
+// Copyright 2017-2025 @pezkuwi/apps-config authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { HexString } from '@polkadot/util/types';
+import type { HexString } from '@pezkuwi/util/types';
 
-import { knownGenesis } from '@polkadot/networks/defaults';
-import { assert, BN } from '@polkadot/util';
+import { knownGenesis } from '@pezkuwi/networks/defaults';
+import { assert, BN } from '@pezkuwi/util';
 
 export function getGenesis (name: string): HexString {
   const network = Object.entries(knownGenesis).find(([network]) => network === name);

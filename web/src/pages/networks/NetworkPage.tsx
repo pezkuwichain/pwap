@@ -186,7 +186,7 @@ const NetworkPage: React.FC<NetworkPageProps> = ({
           <div className="bg-gray-950 rounded-lg p-4 border border-gray-800">
             <pre className="text-sm overflow-x-auto">
               <code className="text-gray-300">
-{`import { ApiPromise, WsProvider } from '@polkadot/api';
+{`import { ApiPromise, WsProvider } from '@pezkuwi/api';
 
 const provider = new WsProvider('${endpoint}');
 const api = await ApiPromise.create({ provider });

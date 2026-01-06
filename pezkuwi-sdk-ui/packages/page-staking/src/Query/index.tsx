@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { INumber } from '@polkadot/types/types';
+import type { INumber } from '@pezkuwi/types/types';
 
 import React, { useCallback, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { Button, InputAddressSimple, Spinner } from '@polkadot/react-components';
-import { useApi, useCall } from '@polkadot/react-hooks';
+import { Button, InputAddressSimple, Spinner } from '@pezkuwi/react-components';
+import { useApi, useCall } from '@pezkuwi/react-hooks';
 
 import { useTranslation } from '../translate.js';
 import Validator from './Validator.js';

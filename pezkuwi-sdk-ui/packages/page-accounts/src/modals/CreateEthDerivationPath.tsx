@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/app-accounts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-accounts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ReactNode } from 'react';
-import type { BN } from '@polkadot/util';
+import type { BN } from '@pezkuwi/util';
 import type { DeriveValidationOutput } from '../types.js';
 
 import React, { useEffect, useRef, useState } from 'react';
 
-import { Checkbox, Dropdown, Input, InputNumber, MarkError, MarkWarning, Modal } from '@polkadot/react-components';
-import { useToggle } from '@polkadot/react-hooks';
-import { BN_ZERO } from '@polkadot/util';
+import { Checkbox, Dropdown, Input, InputNumber, MarkError, MarkWarning, Modal } from '@pezkuwi/react-components';
+import { useToggle } from '@pezkuwi/react-hooks';
+import { BN_ZERO } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 

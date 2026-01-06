@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { SubjectInfo } from '@polkadot/ui-keyring/observable/types';
+import type { SubjectInfo } from '@pezkuwi/ui-keyring/observable/types';
 import type { Accounts, Addresses } from './types.js';
 
 import React, { useEffect, useState } from 'react';
 import { combineLatest, map } from 'rxjs';
 
-import { keyring } from '@polkadot/ui-keyring';
-import { u8aToHex } from '@polkadot/util';
-import { decodeAddress } from '@polkadot/util-crypto';
+import { keyring } from '@pezkuwi/ui-keyring';
+import { u8aToHex } from '@pezkuwi/util';
+import { decodeAddress } from '@pezkuwi/util-crypto';
 
 import { useApi } from '../useApi.js';
 

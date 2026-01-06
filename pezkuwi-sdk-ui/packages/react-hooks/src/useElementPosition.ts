@@ -1,8 +1,8 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type React from 'react';
-import type { ElementPosition } from '@polkadot/react-components/Popup/types';
+import type { ElementPosition } from '@pezkuwi/react-components/Popup/types';
 
 import { useEffect, useState } from 'react';
 

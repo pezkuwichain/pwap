@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AccountId, AccountIndex, Address } from '@polkadot/types/interfaces';
+import type { AccountId, AccountIndex, Address } from '@pezkuwi/types/interfaces';
 
 import React from 'react';
 
-import { Nonce } from '@polkadot/react-query';
+import { Nonce } from '@pezkuwi/react-query';
 
 export interface Props {
   className?: string;

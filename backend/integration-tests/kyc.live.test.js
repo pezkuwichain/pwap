@@ -13,7 +13,7 @@
  *  Run this file with Jest: `npx jest kyc.live.test.js`
  */
 
-import { ApiPromise, WsProvider, Keyring } from '@polkadot/api';
+import { ApiPromise, WsProvider, Keyring } from '@pezkuwi/api';
 import axios from 'axios'; // Using axios for HTTP requests
 
 // ========================================

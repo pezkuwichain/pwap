@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-assets authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-assets authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { BN } from '@polkadot/util';
+import type { BN } from '@pezkuwi/util';
 
 import React from 'react';
 
-import { Button } from '@polkadot/react-components';
-import { useAccounts, useToggle } from '@polkadot/react-hooks';
+import { Button } from '@pezkuwi/react-components';
+import { useAccounts, useToggle } from '@pezkuwi/react-hooks';
 
 import { useTranslation } from '../../translate.js';
 import Create from './Create.js';

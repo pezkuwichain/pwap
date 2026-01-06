@@ -1,5 +1,5 @@
-import type { ApiPromise } from '@polkadot/api';
-import type { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { InjectedAccountWithMeta } from '@pezkuwi/extension-inject/types';
 
 /**
  * Referral System Integration with pallet_referral

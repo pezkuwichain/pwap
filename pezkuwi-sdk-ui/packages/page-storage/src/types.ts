@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/app-storage authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-storage authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { QueryableStorageEntry } from '@polkadot/api/types';
-import type { ConstValue } from '@polkadot/react-components/InputConsts/types';
-import type { RawParams } from '@polkadot/react-params/types';
+import type { QueryableStorageEntry } from '@pezkuwi/api/types';
+import type { ConstValue } from '@pezkuwi/react-components/InputConsts/types';
+import type { RawParams } from '@pezkuwi/react-params/types';
 
 interface Base {
   isConst: boolean;

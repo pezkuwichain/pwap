@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AccountId, AccountIndex, Address } from '@polkadot/types/interfaces';
-import type { KeyringItemType } from '@polkadot/ui-keyring/types';
-import type { BN } from '@polkadot/util';
+import type { AccountId, AccountIndex, Address } from '@pezkuwi/types/interfaces';
+import type { KeyringItemType } from '@pezkuwi/ui-keyring/types';
+import type { BN } from '@pezkuwi/util';
 
 import React from 'react';
 

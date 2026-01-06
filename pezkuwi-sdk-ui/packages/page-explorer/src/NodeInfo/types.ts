@@ -1,8 +1,8 @@
-// Copyright 2017-2025 @polkadot/app-explorer authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-explorer authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Vec } from '@polkadot/types';
-import type { BlockNumber, Extrinsic, Health, PeerInfo } from '@polkadot/types/interfaces';
+import type { Vec } from '@pezkuwi/types';
+import type { BlockNumber, Extrinsic, Health, PeerInfo } from '@pezkuwi/types/interfaces';
 
 export interface Info {
   blockNumber?: BlockNumber;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Plus, Info, AlertCircle } from 'lucide-react';
-import { web3FromAddress } from '@polkadot/extension-dapp';
+import { web3FromAddress } from '@pezkuwi/extension-dapp';
 import { usePolkadot } from '@/contexts/PolkadotContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { Button } from '@/components/ui/button';
@@ -162,8 +162,8 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
 
         if (poolInfo.isSome) {
           // Derive pool account using AccountIdConverter
-          const { stringToU8a } = await import('@polkadot/util');
-          const { blake2AsU8a } = await import('@polkadot/util-crypto');
+          const { stringToU8a } = await import('@pezkuwi/util');
+          const { blake2AsU8a } = await import('@pezkuwi/util-crypto');
 
           const PALLET_ID = stringToU8a('py/ascon');
           const poolIdType = api.createType('(u32, u32)', [asset0, asset1]);

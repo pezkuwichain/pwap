@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/app-contracts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-contracts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Abi } from '@polkadot/api-contract';
+import type { Abi } from '@pezkuwi/api-contract';
 
 import React from 'react';
 
-import { IconLink, InputFile, Labelled } from '@polkadot/react-components';
+import { IconLink, InputFile, Labelled } from '@pezkuwi/react-components';
 
 import { useTranslation } from '../translate.js';
 import Messages from './Messages.js';

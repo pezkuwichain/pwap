@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-treasury authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-treasury authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AccountId, BountyIndex } from '@polkadot/types/interfaces';
+import type { AccountId, BountyIndex } from '@pezkuwi/types/interfaces';
 
 import React, { useMemo, useState } from 'react';
 
-import { Button, InputAddress, Modal, TxButton } from '@polkadot/react-components';
-import { useAccounts, useToggle } from '@polkadot/react-hooks';
+import { Button, InputAddress, Modal, TxButton } from '@pezkuwi/react-components';
+import { useAccounts, useToggle } from '@pezkuwi/react-hooks';
 
 import { truncateTitle } from '../helpers/index.js';
 import { useBounties } from '../hooks/index.js';

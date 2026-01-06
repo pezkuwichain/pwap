@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/app-coretime authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-coretime authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { TabItem } from '@polkadot/react-components/types';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { TabItem } from '@pezkuwi/react-components/types';
 import type { RelayName } from './types.js';
 
 import React, { useRef } from 'react';
 import { Route, Routes } from 'react-router-dom';
 
-import { Spinner, Tabs } from '@polkadot/react-components';
-import { useCall } from '@polkadot/react-hooks';
+import { Spinner, Tabs } from '@pezkuwi/react-components';
+import { useCall } from '@pezkuwi/react-hooks';
 
 import Overview from './Overview/index.js';
 import Sale from './Sale/index.js';

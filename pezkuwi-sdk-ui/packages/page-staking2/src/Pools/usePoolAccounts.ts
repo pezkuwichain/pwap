@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { BN } from '@polkadot/util';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { BN } from '@pezkuwi/util';
 import type { PoolAccounts } from './types.js';
 
 import { useMemo } from 'react';
 
-import { createNamedHook, useApi } from '@polkadot/react-hooks';
-import { bnToU8a, stringToU8a, u8aConcat } from '@polkadot/util';
+import { createNamedHook, useApi } from '@pezkuwi/react-hooks';
+import { bnToU8a, stringToU8a, u8aConcat } from '@pezkuwi/util';
 
 const EMPTY_H256 = new Uint8Array(32);
 const MOD_PREFIX = stringToU8a('modl');

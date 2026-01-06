@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/app-utilities authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-utilities authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { RawParamOnChangeValue } from '@polkadot/react-params/types';
-import type { HexString } from '@polkadot/util/types';
+import type { RawParamOnChangeValue } from '@pezkuwi/react-params/types';
+import type { HexString } from '@pezkuwi/util/types';
 
 import React, { useCallback, useState } from 'react';
 
-import { statics } from '@polkadot/react-api';
-import { Output } from '@polkadot/react-components';
-import { createValue, Holder, ParamComp } from '@polkadot/react-params';
-import { getTypeDef } from '@polkadot/types/create';
-import { u8aToHex } from '@polkadot/util';
+import { statics } from '@pezkuwi/react-api';
+import { Output } from '@pezkuwi/react-components';
+import { createValue, Holder, ParamComp } from '@pezkuwi/react-params';
+import { getTypeDef } from '@pezkuwi/types/create';
+import { u8aToHex } from '@pezkuwi/util';
 
 function Xcm (): React.ReactElement {
   const VersionedXcmTypeDef = getTypeDef('XcmVersionedXcm');

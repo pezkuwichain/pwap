@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { KeyringSectionOption } from '@polkadot/ui-keyring/options/types';
+import type { KeyringSectionOption } from '@pezkuwi/ui-keyring/options/types';
 import type { Option } from './types.js';
 
 import React from 'react';
 
-import { keyring } from '@polkadot/ui-keyring';
-import { decodeAddress } from '@polkadot/util-crypto';
+import { keyring } from '@pezkuwi/ui-keyring';
+import { decodeAddress } from '@pezkuwi/util-crypto';
 
 import KeyPair from './KeyPair.js';
 

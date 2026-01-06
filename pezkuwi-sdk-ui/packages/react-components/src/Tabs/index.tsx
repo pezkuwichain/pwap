@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Location } from 'history';
@@ -7,7 +7,7 @@ import type { TabItem } from '../types.js';
 import React, { useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import { TabsCtx } from '@polkadot/react-hooks/ctx/Tabs';
+import { TabsCtx } from '@pezkuwi/react-hooks/ctx/Tabs';
 
 import { styled } from '../styled.js';
 import CurrentSection from './CurrentSection.js';

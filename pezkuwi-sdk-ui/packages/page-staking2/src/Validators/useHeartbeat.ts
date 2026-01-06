@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Option, u32 } from '@polkadot/types';
-import type { Codec } from '@polkadot/types/types';
+import type { Option, u32 } from '@pezkuwi/types';
+import type { Codec } from '@pezkuwi/types/types';
 import type { SessionInfo, Validator } from '../types.js';
 import type { UseHeartbeat } from './types.js';
 
 import { useMemo } from 'react';
 
-import { createNamedHook, useApi, useCall } from '@polkadot/react-hooks';
-import { isBoolean, isNumber } from '@polkadot/util';
+import { createNamedHook, useApi, useCall } from '@pezkuwi/react-hooks';
+import { isBoolean, isNumber } from '@pezkuwi/util';
 
 import { useCacheMap } from '../useCache.js';
 

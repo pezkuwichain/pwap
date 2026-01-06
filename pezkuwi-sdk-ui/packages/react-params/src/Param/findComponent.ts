@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/react-params authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-params authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type React from 'react';
-import type { Registry, TypeDef } from '@polkadot/types/types';
+import type { Registry, TypeDef } from '@pezkuwi/types/types';
 import type { ComponentMap, Props } from '../types.js';
 
-import { getTypeDef } from '@polkadot/types';
-import { TypeDefInfo } from '@polkadot/types/types';
-import { isBn } from '@polkadot/util';
+import { getTypeDef } from '@pezkuwi/types';
+import { TypeDefInfo } from '@pezkuwi/types/types';
+import { isBn } from '@pezkuwi/util';
 
 import Account from './Account.js';
 import Amount from './Amount.js';
@@ -59,7 +59,7 @@ const componentDef: TypeToComponent[] = [
   { c: Bool, t: ['bool'] },
   { c: Bytes, t: ['Bytes', 'Vec<u8>'] },
   { c: Call, t: ['Call', 'Proposal', 'RuntimeCall'] },
-  { c: Cid, t: ['PalletAllianceCid'] },
+  { c: Cid, t: ['PezpalletAllianceCid'] },
   { c: Code, t: ['Code'] },
   { c: DispatchError, t: DISPATCH_ERROR },
   { c: DispatchResult, t: ['DispatchResult', 'Result<Null, SpRuntimeDispatchError>'] },

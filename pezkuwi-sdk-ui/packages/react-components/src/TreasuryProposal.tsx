@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-democracy authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-democracy authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Option } from '@polkadot/types';
-import type { TreasuryProposal as TreasuryProposalType } from '@polkadot/types/interfaces';
+import type { Option } from '@pezkuwi/types';
+import type { TreasuryProposal as TreasuryProposalType } from '@pezkuwi/types/interfaces';
 
 import React, { useEffect, useState } from 'react';
 
-import { useApi } from '@polkadot/react-hooks';
-import { FormatBalance } from '@polkadot/react-query';
+import { useApi } from '@pezkuwi/react-hooks';
+import { FormatBalance } from '@pezkuwi/react-query';
 
 import InputAddress from './InputAddress/index.js';
 import Labelled from './Labelled.js';

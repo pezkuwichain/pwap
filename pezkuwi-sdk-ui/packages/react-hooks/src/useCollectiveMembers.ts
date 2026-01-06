@@ -1,7 +1,7 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AccountId } from '@polkadot/types/interfaces';
+import type { AccountId } from '@pezkuwi/types/interfaces';
 import type { CollectiveType } from './types.js';
 
 import { useMemo } from 'react';

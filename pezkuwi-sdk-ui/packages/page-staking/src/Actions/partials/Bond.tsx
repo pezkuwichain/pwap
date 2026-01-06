@@ -1,17 +1,17 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveBalancesAll } from '@polkadot/api-derive/types';
-import type { BN } from '@polkadot/util';
+import type { DeriveBalancesAll } from '@pezkuwi/api-derive/types';
+import type { BN } from '@pezkuwi/util';
 import type { AmountValidateState, DestinationType } from '../types.js';
 import type { BondInfo } from './types.js';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { Dropdown, InputAddress, InputBalance, MarkError, Modal, Static } from '@polkadot/react-components';
-import { useApi, useCall } from '@polkadot/react-hooks';
-import { BalanceFree, BlockToTime } from '@polkadot/react-query';
-import { BN_ZERO } from '@polkadot/util';
+import { Dropdown, InputAddress, InputBalance, MarkError, Modal, Static } from '@pezkuwi/react-components';
+import { useApi, useCall } from '@pezkuwi/react-hooks';
+import { BalanceFree, BlockToTime } from '@pezkuwi/react-query';
+import { BN_ZERO } from '@pezkuwi/util';
 
 import { useTranslation } from '../../translate.js';
 import InputValidateAmount from '../Account/InputValidateAmount.js';
@@ -93,6 +93,7 @@ function Bond ({ className = '', isNominating, minNominated, minNominatorBond, m
             // we have a batch with setController at the end
             // @ts-expect-error Previous generation
             ? api.tx.staking.bond(stashId, amount, bondDest)
+            // @ts-expect-error bondDest is runtime converted
             : api.tx.staking.bond(amount, bondDest),
           controllerId: mapControllerId,
           controllerTx: needsController

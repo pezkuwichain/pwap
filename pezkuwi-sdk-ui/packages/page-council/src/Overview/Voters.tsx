@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-council authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-council authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AccountId, Balance } from '@polkadot/types/interfaces';
+import type { AccountId, Balance } from '@pezkuwi/types/interfaces';
 
 import React, { useCallback } from 'react';
 
-import { AddressMini, ExpanderScroll } from '@polkadot/react-components';
-import { FormatBalance } from '@polkadot/react-query';
+import { AddressMini, ExpanderScroll } from '@pezkuwi/react-components';
+import { FormatBalance } from '@pezkuwi/react-query';
 
 interface Props {
   balance?: Balance;

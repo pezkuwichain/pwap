@@ -1,18 +1,18 @@
-// Copyright 2017-2025 @polkadot/app-accounts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-accounts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ActionStatus } from '@polkadot/react-components/Status/types';
-import type { AccountId, AccountIndex, Address } from '@polkadot/types/interfaces';
-import type { CreateResult } from '@polkadot/ui-keyring/types';
+import type { ActionStatus } from '@pezkuwi/react-components/Status/types';
+import type { AccountId, AccountIndex, Address } from '@pezkuwi/types/interfaces';
+import type { CreateResult } from '@pezkuwi/ui-keyring/types';
 import type { AccountBalance, SortedAccount } from './types.js';
 
 import FileSaver from 'file-saver';
 import React from 'react';
 
-import { getEnvironment } from '@polkadot/react-api/util';
-import { InputAddress, Menu } from '@polkadot/react-components';
-import { getAddressMeta } from '@polkadot/react-components/util';
-import { BN_ZERO } from '@polkadot/util';
+import { getEnvironment } from '@pezkuwi/react-api/util';
+import { InputAddress, Menu } from '@pezkuwi/react-components';
+import { getAddressMeta } from '@pezkuwi/react-components/util';
+import { BN_ZERO } from '@pezkuwi/util';
 
 export function createMenuGroup (key: string, items: (React.ReactNode | false | undefined | null)[], header?: string): React.ReactNode | null {
   const filtered = items.filter((e): e is React.ReactNode => !!e);

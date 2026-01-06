@@ -1,27 +1,27 @@
-// Copyright 2017-2025 @polkadot/app-staking-async authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking-async authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { DeriveStakingOverview, DeriveStakingValidators } from '@polkadot/api-derive/types';
-import type { AppProps } from '@polkadot/react-components/types';
-import type { ElectionStatus, ParaValidatorIndex, ValidatorId } from '@polkadot/types/interfaces';
-import type { BN } from '@polkadot/util';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { DeriveStakingOverview, DeriveStakingValidators } from '@pezkuwi/api-derive/types';
+import type { AppProps } from '@pezkuwi/react-components/types';
+import type { ElectionStatus, ParaValidatorIndex, ValidatorId } from '@pezkuwi/types/interfaces';
+import type { BN } from '@pezkuwi/util';
 
 import React, { useCallback, useMemo, useState } from 'react';
 import { Route, Routes } from 'react-router';
 
-import Bags from '@polkadot/app-staking/Bags';
-import Payouts from '@polkadot/app-staking/Payouts';
-import Query from '@polkadot/app-staking/Query';
-import Slashes from '@polkadot/app-staking/Slashes';
-import Targets from '@polkadot/app-staking/Targets';
-import useNominations from '@polkadot/app-staking/useNominations';
-import useSortedTargets from '@polkadot/app-staking/useSortedTargets';
-import Pools from '@polkadot/app-staking2/Pools';
-import useOwnPools from '@polkadot/app-staking2/Pools/useOwnPools';
-import { Tabs } from '@polkadot/react-components';
-import { useAccounts, useApi, useAvailableSlashes, useCall, useCallMulti, useFavorites, useOwnStashInfos } from '@polkadot/react-hooks';
-import { isFunction } from '@polkadot/util';
+import Bags from '@pezkuwi/app-staking/Bags';
+import Payouts from '@pezkuwi/app-staking/Payouts';
+import Query from '@pezkuwi/app-staking/Query';
+import Slashes from '@pezkuwi/app-staking/Slashes';
+import Targets from '@pezkuwi/app-staking/Targets';
+import useNominations from '@pezkuwi/app-staking/useNominations';
+import useSortedTargets from '@pezkuwi/app-staking/useSortedTargets';
+import Pools from '@pezkuwi/app-staking2/Pools';
+import useOwnPools from '@pezkuwi/app-staking2/Pools/useOwnPools';
+import { Tabs } from '@pezkuwi/react-components';
+import { useAccounts, useApi, useAvailableSlashes, useCall, useCallMulti, useFavorites, useOwnStashInfos } from '@pezkuwi/react-hooks';
+import { isFunction } from '@pezkuwi/util';
 
 import Actions from '../Actions/index.js';
 import CommandCenter from '../CommandCenter/index.js';

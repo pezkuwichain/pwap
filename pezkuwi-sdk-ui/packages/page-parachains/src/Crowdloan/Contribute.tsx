@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/app-parachains authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { Balance, BalanceOf, BlockNumber, ParaId } from '@polkadot/types/interfaces';
-import type { BN } from '@polkadot/util';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { Balance, BalanceOf, BlockNumber, ParaId } from '@pezkuwi/types/interfaces';
+import type { BN } from '@pezkuwi/util';
 
 import React, { useMemo, useState } from 'react';
 
-import { Button, Input, InputAddress, InputBalance, MarkWarning, Modal, TxButton } from '@polkadot/react-components';
-import { useAccounts, useApi, useToggle } from '@polkadot/react-hooks';
-import { formatBalance, isHex } from '@polkadot/util';
+import { Button, Input, InputAddress, InputBalance, MarkWarning, Modal, TxButton } from '@pezkuwi/react-components';
+import { useAccounts, useApi, useToggle } from '@pezkuwi/react-hooks';
+import { formatBalance, isHex } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 

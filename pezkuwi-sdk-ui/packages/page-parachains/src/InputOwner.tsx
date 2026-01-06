@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/app-parachains authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { OwnedId, OwnerInfo } from './types.js';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { Dropdown, InputAddress, MarkError, Modal } from '@polkadot/react-components';
+import { Dropdown, InputAddress, MarkError, Modal } from '@pezkuwi/react-components';
 
 import { useTranslation } from './translate.js';
 

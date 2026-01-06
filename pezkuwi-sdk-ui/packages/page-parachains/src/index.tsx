@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/app-parachains authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import '@polkadot/api-augment/substrate';
+import '@pezkuwi/api-augment/bizinikiwi';
 
-import type { ParaId } from '@polkadot/types/interfaces';
+import type { ParaId } from '@pezkuwi/types/interfaces';
 
 import React, { useRef } from 'react';
 import { Route, Routes } from 'react-router';
 import { useLocation } from 'react-router-dom';
 
-import { Tabs } from '@polkadot/react-components';
-import { useApi, useCall } from '@polkadot/react-hooks';
+import { Tabs } from '@pezkuwi/react-components';
+import { useApi, useCall } from '@pezkuwi/react-hooks';
 
 import Auctions from './Auctions/index.js';
 import Crowdloan from './Crowdloan/index.js';

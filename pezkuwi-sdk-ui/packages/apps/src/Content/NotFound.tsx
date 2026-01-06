@@ -1,7 +1,7 @@
-// Copyright 2017-2025 @polkadot/apps authors & contributors
+// Copyright 2017-2025 @pezkuwi/apps authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { RouteProps } from '@polkadot/apps-routing/types';
+import type { RouteProps } from '@pezkuwi/apps-routing/types';
 
 import React from 'react';
 import { Navigate } from 'react-router';

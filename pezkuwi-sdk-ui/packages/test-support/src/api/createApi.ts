@@ -1,8 +1,8 @@
-// Copyright 2017-2025 @polkadot/test-support authors & contributors
+// Copyright 2017-2025 @pezkuwi/test-support authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { ApiPromise } from '@polkadot/api';
-import { WsProvider } from '@polkadot/rpc-provider';
+import { ApiPromise } from '@pezkuwi/api';
+import { WsProvider } from '@pezkuwi/rpc-provider';
 
 import { SUBSTRATE_PORT } from '../substrate/index.js';
 

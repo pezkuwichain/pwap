@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/app-contracts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-contracts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Option } from '@polkadot/types';
-import type { ContractInfo } from '@polkadot/types/interfaces';
+import type { Option } from '@pezkuwi/types';
+import type { ContractInfo } from '@pezkuwi/types/interfaces';
 
 import React, { useEffect, useState } from 'react';
 
-import { InfoForInput } from '@polkadot/react-components';
-import { useApi, useCall } from '@polkadot/react-hooks';
-import { keyring } from '@polkadot/ui-keyring';
+import { InfoForInput } from '@pezkuwi/react-components';
+import { useApi, useCall } from '@pezkuwi/react-hooks';
+import { keyring } from '@pezkuwi/ui-keyring';
 
 import { useTranslation } from '../translate.js';
 

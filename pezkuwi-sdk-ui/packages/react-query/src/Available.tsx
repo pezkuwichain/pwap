@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/react-query authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-query authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveBalancesAll } from '@polkadot/api-derive/types';
-import type { AccountId, AccountIndex, Address } from '@polkadot/types/interfaces';
+import type { DeriveBalancesAll } from '@pezkuwi/api-derive/types';
+import type { AccountId, AccountIndex, Address } from '@pezkuwi/types/interfaces';
 
 import React from 'react';
 
-import { useApi, useCall } from '@polkadot/react-hooks';
+import { useApi, useCall } from '@pezkuwi/react-hooks';
 
 import FormatBalance from './FormatBalance.js';
 

@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 // Robots lovingly delivered by Robohash.org
@@ -12,7 +12,7 @@
 
 import React, { useMemo } from 'react';
 
-import { blake2AsU8a } from '@polkadot/util-crypto';
+import { blake2AsU8a } from '@pezkuwi/util-crypto';
 
 import { styled } from '../../styled.js';
 import backgrounds from './backgrounds/index.js';

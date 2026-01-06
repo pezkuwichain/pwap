@@ -3,9 +3,9 @@
 // ========================================
 // Handles citizenship verification, status checks, and workflow logic
 
-import type { ApiPromise } from '@polkadot/api';
-import { web3FromAddress } from '@polkadot/extension-dapp';
-import type { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
+import type { ApiPromise } from '@pezkuwi/api';
+import { web3FromAddress } from '@pezkuwi/extension-dapp';
+import type { InjectedAccountWithMeta } from '@pezkuwi/extension-inject/types';
 
 // ========================================
 // TYPE DEFINITIONS

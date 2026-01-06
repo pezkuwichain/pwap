@@ -1,19 +1,19 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { Vec } from '@polkadot/types';
-import type { PalletBrokerScheduleItem } from '@polkadot/types/lookup';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { Vec } from '@pezkuwi/types';
+import type { PezpalletBrokerScheduleItem } from '@pezkuwi/types/lookup';
 import type { Reservation } from './types.js';
 
 import { useEffect, useState } from 'react';
 
-import { createNamedHook, useCall } from '@polkadot/react-hooks';
+import { createNamedHook, useCall } from '@pezkuwi/react-hooks';
 
 import { processHexMask } from './utils/dataProcessing.js';
 
 function useBrokerReservationsImpl (api: ApiPromise, ready: boolean): Reservation[] | undefined {
-  const reservations = useCall<[any, Vec<Vec<PalletBrokerScheduleItem>>[]]>(ready && api?.query.broker.reservations);
+  const reservations = useCall<[any, Vec<Vec<PezpalletBrokerScheduleItem>>[]]>(ready && api?.query.broker.reservations);
   const [state, setState] = useState<Reservation[]>();
 
   useEffect((): void => {
@@ -22,7 +22,7 @@ function useBrokerReservationsImpl (api: ApiPromise, ready: boolean): Reservatio
     }
 
     setState(
-      reservations.map((info: PalletBrokerScheduleItem[]) => {
+      reservations.map((info: PezpalletBrokerScheduleItem[]) => {
         return {
           mask: processHexMask(info[0]?.mask),
           maskBits: processHexMask(info[0]?.mask)?.length ?? 0,

@@ -1,20 +1,20 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-/// <reference types="@polkadot/dev-test/globals.d.ts" />
+/// <reference types="@pezkuwi/dev-test/globals.d.ts" />
 
-import type { AddressFlags } from '@polkadot/react-hooks/types';
-import type { Sidebar } from '@polkadot/test-support/pagesElements';
-import type { RegistrationJudgement } from '@polkadot/types/interfaces';
+import type { AddressFlags } from '@pezkuwi/react-hooks/types';
+import type { Sidebar } from '@pezkuwi/test-support/pagesElements';
+import type { RegistrationJudgement } from '@pezkuwi/types/interfaces';
 
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 
-import i18next from '@polkadot/react-components/i18n';
-import { anAccount, anAccountWithInfo, anAccountWithMeta } from '@polkadot/test-support/creation/account';
-import { alice, bob, MemoryStore } from '@polkadot/test-support/keyring';
-import { charlieShortAddress, ferdieShortAddress, mockRegistration, registrars } from '@polkadot/test-support/mockData';
-import { mockApiHooks } from '@polkadot/test-support/utils';
-import { keyring } from '@polkadot/ui-keyring';
+import i18next from '@pezkuwi/react-components/i18n';
+import { anAccount, anAccountWithInfo, anAccountWithMeta } from '@pezkuwi/test-support/creation/account';
+import { alice, bob, MemoryStore } from '@pezkuwi/test-support/keyring';
+import { charlieShortAddress, ferdieShortAddress, mockRegistration, registrars } from '@pezkuwi/test-support/mockData';
+import { mockApiHooks } from '@pezkuwi/test-support/utils';
+import { keyring } from '@pezkuwi/ui-keyring';
 
 import { AccountsPage } from '../../../page-accounts/test/pages/accountsPage.js';
 

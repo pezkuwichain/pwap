@@ -1,20 +1,20 @@
-// Copyright 2017-2025 @polkadot/app-referenda authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-referenda authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { BN } from '@polkadot/util';
-import type { PalletReferenda } from '../../types.js';
+import type { BN } from '@pezkuwi/util';
+import type { PezpalletReferenda } from '../../types.js';
 
 import React, { useState } from 'react';
 
-import { Button, InputAddress, InputNumber, Modal, TxButton } from '@polkadot/react-components';
-import { useApi, useToggle } from '@polkadot/react-hooks';
+import { Button, InputAddress, InputNumber, Modal, TxButton } from '@pezkuwi/react-components';
+import { useApi, useToggle } from '@pezkuwi/react-hooks';
 
 import { useTranslation } from '../../translate.js';
 
 interface Props {
   className?: string;
   id: BN;
-  palletReferenda: PalletReferenda;
+  palletReferenda: PezpalletReferenda;
 }
 
 function Refund ({ className = '', id, palletReferenda }: Props): React.ReactElement<Props> | null {

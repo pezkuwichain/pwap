@@ -1,7 +1,7 @@
-// Copyright 2017-2025 @polkadot/app-bounties authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-bounties authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { BN } from '@polkadot/util';
+import type { BN } from '@pezkuwi/util';
 
 export function calculateBountyBond (description: string, depositBase: BN, depositPerByte: BN): BN {
   return depositBase.add(depositPerByte.muln(countUtf8Bytes(description)));

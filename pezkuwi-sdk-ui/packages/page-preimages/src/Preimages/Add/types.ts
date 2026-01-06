@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/app-preimages authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-preimages authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { SubmittableExtrinsic } from '@polkadot/api/types';
-import type { BN } from '@polkadot/util';
-import type { HexString } from '@polkadot/util/types';
+import type { SubmittableExtrinsic } from '@pezkuwi/api/types';
+import type { BN } from '@pezkuwi/util';
+import type { HexString } from '@pezkuwi/util/types';
 
 export interface HashState {
   encodedHash: HexString;

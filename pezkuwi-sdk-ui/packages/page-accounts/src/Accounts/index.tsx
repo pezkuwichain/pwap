@@ -1,20 +1,20 @@
-// Copyright 2017-2025 @polkadot/app-accounts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-accounts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ActionStatus } from '@polkadot/react-components/Status/types';
-import type { KeyringAddress } from '@polkadot/ui-keyring/types';
-import type { BN } from '@polkadot/util';
+import type { ActionStatus } from '@pezkuwi/react-components/Status/types';
+import type { KeyringAddress } from '@pezkuwi/ui-keyring/types';
+import type { BN } from '@pezkuwi/util';
 import type { AccountBalance, Delegation, SortedAccount } from '../types.js';
 import type { SortCategory } from '../util.js';
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { Button, FilterInput, SortDropdown, styled, SummaryBox, Table } from '@polkadot/react-components';
-import { getAccountCryptoType } from '@polkadot/react-components/util';
-import { useAccounts, useApi, useDelegations, useFavorites, useIpfs, useLedger, useNextTick, useProxies, useToggle } from '@polkadot/react-hooks';
-import { keyring } from '@polkadot/ui-keyring';
-import { settings } from '@polkadot/ui-settings';
-import { BN_ZERO, isFunction } from '@polkadot/util';
+import { Button, FilterInput, SortDropdown, styled, SummaryBox, Table } from '@pezkuwi/react-components';
+import { getAccountCryptoType } from '@pezkuwi/react-components/util';
+import { useAccounts, useApi, useDelegations, useFavorites, useIpfs, useLedger, useNextTick, useProxies, useToggle } from '@pezkuwi/react-hooks';
+import { keyring } from '@pezkuwi/ui-keyring';
+import { settings } from '@pezkuwi/ui-settings';
+import { BN_ZERO, isFunction } from '@pezkuwi/util';
 
 import CreateModal from '../modals/Create.js';
 import ExportAll from '../modals/ExportAll.js';
@@ -172,7 +172,7 @@ function Overview ({ className = '', onStatusChange }: Props): React.ReactElemen
   );
 
   // proxy support
-  const hasPalletProxy = useMemo(
+  const hasPezpalletProxy = useMemo(
     () => isFunction(api.tx.proxy?.addProxy),
     [api]
   );
@@ -410,7 +410,7 @@ function Overview ({ className = '', onStatusChange }: Props): React.ReactElemen
                   onClick={toggleMultisig}
                 />
               )}
-              {hasPalletProxy && (
+              {hasPezpalletProxy && (
                 <Button
                   icon='plus'
                   label={t('Proxied')}

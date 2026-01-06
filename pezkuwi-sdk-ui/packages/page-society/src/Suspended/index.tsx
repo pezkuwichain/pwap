@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/app-society authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-society authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Option, StorageKey } from '@polkadot/types';
-import type { AccountId, BalanceOf } from '@polkadot/types/interfaces';
-import type { PalletSocietyBidKind } from '@polkadot/types/lookup';
-import type { ITuple } from '@polkadot/types/types';
+import type { Option, StorageKey } from '@pezkuwi/types';
+import type { AccountId, BalanceOf } from '@pezkuwi/types/interfaces';
+import type { PezpalletSocietyBidKind } from '@pezkuwi/types/lookup';
+import type { ITuple } from '@pezkuwi/types/types';
 
 import React, { useRef } from 'react';
 
-import { Table } from '@polkadot/react-components';
-import { useApi, useCall } from '@polkadot/react-hooks';
+import { Table } from '@pezkuwi/react-components';
+import { useApi, useCall } from '@pezkuwi/react-hooks';
 
 import { useTranslation } from '../translate.js';
 import Suspension from './Suspension.js';
@@ -21,11 +21,11 @@ interface Props {
 interface CandidateSuspend {
   accountId: AccountId;
   balance: BalanceOf;
-  bid: PalletSocietyBidKind;
+  bid: PezpalletSocietyBidKind;
 }
 
 const OPT_CAN = {
-  transform: (entries: [StorageKey<[AccountId]>, Option<ITuple<[BalanceOf, PalletSocietyBidKind]>>][]): CandidateSuspend[] =>
+  transform: (entries: [StorageKey<[AccountId]>, Option<ITuple<[BalanceOf, PezpalletSocietyBidKind]>>][]): CandidateSuspend[] =>
     entries
       .filter(([{ args: [accountId] }, opt]) => opt.isSome && accountId)
       .map(([{ args: [accountId] }, opt]) => {

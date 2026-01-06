@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-staking-async authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking-async authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveStakingAccount } from '@polkadot/api-derive/types';
-import type { BN } from '@polkadot/util';
+import type { DeriveStakingAccount } from '@pezkuwi/api-derive/types';
+import type { BN } from '@pezkuwi/util';
 
 import React, { useMemo } from 'react';
 
-import { MarkWarning } from '@polkadot/react-components';
-import { formatBalance } from '@polkadot/util';
+import { MarkWarning } from '@pezkuwi/react-components';
+import { formatBalance } from '@pezkuwi/util';
 
 import { useTranslation } from '../../translate.js';
 

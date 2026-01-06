@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/test-supports authors & contributors
+// Copyright 2017-2025 @pezkuwi/test-supports authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Registrar } from '@polkadot/react-hooks/types';
+import type { Registrar } from '@pezkuwi/react-hooks/types';
 
-import { statics } from '@polkadot/react-api';
+import { statics } from '@pezkuwi/react-api';
 
 import { bob, charlie, ferdie } from '../keyring/index.js';
 

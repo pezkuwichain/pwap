@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Blockchain } from '@acala-network/chopsticks-core';
-import type { ApiPromise } from '@polkadot/api';
-import type { SubmittableExtrinsicFunction } from '@polkadot/api/promise/types';
-import type { HeaderExtended } from '@polkadot/api-derive/types';
-import type { LinkOption } from '@polkadot/apps-config/endpoints/types';
-import type { InjectedExtension } from '@polkadot/extension-inject/types';
-import type { ProviderStats } from '@polkadot/rpc-provider/types';
-import type { BlockNumber, EventRecord, Moment } from '@polkadot/types/interfaces';
-import type { BN } from '@polkadot/util';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { SubmittableExtrinsicFunction } from '@pezkuwi/api/promise/types';
+import type { HeaderExtended } from '@pezkuwi/api-derive/types';
+import type { LinkOption } from '@pezkuwi/apps-config/endpoints/types';
+import type { InjectedExtension } from '@pezkuwi/extension-inject/types';
+import type { ProviderStats } from '@pezkuwi/rpc-provider/types';
+import type { BlockNumber, EventRecord, Moment } from '@pezkuwi/types/interfaces';
+import type { BN } from '@pezkuwi/util';
 import type { AssetInfoComplete } from '../types.js';
 
 export interface ApiState {

@@ -1,6 +1,6 @@
-// This file is part of Substrate.
+// This file is part of Bizinikiwi.
 
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd. and Dijital Kurdistan Tech Institute
 // SPDX-License-Identifier: Apache-2.0
 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,10 +22,10 @@ use crate::{
 	runtime::{BarConfig, FooConfig, RuntimeGenesisConfig},
 };
 use alloc::vec;
-use frame_support::build_struct_json_patch;
+use pezframe_support::build_struct_json_patch;
+use pezsp_application_crypto::Ss58Codec;
+use pezsp_keyring::Sr25519Keyring;
 use serde_json::{json, to_string, Value};
-use sp_application_crypto::Ss58Codec;
-use sp_keyring::Sr25519Keyring;
 
 /// A demo preset with strings only.
 pub const PRESET_1: &str = "preset_1";
@@ -120,7 +120,7 @@ fn preset_invalid() -> Value {
 ///
 /// If no preset with given `id` exits `None` is returned.
 #[docify::export]
-pub fn get_builtin_preset(id: &sp_genesis_builder::PresetId) -> Option<alloc::vec::Vec<u8>> {
+pub fn get_builtin_preset(id: &pezsp_genesis_builder::PresetId) -> Option<alloc::vec::Vec<u8>> {
 	let preset = match id.as_ref() {
 		PRESET_1 => preset_1(),
 		PRESET_2 => preset_2(),
@@ -140,7 +140,7 @@ pub fn get_builtin_preset(id: &sp_genesis_builder::PresetId) -> Option<alloc::ve
 #[test]
 #[docify::export]
 fn check_presets() {
-	let builder = sc_chain_spec::GenesisConfigBuilderRuntimeCaller::<()>::new(
+	let builder = pezsc_chain_spec::GenesisConfigBuilderRuntimeCaller::<()>::new(
 		crate::WASM_BINARY.expect("wasm binary shall exists"),
 	);
 	assert!(builder.get_storage_for_named_preset(Some(&PRESET_1.to_string())).is_ok());
@@ -152,7 +152,7 @@ fn check_presets() {
 #[test]
 #[docify::export]
 fn invalid_preset_works() {
-	let builder = sc_chain_spec::GenesisConfigBuilderRuntimeCaller::<()>::new(
+	let builder = pezsc_chain_spec::GenesisConfigBuilderRuntimeCaller::<()>::new(
 		crate::WASM_BINARY.expect("wasm binary shall exists"),
 	);
 	// Even though a preset contains invalid_key, conversion to raw storage does not fail. This is

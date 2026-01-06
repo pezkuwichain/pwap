@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/app-nfts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-nfts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Changes } from '@polkadot/react-hooks/useEventChanges';
-import type { StorageKey, u32 } from '@polkadot/types';
-import type { EventRecord } from '@polkadot/types/interfaces';
+import type { Changes } from '@pezkuwi/react-hooks/useEventChanges';
+import type { StorageKey, u32 } from '@pezkuwi/types';
+import type { EventRecord } from '@pezkuwi/types/interfaces';
 
-import { createNamedHook, useApi, useEventChanges, useMapKeys } from '@polkadot/react-hooks';
+import { createNamedHook, useApi, useEventChanges, useMapKeys } from '@pezkuwi/react-hooks';
 
 const OPT_KEYS = {
   transform: (keys: StorageKey<[u32]>[]): u32[] =>

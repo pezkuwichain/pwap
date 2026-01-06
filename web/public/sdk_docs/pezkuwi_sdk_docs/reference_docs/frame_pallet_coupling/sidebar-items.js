@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["pallet_author","pallet_foo","pallet_foo_loose","pallet_foo_tight","runtime"],"struct":["OtherAuthorProvider"],"trait":["AuthorProvider"]};

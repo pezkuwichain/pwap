@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/app-staking-async authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking-async authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveEraExposure, DeriveSessionIndexes } from '@polkadot/api-derive/types';
-import type { BN } from '@polkadot/util';
+import type { DeriveEraExposure, DeriveSessionIndexes } from '@pezkuwi/api-derive/types';
+import type { BN } from '@pezkuwi/util';
 
 import React, { useMemo } from 'react';
 
-import { AddressMini, ExpanderScroll, MarkWarning, Spinner } from '@polkadot/react-components';
-import { useApi, useCall } from '@polkadot/react-hooks';
-import { isToBn } from '@polkadot/util';
+import { AddressMini, ExpanderScroll, MarkWarning, Spinner } from '@pezkuwi/react-components';
+import { useApi, useCall } from '@pezkuwi/react-hooks';
+import { isToBn } from '@pezkuwi/util';
 
 import { useTranslation } from '../../translate.js';
 import useInactives from '../useInactives.js';

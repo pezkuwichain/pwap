@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/app-referenda authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-referenda authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { BN } from '@polkadot/util';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { BN } from '@pezkuwi/util';
 import type { TrackDescription } from '../../types.js';
 import type { TrackOption } from './types.js';
 
 import React, { useMemo } from 'react';
 
-import { createNamedHook, useApi } from '@polkadot/react-hooks';
-import { bnToBn } from '@polkadot/util';
+import { createNamedHook, useApi } from '@pezkuwi/react-hooks';
+import { bnToBn } from '@pezkuwi/util';
 
 import { getTrackInfo, getTrackName } from '../../util.js';
 

@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @polkadot/app-parachains authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { OwnedId, OwnerInfo } from '../types.js';
@@ -6,9 +6,9 @@ import type { OwnedId, OwnerInfo } from '../types.js';
 import BN from 'bn.js';
 import React, { useCallback, useMemo, useState } from 'react';
 
-import { InputAddress, InputNumber, MarkWarning, Modal, styled, TxButton } from '@polkadot/react-components';
-import { useApi } from '@polkadot/react-hooks';
-import { CallExpander } from '@polkadot/react-params';
+import { InputAddress, InputNumber, MarkWarning, Modal, styled, TxButton } from '@pezkuwi/react-components';
+import { useApi } from '@pezkuwi/react-hooks';
+import { CallExpander } from '@pezkuwi/react-params';
 
 import InputOwner from '../InputOwner.js';
 import { useTranslation } from '../translate.js';

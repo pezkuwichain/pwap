@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { IconName } from '@fortawesome/fontawesome-svg-core';
@@ -6,8 +6,8 @@ import type { IconName } from '@fortawesome/fontawesome-svg-core';
 import React, { useCallback } from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
 
-import { useQueue } from '@polkadot/react-hooks';
-import { isString } from '@polkadot/util';
+import { useQueue } from '@pezkuwi/react-hooks';
+import { isString } from '@pezkuwi/util';
 
 import Button from './Button/index.js';
 import { styled } from './styled.js';
@@ -46,6 +46,7 @@ function CopyButton ({ children, className = '', icon = 'copy', label, type, val
 
   return (
     <StyledDiv className={`${className} ui--CopyButton`}>
+      {/* @ts-expect-error React 18 type compatibility */}
       <CopyToClipboard
         onCopy={_onCopy}
         text={value as string}

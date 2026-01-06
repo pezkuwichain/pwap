@@ -1,17 +1,17 @@
-// Copyright 2017-2025 @polkadot/react-signer authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-signer authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 // This is for the use of `Ledger`
 //
 /* eslint-disable deprecation/deprecation */
 
-import type { ApiPromise } from '@polkadot/api';
-import type { Signer, SignerResult } from '@polkadot/api/types';
-import type { Ledger, LedgerGeneric } from '@polkadot/hw-ledger';
-import type { Registry, SignerPayloadJSON } from '@polkadot/types/types';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { Signer, SignerResult } from '@pezkuwi/api/types';
+import type { Ledger, LedgerGeneric } from '@pezkuwi/hw-ledger';
+import type { Registry, SignerPayloadJSON } from '@pezkuwi/types/types';
 
-import { settings } from '@polkadot/ui-settings';
-import { objectSpread, u8aToHex } from '@polkadot/util';
+import { settings } from '@pezkuwi/ui-settings';
+import { objectSpread, u8aToHex } from '@pezkuwi/util';
 import { merkleizeMetadata } from '@polkadot-api/merkleize-metadata';
 
 let id = 0;

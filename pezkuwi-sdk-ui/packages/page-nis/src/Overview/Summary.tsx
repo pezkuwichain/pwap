@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-nis authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-nis authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { NisInfo } from './types.js';
 
 import React from 'react';
 
-import { CardSummary, SummaryBox } from '@polkadot/react-components';
-import { useApi, useBestNumber } from '@polkadot/react-hooks';
-import { BN_QUINTILL } from '@polkadot/util';
+import { CardSummary, SummaryBox } from '@pezkuwi/react-components';
+import { useApi, useBestNumber } from '@pezkuwi/react-hooks';
+import { BN_QUINTILL } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 

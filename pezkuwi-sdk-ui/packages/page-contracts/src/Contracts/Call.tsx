@@ -1,18 +1,18 @@
-// Copyright 2017-2025 @polkadot/app-contracts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-contracts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { SubmittableExtrinsic } from '@polkadot/api/types';
-import type { ContractPromise } from '@polkadot/api-contract';
-import type { ContractCallOutcome } from '@polkadot/api-contract/types';
-import type { WeightV2 } from '@polkadot/types/interfaces';
+import type { SubmittableExtrinsic } from '@pezkuwi/api/types';
+import type { ContractPromise } from '@pezkuwi/api-contract';
+import type { ContractCallOutcome } from '@pezkuwi/api-contract/types';
+import type { WeightV2 } from '@pezkuwi/types/interfaces';
 import type { CallResult } from './types.js';
 
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { Button, Dropdown, Expander, InputAddress, InputBalance, Modal, styled, Toggle, TxButton } from '@polkadot/react-components';
-import { useAccountId, useApi, useDebounce, useFormField, useToggle } from '@polkadot/react-hooks';
-import { Available } from '@polkadot/react-query';
-import { BN, BN_ONE, BN_ZERO } from '@polkadot/util';
+import { Button, Dropdown, Expander, InputAddress, InputBalance, Modal, styled, Toggle, TxButton } from '@pezkuwi/react-components';
+import { useAccountId, useApi, useDebounce, useFormField, useToggle } from '@pezkuwi/react-hooks';
+import { Available } from '@pezkuwi/react-query';
+import { BN, BN_ONE, BN_ZERO } from '@pezkuwi/util';
 
 import { InputMegaGas, Params } from '../shared/index.js';
 import { useTranslation } from '../translate.js';

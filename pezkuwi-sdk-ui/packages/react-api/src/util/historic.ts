@@ -1,8 +1,8 @@
-// Copyright 2017-2025 @polkadot/react-api authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-api authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Hash } from '@polkadot/types/interfaces';
-import type { Codec } from '@polkadot/types/types';
+import type { Hash } from '@pezkuwi/types/interfaces';
+import type { Codec } from '@pezkuwi/types/types';
 
 type AtQuery <I extends unknown[]> = (hash: string | Uint8Array, ...params: I) => Promise<Codec>;
 

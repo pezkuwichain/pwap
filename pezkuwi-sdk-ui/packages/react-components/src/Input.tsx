@@ -1,10 +1,10 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { Input as SUIInput } from 'semantic-ui-react';
 
-import { isFunction, isUndefined } from '@polkadot/util';
+import { isFunction, isUndefined } from '@pezkuwi/util';
 
 import Labelled from './Labelled.js';
 

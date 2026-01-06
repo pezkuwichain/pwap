@@ -9,9 +9,9 @@
  * - Collective Proposals (Parliament/Diwan voting)
  */
 
-import type { ApiPromise } from '@polkadot/api';
-import type { Option, Vec } from '@polkadot/types';
-import type { AccountId, BlockNumber } from '@polkadot/types/interfaces';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { Option, Vec } from '@pezkuwi/types';
+import type { AccountId, BlockNumber } from '@pezkuwi/types/interfaces';
 
 // ============================================================================
 // TYPE DEFINITIONS

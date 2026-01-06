@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { BN } from '@polkadot/util';
+import type { BN } from '@pezkuwi/util';
 
 import React, { useMemo } from 'react';
 
-import { Subscan } from '@polkadot/apps-config/links/subscan';
-import { useParaEndpoints } from '@polkadot/react-hooks';
+import { Subscan } from '@pezkuwi/apps-config/links/subscan';
+import { useParaEndpoints } from '@pezkuwi/react-hooks';
 
 import ChainImg from './ChainImg.js';
 import Icon from './Icon.js';

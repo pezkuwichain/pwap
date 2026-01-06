@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/apps-config authors & contributors
+// Copyright 2017-2025 @pezkuwi/apps-config authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { TrackInfo } from './types.js';
 
-import { BN } from '@polkadot/util';
+import { BN } from '@pezkuwi/util';
 
 import { compareFellowshipRank, formatSpendFactory } from './util.js';
 

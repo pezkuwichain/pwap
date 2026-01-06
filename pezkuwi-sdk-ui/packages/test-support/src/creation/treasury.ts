@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/test-support authors & contributors
+// Copyright 2017-2025 @pezkuwi/test-support authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { SubmittableExtrinsic } from '@polkadot/api/types';
-import type { DeriveCollectiveProposal } from '@polkadot/api-derive/types';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { SubmittableExtrinsic } from '@pezkuwi/api/types';
+import type { DeriveCollectiveProposal } from '@pezkuwi/api-derive/types';
 
-import { BN_ONE, BN_ZERO } from '@polkadot/util';
+import { BN_ONE, BN_ZERO } from '@pezkuwi/util';
 
 import { alice, bob } from '../keyring/addresses.js';
 import { balanceOf } from './balance.js';

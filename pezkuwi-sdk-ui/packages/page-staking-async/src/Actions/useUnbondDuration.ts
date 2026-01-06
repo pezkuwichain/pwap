@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-staking-async authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking-async authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveSessionInfo } from '@polkadot/api-derive/types';
-import type { BN } from '@polkadot/util';
+import type { DeriveSessionInfo } from '@pezkuwi/api-derive/types';
+import type { BN } from '@pezkuwi/util';
 
 import { useMemo } from 'react';
 
-import { createNamedHook, useCall, useStakingAsyncApis } from '@polkadot/react-hooks';
-import { BN_ONE, BN_ZERO } from '@polkadot/util';
+import { createNamedHook, useCall, useStakingAsyncApis } from '@pezkuwi/react-hooks';
+import { BN_ONE, BN_ZERO } from '@pezkuwi/util';
 
 function useUnbondDurationImpl (): BN | undefined {
   const { ahApi: api } = useStakingAsyncApis();

@@ -1,21 +1,21 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveSessionProgress } from '@polkadot/api-derive/types';
-import type { u32 } from '@polkadot/types';
-import type { PalletNominationPoolsPoolMember } from '@polkadot/types/lookup';
+import type { DeriveSessionProgress } from '@pezkuwi/api-derive/types';
+import type { u32 } from '@pezkuwi/types';
+import type { PezpalletNominationPoolsPoolMember } from '@pezkuwi/types/lookup';
 import type { SortedTargets } from '../../types.js';
 
 import React from 'react';
 
-import usePoolInfo from '@polkadot/app-staking2/Pools/usePoolInfo';
+import usePoolInfo from '@pezkuwi/app-staking2/Pools/usePoolInfo';
 
 import Account from './Account.js';
 
 interface Props {
   count: number;
   className?: string;
-  members: Record<string, PalletNominationPoolsPoolMember>;
+  members: Record<string, PezpalletNominationPoolsPoolMember>;
   poolId: u32;
   sessionProgress?: DeriveSessionProgress;
   targets: SortedTargets;

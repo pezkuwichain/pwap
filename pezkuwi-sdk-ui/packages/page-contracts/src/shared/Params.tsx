@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-contracts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-contracts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { RawParams } from '@polkadot/react-params/types';
-import type { Registry, TypeDef } from '@polkadot/types/types';
+import type { RawParams } from '@pezkuwi/react-params/types';
+import type { Registry, TypeDef } from '@pezkuwi/types/types';
 
 import React, { useCallback, useEffect, useState } from 'react';
 
-import UIParams from '@polkadot/react-params';
+import UIParams from '@pezkuwi/react-params';
 
 interface Props {
   isDisabled?: boolean;

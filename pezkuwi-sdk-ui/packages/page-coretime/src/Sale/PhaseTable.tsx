@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-coretime authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-coretime authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { PhaseConfig } from '../types.js';
 
 import React, { useRef } from 'react';
 
-import { styled, Table } from '@polkadot/react-components';
-import { formatNumber } from '@polkadot/util';
+import { styled, Table } from '@pezkuwi/react-components';
+import { formatNumber } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 

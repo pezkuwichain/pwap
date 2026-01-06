@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveBalancesAll } from '@polkadot/api-derive/types';
+import type { DeriveBalancesAll } from '@pezkuwi/api-derive/types';
 import type { AmountValidateState } from '../types.js';
 
 import React, { useEffect, useState } from 'react';
 
-import { MarkError, MarkWarning } from '@polkadot/react-components';
-import { useApi, useCall } from '@polkadot/react-hooks';
-import { BN, BN_TEN, BN_THOUSAND, BN_ZERO, formatBalance } from '@polkadot/util';
+import { MarkError, MarkWarning } from '@pezkuwi/react-components';
+import { useApi, useCall } from '@pezkuwi/react-hooks';
+import { BN, BN_TEN, BN_THOUSAND, BN_ZERO, formatBalance } from '@pezkuwi/util';
 
 import { useTranslation } from '../../translate.js';
 

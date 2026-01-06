@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/app-staking-async authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking-async authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveBalancesAll } from '@polkadot/api-derive/types';
-import type { Option } from '@polkadot/types';
-import type { AccountId } from '@polkadot/types/interfaces';
-import type { PalletStakingStakingLedger } from '@polkadot/types/lookup';
+import type { DeriveBalancesAll } from '@pezkuwi/api-derive/types';
+import type { Option } from '@pezkuwi/types';
+import type { AccountId } from '@pezkuwi/types/interfaces';
+import type { PezpalletStakingStakingLedger } from '@pezkuwi/types/lookup';
 
 import React, { useEffect, useState } from 'react';
 
-import { MarkError, MarkWarning } from '@polkadot/react-components';
-import { useApi, useCall } from '@polkadot/react-hooks';
+import { MarkError, MarkWarning } from '@pezkuwi/react-components';
+import { useApi, useCall } from '@pezkuwi/react-hooks';
 
 import { useTranslation } from '../../translate.js';
 
@@ -33,7 +33,7 @@ const OPT_BOND = {
 };
 
 const OPT_STASH = {
-  transform: (value: Option<PalletStakingStakingLedger>): string | null =>
+  transform: (value: Option<PezpalletStakingStakingLedger>): string | null =>
     value.isSome
       ? value.unwrap().stash.toString()
       : null

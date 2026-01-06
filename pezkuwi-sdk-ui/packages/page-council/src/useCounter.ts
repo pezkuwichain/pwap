@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/app-council authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-council authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveCollectiveProposal } from '@polkadot/api-derive/types';
+import type { DeriveCollectiveProposal } from '@pezkuwi/api-derive/types';
 
-import { createNamedHook, useAccounts, useApi, useCall } from '@polkadot/react-hooks';
+import { createNamedHook, useAccounts, useApi, useCall } from '@pezkuwi/react-hooks';
 
 const transformCounter = {
   transform: (motions: DeriveCollectiveProposal[]) => motions.filter(({ votes }) => !!votes).length

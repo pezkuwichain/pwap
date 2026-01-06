@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/react-params authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-params authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { SubmittableExtrinsic, SubmittableExtrinsicFunction } from '@polkadot/api/types';
-import type { TypeDef } from '@polkadot/types/types';
+import type { SubmittableExtrinsic, SubmittableExtrinsicFunction } from '@pezkuwi/api/types';
+import type { TypeDef } from '@pezkuwi/types/types';
 import type { ComponentMap, RawParam } from '../types.js';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { InputExtrinsic } from '@polkadot/react-components';
-import Params from '@polkadot/react-params';
-import { getTypeDef } from '@polkadot/types/create';
-import { isUndefined, objectSpread } from '@polkadot/util';
+import { InputExtrinsic } from '@pezkuwi/react-components';
+import Params from '@pezkuwi/react-params';
+import { getTypeDef } from '@pezkuwi/types/create';
+import { isUndefined, objectSpread } from '@pezkuwi/util';
 
 import paramComponents from '../Extra/index.js';
 import { balanceCalls, balanceCallsOverrides } from '../overrides.js';

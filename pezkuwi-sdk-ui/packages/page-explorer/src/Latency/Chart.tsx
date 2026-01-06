@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @polkadot/app-explorer authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-explorer authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ChartOptions } from 'chart.js';
@@ -6,7 +6,7 @@ import type { ChartContents } from './types.js';
 
 import React from 'react';
 
-import { Chart, styled } from '@polkadot/react-components';
+import { Chart, styled } from '@pezkuwi/react-components';
 
 interface Props {
   className?: string;

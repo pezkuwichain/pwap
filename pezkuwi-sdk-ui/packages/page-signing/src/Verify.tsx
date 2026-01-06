@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/app-signing authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-signing authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { KeypairType } from '@polkadot/util-crypto/types';
+import type { KeypairType } from '@pezkuwi/util-crypto/types';
 
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { Badge, Dropdown, Input, InputAddress, Static, styled } from '@polkadot/react-components';
-import { useApi } from '@polkadot/react-hooks';
-import { keyring } from '@polkadot/ui-keyring';
-import { settings } from '@polkadot/ui-settings';
-import { isHex } from '@polkadot/util';
-import { signatureVerify } from '@polkadot/util-crypto';
+import { Badge, Dropdown, Input, InputAddress, Static, styled } from '@pezkuwi/react-components';
+import { useApi } from '@pezkuwi/react-hooks';
+import { keyring } from '@pezkuwi/ui-keyring';
+import { settings } from '@pezkuwi/ui-settings';
+import { isHex } from '@pezkuwi/util';
+import { signatureVerify } from '@pezkuwi/util-crypto';
 
 import { useTranslation } from './translate.js';
 

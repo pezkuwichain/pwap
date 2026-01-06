@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { BN } from '@polkadot/util';
+import type { BN } from '@pezkuwi/util';
 import type { BagMap } from './types.js';
 
 import React, { useMemo, useState } from 'react';
 
-import { Button, InputAddress, InputAddressMulti, Modal, TxButton } from '@polkadot/react-components';
-import { useApi, useToggle, useTxBatch } from '@polkadot/react-hooks';
+import { Button, InputAddress, InputAddressMulti, Modal, TxButton } from '@pezkuwi/react-components';
+import { useApi, useToggle, useTxBatch } from '@pezkuwi/react-hooks';
 
 import { useTranslation } from '../translate.js';
 import useBagsNodes from './useBagsNodes.js';

@@ -2,8 +2,8 @@
 //!
 //! This guide will teach you how to enable storage weight reclaiming for a teyrchain. The
 //! explanations in this guide assume a project structure similar to the one detailed in
-//! the [substrate documentation](crate::pezkuwi_sdk::substrate#anatomy-of-a-binary-crate). Full
-//! technical details are available in the original [pull request](https://github.com/paritytech/polkadot-sdk/pull/3002).
+//! the [bizinikiwi documentation](crate::pezkuwi_sdk::bizinikiwi#anatomy-of-a-binary-crate). Full
+//! technical details are available in the original [pull request](https://github.com/pezkuwichain/pezkuwi-sdk/issues/257).
 //!
 //! # What is PoV reclaim?
 //! When a teyrchain submits a block to a relay chain like Pezkuwi or Kusama, it sends the block
@@ -12,7 +12,7 @@
 //! validators distribute this PoV among themselves over the network. This distribution is costly
 //! and limits the size of the storage proof. The storage weight dimension of FRAME weights reflects
 //! this cost and limits the size of the storage proof. However, the storage weight determined
-//! during [benchmarking](crate::reference_docs::frame_benchmarking_weight) represents the worst
+//! during [benchmarking](crate::reference_docs::pezframe_benchmarking_weight) represents the worst
 //! case. In reality, runtime operations often consume less space in the storage proof. PoV reclaim
 //! offers a mechanism to reclaim the difference between the benchmarked worst-case and the real
 //! proof-size consumption.
@@ -24,12 +24,12 @@
 //! To reclaim excess storage weight, a teyrchain runtime needs the
 //! ability to fetch the size of the storage proof from the node. The reclaim
 //! mechanism uses the
-//! [`storage_proof_size`](cumulus_primitives_proof_size_hostfunction::storage_proof_size)
-//! host function for this purpose. For convenience, cumulus provides
-//! [`TeyrchainHostFunctions`](cumulus_client_service::TeyrchainHostFunctions), a set of
-//! host functions typically used by cumulus-based teyrchains. In the binary crate of your
-//! teyrchain, find the instantiation of the [`WasmExecutor`](sc_executor::WasmExecutor) and set the
-//! correct generic type.
+//! [`storage_proof_size`](pezcumulus_primitives_proof_size_hostfunction::storage_proof_size)
+//! host function for this purpose. For convenience, pezcumulus provides
+//! [`TeyrchainHostFunctions`](pezcumulus_client_service::TeyrchainHostFunctions), a set of
+//! host functions typically used by pezcumulus-based teyrchains. In the binary crate of your
+//! teyrchain, find the instantiation of the [`WasmExecutor`](pezsc_executor::WasmExecutor) and set
+//! the correct generic type.
 //!
 //! This example from the teyrchain-template shows a type definition that includes the correct
 //! host functions.
@@ -46,9 +46,9 @@
 //! The reclaim mechanism reads the size of the currently recorded storage proof multiple times
 //! during block authoring and block import. Proof recording during authoring is already enabled on
 //! teyrchains. You must also ensure that storage proof recording is enabled during block import.
-//! Find where your node builds the fundamental substrate components by calling
-//! [`new_full_parts`](sc_service::new_full_parts). Replace this
-//! with [`new_full_parts_record_import`](sc_service::new_full_parts_record_import) and
+//! Find where your node builds the fundamental bizinikiwi components by calling
+//! [`new_full_parts`](pezsc_service::new_full_parts). Replace this
+//! with [`new_full_parts_record_import`](pezsc_service::new_full_parts_record_import) and
 //! pass `true` as the last parameter to enable import recording.
 #![doc = docify::embed!("../../templates/teyrchain/node/src/service.rs", component_instantiation)]
 //!
@@ -62,7 +62,7 @@
 //!
 //! In your runtime, you will find a list of TransactionExtensions.
 //! To enable the reclaiming,
-//! set [`StorageWeightReclaim`](cumulus_pallet_weight_reclaim::StorageWeightReclaim)
+//! set [`StorageWeightReclaim`](pezcumulus_pezpallet_weight_reclaim::StorageWeightReclaim)
 //! as a warpper of that list.
 //! It is necessary that this extension wraps all the other transaction extensions in order to catch
 //! the whole PoV size of the transactions.

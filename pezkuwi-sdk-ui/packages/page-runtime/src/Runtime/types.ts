@@ -1,7 +1,7 @@
-// Copyright 2017-2025 @polkadot/app-runtime authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-runtime authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Codec, DefinitionCallNamed } from '@polkadot/types/types';
+import type { Codec, DefinitionCallNamed } from '@pezkuwi/types/types';
 
 export interface Result {
   id: number;

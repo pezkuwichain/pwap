@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/app-referenda authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-referenda authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { INumber } from '@polkadot/types/types';
+import type { INumber } from '@pezkuwi/types/types';
 import type { PalletVote } from '../../types.js';
 import type { LockResult } from './types.js';
 
 import { useMemo } from 'react';
 
-import { createNamedHook, useApi, useCall } from '@polkadot/react-hooks';
-import { isFunction } from '@polkadot/util';
+import { createNamedHook, useApi, useCall } from '@pezkuwi/react-hooks';
+import { isFunction } from '@pezkuwi/util';
 
 const LOCKS_OPT = {
   transform: ([[ids], locks]: [[string[]], [INumber, INumber][][]]): LockResult =>

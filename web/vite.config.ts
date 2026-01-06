@@ -33,6 +33,7 @@ export default defineConfig(() => ({
     nodePolyfills(),
   ].filter(Boolean),
   resolve: {
+    mainFields: ['module', 'main', 'exports'],
     alias: {
       "@": path.resolve(__dirname, "./src"),
       "@pezkuwi/i18n": path.resolve(__dirname, "../shared/i18n"),
@@ -43,10 +44,10 @@ export default defineConfig(() => ({
       "@pezkuwi/components": path.resolve(__dirname, "../shared/components"),
       "@shared": path.resolve(__dirname, "../shared"),
     },
-    dedupe: ['react', 'lucide-react', 'sonner', '@polkadot/util-crypto', '@polkadot/util', '@polkadot/api', '@polkadot/extension-dapp', '@polkadot/keyring'],
+    dedupe: ['react', 'lucide-react', 'sonner', '@pezkuwi/util-crypto', '@pezkuwi/util', '@pezkuwi/api', '@pezkuwi/extension-dapp', '@pezkuwi/keyring'],
   },
   optimizeDeps: {
-    include: ['@polkadot/util-crypto', '@polkadot/util', '@polkadot/api', '@polkadot/extension-dapp', '@polkadot/keyring', 'buffer'],
+    include: ['@pezkuwi/util-crypto', '@pezkuwi/util', '@pezkuwi/api', '@pezkuwi/extension-dapp', '@pezkuwi/keyring', 'buffer'],
   },
   build: {
     rollupOptions: {
@@ -60,7 +61,7 @@ export default defineConfig(() => ({
       },
       output: {
         manualChunks: {
-          'polkadot': ['@polkadot/api', '@polkadot/extension-dapp', '@polkadot/keyring', '@polkadot/util', '@polkadot/util-crypto'],
+          'pezkuwi': ['@pezkuwi/api', '@pezkuwi/extension-dapp', '@pezkuwi/keyring', '@pezkuwi/util', '@pezkuwi/util-crypto'],
           'vendor': ['react', 'react-dom', 'react-router-dom'],
           'ui': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-select', '@radix-ui/react-tabs', '@radix-ui/react-toast'],
           'forms': ['react-hook-form', '@hookform/resolvers', 'zod'],

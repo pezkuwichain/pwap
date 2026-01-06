@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { BN } from '@polkadot/util';
+import type { BN } from '@pezkuwi/util';
 import type { AssetInfoComplete } from '../types.js';
 import type { PayWithAsset } from './types.js';
 
 import React, { useCallback, useMemo, useState } from 'react';
 
-import { useApi, useAssetIds, useAssetInfos } from '@polkadot/react-hooks';
+import { useApi, useAssetIds, useAssetInfos } from '@pezkuwi/react-hooks';
 
 interface Props {
   children?: React.ReactNode;

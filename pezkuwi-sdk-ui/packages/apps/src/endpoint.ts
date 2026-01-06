@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/apps authors & contributors
+// Copyright 2017-2025 @pezkuwi/apps authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
+import type { ApiPromise } from '@pezkuwi/api';
 
-import { isFunction, isObject } from '@polkadot/util';
+import { isFunction, isObject } from '@pezkuwi/util';
 
 type ApiMapper = Record<string, Record<string, Record<string, unknown>>>;
 

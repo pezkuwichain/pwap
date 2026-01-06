@@ -14,8 +14,8 @@
 //! crate in the repo, with `default-features = false`.
 //!
 //! For more fine-grained control, additionally, each crate can be enabled selectively. The umbrella
-//! exposes one feature per dependency. For example, if you only want to use the `frame-support`
-//! crate, you can enable the `frame-support` feature.
+//! exposes one feature per dependency. For example, if you only want to use the `pezframe-support`
+//! crate, you can enable the `pezframe-support` feature.
 //!
 //! The umbrella exposes a few more general features:
 //! - `tuples-96`: Needs to be enabled for runtimes that have more than 64 pallets.
@@ -43,7 +43,8 @@
 //!
 //! ## Usage
 //!
-//! > Note: You can see a live example in the `staging-node-cli` and `kitchensink-runtime` crates.
+//! > Note: You can see a live example in the `pezstaging-node-cli` and `pez-kitchensink-runtime`
+//! > crates.
 //!
 //! The umbrella crate can be added to your runtime crate like this:
 //!
@@ -70,10 +71,10 @@
 //!
 //! mod foo {
 //!    // This does sadly not compile:
-//!    frame_support::parameter_types! { }
+//!    pezframe_support::parameter_types! { }
 //!
 //!    // Instead, we need to do this (or add an equivalent `use` statement):
-//!    pezkuwi_sdk::frame_support::parameter_types! { }
+//!    pezkuwi_sdk::pezframe_support::parameter_types! { }
 //! }
 //! ```
 //!

@@ -10,8 +10,8 @@
  * - No blockchain transactions during actual P2P trading
  */
 
-import { ApiPromise } from '@polkadot/api';
-import { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
+import { ApiPromise } from '@pezkuwi/api';
+import { InjectedAccountWithMeta } from '@pezkuwi/extension-inject/types';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 
@@ -630,7 +630,7 @@ async function signAndSendTx(
   tx: any
 ): Promise<string> {
   // Get signer from Polkadot.js extension
-  const { web3FromSource } = await import('@polkadot/extension-dapp');
+  const { web3FromSource } = await import('@pezkuwi/extension-dapp');
   const injector = await web3FromSource(account.meta.source);
 
   return new Promise((resolve, reject) => {

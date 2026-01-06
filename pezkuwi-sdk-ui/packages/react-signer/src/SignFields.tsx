@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/react-signer authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-signer authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { SignerOptions } from '@polkadot/api/submittable/types';
+import type { SignerOptions } from '@pezkuwi/api/submittable/types';
 
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { InputNumber, Modal, Output } from '@polkadot/react-components';
-import { useApi } from '@polkadot/react-hooks';
-import { BN, BN_ZERO } from '@polkadot/util';
+import { InputNumber, Modal, Output } from '@pezkuwi/react-components';
+import { useApi } from '@pezkuwi/react-hooks';
+import { BN, BN_ZERO } from '@pezkuwi/util';
 
 import { useTranslation } from './translate.js';
 

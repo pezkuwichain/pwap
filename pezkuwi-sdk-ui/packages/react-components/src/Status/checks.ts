@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 // we use augmented types in this tsconfig
-import '@polkadot/api-augment/substrate';
+import '@pezkuwi/api-augment/bizinikiwi';
 
-import type { DispatchError, DispatchResult, Event, EventRecord } from '@polkadot/types/interfaces';
-import type { StagingXcmV5TraitsOutcome } from '@polkadot/types/lookup';
+import type { DispatchError, DispatchResult, Event, EventRecord } from '@pezkuwi/types/interfaces';
+import type { StagingXcmV5TraitsOutcome } from '@pezkuwi/types/lookup';
 
 type EventCheck = (event: Event) => string | null;
 

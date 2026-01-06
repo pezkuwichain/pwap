@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/app-bounties authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-bounties authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-/// <reference types="@polkadot/dev-test/globals.d.ts" />
+/// <reference types="@pezkuwi/dev-test/globals.d.ts" />
 
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React, { Suspense } from 'react';
 import { ThemeProvider } from 'styled-components';
 
-import { lightTheme } from '@polkadot/react-components';
-import { useToggle } from '@polkadot/react-hooks';
+import { lightTheme } from '@pezkuwi/react-components';
+import { useToggle } from '@pezkuwi/react-hooks';
 
 import Button from '../Button/index.js';
 import i18next from '../i18n/index.js';

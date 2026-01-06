@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { SessionInfo } from '../types.js';
 
 import React, { useRef, useState } from 'react';
 
-import { Button, styled, ToggleGroup } from '@polkadot/react-components';
+import { Button, styled, ToggleGroup } from '@pezkuwi/react-components';
 
 import Legend from '../Legend.js';
 import { useTranslation } from '../translate.js';

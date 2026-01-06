@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/app-storage authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-storage authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ConstValue } from '@polkadot/react-components/InputConsts/types';
-import type { ConstantCodec } from '@polkadot/types/metadata/decorate/types';
+import type { ConstValue } from '@pezkuwi/react-components/InputConsts/types';
+import type { ConstantCodec } from '@pezkuwi/types/metadata/decorate/types';
 import type { ComponentProps as Props } from '../types.js';
 
 import React, { useCallback, useState } from 'react';
 
-import { Button, InputConsts } from '@polkadot/react-components';
-import { useApi } from '@polkadot/react-hooks';
+import { Button, InputConsts } from '@pezkuwi/react-components';
+import { useApi } from '@pezkuwi/react-hooks';
 
 import { useTranslation } from '../translate.js';
 

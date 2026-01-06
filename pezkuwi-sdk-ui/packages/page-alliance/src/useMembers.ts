@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-alliance authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-alliance authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AccountId32 } from '@polkadot/types/interfaces';
+import type { AccountId32 } from '@pezkuwi/types/interfaces';
 import type { Member } from './types.js';
 
 import { useEffect, useState } from 'react';
 
-import { createNamedHook, useApi, useCall } from '@polkadot/react-hooks';
+import { createNamedHook, useApi, useCall } from '@pezkuwi/react-hooks';
 
 const ROLES = ['Retiring', 'Ally', 'Fellow'] as const;
 

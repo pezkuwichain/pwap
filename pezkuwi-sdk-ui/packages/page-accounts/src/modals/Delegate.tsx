@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Conviction } from '@polkadot/types/interfaces';
-import type { BN } from '@polkadot/util';
+import type { Conviction } from '@pezkuwi/types/interfaces';
+import type { BN } from '@pezkuwi/util';
 import type { AmountValidateState } from '../Accounts/types.js';
 
 import React, { useState } from 'react';
 
-import { ConvictionDropdown, InputAddress, InputBalance, Modal, TxButton } from '@polkadot/react-components';
-import { useApi } from '@polkadot/react-hooks';
-import { BalanceFree } from '@polkadot/react-query';
-import { BN_ZERO } from '@polkadot/util';
+import { ConvictionDropdown, InputAddress, InputBalance, Modal, TxButton } from '@pezkuwi/react-components';
+import { useApi } from '@pezkuwi/react-hooks';
+import { BalanceFree } from '@pezkuwi/react-query';
+import { BN_ZERO } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 import ValidateAmount from './InputValidateAmount.js';

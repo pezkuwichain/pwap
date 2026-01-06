@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-coretime authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-coretime authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { BrokerStatus, CoreDescription, PalletBrokerConfigRecord, PalletBrokerSaleInfoRecord, RegionInfo } from '@polkadot/react-hooks/types';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { BrokerStatus, CoreDescription, PezpalletBrokerConfigRecord, PezpalletBrokerSaleInfoRecord, RegionInfo } from '@pezkuwi/react-hooks/types';
 
 import React from 'react';
 
-import { CardSummary, SummaryBox } from '@polkadot/react-components';
-import { BN, formatNumber } from '@polkadot/util';
+import { CardSummary, SummaryBox } from '@pezkuwi/react-components';
+import { BN, formatNumber } from '@pezkuwi/util';
 
 import { useCoretimeContext } from '../CoretimeContext.js';
 import { useTranslation } from '../translate.js';
@@ -16,8 +16,8 @@ import { getCurrentRegionStartEndTs } from '../utils/index.js';
 interface Props {
   api: ApiPromise | null,
   coreDscriptors?: CoreDescription[];
-  saleInfo: PalletBrokerSaleInfoRecord
-  config: PalletBrokerConfigRecord,
+  saleInfo: PezpalletBrokerSaleInfoRecord
+  config: PezpalletBrokerConfigRecord,
   region: RegionInfo[],
   status: BrokerStatus,
   saleNumber: number,

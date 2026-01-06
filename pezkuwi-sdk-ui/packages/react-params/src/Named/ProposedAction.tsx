@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/react-params authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-params authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Call } from '@polkadot/types/interfaces';
-import type { BN } from '@polkadot/util';
+import type { Call } from '@pezkuwi/types/interfaces';
+import type { BN } from '@pezkuwi/util';
 
 import React from 'react';
 
-import { formatNumber, isString, isUndefined } from '@polkadot/util';
+import { formatNumber, isString, isUndefined } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 import CallExpander from './CallExpander.js';

@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type BN from 'bn.js';
-import type { ApiPromise } from '@polkadot/api';
-import type { DeriveBalancesAll } from '@polkadot/api-derive/types';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { DeriveBalancesAll } from '@pezkuwi/api-derive/types';
 
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { useApi, useCall } from '@polkadot/react-hooks';
-import { BalanceVoting } from '@polkadot/react-query';
-import { BN_ZERO } from '@polkadot/util';
+import { useApi, useCall } from '@pezkuwi/react-hooks';
+import { BalanceVoting } from '@pezkuwi/react-query';
+import { BN_ZERO } from '@pezkuwi/util';
 
 import InputBalance from './InputBalance.js';
 import { useTranslation } from './translate.js';

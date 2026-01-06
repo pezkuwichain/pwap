@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AddressFlags } from '@polkadot/react-hooks/types';
+import type { AddressFlags } from '@pezkuwi/react-hooks/types';
 
 import React from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
 
-import { useToggle } from '@polkadot/react-hooks';
+import { useToggle } from '@pezkuwi/react-hooks';
 
 import AccountName from '../AccountName.js';
 import Button from '../Button/index.js';
@@ -65,6 +65,7 @@ function AddressSection ({ accountIndex, defaultValue, editingName, flags, onCha
       </div>
       <div className='ui--AddressSection__CopyColumn'>
         <div className='ui--AddressMenu-copyaddr'>
+          {/* @ts-expect-error React 18 type compatibility */}
           <CopyToClipboard
             text={value}
           >

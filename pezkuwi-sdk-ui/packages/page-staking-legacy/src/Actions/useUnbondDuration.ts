@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveSessionInfo } from '@polkadot/api-derive/types';
-import type { BN } from '@polkadot/util';
+import type { DeriveSessionInfo } from '@pezkuwi/api-derive/types';
+import type { BN } from '@pezkuwi/util';
 
 import { useMemo } from 'react';
 
-import { createNamedHook, useApi, useCall } from '@polkadot/react-hooks';
-import { BN_ONE } from '@polkadot/util';
+import { createNamedHook, useApi, useCall } from '@pezkuwi/react-hooks';
+import { BN_ONE } from '@pezkuwi/util';
 
 function useUnbondDurationImpl (): BN | undefined {
   const { api } = useApi();

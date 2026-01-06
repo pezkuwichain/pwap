@@ -1,8 +1,8 @@
-// Copyright 2017-2025 @polkadot/app-referenda authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-referenda authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { PalletReferendaDeposit } from '@polkadot/types/lookup';
-import type { BN } from '@polkadot/util';
+import type { PezpalletReferendaDeposit } from '@pezkuwi/types/lookup';
+import type { BN } from '@pezkuwi/util';
 import type { Referendum, ReferendumProps as Props } from '../types.js';
 
 import React, { useMemo } from 'react';
@@ -12,8 +12,8 @@ import RefEnd from './RefEnd.js';
 import { unwrapDeposit } from './util.js';
 
 interface Expanded {
-  decision: PalletReferendaDeposit | null;
-  submit: PalletReferendaDeposit | null;
+  decision: PezpalletReferendaDeposit | null;
+  submit: PezpalletReferendaDeposit | null;
   when: BN | null;
 }
 

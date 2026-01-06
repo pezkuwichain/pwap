@@ -3,7 +3,7 @@
 // ========================================
 // Functions to check user permissions for protected routes
 
-import type { ApiPromise } from '@polkadot/api';
+import type { ApiPromise } from '@pezkuwi/api';
 
 // ========================================
 // CITIZENSHIP STATUS CHECK

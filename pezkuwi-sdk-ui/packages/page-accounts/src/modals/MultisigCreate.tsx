@@ -1,17 +1,17 @@
-// Copyright 2017-2025 @polkadot/app-accounts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-accounts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ActionStatus } from '@polkadot/react-components/Status/types';
-import type { HexString } from '@polkadot/util/types';
+import type { ActionStatus } from '@pezkuwi/react-components/Status/types';
+import type { HexString } from '@pezkuwi/util/types';
 import type { ModalProps } from '../types.js';
 
 import React, { useCallback, useState } from 'react';
 
-import { AddressMini, Button, IconLink, Input, InputAddressMulti, InputFile, InputNumber, Labelled, MarkError, Modal, styled, Toggle } from '@polkadot/react-components';
-import { useApi } from '@polkadot/react-hooks';
-import { keyring } from '@polkadot/ui-keyring';
-import { assert, BN, u8aToString } from '@polkadot/util';
-import { validateAddress } from '@polkadot/util-crypto';
+import { AddressMini, Button, IconLink, Input, InputAddressMulti, InputFile, InputNumber, Labelled, MarkError, Modal, styled, Toggle } from '@pezkuwi/react-components';
+import { useApi } from '@pezkuwi/react-hooks';
+import { keyring } from '@pezkuwi/ui-keyring';
+import { assert, BN, u8aToString } from '@pezkuwi/util';
+import { validateAddress } from '@pezkuwi/util-crypto';
 
 import useKnownAddresses from '../Accounts/useKnownAddresses.js';
 import { useTranslation } from '../translate.js';

@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { BN } from '@polkadot/util';
+import type { BN } from '@pezkuwi/util';
 import type { SortedTargets } from '../../types.js';
 import type { NominateInfo } from '../partials/types.js';
 
 import React, { useState } from 'react';
 
-import { Modal, styled, TxButton } from '@polkadot/react-components';
+import { Modal, styled, TxButton } from '@pezkuwi/react-components';
 
 import { useTranslation } from '../../translate.js';
 import NominatePartial from '../partials/Nominate.js';

@@ -102,8 +102,8 @@ export const AccountBalance: React.FC = () => {
       if (import.meta.env.DEV) console.log('💰 Fetching token prices from pools...');
 
       // Import utilities for pool account derivation
-      const { stringToU8a } = await import('@polkadot/util');
-      const { blake2AsU8a } = await import('@polkadot/util-crypto');
+      const { stringToU8a } = await import('@pezkuwi/util');
+      const { blake2AsU8a } = await import('@pezkuwi/util-crypto');
       const PALLET_ID = stringToU8a('py/ascon');
 
       // Fetch wHEZ/wUSDT pool reserves (Asset 0 / Asset 1000)

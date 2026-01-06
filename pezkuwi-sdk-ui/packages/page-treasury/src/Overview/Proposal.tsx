@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-treasury authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-treasury authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveTreasuryProposal } from '@polkadot/api-derive/types';
+import type { DeriveTreasuryProposal } from '@pezkuwi/api-derive/types';
 
 import React, { useMemo } from 'react';
 
-import { AddressMini, AddressSmall, Columar, LinkExternal, Table } from '@polkadot/react-components';
-import { useApi, useToggle } from '@polkadot/react-hooks';
-import { isFunction } from '@polkadot/util';
+import { AddressMini, AddressSmall, Columar, LinkExternal, Table } from '@pezkuwi/react-components';
+import { useApi, useToggle } from '@pezkuwi/react-hooks';
+import { isFunction } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 import Council from './Council.js';

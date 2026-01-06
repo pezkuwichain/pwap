@@ -1,7 +1,7 @@
-// Copyright 2017-2025 @polkadot/test-support authors & contributors
+// Copyright 2017-2025 @pezkuwi/test-support authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { extractTime } from '@polkadot/util';
+import { extractTime } from '@pezkuwi/util';
 
 import { defaultTreasury } from '../creation/treasury.js';
 import { defaultMembers } from '../keyring/addresses.js';

@@ -1,19 +1,19 @@
-// Copyright 2017-2025 @polkadot/app-assets authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-assets authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 // augment package
-import '@polkadot/api-augment/substrate';
+import '@pezkuwi/api-augment/bizinikiwi';
 
-import type { BN } from '@polkadot/util';
-import type { HexString } from '@polkadot/util/types';
+import type { BN } from '@pezkuwi/util';
+import type { HexString } from '@pezkuwi/util/types';
 
 import React, { useMemo, useRef } from 'react';
 import { Route, Routes } from 'react-router';
 
-import { getGenesis } from '@polkadot/apps-config';
-import { Tabs } from '@polkadot/react-components';
-import { useAccounts, useApi, useAssetIds, useAssetInfos } from '@polkadot/react-hooks';
-import { BN_ONE } from '@polkadot/util';
+import { getGenesis } from '@pezkuwi/apps-config';
+import { Tabs } from '@pezkuwi/react-components';
+import { useAccounts, useApi, useAssetIds, useAssetInfos } from '@pezkuwi/react-hooks';
+import { BN_ONE } from '@pezkuwi/util';
 
 import Balances from './Balances/index.js';
 import ForeignAssets from './foreignAssets/index.js';

@@ -8,7 +8,7 @@
  *  3. The tests require a funded sudo account (`//Alice`).
  */
 
-import { ApiPromise, WsProvider, Keyring } from '@polkadot/api';
+import { ApiPromise, WsProvider, Keyring } from '@pezkuwi/api';
 import { jest } from '@jest/globals';
 
 // ========================================

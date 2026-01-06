@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/app-democracy authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-democracy authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-/// <reference types="@polkadot/dev-test/globals.d.ts" />
+/// <reference types="@pezkuwi/dev-test/globals.d.ts" />
 
-import { calcPassing } from '@polkadot/api-derive/democracy/util';
-import { TypeRegistry } from '@polkadot/types/create';
-import { BN } from '@polkadot/util';
+import { calcPassing } from '@pezkuwi/api-derive/democracy/util';
+import { TypeRegistry } from '@pezkuwi/types/create';
+import { BN } from '@pezkuwi/util';
 
 import { approxChanges } from './util.js';
 

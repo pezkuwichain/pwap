@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/app-staking-async authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking-async authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { QueryableStorageMultiArg } from '@polkadot/api/types';
-import type { DeriveEraExposure, DeriveEraValidatorExposurePaged, DeriveSessionIndexes } from '@polkadot/api-derive/types';
-import type { Option, u16, u32, Vec } from '@polkadot/types';
-import type { EraIndex, Exposure, Nominations, UnappliedSlash } from '@polkadot/types/interfaces';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { QueryableStorageMultiArg } from '@pezkuwi/api/types';
+import type { DeriveEraExposure, DeriveEraValidatorExposurePaged, DeriveSessionIndexes } from '@pezkuwi/api-derive/types';
+import type { Option, u16, u32, Vec } from '@pezkuwi/types';
+import type { EraIndex, Exposure, Nominations, UnappliedSlash } from '@pezkuwi/types/interfaces';
 
 import { useEffect, useState } from 'react';
 
-import { createNamedHook, useCall, useIsMountedRef, useStakingAsyncApis } from '@polkadot/react-hooks';
-import { BN } from '@polkadot/util';
+import { createNamedHook, useCall, useIsMountedRef, useStakingAsyncApis } from '@pezkuwi/react-hooks';
+import { BN } from '@pezkuwi/util';
 
 /**
  * @interface Inactives

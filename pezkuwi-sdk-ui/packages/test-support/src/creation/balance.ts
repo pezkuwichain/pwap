@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/test-supports authors & contributors
+// Copyright 2017-2025 @pezkuwi/test-supports authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Registry } from '@polkadot/types/types';
+import type { Registry } from '@pezkuwi/types/types';
 
-import { TypeRegistry, u128 as U128 } from '@polkadot/types';
+import { TypeRegistry, u128 as U128 } from '@pezkuwi/types';
 
 export function balanceOf (number: number | string): U128 {
   // FIXME - ref: https://github.com/polkadot-js/apps/pull/11051

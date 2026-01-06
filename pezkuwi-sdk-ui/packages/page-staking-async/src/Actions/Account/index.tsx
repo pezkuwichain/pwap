@@ -1,19 +1,19 @@
-// Copyright 2017-2025 @polkadot/app-staking-async authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking-async authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { DeriveBalancesAll, DeriveStakingAccount } from '@polkadot/api-derive/types';
-import type { SortedTargets } from '@polkadot/app-staking/types';
-import type { StakerState } from '@polkadot/react-hooks/types';
-import type { PalletStakingUnappliedSlash } from '@polkadot/types/lookup';
-import type { BN } from '@polkadot/util';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { DeriveBalancesAll, DeriveStakingAccount } from '@pezkuwi/api-derive/types';
+import type { SortedTargets } from '@pezkuwi/app-staking/types';
+import type { StakerState } from '@pezkuwi/react-hooks/types';
+import type { PezpalletStakingUnappliedSlash } from '@pezkuwi/types/lookup';
+import type { BN } from '@pezkuwi/util';
 import type { Slash } from '../types.js';
 
 import React, { useCallback, useMemo } from 'react';
 
-import { AddressInfo, AddressMini, AddressSmall, Badge, Button, Menu, Popup, StakingBonded, StakingRedeemable, StakingUnbonding, styled, TxButton } from '@polkadot/react-components';
-import { useApi, useCall, useQueue, useStakingAsyncApis, useToggle } from '@polkadot/react-hooks';
-import { formatNumber, isFunction } from '@polkadot/util';
+import { AddressInfo, AddressMini, AddressSmall, Badge, Button, Menu, Popup, StakingBonded, StakingRedeemable, StakingUnbonding, styled, TxButton } from '@pezkuwi/react-components';
+import { useApi, useCall, useQueue, useStakingAsyncApis, useToggle } from '@pezkuwi/react-hooks';
+import { formatNumber, isFunction } from '@pezkuwi/util';
 
 import { useTranslation } from '../../translate.js';
 import useSlashingSpans from '../useSlashingSpans.js';
@@ -31,7 +31,7 @@ import Validate from './Validate.js';
 import WarnBond from './WarnBond.js';
 
 interface Props {
-  allSlashes?: [BN, PalletStakingUnappliedSlash[]][];
+  allSlashes?: [BN, PezpalletStakingUnappliedSlash[]][];
   className?: string;
   isDisabled?: boolean;
   info: StakerState;
@@ -41,7 +41,7 @@ interface Props {
   validators?: string[];
 }
 
-function extractSlashes (stashId: string, allSlashes: [BN, PalletStakingUnappliedSlash[]][] = []): Slash[] {
+function extractSlashes (stashId: string, allSlashes: [BN, PezpalletStakingUnappliedSlash[]][] = []): Slash[] {
   return allSlashes
     .map(([era, all]) => ({
       era,

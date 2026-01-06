@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { LineData } from './types.js';
 
 import React, { useMemo } from 'react';
 
-import { Chart, Spinner, styled } from '@polkadot/react-components';
+import { Chart, Spinner, styled } from '@pezkuwi/react-components';
 
 interface Props {
   className?: string;

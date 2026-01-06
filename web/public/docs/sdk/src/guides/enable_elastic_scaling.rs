@@ -66,7 +66,7 @@
 //!
 //! ### UMP signals
 //!
-//! UMP signals are now enabled by default in the `teyrchain-system` pallet and are used for
+//! UMP signals are now enabled by default in the `teyrchain-system` pezpallet and are used for
 //! elastic scaling. You can find more technical details about UMP signals and their usage for
 //! elastic scaling
 //! [here](https://github.com/polkadot-fellows/RFCs/blob/main/text/0103-introduce-core-index-commitment.md).
@@ -81,7 +81,7 @@
 //!     /// Build with an offset of 1 behind the relay chain best block.
 //!     const RELAY_PARENT_OFFSET: u32 = 1;
 //!
-//!     impl cumulus_pallet_teyrchain_system::Config for Runtime {
+//!     impl pezcumulus_pezpallet_teyrchain_system::Config for Runtime {
 //!         // ...
 //!         type RelayParentOffset = ConstU32<RELAY_PARENT_OFFSET>;
 //!     }
@@ -89,7 +89,7 @@
 //!
 //! Implement the runtime API to retrieve the offset on the client side.
 //! ```ignore
-//!     impl cumulus_primitives_core::RelayParentOffsetApi<Block> for Runtime {
+//!     impl pezcumulus_primitives_core::RelayParentOffsetApi<Block> for Runtime {
 //!         fn relay_parent_offset() -> u32 {
 //!             RELAY_PARENT_OFFSET
 //!         }
@@ -117,7 +117,7 @@
 //!     /// Relay chain slot duration, in milliseconds.
 //!     const RELAY_CHAIN_SLOT_DURATION_MILLIS: u32 = 6000;
 //!
-//!     type ConsensusHook = cumulus_pallet_aura_ext::FixedVelocityConsensusHook<
+//!     type ConsensusHook = pezcumulus_pezpallet_aura_ext::FixedVelocityConsensusHook<
 //!         Runtime,
 //!         RELAY_CHAIN_SLOT_DURATION_MILLIS,
 //!         BLOCK_PROCESSING_VELOCITY,
@@ -129,9 +129,9 @@
 //! ### Teyrchain Slot Duration
 //!
 //! A common source of confusion is the correct configuration of the `SlotDuration` that is passed
-//! to `pallet-aura`.
+//! to `pezpallet-aura`.
 //! ```ignore
-//! impl pallet_aura::Config for Runtime {
+//! impl pezpallet_aura::Config for Runtime {
 //!     // ...
 //!     type SlotDuration = ConstU64<SLOT_DURATION>;
 //! }

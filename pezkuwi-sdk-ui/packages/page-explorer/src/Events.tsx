@@ -1,18 +1,18 @@
-// Copyright 2017-2025 @polkadot/app-explorer authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-explorer authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { KeyedEvent } from '@polkadot/react-hooks/ctx/types';
-import type { GenericExtrinsic, Vec } from '@polkadot/types';
-import type { AccountId } from '@polkadot/types/interfaces';
-import type { AnyTuple } from '@polkadot/types-codec/types';
+import type { KeyedEvent } from '@pezkuwi/react-hooks/ctx/types';
+import type { GenericExtrinsic, Vec } from '@pezkuwi/types';
+import type { AccountId } from '@pezkuwi/types/interfaces';
+import type { AnyTuple } from '@pezkuwi/types-codec/types';
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { MarkError, styled, Table, Toggle } from '@polkadot/react-components';
-import { useAccounts, useApi, useToggle } from '@polkadot/react-hooks';
-import { isEventFromMyAccounts } from '@polkadot/react-hooks/utils/isEventFromMyAccounts';
-import { formatNumber } from '@polkadot/util';
+import { MarkError, styled, Table, Toggle } from '@pezkuwi/react-components';
+import { useAccounts, useApi, useToggle } from '@pezkuwi/react-hooks';
+import { isEventFromMyAccounts } from '@pezkuwi/react-hooks/utils/isEventFromMyAccounts';
+import { formatNumber } from '@pezkuwi/util';
 
 import Event from './Event.js';
 import { useTranslation } from './translate.js';

@@ -1,20 +1,20 @@
-//! # Currency Pallet
+//! # Currency Pezpallet
 //!
-//! By the end of this guide, you will have written a small FRAME pallet (see
+//! By the end of this guide, you will have written a small FRAME pezpallet (see
 //! [`crate::pezkuwi_sdk::frame_runtime`]) that is capable of handling a simple crypto-currency.
-//! This pallet will:
+//! This pezpallet will:
 //!
 //! 1. Allow anyone to mint new tokens into accounts (which is obviously not a great idea for a real
 //!    system).
 //! 2. Allow any user that owns tokens to transfer them to others.
 //! 3. Track the total issuance of all tokens at all times.
 //!
-//! > This guide will build a currency pallet from scratch using only the lowest primitives of
+//! > This guide will build a currency pezpallet from scratch using only the lowest primitives of
 //! > FRAME, and is mainly intended for education, not *applicability*. For example, almost all
-//! > FRAME-based runtimes use various techniques to re-use a currency pallet instead of writing
+//! > FRAME-based runtimes use various techniques to re-use a currency pezpallet instead of writing
 //! > one. Further advanced FRAME related topics are discussed in [`crate::reference_docs`].
 //!
-//! ## Writing Your First Pallet
+//! ## Writing Your First Pezpallet
 //!
 //! To get started, clone one of the templates mentioned in [`crate::pezkuwi_sdk::templates`]. We
 //! recommend using the `pezkuwi-sdk-minimal-template`. You might need to change small parts of
@@ -33,23 +33,23 @@
 //!
 //! The following FRAME topics are covered in this guide:
 //!
-//! - [`pallet::storage`]
-//! - [`pallet::call`]
-//! - [`pallet::event`]
-//! - [`pallet::error`]
-//! - Basics of testing a pallet
-//! - [Constructing a runtime](frame::runtime::prelude::construct_runtime)
+//! - [`pezpallet::storage`]
+//! - [`pezpallet::call`]
+//! - [`pezpallet::event`]
+//! - [`pezpallet::error`]
+//! - Basics of testing a pezpallet
+//! - [Constructing a runtime](pezframe::runtime::prelude::construct_runtime)
 //!
-//! ### Shell Pallet
+//! ### Shell Pezpallet
 //!
-//! Consider the following as a "shell pallet". We continue building the rest of this pallet based
-//! on this template.
+//! Consider the following as a "shell pezpallet". We continue building the rest of this pezpallet
+//! based on this template.
 //!
-//! [`pallet::config`] and [`pallet::pallet`] are both mandatory parts of any
-//! pallet. Refer to the documentation of each to get an overview of what they do.
-#![doc = docify::embed!("./packages/guides/first-pallet/src/lib.rs", shell_pallet)]
+//! [`pezpallet::config`] and [`pezpallet::pezpallet`] are both mandatory parts of any
+//! pezpallet. Refer to the documentation of each to get an overview of what they do.
+#![doc = docify::embed!("./packages/guides/first-pezpallet/src/lib.rs", shell_pallet)]
 //!
-//! All of the code that follows in this guide should live inside of the `mod pallet`.
+//! All of the code that follows in this guide should live inside of the `mod pezpallet`.
 //!
 //! ### Storage
 //!
@@ -59,117 +59,120 @@
 //! issuance.
 //!
 //! > For the rest of this guide, we will opt for a balance type of `u128`. For the sake of
-//! > simplicity, we are hardcoding this type. In a real pallet is best practice to define it as a
+//! > simplicity, we are hardcoding this type. In a real pezpallet is best practice to define it as
+//! > a
 //! > generic bounded type in the `Config` trait, and then specify it in the implementation.
-#![doc = docify::embed!("./packages/guides/first-pallet/src/lib.rs", Balance)]
+#![doc = docify::embed!("./packages/guides/first-pezpallet/src/lib.rs", Balance)]
 //!
-//! The definition of these two storage items, based on [`pallet::storage`] details, is as follows:
-#![doc = docify::embed!("./packages/guides/first-pallet/src/lib.rs", TotalIssuance)]
-#![doc = docify::embed!("./packages/guides/first-pallet/src/lib.rs", Balances)]
+//! The definition of these two storage items, based on [`pezpallet::storage`] details, is as
+//! follows:
+#![doc = docify::embed!("./packages/guides/first-pezpallet/src/lib.rs", TotalIssuance)]
+#![doc = docify::embed!("./packages/guides/first-pezpallet/src/lib.rs", Balances)]
 //!
 //! ### Dispatchables
 //!
-//! Next, we will define the dispatchable functions. As per [`pallet::call`], these will be defined
-//! as normal `fn`s attached to `struct Pallet`.
-#![doc = docify::embed!("./packages/guides/first-pallet/src/lib.rs", impl_pallet)]
+//! Next, we will define the dispatchable functions. As per [`pezpallet::call`], these will be
+//! defined as normal `fn`s attached to `struct Pezpallet`.
+#![doc = docify::embed!("./packages/guides/first-pezpallet/src/lib.rs", impl_pallet)]
 //!
 //! The logic of these functions is self-explanatory. Instead, we will focus on the FRAME-related
 //! details:
 //!
 //! - Where do `T::AccountId` and `T::RuntimeOrigin` come from? These are both defined in
-//!  [`frame::prelude::frame_system::Config`], therefore we can access them in `T`.
+//!  [`pezframe::prelude::pezframe_system::Config`], therefore we can access them in `T`.
 //! - What is `ensure_signed`, and what does it do with the aforementioned `T::RuntimeOrigin`? This
 //!   is outside the scope of this guide, and you can learn more about it in the origin reference
 //!   document ([`crate::reference_docs::frame_origin`]). For now, you should only know the
 //!   signature of the function: it takes a generic `T::RuntimeOrigin` and returns a
 //!   `Result<T::AccountId, _>`. So by the end of this function call, we know that this dispatchable
 //!   was signed by `sender`.
-#![doc = docify::embed!("../../substrate/frame/system/src/lib.rs", ensure_signed)]
+#![doc = docify::embed!("../../bizinikiwi/pezframe/system/src/lib.rs", ensure_signed)]
 //!
 //! - Where does `mutate`, `get` and `insert` and other storage APIs come from? All of them are
 //! explained in the corresponding `type`, for example, for `Balances::<T>::insert`, you can look
-//! into [`frame::prelude::StorageMap::insert`].
+//! into [`pezframe::prelude::StorageMap::insert`].
 //!
-//! - The return type of all dispatchable functions is [`frame::prelude::DispatchResult`]:
-#![doc = docify::embed!("../../substrate/frame/support/src/dispatch.rs", DispatchResult)]
+//! - The return type of all dispatchable functions is [`pezframe::prelude::DispatchResult`]:
+#![doc = docify::embed!("../../bizinikiwi/pezframe/support/src/dispatch.rs", DispatchResult)]
 //!
-//! Which is more or less a normal Rust `Result`, with a custom [`frame::prelude::DispatchError`] as
+//! Which is more or less a normal Rust `Result`, with a custom [`pezframe::prelude::DispatchError`] as
 //! the `Err` variant. We won't cover this error in detail here, but importantly you should know
 //! that there is an `impl From<&'static string> for DispatchError` provided (see
-//! [here](`frame::prelude::DispatchError#impl-From<%26str>-for-DispatchError`)). Therefore,
+//! [here](`pezframe::prelude::DispatchError#impl-From<%26str>-for-DispatchError`)). Therefore,
 //! we can use basic string literals as our error type and `.into()` them into `DispatchError`.
 //!
 //! - Why are all `get` and `mutate` functions returning an `Option`? This is the default behavior
 //!   of FRAME storage APIs. You can learn more about how to override this by looking into
-//!   [`pallet::storage`], and [`frame::prelude::ValueQuery`]/[`frame::prelude::OptionQuery`]
+//!   [`pezpallet::storage`], and [`pezframe::prelude::ValueQuery`]/[`pezframe::prelude::OptionQuery`]
 //!
 //! ### Improving Errors
 //!
 //! How we handle error in the above snippets is fairly rudimentary. Let's look at how this can be
-//! improved. First, we can use [`frame::prelude::ensure`] to express the error slightly better.
+//! improved. First, we can use [`pezframe::prelude::ensure`] to express the error slightly better.
 //! This macro will call `.into()` under the hood.
-#![doc = docify::embed!("./packages/guides/first-pallet/src/lib.rs", transfer_better)]
+#![doc = docify::embed!("./packages/guides/first-pezpallet/src/lib.rs", transfer_better)]
 //!
 //! Moreover, you will learn in the [Defensive Programming
 //! section](crate::reference_docs::defensive_programming) that it is always recommended to use
-//! safe arithmetic operations in your runtime. By using [`frame::traits::CheckedSub`], we can not
+//! safe arithmetic operations in your runtime. By using [`pezframe::traits::CheckedSub`], we can not
 //! only take a step in that direction, but also improve the error handing and make it slightly more
 //! ergonomic.
-#![doc = docify::embed!("./packages/guides/first-pallet/src/lib.rs", transfer_better_checked)]
+#![doc = docify::embed!("./packages/guides/first-pezpallet/src/lib.rs", transfer_better_checked)]
 //!
-//! This is more or less all the logic that there is in this basic currency pallet!
+//! This is more or less all the logic that there is in this basic currency pezpallet!
 //!
 //! ### Your First (Test) Runtime
 //!
-//! The typical testing code of a pallet lives in a module that imports some preludes useful for
+//! The typical testing code of a pezpallet lives in a module that imports some preludes useful for
 //! testing, similar to:
 //!
 //! ```
-//! pub mod pallet {
-//! 	// snip -- actually pallet code.
+//! pub mod pezpallet {
+//! 	// snip -- actually pezpallet code.
 //! }
 //!
 //! #[cfg(test)]
 //! mod tests {
 //! 	// bring in the testing prelude of frame
-//! 	use frame::testing_prelude::*;
-//! 	// bring in all pallet items
-//! 	use super::pallet::*;
+//! 	use pezframe::testing_prelude::*;
+//! 	// bring in all pezpallet items
+//! 	use super::pezpallet::*;
 //!
 //! 	// snip -- rest of the testing code.
 //! }
 //! ```
 //!
-//! Next, we create a "test runtime" in order to test our pallet. Recall from
+//! Next, we create a "test runtime" in order to test our pezpallet. Recall from
 //! [`crate::pezkuwi_sdk::frame_runtime`] that a runtime is a collection of pallets, expressed
-//! through [`frame::runtime::prelude::construct_runtime`]. All runtimes also have to include
-//! [`frame::prelude::frame_system`]. So we expect to see a runtime with two pallet, `frame_system`
-//! and the one we just wrote.
-#![doc = docify::embed!("./packages/guides/first-pallet/src/lib.rs", runtime)]
+//! through [`pezframe::runtime::prelude::construct_runtime`]. All runtimes also have to include
+//! [`pezframe::prelude::pezframe_system`]. So we expect to see a runtime with two pezpallet,
+//! `pezframe_system` and the one we just wrote.
+#![doc = docify::embed!("./packages/guides/first-pezpallet/src/lib.rs", runtime)]
 //!
-//! > [`frame::pallet_macros::derive_impl`] is a FRAME feature that enables developers to have
+//! > [`pezframe::pezpallet_macros::derive_impl`] is a FRAME feature that enables developers to have
 //! > defaults for associated types.
 //!
-//! Recall that within our pallet, (almost) all blocks of code are generic over `<T: Config>`. And,
-//! because `trait Config: frame_system::Config`, we can get access to all items in `Config` (or
-//! `frame_system::Config`) using `T::NameOfItem`. This is all within the boundaries of how
+//! Recall that within our pezpallet, (almost) all blocks of code are generic over `<T: Config>`.
+//! And, because `trait Config: pezframe_system::Config`, we can get access to all items in `Config`
+//! (or `pezframe_system::Config`) using `T::NameOfItem`. This is all within the boundaries of how
 //! Rust traits and generics work. If unfamiliar with this pattern, read
 //! [`crate::reference_docs::trait_based_programming`] before going further.
 //!
 //! Crucially, a typical FRAME runtime contains a `struct Runtime`. The main role of this `struct`
-//! is to implement the `trait Config` of all pallets. That is, anywhere within your pallet code
+//! is to implement the `trait Config` of all pallets. That is, anywhere within your pezpallet code
 //! where you see `<T: Config>` (read: *"some type `T` that implements `Config`"*), in the runtime,
 //! it can be replaced with `<Runtime>`, because `Runtime` implements `Config` of all pallets, as we
 //! see above.
 //!
-//! Another way to think about this is that within a pallet, a lot of types are "unknown" and, we
+//! Another way to think about this is that within a pezpallet, a lot of types are "unknown" and, we
 //! only know that they will be provided at some later point. For example, when you write
-//! `T::AccountId` (which is short for `<T as frame_system::Config>::AccountId`) in your pallet,
-//! you are in fact saying "*Some type `AccountId` that will be known later*". That "later" is in
-//! fact when you specify these types when you implement all `Config` traits for `Runtime`.
+//! `T::AccountId` (which is short for `<T as pezframe_system::Config>::AccountId`) in your
+//! pezpallet, you are in fact saying "*Some type `AccountId` that will be known later*". That
+//! "later" is in fact when you specify these types when you implement all `Config` traits for
+//! `Runtime`.
 //!
-//! As you see above, `frame_system::Config` is setting the `AccountId` to `u64`. Of course, a real
-//! runtime will not use this type, and instead reside to a proper type like a 32-byte standard
+//! As you see above, `pezframe_system::Config` is setting the `AccountId` to `u64`. Of course, a
+//! real runtime will not use this type, and instead reside to a proper type like a 32-byte standard
 //! public key. This is a HUGE benefit that FRAME developers can tap into: through the framework
 //! being so generic, different types can always be customized to simple things when needed.
 //!
@@ -178,23 +181,23 @@
 //!
 //! ### Your First Test
 //!
-//! The above is all you need to execute the dispatchables of your pallet. The last thing you need
-//! to learn is that all of your pallet testing code should be wrapped in
-//! [`frame::testing_prelude::TestState`]. This is a type that provides access to an in-memory state
+//! The above is all you need to execute the dispatchables of your pezpallet. The last thing you
+//! need to learn is that all of your pezpallet testing code should be wrapped in
+//! [`pezframe::testing_prelude::TestState`]. This is a type that provides access to an in-memory state
 //! to be used in our tests.
-#![doc = docify::embed!("./packages/guides/first-pallet/src/lib.rs", first_test)]
+#![doc = docify::embed!("./packages/guides/first-pezpallet/src/lib.rs", first_test)]
 //!
 //! In the first test, we simply assert that there is no total issuance, and no balance associated
 //! with Alice's account. Then, we mint some balance into Alice's, and re-check.
 //!
 //! As noted above, the `T::AccountId` is now `u64`. Moreover, `Runtime` is replacing `<T: Config>`.
 //! This is why for example you see `Balances::<Runtime>::get(..)`. Finally, notice that the
-//! dispatchables are simply functions that can be called on top of the `Pallet` struct.
+//! dispatchables are simply functions that can be called on top of the `Pezpallet` struct.
 //!
-//! Congratulations! You have written your first pallet and tested it! Next, we learn a few optional
-//! steps to improve our pallet.
+//! Congratulations! You have written your first pezpallet and tested it! Next, we learn a few
+//! optional steps to improve our pezpallet.
 //!
-//! ## Improving the Currency Pallet
+//! ## Improving the Currency Pezpallet
 //!
 //! ### Better Test Setup
 //!
@@ -206,16 +209,16 @@
 //!
 //! Let's see how we can implement a better test setup using this pattern. First, we define a
 //! `struct StateBuilder`.
-#![doc = docify::embed!("./packages/guides/first-pallet/src/lib.rs", StateBuilder)]
+#![doc = docify::embed!("./packages/guides/first-pezpallet/src/lib.rs", StateBuilder)]
 //!
 //! This struct is meant to contain the same list of accounts and balances that we want to have at
 //! the beginning of each block. We hardcoded this to `let accounts = vec![(ALICE, 100), (2, 100)];`
 //! so far. Then, if desired, we attach a default value for this struct.
-#![doc = docify::embed!("./packages/guides/first-pallet/src/lib.rs", default_state_builder)]
+#![doc = docify::embed!("./packages/guides/first-pezpallet/src/lib.rs", default_state_builder)]
 //!
 //! Like any other builder pattern, we attach functions to the type to mutate its internal
 //! properties.
-#![doc = docify::embed!("./packages/guides/first-pallet/src/lib.rs", impl_state_builder_add)]
+#![doc = docify::embed!("./packages/guides/first-pezpallet/src/lib.rs", impl_state_builder_add)]
 //!
 //!  Finally --the useful part-- we write our own custom `build_and_execute` function on
 //! this type. This function will do multiple things:
@@ -227,29 +230,29 @@
 //!    after each test. For example, in this test, we do some additional checking about the
 //!    correctness of the `TotalIssuance`. We leave it up to you as an exercise to learn why the
 //!    assertion should always hold, and how it is checked.
-#![doc = docify::embed!("./packages/guides/first-pallet/src/lib.rs", impl_state_builder_build)]
+#![doc = docify::embed!("./packages/guides/first-pezpallet/src/lib.rs", impl_state_builder_build)]
 //!
 //! We can write tests that specifically check the initial state, and making sure our `StateBuilder`
 //! is working exactly as intended.
-#![doc = docify::embed!("./packages/guides/first-pallet/src/lib.rs", state_builder_works)]
-#![doc = docify::embed!("./packages/guides/first-pallet/src/lib.rs", state_builder_add_balance)]
+#![doc = docify::embed!("./packages/guides/first-pezpallet/src/lib.rs", state_builder_works)]
+#![doc = docify::embed!("./packages/guides/first-pezpallet/src/lib.rs", state_builder_add_balance)]
 //!
 //! ### More Tests
 //!
 //! Now that we have a more ergonomic test setup, let's see how a well written test for transfer and
 //! mint would look like.
-#![doc = docify::embed!("./packages/guides/first-pallet/src/lib.rs", transfer_works)]
-#![doc = docify::embed!("./packages/guides/first-pallet/src/lib.rs", mint_works)]
+#![doc = docify::embed!("./packages/guides/first-pezpallet/src/lib.rs", transfer_works)]
+#![doc = docify::embed!("./packages/guides/first-pezpallet/src/lib.rs", mint_works)]
 //!
 //! It is always a good idea to build a mental model where you write *at least* one test for each
 //! "success path" of a dispatchable, and one test for each "failure path", such as:
-#![doc = docify::embed!("./packages/guides/first-pallet/src/lib.rs", transfer_from_non_existent_fails)]
+#![doc = docify::embed!("./packages/guides/first-pezpallet/src/lib.rs", transfer_from_non_existent_fails)]
 //!
 //! We leave it up to you to write a test that triggers the `InsufficientBalance` error.
 //!
 //! ### Event and Error
 //!
-//! Our pallet is mainly missing two parts that are common in most FRAME pallets: Events, and
+//! Our pezpallet is mainly missing two parts that are common in most FRAME pallets: Events, and
 //! Errors. First, let's understand what each is.
 //!
 //! - **Error**: The static string-based error scheme we used so far is good for readability, but it
@@ -259,10 +262,10 @@
 //!   by one character. FRAME errors are exactly a solution to maintain readability, whilst fixing
 //!   the drawbacks mentioned. In short, we use an enum to represent different variants of our
 //!   error. These variants are then mapped in an efficient way (using only `u8` indices) to
-//!   [`sp_runtime::DispatchError::Module`]. Read more about this in [`pallet::error`].
+//!   [`pezsp_runtime::DispatchError::Module`]. Read more about this in [`pezpallet::error`].
 //!
 //! - **Event**: Events are akin to the return type of dispatchables. They are mostly data blobs
-//!   emitted by the runtime to let outside world know what is happening inside the pallet. Since
+//!   emitted by the runtime to let outside world know what is happening inside the pezpallet. Since
 //!   otherwise, the outside world does not have an easy access to the state changes. They should
 //!   represent what happened at the end of a dispatch operation. Therefore, the convention is to
 //!   use passive tense for event names (eg. `SomethingHappened`). This allows other sub-systems or
@@ -270,41 +273,41 @@
 //!   needing to re-execute the whole state transition function.
 //!
 //! With the explanation out of the way, let's see how these components can be added. Both follow a
-//! fairly familiar syntax: normal Rust enums, with extra [`pallet::event`] and [`pallet::error`]
-//! attributes attached.
-#![doc = docify::embed!("./packages/guides/first-pallet/src/lib.rs", Event)]
-#![doc = docify::embed!("./packages/guides/first-pallet/src/lib.rs", Error)]
+//! fairly familiar syntax: normal Rust enums, with extra [`pezpallet::event`] and
+//! [`pezpallet::error`] attributes attached.
+#![doc = docify::embed!("./packages/guides/first-pezpallet/src/lib.rs", Event)]
+#![doc = docify::embed!("./packages/guides/first-pezpallet/src/lib.rs", Error)]
 //!
-//! One slightly custom part of this is the [`pallet::generate_deposit`] part. Without going into
-//! too much detail, in order for a pallet to emit events to the rest of the system, it needs to do
-//! two things:
+//! One slightly custom part of this is the [`pezpallet::generate_deposit`] part. Without going into
+//! too much detail, in order for a pezpallet to emit events to the rest of the system, it needs to
+//! do two things:
 //!
 //! 1. Declare a type in its `Config` that refers to the overarching event type of the runtime. In
-//! short, by doing this, the pallet is expressing an important bound: `type RuntimeEvent:
+//! short, by doing this, the pezpallet is expressing an important bound: `type RuntimeEvent:
 //! From<Event<Self>>`. Read: a `RuntimeEvent` exists, and it can be created from the local `enum
-//! Event` of this pallet. This enables the pallet to convert its `Event` into `RuntimeEvent`, and
-//! store it where needed.
+//! Event` of this pezpallet. This enables the pezpallet to convert its `Event` into `RuntimeEvent`,
+//! and store it where needed.
 //!
-//! 2. But, doing this conversion and storing is too much to expect each pallet to define. FRAME
-//! provides a default way of storing events, and this is what [`pallet::generate_deposit`] is
+//! 2. But, doing this conversion and storing is too much to expect each pezpallet to define. FRAME
+//! provides a default way of storing events, and this is what [`pezpallet::generate_deposit`] is
 //! doing.
-#![doc = docify::embed!("./packages/guides/first-pallet/src/lib.rs", config_v2)]
+#![doc = docify::embed!("./packages/guides/first-pezpallet/src/lib.rs", config_v2)]
 //!
 //! > These `Runtime*` types are better explained in
 //! > [`crate::reference_docs::frame_runtime_types`].
 //!
 //! Then, we can rewrite the `transfer` dispatchable as such:
-#![doc = docify::embed!("./packages/guides/first-pallet/src/lib.rs", transfer_v2)]
+#![doc = docify::embed!("./packages/guides/first-pezpallet/src/lib.rs", transfer_v2)]
 //!
 //! Then, notice how now we would need to provide this `type RuntimeEvent` in our test runtime
 //! setup.
-#![doc = docify::embed!("./packages/guides/first-pallet/src/lib.rs", runtime_v2)]
+#![doc = docify::embed!("./packages/guides/first-pezpallet/src/lib.rs", runtime_v2)]
 //!
 //! In this snippet, the actual `RuntimeEvent` type (right hand side of `type RuntimeEvent =
 //! RuntimeEvent`) is generated by
-//! [`construct_runtime`](frame::runtime::prelude::construct_runtime). An interesting way to inspect
+//! [`construct_runtime`](pezframe::runtime::prelude::construct_runtime). An interesting way to inspect
 //! this type is to see its definition in rust-docs:
-//! [`crate::guides::your_first_pallet::pallet_v2::tests::runtime_v2::RuntimeEvent`].
+//! [`crate::guides::your_first_pallet::pezpallet_v2::tests::runtime_v2::RuntimeEvent`].
 //!
 //!
 //! ## What Next?
@@ -315,56 +318,57 @@
 //! - [`crate::reference_docs::defensive_programming`].
 //! - [`crate::reference_docs::frame_origin`].
 //! - [`crate::reference_docs::frame_runtime_types`].
-//! - The pallet we wrote in this guide was using `dev_mode`, learn more in [`pallet::config`].
-//! - Learn more about the individual pallet items/macros, such as event and errors and call, in
-//!   [`frame::pallet_macros`].
+//! - The pezpallet we wrote in this guide was using `dev_mode`, learn more in
+//!   [`pezpallet::config`].
+//! - Learn more about the individual pezpallet items/macros, such as event and errors and call, in
+//!   [`pezframe::pezpallet_macros`].
 //!
-//! [`pallet::storage`]: frame_support::pallet_macros::storage
-//! [`pallet::call`]: frame_support::pallet_macros::call
-//! [`pallet::event`]: frame_support::pallet_macros::event
-//! [`pallet::error`]: frame_support::pallet_macros::error
-//! [`pallet::pallet`]: frame_support::pallet
-//! [`pallet::config`]: frame_support::pallet_macros::config
-//! [`pallet::generate_deposit`]: frame_support::pallet_macros::generate_deposit
+//! [`pezpallet::storage`]: pezframe_support::pezpallet_macros::storage
+//! [`pezpallet::call`]: pezframe_support::pezpallet_macros::call
+//! [`pezpallet::event`]: pezframe_support::pezpallet_macros::event
+//! [`pezpallet::error`]: pezframe_support::pezpallet_macros::error
+//! [`pezpallet::pezpallet`]: pezframe_support::pezpallet
+//! [`pezpallet::config`]: pezframe_support::pezpallet_macros::config
+//! [`pezpallet::generate_deposit`]: pezframe_support::pezpallet_macros::generate_deposit
 
 #[docify::export]
-#[frame::pallet(dev_mode)]
+#[pezframe::pezpallet(dev_mode)]
 pub mod shell_pallet {
-	use frame::prelude::*;
+	use pezframe::prelude::*;
 
-	#[pallet::config]
-	pub trait Config: frame_system::Config {}
+	#[pezpallet::config]
+	pub trait Config: pezframe_system::Config {}
 
-	#[pallet::pallet]
-	pub struct Pallet<T>(_);
+	#[pezpallet::pezpallet]
+	pub struct Pezpallet<T>(_);
 }
 
-#[frame::pallet(dev_mode)]
-pub mod pallet {
-	use frame::prelude::*;
+#[pezframe::pezpallet(dev_mode)]
+pub mod pezpallet {
+	use pezframe::prelude::*;
 
 	#[docify::export]
 	pub type Balance = u128;
 
-	#[pallet::config]
-	pub trait Config: frame_system::Config {}
+	#[pezpallet::config]
+	pub trait Config: pezframe_system::Config {}
 
-	#[pallet::pallet]
-	pub struct Pallet<T>(_);
+	#[pezpallet::pezpallet]
+	pub struct Pezpallet<T>(_);
 
 	#[docify::export]
 	/// Single storage item, of type `Balance`.
-	#[pallet::storage]
+	#[pezpallet::storage]
 	pub type TotalIssuance<T: Config> = StorageValue<_, Balance>;
 
 	#[docify::export]
 	/// A mapping from `T::AccountId` to `Balance`
-	#[pallet::storage]
+	#[pezpallet::storage]
 	pub type Balances<T: Config> = StorageMap<_, _, T::AccountId, Balance>;
 
 	#[docify::export(impl_pallet)]
-	#[pallet::call]
-	impl<T: Config> Pallet<T> {
+	#[pezpallet::call]
+	impl<T: Config> Pezpallet<T> {
 		/// An unsafe mint that can be called by anyone. Not a great idea.
 		pub fn mint_unsafe(
 			origin: T::RuntimeOrigin,
@@ -406,7 +410,7 @@ pub mod pallet {
 	}
 
 	#[allow(unused)]
-	impl<T: Config> Pallet<T> {
+	impl<T: Config> Pezpallet<T> {
 		#[docify::export]
 		pub fn transfer_better(
 			origin: T::RuntimeOrigin,
@@ -442,10 +446,10 @@ pub mod pallet {
 
 	#[cfg(any(test, doc))]
 	pub(crate) mod tests {
-		use crate::guides::your_first_pallet::pallet::*;
+		use crate::guides::your_first_pallet::pezpallet::*;
 
 		#[docify::export(testing_prelude)]
-		use frame::testing_prelude::*;
+		use pezframe::testing_prelude::*;
 
 		pub(crate) const ALICE: u64 = 1;
 		pub(crate) const BOB: u64 = 2;
@@ -456,29 +460,29 @@ pub mod pallet {
 		// tests { .. }`
 		mod runtime {
 			use super::*;
-			// we need to reference our `mod pallet` as an identifier to pass to
+			// we need to reference our `mod pezpallet` as an identifier to pass to
 			// `construct_runtime`.
 			// YOU HAVE TO CHANGE THIS LINE BASED ON YOUR TEMPLATE
-			use crate::guides::your_first_pallet::pallet as pallet_currency;
+			use crate::guides::your_first_pallet::pezpallet as pezpallet_currency;
 
 			construct_runtime!(
 				pub enum Runtime {
 					// ---^^^^^^ This is where `enum Runtime` is defined.
-					System: frame_system,
-					Currency: pallet_currency,
+					System: pezframe_system,
+					Currency: pezpallet_currency,
 				}
 			);
 
-			#[derive_impl(frame_system::config_preludes::TestDefaultConfig)]
-			impl frame_system::Config for Runtime {
+			#[derive_impl(pezframe_system::config_preludes::TestDefaultConfig)]
+			impl pezframe_system::Config for Runtime {
 				type Block = MockBlock<Runtime>;
-				// within pallet we just said `<T as frame_system::Config>::AccountId`, now we
+				// within pezpallet we just said `<T as pezframe_system::Config>::AccountId`, now we
 				// finally specified it.
 				type AccountId = u64;
 			}
 
-			// our simple pallet has nothing to be configured.
-			impl pallet_currency::Config for Runtime {}
+			// our simple pezpallet has nothing to be configured.
+			impl pezpallet_currency::Config for Runtime {}
 		}
 
 		pub(crate) use runtime::*;
@@ -500,7 +504,7 @@ pub mod pallet {
 
 		#[docify::export]
 		pub(crate) struct StateBuilder {
-			balances: Vec<(<Runtime as frame_system::Config>::AccountId, Balance)>,
+			balances: Vec<(<Runtime as pezframe_system::Config>::AccountId, Balance)>,
 		}
 
 		#[docify::export(default_state_builder)]
@@ -514,7 +518,7 @@ pub mod pallet {
 		impl StateBuilder {
 			fn add_balance(
 				mut self,
-				who: <Runtime as frame_system::Config>::AccountId,
+				who: <Runtime as pezframe_system::Config>::AccountId,
 				amount: Balance,
 			) -> Self {
 				self.balances.push((who, amount));
@@ -554,7 +558,7 @@ pub mod pallet {
 				assert_eq!(TotalIssuance::<Runtime>::get(), None);
 
 				// mint some funds into Alice's account.
-				assert_ok!(Pallet::<Runtime>::mint_unsafe(
+				assert_ok!(Pezpallet::<Runtime>::mint_unsafe(
 					RuntimeOrigin::signed(ALICE),
 					ALICE,
 					100
@@ -603,14 +607,18 @@ pub mod pallet {
 		fn mint_works() {
 			StateBuilder::default().build_and_execute(|| {
 				// given the initial state, when:
-				assert_ok!(Pallet::<Runtime>::mint_unsafe(RuntimeOrigin::signed(ALICE), BOB, 100));
+				assert_ok!(Pezpallet::<Runtime>::mint_unsafe(
+					RuntimeOrigin::signed(ALICE),
+					BOB,
+					100
+				));
 
 				// then:
 				assert_eq!(Balances::<Runtime>::get(&BOB), Some(200));
 				assert_eq!(TotalIssuance::<Runtime>::get(), Some(300));
 
 				// given:
-				assert_ok!(Pallet::<Runtime>::mint_unsafe(
+				assert_ok!(Pezpallet::<Runtime>::mint_unsafe(
 					RuntimeOrigin::signed(ALICE),
 					CHARLIE,
 					100
@@ -627,7 +635,7 @@ pub mod pallet {
 		fn transfer_works() {
 			StateBuilder::default().build_and_execute(|| {
 				// given the initial state, when:
-				assert_ok!(Pallet::<Runtime>::transfer(RuntimeOrigin::signed(ALICE), BOB, 50));
+				assert_ok!(Pezpallet::<Runtime>::transfer(RuntimeOrigin::signed(ALICE), BOB, 50));
 
 				// then:
 				assert_eq!(Balances::<Runtime>::get(&ALICE), Some(50));
@@ -635,7 +643,7 @@ pub mod pallet {
 				assert_eq!(TotalIssuance::<Runtime>::get(), Some(200));
 
 				// when:
-				assert_ok!(Pallet::<Runtime>::transfer(RuntimeOrigin::signed(BOB), ALICE, 50));
+				assert_ok!(Pezpallet::<Runtime>::transfer(RuntimeOrigin::signed(BOB), ALICE, 50));
 
 				// then:
 				assert_eq!(Balances::<Runtime>::get(&ALICE), Some(100));
@@ -650,7 +658,7 @@ pub mod pallet {
 			StateBuilder::default().build_and_execute(|| {
 				// given the initial state, when:
 				assert_err!(
-					Pallet::<Runtime>::transfer(RuntimeOrigin::signed(CHARLIE), ALICE, 10),
+					Pezpallet::<Runtime>::transfer(RuntimeOrigin::signed(CHARLIE), ALICE, 10),
 					"NonExistentAccount"
 				);
 
@@ -664,32 +672,32 @@ pub mod pallet {
 	}
 }
 
-#[frame::pallet(dev_mode)]
-pub mod pallet_v2 {
-	use super::pallet::Balance;
-	use frame::prelude::*;
+#[pezframe::pezpallet(dev_mode)]
+pub mod pezpallet_v2 {
+	use super::pezpallet::Balance;
+	use pezframe::prelude::*;
 
 	#[docify::export(config_v2)]
-	#[pallet::config]
-	pub trait Config: frame_system::Config {
+	#[pezpallet::config]
+	pub trait Config: pezframe_system::Config {
 		/// The overarching event type of the runtime.
 		#[allow(deprecated)]
 		type RuntimeEvent: From<Event<Self>>
-			+ IsType<<Self as frame_system::Config>::RuntimeEvent>
+			+ IsType<<Self as pezframe_system::Config>::RuntimeEvent>
 			+ TryInto<Event<Self>>;
 	}
 
-	#[pallet::pallet]
-	pub struct Pallet<T>(_);
+	#[pezpallet::pezpallet]
+	pub struct Pezpallet<T>(_);
 
-	#[pallet::storage]
+	#[pezpallet::storage]
 	pub type Balances<T: Config> = StorageMap<_, _, T::AccountId, Balance>;
 
-	#[pallet::storage]
+	#[pezpallet::storage]
 	pub type TotalIssuance<T: Config> = StorageValue<_, Balance>;
 
 	#[docify::export]
-	#[pallet::error]
+	#[pezpallet::error]
 	pub enum Error<T> {
 		/// Account does not exist.
 		NonExistentAccount,
@@ -698,15 +706,15 @@ pub mod pallet_v2 {
 	}
 
 	#[docify::export]
-	#[pallet::event]
-	#[pallet::generate_deposit(pub(super) fn deposit_event)]
+	#[pezpallet::event]
+	#[pezpallet::generate_deposit(pub(super) fn deposit_event)]
 	pub enum Event<T: Config> {
 		/// A transfer succeeded.
 		Transferred { from: T::AccountId, to: T::AccountId, amount: Balance },
 	}
 
-	#[pallet::call]
-	impl<T: Config> Pallet<T> {
+	#[pezpallet::call]
+	impl<T: Config> Pezpallet<T> {
 		#[docify::export(transfer_v2)]
 		pub fn transfer(
 			origin: T::RuntimeOrigin,
@@ -732,30 +740,30 @@ pub mod pallet_v2 {
 
 	#[cfg(any(test, doc))]
 	pub mod tests {
-		use super::{super::pallet::tests::StateBuilder, *};
-		use frame::testing_prelude::*;
+		use super::{super::pezpallet::tests::StateBuilder, *};
+		use pezframe::testing_prelude::*;
 		const ALICE: u64 = 1;
 		const BOB: u64 = 2;
 
 		#[docify::export]
 		pub mod runtime_v2 {
 			use super::*;
-			use crate::guides::your_first_pallet::pallet_v2 as pallet_currency;
+			use crate::guides::your_first_pallet::pezpallet_v2 as pezpallet_currency;
 
 			construct_runtime!(
 				pub enum Runtime {
-					System: frame_system,
-					Currency: pallet_currency,
+					System: pezframe_system,
+					Currency: pezpallet_currency,
 				}
 			);
 
-			#[derive_impl(frame_system::config_preludes::TestDefaultConfig)]
-			impl frame_system::Config for Runtime {
+			#[derive_impl(pezframe_system::config_preludes::TestDefaultConfig)]
+			impl pezframe_system::Config for Runtime {
 				type Block = MockBlock<Runtime>;
 				type AccountId = u64;
 			}
 
-			impl pallet_currency::Config for Runtime {
+			impl pezpallet_currency::Config for Runtime {
 				type RuntimeEvent = RuntimeEvent;
 			}
 		}
@@ -771,7 +779,7 @@ pub mod pallet_v2 {
 				System::set_block_number(ALICE);
 
 				// given the initial state, when:
-				assert_ok!(Pallet::<Runtime>::transfer(RuntimeOrigin::signed(ALICE), BOB, 50));
+				assert_ok!(Pezpallet::<Runtime>::transfer(RuntimeOrigin::signed(ALICE), BOB, 50));
 
 				// then:
 				assert_eq!(Balances::<Runtime>::get(&ALICE), Some(50));

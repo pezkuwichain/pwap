@@ -45,7 +45,7 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
 
     setConfirming(true);
     try {
-      const { web3FromAddress } = await import('@polkadot/extension-dapp');
+      const { web3FromAddress } = await import('@pezkuwi/extension-dapp');
       const injector = await web3FromAddress(selectedAccount.address);
 
       if (import.meta.env.DEV) console.log('Confirming citizenship application (self-confirmation)...');

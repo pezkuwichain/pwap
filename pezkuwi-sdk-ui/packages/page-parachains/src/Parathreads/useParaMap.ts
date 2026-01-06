@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/app-parachains authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Option } from '@polkadot/types';
-import type { AccountId, BalanceOf, ParaId } from '@polkadot/types/interfaces';
-import type { ITuple } from '@polkadot/types/types';
+import type { Option } from '@pezkuwi/types';
+import type { AccountId, BalanceOf, ParaId } from '@pezkuwi/types/interfaces';
+import type { ITuple } from '@pezkuwi/types/types';
 import type { LeaseInfo } from '../types.js';
 
 import { useCallback } from 'react';
 
-import { createNamedHook, useApi, useCall, useIsParasLinked } from '@polkadot/react-hooks';
+import { createNamedHook, useApi, useCall, useIsParasLinked } from '@pezkuwi/react-hooks';
 
 type Result = [ParaId, LeaseInfo[]][];
 

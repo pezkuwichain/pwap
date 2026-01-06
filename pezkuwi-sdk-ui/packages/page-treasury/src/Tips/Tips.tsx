@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/app-treasury authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-treasury authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Option } from '@polkadot/types';
-import type { OpenTipTo225 } from '@polkadot/types/interfaces';
-import type { PalletTipsOpenTip } from '@polkadot/types/lookup';
-import type { BN } from '@polkadot/util';
+import type { Option } from '@pezkuwi/types';
+import type { OpenTipTo225 } from '@pezkuwi/types/interfaces';
+import type { PezpalletTipsOpenTip } from '@pezkuwi/types/lookup';
+import type { BN } from '@pezkuwi/util';
 
 import React, { useMemo, useRef, useState } from 'react';
 
-import { styled, Table, Toggle } from '@polkadot/react-components';
-import { useApi, useBestNumber, useCall } from '@polkadot/react-hooks';
+import { styled, Table, Toggle } from '@pezkuwi/react-components';
+import { useApi, useBestNumber, useCall } from '@pezkuwi/react-hooks';
 
 import { useTranslation } from '../translate.js';
 import Tip from './Tip.js';
@@ -23,11 +23,11 @@ interface Props {
   onSelectTip: (hash: string, isSelected: boolean, value: BN) => void,
 }
 
-type TipType = [string, PalletTipsOpenTip | OpenTipTo225];
+type TipType = [string, PezpalletTipsOpenTip | OpenTipTo225];
 
 const TIP_OPTS = { withParams: true };
 
-function extractTips (tipsWithHashes?: [[string[]], Option<PalletTipsOpenTip>[]], inHashes?: string[] | null): TipType[] | undefined {
+function extractTips (tipsWithHashes?: [[string[]], Option<PezpalletTipsOpenTip>[]], inHashes?: string[] | null): TipType[] | undefined {
   if (!tipsWithHashes || !inHashes) {
     return undefined;
   }
@@ -35,8 +35,8 @@ function extractTips (tipsWithHashes?: [[string[]], Option<PalletTipsOpenTip>[]]
   const [[hashes], optTips] = tipsWithHashes;
 
   return optTips
-    .map((opt, index): [string, PalletTipsOpenTip | null] => [hashes[index], opt.unwrapOr(null)])
-    .filter((val): val is [string, PalletTipsOpenTip] => inHashes.includes(val[0]) && !!val[1])
+    .map((opt, index): [string, PezpalletTipsOpenTip | null] => [hashes[index], opt.unwrapOr(null)])
+    .filter((val): val is [string, PezpalletTipsOpenTip] => inHashes.includes(val[0]) && !!val[1])
     .sort((a, b) =>
       a[1].closes.isNone
         ? b[1].closes.isNone
@@ -53,7 +53,7 @@ function Tips ({ className = '', defaultId, hashes, isMember, members, onSelectT
   const { api } = useApi();
   const [onlyUntipped, setOnlyUntipped] = useState(false);
   const bestNumber = useBestNumber();
-  const tipsWithHashes = useCall<[[string[]], Option<PalletTipsOpenTip>[]]>(hashes && (api.query.tips || api.query.treasury).tips.multi, [hashes], TIP_OPTS);
+  const tipsWithHashes = useCall<[[string[]], Option<PezpalletTipsOpenTip>[]]>(hashes && (api.query.tips || api.query.treasury).tips.multi, [hashes], TIP_OPTS);
 
   const tips = useMemo(
     () => extractTips(tipsWithHashes, hashes),

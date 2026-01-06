@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import { useMemo, useRef } from 'react';
 
-import { stringify } from '@polkadot/util';
+import { stringify } from '@pezkuwi/util';
 
 interface State<T> {
   stringified: string;

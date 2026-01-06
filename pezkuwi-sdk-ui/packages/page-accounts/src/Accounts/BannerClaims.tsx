@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/app-accounts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-accounts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
 
-import useClaimCounter from '@polkadot/app-claims/useCounter'; // exceptionally CRAP idea
+import useClaimCounter from '@pezkuwi/app-claims/useCounter'; // exceptionally CRAP idea
 
 import { useTranslation } from '../translate.js';
 import Banner from './Banner.js';

@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useRef, useState } from 'react';
 
-import { useAccountInfo } from '@polkadot/react-hooks';
+import { useAccountInfo } from '@pezkuwi/react-hooks';
 
 import LinkExternal from '../LinkExternal.js';
 import Sidebar from '../Sidebar.js';

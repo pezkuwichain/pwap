@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @polkadot/app-storage authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-storage authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ParitalQueryTypes, QueryTypes } from '../types.js';
@@ -6,7 +6,7 @@ import type { ParitalQueryTypes, QueryTypes } from '../types.js';
 import React, { useCallback, useRef } from 'react';
 import { Route, Routes } from 'react-router';
 
-import { Tabs } from '@polkadot/react-components';
+import { Tabs } from '@pezkuwi/react-components';
 
 import { useTranslation } from '../translate.js';
 import Consts from './Consts.js';

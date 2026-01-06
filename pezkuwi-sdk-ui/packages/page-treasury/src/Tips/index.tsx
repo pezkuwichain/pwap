@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-treasury authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-treasury authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { SubmittableExtrinsic } from '@polkadot/api/types';
-import type { BN } from '@polkadot/util';
+import type { SubmittableExtrinsic } from '@pezkuwi/api/types';
+import type { BN } from '@pezkuwi/util';
 
 import React, { useCallback, useMemo, useState } from 'react';
 
-import { Button, TxButton } from '@polkadot/react-components';
-import { useAccounts, useApi, useTxBatch } from '@polkadot/react-hooks';
+import { Button, TxButton } from '@pezkuwi/react-components';
+import { useAccounts, useApi, useTxBatch } from '@pezkuwi/react-hooks';
 
 import { useTranslation } from '../translate.js';
 import TipCreate from './TipCreate.js';

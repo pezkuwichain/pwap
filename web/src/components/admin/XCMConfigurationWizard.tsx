@@ -46,7 +46,7 @@ import {
   type RegisteredAsset,
   type ForeignAsset,
 } from '@pezkuwi/lib/xcm-wizard';
-import { ApiPromise, WsProvider } from '@polkadot/api';
+import { ApiPromise, WsProvider } from '@pezkuwi/api';
 
 interface XCMConfigurationWizardProps {
   isOpen: boolean;

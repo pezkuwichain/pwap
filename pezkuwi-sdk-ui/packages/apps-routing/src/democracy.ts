@@ -1,14 +1,15 @@
-// Copyright 2017-2025 @polkadot/apps-routing authors & contributors
+// Copyright 2017-2025 @pezkuwi/apps-routing authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
+import type { ApiPromise } from '@pezkuwi/api';
 import type { Route, TFunction } from './types.js';
 
-import Component, { useCounter } from '@polkadot/app-democracy';
+import Component, { useCounter } from '@pezkuwi/app-democracy';
 
 function needsApiCheck (api: ApiPromise): boolean {
   try {
     // we need to be able to create an actual vote
+    // @ts-expect-error Standard variant is runtime converted
     api.tx.democracy.vote(1, { Standard: { balance: 1, vote: { aye: true, conviction: 1 } } });
 
     return true;

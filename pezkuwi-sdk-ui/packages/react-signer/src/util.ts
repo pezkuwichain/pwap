@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/react-signer authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-signer authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { SubmittableResult } from '@polkadot/api';
-import type { KeyringPair } from '@polkadot/keyring/types';
-import type { QueueTx, QueueTxMessageSetStatus, QueueTxStatus } from '@polkadot/react-components/Status/types';
+import type { SubmittableResult } from '@pezkuwi/api';
+import type { KeyringPair } from '@pezkuwi/keyring/types';
+import type { QueueTx, QueueTxMessageSetStatus, QueueTxStatus } from '@pezkuwi/react-components/Status/types';
 import type { AddressFlags } from './types.js';
 
-import { keyring } from '@polkadot/ui-keyring';
+import { keyring } from '@pezkuwi/ui-keyring';
 
 const NOOP = () => undefined;
 const NO_FLAGS = { accountOffset: 0, addressOffset: 0, isHardware: false, isLocal: false, isMultisig: false, isProxied: false, isQr: false, isUnlockable: false, threshold: 0, who: [] };

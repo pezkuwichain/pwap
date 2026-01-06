@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/app-runtime authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-runtime authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ParamDef, RawParam } from '@polkadot/react-params/types';
-import type { DefinitionCallNamed } from '@polkadot/types/types';
+import type { ParamDef, RawParam } from '@pezkuwi/react-params/types';
+import type { DefinitionCallNamed } from '@pezkuwi/types/types';
 
 import React, { useCallback, useMemo, useState } from 'react';
 
-import { Button, InputCalls } from '@polkadot/react-components';
-import Params from '@polkadot/react-params';
-import { getTypeDef } from '@polkadot/types/create';
+import { Button, InputCalls } from '@pezkuwi/react-components';
+import Params from '@pezkuwi/react-params';
+import { getTypeDef } from '@pezkuwi/types/create';
 
 import { useTranslation } from '../translate.js';
 

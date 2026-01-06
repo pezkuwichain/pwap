@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/app-coretime authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-coretime authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { FlagColor } from '@polkadot/react-components/types';
-import type { ChainWorkTaskInformation, LegacyLease } from '@polkadot/react-hooks/types';
+import type { FlagColor } from '@pezkuwi/react-components/types';
+import type { ChainWorkTaskInformation, LegacyLease } from '@pezkuwi/react-hooks/types';
 import type { RelayName } from './types.js';
 
 import React from 'react';
 
-import { MarkWarning, ParaLink, styled, Tag } from '@polkadot/react-components';
-import { ParaLinkType } from '@polkadot/react-components/ParaLink';
-import { ChainRenewalStatus, CoreTimeTypes } from '@polkadot/react-hooks/constants';
-import { BN, formatBalance, formatNumber } from '@polkadot/util';
+import { MarkWarning, ParaLink, styled, Tag } from '@pezkuwi/react-components';
+import { ParaLinkType } from '@pezkuwi/react-components/ParaLink';
+import { ChainRenewalStatus, CoreTimeTypes } from '@pezkuwi/react-hooks/constants';
+import { BN, formatBalance, formatNumber } from '@pezkuwi/util';
 
 import { coretimeTypeColours, estimateTime } from './utils/index.js';
 import { useCoretimeContext } from './CoretimeContext.js';

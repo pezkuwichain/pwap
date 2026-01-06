@@ -1,8 +1,8 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { StorageKey, u32 } from '@polkadot/types';
-import type { EventRecord } from '@polkadot/types/interfaces';
+import type { StorageKey, u32 } from '@pezkuwi/types';
+import type { EventRecord } from '@pezkuwi/types/interfaces';
 import type { Changes } from './useEventChanges.js';
 
 import { createNamedHook, useApi, useEventChanges, useMapKeys } from './index.js';

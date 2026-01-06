@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/app-referenda authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-referenda authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-/// <reference types="@polkadot/dev-test/globals.d.ts" />
+/// <reference types="@pezkuwi/dev-test/globals.d.ts" />
 
-import type { PalletReferendaCurve } from '@polkadot/types/lookup';
-import type { BN } from '@polkadot/util';
+import type { PezpalletReferendaCurve } from '@pezkuwi/types/lookup';
+import type { BN } from '@pezkuwi/util';
 
-import { BN_BILLION, BN_ZERO, bnToBn } from '@polkadot/util';
+import { BN_BILLION, BN_ZERO, bnToBn } from '@pezkuwi/util';
 
 import { curveDelay, curveThreshold } from './util.js';
 
-function curveLinear (ceil: BN | string | number, floor: BN | string | number, length: BN | string | number): PalletReferendaCurve {
+function curveLinear (ceil: BN | string | number, floor: BN | string | number, length: BN | string | number): PezpalletReferendaCurve {
   return {
     asLinearDecreasing: {
       ceil: bnToBn(ceil),
@@ -20,10 +20,10 @@ function curveLinear (ceil: BN | string | number, floor: BN | string | number, l
     isLinearDecreasing: true,
     isReciprocal: false,
     isSteppedDecreasing: false
-  } as PalletReferendaCurve;
+  } as PezpalletReferendaCurve;
 }
 
-function curveReciprocal (factor: BN | string | number, xOffset: BN | string | number, yOffset: BN | string | number): PalletReferendaCurve {
+function curveReciprocal (factor: BN | string | number, xOffset: BN | string | number, yOffset: BN | string | number): PezpalletReferendaCurve {
   return {
     asReciprocal: {
       factor: bnToBn(factor),
@@ -33,11 +33,11 @@ function curveReciprocal (factor: BN | string | number, xOffset: BN | string | n
     isLinearDecreasing: false,
     isReciprocal: true,
     isSteppedDecreasing: false
-  } as PalletReferendaCurve;
+  } as PezpalletReferendaCurve;
 }
 
 // We don't currently have curves on Kusama for this, so needs a check
-// function curveStepped (begin: BN | string | number, end: BN | string | number, period: BN | string | number, step: BN | string | number): PalletReferendaCurve {
+// function curveStepped (begin: BN | string | number, end: BN | string | number, period: BN | string | number, step: BN | string | number): PezpalletReferendaCurve {
 //   return {
 //     asSteppedDecreasing: {
 //       begin: bnToBn(begin),
@@ -48,7 +48,7 @@ function curveReciprocal (factor: BN | string | number, xOffset: BN | string | n
 //     isLinearDecreasing: false,
 //     isReciprocal: false,
 //     isSteppedDecreasing: true
-//   } as PalletReferendaCurve;
+//   } as PezpalletReferendaCurve;
 // }
 
 function percentValue (percent: number): BN {

@@ -1,19 +1,19 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import '@polkadot/api-augment';
+import '@pezkuwi/api-augment';
 
 import type React from 'react';
-import type { ApiPromise } from '@polkadot/api';
-import type { SubmittableExtrinsic } from '@polkadot/api/types';
-import type { DeriveAccountFlags, DeriveAccountRegistration } from '@polkadot/api-derive/types';
-import type { Option, u32, u128, Vec } from '@polkadot/types';
-import type { AccountId, BlockNumber, Call, Hash, SessionIndex, ValidatorPrefs } from '@polkadot/types/interfaces';
-import type { PalletAssetsAssetDetails, PalletAssetsAssetMetadata, PalletPreimageRequestStatus, PalletStakingRewardDestination, PalletStakingStakingLedger, PolkadotRuntimeParachainsAssignerCoretimeCoreDescriptor, SpStakingExposurePage, SpStakingPagedExposureMetadata } from '@polkadot/types/lookup';
-import type { ICompact, IExtrinsic, INumber } from '@polkadot/types/types';
-import type { KeyringJson$Meta } from '@polkadot/ui-keyring/types';
-import type { BN } from '@polkadot/util';
-import type { HexString } from '@polkadot/util/types';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { SubmittableExtrinsic } from '@pezkuwi/api/types';
+import type { DeriveAccountFlags, DeriveAccountRegistration } from '@pezkuwi/api-derive/types';
+import type { Option, u32, u128, Vec } from '@pezkuwi/types';
+import type { AccountId, BlockNumber, Call, Hash, SessionIndex, ValidatorPrefs } from '@pezkuwi/types/interfaces';
+import type { PezpalletAssetsAssetDetails, PezpalletAssetsAssetMetadata, PezpalletPreimageRequestStatus, PezpalletStakingRewardDestination, PezpalletStakingStakingLedger, PezkuwiRuntimeTeyrchainsAssignerCoretimeCoreDescriptor, PezspStakingExposurePage, PezspStakingPagedExposureMetadata } from '@pezkuwi/types/lookup';
+import type { ICompact, IExtrinsic, INumber } from '@pezkuwi/types/types';
+import type { KeyringJson$Meta } from '@pezkuwi/ui-keyring/types';
+import type { BN } from '@pezkuwi/util';
+import type { HexString } from '@pezkuwi/util/types';
 import type { CoreTimeTypes } from './constants.js';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -54,19 +54,19 @@ export interface Inflation {
 }
 
 export interface AssetInfo {
-  details: PalletAssetsAssetDetails | null;
+  details: PezpalletAssetsAssetDetails | null;
   id: BN;
   isAdminMe: boolean;
   isIssuerMe: boolean;
   isFreezerMe: boolean;
   isOwnerMe: boolean;
   key: string;
-  metadata: PalletAssetsAssetMetadata | null;
+  metadata: PezpalletAssetsAssetMetadata | null;
 }
 
 export interface AssetInfoComplete extends AssetInfo {
-  details: PalletAssetsAssetDetails;
-  metadata: PalletAssetsAssetMetadata;
+  details: PezpalletAssetsAssetDetails;
+  metadata: PezpalletAssetsAssetMetadata;
 }
 
 export interface Slash {
@@ -159,9 +159,9 @@ export interface UseAccountInfo {
 
 export interface StakerState {
   controllerId: string | null;
-  destination?: PalletStakingRewardDestination | null;
-  exposurePaged?: Option<SpStakingExposurePage>;
-  exposureMeta?: Option<SpStakingPagedExposureMetadata>
+  destination?: PezpalletStakingRewardDestination | null;
+  exposurePaged?: Option<PezspStakingExposurePage>;
+  exposureMeta?: Option<PezspStakingPagedExposureMetadata>
   claimedRewardsEras?: Vec<u32>
   hexSessionIdNext: string | null;
   hexSessionIdQueue: string | null;
@@ -172,7 +172,7 @@ export interface StakerState {
   isStashValidating: boolean;
   nominating?: string[];
   sessionIds: string[];
-  stakingLedger?: PalletStakingStakingLedger;
+  stakingLedger?: PezpalletStakingStakingLedger;
   stashId: string;
   validatorPrefs?: ValidatorPrefs;
 }
@@ -201,7 +201,7 @@ export interface PreimageStatus {
   isHashParam: boolean;
   proposalHash: HexString;
   proposalLength?: BN;
-  status: PalletPreimageRequestStatus | null;
+  status: PezpalletPreimageRequestStatus | null;
 }
 
 export interface PreimageBytes {
@@ -226,7 +226,7 @@ export interface WeightResult {
 
 export interface CoreDescription {
   core: number;
-  info: PolkadotRuntimeParachainsAssignerCoretimeCoreDescriptor[];
+  info: PezkuwiRuntimeTeyrchainsAssignerCoretimeCoreDescriptor[];
 }
 
 export interface CoreDescriptorAssignment {
@@ -307,7 +307,7 @@ export interface LegacyLease {
   task: string
 }
 
-export interface PalletBrokerSaleInfoRecord {
+export interface PezpalletBrokerSaleInfoRecord {
   saleStart: number;
   leadinLength: number;
   endPrice: BN;
@@ -320,7 +320,7 @@ export interface PalletBrokerSaleInfoRecord {
   coresSold: number;
 }
 
-export interface PalletBrokerConfigRecord {
+export interface PezpalletBrokerConfigRecord {
   advanceNotice: number;
   interludeLength: number;
   leadinLength: number;
@@ -360,10 +360,10 @@ export interface ChainConstants {
 export interface CoretimeInformation {
   constants: ChainConstants,
   chainInfo: Record<number, ChainInformation>,
-  salesInfo: PalletBrokerSaleInfoRecord,
+  salesInfo: PezpalletBrokerSaleInfoRecord,
   status: BrokerStatus,
   region: RegionInfo[],
-  config: PalletBrokerConfigRecord
+  config: PezpalletBrokerConfigRecord
   taskIds: number[]
 }
 

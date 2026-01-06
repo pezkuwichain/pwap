@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useRef } from 'react';
 
-import { useBlockInterval } from '@polkadot/react-hooks';
-import { calcBlockTime } from '@polkadot/react-hooks/useBlockTime';
-import { BN, BN_ZERO } from '@polkadot/util';
+import { useBlockInterval } from '@pezkuwi/react-hooks';
+import { calcBlockTime } from '@pezkuwi/react-hooks/useBlockTime';
+import { BN, BN_ZERO } from '@pezkuwi/util';
 
 import Dropdown from './Dropdown.js';
 import { useTranslation } from './translate.js';

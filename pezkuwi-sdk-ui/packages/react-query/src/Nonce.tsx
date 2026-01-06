@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/react-query authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-query authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveBalancesAll } from '@polkadot/api-derive/types';
-import type { BN } from '@polkadot/util';
+import type { DeriveBalancesAll } from '@pezkuwi/api-derive/types';
+import type { BN } from '@pezkuwi/util';
 
 import React from 'react';
 
-import { useApi, useCall } from '@polkadot/react-hooks';
-import { formatNumber } from '@polkadot/util';
+import { useApi, useCall } from '@pezkuwi/react-hooks';
+import { formatNumber } from '@pezkuwi/util';
 
 interface Props {
   callOnResult?: (accountNonce: BN) => void;

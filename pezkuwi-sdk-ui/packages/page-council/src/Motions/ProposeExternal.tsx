@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/app-council authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-council authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { SubmittableExtrinsic } from '@polkadot/api/types';
-import type { BN } from '@polkadot/util';
-import type { HexString } from '@polkadot/util/types';
+import type { SubmittableExtrinsic } from '@pezkuwi/api/types';
+import type { BN } from '@pezkuwi/util';
+import type { HexString } from '@pezkuwi/util/types';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { getProposalThreshold } from '@polkadot/apps-config';
-import { Button, Input, InputAddress, InputNumber, Modal, TxButton } from '@polkadot/react-components';
-import { useApi, useCollectiveInstance, usePreimage, useToggle } from '@polkadot/react-hooks';
-import { BN_ZERO, isFunction, isHex } from '@polkadot/util';
+import { getProposalThreshold } from '@pezkuwi/apps-config';
+import { Button, Input, InputAddress, InputNumber, Modal, TxButton } from '@pezkuwi/react-components';
+import { useApi, useCollectiveInstance, usePreimage, useToggle } from '@pezkuwi/react-hooks';
+import { BN_ZERO, isFunction, isHex } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 
@@ -87,8 +87,10 @@ function ProposeExternal ({ className = '', isMember, members }: Props): React.R
             hash: preimage.proposalHash,
             len: preimage.proposalLength || imageLen
           }
-        })
-        : api.tx.democracy.externalProposeMajority(hash);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } as any)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        : api.tx.democracy.externalProposeMajority(hash as any);
 
       if (proposal) {
         return setProposal({

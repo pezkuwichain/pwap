@@ -138,7 +138,7 @@
 //!
 //! The WASM binary is usually not needed, especially when running `check` or `test`. To skip the
 //! WASM build, set the `SKIP_WASM_BUILD` environment variable to `1`. For example:
-//! `SKIP_WASM_BUILD=1 cargo check -p frame-support`.
+//! `SKIP_WASM_BUILD=1 cargo check -p pezframe-support`.
 //!
 //! ### Cargo Remote
 //!

@@ -1,19 +1,19 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 // This is for the use of `Ledger`
 //
 /* eslint-disable deprecation/deprecation */
 
-import type { ApiPromise } from '@polkadot/api';
-import type { TransportType } from '@polkadot/hw-ledger-transports/types';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { TransportType } from '@pezkuwi/hw-ledger-transports/types';
 
 import { useCallback, useMemo } from 'react';
 
-import { Ledger, LedgerGeneric } from '@polkadot/hw-ledger';
-import { knownGenesis, knownLedger } from '@polkadot/networks/defaults';
-import { settings } from '@polkadot/ui-settings';
-import { assert } from '@polkadot/util';
+import { Ledger, LedgerGeneric } from '@pezkuwi/hw-ledger';
+import { knownGenesis, knownLedger } from '@pezkuwi/networks/defaults';
+import { settings } from '@pezkuwi/ui-settings';
+import { assert } from '@pezkuwi/util';
 
 import { createNamedHook } from './createNamedHook.js';
 import { useApi } from './useApi.js';

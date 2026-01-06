@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/app-coretime authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-coretime authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { SaleParameters } from 'page-coretime/src/types.js';
-import type { ProgressBarSection } from '@polkadot/react-components/types';
-import type { CoretimeInformation } from '@polkadot/react-hooks/types';
+import type { ProgressBarSection } from '@pezkuwi/react-components/types';
+import type { CoretimeInformation } from '@pezkuwi/react-hooks/types';
 
 import React, { useMemo } from 'react';
 
-import { CardSummary, ProgressBar, styled, SummaryBox } from '@polkadot/react-components';
-import { formatNumber } from '@polkadot/util';
+import { CardSummary, ProgressBar, styled, SummaryBox } from '@pezkuwi/react-components';
+import { formatNumber } from '@pezkuwi/util';
 
 import { useTranslation } from '../../translate.js';
 import { formatBNToBalance, getCorePriceAt, getSaleProgress } from '../../utils/sale.js';

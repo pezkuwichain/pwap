@@ -5,17 +5,17 @@
 //! 1. on-chain state,
 //! 2. a state transition function.
 //!
-//! In Substrate-based blockchains, state transition functions are referred to as
+//! In Bizinikiwi-based blockchains, state transition functions are referred to as
 //! [runtimes](https://docs.pezkuwichain.io/sdk/master/polkadot_sdk_docs/reference_docs/blockchain_state_machines/index.html).
 //!
-//! Traditionally, before Substrate, upgrading state transition functions required node
+//! Traditionally, before Bizinikiwi, upgrading state transition functions required node
 //! operators to download new software and restart their nodes in a process called
 //! [forking](https://en.wikipedia.org/wiki/Fork_(blockchain)).
 //!
-//! Substrate-based blockchains do not require forking, and instead upgrade runtimes
+//! Bizinikiwi-based blockchains do not require forking, and instead upgrade runtimes
 //! in a process called "Runtime Upgrades".
 //!
-//! Forkless runtime upgrades are a defining feature of the Substrate framework. Updating the
+//! Forkless runtime upgrades are a defining feature of the Bizinikiwi framework. Updating the
 //! runtime logic without forking the code base enables your blockchain to seamlessly evolve
 //! over time in a deterministic, rules-based manner. It also removes ambiguity for node operators
 //! and other participants in the network about what is the canonical runtime.
@@ -24,26 +24,26 @@
 //!
 //! ## Performing a Runtime Upgrade
 //!
-//! To upgrade a runtime, an [`Origin`](frame_system::RawOrigin) with the necessary permissions
+//! To upgrade a runtime, an [`Origin`](pezframe_system::RawOrigin) with the necessary permissions
 //! (usually via governance) changes the `:code` storage. Usually, this is performed via a call to
 //! [`set_code`] (or [`set_code_without_checks`]) with the desired new runtime blob, scheduled
-//! using [`pallet_scheduler`].
+//! using [`pezpallet_scheduler`].
 //!
 //! Prior to building the new runtime, don't forget to update the
-//! [`RuntimeVersion`](sp_version::RuntimeVersion).
+//! [`RuntimeVersion`](pezsp_version::RuntimeVersion).
 //!
 //! # Migrations
 //!
 //! It is often desirable to define logic to execute immediately after runtime upgrades (see
-//! [this diagram](frame::traits::Hooks)).
+//! [this diagram](pezframe::traits::Hooks)).
 //!
 //! Self-contained pieces of logic that execute after a runtime upgrade are called "Migrations".
 //!
-//! The typical use case of a migration is to 'migrate' pallet storage from one layout to another,
-//! for example when the encoding of a storage item is changed. However, they can also execute
-//! arbitrary logic such as:
+//! The typical use case of a migration is to 'migrate' pezpallet storage from one layout to
+//! another, for example when the encoding of a storage item is changed. However, they can also
+//! execute arbitrary logic such as:
 //!
-//! - Calling arbitrary pallet methods.
+//! - Calling arbitrary pezpallet methods.
 //! - Mutating arbitrary on-chain state.
 //! - Cleaning up some old storage items that are no longer needed.
 //!
@@ -54,22 +54,22 @@
 //! - Are suitable for migrations which are guaranteed to not exceed the block weight.
 //! - Are simply implementations of [`OnRuntimeUpgrade`].
 //!
-//! To learn best practices for writing single block pallet storage migrations, see the
-//! [Single Block Migration Example Pallet](pallet_example_single_block_migrations).
+//! To learn best practices for writing single block pezpallet storage migrations, see the
+//! [Single Block Migration Example Pezpallet](pezpallet_example_single_block_migrations).
 //!
 //! ### Scheduling the Single Block Migrations to Run Next Runtime Upgrade
 //!
 //! Schedule migrations to run next runtime upgrade passing them as a parameter to your
-//! [`Config`](frame_system) pallet:
+//! [`Config`](pezframe_system) pezpallet:
 //!
 //! ```ignore
 //! /// Tuple of migrations (structs that implement `OnRuntimeUpgrade`)
 //! type Migrations = (
-//! 	pallet_example_storage_migration::migrations::v1::versioned::MigrateV0ToV1,
+//! 	pezpallet_example_storage_migration::migrations::v1::versioned::MigrateV0ToV1,
 //! 	MyCustomMigration,
 //! 	// ...more migrations here
 //! );
-//! impl frame_system::Config for Runtime {
+//! impl pezframe_system::Config for Runtime {
 //! 	type SingleBlockMigrations = Migrations;
 //! }
 //! ```
@@ -114,7 +114,7 @@
 //!
 //! ### Other useful tools
 //!
-//! [`Chopsticks`](https://github.com/AcalaNetwork/chopsticks) is another tool in the Substrate
+//! [`Chopsticks`](https://github.com/AcalaNetwork/chopsticks) is another tool in the Bizinikiwi
 //! ecosystem which developers may find useful to use in addition to `try-runtime-cli` when testing
 //! their single block migrations.
 //!
@@ -125,10 +125,10 @@
 //! Suitable for migrations which could use arbitrary amounts of block weight.
 //!
 //! See the
-//! [multi-block-migrations example](https://github.com/pezkuwichain/pezkuwi-sdk/tree/0d7d2177807ec6b3094f4491a45b0bc0d74d3c8b/substrate/frame/examples/multi-block-migrations)
+//! [multi-block-migrations example](https://github.com/pezkuwichain/pezkuwi-sdk/tree/0d7d2177807ec6b3094f4491a45b0bc0d74d3c8b/bizinikiwi/pezframe/examples/multi-block-migrations)
 //! for reference.
 //!
-//! [`OnRuntimeUpgrade`]: frame_support::traits::OnRuntimeUpgrade
-//! [`StorageVersion`]: frame_support::traits::StorageVersion
-//! [`set_code`]: frame_system::Call::set_code
-//! [`set_code_without_checks`]: frame_system::Call::set_code_without_checks
+//! [`OnRuntimeUpgrade`]: pezframe_support::traits::OnRuntimeUpgrade
+//! [`StorageVersion`]: pezframe_support::traits::StorageVersion
+//! [`set_code`]: pezframe_system::Call::set_code
+//! [`set_code_without_checks`]: pezframe_system::Call::set_code_without_checks

@@ -1,17 +1,17 @@
-// Copyright 2017-2025 @polkadot/apps-config authors & contributors
+// Copyright 2017-2025 @pezkuwi/apps-config authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiInterfaceRx } from '@polkadot/api/types';
-import type { Enum } from '@polkadot/types';
-import type { AccountId, AccountIndex, Address, Balance } from '@polkadot/types/interfaces';
-import type { OverrideBundleDefinition } from '@polkadot/types/types';
-import type { Struct, u64, u128, Vec } from '@polkadot/types-codec';
-import type { ITuple } from '@polkadot/types-codec/types';
+import type { ApiInterfaceRx } from '@pezkuwi/api/types';
+import type { Enum } from '@pezkuwi/types';
+import type { AccountId, AccountIndex, Address, Balance } from '@pezkuwi/types/interfaces';
+import type { OverrideBundleDefinition } from '@pezkuwi/types/types';
+import type { Struct, u64, u128, Vec } from '@pezkuwi/types-codec';
+import type { ITuple } from '@pezkuwi/types-codec/types';
 
 import { map, of } from 'rxjs';
 
-import { memo } from '@polkadot/api-derive/util';
-import { U8aFixed } from '@polkadot/types-codec';
+import { memo } from '@pezkuwi/api-derive/util';
+import { U8aFixed } from '@pezkuwi/types-codec';
 
 export interface SignedBalance extends Enum {
   readonly isPositive: boolean;

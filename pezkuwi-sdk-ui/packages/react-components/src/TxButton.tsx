@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { SubmittableResult } from '@polkadot/api';
-import type { SubmittableExtrinsic } from '@polkadot/api/types';
+import type { SubmittableResult } from '@pezkuwi/api';
+import type { SubmittableExtrinsic } from '@pezkuwi/api/types';
 import type { TxButtonProps as Props } from './types.js';
 
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { useIsMountedRef, useQueue } from '@polkadot/react-hooks';
-import { assert, isFunction } from '@polkadot/util';
+import { useIsMountedRef, useQueue } from '@pezkuwi/react-hooks';
+import { assert, isFunction } from '@pezkuwi/util';
 
 import Button from './Button/index.js';
 import { useTranslation } from './translate.js';

@@ -47,7 +47,7 @@ import {
   type CandidateInfo,
 } from '@pezkuwi/lib/welati';
 // import { handleBlockchainError, handleBlockchainSuccess } from '@pezkuwi/lib/error-handler';
-// import { web3FromAddress } from '@polkadot/extension-dapp';
+// import { web3FromAddress } from '@pezkuwi/extension-dapp';
 
 export default function Elections() {
   const { api, isApiReady } = usePolkadot();

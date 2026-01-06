@@ -10,7 +10,7 @@ import { AlertCircle, CheckCircle2 } from 'lucide-react';
 import { usePolkadot } from '@/contexts/PolkadotContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { toast } from 'sonner';
-import { web3FromAddress } from '@polkadot/extension-dapp';
+import { web3FromAddress } from '@pezkuwi/extension-dapp';
 import {
   getStakingInfo,
   getActiveValidators,

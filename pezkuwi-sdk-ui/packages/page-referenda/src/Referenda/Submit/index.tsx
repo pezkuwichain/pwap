@@ -1,19 +1,19 @@
-// Copyright 2017-2025 @polkadot/app-referenda authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-referenda authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { RawParam } from '@polkadot/react-params/types';
-import type { BN } from '@polkadot/util';
-import type { HexString } from '@polkadot/util/types';
-import type { PalletReferenda, TrackDescription } from '../../types.js';
+import type { RawParam } from '@pezkuwi/react-params/types';
+import type { BN } from '@pezkuwi/util';
+import type { HexString } from '@pezkuwi/util/types';
+import type { PezpalletReferenda, TrackDescription } from '../../types.js';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { Button, Dropdown, Input, InputAddress, InputBalance, InputNumber, Modal, styled, ToggleGroup, TxButton } from '@polkadot/react-components';
-import { useApi, useBestNumber, usePreimage, useToggle } from '@polkadot/react-hooks';
-import Params from '@polkadot/react-params';
-import { Available } from '@polkadot/react-query';
-import { getTypeDef } from '@polkadot/types/create';
-import { BN_HUNDRED, BN_ONE, BN_THOUSAND, BN_ZERO, isHex } from '@polkadot/util';
+import { Button, Dropdown, Input, InputAddress, InputBalance, InputNumber, Modal, styled, ToggleGroup, TxButton } from '@pezkuwi/react-components';
+import { useApi, useBestNumber, usePreimage, useToggle } from '@pezkuwi/react-hooks';
+import Params from '@pezkuwi/react-params';
+import { Available } from '@pezkuwi/react-query';
+import { getTypeDef } from '@pezkuwi/types/create';
+import { BN_HUNDRED, BN_ONE, BN_THOUSAND, BN_ZERO, isHex } from '@pezkuwi/util';
 
 import { useTranslation } from '../../translate.js';
 import { getTrackInfo } from '../../util.js';
@@ -23,7 +23,7 @@ interface Props {
   className?: string;
   isMember: boolean;
   members?: string[];
-  palletReferenda: PalletReferenda;
+  palletReferenda: PezpalletReferenda;
   tracks: TrackDescription[];
 }
 

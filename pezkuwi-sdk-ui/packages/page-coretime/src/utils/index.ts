@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/app-coretime authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-coretime authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ChainBlockConstants, ChainConstants, CoretimeInformation } from '@polkadot/react-hooks/types';
+import type { ChainBlockConstants, ChainConstants, CoretimeInformation } from '@pezkuwi/react-hooks/types';
 import type { GetResponse, RegionInfo, RelayName } from '../types.js';
 
-import { CoreTimeTypes } from '@polkadot/react-hooks/constants';
-import { BN } from '@polkadot/util';
+import { CoreTimeTypes } from '@pezkuwi/react-hooks/constants';
+import { BN } from '@pezkuwi/util';
 
 type FirstCycleStartType = Record<
 'block' | 'timeslice',

@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/react-params authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-params authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Keys, ValidatorId } from '@polkadot/types/interfaces';
-import type { Codec } from '@polkadot/types/types';
+import type { Keys, ValidatorId } from '@pezkuwi/types/interfaces';
+import type { Codec } from '@pezkuwi/types/types';
 
 import React from 'react';
 
-import { CopyButton } from '@polkadot/react-components';
-import { Option, Raw } from '@polkadot/types';
-import { isFunction, isNull, isUndefined, stringify, u8aToHex } from '@polkadot/util';
+import { CopyButton } from '@pezkuwi/react-components';
+import { Option, Raw } from '@pezkuwi/types';
+import { isFunction, isNull, isUndefined, stringify, u8aToHex } from '@pezkuwi/util';
 
 interface DivProps {
   className?: string;

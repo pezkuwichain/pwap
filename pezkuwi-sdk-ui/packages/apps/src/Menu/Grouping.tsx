@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/apps authors & contributors
+// Copyright 2017-2025 @pezkuwi/apps authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Group } from './types.js';
 
 import React from 'react';
 
-import { Icon, styled } from '@polkadot/react-components';
+import { Icon, styled } from '@pezkuwi/react-components';
 
 import Item from './Item.js';
 

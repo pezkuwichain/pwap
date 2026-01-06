@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/test-supports authors & contributors
+// Copyright 2017-2025 @pezkuwi/test-supports authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 /* global expect */
 
-import type { Balance } from '@polkadot/types/interfaces';
+import type { Balance } from '@pezkuwi/types/interfaces';
 
 import { fireEvent, screen, within } from '@testing-library/react';
 

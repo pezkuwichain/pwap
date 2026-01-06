@@ -1,7 +1,7 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DefinitionCallNamed } from '@polkadot/types/types';
+import type { DefinitionCallNamed } from '@pezkuwi/types/types';
 import type { DropdownOption } from '../util/types.js';
 
 import React, { useCallback } from 'react';

@@ -1,10 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-alliance authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-alliance authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-/// <reference types="@polkadot/dev-test/globals.d.ts" />
+/// <reference types="@pezkuwi/dev-test/globals.d.ts" />
 
-import { Metadata, TypeRegistry } from '@polkadot/types';
-import substrate from '@polkadot/types-support/metadata/static-substrate';
+import { Metadata, TypeRegistry } from '@pezkuwi/types';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore metadata export may not have types
+import substrate from '@pezkuwi/types-support/metadata/static-bizinikiwi';
 
 import { createCid, createPalletCid } from './util.js';
 
@@ -31,7 +33,7 @@ describe('util', (): void => {
 
   describe('createIpfsHash', (): void => {
     it('encodes a pallet CID into an ipfs hash', (): void => {
-      const cid = registry.createType('PalletAllianceCid', {
+      const cid = registry.createType('PezpalletAllianceCid', {
         codec: 0x70,
         hash_: {
           code: 0x12,

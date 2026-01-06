@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/app-explorer authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-explorer authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveSessionProgress } from '@polkadot/api-derive/types';
-import type { Forcing } from '@polkadot/types/interfaces';
+import type { DeriveSessionProgress } from '@pezkuwi/api-derive/types';
+import type { Forcing } from '@pezkuwi/types/interfaces';
 
 import React from 'react';
 
-import { CardSummary } from '@polkadot/react-components';
-import { useApi, useCall } from '@polkadot/react-hooks';
-import { Elapsed } from '@polkadot/react-query';
-import { BN_THREE, BN_TWO, formatNumber } from '@polkadot/util';
+import { CardSummary } from '@pezkuwi/react-components';
+import { useApi, useCall } from '@pezkuwi/react-hooks';
+import { Elapsed } from '@pezkuwi/react-query';
+import { BN_THREE, BN_TWO, formatNumber } from '@pezkuwi/util';
 
 import { useTranslation } from './translate.js';
 

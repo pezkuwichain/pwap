@@ -1,19 +1,19 @@
-// Copyright 2017-2025 @polkadot/app-staking-async authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking-async authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import '@polkadot/api-augment';
+import '@pezkuwi/api-augment';
 
-import type { SortedTargets } from '@polkadot/app-staking/types';
-import type { OwnPool } from '@polkadot/app-staking2/Pools/types';
-import type { StakerState } from '@polkadot/react-hooks/types';
+import type { SortedTargets } from '@pezkuwi/app-staking/types';
+import type { OwnPool } from '@pezkuwi/app-staking2/Pools/types';
+import type { StakerState } from '@pezkuwi/react-hooks/types';
 
 import React, { useMemo, useRef, useState } from 'react';
 
-import ElectionBanner from '@polkadot/app-staking/ElectionBanner';
-import { Button, ToggleGroup } from '@polkadot/react-components';
-import { useAvailableSlashes, useStakingAsyncApis } from '@polkadot/react-hooks';
-import { FormatBalance } from '@polkadot/react-query';
-import { BN, BN_ZERO } from '@polkadot/util';
+import ElectionBanner from '@pezkuwi/app-staking/ElectionBanner';
+import { Button, ToggleGroup } from '@pezkuwi/react-components';
+import { useAvailableSlashes, useStakingAsyncApis } from '@pezkuwi/react-hooks';
+import { FormatBalance } from '@pezkuwi/react-query';
+import { BN, BN_ZERO } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 import Accounts from './Accounts.js';

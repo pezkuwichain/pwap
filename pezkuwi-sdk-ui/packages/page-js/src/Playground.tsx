@@ -1,20 +1,20 @@
-// Copyright 2017-2025 @polkadot/app-js authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-js authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { KeyringInstance } from '@polkadot/keyring/types';
-import type { ApiProps } from '@polkadot/react-api/types';
-import type { AppProps as Props } from '@polkadot/react-components/types';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { KeyringInstance } from '@pezkuwi/keyring/types';
+import type { ApiProps } from '@pezkuwi/react-api/types';
+import type { AppProps as Props } from '@pezkuwi/react-components/types';
 import type { Log, LogType, Snippet } from './types.js';
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { Button, Dropdown, Editor, styled, Tabs } from '@polkadot/react-components';
-import { useApi, useToggle } from '@polkadot/react-hooks';
-import * as types from '@polkadot/types';
-import uiKeyring from '@polkadot/ui-keyring';
-import * as util from '@polkadot/util';
-import * as hashing from '@polkadot/util-crypto';
+import { Button, Dropdown, Editor, styled, Tabs } from '@pezkuwi/react-components';
+import { useApi, useToggle } from '@pezkuwi/react-hooks';
+import * as types from '@pezkuwi/types';
+import uiKeyring from '@pezkuwi/ui-keyring';
+import * as util from '@pezkuwi/util';
+import * as hashing from '@pezkuwi/util-crypto';
 
 import { allSnippets, makeWrapper } from './snippets/index.js';
 import ActionButtons from './ActionButtons.js';

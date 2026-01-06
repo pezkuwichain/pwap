@@ -8,8 +8,8 @@
  * BETA+ MODE: Real XCM with Rococo/Westend Asset Hub
  */
 
-import { ApiPromise, WsProvider } from '@polkadot/api';
-import type { Signer } from '@polkadot/api/types';
+import { ApiPromise, WsProvider } from '@pezkuwi/api';
+import type { Signer } from '@pezkuwi/api/types';
 
 // Detect mock mode (alfa testnet)
 const IS_MOCK_MODE = typeof process !== 'undefined'

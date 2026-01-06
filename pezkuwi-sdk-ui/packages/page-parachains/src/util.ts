@@ -1,7 +1,7 @@
-// Copyright 2017-2025 @polkadot/app-parachains authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Codec } from '@polkadot/types/types';
+import type { Codec } from '@pezkuwi/types/types';
 
 export function sliceHex (value: Codec, max = 6): string {
   const hex = value.toHex();

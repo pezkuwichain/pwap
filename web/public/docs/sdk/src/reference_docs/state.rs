@@ -9,4 +9,4 @@
 //! The key-value pairs in the state are represented as byte sequences. The node
 //! doesn't know how to interpret most the key-value pairs. However, there exist some
 //! special keys and its values that are known to the node, the so-called
-//! [`well-known-keys`](sp_storage::well_known_keys).
+//! [`well-known-keys`](pezsp_storage::well_known_keys).

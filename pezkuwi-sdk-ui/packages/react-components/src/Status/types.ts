@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { SubmittableResult } from '@polkadot/api';
-import type { SubmittableExtrinsic } from '@polkadot/api/promise/types';
-import type { SignerResult } from '@polkadot/api/types';
-import type { AccountId, Address } from '@polkadot/types/interfaces';
-import type { DefinitionRpcExt, Registry, SignerPayloadJSON } from '@polkadot/types/types';
+import type { SubmittableResult } from '@pezkuwi/api';
+import type { SubmittableExtrinsic } from '@pezkuwi/api/promise/types';
+import type { SignerResult } from '@pezkuwi/api/types';
+import type { AccountId, Address } from '@pezkuwi/types/interfaces';
+import type { DefinitionRpcExt, Registry, SignerPayloadJSON } from '@pezkuwi/types/types';
 
 export type Actions = 'create' | 'edit' | 'restore' | 'forget' | 'backup' | 'changePassword' | 'transfer';
 

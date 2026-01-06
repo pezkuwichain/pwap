@@ -1,17 +1,17 @@
-// Copyright 2017-2025 @polkadot/app-addresses authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-addresses authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveAccountInfo } from '@polkadot/api-derive/types';
-import type { ActionStatus, ActionStatusBase } from '@polkadot/react-components/Status/types';
+import type { DeriveAccountInfo } from '@pezkuwi/api-derive/types';
+import type { ActionStatus, ActionStatusBase } from '@pezkuwi/react-components/Status/types';
 import type { FunInputFile, SaveFile } from './types.js';
 
 import React, { useCallback, useRef } from 'react';
 
-import { Button, InputAddress } from '@polkadot/react-components';
-import { useApi } from '@polkadot/react-hooks';
-import keyring from '@polkadot/ui-keyring';
-import { hexToU8a } from '@polkadot/util';
-import { ethereumEncode } from '@polkadot/util-crypto';
+import { Button, InputAddress } from '@pezkuwi/react-components';
+import { useApi } from '@pezkuwi/react-hooks';
+import keyring from '@pezkuwi/ui-keyring';
+import { hexToU8a } from '@pezkuwi/util';
+import { ethereumEncode } from '@pezkuwi/util-crypto';
 
 import { useTranslation } from '../translate.js';
 

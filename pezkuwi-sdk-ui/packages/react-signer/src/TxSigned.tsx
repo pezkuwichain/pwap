@@ -1,31 +1,31 @@
-// Copyright 2017-2025 @polkadot/react-signer authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-signer authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 // This is for the use of `Ledger`
 //
 /* eslint-disable deprecation/deprecation */
 
-import type { ApiPromise } from '@polkadot/api';
-import type { SignerOptions } from '@polkadot/api/submittable/types';
-import type { SubmittableExtrinsic } from '@polkadot/api/types';
-import type { Ledger, LedgerGeneric } from '@polkadot/hw-ledger';
-import type { KeyringPair } from '@polkadot/keyring/types';
-import type { QueueTx, QueueTxMessageSetStatus } from '@polkadot/react-components/Status/types';
-import type { Option } from '@polkadot/types';
-import type { Multisig, Timepoint } from '@polkadot/types/interfaces';
-import type { BN } from '@polkadot/util';
-import type { HexString } from '@polkadot/util/types';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { SignerOptions } from '@pezkuwi/api/submittable/types';
+import type { SubmittableExtrinsic } from '@pezkuwi/api/types';
+import type { Ledger, LedgerGeneric } from '@pezkuwi/hw-ledger';
+import type { KeyringPair } from '@pezkuwi/keyring/types';
+import type { QueueTx, QueueTxMessageSetStatus } from '@pezkuwi/react-components/Status/types';
+import type { Option } from '@pezkuwi/types';
+import type { Multisig, Timepoint } from '@pezkuwi/types/interfaces';
+import type { BN } from '@pezkuwi/util';
+import type { HexString } from '@pezkuwi/util/types';
 import type { AddressFlags, AddressProxy, ExtendedSignerOptions, QrState } from './types.js';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { web3FromSource } from '@polkadot/extension-dapp';
-import { Button, ErrorBoundary, Modal, Output, styled, Toggle } from '@polkadot/react-components';
-import { useApi, useLedger, useQueue, useToggle } from '@polkadot/react-hooks';
-import { keyring } from '@polkadot/ui-keyring';
-import { settings } from '@polkadot/ui-settings';
-import { assert, nextTick } from '@polkadot/util';
-import { addressEq } from '@polkadot/util-crypto';
+import { web3FromSource } from '@pezkuwi/extension-dapp';
+import { Button, ErrorBoundary, Modal, Output, styled, Toggle } from '@pezkuwi/react-components';
+import { useApi, useLedger, useQueue, useToggle } from '@pezkuwi/react-hooks';
+import { keyring } from '@pezkuwi/ui-keyring';
+import { settings } from '@pezkuwi/ui-settings';
+import { assert, nextTick } from '@pezkuwi/util';
+import { addressEq } from '@pezkuwi/util-crypto';
 
 import { AccountSigner, LedgerSigner, QrSigner } from './signers/index.js';
 import Address from './Address.js';

@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/react-params authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-params authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type React from 'react';
-import type { Registry, TypeDef } from '@polkadot/types/types';
-import type { HexString } from '@polkadot/util/types';
+import type { Registry, TypeDef } from '@pezkuwi/types/types';
+import type { HexString } from '@pezkuwi/util/types';
 
 // FIXME Ideally, we want these as Base from api-codec - as a stop-gap, any this until we have
 // params returning types extending Base (i.e. anything from api-codec)

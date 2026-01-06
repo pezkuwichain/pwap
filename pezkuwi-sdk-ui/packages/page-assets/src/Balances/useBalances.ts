@@ -1,17 +1,17 @@
-// Copyright 2017-2025 @polkadot/app-assets authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-assets authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { PalletAssetsAssetAccount } from '@polkadot/types/lookup';
-import type { Option } from '@polkadot/types-codec';
-import type { BN } from '@polkadot/util';
+import type { PezpalletAssetsAssetAccount } from '@pezkuwi/types/lookup';
+import type { Option } from '@pezkuwi/types-codec';
+import type { BN } from '@pezkuwi/util';
 
 import { useMemo } from 'react';
 
-import { createNamedHook, useAccounts, useApi, useCall } from '@polkadot/react-hooks';
+import { createNamedHook, useAccounts, useApi, useCall } from '@pezkuwi/react-hooks';
 
 interface AccountResult {
   accountId: string;
-  account: PalletAssetsAssetAccount;
+  account: PezpalletAssetsAssetAccount;
 }
 
 interface Result {
@@ -19,12 +19,12 @@ interface Result {
   accounts: AccountResult[];
 }
 
-function isOptional (value: PalletAssetsAssetAccount | Option<PalletAssetsAssetAccount>): value is Option<PalletAssetsAssetAccount> {
-  return (value as Option<PalletAssetsAssetAccount>).isSome || (value as Option<PalletAssetsAssetAccount>).isNone;
+function isOptional (value: PezpalletAssetsAssetAccount | Option<PezpalletAssetsAssetAccount>): value is Option<PezpalletAssetsAssetAccount> {
+  return (value as Option<PezpalletAssetsAssetAccount>).isSome || (value as Option<PezpalletAssetsAssetAccount>).isNone;
 }
 
 const OPTS = {
-  transform: ([[params], accounts]: [[[BN, string][]], (PalletAssetsAssetAccount | Option<PalletAssetsAssetAccount>)[]]): Result => ({
+  transform: ([[params], accounts]: [[[BN, string][]], (PezpalletAssetsAssetAccount | Option<PezpalletAssetsAssetAccount>)[]]): Result => ({
     accounts: params
       .map(([, accountId], index) => {
         const o = accounts[index];

@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveStakingOverview } from '@polkadot/api-derive/types';
+import type { DeriveStakingOverview } from '@pezkuwi/api-derive/types';
 import type { SortedTargets } from '../types.js';
 
 import React from 'react';
 
-import SummarySession from '@polkadot/app-explorer/SummarySession';
-import { CardSummary, styled, SummaryBox } from '@polkadot/react-components';
-import { formatNumber } from '@polkadot/util';
+import SummarySession from '@pezkuwi/app-explorer/SummarySession';
+import { CardSummary, styled, SummaryBox } from '@pezkuwi/react-components';
+import { formatNumber } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 

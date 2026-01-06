@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/test-support authors & contributors
+// Copyright 2017-2025 @pezkuwi/test-support authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { SubmittableExtrinsic } from '@polkadot/api/types';
-import type { DeriveCollectiveProposal } from '@polkadot/api-derive/types';
-import type { KeyringPair } from '@polkadot/keyring/types';
-import type { Hash } from '@polkadot/types/interfaces';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { SubmittableExtrinsic } from '@pezkuwi/api/types';
+import type { DeriveCollectiveProposal } from '@pezkuwi/api-derive/types';
+import type { KeyringPair } from '@pezkuwi/keyring/types';
+import type { Hash } from '@pezkuwi/types/interfaces';
 
-import { charlieSigner, daveSigner, eveSigner, ferdieSigner } from '@polkadot/test-support/keyring';
-import { execute } from '@polkadot/test-support/transaction';
-import { BN } from '@polkadot/util';
+import { charlieSigner, daveSigner, eveSigner, ferdieSigner } from '@pezkuwi/test-support/keyring';
+import { execute } from '@pezkuwi/test-support/transaction';
+import { BN } from '@pezkuwi/util';
 
 import { LENGTH_BOUND, TREASURY_ADDRESS, WEIGHT_BOUND } from './constants.js';
 

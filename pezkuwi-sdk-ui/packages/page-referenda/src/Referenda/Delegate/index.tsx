@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/app-referenda authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-referenda authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { BatchOptions } from '@polkadot/react-hooks/types';
-import type { BN } from '@polkadot/util';
-import type { PalletReferenda, PalletVote, TrackDescription } from '../../types.js';
+import type { BatchOptions } from '@pezkuwi/react-hooks/types';
+import type { BN } from '@pezkuwi/util';
+import type { PezpalletReferenda, PalletVote, TrackDescription } from '../../types.js';
 
 import React, { useCallback, useMemo, useState } from 'react';
 
-import { Button, ConvictionDropdown, InputAddress, Modal, Toggle, ToggleGroup, TxButton, VoteValue } from '@polkadot/react-components';
-import { useAccounts, useApi, useStepper, useToggle, useTxBatch } from '@polkadot/react-hooks';
-import { isFunction } from '@polkadot/util';
+import { Button, ConvictionDropdown, InputAddress, Modal, Toggle, ToggleGroup, TxButton, VoteValue } from '@pezkuwi/react-components';
+import { useAccounts, useApi, useStepper, useToggle, useTxBatch } from '@pezkuwi/react-hooks';
+import { isFunction } from '@pezkuwi/util';
 
 import { useTranslation } from '../../translate.js';
 import TrackDropdown from '../Submit/TrackDropdown.js';
@@ -20,7 +20,7 @@ import useActivityNominators from './useActivityNominators.js';
 
 interface Props {
   className?: string;
-  palletReferenda: PalletReferenda;
+  palletReferenda: PezpalletReferenda;
   palletVote: PalletVote;
   tracks: TrackDescription[];
 }
@@ -98,6 +98,7 @@ function Delegate ({ className, palletReferenda, palletVote, tracks }: Props): R
   const batchInner = useMemo(
     () => balance && conviction >= 0 && toAccount && includeTracks
       ? (isAllTracks ? includeTracks : [trackId]).map((trackId) =>
+        // @ts-expect-error conviction is runtime converted
         api.tx[palletVote as 'convictionVoting'].delegate(trackId, toAccount, conviction, balance)
       )
       : null,

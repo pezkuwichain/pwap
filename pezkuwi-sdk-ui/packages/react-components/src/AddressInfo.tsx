@@ -1,19 +1,19 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { DeriveBalancesAccountData, DeriveBalancesAll, DeriveDemocracyLock, DeriveStakingAccount } from '@polkadot/api-derive/types';
-import type { Raw } from '@polkadot/types';
-import type { BlockNumber, ValidatorPrefsTo145, Voting } from '@polkadot/types/interfaces';
-import type { PalletBalancesReserveData } from '@polkadot/types/lookup';
-import type { BN } from '@polkadot/util';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { DeriveBalancesAccountData, DeriveBalancesAll, DeriveDemocracyLock, DeriveStakingAccount } from '@pezkuwi/api-derive/types';
+import type { Raw } from '@pezkuwi/types';
+import type { BlockNumber, ValidatorPrefsTo145, Voting } from '@pezkuwi/types/interfaces';
+import type { PezpalletBalancesReserveData } from '@pezkuwi/types/lookup';
+import type { BN } from '@pezkuwi/util';
 
 import React, { useRef } from 'react';
 
-import { withCalls, withMulti } from '@polkadot/react-api/hoc';
-import { useBestNumberRelay, useStakingAsyncApis } from '@polkadot/react-hooks';
-import { BlockToTime, FormatBalance } from '@polkadot/react-query';
-import { BN_MAX_INTEGER, BN_ZERO, bnMax, formatBalance, formatNumber, isObject } from '@polkadot/util';
+import { withCalls, withMulti } from '@pezkuwi/react-api/hoc';
+import { useBestNumberRelay, useStakingAsyncApis } from '@pezkuwi/react-hooks';
+import { BlockToTime, FormatBalance } from '@pezkuwi/react-query';
+import { BN_MAX_INTEGER, BN_ZERO, bnMax, formatBalance, formatNumber, isObject } from '@pezkuwi/util';
 
 import CryptoType from './CryptoType.js';
 import DemocracyLocks from './DemocracyLocks.js';
@@ -315,7 +315,7 @@ function createBalanceItems (formatIndex: number, lookup: Record<string, string>
     );
   }
 
-  const allReserves = (deriveBalances?.namedReserves || []).reduce<PalletBalancesReserveData[]>((t, r) => t.concat(...r), []);
+  const allReserves = (deriveBalances?.namedReserves || []).reduce<PezpalletBalancesReserveData[]>((t, r) => t.concat(...r), []);
   const hasNamedReserves = !!allReserves && allReserves.length !== 0;
 
   balanceDisplay.locked && balancesAll && (isAllLocked || deriveBalances.lockedBalance?.gtn(0)) && allItems.push(

@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AccountId32 } from '@polkadot/types/interfaces';
-import type { PalletBagsListListBag } from '@polkadot/types/lookup';
-import type { BN } from '@polkadot/util';
+import type { AccountId32 } from '@pezkuwi/types/interfaces';
+import type { PezpalletBagsListListBag } from '@pezkuwi/types/lookup';
+import type { BN } from '@pezkuwi/util';
 import type { ListNode, StashNode } from './types.js';
 
 import React, { useEffect, useState } from 'react';
 
-import { AddressMini, Table } from '@polkadot/react-components';
-import { formatNumber } from '@polkadot/util';
+import { AddressMini, Table } from '@pezkuwi/react-components';
+import { formatNumber } from '@pezkuwi/util';
 
 import Rebag from './Rebag.js';
 import Stash from './Stash.js';
@@ -20,7 +20,7 @@ interface Props {
   bagLower: BN;
   bagUpper: BN;
   index: number;
-  info: PalletBagsListListBag;
+  info: PezpalletBagsListListBag;
   nodesOwn?: StashNode[];
 }
 

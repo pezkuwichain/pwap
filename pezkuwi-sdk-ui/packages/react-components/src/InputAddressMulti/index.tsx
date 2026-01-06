@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { useDebounce, useNextTick } from '@polkadot/react-hooks';
+import { useDebounce, useNextTick } from '@pezkuwi/react-hooks';
 
 import Input from '../Input.js';
 import Spinner from '../Spinner.js';

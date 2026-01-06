@@ -1,10 +1,10 @@
-// Copyright 2017-2025 @polkadot/app-accounts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-accounts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useMemo } from 'react';
 
-import { styled } from '@polkadot/react-components';
-import { useStakingAsyncApis } from '@polkadot/react-hooks';
+import { styled } from '@pezkuwi/react-components';
+import { useStakingAsyncApis } from '@pezkuwi/react-hooks';
 
 import { useTranslation } from '../translate.js';
 import Banner from './Banner.js';

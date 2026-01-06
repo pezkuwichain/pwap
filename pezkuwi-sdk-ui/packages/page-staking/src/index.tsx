@@ -1,20 +1,20 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveStakingOverview } from '@polkadot/api-derive/types';
-import type { AppProps as Props } from '@polkadot/react-components/types';
-import type { ElectionStatus, ParaValidatorIndex, ValidatorId } from '@polkadot/types/interfaces';
-import type { BN } from '@polkadot/util';
+import type { DeriveStakingOverview } from '@pezkuwi/api-derive/types';
+import type { AppProps as Props } from '@pezkuwi/react-components/types';
+import type { ElectionStatus, ParaValidatorIndex, ValidatorId } from '@pezkuwi/types/interfaces';
+import type { BN } from '@pezkuwi/util';
 
 import React, { useCallback, useMemo, useState } from 'react';
 import { Route, Routes } from 'react-router';
 import { useLocation } from 'react-router-dom';
 
-import Pools from '@polkadot/app-staking2/Pools';
-import useOwnPools from '@polkadot/app-staking2/Pools/useOwnPools';
-import { styled, Tabs } from '@polkadot/react-components';
-import { useAccounts, useApi, useAvailableSlashes, useCall, useCallMulti, useFavorites, useOwnStashInfos } from '@polkadot/react-hooks';
-import { isFunction } from '@polkadot/util';
+import Pools from '@pezkuwi/app-staking2/Pools';
+import useOwnPools from '@pezkuwi/app-staking2/Pools/useOwnPools';
+import { styled, Tabs } from '@pezkuwi/react-components';
+import { useAccounts, useApi, useAvailableSlashes, useCall, useCallMulti, useFavorites, useOwnStashInfos } from '@pezkuwi/react-hooks';
+import { isFunction } from '@pezkuwi/util';
 
 import Actions from './Actions/index.js';
 import Bags from './Bags/index.js';

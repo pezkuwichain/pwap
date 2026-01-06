@@ -1,18 +1,18 @@
-// Copyright 2017-2025 @polkadot/app-contracts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-contracts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { SubmittableExtrinsic } from '@polkadot/api/types';
-import type { CodeSubmittableResult } from '@polkadot/api-contract/promise/types';
-import type { BN } from '@polkadot/util';
+import type { SubmittableExtrinsic } from '@pezkuwi/api/types';
+import type { CodeSubmittableResult } from '@pezkuwi/api-contract/promise/types';
+import type { BN } from '@pezkuwi/util';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { CodePromise } from '@polkadot/api-contract';
-import { Button, Dropdown, InputAddress, InputBalance, InputFile, MarkError, Modal, TxButton } from '@polkadot/react-components';
-import { useAccountId, useApi, useFormField, useNonEmptyString, useStepper } from '@polkadot/react-hooks';
-import { Available } from '@polkadot/react-query';
-import { keyring } from '@polkadot/ui-keyring';
-import { BN_ZERO, isNull, isWasm, stringify } from '@polkadot/util';
+import { CodePromise } from '@pezkuwi/api-contract';
+import { Button, Dropdown, InputAddress, InputBalance, InputFile, MarkError, Modal, TxButton } from '@pezkuwi/react-components';
+import { useAccountId, useApi, useFormField, useNonEmptyString, useStepper } from '@pezkuwi/react-hooks';
+import { Available } from '@pezkuwi/react-query';
+import { keyring } from '@pezkuwi/ui-keyring';
+import { BN_ZERO, isNull, isWasm, stringify } from '@pezkuwi/util';
 
 import { ABI, InputMegaGas, InputName, MessageSignature, Params } from '../shared/index.js';
 import store from '../store.js';
@@ -97,6 +97,7 @@ function Upload ({ onClose }: Props): React.ReactElement {
                 : api.registry.createType('Balance', BN_ZERO),
               weight.weightV2,
               null,
+              // @ts-expect-error Upload variant is runtime converted
               { Upload: api.registry.createType('Raw', wasm) },
               contractAbi?.constructors[constructorIndex]?.toU8a(params),
               ''

@@ -1,18 +1,18 @@
-// Copyright 2017-2025 @polkadot/app-democracy authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-democracy authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { SubmittableExtrinsic } from '@polkadot/api/promise/types';
-import type { Hash } from '@polkadot/types/interfaces';
-import type { HexString } from '@polkadot/util/types';
+import type { SubmittableExtrinsic } from '@pezkuwi/api/promise/types';
+import type { Hash } from '@pezkuwi/types/interfaces';
+import type { HexString } from '@pezkuwi/util/types';
 
 import React, { useEffect, useMemo, useState } from 'react';
 
-import { InputAddress, InputBalance, Modal, Static, styled, TxButton } from '@polkadot/react-components';
-import { useApi } from '@polkadot/react-hooks';
-import { Extrinsic } from '@polkadot/react-params';
-import { Available } from '@polkadot/react-query';
-import { BN, BN_ZERO, isString } from '@polkadot/util';
-import { blake2AsHex } from '@polkadot/util-crypto';
+import { InputAddress, InputBalance, Modal, Static, styled, TxButton } from '@pezkuwi/react-components';
+import { useApi } from '@pezkuwi/react-hooks';
+import { Extrinsic } from '@pezkuwi/react-params';
+import { Available } from '@pezkuwi/react-query';
+import { BN, BN_ZERO, isString } from '@pezkuwi/util';
+import { blake2AsHex } from '@pezkuwi/util-crypto';
 
 import { useTranslation } from '../translate.js';
 

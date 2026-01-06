@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-society authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-society authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveSociety } from '@polkadot/api-derive/types';
-import type { BN } from '@polkadot/util';
+import type { DeriveSociety } from '@pezkuwi/api-derive/types';
+import type { BN } from '@pezkuwi/util';
 import type { MapMember } from '../types.js';
 
 import React from 'react';
 
-import { styled } from '@polkadot/react-components';
+import { styled } from '@pezkuwi/react-components';
 
 import Defender from './Defender.js';
 import Members from './Members.js';

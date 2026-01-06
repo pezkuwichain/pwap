@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ChartData, ChartDataset, ChartOptions, DatasetChartOptions } from 'chart.js';
-import type { BN } from '@polkadot/util';
+import type { BN } from '@pezkuwi/util';
 
 import React, { useMemo } from 'react';
 import * as Chart from 'react-chartjs-2';
 
-import { isBn, objectSpread } from '@polkadot/util';
+import { isBn, objectSpread } from '@pezkuwi/util';
 
 import ErrorBoundary from '../ErrorBoundary.js';
 import { styled } from '../styled.js';

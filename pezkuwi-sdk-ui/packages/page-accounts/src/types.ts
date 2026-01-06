@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/app-accounts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-accounts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { WithTranslation } from 'react-i18next';
-import type { ActionStatus } from '@polkadot/react-components/Status/types';
-import type { Balance, Conviction } from '@polkadot/types/interfaces';
-import type { KeyringAddress } from '@polkadot/ui-keyring/types';
-import type { BN } from '@polkadot/util';
-import type { HexString } from '@polkadot/util/types';
+import type { ActionStatus } from '@pezkuwi/react-components/Status/types';
+import type { Balance, Conviction } from '@pezkuwi/types/interfaces';
+import type { KeyringAddress } from '@pezkuwi/ui-keyring/types';
+import type { BN } from '@pezkuwi/util';
+import type { HexString } from '@pezkuwi/util/types';
 
-export type { AppProps as ComponentProps } from '@polkadot/react-components/types';
+export type { AppProps as ComponentProps } from '@pezkuwi/react-components/types';
 
 export interface BareProps {
   className?: string;

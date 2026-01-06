@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { CombinatorFunction } from '@polkadot/api/promise/Combinator';
-import type { DeriveStakingAccount } from '@polkadot/api-derive/types';
-import type { AccountId, ValidatorPrefs } from '@polkadot/types/interfaces';
-import type { Codec, ITuple } from '@polkadot/types/types';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { CombinatorFunction } from '@pezkuwi/api/promise/Combinator';
+import type { DeriveStakingAccount } from '@pezkuwi/api-derive/types';
+import type { AccountId, ValidatorPrefs } from '@pezkuwi/types/interfaces';
+import type { Codec, ITuple } from '@pezkuwi/types/types';
 import type { StakerState } from './types.js';
 
 import { useEffect, useMemo, useState } from 'react';
 
-import { u8aConcat, u8aToHex } from '@polkadot/util';
+import { u8aConcat, u8aToHex } from '@pezkuwi/util';
 
 import { isEmpty } from './utils/isEmpty.js';
 import { createNamedHook } from './createNamedHook.js';

@@ -1,29 +1,29 @@
-// Copyright 2017-2025 @polkadot/app-accounts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-accounts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 // This is for the use of `Ledger`
 //
 /* eslint-disable deprecation/deprecation */
 
-import type { ApiPromise } from '@polkadot/api';
-import type { SubmittableExtrinsic } from '@polkadot/api/types';
-import type { DeriveDemocracyLock, DeriveStakingAccount } from '@polkadot/api-derive/types';
-import type { Ledger, LedgerGeneric } from '@polkadot/hw-ledger';
-import type { ActionStatus } from '@polkadot/react-components/Status/types';
-import type { Option } from '@polkadot/types';
-import type { ProxyDefinition, RecoveryConfig } from '@polkadot/types/interfaces';
-import type { KeyringAddress, KeyringJson$Meta } from '@polkadot/ui-keyring/types';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { SubmittableExtrinsic } from '@pezkuwi/api/types';
+import type { DeriveDemocracyLock, DeriveStakingAccount } from '@pezkuwi/api-derive/types';
+import type { Ledger, LedgerGeneric } from '@pezkuwi/hw-ledger';
+import type { ActionStatus } from '@pezkuwi/react-components/Status/types';
+import type { Option } from '@pezkuwi/types';
+import type { ProxyDefinition, RecoveryConfig } from '@pezkuwi/types/interfaces';
+import type { KeyringAddress, KeyringJson$Meta } from '@pezkuwi/ui-keyring/types';
 import type { AccountBalance, Delegation } from '../types.js';
 
 import FileSaver from 'file-saver';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import useAccountLocks from '@polkadot/app-referenda/useAccountLocks';
-import { AddressInfo, AddressSmall, Badge, Button, ChainLock, Columar, CryptoType, Forget, LinkExternal, Menu, Popup, styled, Table, Tags, TransferModal } from '@polkadot/react-components';
-import { useAccountInfo, useApi, useBalancesAll, useBestNumberRelay, useCall, useLedger, useQueue, useStakingInfo, useToggle } from '@polkadot/react-hooks';
-import { keyring } from '@polkadot/ui-keyring';
-import { settings } from '@polkadot/ui-settings';
-import { BN, BN_ZERO, formatBalance, formatNumber, isFunction } from '@polkadot/util';
+import useAccountLocks from '@pezkuwi/app-referenda/useAccountLocks';
+import { AddressInfo, AddressSmall, Badge, Button, ChainLock, Columar, CryptoType, Forget, LinkExternal, Menu, Popup, styled, Table, Tags, TransferModal } from '@pezkuwi/react-components';
+import { useAccountInfo, useApi, useBalancesAll, useBestNumberRelay, useCall, useLedger, useQueue, useStakingInfo, useToggle } from '@pezkuwi/react-hooks';
+import { keyring } from '@pezkuwi/ui-keyring';
+import { settings } from '@pezkuwi/ui-settings';
+import { BN, BN_ZERO, formatBalance, formatNumber, isFunction } from '@pezkuwi/util';
 
 import Backup from '../modals/Backup.js';
 import ChangePass from '../modals/ChangePass.js';

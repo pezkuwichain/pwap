@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/apps authors & contributors
+// Copyright 2017-2025 @pezkuwi/apps authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { IFavoriteChainProps, IFavoriteChainsStorage } from './types.js';
 
-import { createWsEndpoints } from '@polkadot/apps-config';
+import { createWsEndpoints } from '@pezkuwi/apps-config';
 
 export const FAVORITE_CHAINS_KEY = 'polkadot-app-favorite-chains';
 const chainsConfig = createWsEndpoints((k, v) => v?.toString() || k);

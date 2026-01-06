@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/app-extrinsics authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-extrinsics authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { SubmittableExtrinsic, SubmittableExtrinsicFunction } from '@polkadot/api/types';
-import type { Call } from '@polkadot/types/interfaces';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { SubmittableExtrinsic, SubmittableExtrinsicFunction } from '@pezkuwi/api/types';
+import type { Call } from '@pezkuwi/types/interfaces';
 import type { Props, RawParam } from '../types.js';
 
 import React, { useState } from 'react';
 
-import { useApi } from '@polkadot/react-hooks';
-import { isObject, isString } from '@polkadot/util';
+import { useApi } from '@pezkuwi/react-hooks';
+import { isObject, isString } from '@pezkuwi/util';
 
 import Extrinsic from './Extrinsic.js';
 

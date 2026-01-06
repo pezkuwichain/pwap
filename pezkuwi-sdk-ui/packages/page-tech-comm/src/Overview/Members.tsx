@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/app-tech-comm authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-tech-comm authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useRef } from 'react';
 
-import { AddressSmall, Table, Tag } from '@polkadot/react-components';
+import { AddressSmall, Table, Tag } from '@pezkuwi/react-components';
 
 import { useTranslation } from '../translate.js';
 

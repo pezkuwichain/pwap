@@ -1,7 +1,7 @@
-// Copyright 2017-2025 @polkadot/app-ranked authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-ranked authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { PalletRankedCollectiveMemberRecord } from '@polkadot/types/lookup';
+import type { PezpalletRankedCollectiveMemberRecord } from '@pezkuwi/types/lookup';
 
 export type PalletColl = 'rankedCollective' | 'fellowshipCollective' | 'ambassadorCollective';
 
@@ -9,5 +9,5 @@ export type PalletPoll = 'rankedPolls' | 'fellowshipReferenda' | 'ambassadorRefe
 
 export interface Member {
   accountId: string;
-  info: PalletRankedCollectiveMemberRecord;
+  info: PezpalletRankedCollectiveMemberRecord;
 }

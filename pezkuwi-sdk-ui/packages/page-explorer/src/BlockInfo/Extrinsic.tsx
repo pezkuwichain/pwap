@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/app-explorer authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-explorer authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { KeyedEvent } from '@polkadot/react-hooks/ctx/types';
-import type { BlockNumber, DispatchInfo, Extrinsic } from '@polkadot/types/interfaces';
-import type { ICompact, INumber } from '@polkadot/types/types';
+import type { KeyedEvent } from '@pezkuwi/react-hooks/ctx/types';
+import type { BlockNumber, DispatchInfo, Extrinsic } from '@pezkuwi/types/interfaces';
+import type { ICompact, INumber } from '@pezkuwi/types/types';
 
 import React, { useMemo } from 'react';
 
-import { AddressMini, LinkExternal, styled } from '@polkadot/react-components';
-import { convertWeight } from '@polkadot/react-hooks/useWeight';
-import { CallExpander } from '@polkadot/react-params';
-import { BN, formatNumber } from '@polkadot/util';
+import { AddressMini, LinkExternal, styled } from '@pezkuwi/react-components';
+import { convertWeight } from '@pezkuwi/react-hooks/useWeight';
+import { CallExpander } from '@pezkuwi/react-params';
+import { BN, formatNumber } from '@pezkuwi/util';
 
 import Event from '../Event.js';
 import { useTranslation } from '../translate.js';

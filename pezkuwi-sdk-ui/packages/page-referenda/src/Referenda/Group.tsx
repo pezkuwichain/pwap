@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-referenda authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-referenda authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { BN } from '@polkadot/util';
-import type { PalletReferenda, PalletVote, ReferendaGroup, TrackDescription } from '../types.js';
+import type { BN } from '@pezkuwi/util';
+import type { PezpalletReferenda, PalletVote, ReferendaGroup, TrackDescription } from '../types.js';
 
 import React, { useMemo } from 'react';
 
-import { ExpandButton, Table } from '@polkadot/react-components';
-import { useApi, useToggle } from '@polkadot/react-hooks';
+import { ExpandButton, Table } from '@pezkuwi/react-components';
+import { useApi, useToggle } from '@pezkuwi/react-hooks';
 
 import { useTranslation } from '../translate.js';
 import { getTrackInfo } from '../util.js';
@@ -18,7 +18,7 @@ interface Props extends ReferendaGroup {
   className?: string;
   isMember: boolean;
   members?: string[];
-  palletReferenda: PalletReferenda;
+  palletReferenda: PezpalletReferenda;
   palletVote: PalletVote;
   ranks?: BN[];
   tracks: TrackDescription[];

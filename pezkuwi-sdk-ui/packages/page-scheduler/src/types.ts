@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/app-scheduler authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-scheduler authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Bytes, Option } from '@polkadot/types';
-import type { BlockNumber, Call, SchedulePeriod, SchedulePriority } from '@polkadot/types/interfaces';
-import type { FrameSupportPreimagesBounded } from '@polkadot/types/lookup';
+import type { Bytes, Option } from '@pezkuwi/types';
+import type { BlockNumber, Call, SchedulePeriod, SchedulePriority } from '@pezkuwi/types/interfaces';
+import type { PezframeSupportPreimagesBounded } from '@pezkuwi/types/lookup';
 
 export interface ScheduledExt {
   blockNumber: BlockNumber;
@@ -12,5 +12,5 @@ export interface ScheduledExt {
   maybeId: Option<Bytes>;
   maybePeriodic: Option<SchedulePeriod>;
   priority: SchedulePriority;
-  preimageHash?: FrameSupportPreimagesBounded;
+  preimageHash?: PezframeSupportPreimagesBounded;
 }

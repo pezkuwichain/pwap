@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-staking-async authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking-async authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { SortedTargets } from '@polkadot/app-staking/types';
-import type { BN } from '@polkadot/util';
+import type { SortedTargets } from '@pezkuwi/app-staking/types';
+import type { BN } from '@pezkuwi/util';
 import type { NominateInfo } from '../partials/types.js';
 
 import React, { useState } from 'react';
 
-import { Modal, styled, TxButton } from '@polkadot/react-components';
+import { Modal, styled, TxButton } from '@pezkuwi/react-components';
 
 import { useTranslation } from '../../translate.js';
 import NominatePartial from '../partials/Nominate.js';

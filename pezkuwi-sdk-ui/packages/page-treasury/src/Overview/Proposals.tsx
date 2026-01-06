@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/app-treasury authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-treasury authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveTreasuryProposal } from '@polkadot/api-derive/types';
+import type { DeriveTreasuryProposal } from '@pezkuwi/api-derive/types';
 
 import React, { useMemo } from 'react';
 
-import { Table } from '@polkadot/react-components';
+import { Table } from '@pezkuwi/react-components';
 
 import { useTranslation } from '../translate.js';
 import Proposal from './Proposal.js';

@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-alliance authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-alliance authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Bytes } from '@polkadot/types';
-import type { AccountId32 } from '@polkadot/types/interfaces';
+import type { Bytes } from '@pezkuwi/types';
+import type { AccountId32 } from '@pezkuwi/types/interfaces';
 import type { Unscrupulous } from './types.js';
 
 import { useMemo } from 'react';
 
-import { createNamedHook, useApi, useCall } from '@polkadot/react-hooks';
+import { createNamedHook, useApi, useCall } from '@pezkuwi/react-hooks';
 
 function mapString (all: { toString: () => string }[]): string[] {
   return all.map((a) => a.toString());

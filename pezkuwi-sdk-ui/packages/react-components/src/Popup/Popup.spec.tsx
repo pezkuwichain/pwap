@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/react-components  authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components  authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-/// <reference types="@polkadot/dev-test/globals.d.ts" />
+/// <reference types="@pezkuwi/dev-test/globals.d.ts" />
 
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React, { Suspense } from 'react';
 import { ThemeProvider } from 'styled-components';
 
-import { lightTheme } from '@polkadot/react-components';
-import i18next from '@polkadot/react-components/i18n';
+import { lightTheme } from '@pezkuwi/react-components';
+import i18next from '@pezkuwi/react-components/i18n';
 
 import Popup from './index.js';
 

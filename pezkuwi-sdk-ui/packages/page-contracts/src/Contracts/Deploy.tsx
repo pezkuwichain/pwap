@@ -1,19 +1,19 @@
-// Copyright 2017-2025 @polkadot/app-contracts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-contracts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { SubmittableExtrinsic } from '@polkadot/api/types';
-import type { BlueprintSubmittableResult } from '@polkadot/api-contract/promise/types';
-import type { BN } from '@polkadot/util';
+import type { SubmittableExtrinsic } from '@pezkuwi/api/types';
+import type { BlueprintSubmittableResult } from '@pezkuwi/api-contract/promise/types';
+import type { BN } from '@pezkuwi/util';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { BlueprintPromise } from '@polkadot/api-contract';
-import { Dropdown, Input, InputAddress, InputBalance, Modal, Toggle, TxButton } from '@polkadot/react-components';
-import { useApi, useFormField, useNonEmptyString } from '@polkadot/react-hooks';
-import { Available } from '@polkadot/react-query';
-import { keyring } from '@polkadot/ui-keyring';
-import { BN_ZERO, isHex, stringify } from '@polkadot/util';
-import { randomAsHex } from '@polkadot/util-crypto';
+import { BlueprintPromise } from '@pezkuwi/api-contract';
+import { Dropdown, Input, InputAddress, InputBalance, Modal, Toggle, TxButton } from '@pezkuwi/react-components';
+import { useApi, useFormField, useNonEmptyString } from '@pezkuwi/react-hooks';
+import { Available } from '@pezkuwi/react-query';
+import { keyring } from '@pezkuwi/ui-keyring';
+import { BN_ZERO, isHex, stringify } from '@pezkuwi/util';
+import { randomAsHex } from '@pezkuwi/util-crypto';
 
 import { ABI, InputMegaGas, InputName, MessageSignature, Params } from '../shared/index.js';
 import store from '../store.js';

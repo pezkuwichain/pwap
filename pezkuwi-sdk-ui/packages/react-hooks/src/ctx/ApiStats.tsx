@@ -1,8 +1,8 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { ProviderStats } from '@polkadot/rpc-provider/types';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { ProviderStats } from '@pezkuwi/rpc-provider/types';
 import type { ApiStats } from './types.js';
 
 import React, { useCallback } from 'react';
