@@ -1,20 +1,20 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { Option, StorageKey, u32 } from '@polkadot/types';
-import type { PalletBrokerPotentialRenewalId, PalletBrokerPotentialRenewalRecord } from '@polkadot/types/lookup';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { Option, StorageKey, u32 } from '@pezkuwi/types';
+import type { PezpalletBrokerPotentialRenewalId, PezpalletBrokerPotentialRenewalRecord } from '@pezkuwi/types/lookup';
 import type { PotentialRenewal } from './types.js';
 
 import { useEffect, useState } from 'react';
 
-import { createNamedHook, useCall, useMapKeys } from '@polkadot/react-hooks';
-import { BN_ZERO } from '@polkadot/util';
+import { createNamedHook, useCall, useMapKeys } from '@pezkuwi/react-hooks';
+import { BN_ZERO } from '@pezkuwi/util';
 
 import { processHexMask } from './utils/dataProcessing.js';
 
-function extractInfo (info: Option<PalletBrokerPotentialRenewalRecord>, item: PalletBrokerPotentialRenewalId): PotentialRenewal | undefined {
-  const unwrapped: PalletBrokerPotentialRenewalRecord | null = info.isSome ? info.unwrap() : null;
+function extractInfo (info: Option<PezpalletBrokerPotentialRenewalRecord>, item: PezpalletBrokerPotentialRenewalId): PotentialRenewal | undefined {
+  const unwrapped: PezpalletBrokerPotentialRenewalRecord | null = info.isSome ? info.unwrap() : null;
   let mask: string[] = [];
   let task = '';
 
@@ -55,7 +55,7 @@ const OPT_KEY = {
 
 function useBrokerPotentialRenewalsImpl (api: ApiPromise, ready: boolean): PotentialRenewal[] | undefined {
   const keys = useMapKeys(ready && api?.query.broker.potentialRenewals, [], OPT_KEY);
-  const potentialRenewals = useCall<[[PalletBrokerPotentialRenewalId[]], Option<PalletBrokerPotentialRenewalRecord>[]]>(ready && api?.query.broker.potentialRenewals.multi, [keys], { withParams: true });
+  const potentialRenewals = useCall<[[PezpalletBrokerPotentialRenewalId[]], Option<PezpalletBrokerPotentialRenewalRecord>[]]>(ready && api?.query.broker.potentialRenewals.multi, [keys], { withParams: true });
 
   const [state, setState] = useState<PotentialRenewal[] | undefined>();
 

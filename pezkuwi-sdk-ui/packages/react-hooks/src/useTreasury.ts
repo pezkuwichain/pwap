@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveBalancesAccount, DeriveBounties, DeriveTreasuryProposals } from '@polkadot/api-derive/types';
-import type { Balance } from '@polkadot/types/interfaces';
+import type { DeriveBalancesAccount, DeriveBounties, DeriveTreasuryProposals } from '@pezkuwi/api-derive/types';
+import type { Balance } from '@pezkuwi/types/interfaces';
 
 import { useEffect, useState } from 'react';
 
-import { BN, BN_MILLION, BN_ZERO, u8aConcat } from '@polkadot/util';
+import { BN, BN_MILLION, BN_ZERO, u8aConcat } from '@pezkuwi/util';
 
 import { createNamedHook } from './createNamedHook.js';
 import { useApi } from './useApi.js';

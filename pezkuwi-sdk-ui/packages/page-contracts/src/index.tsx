@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/app-contracts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-contracts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AppProps as Props } from '@polkadot/react-components/types';
+import type { AppProps as Props } from '@pezkuwi/react-components/types';
 
 import React, { useRef } from 'react';
 
-import { Tabs } from '@polkadot/react-components';
+import { Tabs } from '@pezkuwi/react-components';
 
 import Contracts from './Contracts/index.js';
 import { useTranslation } from './translate.js';

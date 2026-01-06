@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/app-collator authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-collator authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { BTreeSet } from '@polkadot/types';
-import type { AccountId32, Balance } from '@polkadot/types/interfaces';
-import type { BN } from '@polkadot/util';
+import type { BTreeSet } from '@pezkuwi/types';
+import type { AccountId32, Balance } from '@pezkuwi/types/interfaces';
+import type { BN } from '@pezkuwi/util';
 import type { Collator } from './types.js';
 
 import { useEffect, useMemo, useState } from 'react';
 
-import { createNamedHook, useApi, useCall } from '@polkadot/react-hooks';
+import { createNamedHook, useApi, useCall } from '@pezkuwi/react-hooks';
 
 type Authored = Record<string, BN>;
 

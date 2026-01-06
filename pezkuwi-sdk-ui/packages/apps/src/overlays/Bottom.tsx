@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/apps authors & contributors
+// Copyright 2017-2025 @pezkuwi/apps authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
 
-import { styled } from '@polkadot/react-components';
+import { styled } from '@pezkuwi/react-components';
 
 import DotApps from './DotApps.js';
 import LocalFork from './LocalFork.js';

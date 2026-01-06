@@ -1,17 +1,17 @@
-// Copyright 2017-2025 @polkadot/app-staking-async authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking-async authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveSessionProgress, DeriveUnlocking } from '@polkadot/api-derive/types';
-import type { SortedTargets } from '@polkadot/app-staking/types';
-import type { PoolInfo } from '@polkadot/app-staking2/Pools/types';
-import type { PalletNominationPoolsPoolMember, PalletNominationPoolsPoolRoles } from '@polkadot/types/lookup';
+import type { DeriveSessionProgress, DeriveUnlocking } from '@pezkuwi/api-derive/types';
+import type { SortedTargets } from '@pezkuwi/app-staking/types';
+import type { PoolInfo } from '@pezkuwi/app-staking2/Pools/types';
+import type { PezpalletNominationPoolsPoolMember, PezpalletNominationPoolsPoolRoles } from '@pezkuwi/types/lookup';
 
 import React, { useCallback, useMemo } from 'react';
 
-import { AddressSmall, Badge, Menu, Popup, StakingRedeemable, StakingUnbonding } from '@polkadot/react-components';
-import { useApi, useQueue, useToggle } from '@polkadot/react-hooks';
-import { FormatBalance } from '@polkadot/react-query';
-import { BN, formatNumber } from '@polkadot/util';
+import { AddressSmall, Badge, Menu, Popup, StakingRedeemable, StakingUnbonding } from '@pezkuwi/react-components';
+import { useApi, useQueue, useToggle } from '@pezkuwi/react-hooks';
+import { FormatBalance } from '@pezkuwi/react-query';
+import { BN, formatNumber } from '@pezkuwi/util';
 
 import { useTranslation } from '../../translate.js';
 import ListNominees from '../Account/ListNominees.js';
@@ -35,13 +35,13 @@ interface Roles {
   isNominator: boolean;
 }
 
-function extractRoles (accountId: string, { nominator, root }: PalletNominationPoolsPoolRoles): Roles {
+function extractRoles (accountId: string, { nominator, root }: PezpalletNominationPoolsPoolRoles): Roles {
   return {
     isNominator: nominator.eq(accountId) || root.eq(accountId)
   };
 }
 
-function calcUnbonding (accountId: string, stashId: string, { activeEra }: DeriveSessionProgress, { unbondingEras }: PalletNominationPoolsPoolMember): { accountId: string, controllerId: string, redeemable: BN, stashId: string, unlocking: DeriveUnlocking[] } {
+function calcUnbonding (accountId: string, stashId: string, { activeEra }: DeriveSessionProgress, { unbondingEras }: PezpalletNominationPoolsPoolMember): { accountId: string, controllerId: string, redeemable: BN, stashId: string, unlocking: DeriveUnlocking[] } {
   const unlocking: DeriveUnlocking[] = [];
   const redeemable = new BN(0);
 

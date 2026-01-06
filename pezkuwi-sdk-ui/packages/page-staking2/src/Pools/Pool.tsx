@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { BN } from '@polkadot/util';
+import type { BN } from '@pezkuwi/util';
 import type { MembersMapEntry, Params } from './types.js';
 
 import React, { useCallback } from 'react';
 
-import { AddressMini, ExpandButton, ExpanderScroll, Spinner, styled, Table } from '@polkadot/react-components';
-import { useToggle } from '@polkadot/react-hooks';
-import { FormatBalance } from '@polkadot/react-query';
+import { AddressMini, ExpandButton, ExpanderScroll, Spinner, styled, Table } from '@pezkuwi/react-components';
+import { useToggle } from '@pezkuwi/react-hooks';
+import { FormatBalance } from '@pezkuwi/react-query';
 
 import { useTranslation } from '../translate.js';
 import Join from './Join.js';

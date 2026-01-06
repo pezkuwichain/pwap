@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/react-signer authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-signer authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { BN } from '@polkadot/util';
+import type { BN } from '@pezkuwi/util';
 
 import React, { useEffect, useState } from 'react';
 
-import { InputBalance, Modal, Toggle } from '@polkadot/react-components';
-import { BN_ZERO } from '@polkadot/util';
+import { InputBalance, Modal, Toggle } from '@pezkuwi/react-components';
+import { BN_ZERO } from '@pezkuwi/util';
 
 import { useTranslation } from './translate.js';
 

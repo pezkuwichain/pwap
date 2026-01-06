@@ -1,7 +1,7 @@
-// Copyright 2017-2025 @polkadot/react-query authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-query authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Moment } from '@polkadot/types/interfaces';
+import type { Moment } from '@pezkuwi/types/interfaces';
 
 import React, { useMemo } from 'react';
 

@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/react-params authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-params authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ParamDef, Props, RawParam } from '../types.js';
 
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { Button } from '@polkadot/react-components';
-import { BTreeMap } from '@polkadot/types';
-import { isCodec, isUndefined } from '@polkadot/util';
+import { Button } from '@pezkuwi/react-components';
+import { BTreeMap } from '@pezkuwi/types';
+import { isCodec, isUndefined } from '@pezkuwi/util';
 
 import Params from '../index.js';
 import getInitValue from '../initValue.js';

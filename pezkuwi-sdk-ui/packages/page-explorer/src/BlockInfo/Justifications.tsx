@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/app-explorer authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-explorer authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Option, Tuple } from '@polkadot/types';
-import type { Justifications } from '@polkadot/types/interfaces';
-import type { Codec, TypeDef } from '@polkadot/types/types';
+import type { Option, Tuple } from '@pezkuwi/types';
+import type { Justifications } from '@pezkuwi/types/interfaces';
+import type { Codec, TypeDef } from '@pezkuwi/types/types';
 
 import React, { useRef } from 'react';
 
-import { Expander, Table } from '@polkadot/react-components';
-import Params from '@polkadot/react-params';
-import { getTypeDef } from '@polkadot/types/create';
+import { Expander, Table } from '@pezkuwi/react-components';
+import Params from '@pezkuwi/react-params';
+import { getTypeDef } from '@pezkuwi/types/create';
 
 import { useTranslation } from '../translate.js';
 

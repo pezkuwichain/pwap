@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/app-calendar authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-calendar authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { EntryInfoTyped } from './types.js';
 
 import React, { useCallback, useMemo } from 'react';
 
-import { Button, styled } from '@polkadot/react-components';
+import { Button, styled } from '@pezkuwi/react-components';
 
 import DayItem from './DayItem.js';
 import { useTranslation } from './translate.js';

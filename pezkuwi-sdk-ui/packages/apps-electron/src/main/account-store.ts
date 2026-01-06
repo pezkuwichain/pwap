@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/apps authors & contributors
+// Copyright 2017-2025 @pezkuwi/apps authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore Warned on by nodenext resolution (while package does build in bundler mode)
-import type { KeyringJson } from '@polkadot/ui-keyring/types';
+import type { KeyringJson } from '@pezkuwi/ui-keyring/types';
 import type { IpcMainHandler } from './ipc-main-handler.js';
 
 import electron from 'electron';
@@ -11,7 +11,7 @@ import path from 'path';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore Warned on by nodenext resolution (while package does build in bundler mode)
-import { FileStore } from '@polkadot/ui-keyring/stores';
+import { FileStore } from '@pezkuwi/ui-keyring/stores';
 
 import { registerIpcHandler } from './register-ipc-handler.js';
 

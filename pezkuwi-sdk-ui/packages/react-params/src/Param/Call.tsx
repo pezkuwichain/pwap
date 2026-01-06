@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/react-params authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-params authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Extrinsic } from '@polkadot/types/interfaces';
+import type { Extrinsic } from '@pezkuwi/types/interfaces';
 import type { Props } from '../types.js';
 
 import React from 'react';
 
-import { Static } from '@polkadot/react-components';
+import { Static } from '@pezkuwi/react-components';
 
 import { Call } from '../Named/index.js';
 import { useTranslation } from '../translate.js';

@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 // Something is seriously going wrong here...
@@ -28,7 +28,7 @@ interface Props {
  * <BR>
  *
  * ```javascript
- * import {Editor} from '@polkadot/react-components';
+ * import {Editor} from '@pezkuwi/react-components';
  *
  * <Editor
  *    className={string} // optional

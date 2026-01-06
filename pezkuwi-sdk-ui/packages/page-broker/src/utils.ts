@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/app-broker authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-broker authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ChainBlockConstants, CoreWorkload, LegacyLease, RegionInfo, Reservation } from '@polkadot/react-hooks/types';
+import type { ChainBlockConstants, CoreWorkload, LegacyLease, RegionInfo, Reservation } from '@pezkuwi/react-hooks/types';
 import type { CoreWorkloadType, CoreWorkplanType, InfoRow } from './types.js';
 
-import { CoreTimeTypes } from '@polkadot/react-hooks/constants';
-import { BN } from '@polkadot/util';
+import { CoreTimeTypes } from '@pezkuwi/react-hooks/constants';
+import { BN } from '@pezkuwi/util';
 
 function formatDate (date: Date) {
   const day = date.getDate();

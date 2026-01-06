@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type React from 'react';
 
 import { useEffect, useState } from 'react';
 
-import { keyring } from '@polkadot/ui-keyring';
+import { keyring } from '@pezkuwi/ui-keyring';
 
 import { createNamedHook } from './createNamedHook.js';
 

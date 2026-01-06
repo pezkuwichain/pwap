@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AccountId, AccountIndex, Address } from '@polkadot/types/interfaces';
-import type { BN } from '@polkadot/util';
+import type { AccountId, AccountIndex, Address } from '@pezkuwi/types/interfaces';
+import type { BN } from '@pezkuwi/util';
 
 import React from 'react';
 
-import { BalanceFree, FormatBalance } from '@polkadot/react-query';
-import { BN_ZERO } from '@polkadot/util';
+import { BalanceFree, FormatBalance } from '@pezkuwi/react-query';
+import { BN_ZERO } from '@pezkuwi/util';
 
 export interface RenderProps {
   className?: string;

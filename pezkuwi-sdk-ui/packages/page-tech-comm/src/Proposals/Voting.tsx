@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/app-tech-comm authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-tech-comm authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { CollectiveType } from '@polkadot/react-hooks/types';
-import type { Hash } from '@polkadot/types/interfaces';
-import type { BN } from '@polkadot/util';
+import type { CollectiveType } from '@pezkuwi/react-hooks/types';
+import type { Hash } from '@pezkuwi/types/interfaces';
+import type { BN } from '@pezkuwi/util';
 
 import React, { useState } from 'react';
 
-import { Button, MarkWarning, Modal, TxButton, VoteAccount } from '@polkadot/react-components';
-import { useAccounts, useApi, useCollectiveInstance, useToggle } from '@polkadot/react-hooks';
+import { Button, MarkWarning, Modal, TxButton, VoteAccount } from '@pezkuwi/react-components';
+import { useAccounts, useApi, useCollectiveInstance, useToggle } from '@pezkuwi/react-hooks';
 
 import { useTranslation } from '../translate.js';
 

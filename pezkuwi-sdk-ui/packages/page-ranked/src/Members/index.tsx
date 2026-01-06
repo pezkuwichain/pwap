@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/app-ranked authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-ranked authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Member as MemberType } from '../types.js';
 
 import React, { useRef } from 'react';
 
-import { Table } from '@polkadot/react-components';
+import { Table } from '@pezkuwi/react-components';
 
 import { useTranslation } from '../translate.js';
 import Member from './Member.js';

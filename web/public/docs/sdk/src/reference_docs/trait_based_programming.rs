@@ -7,29 +7,29 @@
 //! The rest of this document assumes familiarity with the
 //! [Rust book's Advanced Traits](https://doc.rust-lang.org/book/ch19-03-advanced-traits.html)
 //! section.
-//! Moreover, we use the [`frame::traits::Get`].
+//! Moreover, we use the [`pezframe::traits::Get`].
 //!
-//! First, imagine we are writing a FRAME pallet. We represent this pallet with a `struct Pallet`,
-//! and this pallet wants to implement the functionalities of that pallet, for example a simple
-//! `transfer` function. For the sake of education, we are interested in having a `MinTransfer`
-//! amount, expressed as a [`frame::traits::Get`], which will dictate what is the minimum amount
-//! that can be transferred.
+//! First, imagine we are writing a FRAME pezpallet. We represent this pezpallet with a `struct
+//! Pezpallet`, and this pezpallet wants to implement the functionalities of that pezpallet, for
+//! example a simple `transfer` function. For the sake of education, we are interested in having a
+//! `MinTransfer` amount, expressed as a [`pezframe::traits::Get`], which will dictate what is the
+//! minimum amount that can be transferred.
 //!
 //! We can foremost write this as simple as the following snippet:
 #![doc = docify::embed!("./src/reference_docs/trait_based_programming.rs", basic)]
 //!
 //!
 //! In this example, we use arbitrary choices for `AccountId`, `Balance` and the `MinTransfer` type.
-//! This works great for **one team's purposes** but we have to remember that Substrate and FRAME
+//! This works great for **one team's purposes** but we have to remember that Bizinikiwi and FRAME
 //! are written as generic frameworks, intended to be highly configurable.
 //!
 //! In a broad sense, there are two avenues in exposing configurability:
 //!
 //! 1. For *values* that need to be generic, for example `MinTransfer`, we attach them to the
-//!    `Pallet` struct as fields:
+//!    `Pezpallet` struct as fields:
 //!
 //! ```
-//! struct Pallet {
+//! struct Pezpallet {
 //! 	min_transfer: u128,
 //! }
 //! ```
@@ -38,23 +38,23 @@
 //!    as:
 //!
 //! ```
-//! struct Pallet<AccountId> {
+//! struct Pezpallet<AccountId> {
 //! 	min_transfer: u128,
 //!     _marker: std::marker::PhantomData<AccountId>,
 //! }
 //! ```
 //!
-//! Substrate and FRAME, for various reasons (performance, correctness, type safety) has opted to
+//! Bizinikiwi and FRAME, for various reasons (performance, correctness, type safety) has opted to
 //! use *types* to declare both *values* and *types* as generic. This is the essence of why the
 //! `Get` trait exists.
 //!
-//! This would bring us to the second iteration of the pallet, which would look like:
+//! This would bring us to the second iteration of the pezpallet, which would look like:
 #![doc = docify::embed!("./src/reference_docs/trait_based_programming.rs", generic)]
 //!
 //! In this example, we managed to make all 3 of our types generic. Taking the example of the
 //! `AccountId`, one should read the above as following:
 //!
-//! > The `Pallet` does not know what type `AccountId` concretely is, but it knows that it is
+//! > The `Pezpallet` does not know what type `AccountId` concretely is, but it knows that it is
 //! > something that adheres to being `From<[u8; 32]>`.
 //!
 //! This method would work, but it suffers from two downsides:
@@ -72,7 +72,7 @@
 //!
 //! > Interestingly, one downside of associated types is that declaring defaults on them is not
 //! > stable yet. In the meantime, we have built our own custom mechanics around declaring defaults
-//! for associated types, see [`pallet_default_config_example`].
+//! for associated types, see [`pezpallet_default_config_example`].
 //!
 //! The last iteration of our code would look like this:
 #![doc = docify::embed!("./src/reference_docs/trait_based_programming.rs", trait_based)]
@@ -84,7 +84,7 @@
 //! having individual `trait Configs` declare a shared `trait SystemConfig` as their
 //! [supertrait](https://doc.rust-lang.org/rust-by-example/trait/supertraits.html).
 #![doc = docify::embed!("./src/reference_docs/trait_based_programming.rs", with_system)]
-//! In FRAME, this shared supertrait is [`frame::prelude::frame_system`].
+//! In FRAME, this shared supertrait is [`pezframe::prelude::pezframe_system`].
 //!
 //! Notice how this made no difference in the syntax of the rest of the code. `T::AccountId` is
 //! still a valid type, since `T` implements `Config` and `Config` implies `SystemConfig`, which
@@ -103,27 +103,27 @@
 //! length of fully qualified syntax is a common pattern in FRAME.
 //!
 //! The above example is almost identical to the well-known (and somewhat notorious) `type
-//! BalanceOf` that is often used in the context of [`frame::traits::fungible`].
-#![doc = docify::embed!("../../substrate/frame/fast-unstake/src/types.rs", BalanceOf)]
+//! BalanceOf` that is often used in the context of [`pezframe::traits::fungible`].
+#![doc = docify::embed!("../../bizinikiwi/pezframe/fast-unstake/src/types.rs", BalanceOf)]
 //!
 //! ## Additional Resources
 //!
-//! - <https://github.com/paritytech/substrate/issues/13836>
-//! - [Substrate Seminar - Traits and Generic Types](https://www.youtube.com/watch?v=6cp10jVWNl4)
+//! - <https://github.com/pezkuwichain/pezkuwi-sdk/issues/326>
+//! - [Bizinikiwi Seminar - Traits and Generic Types](https://www.youtube.com/watch?v=6cp10jVWNl4)
 //! - <https://exchange.pezkuwichain.app/questions/2228/type-casting-to-trait-t-as-config>
 #![allow(unused)]
 
-use frame::traits::Get;
+use pezframe::traits::Get;
 
 #[docify::export]
 mod basic {
-	struct Pallet;
+	struct Pezpallet;
 
-	type AccountId = frame::deps::sp_runtime::AccountId32;
+	type AccountId = pezframe::deps::pezsp_runtime::AccountId32;
 	type Balance = u128;
-	type MinTransfer = frame::traits::ConstU128<10>;
+	type MinTransfer = pezframe::traits::ConstU128<10>;
 
-	impl Pallet {
+	impl Pezpallet {
 		fn transfer(_from: AccountId, _to: AccountId, _amount: Balance) {
 			todo!()
 		}
@@ -134,14 +134,14 @@ mod basic {
 mod generic {
 	use super::*;
 
-	struct Pallet<AccountId, Balance, MinTransfer> {
+	struct Pezpallet<AccountId, Balance, MinTransfer> {
 		_marker: std::marker::PhantomData<(AccountId, Balance, MinTransfer)>,
 	}
 
-	impl<AccountId, Balance, MinTransfer> Pallet<AccountId, Balance, MinTransfer>
+	impl<AccountId, Balance, MinTransfer> Pezpallet<AccountId, Balance, MinTransfer>
 	where
-		Balance: frame::traits::AtLeast32BitUnsigned,
-		MinTransfer: frame::traits::Get<Balance>,
+		Balance: pezframe::traits::AtLeast32BitUnsigned,
+		MinTransfer: pezframe::traits::Get<Balance>,
 		AccountId: From<[u8; 32]>,
 	{
 		fn transfer(_from: AccountId, _to: AccountId, amount: Balance) {
@@ -157,12 +157,12 @@ mod trait_based {
 
 	trait Config {
 		type AccountId: From<[u8; 32]>;
-		type Balance: frame::traits::AtLeast32BitUnsigned;
-		type MinTransfer: frame::traits::Get<Self::Balance>;
+		type Balance: pezframe::traits::AtLeast32BitUnsigned;
+		type MinTransfer: pezframe::traits::Get<Self::Balance>;
 	}
 
-	struct Pallet<T: Config>(std::marker::PhantomData<T>);
-	impl<T: Config> Pallet<T> {
+	struct Pezpallet<T: Config>(std::marker::PhantomData<T>);
+	impl<T: Config> Pezpallet<T> {
 		fn transfer(_from: T::AccountId, _to: T::AccountId, amount: T::Balance) {
 			assert!(amount >= T::MinTransfer::get());
 			unimplemented!();
@@ -179,12 +179,12 @@ mod with_system {
 	}
 
 	pub trait Config: SystemConfig {
-		type Balance: frame::traits::AtLeast32BitUnsigned;
-		type MinTransfer: frame::traits::Get<Self::Balance>;
+		type Balance: pezframe::traits::AtLeast32BitUnsigned;
+		type MinTransfer: pezframe::traits::Get<Self::Balance>;
 	}
 
-	pub struct Pallet<T: Config>(std::marker::PhantomData<T>);
-	impl<T: Config> Pallet<T> {
+	pub struct Pezpallet<T: Config>(std::marker::PhantomData<T>);
+	impl<T: Config> Pezpallet<T> {
 		fn transfer(_from: T::AccountId, _to: T::AccountId, amount: T::Balance) {
 			assert!(amount >= T::MinTransfer::get());
 			unimplemented!();
@@ -205,7 +205,7 @@ mod fully_qualified_complicated {
 	use super::with_system::*;
 
 	trait CurrencyTrait {
-		type Balance: frame::traits::AtLeast32BitUnsigned;
+		type Balance: pezframe::traits::AtLeast32BitUnsigned;
 		fn more_stuff() {}
 	}
 
@@ -213,8 +213,8 @@ mod fully_qualified_complicated {
 		type Currency: CurrencyTrait;
 	}
 
-	struct Pallet<T: Config>(std::marker::PhantomData<T>);
-	impl<T: Config> Pallet<T> {
+	struct Pezpallet<T: Config>(std::marker::PhantomData<T>);
+	impl<T: Config> Pezpallet<T> {
 		fn transfer(
 			_from: T::AccountId,
 			_to: T::AccountId,

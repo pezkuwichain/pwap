@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/app-bounties authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-bounties authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-/// <reference types="@polkadot/dev-test/globals.d.ts" />
+/// <reference types="@pezkuwi/dev-test/globals.d.ts" />
 
-import { TypeRegistry } from '@polkadot/types/create';
+import { TypeRegistry } from '@pezkuwi/types/create';
 
 import { getBountyStatus } from './getBountyStatus.js';
 
@@ -15,14 +15,14 @@ describe('get bounty status', () => {
   });
 
   it('for CuratorProposed state it has curator defined', () => {
-    const bountyStatus = getBountyStatus(registry.createType('PalletBountiesBountyStatus', 'CuratorProposed'));
+    const bountyStatus = getBountyStatus(registry.createType('PezpalletBountiesBountyStatus', 'CuratorProposed'));
 
     expect(bountyStatus.bountyStatus).toEqual('CuratorProposed');
     expect(bountyStatus.curator).toBeDefined();
   });
 
   it('for Active state it has curator and update due defined', () => {
-    const bountyStatus = getBountyStatus(registry.createType('PalletBountiesBountyStatus', 'Active'));
+    const bountyStatus = getBountyStatus(registry.createType('PezpalletBountiesBountyStatus', 'Active'));
 
     expect(bountyStatus.bountyStatus).toEqual('Active');
     expect(bountyStatus.curator).toBeDefined();
@@ -30,7 +30,7 @@ describe('get bounty status', () => {
   });
 
   it('for PendingPayout state it has curator, beneficiary and unlock_at defined', () => {
-    const bountyStatus = getBountyStatus(registry.createType('PalletBountiesBountyStatus', 'PendingPayout'));
+    const bountyStatus = getBountyStatus(registry.createType('PezpalletBountiesBountyStatus', 'PendingPayout'));
 
     expect(bountyStatus.bountyStatus).toEqual('PendingPayout');
     expect(bountyStatus.curator).toBeDefined();

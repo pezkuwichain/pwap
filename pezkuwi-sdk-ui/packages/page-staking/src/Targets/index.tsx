@@ -1,18 +1,18 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveHasIdentity } from '@polkadot/api-derive/types';
-import type { StakerState } from '@polkadot/react-hooks/types';
-import type { u32 } from '@polkadot/types-codec';
-import type { BN } from '@polkadot/util';
+import type { DeriveHasIdentity } from '@pezkuwi/api-derive/types';
+import type { StakerState } from '@pezkuwi/react-hooks/types';
+import type { u32 } from '@pezkuwi/types-codec';
+import type { BN } from '@pezkuwi/util';
 import type { NominatedByMap, SortedTargets, TargetSortBy, ValidatorInfo } from '../types.js';
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import Legend from '@polkadot/app-staking2/Legend';
-import { Button, Icon, styled, Table, Toggle } from '@polkadot/react-components';
-import { useApi, useAvailableSlashes, useBlocksPerDays, useSavedFlags } from '@polkadot/react-hooks';
-import { BN_HUNDRED } from '@polkadot/util';
+import Legend from '@pezkuwi/app-staking2/Legend';
+import { Button, Icon, styled, Table, Toggle } from '@pezkuwi/react-components';
+import { useApi, useAvailableSlashes, useBlocksPerDays, useSavedFlags } from '@pezkuwi/react-hooks';
+import { BN_HUNDRED } from '@pezkuwi/util';
 
 import { MAX_NOMINATIONS } from '../constants.js';
 import ElectionBanner from '../ElectionBanner.js';

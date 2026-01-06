@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/react-query authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-query authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { PalletBrokerStatusRecord } from '@polkadot/types/lookup';
+import type { PezpalletBrokerStatusRecord } from '@pezkuwi/types/lookup';
 
 import React from 'react';
 
-import { useApi, useCall } from '@polkadot/react-hooks';
+import { useApi, useCall } from '@pezkuwi/react-hooks';
 
 interface Props {
   children?: React.ReactNode;
@@ -14,7 +14,7 @@ interface Props {
 
 function PoolSize ({ children, className = '' }: Props): React.ReactElement<Props> {
   const { api } = useApi();
-  const status = useCall<PalletBrokerStatusRecord>(api.query.broker?.status);
+  const status = useCall<PezpalletBrokerStatusRecord>(api.query.broker?.status);
   let systemPool = 0;
   let privatePool = 0;
   let poolSize = '';

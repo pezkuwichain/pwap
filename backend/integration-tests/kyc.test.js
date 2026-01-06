@@ -1,5 +1,5 @@
 import request from 'supertest';
-import { ApiPromise, WsProvider, Keyring } from '@polkadot/api';
+import { ApiPromise, WsProvider, Keyring } from '@pezkuwi/api';
 import { app, supabase } from '../src/server.js';
 
 // ========================================

@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/apps-routing authors & contributors
+// Copyright 2017-2025 @pezkuwi/apps-routing authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Route, TFunction } from './types.js';
 
-import Component from '@polkadot/app-collator';
+import Component from '@pezkuwi/app-collator';
 
 export default function create (t: TFunction): Route {
   return {

@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/react-signer authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-signer authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { SubmittableExtrinsic } from '@polkadot/api/types';
-import type { QueueTx, QueueTxMessageSetStatus } from '@polkadot/react-components/Status/types';
+import type { SubmittableExtrinsic } from '@pezkuwi/api/types';
+import type { QueueTx, QueueTxMessageSetStatus } from '@pezkuwi/react-components/Status/types';
 
 import React, { useCallback } from 'react';
 
-import { Button, ErrorBoundary, Modal } from '@polkadot/react-components';
-import { useQueue, useToggle } from '@polkadot/react-hooks';
+import { Button, ErrorBoundary, Modal } from '@pezkuwi/react-components';
+import { useQueue, useToggle } from '@pezkuwi/react-hooks';
 
 import Transaction from './Transaction.js';
 import { useTranslation } from './translate.js';

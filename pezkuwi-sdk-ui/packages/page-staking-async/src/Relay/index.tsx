@@ -1,17 +1,17 @@
-// Copyright 2017-2025 @polkadot/app-staking-async authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking-async authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type BN from 'bn.js';
-import type { ApiPromise } from '@polkadot/api';
-import type { AppProps } from '@polkadot/react-components/types';
-import type { ElectionStatus, ParaValidatorIndex, ValidatorId } from '@polkadot/types/interfaces';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { AppProps } from '@pezkuwi/react-components/types';
+import type { ElectionStatus, ParaValidatorIndex, ValidatorId } from '@pezkuwi/types/interfaces';
 
 import React, { useMemo, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 
-import useSortedTargets from '@polkadot/app-staking/useSortedTargets';
-import { Tabs } from '@polkadot/react-components';
-import { useCallMulti, useFavorites, useOwnStashInfos } from '@polkadot/react-hooks';
+import useSortedTargets from '@pezkuwi/app-staking/useSortedTargets';
+import { Tabs } from '@pezkuwi/react-components';
+import { useCallMulti, useFavorites, useOwnStashInfos } from '@pezkuwi/react-hooks';
 
 import Actions from '../Actions/index.js';
 import CommandCenter from '../CommandCenter/index.js';

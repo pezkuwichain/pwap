@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/app-settings authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-settings authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Option } from '@polkadot/apps-config/settings/types';
-import type { SettingsStruct } from '@polkadot/ui-settings/types';
+import type { Option } from '@pezkuwi/apps-config/settings/types';
+import type { SettingsStruct } from '@pezkuwi/ui-settings/types';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { createLanguages, createSs58 } from '@polkadot/apps-config';
-import { allNetworks } from '@polkadot/networks';
-import { Button, Dropdown, MarkWarning } from '@polkadot/react-components';
-import { useApi, useIpfs, useLedger } from '@polkadot/react-hooks';
-import { settings } from '@polkadot/ui-settings';
+import { createLanguages, createSs58 } from '@pezkuwi/apps-config';
+import { allNetworks } from '@pezkuwi/networks';
+import { Button, Dropdown, MarkWarning } from '@pezkuwi/react-components';
+import { useApi, useIpfs, useLedger } from '@pezkuwi/react-hooks';
+import { settings } from '@pezkuwi/ui-settings';
 
 import { useTranslation } from './translate.js';
 import { createIdenticon, createOption, save, saveAndReload } from './util.js';

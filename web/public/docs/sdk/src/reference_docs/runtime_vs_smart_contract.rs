@@ -3,7 +3,7 @@
 //! *TL;DR*: If you need to create a *Blockchain*, then write a runtime. If you need to create a
 //! *DApp*, then write a Smart Contract.
 //!
-//! This is a comparative analysis of Substrate-based Runtimes and Smart Contracts, highlighting
+//! This is a comparative analysis of Bizinikiwi-based Runtimes and Smart Contracts, highlighting
 //! their main differences. Our aim is to equip you with a clear understanding of how these two
 //! methods of deploying on-chain logic diverge in their design, usage, and implications.
 //!
@@ -12,21 +12,21 @@
 //! decentralized applications. Understanding their differences is crucial in choosing the right
 //! approach for a specific solution.
 //!
-//! ## Substrate
-//! Substrate is a modular framework that enables the creation of purpose-specific blockchains. In
+//! ## Bizinikiwi
+//! Bizinikiwi is a modular framework that enables the creation of purpose-specific blockchains. In
 //! the Pezkuwi ecosystem you can find two distinct approaches for on-chain code execution:
-//! [Runtime Development](#runtime-in-substrate) and [Smart Contracts](#smart-contracts).
+//! [Runtime Development](#runtime-in-bizinikiwi) and [Smart Contracts](#smart-contracts).
 //!
-//! #### Smart Contracts in Substrate
+//! #### Smart Contracts in Bizinikiwi
 //! Smart Contracts are autonomous, programmable constructs deployed on the blockchain.
 //! In [FRAME](frame), Smart Contracts infrastructure is implemented by the
-//! [`pallet_contracts`] for WASM-based contracts or the
-//! [`pallet_evm`](https://github.com/polkadot-evm/frontier/tree/master/frame/evm) for EVM-compatible contracts. These pallets
-//! enable Smart Contract developers to build applications and systems on top of a Substrate-based
+//! [`pezpallet_contracts`] for WASM-based contracts or the
+//! [`pezpallet_evm`](https://github.com/polkadot-evm/frontier/tree/master/frame/evm) for EVM-compatible contracts. These pallets
+//! enable Smart Contract developers to build applications and systems on top of a Bizinikiwi-based
 //! blockchain.
 //!
-//! #### Runtime in Substrate
-//! The Runtime is the state transition function of a Substrate-based blockchain. It defines the
+//! #### Runtime in Bizinikiwi
+//! The Runtime is the state transition function of a Bizinikiwi-based blockchain. It defines the
 //! rules for processing transactions and blocks, essentially governing the behavior and
 //! capabilities of a blockchain.
 //!
@@ -35,7 +35,7 @@
 //! | Aspect                | Runtime                                                                 | Smart Contracts                                                      |
 //! |-----------------------|-------------------------------------------------------------------------|----------------------------------------------------------------------|
 //! | **Design Philosophy** | Core logic of a blockchain, allowing broad and deep customization. | Designed for DApps deployed on the blockchain runtime. |
-//! | **Development Complexity** | Requires in-depth knowledge of Rust and Substrate. Suitable for complex blockchain architectures. | Easier to develop with knowledge of Smart Contract languages like Solidity or [ink!](https://use.ink/). |
+//! | **Development Complexity** | Requires in-depth knowledge of Rust and Bizinikiwi. Suitable for complex blockchain architectures. | Easier to develop with knowledge of Smart Contract languages like Solidity or [ink!](https://use.ink/). |
 //! | **Upgradeability and Flexibility** | Offers comprehensive upgradeability with migration logic and on-chain governance, allowing modifications to the entire blockchain logic without hard forks. | Less flexible in upgrade migrations but offers more straightforward deployment and iteration. |
 //! | **Performance and Efficiency** | More efficient, optimized for specific needs of the blockchain. | Can be less efficient due to its generic nature (e.g. the overhead of a virtual machine). |
 //! | **Security Considerations** | Security flaws can affect the entire blockchain. | Security risks usually localized to the individual contract. |
@@ -70,8 +70,8 @@
 //! differing purposes and technical requirements.
 //!
 //! #### Runtime Development Complexity
-//! - **In-depth Knowledge Requirements**: Developing a Runtime in Substrate requires a
-//!   comprehensive understanding of Rust, Substrate's framework, and blockchain principles.
+//! - **In-depth Knowledge Requirements**: Developing a Runtime in Bizinikiwi requires a
+//!   comprehensive understanding of Rust, Bizinikiwi's framework, and blockchain principles.
 //! - **Complex Blockchain Architectures**: Runtime development is suitable for creating complex
 //!   blockchain architectures. Developers must consider aspects like security, scalability, and
 //!   network efficiency.
@@ -108,7 +108,7 @@
 //! - **Deployment and Iteration**: Smart Contracts, by nature, are designed for more
 //!   straightforward deployment and iteration. Developers can quickly deploy contracts.
 //! - **Contract Code Updates**: Once deployed, although typically immutable, Smart Contracts can be
-//!   upgraded, but lack of migration logic. The [`pallet_contracts`]
+//!   upgraded, but lack of migration logic. The [`pezpallet_contracts`]
 //!   allows for contracts to be upgraded by exposing the `set_code` dispatchable. More details on this
 //!   can be found in [Ink! documentation on upgradeable contracts](https://use.ink/basics/upgradeable-contracts).
 //! - **Isolated Impact**: Upgrades or changes to a smart contract generally impact only that
@@ -123,7 +123,7 @@
 //! and optimized for specific needs, while Smart Contracts are more generic and less efficient.
 //!
 //! #### Runtime Performance and Efficiency
-//! - **Optimized for Specific Needs**: Runtime modules in Substrate are tailored to meet the
+//! - **Optimized for Specific Needs**: Runtime modules in Bizinikiwi are tailored to meet the
 //!   specific needs of the blockchain. They are integrated directly into the blockchain's core,
 //!   allowing them to operate with high efficiency and minimal overhead.
 //! - **Direct Access to Blockchain State**: Runtime has direct access to the blockchain's state.
@@ -181,12 +181,12 @@
 //! #### Weighing
 //! In FRAME-based Runtimes, operations are *weighed*. This means that each operation in the Runtime
 //! has a fixed upper cost, known in advance, determined through
-//! [benchmarking](crate::reference_docs::frame_benchmarking_weight). Weighing is practical here
+//! [benchmarking](crate::reference_docs::pezframe_benchmarking_weight). Weighing is practical here
 //! because:
 //!
 //! - *Predictability*: Runtime operations are part of the blockchain's core logic, which is static
 //!   until an upgrade occurs. This predictability allows for precise
-//!   [benchmarking](crate::reference_docs::frame_benchmarking_weight).
+//!   [benchmarking](crate::reference_docs::pezframe_benchmarking_weight).
 //! - *Prevention of Abuse*: By having a fixed upper cost that corresponds to the worst-case
 //!   complexity scenario of its execution (and a mechanism to refund unused weight), it becomes
 //!   infeasible for an attacker to create transactions that could unpredictably consume excessive

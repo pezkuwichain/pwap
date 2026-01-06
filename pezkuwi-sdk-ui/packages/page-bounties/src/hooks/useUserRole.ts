@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-bounties authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-bounties authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AccountId } from '@polkadot/types/interfaces';
+import type { AccountId } from '@pezkuwi/types/interfaces';
 import type { UserRole } from '../types.js';
 
 import { useMemo } from 'react';
 
-import { createNamedHook, useAccounts, useCollectiveMembers } from '@polkadot/react-hooks';
+import { createNamedHook, useAccounts, useCollectiveMembers } from '@pezkuwi/react-hooks';
 
 export interface UserRolesInfo { roles: UserRole[], isCurator: boolean }
 

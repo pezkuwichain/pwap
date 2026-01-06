@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/app-gilt authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-gilt authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { u32 } from '@polkadot/types';
-import type { ActiveGiltsTotal, BalanceOf } from '@polkadot/types/interfaces';
+import type { u32 } from '@pezkuwi/types';
+import type { ActiveGiltsTotal, BalanceOf } from '@pezkuwi/types/interfaces';
 import type { GiltInfo, QueueTotal } from './types.js';
 
 import { useMemo } from 'react';
 
-import { createNamedHook, useApi, useCallMulti } from '@polkadot/react-hooks';
-import { BN_ONE } from '@polkadot/util';
+import { createNamedHook, useApi, useCallMulti } from '@pezkuwi/react-hooks';
+import { BN_ONE } from '@pezkuwi/util';
 
 interface State {
   info?: GiltInfo;

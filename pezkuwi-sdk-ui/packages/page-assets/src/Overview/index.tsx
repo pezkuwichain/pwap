@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-assets authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-assets authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AssetInfo } from '@polkadot/react-hooks/types';
-import type { BN } from '@polkadot/util';
+import type { AssetInfo } from '@pezkuwi/react-hooks/types';
+import type { BN } from '@pezkuwi/util';
 
 import React, { useState } from 'react';
 
-import { Button } from '@polkadot/react-components';
+import { Button } from '@pezkuwi/react-components';
 
 import Create from './Create/index.js';
 import Assets from './Assets.js';

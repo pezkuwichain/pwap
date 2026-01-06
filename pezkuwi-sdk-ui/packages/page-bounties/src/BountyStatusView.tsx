@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/app-bounties authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-bounties authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { StatusName } from './types.js';
 
 import React from 'react';
 
-import { styled } from '@polkadot/react-components';
+import { styled } from '@pezkuwi/react-components';
 
 import { insertSpaceBeforeCapitalLetter } from './helpers/index.js';
 

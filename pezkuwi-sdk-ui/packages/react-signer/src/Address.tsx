@@ -1,21 +1,21 @@
-// Copyright 2017-2025 @polkadot/react-signer authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-signer authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { SubmittableExtrinsic } from '@polkadot/api/types';
-import type { QueueTx } from '@polkadot/react-components/Status/types';
-import type { Option, Vec } from '@polkadot/types';
-import type { AccountId, BalanceOf, Call, Multisig } from '@polkadot/types/interfaces';
-import type { KitchensinkRuntimeProxyType, PalletProxyProxyDefinition } from '@polkadot/types/lookup';
-import type { ITuple } from '@polkadot/types/types';
-import type { BN } from '@polkadot/util';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { SubmittableExtrinsic } from '@pezkuwi/api/types';
+import type { QueueTx } from '@pezkuwi/react-components/Status/types';
+import type { Option, Vec } from '@pezkuwi/types';
+import type { AccountId, BalanceOf, Call, Multisig } from '@pezkuwi/types/interfaces';
+import type { KitchensinkRuntimeProxyType, PezpalletProxyProxyDefinition } from '@pezkuwi/types/lookup';
+import type { ITuple } from '@pezkuwi/types/types';
+import type { BN } from '@pezkuwi/util';
 import type { AddressFlags, AddressProxy } from './types.js';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { InputAddress, MarkError, Modal, Toggle } from '@polkadot/react-components';
-import { useAccounts, useApi, useIsMountedRef } from '@polkadot/react-hooks';
-import { BN_ZERO, isFunction } from '@polkadot/util';
+import { InputAddress, MarkError, Modal, Toggle } from '@pezkuwi/react-components';
+import { useAccounts, useApi, useIsMountedRef } from '@pezkuwi/react-hooks';
+import { BN_ZERO, isFunction } from '@pezkuwi/util';
 
 import Password from './Password.js';
 import { useTranslation } from './translate.js';
@@ -176,9 +176,9 @@ async function queryForMultisig (api: ApiPromise, requestAddress: string | null,
 async function queryForProxy (api: ApiPromise, allAccounts: string[], address: string | null, tx: SubmittableExtrinsic<'promise'>): Promise<ProxyState | null> {
   if (isFunction(api.query.proxy?.proxies)) {
     const { isProxied } = extractExternal(address);
-    const [_proxies] = await api.query.proxy.proxies<ITuple<[Vec<ITuple<[AccountId, KitchensinkRuntimeProxyType]> | PalletProxyProxyDefinition>, BalanceOf]>>(address);
+    const [_proxies] = await api.query.proxy.proxies<ITuple<[Vec<ITuple<[AccountId, KitchensinkRuntimeProxyType]> | PezpalletProxyProxyDefinition>, BalanceOf]>>(address);
     const proxies = api.tx.proxy.addProxy.meta.args.length === 3
-      ? (_proxies as PalletProxyProxyDefinition[]).map(({ delay, delegate, proxyType }): [string, BN, KitchensinkRuntimeProxyType] => [delegate.toString(), delay, proxyType])
+      ? (_proxies as PezpalletProxyProxyDefinition[]).map(({ delay, delegate, proxyType }): [string, BN, KitchensinkRuntimeProxyType] => [delegate.toString(), delay, proxyType])
       : (_proxies as [AccountId, KitchensinkRuntimeProxyType][]).map(([delegate, proxyType]): [string, BN, KitchensinkRuntimeProxyType] => [delegate.toString(), BN_ZERO, proxyType]);
     const proxiesFilter = filterProxies(allAccounts, tx, proxies);
 

@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/apps authors & contributors
+// Copyright 2017-2025 @pezkuwi/apps authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useEffect, useState } from 'react';
 
-import { MarkWarning, styled } from '@polkadot/react-components';
+import { MarkWarning, styled } from '@pezkuwi/react-components';
 
 const BrowserCheckAlert: React.FC = () => {
   const [isTargetBrowser, setIsTargetBrowser] = useState(false);

@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/app-accounts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-accounts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import { useMemo } from 'react';
 
-import { createNamedHook, useKeyring } from '@polkadot/react-hooks';
+import { createNamedHook, useKeyring } from '@pezkuwi/react-hooks';
 
 function merge (result: string[], input: string[], exclude?: string): string[] {
   return input.reduce<string[]>((result, a) => {

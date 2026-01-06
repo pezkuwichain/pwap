@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { PopupProps } from './types.js';
 
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 
-import { useOutsideClick, useTheme, useToggle } from '@polkadot/react-hooks';
+import { useOutsideClick, useTheme, useToggle } from '@pezkuwi/react-hooks';
 
 import Button from '../Button/index.js';
 import { styled } from '../styled.js';

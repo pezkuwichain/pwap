@@ -1,7 +1,7 @@
-// Copyright 2017-2025 @polkadot/apps-config authors & contributors
+// Copyright 2017-2025 @pezkuwi/apps-config authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
+import type { ApiPromise } from '@pezkuwi/api';
 import type { TrackInfo } from './types.js';
 
 import { KUSAMA_GENESIS, POLKADOT_GENESIS } from '../../constants.js';

@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/react-params authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-params authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { PalletAllianceCid } from '@polkadot/types/lookup';
+import type { PezpalletAllianceCid } from '@pezkuwi/types/lookup';
 import type { ExpandedCid } from './types.js';
 
 import { CID, digest, varint } from 'multiformats';
 
-import { u8aToHex } from '@polkadot/util';
+import { u8aToHex } from '@pezkuwi/util';
 
 export function fromIpfsCid (cid: string): ExpandedCid | null {
   try {
@@ -27,7 +27,7 @@ export function fromIpfsCid (cid: string): ExpandedCid | null {
   }
 }
 
-export function toIpfsCid (cid: PalletAllianceCid): string | null {
+export function toIpfsCid (cid: PezpalletAllianceCid): string | null {
   try {
     const { codec, hash_: { code, digest: _bytes }, version } = cid;
 

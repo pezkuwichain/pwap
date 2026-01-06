@@ -1,8 +1,8 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import '@polkadot/x-textencoder/shim';
-import '@polkadot/x-textdecoder/shim';
+import '@pezkuwi/x-textencoder/shim';
+import '@pezkuwi/x-textdecoder/shim';
 
 import type { CallOptions } from './types.js';
 

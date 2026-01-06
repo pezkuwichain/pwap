@@ -1,19 +1,19 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { SpStakingExposure } from '@polkadot/types/lookup';
+import type { PezspStakingExposure } from '@pezkuwi/types/lookup';
 import type { SessionInfo, Validator } from '../types.js';
 import type { UseExposure, UseExposureExposure } from './types.js';
 
 import { useMemo } from 'react';
 
-import { createNamedHook, useApi, useCall } from '@polkadot/react-hooks';
-import { BN } from '@polkadot/util';
+import { createNamedHook, useApi, useCall } from '@pezkuwi/react-hooks';
+import { BN } from '@pezkuwi/util';
 
 import { useCacheMap } from '../useCache.js';
 
 const OPT_EXPOSURE = {
-  transform: ({ others, own, total }: SpStakingExposure): UseExposureExposure => ({
+  transform: ({ others, own, total }: PezspStakingExposure): UseExposureExposure => ({
     others: others
       .map(({ value, who }) => ({
         value: value.unwrap(),

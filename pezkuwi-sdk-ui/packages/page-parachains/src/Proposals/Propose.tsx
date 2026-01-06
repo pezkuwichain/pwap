@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/app-parachains authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useCallback, useState } from 'react';
 
-import { Button, Input, InputAddress, InputBalance, InputFile, InputNumber, InputWasm, MarkWarning, Modal, TxButton } from '@polkadot/react-components';
-import { useApi } from '@polkadot/react-hooks';
-import { BN, BN_TEN, BN_THOUSAND, BN_ZERO, compactAddLength } from '@polkadot/util';
+import { Button, Input, InputAddress, InputBalance, InputFile, InputNumber, InputWasm, MarkWarning, Modal, TxButton } from '@pezkuwi/react-components';
+import { useApi } from '@pezkuwi/react-hooks';
+import { BN, BN_TEN, BN_THOUSAND, BN_ZERO, compactAddLength } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 

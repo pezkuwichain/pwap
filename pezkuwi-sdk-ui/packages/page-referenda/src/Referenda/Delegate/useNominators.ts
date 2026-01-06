@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/app-referenda authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-referenda authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Option } from '@polkadot/types';
-import type { PalletStakingNominations } from '@polkadot/types/lookup';
+import type { Option } from '@pezkuwi/types';
+import type { PezpalletStakingNominations } from '@pezkuwi/types/lookup';
 
 import { useMemo } from 'react';
 
-import { createNamedHook, useAccounts, useApi, useCall } from '@polkadot/react-hooks';
-import { isFunction } from '@polkadot/util';
+import { createNamedHook, useAccounts, useApi, useCall } from '@pezkuwi/react-hooks';
+import { isFunction } from '@pezkuwi/util';
 
 const NOMINATORS_OPT = {
-  transform: (optNominators: Option<PalletStakingNominations>[]): string[] =>
+  transform: (optNominators: Option<PezpalletStakingNominations>[]): string[] =>
     optNominators.reduce<string[]>((all, o) =>
       o.isSome
         ? all.concat(

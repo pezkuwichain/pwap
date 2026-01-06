@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/app-preimages authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-preimages authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Preimage as TPreimage } from '@polkadot/react-hooks/types';
+import type { Preimage as TPreimage } from '@pezkuwi/react-hooks/types';
 
 import React, { useRef } from 'react';
 
-import { Table } from '@polkadot/react-components';
+import { Table } from '@pezkuwi/react-components';
 
 import { useTranslation } from '../../translate.js';
 import Preimage from './Preimage.js';

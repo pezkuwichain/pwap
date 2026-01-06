@@ -20,8 +20,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 // @ts-expect-error - Deno imports
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-// @ts-expect-error - Polkadot imports for Deno
-import { ApiPromise, WsProvider } from "https://esm.sh/@polkadot/api@11.0.2";
+// @ts-expect-error - Pezkuwi imports for Deno
+import { ApiPromise, WsProvider } from "https://esm.sh/@pezkuwi/api@14.0.5";
 
 // Configuration
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;

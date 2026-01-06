@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/apps-routing authors & contributors
+// Copyright 2017-2025 @pezkuwi/apps-routing authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { u32, Vec } from '@polkadot/types';
-import type { SpStakingPagedExposureMetadata } from '@polkadot/types/lookup';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { u32, Vec } from '@pezkuwi/types';
+import type { PezspStakingPagedExposureMetadata } from '@pezkuwi/types/lookup';
 import type { Route, TFunction } from './types.js';
 
-import Component from '@polkadot/app-staking';
-import { ZERO_ACCOUNT } from '@polkadot/react-hooks/useWeight';
-import { unwrapStorageType } from '@polkadot/types/util';
-import { assert, BN_ONE } from '@polkadot/util';
+import Component from '@pezkuwi/app-staking';
+import { ZERO_ACCOUNT } from '@pezkuwi/react-hooks/useWeight';
+import { unwrapStorageType } from '@pezkuwi/types/util';
+import { assert, BN_ONE } from '@pezkuwi/util';
 
 function needsApiCheck (api: ApiPromise): boolean {
   try {
@@ -19,7 +19,7 @@ function needsApiCheck (api: ApiPromise): boolean {
     }
 
     // we need a known Exposure type
-    const { nominatorCount, own, pageCount, total } = api.registry.createType<SpStakingPagedExposureMetadata>(
+    const { nominatorCount, own, pageCount, total } = api.registry.createType<PezspStakingPagedExposureMetadata>(
       unwrapStorageType(api.registry, api.query.staking.erasStakersOverview.creator.meta.type),
       { nominatorCount: BN_ONE, own: BN_ONE, pageCount: BN_ONE, total: BN_ONE }
     );
@@ -39,6 +39,7 @@ function needsApiCheck (api: ApiPromise): boolean {
       api.tx.staking.bond(ZERO_ACCOUNT, BN_ONE, { Account: ZERO_ACCOUNT });
     } else if (api.tx.staking.bond.meta.args.length === 2) {
       // current, no controller account
+      // @ts-expect-error Account variant is runtime converted
       api.tx.staking.bond(BN_ONE, { Account: ZERO_ACCOUNT });
     } else {
       // unknown

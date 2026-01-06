@@ -11,7 +11,7 @@ const CodeSnippet = ({ language, code }: { language: string, code: string }) => 
 );
 
 const Developers: React.FC = () => {
-  const connectCode = `import { ApiPromise, WsProvider } from '@polkadot/api';
+  const connectCode = `import { ApiPromise, WsProvider } from '@pezkuwi/api';
 
 // Connect to the PezkuwiChain node
 const wsProvider = new WsProvider('wss://rpc.pezkuwichain.io');

@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-extrinsics authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-extrinsics authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Inspect } from '@polkadot/types/types';
+import type { Inspect } from '@pezkuwi/types/types';
 
 import React, { useMemo } from 'react';
 
-import { useApi } from '@polkadot/react-hooks';
-import { u8aToHex } from '@polkadot/util';
+import { useApi } from '@pezkuwi/react-hooks';
+import { u8aToHex } from '@pezkuwi/util';
 
 import Output from './Output.js';
 import { styled } from './styled.js';

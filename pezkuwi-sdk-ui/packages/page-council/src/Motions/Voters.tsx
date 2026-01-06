@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/app-council authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-council authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AccountId, MemberCount } from '@polkadot/types/interfaces';
+import type { AccountId, MemberCount } from '@pezkuwi/types/interfaces';
 
 import React, { useCallback, useMemo } from 'react';
 
-import { AddressMini, ExpanderScroll } from '@polkadot/react-components';
+import { AddressMini, ExpanderScroll } from '@pezkuwi/react-components';
 
 import { useTranslation } from '../translate.js';
 

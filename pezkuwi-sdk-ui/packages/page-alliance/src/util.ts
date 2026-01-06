@@ -1,19 +1,19 @@
-// Copyright 2017-2025 @polkadot/app-alliance authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-alliance authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { PalletAllianceCid } from '@polkadot/types/lookup';
-import type { Registry } from '@polkadot/types/types';
+import type { PezpalletAllianceCid } from '@pezkuwi/types/lookup';
+import type { Registry } from '@pezkuwi/types/types';
 import type { Cid } from './types.js';
 
-import { fromIpfsCid, toIpfsCid } from '@polkadot/react-params/util';
+import { fromIpfsCid, toIpfsCid } from '@pezkuwi/react-params/util';
 
-export function createPalletCid (registry: Registry, cid: string): PalletAllianceCid | null {
+export function createPalletCid (registry: Registry, cid: string): PezpalletAllianceCid | null {
   const expanded = fromIpfsCid(cid);
 
-  return expanded && registry.createType('PalletAllianceCid', expanded);
+  return expanded && registry.createType('PezpalletAllianceCid', expanded);
 }
 
-export function createCid (cid: PalletAllianceCid): Cid {
+export function createCid (cid: PezpalletAllianceCid): Cid {
   return {
     cid,
     ipfs: toIpfsCid(cid),

@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
 import ReactMd from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 
-import { useToggle } from '@polkadot/react-hooks';
+import { useToggle } from '@pezkuwi/react-hooks';
 
 import Icon from './Icon.js';
 import { styled } from './styled.js';

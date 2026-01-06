@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/app-extrinsics authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-extrinsics authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { SubmittableExtrinsic } from '@polkadot/api/types';
-import type { ExtrinsicPayload } from '@polkadot/types/interfaces';
-import type { Inspect } from '@polkadot/types/types';
-import type { HexString } from '@polkadot/util/types';
+import type { SubmittableExtrinsic } from '@pezkuwi/api/types';
+import type { ExtrinsicPayload } from '@pezkuwi/types/interfaces';
+import type { Inspect } from '@pezkuwi/types/types';
+import type { HexString } from '@pezkuwi/util/types';
 
 import React, { useMemo } from 'react';
 
-import { Columar, Inspect as DecodedInspect, Output, styled } from '@polkadot/react-components';
-import { u8aToHex } from '@polkadot/util';
+import { Columar, Inspect as DecodedInspect, Output, styled } from '@pezkuwi/react-components';
+import { u8aToHex } from '@pezkuwi/util';
 
 import { useTranslation } from './translate.js';
 

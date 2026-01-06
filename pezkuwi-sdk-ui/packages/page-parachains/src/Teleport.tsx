@@ -1,18 +1,18 @@
-// Copyright 2017-2025 @polkadot/app-parachains authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { SubmittableExtrinsicFunction } from '@polkadot/api/types';
-import type { DeriveBalancesAll } from '@polkadot/api-derive/types';
-import type { LinkOption } from '@polkadot/apps-config/endpoints/types';
-import type { Option } from '@polkadot/apps-config/settings/types';
-import type { BN } from '@polkadot/util';
+import type { SubmittableExtrinsicFunction } from '@pezkuwi/api/types';
+import type { DeriveBalancesAll } from '@pezkuwi/api-derive/types';
+import type { LinkOption } from '@pezkuwi/apps-config/endpoints/types';
+import type { Option } from '@pezkuwi/apps-config/settings/types';
+import type { BN } from '@pezkuwi/util';
 
 import React, { useEffect, useMemo, useState } from 'react';
 
-import { ChainImg, Dropdown, InputAddress, InputBalance, MarkWarning, Modal, styled, TxButton } from '@polkadot/react-components';
-import { useApi, useApiUrl, useCall, useTeleport } from '@polkadot/react-hooks';
-import { Available, FormatBalance } from '@polkadot/react-query';
-import { BN_HUNDRED, BN_ZERO, isFunction, nextTick } from '@polkadot/util';
+import { ChainImg, Dropdown, InputAddress, InputBalance, MarkWarning, Modal, styled, TxButton } from '@pezkuwi/react-components';
+import { useApi, useApiUrl, useCall, useTeleport } from '@pezkuwi/react-hooks';
+import { Available, FormatBalance } from '@pezkuwi/react-query';
+import { BN_HUNDRED, BN_ZERO, isFunction, nextTick } from '@pezkuwi/util';
 
 import { useTranslation } from './translate.js';
 

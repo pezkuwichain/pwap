@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Option, StorageKey, u64 } from '@polkadot/types';
-import type { PalletBagsListListBag } from '@polkadot/types/lookup';
-import type { BN } from '@polkadot/util';
+import type { Option, StorageKey, u64 } from '@pezkuwi/types';
+import type { PezpalletBagsListListBag } from '@pezkuwi/types/lookup';
+import type { BN } from '@pezkuwi/util';
 import type { BagInfo } from './types.js';
 
 import { useEffect, useState } from 'react';
 
-import { createNamedHook, useCall, useMapKeys } from '@polkadot/react-hooks';
-import { BN_ZERO } from '@polkadot/util';
+import { createNamedHook, useCall, useMapKeys } from '@pezkuwi/react-hooks';
+import { BN_ZERO } from '@pezkuwi/util';
 
 import useQueryModule from './useQueryModule.js';
 
@@ -19,9 +19,9 @@ const KEY_OPTS = {
 };
 
 const MULTI_OPTS = {
-  transform: ([[ids], opts]: [[BN[]], Option<PalletBagsListListBag>[]]): BagInfo[] => {
+  transform: ([[ids], opts]: [[BN[]], Option<PezpalletBagsListListBag>[]]): BagInfo[] => {
     const sorted = ids
-      .map((id, index): [BN, Option<PalletBagsListListBag>] => [id, opts[index]])
+      .map((id, index): [BN, Option<PezpalletBagsListListBag>] => [id, opts[index]])
       .filter(([, o]) => o.isSome)
       .sort(([a], [b]) => b.cmp(a))
       .map(([bagUpper, o], index): BagInfo => ({

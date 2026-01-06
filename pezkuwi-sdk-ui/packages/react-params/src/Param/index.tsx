@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/react-params authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-params authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Props } from '../types.js';
 
 import React, { useMemo } from 'react';
 
-import { getTypeDef } from '@polkadot/types';
-import { encodeTypeDef } from '@polkadot/types/create';
-import { isUndefined } from '@polkadot/util';
+import { getTypeDef } from '@pezkuwi/types';
+import { encodeTypeDef } from '@pezkuwi/types/create';
+import { isUndefined } from '@pezkuwi/util';
 
 import findComponent from './findComponent.js';
 import Static from './Static.js';

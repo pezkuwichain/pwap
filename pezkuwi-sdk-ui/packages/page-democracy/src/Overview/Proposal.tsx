@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-democracy authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-democracy authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveProposal } from '@polkadot/api-derive/types';
+import type { DeriveProposal } from '@pezkuwi/api-derive/types';
 
 import React, { useCallback, useMemo } from 'react';
 
-import { AddressMini, Button, Columar, ExpandButton, ExpanderScroll, LinkExternal, Table } from '@polkadot/react-components';
-import { useToggle } from '@polkadot/react-hooks';
-import { FormatBalance } from '@polkadot/react-query';
+import { AddressMini, Button, Columar, ExpandButton, ExpanderScroll, LinkExternal, Table } from '@pezkuwi/react-components';
+import { useToggle } from '@pezkuwi/react-hooks';
+import { FormatBalance } from '@pezkuwi/react-query';
 
 import { useTranslation } from '../translate.js';
 import PreImageButton from './PreImageButton.js';

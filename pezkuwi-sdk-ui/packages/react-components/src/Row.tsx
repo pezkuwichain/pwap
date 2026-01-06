@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AccountId, AccountIndex, Address } from '@polkadot/types/interfaces';
+import type { AccountId, AccountIndex, Address } from '@pezkuwi/types/interfaces';
 
 import React, { useCallback } from 'react';
 
-import { useToggle } from '@polkadot/react-hooks';
+import { useToggle } from '@pezkuwi/react-hooks';
 
 import EditButton from './EditButton.js';
 import Input from './Input.js';

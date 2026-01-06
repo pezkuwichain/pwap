@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-bounties authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-bounties authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveCollectiveProposal } from '@polkadot/api-derive/types';
-import type { AccountId } from '@polkadot/types/interfaces';
-import type { PalletBountiesBountyStatus } from '@polkadot/types/lookup';
+import type { DeriveCollectiveProposal } from '@pezkuwi/api-derive/types';
+import type { AccountId } from '@pezkuwi/types/interfaces';
+import type { PezpalletBountiesBountyStatus } from '@pezkuwi/types/lookup';
 
 import React, { useMemo } from 'react';
 
-import { AddressSmall } from '@polkadot/react-components';
+import { AddressSmall } from '@pezkuwi/react-components';
 
 import Description from '../Description.js';
 import { getProposalToDisplay } from '../helpers/extendedStatuses.js';
@@ -17,7 +17,7 @@ import VotingSummary from './VotingSummary.js';
 interface Props {
   beneficiary?: AccountId;
   proposals?: DeriveCollectiveProposal[];
-  status: PalletBountiesBountyStatus;
+  status: PezpalletBountiesBountyStatus;
 }
 
 function BountyInfos ({ beneficiary, proposals, status }: Props): React.ReactElement<Props> {

@@ -13,8 +13,8 @@
  *  Run this file with Jest: `npx jest backend/integration-tests/welati.live.test.js`
  */
 
-import { ApiPromise, WsProvider, Keyring } from '@polkadot/api';
-import { BN } from '@polkadot/util';
+import { ApiPromise, WsProvider, Keyring } from '@pezkuwi/api';
+import { BN } from '@pezkuwi/util';
 import { jest } from '@jest/globals';
 
 // ========================================

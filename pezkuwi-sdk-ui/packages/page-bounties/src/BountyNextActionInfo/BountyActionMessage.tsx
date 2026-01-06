@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/app-bounties authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-bounties authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { PalletBountiesBountyStatus } from '@polkadot/types/lookup';
+import type { PezpalletBountiesBountyStatus } from '@pezkuwi/types/lookup';
 
 import React, { useMemo } from 'react';
 
-import { BN, BN_HUNDRED, BN_ZERO } from '@polkadot/util';
+import { BN, BN_HUNDRED, BN_ZERO } from '@pezkuwi/util';
 
 import { useBounties, useBountyStatus } from '../hooks/index.js';
 import { useTranslation } from '../translate.js';
@@ -14,7 +14,7 @@ import BountyInfo from './BountyInfo.js';
 interface Props {
   bestNumber: BN;
   blocksUntilUpdate?: BN;
-  status: PalletBountiesBountyStatus;
+  status: PezpalletBountiesBountyStatus;
 }
 
 export const BLOCKS_PERCENTAGE_LEFT_TO_SHOW_WARNING = 10;

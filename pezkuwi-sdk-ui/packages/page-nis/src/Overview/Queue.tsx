@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-nis authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-nis authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { QueueTotal } from './types.js';
 
 import React from 'react';
 
-import { Table } from '@polkadot/react-components';
-import { FormatBalance } from '@polkadot/react-query';
-import { formatNumber } from '@polkadot/util';
+import { Table } from '@pezkuwi/react-components';
+import { FormatBalance } from '@pezkuwi/react-query';
+import { formatNumber } from '@pezkuwi/util';
 
 interface Props {
   className?: string;

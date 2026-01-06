@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-democracy authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-democracy authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Hash } from '@polkadot/types/interfaces';
-import type { HexString } from '@polkadot/util/types';
+import type { Hash } from '@pezkuwi/types/interfaces';
+import type { HexString } from '@pezkuwi/util/types';
 
 import React from 'react';
 
-import { Button } from '@polkadot/react-components';
-import { useApi, useToggle } from '@polkadot/react-hooks';
+import { Button } from '@pezkuwi/react-components';
+import { useApi, useToggle } from '@pezkuwi/react-hooks';
 
 import { useTranslation } from '../translate.js';
 import PreImage from './PreImage.js';

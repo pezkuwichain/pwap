@@ -126,7 +126,7 @@ export function KycApprovalTab() {
 
     setProcessing(true);
     try {
-      const { web3FromAddress } = await import('@polkadot/extension-dapp');
+      const { web3FromAddress } = await import('@pezkuwi/extension-dapp');
       const injector = await web3FromAddress(selectedAccount.address);
 
       if (import.meta.env.DEV) console.log('Proposing KYC approval for:', application.address);
@@ -261,7 +261,7 @@ export function KycApprovalTab() {
 
     setProcessing(true);
     try {
-      const { web3FromAddress } = await import('@polkadot/extension-dapp');
+      const { web3FromAddress } = await import('@pezkuwi/extension-dapp');
       const injector = await web3FromAddress(selectedAccount.address);
 
       if (import.meta.env.DEV) console.log('Rejecting KYC for:', application.address);

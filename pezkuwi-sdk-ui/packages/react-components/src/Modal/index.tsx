@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useCallback, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { createGlobalStyle } from 'styled-components';
 
-import { useTheme } from '@polkadot/react-hooks';
+import { useTheme } from '@pezkuwi/react-hooks';
 
 import ErrorBoundary from '../ErrorBoundary.js';
 import { styled } from '../styled.js';

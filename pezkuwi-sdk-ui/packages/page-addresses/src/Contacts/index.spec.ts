@@ -1,17 +1,17 @@
-// Copyright 2017-2025 @polkadot/app-addresses authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-addresses authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-/// <reference types="@polkadot/dev-test/globals.d.ts" />
+/// <reference types="@pezkuwi/dev-test/globals.d.ts" />
 
-import type { Table } from '@polkadot/test-support/pagesElements';
+import type { Table } from '@pezkuwi/test-support/pagesElements';
 
 import { screen } from '@testing-library/react';
 
-import i18next from '@polkadot/react-components/i18n';
-import { aContactWithBalance } from '@polkadot/test-support/creation/contact';
-import { MemoryStore } from '@polkadot/test-support/keyring';
-import { balance } from '@polkadot/test-support/utils';
-import { keyring } from '@polkadot/ui-keyring';
+import i18next from '@pezkuwi/react-components/i18n';
+import { aContactWithBalance } from '@pezkuwi/test-support/creation/contact';
+import { MemoryStore } from '@pezkuwi/test-support/keyring';
+import { balance } from '@pezkuwi/test-support/utils';
+import { keyring } from '@pezkuwi/ui-keyring';
 
 import { AddressesPage } from '../../test/pages/addressesPage.js';
 

@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-alliance authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-alliance authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Member as MemberType, Rule, Unscrupulous } from '../types.js';
 
 import React, { useRef } from 'react';
 
-import { Button, Table } from '@polkadot/react-components';
-import { useBestNumber, useToggle } from '@polkadot/react-hooks';
+import { Button, Table } from '@pezkuwi/react-components';
+import { useBestNumber, useToggle } from '@pezkuwi/react-hooks';
 
 import { useTranslation } from '../translate.js';
 import Join from './Join.js';

@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/app-settings authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-settings authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useCallback } from 'react';
 
-import { Input, styled } from '@polkadot/react-components';
+import { Input, styled } from '@pezkuwi/react-components';
 
 interface Props {
   className?: string;

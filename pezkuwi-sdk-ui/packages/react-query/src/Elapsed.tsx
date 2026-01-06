@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/react-query authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-query authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { BN } from '@polkadot/util';
+import type { BN } from '@pezkuwi/util';
 
 import React, { useEffect, useState } from 'react';
 
-import { styled } from '@polkadot/react-components/styled';
-import { bnToBn } from '@polkadot/util';
+import { styled } from '@pezkuwi/react-components/styled';
+import { bnToBn } from '@pezkuwi/util';
 
 type Ticker = (now: number) => void;
 

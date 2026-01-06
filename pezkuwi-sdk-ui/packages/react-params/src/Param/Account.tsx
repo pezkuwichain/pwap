@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/react-params authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-params authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { MultiAddress } from '@polkadot/types/interfaces';
+import type { MultiAddress } from '@pezkuwi/types/interfaces';
 import type { Props } from '../types.js';
 
 import React, { useCallback, useState } from 'react';
 
-import { InputAddress } from '@polkadot/react-components';
-import { keyring } from '@polkadot/ui-keyring';
+import { InputAddress } from '@pezkuwi/react-components';
+import { keyring } from '@pezkuwi/ui-keyring';
 
 import Bare from './Bare.js';
 import Enum from './Enum.js';

@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { IconName } from '@fortawesome/fontawesome-svg-core';
 
 import React, { useMemo, useState } from 'react';
 
-import { useTheme } from '@polkadot/react-hooks';
+import { useTheme } from '@pezkuwi/react-hooks';
 
 import Icon from './Icon.js';
 import { styled } from './styled.js';

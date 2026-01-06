@@ -1,7 +1,7 @@
-// Copyright 2017-2025 @polkadot/apps authors & contributors
+// Copyright 2017-2025 @pezkuwi/apps authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { xglobal } from '@polkadot/x-global';
+import { xglobal } from '@pezkuwi/x-global';
 
 try {
   // HACK: Construct a Buffer to ensure that it is actually available in our context

@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-parachains authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { BlockNumber } from '@polkadot/types/interfaces';
+import type { BlockNumber } from '@pezkuwi/types/interfaces';
 import type { LeasePeriod } from './types.js';
 
 import { useMemo } from 'react';
 
-import { createNamedHook, useApi, useBestNumber } from '@polkadot/react-hooks';
-import { BN_ZERO } from '@polkadot/util';
+import { createNamedHook, useApi, useBestNumber } from '@pezkuwi/react-hooks';
+import { BN_ZERO } from '@pezkuwi/util';
 
 function useLeasePeriodImpl (): LeasePeriod | undefined {
   const { api } = useApi();

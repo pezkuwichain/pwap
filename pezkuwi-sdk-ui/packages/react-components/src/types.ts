@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import '@polkadot/api-augment';
+import '@pezkuwi/api-augment';
 
 import type { IconName } from '@fortawesome/fontawesome-svg-core';
 import type React from 'react';
-import type { SubmittableExtrinsic } from '@polkadot/api/types';
-import type { Abi } from '@polkadot/api-contract';
-import type { Registrar } from '@polkadot/react-hooks/types';
-import type { AccountId, AccountIndex, Address, Index } from '@polkadot/types/interfaces';
+import type { SubmittableExtrinsic } from '@pezkuwi/api/types';
+import type { Abi } from '@pezkuwi/api-contract';
+import type { Registrar } from '@pezkuwi/react-hooks/types';
+import type { AccountId, AccountIndex, Address, Index } from '@pezkuwi/types/interfaces';
 import type { ActionStatus, TxCallback, TxFailedCallback } from './Status/types.js';
 
 export interface BareProps {

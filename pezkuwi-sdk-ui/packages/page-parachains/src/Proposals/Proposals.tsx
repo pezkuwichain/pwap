@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/app-parachains authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Proposals as UseProposals } from '../types.js';
 
 import React, { useMemo, useRef } from 'react';
 
-import { Table } from '@polkadot/react-components';
+import { Table } from '@pezkuwi/react-components';
 
 import { useTranslation } from '../translate.js';
 import Proposal from './Proposal.js';

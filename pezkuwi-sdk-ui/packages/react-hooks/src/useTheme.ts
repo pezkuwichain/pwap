@@ -1,7 +1,7 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ThemeDef } from '@polkadot/react-components/types';
+import type { ThemeDef } from '@pezkuwi/react-components/types';
 
 import { useContext, useMemo } from 'react';
 import { ThemeContext } from 'styled-components';
@@ -18,8 +18,8 @@ function useThemeImpl (): Theme {
 
   return useMemo(
     (): Theme => ({
-      theme: (ctx?.theme || 'light') as 'light',
-      themeClassName: `theme--${(ctx?.theme || 'light') as 'light'}`
+      theme: (((ctx as unknown) as { theme?: string })?.theme || 'light') as 'light',
+      themeClassName: `theme--${(((ctx as unknown) as { theme?: string })?.theme || 'light') as 'light'}`
     }),
     [ctx]
   );

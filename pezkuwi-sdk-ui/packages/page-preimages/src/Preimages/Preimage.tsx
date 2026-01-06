@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-preimages authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-preimages authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Preimage as TPreimage } from '@polkadot/react-hooks/types';
-import type { HexString } from '@polkadot/util/types';
+import type { Preimage as TPreimage } from '@pezkuwi/react-hooks/types';
+import type { HexString } from '@pezkuwi/util/types';
 
 import React, { useEffect } from 'react';
 
-import { usePreimage } from '@polkadot/react-hooks';
-import { formatNumber } from '@polkadot/util';
+import { usePreimage } from '@pezkuwi/react-hooks';
+import { formatNumber } from '@pezkuwi/util';
 
 import Call from './Call.js';
 import Free from './Free.js';

@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/react-query authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-query authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { Vec } from '@polkadot/types';
-import type { EventRecord } from '@polkadot/types/interfaces';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { Vec } from '@pezkuwi/types';
+import type { EventRecord } from '@pezkuwi/types/interfaces';
 import type { BlockEvents, IndexedEvent, KeyedEvent } from './types.js';
 
 import React, { useEffect, useRef, useState } from 'react';
 
-import { stringify, stringToU8a } from '@polkadot/util';
-import { xxhashAsHex } from '@polkadot/util-crypto';
+import { stringify, stringToU8a } from '@pezkuwi/util';
+import { xxhashAsHex } from '@pezkuwi/util-crypto';
 
 import { useApi } from '../useApi.js';
 import { useCall } from '../useCall.js';

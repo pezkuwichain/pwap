@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/app-accounts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-accounts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Vec } from '@polkadot/types';
-import type { AccountId, BalanceOf } from '@polkadot/types/interfaces';
-import type { KitchensinkRuntimeProxyType, PalletProxyProxyDefinition } from '@polkadot/types/lookup';
-import type { ITuple } from '@polkadot/types/types';
-import type { BN } from '@polkadot/util';
+import type { Vec } from '@pezkuwi/types';
+import type { AccountId, BalanceOf } from '@pezkuwi/types/interfaces';
+import type { KitchensinkRuntimeProxyType, PezpalletProxyProxyDefinition } from '@pezkuwi/types/lookup';
+import type { ITuple } from '@pezkuwi/types/types';
+import type { BN } from '@pezkuwi/util';
 
 import { useEffect, useState } from 'react';
 
-import { createNamedHook, useAccounts, useApi, useIsMountedRef } from '@polkadot/react-hooks';
-import { BN_ZERO } from '@polkadot/util';
+import { createNamedHook, useAccounts, useApi, useIsMountedRef } from '@pezkuwi/react-hooks';
+import { BN_ZERO } from '@pezkuwi/util';
 
 interface Proxy {
   address: string;
@@ -47,10 +47,10 @@ function useProxiesImpl (address?: string | null): State | null {
 
     address &&
       api.query.proxy
-        ?.proxies<ITuple<[Vec<ITuple<[AccountId, KitchensinkRuntimeProxyType]> | PalletProxyProxyDefinition>, BalanceOf]>>(address)
+        ?.proxies<ITuple<[Vec<ITuple<[AccountId, KitchensinkRuntimeProxyType]> | PezpalletProxyProxyDefinition>, BalanceOf]>>(address)
         .then(([_proxies]): void => {
           const proxies = api.tx.proxy.addProxy.meta.args.length === 3
-            ? (_proxies as PalletProxyProxyDefinition[]).map(({ delay, delegate, proxyType }) =>
+            ? (_proxies as PezpalletProxyProxyDefinition[]).map(({ delay, delegate, proxyType }) =>
               createProxy(allAccounts, delegate, proxyType, delay)
             )
             : (_proxies as [AccountId, KitchensinkRuntimeProxyType][]).map(([delegate, proxyType]) =>

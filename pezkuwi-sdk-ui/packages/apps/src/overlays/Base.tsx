@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/apps authors & contributors
+// Copyright 2017-2025 @pezkuwi/apps authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { IconName } from '@fortawesome/fontawesome-svg-core';
 
 import React, { useCallback, useEffect } from 'react';
 
-import { Button, Icon, styled } from '@polkadot/react-components';
-import { useToggle } from '@polkadot/react-hooks';
+import { Button, Icon, styled } from '@pezkuwi/react-components';
+import { useToggle } from '@pezkuwi/react-hooks';
 
 interface Props {
   children: React.ReactNode;

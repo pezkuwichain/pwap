@@ -1,22 +1,22 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveSessionProgress } from '@polkadot/api-derive/types';
-import type { OwnPool } from '@polkadot/app-staking2/Pools/types';
-import type { PalletStakingUnappliedSlash } from '@polkadot/types/lookup';
-import type { BN } from '@polkadot/util';
+import type { DeriveSessionProgress } from '@pezkuwi/api-derive/types';
+import type { OwnPool } from '@pezkuwi/app-staking2/Pools/types';
+import type { PezpalletStakingUnappliedSlash } from '@pezkuwi/types/lookup';
+import type { BN } from '@pezkuwi/util';
 import type { SortedTargets } from '../types.js';
 
 import React, { useRef } from 'react';
 
-import { Table } from '@polkadot/react-components';
-import { useApi, useCall } from '@polkadot/react-hooks';
+import { Table } from '@pezkuwi/react-components';
+import { useApi, useCall } from '@pezkuwi/react-hooks';
 
 import { useTranslation } from '../translate.js';
 import Pool from './Pool/index.js';
 
 interface Props {
-  allSlashes: [BN, PalletStakingUnappliedSlash[]][];
+  allSlashes: [BN, PezpalletStakingUnappliedSlash[]][];
   className?: string;
   isInElection?: boolean;
   list?: OwnPool[];

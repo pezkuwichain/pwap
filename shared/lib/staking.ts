@@ -3,7 +3,7 @@
 // ========================================
 // Helper functions for pallet_staking and pallet_staking_score integration
 
-import { ApiPromise } from '@polkadot/api';
+import { ApiPromise } from '@pezkuwi/api';
 import { formatBalance } from './wallet';
 
 export interface StakingLedger {

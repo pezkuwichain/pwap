@@ -9,11 +9,11 @@
 //!
 //! The following templates are maintained as a part of the `pezkuwi-sdk` repository:
 //!
-//! - [`minimal-template`](https://github.com/pezkuwichain/pezkuwi-sdk/issues/25): A minimal
+//! - [`minimal-template`](https://github.com/pezkuwichain/pezkuwi-sdk/issues/195): A minimal
 //!   template that contains the least amount of features to be a functioning blockchain. Suitable
 //!   for learning and testing.
-//! - [`solochain-template`](https://github.com/pezkuwichain/pezkuwi-sdk/issues/25): Formerly known
-//!   as "substrate-node-template", is a white-labeled substrate-based blockchain (aka. solochain)
+//! - [`solochain-template`](https://github.com/pezkuwichain/pezkuwi-sdk/issues/195): Formerly known
+//!   as "bizinikiwi-node-template", is a white-labeled bizinikiwi-based blockchain (aka. solochain)
 //!   that contains moderate features, such as a basic consensus engine and some FRAME pallets. This
 //!   template can act as a good starting point for those who want to launch a solochain.
 //! - [`teyrchain-template`](https://github.com/pezkuwichain/pezkuwi-sdk-teyrchain-template):

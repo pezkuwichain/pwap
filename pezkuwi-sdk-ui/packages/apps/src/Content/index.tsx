@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/apps authors & contributors
+// Copyright 2017-2025 @pezkuwi/apps authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Route } from '@polkadot/apps-routing/types';
+import type { Route } from '@pezkuwi/apps-routing/types';
 
 import React, { Suspense, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import createRoutes from '@polkadot/apps-routing';
-import { ErrorBoundary, Spinner, styled } from '@polkadot/react-components';
-import { useApi, useQueue } from '@polkadot/react-hooks';
-import { TabsCtx } from '@polkadot/react-hooks/ctx/Tabs';
+import createRoutes from '@pezkuwi/apps-routing';
+import { ErrorBoundary, Spinner, styled } from '@pezkuwi/react-components';
+import { useApi, useQueue } from '@pezkuwi/react-hooks';
+import { TabsCtx } from '@pezkuwi/react-hooks/ctx/Tabs';
 
 import { findMissingApis } from '../endpoint.js';
 import { useTranslation } from '../translate.js';

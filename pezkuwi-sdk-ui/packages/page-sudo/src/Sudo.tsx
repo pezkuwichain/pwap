@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/app-js authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-js authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { SubmittableExtrinsic } from '@polkadot/api/types';
+import type { SubmittableExtrinsic } from '@pezkuwi/api/types';
 
 import React, { useCallback, useState } from 'react';
 
-import { Button, Icon, styled, Toggle, TxButton } from '@polkadot/react-components';
-import { useApi, useToggle } from '@polkadot/react-hooks';
-import { Extrinsic } from '@polkadot/react-params';
-import { isFunction } from '@polkadot/util';
+import { Button, Icon, styled, Toggle, TxButton } from '@pezkuwi/react-components';
+import { useApi, useToggle } from '@pezkuwi/react-hooks';
+import { Extrinsic } from '@pezkuwi/react-params';
+import { isFunction } from '@pezkuwi/util';
 
 import { useTranslation } from './translate.js';
 

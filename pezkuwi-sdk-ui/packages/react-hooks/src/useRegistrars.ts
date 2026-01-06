@@ -1,8 +1,8 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Option } from '@polkadot/types';
-import type { RegistrarInfo } from '@polkadot/types/interfaces';
+import type { Option } from '@pezkuwi/types';
+import type { RegistrarInfo } from '@pezkuwi/types/interfaces';
 import type { Registrar } from './types.js';
 
 import { useMemo } from 'react';

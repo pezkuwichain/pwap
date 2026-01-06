@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-bounties authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-bounties authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { BN } from '@polkadot/util';
+import type { BN } from '@pezkuwi/util';
 
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { Button, Input, InputAddress, InputBalance, MarkError, Modal, TxButton } from '@polkadot/react-components';
-import { useToggle } from '@polkadot/react-hooks';
-import { BN_ZERO } from '@polkadot/util';
+import { Button, Input, InputAddress, InputBalance, MarkError, Modal, TxButton } from '@pezkuwi/react-components';
+import { useToggle } from '@pezkuwi/react-hooks';
+import { BN_ZERO } from '@pezkuwi/util';
 
 import { calculateBountyBond, countUtf8Bytes } from './helpers/index.js';
 import { useBalance, useBounties } from './hooks/index.js';

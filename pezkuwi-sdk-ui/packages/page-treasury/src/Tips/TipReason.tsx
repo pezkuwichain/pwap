@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-treasury authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-treasury authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Bytes, Option } from '@polkadot/types';
-import type { Hash } from '@polkadot/types/interfaces';
+import type { Bytes, Option } from '@pezkuwi/types';
+import type { Hash } from '@pezkuwi/types/interfaces';
 
 import React from 'react';
 
-import { useApi, useCall } from '@polkadot/react-hooks';
-import { hexToString } from '@polkadot/util';
+import { useApi, useCall } from '@pezkuwi/react-hooks';
+import { hexToString } from '@pezkuwi/util';
 
 interface Props {
   hash: Hash;

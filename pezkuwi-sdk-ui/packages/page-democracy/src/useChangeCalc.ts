@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-democracy authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-democracy authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { VoteThreshold } from '@polkadot/types/interfaces';
-import type { BN } from '@polkadot/util';
+import type { VoteThreshold } from '@pezkuwi/types/interfaces';
+import type { BN } from '@pezkuwi/util';
 
 import { useEffect, useState } from 'react';
 
-import { createNamedHook, useApi, useCall } from '@polkadot/react-hooks';
-import { BN_ZERO } from '@polkadot/util';
+import { createNamedHook, useApi, useCall } from '@pezkuwi/react-hooks';
+import { BN_ZERO } from '@pezkuwi/util';
 
 import { approxChanges } from './util.js';
 

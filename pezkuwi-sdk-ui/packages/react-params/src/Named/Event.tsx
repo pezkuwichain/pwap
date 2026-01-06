@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DecodedEvent } from '@polkadot/api-contract/types';
-import type { Event, EventRecord } from '@polkadot/types/interfaces';
-import type { Codec } from '@polkadot/types/types';
+import type { DecodedEvent } from '@pezkuwi/api-contract/types';
+import type { Event, EventRecord } from '@pezkuwi/types/interfaces';
+import type { Codec } from '@pezkuwi/types/types';
 
 import React, { useMemo } from 'react';
 
-import { Input } from '@polkadot/react-components';
-import { getContractAbi } from '@polkadot/react-components/util';
-import Params from '@polkadot/react-params';
+import { Input } from '@pezkuwi/react-components';
+import { getContractAbi } from '@pezkuwi/react-components/util';
+import Params from '@pezkuwi/react-params';
 
 import { balanceEvents, balanceEventsOverrides } from '../overrides.js';
 import { useTranslation } from '../translate.js';

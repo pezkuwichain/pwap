@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/app-settings authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-settings authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import FileSaver from 'file-saver';
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { Button, Columar, Dropdown, Progress, Spinner, styled, Toggle } from '@polkadot/react-components';
-import i18n from '@polkadot/react-components/i18n';
-import languageCache from '@polkadot/react-components/i18n/cache';
-import { useToggle } from '@polkadot/react-hooks';
-import { settings } from '@polkadot/ui-settings';
+import { Button, Columar, Dropdown, Progress, Spinner, styled, Toggle } from '@pezkuwi/react-components';
+import i18n from '@pezkuwi/react-components/i18n';
+import languageCache from '@pezkuwi/react-components/i18n/cache';
+import { useToggle } from '@pezkuwi/react-hooks';
+import { settings } from '@pezkuwi/ui-settings';
 
 import { useTranslation } from '../translate.js';
 import StringInput from './StringInput.js';

@@ -1,26 +1,26 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { StorageKey, u32 } from '@polkadot/types';
-import type { PalletBrokerCoretimeInterfaceCoreAssignment, PolkadotRuntimeParachainsAssignerCoretimeAssignmentState, PolkadotRuntimeParachainsAssignerCoretimeCoreDescriptor, PolkadotRuntimeParachainsAssignerCoretimeQueueDescriptor, PolkadotRuntimeParachainsAssignerCoretimeWorkState } from '@polkadot/types/lookup';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { StorageKey, u32 } from '@pezkuwi/types';
+import type { PezpalletBrokerCoretimeInterfaceCoreAssignment, PezkuwiRuntimeTeyrchainsAssignerCoretimeAssignmentState, PezkuwiRuntimeTeyrchainsAssignerCoretimeCoreDescriptor, PezkuwiRuntimeTeyrchainsAssignerCoretimeQueueDescriptor, PezkuwiRuntimeTeyrchainsAssignerCoretimeWorkState } from '@pezkuwi/types/lookup';
 import type { CoreDescriptor } from './types.js';
 
 import { useEffect, useState } from 'react';
 
-import { createNamedHook, useCall, useMapKeys } from '@polkadot/react-hooks';
-import { BN } from '@polkadot/util';
+import { createNamedHook, useCall, useMapKeys } from '@pezkuwi/react-hooks';
+import { BN } from '@pezkuwi/util';
 
-function extractInfo (info: PolkadotRuntimeParachainsAssignerCoretimeCoreDescriptor, core: number): CoreDescriptor {
-  const currentWork: PolkadotRuntimeParachainsAssignerCoretimeWorkState | null = info?.currentWork.isSome ? info.currentWork.unwrap() : null;
-  const queue: PolkadotRuntimeParachainsAssignerCoretimeQueueDescriptor | null = info?.queue.isSome ? info.queue.unwrap() : null;
+function extractInfo (info: PezkuwiRuntimeTeyrchainsAssignerCoretimeCoreDescriptor, core: number): CoreDescriptor {
+  const currentWork: PezkuwiRuntimeTeyrchainsAssignerCoretimeWorkState | null = info?.currentWork.isSome ? info.currentWork.unwrap() : null;
+  const queue: PezkuwiRuntimeTeyrchainsAssignerCoretimeQueueDescriptor | null = info?.queue.isSome ? info.queue.unwrap() : null;
   const assignments = currentWork?.assignments || [];
 
   return {
     core,
     info: {
       currentWork: {
-        assignments: assignments?.map((one: [PalletBrokerCoretimeInterfaceCoreAssignment, PolkadotRuntimeParachainsAssignerCoretimeAssignmentState]) => {
+        assignments: assignments?.map((one: [PezpalletBrokerCoretimeInterfaceCoreAssignment, PezkuwiRuntimeTeyrchainsAssignerCoretimeAssignmentState]) => {
           return ({
             isPool: one[0]?.isPool,
             isTask: one[0]?.isTask,
@@ -55,7 +55,7 @@ function useCoreDescriptorImpl (api: ApiPromise, ready: boolean): CoreDescriptor
 
   sanitizedKeys?.pop();
 
-  const coreDescriptors = useCall<[[number[]], PolkadotRuntimeParachainsAssignerCoretimeCoreDescriptor[]]>(ready && api.query.coretimeAssignmentProvider.coreDescriptors.multi, [sanitizedKeys], { withParams: true });
+  const coreDescriptors = useCall<[[number[]], PezkuwiRuntimeTeyrchainsAssignerCoretimeCoreDescriptor[]]>(ready && api.query.coretimeAssignmentProvider.coreDescriptors.multi, [sanitizedKeys], { withParams: true });
   const [state, setState] = useState<CoreDescriptor[] | undefined>();
 
   useEffect((): void => {

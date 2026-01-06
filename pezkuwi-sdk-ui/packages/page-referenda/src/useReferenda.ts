@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-referenda authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-referenda authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Option } from '@polkadot/types';
-import type { BN } from '@polkadot/util';
-import type { PalletReferenda, ReferendaGroup, ReferendaGroupKnown, Referendum, TrackDescription } from './types.js';
+import type { Option } from '@pezkuwi/types';
+import type { BN } from '@pezkuwi/util';
+import type { PezpalletReferenda, ReferendaGroup, ReferendaGroupKnown, Referendum, TrackDescription } from './types.js';
 
 import { useMemo } from 'react';
 
-import { createNamedHook, useApi, useCall } from '@polkadot/react-hooks';
+import { createNamedHook, useApi, useCall } from '@pezkuwi/react-hooks';
 
 import useReferendaIds from './useReferendaIds.js';
 import useTracks from './useTracks.js';
@@ -143,7 +143,7 @@ function group (tracks: TrackDescription[], totalIssuance?: BN, referenda?: Refe
   return grouped.sort(sortGroups);
 }
 
-function useReferendaImpl (palletReferenda: PalletReferenda): [ReferendaGroup[], TrackDescription[]] {
+function useReferendaImpl (palletReferenda: PezpalletReferenda): [ReferendaGroup[], TrackDescription[]] {
   const { api, isApiReady } = useApi();
   const totalIssuance = useCall<BN>(isApiReady && api.query.balances.totalIssuance);
   const ids = useReferendaIds(palletReferenda);

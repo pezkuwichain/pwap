@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/react-query authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-query authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { BN } from '@polkadot/util';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { BN } from '@pezkuwi/util';
 
 import React from 'react';
 
-import { styled } from '@polkadot/react-components/styled';
-import { useBlockTime } from '@polkadot/react-hooks';
+import { styled } from '@pezkuwi/react-components/styled';
+import { useBlockTime } from '@pezkuwi/react-hooks';
 
 interface Props {
   api?: ApiPromise;

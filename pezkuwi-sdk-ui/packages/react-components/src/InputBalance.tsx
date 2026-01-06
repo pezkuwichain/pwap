@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { BN } from '@polkadot/util';
-import type { SiDef } from '@polkadot/util/types';
+import type { BN } from '@pezkuwi/util';
+import type { SiDef } from '@pezkuwi/util/types';
 
 import React, { useMemo, useState } from 'react';
 
-import { formatBalance, isUndefined } from '@polkadot/util';
+import { formatBalance, isUndefined } from '@pezkuwi/util';
 
 import { TokenUnit } from './InputConsts/units.js';
 import InputNumber from './InputNumber.js';

@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/app-council authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-council authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { SubmittableExtrinsic } from '@polkadot/api/types';
+import type { SubmittableExtrinsic } from '@pezkuwi/api/types';
 
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { getProposalThreshold } from '@polkadot/apps-config';
-import { Button, InputAddress, InputNumber, Modal, TxButton } from '@polkadot/react-components';
-import { useApi, useCollectiveInstance, useToggle } from '@polkadot/react-hooks';
-import { Extrinsic } from '@polkadot/react-params';
-import { BN, BN_ZERO } from '@polkadot/util';
+import { getProposalThreshold } from '@pezkuwi/apps-config';
+import { Button, InputAddress, InputNumber, Modal, TxButton } from '@pezkuwi/react-components';
+import { useApi, useCollectiveInstance, useToggle } from '@pezkuwi/react-hooks';
+import { Extrinsic } from '@pezkuwi/react-params';
+import { BN, BN_ZERO } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 

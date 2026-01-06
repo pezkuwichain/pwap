@@ -1,18 +1,18 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveBalancesAll } from '@polkadot/api-derive/types';
-import type { AccountInfoWithProviders, AccountInfoWithRefCount } from '@polkadot/types/interfaces';
-import type { KeyringJson$Meta } from '@polkadot/ui-keyring/types';
-import type { BN } from '@polkadot/util';
+import type { DeriveBalancesAll } from '@pezkuwi/api-derive/types';
+import type { AccountInfoWithProviders, AccountInfoWithRefCount } from '@pezkuwi/types/interfaces';
+import type { KeyringJson$Meta } from '@pezkuwi/ui-keyring/types';
+import type { BN } from '@pezkuwi/util';
 
 import React, { useEffect, useState } from 'react';
 
-import { checkAddress } from '@polkadot/phishing';
-import { useApi, useCall } from '@polkadot/react-hooks';
-import { Available } from '@polkadot/react-query';
-import { settings } from '@polkadot/ui-settings';
-import { BN_HUNDRED, BN_ZERO, isFunction, nextTick } from '@polkadot/util';
+import { checkAddress } from '@pezkuwi/phishing';
+import { useApi, useCall } from '@pezkuwi/react-hooks';
+import { Available } from '@pezkuwi/react-query';
+import { settings } from '@pezkuwi/ui-settings';
+import { BN_HUNDRED, BN_ZERO, isFunction, nextTick } from '@pezkuwi/util';
 
 import InputAddress from '../InputAddress/index.js';
 import InputBalance from '../InputBalance.js';

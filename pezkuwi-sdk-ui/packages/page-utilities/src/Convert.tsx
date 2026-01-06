@@ -1,17 +1,17 @@
-// Copyright 2017-2025 @polkadot/app-utilities authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-utilities authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { HexString } from '@polkadot/util/types';
+import type { HexString } from '@pezkuwi/util/types';
 
 import React, { useCallback, useMemo, useState } from 'react';
 
-import { createOption } from '@polkadot/app-settings/util';
-import { createSs58 } from '@polkadot/apps-config';
-import { allNetworks } from '@polkadot/networks';
-import { Dropdown, InputAddressSimple, Static } from '@polkadot/react-components';
-import { useApi } from '@polkadot/react-hooks';
-import { formatNumber, u8aToHex } from '@polkadot/util';
-import { base58Decode, checkAddressChecksum, decodeAddress, encodeAddress, isAddress } from '@polkadot/util-crypto';
+import { createOption } from '@pezkuwi/app-settings/util';
+import { createSs58 } from '@pezkuwi/apps-config';
+import { allNetworks } from '@pezkuwi/networks';
+import { Dropdown, InputAddressSimple, Static } from '@pezkuwi/react-components';
+import { useApi } from '@pezkuwi/react-hooks';
+import { formatNumber, u8aToHex } from '@pezkuwi/util';
+import { base58Decode, checkAddressChecksum, decodeAddress, encodeAddress, isAddress } from '@pezkuwi/util-crypto';
 
 import { useTranslation } from './translate.js';
 

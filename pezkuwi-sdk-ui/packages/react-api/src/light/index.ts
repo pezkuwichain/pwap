@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @polkadot/react-api authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-api authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import { WellKnownChain } from '@substrate/connect';

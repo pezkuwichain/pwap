@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { DropzoneRef } from 'react-dropzone';
@@ -6,7 +6,7 @@ import type { DropzoneRef } from 'react-dropzone';
 import React, { createRef, useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 
-import { formatNumber, hexToU8a, isHex, u8aToString } from '@polkadot/util';
+import { formatNumber, hexToU8a, isHex, u8aToString } from '@pezkuwi/util';
 
 import Labelled from './Labelled.js';
 import { styled } from './styled.js';

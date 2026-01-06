@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-referenda authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-referenda authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { PalletReferenda, TrackDescription, TrackInfoExt } from '../../types.js';
+import type { PezpalletReferenda, TrackDescription, TrackInfoExt } from '../../types.js';
 import type { VoteResultItem } from './types.js';
 
 import React, { useMemo } from 'react';
 
-import { MarkWarning, styled, Table } from '@polkadot/react-components';
-import { useApi } from '@polkadot/react-hooks';
+import { MarkWarning, styled, Table } from '@pezkuwi/react-components';
+import { useApi } from '@pezkuwi/react-hooks';
 
 import { useTranslation } from '../../translate.js';
 import { getTrackInfo } from '../../util.js';
@@ -15,7 +15,7 @@ import { getTrackInfo } from '../../util.js';
 interface Props {
   allowEmpty?: boolean;
   className?: string;
-  palletReferenda: PalletReferenda;
+  palletReferenda: PezpalletReferenda;
   trackId: number;
   tracks: TrackDescription[];
   value?: VoteResultItem[] | null | false;

@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-referenda authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-referenda authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Changes } from '@polkadot/react-hooks/useEventChanges';
-import type { StorageKey } from '@polkadot/types';
-import type { AccountId32, EventRecord } from '@polkadot/types/interfaces';
+import type { Changes } from '@pezkuwi/react-hooks/useEventChanges';
+import type { StorageKey } from '@pezkuwi/types';
+import type { AccountId32, EventRecord } from '@pezkuwi/types/interfaces';
 import type { PalletColl } from './types.js';
 
-import { createNamedHook, useApi, useEventChanges, useMapKeys } from '@polkadot/react-hooks';
+import { createNamedHook, useApi, useEventChanges, useMapKeys } from '@pezkuwi/react-hooks';
 
 const OPT_ID = {
   transform: (keys: StorageKey<[AccountId32]>[]): AccountId32[] =>

@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-settings authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-settings authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { BareProps as Props } from '@polkadot/react-components/types';
+import type { BareProps as Props } from '@pezkuwi/react-components/types';
 
 import React, { useRef } from 'react';
 
-import { packageInfo } from '@polkadot/apps-config';
-import { Input, Spinner, styled, Table } from '@polkadot/react-components';
-import { useApi } from '@polkadot/react-hooks';
+import { packageInfo } from '@pezkuwi/apps-config';
+import { Input, Spinner, styled, Table } from '@pezkuwi/react-components';
+import { useApi } from '@pezkuwi/react-hooks';
 
 import { useTranslation } from '../translate.js';
 
@@ -47,7 +47,7 @@ function SystemVersion ({ className }: Props): React.ReactElement<Props> {
             className='full'
             isDisabled
             label={t('API Version')}
-            value={`${api.libraryInfo.replace('@polkadot/api ', '')}`}
+            value={`${api.libraryInfo.replace('@pezkuwi/api ', '')}`}
           />
         </td>
       </tr>

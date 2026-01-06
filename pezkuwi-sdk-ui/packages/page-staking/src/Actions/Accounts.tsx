@@ -1,20 +1,20 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { StakerState } from '@polkadot/react-hooks/types';
-import type { PalletStakingUnappliedSlash } from '@polkadot/types/lookup';
-import type { BN } from '@polkadot/util';
+import type { StakerState } from '@pezkuwi/react-hooks/types';
+import type { PezpalletStakingUnappliedSlash } from '@pezkuwi/types/lookup';
+import type { BN } from '@pezkuwi/util';
 import type { SortedTargets } from '../types.js';
 
 import React, { useRef } from 'react';
 
-import { Table } from '@polkadot/react-components';
+import { Table } from '@pezkuwi/react-components';
 
 import { useTranslation } from '../translate.js';
 import Account from './Account/index.js';
 
 interface Props {
-  allSlashes: [BN, PalletStakingUnappliedSlash[]][];
+  allSlashes: [BN, PezpalletStakingUnappliedSlash[]][];
   className?: string;
   footer: React.ReactNode;
   isInElection?: boolean;

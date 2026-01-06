@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/react-params authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-params authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Props } from '../types.js';
 
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { Input } from '@polkadot/react-components';
-import { compactAddLength, hexToU8a, u8aConcat } from '@polkadot/util';
+import { Input } from '@pezkuwi/react-components';
+import { compactAddLength, hexToU8a, u8aConcat } from '@pezkuwi/util';
 
 import Bare from './Bare.js';
 

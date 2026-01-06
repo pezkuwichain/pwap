@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/app-preimages authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-preimages authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Preimage } from '@polkadot/react-hooks/types';
+import type { Preimage } from '@pezkuwi/react-hooks/types';
 
 import React, { useMemo } from 'react';
 
-import { AddressMini, CopyButton, MarkError, MarkWarning, styled } from '@polkadot/react-components';
-import { ZERO_ACCOUNT } from '@polkadot/react-hooks/useWeight';
-import { CallExpander } from '@polkadot/react-params';
-import { Null } from '@polkadot/types-codec';
+import { AddressMini, CopyButton, MarkError, MarkWarning, styled } from '@pezkuwi/react-components';
+import { ZERO_ACCOUNT } from '@pezkuwi/react-hooks/useWeight';
+import { CallExpander } from '@pezkuwi/react-params';
+import { Null } from '@pezkuwi/types-codec';
 
 import { useTranslation } from '../translate.js';
 

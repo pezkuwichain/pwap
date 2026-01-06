@@ -1,18 +1,18 @@
-// Copyright 2017-2025 @polkadot/app-society authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-society authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AccountId, BalanceOf } from '@polkadot/types/interfaces';
-import type { PalletSocietyBidKind } from '@polkadot/types/lookup';
+import type { AccountId, BalanceOf } from '@pezkuwi/types/interfaces';
+import type { PezpalletSocietyBidKind } from '@pezkuwi/types/lookup';
 
 import React from 'react';
 
-import { AddressSmall, Table } from '@polkadot/react-components';
+import { AddressSmall, Table } from '@pezkuwi/react-components';
 
 import BidType from '../Candidates/BidType.js';
 
 interface Props {
   balance?: BalanceOf;
-  bid?: PalletSocietyBidKind;
+  bid?: PezpalletSocietyBidKind;
   value: AccountId;
 }
 

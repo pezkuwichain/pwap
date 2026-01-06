@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/app-bounties authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-bounties authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveCollectiveProposal } from '@polkadot/api-derive/types';
-import type { BountyIndex } from '@polkadot/types/interfaces';
-import type { PalletBountiesBountyStatus } from '@polkadot/types/lookup';
-import type { BN } from '@polkadot/util';
+import type { DeriveCollectiveProposal } from '@pezkuwi/api-derive/types';
+import type { BountyIndex } from '@pezkuwi/types/interfaces';
+import type { PezpalletBountiesBountyStatus } from '@pezkuwi/types/lookup';
+import type { BN } from '@pezkuwi/util';
 import type { ValidUnassignCuratorAction } from '../types.js';
 
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 
-import { Menu, Popup } from '@polkadot/react-components';
-import { useCollectiveMembers, useToggle } from '@polkadot/react-hooks';
+import { Menu, Popup } from '@pezkuwi/react-components';
+import { useCollectiveMembers, useToggle } from '@pezkuwi/react-hooks';
 
 import { determineUnassignCuratorAction } from '../helpers/index.js';
 import { useBountyStatus, useUserRole } from '../hooks/index.js';
@@ -27,7 +27,7 @@ interface Props {
   description: string;
   index: BountyIndex;
   proposals?: DeriveCollectiveProposal[];
-  status: PalletBountiesBountyStatus;
+  status: PezpalletBountiesBountyStatus;
 }
 
 function Index ({ bestNumber, className, description, index, proposals, status }: Props): React.ReactElement<Props> | null {

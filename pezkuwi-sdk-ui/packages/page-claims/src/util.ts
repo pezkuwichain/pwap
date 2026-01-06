@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-claims authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-claims authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { EcdsaSignature, EthereumAddress, StatementKind } from '@polkadot/types/interfaces';
+import type { EcdsaSignature, EthereumAddress, StatementKind } from '@pezkuwi/types/interfaces';
 
 import secp256k1 from 'secp256k1/elliptic.js';
 
-import { statics } from '@polkadot/react-api/statics';
-import { assert, hexToU8a, stringToU8a, u8aConcat, u8aToBuffer } from '@polkadot/util';
-import { keccakAsHex, keccakAsU8a } from '@polkadot/util-crypto';
+import { statics } from '@pezkuwi/react-api/statics';
+import { assert, hexToU8a, stringToU8a, u8aConcat, u8aToBuffer } from '@pezkuwi/util';
+import { keccakAsHex, keccakAsU8a } from '@pezkuwi/util-crypto';
 
 interface RecoveredSignature {
   error: Error | null;

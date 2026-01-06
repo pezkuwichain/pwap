@@ -1,7 +1,7 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiProps } from '@polkadot/react-api/types';
+import type { ApiProps } from '@pezkuwi/react-api/types';
 
 import { useContext } from 'react';
 

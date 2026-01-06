@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-ranked authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-ranked authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { FlagColor } from '@polkadot/react-components/types';
+import type { FlagColor } from '@pezkuwi/react-components/types';
 import type { Member as MemberType } from '../types.js';
 
 import React from 'react';
 
-import { AddressSmall, Tag } from '@polkadot/react-components';
+import { AddressSmall, Tag } from '@pezkuwi/react-components';
 
 import { useTranslation } from '../translate.js';
 

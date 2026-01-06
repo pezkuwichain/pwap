@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { QueryableStorageMultiArg } from '@polkadot/api/types';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { QueryableStorageMultiArg } from '@pezkuwi/api/types';
 import type { Tracker } from './useCall.js';
 import type { MountedRef } from './useIsMountedRef.js';
 
 import { useEffect, useRef, useState } from 'react';
 
-import { isUndefined, nextTick } from '@polkadot/util';
+import { isUndefined, nextTick } from '@pezkuwi/util';
 
 import { useApi } from './useApi.js';
 import { handleError, transformIdentity, unsubscribe } from './useCall.js';

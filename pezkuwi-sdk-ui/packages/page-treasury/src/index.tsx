@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-treasury authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-treasury authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useMemo } from 'react';
 import { Route, Routes } from 'react-router';
 
-import { Tabs } from '@polkadot/react-components';
-import { useApi, useCollectiveMembers } from '@polkadot/react-hooks';
-import { isFunction } from '@polkadot/util';
+import { Tabs } from '@pezkuwi/react-components';
+import { useApi, useCollectiveMembers } from '@pezkuwi/react-hooks';
+import { isFunction } from '@pezkuwi/util';
 
 import Overview from './Overview/index.js';
 import Tips from './Tips/index.js';

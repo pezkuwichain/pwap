@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/app-parachains authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Option } from '@polkadot/types';
-import type { AccountId, HeadData, ParaId } from '@polkadot/types/interfaces';
-import type { PolkadotRuntimeCommonParasRegistrarParaInfo, PolkadotRuntimeParachainsParasParaGenesisArgs, PolkadotRuntimeParachainsParasParaLifecycle } from '@polkadot/types/lookup';
+import type { Option } from '@pezkuwi/types';
+import type { AccountId, HeadData, ParaId } from '@pezkuwi/types/interfaces';
+import type { PezkuwiRuntimeCommonParasRegistrarParaInfo, PezkuwiRuntimeTeyrchainsParasParaGenesisArgs, PezkuwiRuntimeTeyrchainsParasParaLifecycle } from '@pezkuwi/types/lookup';
 
-import { createNamedHook, useApi, useCallMulti } from '@polkadot/react-hooks';
+import { createNamedHook, useApi, useCallMulti } from '@pezkuwi/react-hooks';
 
 interface Result {
   headHex: string | null;
-  lifecycle: PolkadotRuntimeParachainsParasParaLifecycle | null;
+  lifecycle: PezkuwiRuntimeTeyrchainsParasParaLifecycle | null;
   manager: AccountId | null;
 }
 
@@ -19,7 +19,7 @@ const OPT_MULTI = {
     lifecycle: null,
     manager: null
   },
-  transform: ([optHead, optGenesis, optLifecycle, optInfo]: [Option<HeadData>, Option<PolkadotRuntimeParachainsParasParaGenesisArgs>, Option<PolkadotRuntimeParachainsParasParaLifecycle>, Option<PolkadotRuntimeCommonParasRegistrarParaInfo>]): Result => ({
+  transform: ([optHead, optGenesis, optLifecycle, optInfo]: [Option<HeadData>, Option<PezkuwiRuntimeTeyrchainsParasParaGenesisArgs>, Option<PezkuwiRuntimeTeyrchainsParasParaLifecycle>, Option<PezkuwiRuntimeCommonParasRegistrarParaInfo>]): Result => ({
     headHex: optHead.isSome
       ? optHead.unwrap().toHex()
       : optGenesis.isSome

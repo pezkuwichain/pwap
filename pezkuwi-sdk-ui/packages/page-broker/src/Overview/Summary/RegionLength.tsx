@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/app-broker authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-broker authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { PalletBrokerConfigRecord } from '@polkadot/types/lookup';
+import type { PezpalletBrokerConfigRecord } from '@pezkuwi/types/lookup';
 
 import React from 'react';
 
-import { useApi, useCall } from '@polkadot/react-hooks';
+import { useApi, useCall } from '@pezkuwi/react-hooks';
 
 interface Props {
   className?: string;
@@ -14,7 +14,7 @@ interface Props {
 
 function RegionLength ({ children, className }: Props): React.ReactElement<Props> | null {
   const { api } = useApi();
-  const config = useCall<PalletBrokerConfigRecord>(api.query.broker?.configuration);
+  const config = useCall<PezpalletBrokerConfigRecord>(api.query.broker?.configuration);
   const length = config?.toJSON()?.regionLength;
 
   return (

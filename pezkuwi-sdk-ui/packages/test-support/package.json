@@ -1,16 +1,16 @@
 {
-  "bugs": "https://github.com/polkadot-js/apps/issues",
+  "bugs": "https://github.com/pezkuwichain/pezkuwi-web-app-projects/issues",
   "engines": {
     "node": ">=18"
   },
-  "homepage": "https://github.com/polkadot-js/apps/tree/master/packages/test-support#readme",
+  "homepage": "https://github.com/pezkuwichain/pezkuwi-web-app-projects/tree/master/packages/test-support#readme",
   "license": "Apache-2.0",
-  "name": "@polkadot/test-support",
+  "name": "@pezkuwi/test-support",
   "private": true,
   "repository": {
     "directory": "packages/test-support",
     "type": "git",
-    "url": "https://github.com/polkadot-js/apps.git"
+    "url": "https://github.com/pezkuwichain/pezkuwi-web-app-projects.git"
   },
   "sideEffects": false,
   "type": "module",
@@ -20,7 +20,7 @@
     "testcontainers": "^10.4.0"
   },
   "devDependencies": {
-    "@polkadot/types-support": "16.5.2",
+    "@pezkuwi/types-support": "16.5.2",
     "@testing-library/jest-dom": "^5.17.0",
     "tsconfig-paths": "^4.2.0"
   },

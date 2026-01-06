@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/test-support authors & contributors
+// Copyright 2017-2025 @pezkuwi/test-support authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Registry } from '@polkadot/types/types';
+import type { Registry } from '@pezkuwi/types/types';
 
-import { ApiPromise, WsProvider } from '@polkadot/api';
-import { Metadata, TypeRegistry } from '@polkadot/types';
-import metaStatic from '@polkadot/types-support/metadata/static-substrate';
+import { ApiPromise, WsProvider } from '@pezkuwi/api';
+import { Metadata, TypeRegistry } from '@pezkuwi/types';
+import metaStatic from '@pezkuwi/types-support/metadata/static-substrate';
 
 export function createAugmentedApi (): ApiPromise {
   const registry = new TypeRegistry();

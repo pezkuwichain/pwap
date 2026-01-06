@@ -1,10 +1,10 @@
-// Copyright 2017-2025 @polkadot/apps-config authors & contributors
+// Copyright 2017-2025 @pezkuwi/apps-config authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-/// <reference types="@polkadot/dev-test/globals.d.ts" />
+/// <reference types="@pezkuwi/dev-test/globals.d.ts" />
 
-import { assert, isString } from '@polkadot/util';
-import { WebSocket } from '@polkadot/x-ws';
+import { assert, isString } from '@pezkuwi/util';
+import { WebSocket } from '@pezkuwi/x-ws';
 
 import { createWsEndpoints } from '../endpoints/index.js';
 import { fetchJson } from './fetch.js';

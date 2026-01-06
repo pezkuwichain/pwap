@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-democracy authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-democracy authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { BN } from '@polkadot/util';
+import type { BN } from '@pezkuwi/util';
 
 import React from 'react';
 
-import { CardSummary, SummaryBox } from '@polkadot/react-components';
-import { useApi, useBestNumber, useCall, useCallMulti } from '@polkadot/react-hooks';
-import { BN_ONE, BN_THREE, BN_TWO, formatNumber } from '@polkadot/util';
+import { CardSummary, SummaryBox } from '@pezkuwi/react-components';
+import { useApi, useBestNumber, useCall, useCallMulti } from '@pezkuwi/react-hooks';
+import { BN_ONE, BN_THREE, BN_TWO, formatNumber } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 

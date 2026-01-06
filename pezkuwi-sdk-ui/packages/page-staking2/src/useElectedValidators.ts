@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { StorageKey, u32 } from '@polkadot/types';
-import type { AccountId32 } from '@polkadot/types/interfaces';
+import type { StorageKey, u32 } from '@pezkuwi/types';
+import type { AccountId32 } from '@pezkuwi/types/interfaces';
 import type { SessionInfo } from './types.js';
 
 import { useMemo } from 'react';
 
-import { createNamedHook, useApi, useMapKeys } from '@polkadot/react-hooks';
+import { createNamedHook, useApi, useMapKeys } from '@pezkuwi/react-hooks';
 
 import { useCacheValue } from './useCache.js';
 

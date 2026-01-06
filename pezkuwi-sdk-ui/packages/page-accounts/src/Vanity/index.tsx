@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/app-accounts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-accounts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ActionStatus } from '@polkadot/react-components/Status/types';
-import type { KeypairType } from '@polkadot/util-crypto/types';
+import type { ActionStatus } from '@pezkuwi/react-components/Status/types';
+import type { KeypairType } from '@pezkuwi/util-crypto/types';
 import type { GeneratorMatch, GeneratorMatches, GeneratorResult } from '@polkadot/vanitygen/types';
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { Button, Dropdown, Input, styled, Table } from '@polkadot/react-components';
-import { useApi, useIsMountedRef } from '@polkadot/react-hooks';
-import { settings } from '@polkadot/ui-settings';
-import { nextTick } from '@polkadot/util';
+import { Button, Dropdown, Input, styled, Table } from '@pezkuwi/react-components';
+import { useApi, useIsMountedRef } from '@pezkuwi/react-hooks';
+import { settings } from '@pezkuwi/ui-settings';
+import { nextTick } from '@pezkuwi/util';
 import generator from '@polkadot/vanitygen/generator';
 import matchRegex from '@polkadot/vanitygen/regex';
 import generatorSort from '@polkadot/vanitygen/sort';

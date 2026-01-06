@@ -1,21 +1,21 @@
-// Copyright 2017-2025 @polkadot/app-accounts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-accounts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-/// <reference types="@polkadot/dev-test/globals.d.ts" />
+/// <reference types="@pezkuwi/dev-test/globals.d.ts" />
 
-import '@polkadot/react-components/i18n';
+import '@pezkuwi/react-components/i18n';
 
 import { fireEvent, render, waitForElementToBeRemoved } from '@testing-library/react';
 import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 
-import AccountsApp from '@polkadot/app-accounts';
-import { ApiCtxRoot } from '@polkadot/react-api';
-import { lightTheme } from '@polkadot/react-components';
-import { MemoryStore } from '@polkadot/test-support/keyring';
-import { WaitForApi } from '@polkadot/test-support/react';
-import { SUBSTRATE_PORT } from '@polkadot/test-support/substrate';
+import AccountsApp from '@pezkuwi/app-accounts';
+import { ApiCtxRoot } from '@pezkuwi/react-api';
+import { lightTheme } from '@pezkuwi/react-components';
+import { MemoryStore } from '@pezkuwi/test-support/keyring';
+import { WaitForApi } from '@pezkuwi/test-support/react';
+import { SUBSTRATE_PORT } from '@pezkuwi/test-support/substrate';
 
 function noop (): void {
   // do nothing

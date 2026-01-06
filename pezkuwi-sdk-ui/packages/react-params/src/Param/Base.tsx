@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/react-params authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-params authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Size } from '../types.js';
 
 import React from 'react';
 
-import { Labelled } from '@polkadot/react-components';
+import { Labelled } from '@pezkuwi/react-components';
 
 import Bare from './Bare.js';
 

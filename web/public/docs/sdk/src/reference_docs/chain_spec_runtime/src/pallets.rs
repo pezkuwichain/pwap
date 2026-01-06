@@ -1,6 +1,6 @@
-// This file is part of Substrate.
+// This file is part of Bizinikiwi.
 
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd. and Dijital Kurdistan Tech Institute
 // SPDX-License-Identifier: Apache-2.0
 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,32 +18,32 @@
 //! Pallets for the chain-spec demo runtime.
 
 use alloc::vec::Vec;
-use frame::prelude::*;
+use pezframe::prelude::*;
 
 #[docify::export]
-#[frame::pallet(dev_mode)]
-pub mod pallet_bar {
+#[pezframe::pezpallet(dev_mode)]
+pub mod pezpallet_bar {
 	use super::*;
 
-	#[pallet::config]
-	pub trait Config: frame_system::Config {}
+	#[pezpallet::config]
+	pub trait Config: pezframe_system::Config {}
 
-	#[pallet::pallet]
-	pub struct Pallet<T>(_);
+	#[pezpallet::pezpallet]
+	pub struct Pezpallet<T>(_);
 
-	#[pallet::storage]
+	#[pezpallet::storage]
 	pub(super) type InitialAccount<T: Config> = StorageValue<Value = T::AccountId>;
 
 	/// Simple `GenesisConfig`.
-	#[pallet::genesis_config]
+	#[pezpallet::genesis_config]
 	#[derive(DefaultNoBound)]
-	#[docify::export(pallet_bar_GenesisConfig)]
+	#[docify::export(pezpallet_bar_GenesisConfig)]
 	pub struct GenesisConfig<T: Config> {
 		pub initial_account: Option<T::AccountId>,
 	}
 
-	#[pallet::genesis_build]
-	#[docify::export(pallet_bar_build)]
+	#[pezpallet::genesis_build]
+	#[docify::export(pezpallet_bar_build)]
 	impl<T: Config> BuildGenesisConfig for GenesisConfig<T> {
 		/// The storage building function that presents a direct mapping of the initial config
 		/// values to the storage items.
@@ -80,7 +80,7 @@ pub struct SomeFooData1 {
 #[docify::export]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct SomeFooData2 {
-	#[serde(default, with = "sp_core::bytes")]
+	#[serde(default, with = "pezsp_core::bytes")]
 	pub values: Vec<u8>,
 }
 
@@ -94,24 +94,24 @@ pub enum FooEnum {
 }
 
 #[docify::export]
-#[frame::pallet(dev_mode)]
-pub mod pallet_foo {
+#[pezframe::pezpallet(dev_mode)]
+pub mod pezpallet_foo {
 	use super::*;
 
-	#[pallet::config]
-	pub trait Config: frame_system::Config {}
+	#[pezpallet::config]
+	pub trait Config: pezframe_system::Config {}
 
-	#[pallet::pallet]
-	pub struct Pallet<T>(_);
+	#[pezpallet::pezpallet]
+	pub struct Pezpallet<T>(_);
 
-	#[pallet::storage]
+	#[pezpallet::storage]
 	pub type ProcessedEnumValue<T> = StorageValue<Value = u64>;
-	#[pallet::storage]
+	#[pezpallet::storage]
 	pub type SomeInteger<T> = StorageValue<Value = u32>;
 
 	/// The more sophisticated structure for conveying initial state.
-	#[docify::export(pallet_foo_GenesisConfig)]
-	#[pallet::genesis_config]
+	#[docify::export(pezpallet_foo_GenesisConfig)]
+	#[pezpallet::genesis_config]
 	#[derive(DefaultNoBound)]
 	pub struct GenesisConfig<T: Config> {
 		pub some_integer: u32,
@@ -121,8 +121,8 @@ pub mod pallet_foo {
 		pub _phantom: PhantomData<T>,
 	}
 
-	#[pallet::genesis_build]
-	#[docify::export(pallet_foo_build)]
+	#[pezpallet::genesis_build]
+	#[docify::export(pezpallet_foo_build)]
 	impl<T: Config> BuildGenesisConfig for GenesisConfig<T> {
 		/// The build method that indirectly maps an initial config values into the storage items.
 		fn build(&self) {

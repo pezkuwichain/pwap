@@ -29,7 +29,7 @@
 //! > To achieve this, we often use [`docify`](https://github.com/sam0x17/docify), a nifty invention
 //! > of `@sam0x17`.
 //!
-//! Also see: <https://github.com/pezkuwichain/pezkuwi-sdk/issues/109>.
+//! Also see: <https://github.com/pezkuwichain/pezkuwi-sdk/issues/255>.
 //!
 //! ## Scope
 //!
@@ -63,7 +63,7 @@
 //!
 //! > A prime example of this, the list of CLI arguments of a particular binary should not be
 //! > documented in multiple places across this crate. It should be only be documented in the
-//! > corresponding crate (e.g. `sc_cli`).
+//! > corresponding crate (e.g. `pezsc_cli`).
 //!
 //! > Moreover, this means that as a contributor, **it is your responsibility to have a grasp over
 //! > what topics are already covered in this crate, and how you can build on top of the information
@@ -72,7 +72,7 @@
 //! For more details see the [latest documenting
 //! guidelines](https://github.com/pezkuwichain/pezkuwi-sdk/blob/master/docs/contributor/DOCUMENTATION_GUIDELINES.md).
 //!
-//! #### Example: Explaining `#[pallet::call]`
+//! #### Example: Explaining `#[pezpallet::call]`
 //!
 //! <details>
 //! <summary>
@@ -82,15 +82,15 @@
 //!
 //!
 //! ```
-//! #[frame::pallet(dev_mode)]
-//! pub mod pallet {
-//! #   use frame::prelude::*;
-//! #   #[pallet::config]
-//! #   pub trait Config: frame_system::Config {}
-//! #   #[pallet::pallet]
-//! #   pub struct Pallet<T>(_);
-//!     #[pallet::call]
-//!     impl<T: Config> Pallet<T> {
+//! #[pezframe::pezpallet(dev_mode)]
+//! pub mod pezpallet {
+//! #   use pezframe::prelude::*;
+//! #   #[pezpallet::config]
+//! #   pub trait Config: pezframe_system::Config {}
+//! #   #[pezpallet::pezpallet]
+//! #   pub struct Pezpallet<T>(_);
+//!     #[pezpallet::call]
+//!     impl<T: Config> Pezpallet<T> {
 //!         pub fn a_simple_call(origin: OriginFor<T>, data: u32) -> DispatchResult {
 //!             ensure!(data > 10, "SomeStaticString");
 //!             todo!();
@@ -101,13 +101,13 @@
 //!
 //! * Before even getting started, what is with all of this `<T: Config>`? We link to
 //! [`crate::reference_docs::trait_based_programming`].
-//! * First, the name. Why is this called `pallet::call`? This goes back to `enum Call`, which is
+//! * First, the name. Why is this called `pezpallet::call`? This goes back to `enum Call`, which is
 //! explained in [`crate::reference_docs::frame_runtime_types`]. Build on top of this!
 //! * Then, what is `origin`? Just an account id? [`crate::reference_docs::frame_origin`].
 //! * Then, what is `DispatchResult`? Why is this called *dispatch*? Probably something that can be
-//! explained in the documentation of [`frame::prelude::DispatchResult`].
+//! explained in the documentation of [`pezframe::prelude::DispatchResult`].
 //! * Why is `"SomeStaticString"` a valid error? Because there is implementation for it that you can
-//!   see [here](frame::prelude::DispatchError#impl-From<%26'static+str>-for-DispatchError).
+//!   see [here](pezframe::prelude::DispatchError#impl-From<%26'static+str>-for-DispatchError).
 //!
 //!
 //! All of these are examples of underlying information that a contributor should:
@@ -132,7 +132,7 @@
 //! So long as not deployed in `crates.io`, please notice that all of the information in this crate,
 //! namely in [`crate::guides`] and such are compatible with the master branch of `pezkuwi-sdk`. A
 //! few solutions have been proposed to improve this, please see
-//! [here](https://github.com/pezkuwichain/pezkuwi-sdk/issues/146).
+//! [here](https://github.com/pezkuwichain/pezkuwi-sdk/issues/289).
 //!
 //! ## How to Develop Locally
 //!
@@ -146,6 +146,6 @@
 //! ```
 //!
 //! If even faster build time for docs is needed, you can temporarily remove most of the
-//! substrate/cumulus dependencies that are only used for linking purposes.
+//! bizinikiwi/pezcumulus dependencies that are only used for linking purposes.
 //!
 //! For more on local development, see [`crate::reference_docs::development_environment_advice`].

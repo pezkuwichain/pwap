@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/app-bounties authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-bounties authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 /* global jest */
 
-import type { SubmittableExtrinsicFunction } from '@polkadot/api/types';
-import type { DeriveBounties } from '@polkadot/api-derive/types';
+import type { SubmittableExtrinsicFunction } from '@pezkuwi/api/types';
+import type { DeriveBounties } from '@pezkuwi/api-derive/types';
 import type { BountyApi } from '../../src/hooks/index.js';
 
-import { balanceOf } from '@polkadot/test-support/creation/balance';
-import { BN, BN_ONE } from '@polkadot/util';
+import { balanceOf } from '@pezkuwi/test-support/creation/balance';
+import { BN, BN_ONE } from '@pezkuwi/util';
 
 export const defaultBountyUpdatePeriod = new BN(100000);
 

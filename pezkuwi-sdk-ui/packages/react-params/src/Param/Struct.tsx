@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/react-params authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-params authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Props, RawParam } from '../types.js';
 
 import React, { useCallback, useState } from 'react';
 
-import { Struct } from '@polkadot/types';
-import { isCodec } from '@polkadot/util';
+import { Struct } from '@pezkuwi/types';
+import { isCodec } from '@pezkuwi/util';
 
 import Params from '../index.js';
 import Base from './Base.js';

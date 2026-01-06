@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/apps authors & contributors
+// Copyright 2017-2025 @pezkuwi/apps authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { IconName } from '@fortawesome/fontawesome-svg-core';
 
 import React, { useMemo } from 'react';
 
-import { createWsEndpoints } from '@polkadot/apps-config';
-import { externalEmptySVG } from '@polkadot/apps-config/ui/logos/external';
-import { useApi } from '@polkadot/react-hooks';
+import { createWsEndpoints } from '@pezkuwi/apps-config';
+import { externalEmptySVG } from '@pezkuwi/apps-config/ui/logos/external';
+import { useApi } from '@pezkuwi/react-hooks';
 
 import Icon from './Icon.js';
 import { styled } from './styled.js';

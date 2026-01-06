@@ -1,18 +1,18 @@
-// Copyright 2017-2025 @polkadot/app-calendar authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-calendar authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveCollectiveProposal, DeriveDispatch, DeriveReferendumExt, DeriveSessionProgress } from '@polkadot/api-derive/types';
-import type { Option } from '@polkadot/types';
-import type { BlockNumber, EraIndex, LeasePeriodOf, Scheduled, UnappliedSlash } from '@polkadot/types/interfaces';
-import type { ITuple } from '@polkadot/types/types';
-import type { BN } from '@polkadot/util';
+import type { DeriveCollectiveProposal, DeriveDispatch, DeriveReferendumExt, DeriveSessionProgress } from '@pezkuwi/api-derive/types';
+import type { Option } from '@pezkuwi/types';
+import type { BlockNumber, EraIndex, LeasePeriodOf, Scheduled, UnappliedSlash } from '@pezkuwi/types/interfaces';
+import type { ITuple } from '@pezkuwi/types/types';
+import type { BN } from '@pezkuwi/util';
 import type { EntryInfo, EntryInfoTyped, EntryType } from './types.js';
 
 import { useEffect, useState } from 'react';
 
-import { useLeaseRangeMax } from '@polkadot/app-parachains/useLeaseRanges';
-import { createNamedHook, useApi, useBestNumber, useBlockInterval, useCall } from '@polkadot/react-hooks';
-import { BN_ONE, BN_ZERO } from '@polkadot/util';
+import { useLeaseRangeMax } from '@pezkuwi/app-parachains/useLeaseRanges';
+import { createNamedHook, useApi, useBestNumber, useBlockInterval, useCall } from '@pezkuwi/react-hooks';
+import { BN_ONE, BN_ZERO } from '@pezkuwi/util';
 
 interface DateExt {
   date: Date;

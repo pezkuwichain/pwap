@@ -1,17 +1,17 @@
-// Copyright 2017-2025 @polkadot/app-parachains authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Option, StorageKey } from '@polkadot/types';
-import type { AccountId, BalanceOf, BlockNumber, ParaId } from '@polkadot/types/interfaces';
-import type { PolkadotRuntimeCommonCrowdloanFundInfo } from '@polkadot/types/lookup';
-import type { INumber, ITuple } from '@polkadot/types/types';
+import type { Option, StorageKey } from '@pezkuwi/types';
+import type { AccountId, BalanceOf, BlockNumber, ParaId } from '@pezkuwi/types/interfaces';
+import type { PezkuwiRuntimeCommonCrowdloanFundInfo } from '@pezkuwi/types/lookup';
+import type { INumber, ITuple } from '@pezkuwi/types/types';
 import type { Campaign, Campaigns } from './types.js';
 
 import { useEffect, useState } from 'react';
 
-import { createNamedHook, useApi, useBestNumber, useCall, useEventTrigger, useIsMountedRef, useMapKeys } from '@polkadot/react-hooks';
-import { BN, BN_ZERO, u8aConcat, u8aEq } from '@polkadot/util';
-import { encodeAddress } from '@polkadot/util-crypto';
+import { createNamedHook, useApi, useBestNumber, useCall, useEventTrigger, useIsMountedRef, useMapKeys } from '@pezkuwi/react-hooks';
+import { BN, BN_ZERO, u8aConcat, u8aEq } from '@pezkuwi/util';
+import { encodeAddress } from '@pezkuwi/util-crypto';
 
 import { CROWD_PREFIX } from './constants.js';
 
@@ -113,10 +113,10 @@ function createResult (bestNumber: BlockNumber, minContribution: BN, funds: Camp
 }
 
 const OPT_FUNDS_MULTI = {
-  transform: ([[paraIds], optFunds]: [[ParaId[]], Option<PolkadotRuntimeCommonCrowdloanFundInfo>[]]): Campaign[] =>
+  transform: ([[paraIds], optFunds]: [[ParaId[]], Option<PezkuwiRuntimeCommonCrowdloanFundInfo>[]]): Campaign[] =>
     paraIds
-      .map((paraId, i): [ParaId, PolkadotRuntimeCommonCrowdloanFundInfo | null] => [paraId, optFunds[i].unwrapOr(null)])
-      .filter((v): v is [ParaId, PolkadotRuntimeCommonCrowdloanFundInfo] => !!v[1])
+      .map((paraId, i): [ParaId, PezkuwiRuntimeCommonCrowdloanFundInfo | null] => [paraId, optFunds[i].unwrapOr(null)])
+      .filter((v): v is [ParaId, PezkuwiRuntimeCommonCrowdloanFundInfo] => !!v[1])
       .map(([paraId, info]): Campaign => ({
         accountId: encodeAddress(createAddress(paraId)),
         firstSlot: info.firstPeriod,

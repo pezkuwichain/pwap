@@ -1,19 +1,19 @@
-// Copyright 2017-2025 @polkadot/app-society authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-society authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { PalletSocietyBid } from '@polkadot/types/lookup';
+import type { PezpalletSocietyBid } from '@pezkuwi/types/lookup';
 
 import React, { useMemo } from 'react';
 
-import { AddressSmall, Table, TxButton } from '@polkadot/react-components';
-import { useAccounts, useApi } from '@polkadot/react-hooks';
+import { AddressSmall, Table, TxButton } from '@pezkuwi/react-components';
+import { useAccounts, useApi } from '@pezkuwi/react-hooks';
 
 import { useTranslation } from '../translate.js';
 import BidType from './BidType.js';
 
 interface Props {
   index: number;
-  value: PalletSocietyBid;
+  value: PezpalletSocietyBid;
 }
 
 function BidRow ({ index, value: { kind, value, who } }: Props): React.ReactElement<Props> {

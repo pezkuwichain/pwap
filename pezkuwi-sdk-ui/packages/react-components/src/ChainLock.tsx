@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { HexString } from '@polkadot/util/types';
+import type { HexString } from '@pezkuwi/util/types';
 
 import React, { useCallback, useMemo } from 'react';
 
-import { useApi } from '@polkadot/react-hooks';
-import { chains } from '@polkadot/ui-settings/defaults/chains';
+import { useApi } from '@pezkuwi/react-hooks';
+import { chains } from '@pezkuwi/ui-settings/defaults/chains';
 
 import { styled } from './styled.js';
 import Toggle from './Toggle.js';

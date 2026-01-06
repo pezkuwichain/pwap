@@ -1,7 +1,7 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { WindowSize } from '@polkadot/react-hooks/ctx/types';
+import type { WindowSize } from '@pezkuwi/react-hooks/ctx/types';
 import type { ElementPosition, HorizontalPosition, VerticalPosition } from './types.js';
 
 interface Coords {

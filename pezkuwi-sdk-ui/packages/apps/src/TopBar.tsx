@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/apps authors & contributors
+// Copyright 2017-2025 @pezkuwi/apps authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 // Unused atm, experiment as a replacement for NodeInfo on the SideBar
 
 import React from 'react';
 
-import { styled } from '@polkadot/react-components';
-import { BestNumber, Chain, NodeName, NodeVersion } from '@polkadot/react-query';
+import { styled } from '@pezkuwi/react-components';
+import { BestNumber, Chain, NodeName, NodeVersion } from '@pezkuwi/react-query';
 
 interface Props {
   className?: string;

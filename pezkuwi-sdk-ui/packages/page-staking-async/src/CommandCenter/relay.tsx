@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/app-staking-async authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking-async authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ReactNode } from 'react';
-import type { ApiPromise } from '@polkadot/api';
+import type { ApiPromise } from '@pezkuwi/api';
 import type { EnhancedEvent, IRcOutput } from './index.js';
 
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import { CardSummary, Expander, Spinner, styled } from '@polkadot/react-components';
-import { Event as EventDisplay } from '@polkadot/react-params';
-import { formatNumber } from '@polkadot/util';
+import { CardSummary, Expander, Spinner, styled } from '@pezkuwi/react-components';
+import { Event as EventDisplay } from '@pezkuwi/react-params';
+import { formatNumber } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 

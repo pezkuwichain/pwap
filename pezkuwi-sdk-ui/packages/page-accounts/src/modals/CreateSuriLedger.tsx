@@ -1,10 +1,10 @@
-// Copyright 2017-2025 @polkadot/app-accounts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-accounts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useEffect, useRef, useState } from 'react';
 
-import { selectableNetworks } from '@polkadot/networks';
-import { Dropdown, MarkError, Modal } from '@polkadot/react-components';
+import { selectableNetworks } from '@pezkuwi/networks';
+import { Dropdown, MarkError, Modal } from '@pezkuwi/react-components';
 
 import { useTranslation } from '../translate.js';
 import { AVAIL_INDEXES } from './Ledger.js';

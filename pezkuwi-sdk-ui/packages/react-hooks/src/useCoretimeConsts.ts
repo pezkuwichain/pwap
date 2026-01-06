@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ChainConstants } from './types.js';
 
 import { useEffect, useState } from 'react';
 
-import { useApi, useBlockTime } from '@polkadot/react-hooks';
-import { BN, BN_ONE, BN_ZERO } from '@polkadot/util';
+import { useApi, useBlockTime } from '@pezkuwi/react-hooks';
+import { BN, BN_ONE, BN_ZERO } from '@pezkuwi/util';
 
 import { createNamedHook } from './createNamedHook.js';
 

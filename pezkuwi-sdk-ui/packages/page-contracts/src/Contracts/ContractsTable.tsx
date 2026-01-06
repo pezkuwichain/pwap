@@ -1,17 +1,17 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { ContractPromise } from '@polkadot/api-contract';
-import type { ContractCallOutcome } from '@polkadot/api-contract/types';
-import type { SignedBlockExtended } from '@polkadot/api-derive/types';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { ContractPromise } from '@pezkuwi/api-contract';
+import type { ContractCallOutcome } from '@pezkuwi/api-contract/types';
+import type { SignedBlockExtended } from '@pezkuwi/api-derive/types';
 import type { ContractLink } from './types.js';
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { Table } from '@polkadot/react-components';
-import { useApi, useCall } from '@polkadot/react-hooks';
-import { formatNumber } from '@polkadot/util';
+import { Table } from '@pezkuwi/react-components';
+import { useApi, useCall } from '@pezkuwi/react-hooks';
+import { formatNumber } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 import Call from './Call.js';

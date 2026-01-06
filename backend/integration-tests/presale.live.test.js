@@ -9,8 +9,8 @@
  *  4. Test accounts (e.g., //Alice, //Bob) must have initial balances of wUSDT.
  */
 
-import { ApiPromise, WsProvider, Keyring } from '@polkadot/api';
-import { BN } from '@polkadot/util';
+import { ApiPromise, WsProvider, Keyring } from '@pezkuwi/api';
+import { BN } from '@pezkuwi/util';
 import { jest } from '@jest/globals';
 
 // ========================================

@@ -1,19 +1,19 @@
-// Copyright 2017-2025 @polkadot/app-claims authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-claims authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AppProps as Props } from '@polkadot/react-components/types';
-import type { Option } from '@polkadot/types';
-import type { EcdsaSignature, EthereumAddress, StatementKind } from '@polkadot/types/interfaces';
+import type { AppProps as Props } from '@pezkuwi/react-components/types';
+import type { Option } from '@pezkuwi/types';
+import type { EcdsaSignature, EthereumAddress, StatementKind } from '@pezkuwi/types/interfaces';
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { Trans } from 'react-i18next';
 
-import { Button, Card, Columar, Input, InputAddress, styled, Tabs, Tooltip } from '@polkadot/react-components';
-import { TokenUnit } from '@polkadot/react-components/InputConsts/units';
-import { useApi, useCall } from '@polkadot/react-hooks';
-import { u8aToHex, u8aToString } from '@polkadot/util';
-import { decodeAddress } from '@polkadot/util-crypto';
+import { Button, Card, Columar, Input, InputAddress, styled, Tabs, Tooltip } from '@pezkuwi/react-components';
+import { TokenUnit } from '@pezkuwi/react-components/InputConsts/units';
+import { useApi, useCall } from '@pezkuwi/react-hooks';
+import { u8aToHex, u8aToString } from '@pezkuwi/util';
+import { decodeAddress } from '@pezkuwi/util-crypto';
 
 import AttestDisplay from './Attest.js';
 import ClaimDisplay from './Claim.js';
@@ -259,6 +259,7 @@ function ClaimsApp ({ basePath }: Props): React.ReactElement<Props> {
                 />
               )}
               <div>{t('Copy the following string and sign it with the Ethereum account you used during the pre-sale in the wallet of your choice, using the string as the payload, and then paste the transaction signature object below:')}</div>
+              {/* @ts-expect-error React 18 type compatibility */}
               <CopyToClipboard
                 onCopy={onCopy}
                 text={payload}

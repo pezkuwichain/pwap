@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useCallback, useMemo } from 'react';
 
-import { useApi, useDeriveAccountInfo } from '@polkadot/react-hooks';
+import { useApi, useDeriveAccountInfo } from '@pezkuwi/react-hooks';
 
 import { checkVisibility } from './util/index.js';
 import AddressMini from './AddressMini.js';

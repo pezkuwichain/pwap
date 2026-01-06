@@ -1,8 +1,8 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { SubmittableExtrinsicFunction } from '@polkadot/api/types';
-import type { SignedBlockExtended } from '@polkadot/api-derive/types';
+import type { SubmittableExtrinsicFunction } from '@pezkuwi/api/types';
+import type { SignedBlockExtended } from '@pezkuwi/api-derive/types';
 
 import { useEffect, useState } from 'react';
 

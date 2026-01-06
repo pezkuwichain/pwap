@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { ConstantCodec } from '@polkadot/types/metadata/decorate/types';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { ConstantCodec } from '@pezkuwi/types/metadata/decorate/types';
 import type { DropdownOption, DropdownOptions } from '../../util/types.js';
 
 import React from 'react';
 
-import { getSiName } from '@polkadot/types/metadata/util';
+import { getSiName } from '@pezkuwi/types/metadata/util';
 
 export default function createOptions (api: ApiPromise, sectionName: string): DropdownOptions {
   const section = api.consts[sectionName];

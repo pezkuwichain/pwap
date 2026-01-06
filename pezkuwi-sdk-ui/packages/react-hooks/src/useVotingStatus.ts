@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { BlockNumber, Votes } from '@polkadot/types/interfaces';
-import type { BN } from '@polkadot/util';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { BlockNumber, Votes } from '@pezkuwi/types/interfaces';
+import type { BN } from '@pezkuwi/util';
 import type { CollectiveType } from './types.js';
 
 import { useMemo } from 'react';
 
-import { isFunction } from '@polkadot/util';
+import { isFunction } from '@pezkuwi/util';
 
 import { createNamedHook } from './createNamedHook.js';
 import { useApi } from './useApi.js';

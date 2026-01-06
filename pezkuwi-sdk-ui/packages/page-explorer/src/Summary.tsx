@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/app-explorer authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-explorer authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AugmentedBlockHeader } from '@polkadot/react-hooks/ctx/types';
+import type { AugmentedBlockHeader } from '@pezkuwi/react-hooks/ctx/types';
 
 import React from 'react';
 
-import { CardSummary, SummaryBox } from '@polkadot/react-components';
-import { useApi } from '@polkadot/react-hooks';
-import { BestFinalized, BestNumber, BlockToTime, TimeNow, TotalInactive, TotalIssuance } from '@polkadot/react-query';
-import { BN_ONE, formatNumber } from '@polkadot/util';
+import { CardSummary, SummaryBox } from '@pezkuwi/react-components';
+import { useApi } from '@pezkuwi/react-hooks';
+import { BestFinalized, BestNumber, BlockToTime, TimeNow, TotalInactive, TotalIssuance } from '@pezkuwi/react-query';
+import { BN_ONE, formatNumber } from '@pezkuwi/util';
 
 import SummarySession from './SummarySession.js';
 import { useTranslation } from './translate.js';

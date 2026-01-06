@@ -1,10 +1,10 @@
-// Copyright 2017-2025 @polkadot/app-assets authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-assets authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { StorageKey } from '@polkadot/types';
-import type { StagingXcmV3MultiLocation } from '@polkadot/types/lookup';
+import type { StorageKey } from '@pezkuwi/types';
+import type { StagingXcmV3MultiLocation } from '@pezkuwi/types/lookup';
 
-import { createNamedHook, useApi, useMapKeys } from '@polkadot/react-hooks';
+import { createNamedHook, useApi, useMapKeys } from '@pezkuwi/react-hooks';
 
 const EMPTY_PARAMS: unknown[] = [];
 

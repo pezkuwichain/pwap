@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-coretime authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-coretime authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { FlagColor } from '@polkadot/react-components/types';
+import type { FlagColor } from '@pezkuwi/react-components/types';
 import type { ChainInfoFilterProps } from '../../types.js';
 
 import React, { useCallback, useState } from 'react';
 
-import { Tag } from '@polkadot/react-components';
-import { CoreTimeTypes } from '@polkadot/react-hooks/constants';
+import { Tag } from '@pezkuwi/react-components';
+import { CoreTimeTypes } from '@pezkuwi/react-hooks/constants';
 
 import { coretimeTypeColours } from '../../utils/index.js';
 

@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ChartData, ChartOptions, TooltipItem } from 'chart.js';
-import type { BN } from '@polkadot/util';
+import type { BN } from '@pezkuwi/util';
 
 import React, { useEffect, useState } from 'react';
 import { Bar } from 'react-chartjs-2';
 
-import { bnToBn, isNumber } from '@polkadot/util';
+import { bnToBn, isNumber } from '@pezkuwi/util';
 
 import { alphaColor } from './utils.js';
 

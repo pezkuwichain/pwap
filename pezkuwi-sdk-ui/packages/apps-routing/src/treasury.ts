@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/apps-routing authors & contributors
+// Copyright 2017-2025 @pezkuwi/apps-routing authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Route, TFunction } from './types.js';
 
-import Component, { useCounter } from '@polkadot/app-treasury';
+import Component, { useCounter } from '@pezkuwi/app-treasury';
 
 export default function create (t: TFunction): Route {
   return {

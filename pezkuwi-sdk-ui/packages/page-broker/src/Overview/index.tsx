@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-broker authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-broker authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { CoreWorkload, CoreWorkplan, LegacyLease, Reservation } from '@polkadot/react-hooks/types';
+import type { CoreWorkload, CoreWorkplan, LegacyLease, Reservation } from '@pezkuwi/react-hooks/types';
 import type { CoreInfo } from '../types.js';
 
 import React, { useEffect, useMemo, useState } from 'react';
 
-import { useApi, useBrokerLeases, useBrokerReservations, useWorkloadInfos, useWorkplanInfos } from '@polkadot/react-hooks';
+import { useApi, useBrokerLeases, useBrokerReservations, useWorkloadInfos, useWorkplanInfos } from '@pezkuwi/react-hooks';
 
 import { useBrokerContext } from '../BrokerContext.js';
 import { createTaskMap, getOccupancyType } from '../utils.js';

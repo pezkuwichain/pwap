@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { EventRecord } from '@polkadot/types/interfaces';
-import type { Codec } from '@polkadot/types/types';
-import type { BN } from '@polkadot/util';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { EventRecord } from '@pezkuwi/types/interfaces';
+import type { Codec } from '@pezkuwi/types/types';
+import type { BN } from '@pezkuwi/util';
 import type { EventCheck } from './useEventTrigger.js';
 
 import { useEffect, useState } from 'react';
 
-import { isFunction } from '@polkadot/util';
+import { isFunction } from '@pezkuwi/util';
 
 import { useApi } from './useApi.js';
 import { useEventTrigger } from './useEventTrigger.js';

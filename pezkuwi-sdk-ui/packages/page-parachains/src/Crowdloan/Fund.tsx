@@ -1,17 +1,17 @@
-// Copyright 2017-2025 @polkadot/app-parachains authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ParaId } from '@polkadot/types/interfaces';
-import type { BN } from '@polkadot/util';
+import type { ParaId } from '@pezkuwi/types/interfaces';
+import type { BN } from '@pezkuwi/util';
 import type { Campaign, LeasePeriod } from '../types.js';
 
 import React, { useEffect, useMemo, useState } from 'react';
 
-import { AddressMini, Button, Expander, Icon, InputAddress, Modal, ParaLink, Table, TxButton } from '@polkadot/react-components';
-import { useAccounts, useApi, useParaEndpoints, useToggle } from '@polkadot/react-hooks';
-import { CallExpander } from '@polkadot/react-params';
-import { Available, BlockToTime, FormatBalance } from '@polkadot/react-query';
-import { formatNumber } from '@polkadot/util';
+import { AddressMini, Button, Expander, Icon, InputAddress, Modal, ParaLink, Table, TxButton } from '@pezkuwi/react-components';
+import { useAccounts, useApi, useParaEndpoints, useToggle } from '@pezkuwi/react-hooks';
+import { CallExpander } from '@pezkuwi/react-params';
+import { Available, BlockToTime, FormatBalance } from '@pezkuwi/react-query';
+import { formatNumber } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 import Contribute from './Contribute.js';

@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-runtime authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-runtime authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Result } from './types.js';
 
 import React from 'react';
 
-import { Output } from '@polkadot/react-components';
-import valueToText from '@polkadot/react-params/valueToText';
+import { Output } from '@pezkuwi/react-components';
+import valueToText from '@pezkuwi/react-params/valueToText';
 
 interface Props {
   results: Result[];

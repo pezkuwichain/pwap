@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Option, u32 } from '@polkadot/types';
-import type { BN } from '@polkadot/util';
+import type { Option, u32 } from '@pezkuwi/types';
+import type { BN } from '@pezkuwi/util';
 import type { Params } from './types.js';
 
-import { createNamedHook, useApi, useCallMulti } from '@polkadot/react-hooks';
-import { BN_ONE, BN_ZERO } from '@polkadot/util';
+import { createNamedHook, useApi, useCallMulti } from '@pezkuwi/react-hooks';
+import { BN_ONE, BN_ZERO } from '@pezkuwi/util';
 
 const OPT_MULTI = {
   defaultValue: {

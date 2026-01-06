@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/app-poll authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-poll authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Approvals, Balance, BlockNumber } from '@polkadot/types/interfaces';
-import type { ITuple } from '@polkadot/types/types';
+import type { Approvals, Balance, BlockNumber } from '@pezkuwi/types/interfaces';
+import type { ITuple } from '@pezkuwi/types/types';
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Trans } from 'react-i18next';
 
-import { Button, Columar, InputAddress, Progress, Spinner, styled, Tabs, Toggle, TxButton } from '@polkadot/react-components';
-import { useApi, useBestNumber, useCallMulti } from '@polkadot/react-hooks';
-import { BlockToTime, FormatBalance } from '@polkadot/react-query';
-import { BN, BN_MILLION, BN_ONE, BN_ZERO, bnMax, formatBalance, formatNumber } from '@polkadot/util';
+import { Button, Columar, InputAddress, Progress, Spinner, styled, Tabs, Toggle, TxButton } from '@pezkuwi/react-components';
+import { useApi, useBestNumber, useCallMulti } from '@pezkuwi/react-hooks';
+import { BlockToTime, FormatBalance } from '@pezkuwi/react-query';
+import { BN, BN_MILLION, BN_ONE, BN_ZERO, bnMax, formatBalance, formatNumber } from '@pezkuwi/util';
 
 import { useTranslation } from './translate.js';
 

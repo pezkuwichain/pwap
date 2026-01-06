@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-contracts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-contracts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { CallResult } from './types.js';
 
 import React from 'react';
 
-import { Button, IdentityIcon, Output, styled } from '@polkadot/react-components';
-import valueToText from '@polkadot/react-params/valueToText';
+import { Button, IdentityIcon, Output, styled } from '@pezkuwi/react-components';
+import valueToText from '@pezkuwi/react-params/valueToText';
 
 import MessageSignature from '../shared/MessageSignature.js';
 

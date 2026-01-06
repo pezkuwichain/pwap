@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/app-extrinsics authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-extrinsics authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { SubmittableExtrinsicFunction } from '@polkadot/api/types';
-import type { Call } from '@polkadot/types/interfaces';
-import type { HexString } from '@polkadot/util/types';
+import type { SubmittableExtrinsicFunction } from '@pezkuwi/api/types';
+import type { Call } from '@pezkuwi/types/interfaces';
+import type { HexString } from '@pezkuwi/util/types';
 
 export interface DecodedExtrinsic {
   call: Call;

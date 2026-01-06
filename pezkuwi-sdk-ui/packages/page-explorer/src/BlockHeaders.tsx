@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/app-explorer authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-explorer authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AugmentedBlockHeader } from '@polkadot/react-hooks/ctx/types';
+import type { AugmentedBlockHeader } from '@pezkuwi/react-hooks/ctx/types';
 
 import React, { useMemo, useRef } from 'react';
 
-import { Table } from '@polkadot/react-components';
+import { Table } from '@pezkuwi/react-components';
 
 import BlockHeader from './BlockHeader.js';
 import { useTranslation } from './translate.js';

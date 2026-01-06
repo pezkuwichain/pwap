@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-referenda authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-referenda authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { BN } from '@polkadot/util';
+import type { BN } from '@pezkuwi/util';
 
 import React from 'react';
 
-import { useBestNumberRelay, useStakingAsyncApis } from '@polkadot/react-hooks';
-import { BlockToTime } from '@polkadot/react-query';
-import { formatNumber } from '@polkadot/util';
+import { useBestNumberRelay, useStakingAsyncApis } from '@pezkuwi/react-hooks';
+import { BlockToTime } from '@pezkuwi/react-query';
+import { formatNumber } from '@pezkuwi/util';
 
 interface Props {
   className?: string;

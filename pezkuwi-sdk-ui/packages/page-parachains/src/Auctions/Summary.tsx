@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/app-parachains authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { u32 } from '@polkadot/types';
-import type { Balance, BlockNumber } from '@polkadot/types/interfaces';
+import type { u32 } from '@pezkuwi/types';
+import type { Balance, BlockNumber } from '@pezkuwi/types/interfaces';
 import type { AuctionInfo, Winning } from '../types.js';
 
 import React from 'react';
 
-import { CardSummary, SummaryBox } from '@polkadot/react-components';
-import { useApi, useBestNumber, useCall } from '@polkadot/react-hooks';
-import { FormatBalance } from '@polkadot/react-query';
-import { BN_ONE, formatNumber } from '@polkadot/util';
+import { CardSummary, SummaryBox } from '@pezkuwi/react-components';
+import { useApi, useBestNumber, useCall } from '@pezkuwi/react-hooks';
+import { FormatBalance } from '@pezkuwi/react-query';
+import { BN_ONE, formatNumber } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 

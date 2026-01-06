@@ -7,9 +7,9 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { usePolkadot } from './PolkadotContext';
 import { WALLET_ERRORS, formatBalance, ASSET_IDS } from '@pezkuwi/lib/wallet';
-import type { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
-import type { Signer } from '@polkadot/api/types';
-import { web3FromAddress } from '@polkadot/extension-dapp';
+import type { InjectedAccountWithMeta } from '@pezkuwi/extension-inject/types';
+import type { Signer } from '@pezkuwi/api/types';
+import { web3FromAddress } from '@pezkuwi/extension-dapp';
 
 interface TokenBalances {
   HEZ: string;
@@ -165,7 +165,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
 
     try {
-      const { web3FromAddress } = await import('@polkadot/extension-dapp');
+      const { web3FromAddress } = await import('@pezkuwi/extension-dapp');
       const injector = await web3FromAddress(polkadot.selectedAccount.address);
 
       // Sign and send transaction
@@ -188,7 +188,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
 
     try {
-      const { web3FromAddress } = await import('@polkadot/extension-dapp');
+      const { web3FromAddress } = await import('@pezkuwi/extension-dapp');
       const injector = await web3FromAddress(polkadot.selectedAccount.address);
 
       if (!injector.signer.signRaw) {

@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-explorer authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-explorer authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { PeerInfo } from '@polkadot/types/interfaces';
+import type { PeerInfo } from '@pezkuwi/types/interfaces';
 
 import React, { useMemo, useRef } from 'react';
 
-import { styled, Table } from '@polkadot/react-components';
-import { formatNumber, stringPascalCase } from '@polkadot/util';
+import { styled, Table } from '@pezkuwi/react-components';
+import { formatNumber, stringPascalCase } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 

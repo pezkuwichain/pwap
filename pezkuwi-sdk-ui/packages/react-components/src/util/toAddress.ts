@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { keyring } from '@polkadot/ui-keyring';
-import { hexToU8a, isHex } from '@polkadot/util';
-import { ethereumEncode } from '@polkadot/util-crypto';
+import { keyring } from '@pezkuwi/ui-keyring';
+import { hexToU8a, isHex } from '@pezkuwi/util';
+import { ethereumEncode } from '@pezkuwi/util-crypto';
 
 export function toAddress (value?: string | Uint8Array | null, allowIndices = false, bytesLength?: 20 | 32): string | undefined {
   if (value) {

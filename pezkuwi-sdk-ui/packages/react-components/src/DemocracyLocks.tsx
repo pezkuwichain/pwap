@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveDemocracyLock } from '@polkadot/api-derive/types';
-import type { Balance } from '@polkadot/types/interfaces';
-import type { BN } from '@polkadot/util';
+import type { DeriveDemocracyLock } from '@pezkuwi/api-derive/types';
+import type { Balance } from '@pezkuwi/types/interfaces';
+import type { BN } from '@pezkuwi/util';
 
 import React, { useEffect, useState } from 'react';
 
-import { useBestNumber } from '@polkadot/react-hooks';
-import { BlockToTime, FormatBalance } from '@polkadot/react-query';
-import { BN_ZERO, bnMax, formatBalance, formatNumber } from '@polkadot/util';
+import { useBestNumber } from '@pezkuwi/react-hooks';
+import { BlockToTime, FormatBalance } from '@pezkuwi/react-query';
+import { BN_ZERO, bnMax, formatBalance, formatNumber } from '@pezkuwi/util';
 
 import Icon from './Icon.js';
 import { styled } from './styled.js';

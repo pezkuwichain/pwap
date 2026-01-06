@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-society authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-society authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { DeriveSocietyCandidate } from '@polkadot/api-derive/types';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { DeriveSocietyCandidate } from '@pezkuwi/api-derive/types';
 import type { Voters } from './types.js';
 
 import { useEffect, useState } from 'react';
 
-import { createNamedHook, useApi, useCall, useEventTrigger } from '@polkadot/react-hooks';
+import { createNamedHook, useApi, useCall, useEventTrigger } from '@pezkuwi/react-hooks';
 
 const EMPTY_VOTERS: Voters = {};
 

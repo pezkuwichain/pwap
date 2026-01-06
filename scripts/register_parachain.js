@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const { ApiPromise, WsProvider, Keyring } = require('@polkadot/api');
+const { ApiPromise, WsProvider, Keyring } = require('@pezkuwi/api');
 const fs = require('fs');
 
 async function main() {

@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/app-parachains authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AccountId, GroupIndex, ParaId } from '@polkadot/types/interfaces';
-import type { BN } from '@polkadot/util';
+import type { AccountId, GroupIndex, ParaId } from '@pezkuwi/types/interfaces';
+import type { BN } from '@pezkuwi/util';
 import type { LeasePeriod, QueuedAction } from '../types.js';
 import type { EventMapInfo, ValidatorInfo } from './types.js';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { AddressMini, Badge, Expander, ParaLink, styled, Table } from '@polkadot/react-components';
-import { BlockToTime } from '@polkadot/react-query';
-import { formatNumber } from '@polkadot/util';
+import { AddressMini, Badge, Expander, ParaLink, styled, Table } from '@pezkuwi/react-components';
+import { BlockToTime } from '@pezkuwi/react-query';
+import { formatNumber } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 import Lifecycle from './Lifecycle.js';

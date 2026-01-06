@@ -1,17 +1,17 @@
-// Copyright 2017-2025 @polkadot/app-preimages authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-preimages authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { Changes } from '@polkadot/react-hooks/useEventChanges';
-import type { Option, StorageKey, u32 } from '@polkadot/types';
-import type { AccountId, EventRecord } from '@polkadot/types/interfaces';
-import type { PalletRankedCollectiveVoteRecord } from '@polkadot/types/lookup';
-import type { BN } from '@polkadot/util';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { Changes } from '@pezkuwi/react-hooks/useEventChanges';
+import type { Option, StorageKey, u32 } from '@pezkuwi/types';
+import type { AccountId, EventRecord } from '@pezkuwi/types/interfaces';
+import type { PezpalletRankedCollectiveVoteRecord } from '@pezkuwi/types/lookup';
+import type { BN } from '@pezkuwi/util';
 import type { PalletVote } from '../types.js';
 
 import { useMemo } from 'react';
 
-import { createNamedHook, useApi, useCall, useEventChanges, useMapKeys } from '@polkadot/react-hooks';
+import { createNamedHook, useApi, useCall, useEventChanges, useMapKeys } from '@pezkuwi/react-hooks';
 
 const OPT_ACCOUNTID = {
   transform: (keys: StorageKey<[u32, AccountId]>[]): AccountId[] =>
@@ -19,8 +19,8 @@ const OPT_ACCOUNTID = {
 };
 
 const OPT_VOTES = {
-  transform: ([[params], votes]: [[[[BN, AccountId][]]], Option<PalletRankedCollectiveVoteRecord>[]]): Record<string, PalletRankedCollectiveVoteRecord> =>
-    params.reduce<Record<string, PalletRankedCollectiveVoteRecord>>((all, [, a], i) => {
+  transform: ([[params], votes]: [[[[BN, AccountId][]]], Option<PezpalletRankedCollectiveVoteRecord>[]]): Record<string, PezpalletRankedCollectiveVoteRecord> =>
+    params.reduce<Record<string, PezpalletRankedCollectiveVoteRecord>>((all, [, a], i) => {
       if (votes[i] && votes[i].isSome) {
         all[a.toString()] = votes[i].unwrap();
       }
@@ -42,7 +42,7 @@ function filterEvents (records: EventRecord[], _: ApiPromise, id?: BN): Changes<
   return { added };
 }
 
-function useVotesImpl (palletVote: PalletVote, id: BN, isConvictionVote: boolean): Record<string, PalletRankedCollectiveVoteRecord> | undefined {
+function useVotesImpl (palletVote: PalletVote, id: BN, isConvictionVote: boolean): Record<string, PezpalletRankedCollectiveVoteRecord> | undefined {
   const { api } = useApi();
 
   // After v1.4.0 runtime upgrade, Relay chains i.e. Kusama and Polkadot, or other parachains chains, replaced `voting` method with `votingFor`.

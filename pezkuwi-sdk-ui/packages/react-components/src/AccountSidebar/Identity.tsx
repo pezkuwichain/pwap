@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useMemo } from 'react';
 
-import { useApi, useRegistrars, useSubidentities, useToggle } from '@polkadot/react-hooks';
-import { AddressIdentityOtherDiscordKey } from '@polkadot/react-hooks/constants';
-import { type AddressIdentity } from '@polkadot/react-hooks/types';
-import { isHex } from '@polkadot/util';
+import { useApi, useRegistrars, useSubidentities, useToggle } from '@pezkuwi/react-hooks';
+import { AddressIdentityOtherDiscordKey } from '@pezkuwi/react-hooks/constants';
+import { type AddressIdentity } from '@pezkuwi/react-hooks/types';
+import { isHex } from '@pezkuwi/util';
 
 import AddressMini from '../AddressMini.js';
 import AvatarItem from '../AvatarItem.js';

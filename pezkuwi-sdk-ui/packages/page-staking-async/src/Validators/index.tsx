@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/app-staking-async authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking-async authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveHeartbeats, DeriveStakingOverview } from '@polkadot/api-derive/types';
-import type { NominatedByMap, SortedTargets } from '@polkadot/app-staking/types';
-import type { StakerState } from '@polkadot/react-hooks/types';
-import type { BN } from '@polkadot/util';
+import type { DeriveHeartbeats, DeriveStakingOverview } from '@pezkuwi/api-derive/types';
+import type { NominatedByMap, SortedTargets } from '@pezkuwi/app-staking/types';
+import type { StakerState } from '@pezkuwi/react-hooks/types';
+import type { BN } from '@pezkuwi/util';
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { Button, ToggleGroup } from '@polkadot/react-components';
-import { useApi, useBlockAuthors, useCall } from '@polkadot/react-hooks';
+import { Button, ToggleGroup } from '@pezkuwi/react-components';
+import { useApi, useBlockAuthors, useCall } from '@pezkuwi/react-hooks';
 
 import { useTranslation } from '../translate.js';
 import ActionsBanner from './ActionsBanner.js';

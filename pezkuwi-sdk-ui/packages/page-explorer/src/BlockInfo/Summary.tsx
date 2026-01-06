@@ -1,31 +1,31 @@
-// Copyright 2017-2025 @polkadot/app-explorer authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-explorer authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { KeyedEvent } from '@polkadot/react-hooks/ctx/types';
-import type { V2Weight } from '@polkadot/react-hooks/useWeight';
-import type { Balance, DispatchInfo, SignedBlock } from '@polkadot/types/interfaces';
-import type { FrameSupportDispatchPerDispatchClassWeight } from '@polkadot/types/lookup';
+import type { KeyedEvent } from '@pezkuwi/react-hooks/ctx/types';
+import type { V2Weight } from '@pezkuwi/react-hooks/useWeight';
+import type { Balance, DispatchInfo, SignedBlock } from '@pezkuwi/types/interfaces';
+import type { PezframeSupportDispatchPerDispatchClassWeight } from '@pezkuwi/types/lookup';
 
 import React, { useMemo } from 'react';
 
-import { CardSummary, SummaryBox } from '@polkadot/react-components';
-import { useApi } from '@polkadot/react-hooks';
-import { convertWeight } from '@polkadot/react-hooks/useWeight';
-import { FormatBalance } from '@polkadot/react-query';
-import { BN, BN_ONE, BN_THREE, BN_TWO, formatNumber, isBn } from '@polkadot/util';
+import { CardSummary, SummaryBox } from '@pezkuwi/react-components';
+import { useApi } from '@pezkuwi/react-hooks';
+import { convertWeight } from '@pezkuwi/react-hooks/useWeight';
+import { FormatBalance } from '@pezkuwi/react-query';
+import { BN, BN_ONE, BN_THREE, BN_TWO, formatNumber, isBn } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 
 interface Props {
   events?: KeyedEvent[] | null;
-  blockWeight?: FrameSupportDispatchPerDispatchClassWeight | null;
+  blockWeight?: PezframeSupportDispatchPerDispatchClassWeight | null;
   maxBlockWeight?: BN;
   maxProofSize?: BN;
   signedBlock?: SignedBlock;
 }
 
 function accumulateWeights (
-  weight?: FrameSupportDispatchPerDispatchClassWeight | null
+  weight?: PezframeSupportDispatchPerDispatchClassWeight | null
 ): { totalRefTime: BN; totalProofSize: BN } {
   const totalRefTime = new BN(0);
   const totalProofSize = new BN(0);

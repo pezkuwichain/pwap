@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["externally_checked_ext"]};

@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/app-contracts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-contracts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Hash } from '@polkadot/types/interfaces';
+import type { Hash } from '@pezkuwi/types/interfaces';
 import type { CodeJson, CodeStored } from './types.js';
 
 import { EventEmitter } from 'eventemitter3';
 import store from 'store';
 
-import { Abi } from '@polkadot/api-contract';
-import { statics } from '@polkadot/react-api/statics';
-import { isString } from '@polkadot/util';
+import { Abi } from '@pezkuwi/api-contract';
+import { statics } from '@pezkuwi/react-api/statics';
+import { isString } from '@pezkuwi/util';
 
 const KEY_CODE = 'code:';
 

@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-accounts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-accounts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { AccountBalance } from '../types.js';
 
 import React from 'react';
 
-import { CardSummary, SummaryBox } from '@polkadot/react-components';
-import { FormatBalance } from '@polkadot/react-query';
+import { CardSummary, SummaryBox } from '@pezkuwi/react-components';
+import { FormatBalance } from '@pezkuwi/react-query';
 
 import { useTranslation } from '../translate.js';
 

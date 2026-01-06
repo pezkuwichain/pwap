@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/app-contracts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-contracts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 /* eslint-disable camelcase */
 
-import type { Option } from '@polkadot/types';
-import type { PrefabWasmModule } from '@polkadot/types/interfaces';
+import type { Option } from '@pezkuwi/types';
+import type { PrefabWasmModule } from '@pezkuwi/types/interfaces';
 
 import React, { useMemo } from 'react';
 
-import { InfoForInput } from '@polkadot/react-components';
-import { useApi, useCall } from '@polkadot/react-hooks';
-import { isHex } from '@polkadot/util';
+import { InfoForInput } from '@pezkuwi/react-components';
+import { useApi, useCall } from '@pezkuwi/react-hooks';
+import { isHex } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 

@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { StakerState } from '@polkadot/react-hooks/types';
+import type { StakerState } from '@pezkuwi/react-hooks/types';
 import type { BagInfo, BagMap, StashNode } from './types.js';
 
 import React, { useMemo, useRef, useState } from 'react';
 
-import { Button, MarkWarning, Table, ToggleGroup } from '@polkadot/react-components';
+import { Button, MarkWarning, Table, ToggleGroup } from '@pezkuwi/react-components';
 
 import { useTranslation } from '../translate.js';
 import Bag from './Bag.js';

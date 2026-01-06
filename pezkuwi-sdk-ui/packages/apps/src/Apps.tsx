@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/apps authors & contributors
+// Copyright 2017-2025 @pezkuwi/apps authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { BareProps as Props } from '@polkadot/react-components/types';
+import type { BareProps as Props } from '@pezkuwi/react-components/types';
 
 import React, { useMemo } from 'react';
 
-import { AccountSidebar, styled } from '@polkadot/react-components';
-import GlobalStyle from '@polkadot/react-components/styles';
-import { useApi, useTheme } from '@polkadot/react-hooks';
-import Signer from '@polkadot/react-signer';
+import { AccountSidebar, styled } from '@pezkuwi/react-components';
+import GlobalStyle from '@pezkuwi/react-components/styles';
+import { useApi, useTheme } from '@pezkuwi/react-hooks';
+import Signer from '@pezkuwi/react-signer';
 
 import Content from './Content/index.js';
 import Menu from './Menu/index.js';

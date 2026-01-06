@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/app-scheduler authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-scheduler authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { BlockNumber } from '@polkadot/types/interfaces';
+import type { BlockNumber } from '@pezkuwi/types/interfaces';
 import type { ScheduledExt } from './types.js';
 
 import React from 'react';
 
-import Hash from '@polkadot/app-preimages/Preimages/Hash';
-import { usePreimage, useStakingAsyncApis } from '@polkadot/react-hooks';
-import { CallExpander } from '@polkadot/react-params';
-import { BlockToTime } from '@polkadot/react-query';
-import { formatNumber } from '@polkadot/util';
+import Hash from '@pezkuwi/app-preimages/Preimages/Hash';
+import { usePreimage, useStakingAsyncApis } from '@pezkuwi/react-hooks';
+import { CallExpander } from '@pezkuwi/react-params';
+import { BlockToTime } from '@pezkuwi/react-query';
+import { formatNumber } from '@pezkuwi/util';
 
 interface Props {
   bestNumber?: BlockNumber;

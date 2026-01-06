@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Minus, AlertCircle, Info } from 'lucide-react';
-import { web3FromAddress } from '@polkadot/extension-dapp';
+import { web3FromAddress } from '@pezkuwi/extension-dapp';
 import { usePolkadot } from '@/contexts/PolkadotContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { Button } from '@/components/ui/button';

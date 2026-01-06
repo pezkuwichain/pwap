@@ -1,4 +1,4 @@
-// Copyright (C) Parity Technologies (UK) Ltd.
+// Copyright (C) Parity Technologies (UK) Ltd. and Dijital Kurdistan Tech Institute
 // SPDX-License-Identifier: Apache-2.0
 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,14 +24,14 @@
 //!
 //! ## General Overview
 //!
-//! When developing within the context of the Substrate runtime, there is one golden rule:
+//! When developing within the context of the Bizinikiwi runtime, there is one golden rule:
 //!
 //! ***DO NOT PANIC***. There are some exceptions, but generally, this is the default precedent.
 //!
 //! > It’s important to differentiate between the runtime and node. The runtime refers to the core
-//! > business logic of a Substrate-based chain, whereas the node refers to the outer client, which
+//! > business logic of a Bizinikiwi-based chain, whereas the node refers to the outer client, which
 //! > deals with telemetry and gossip from other nodes. For more information, read about
-//! > [Substrate's node
+//! > [Bizinikiwi's node
 //! > architecture](crate::reference_docs::wasm_meta_protocol#node-vs-runtime). It’s also important
 //! > to note that the criticality of the node is slightly lesser
 //! > than that of the runtime, which is why you may see `unwrap()` or other “non-defensive”
@@ -70,18 +70,18 @@
 //!
 //! ### Defensive Traits
 //!
-//! The [`Defensive`](frame::traits::Defensive) trait provides a number of functions, all of which
+//! The [`Defensive`](pezframe::traits::Defensive) trait provides a number of functions, all of which
 //! provide an alternative to 'vanilla' Rust functions, e.g.:
 //!
-//! - [`defensive_unwrap_or()`](frame::traits::Defensive::defensive_unwrap_or) instead of
+//! - [`defensive_unwrap_or()`](pezframe::traits::Defensive::defensive_unwrap_or) instead of
 //!   `unwrap_or()`
-//! - [`defensive_ok_or()`](frame::traits::DefensiveOption::defensive_ok_or) instead of `ok_or()`
+//! - [`defensive_ok_or()`](pezframe::traits::DefensiveOption::defensive_ok_or) instead of `ok_or()`
 //!
 //! Defensive methods use [`debug_assertions`](https://doc.rust-lang.org/reference/conditional-compilation.html#debug_assertions), which panic in development, but in
 //! production/release, they will merely log an error (i.e., `log::error`).
 //!
-//! The [`Defensive`](frame::traits::Defensive) trait and its various implementations can be found
-//! [here](frame::traits::Defensive).
+//! The [`Defensive`](pezframe::traits::Defensive) trait and its various implementations can be found
+//! [here](pezframe::traits::Defensive).
 //!
 //! ## Integer Overflow
 //!
@@ -110,11 +110,11 @@
 //! unexpected consequences like a user balance over or underflowing.
 //!
 //! Fortunately, there are ways to both represent and handle these scenarios depending on our
-//! specific use case natively built into Rust and libraries like [`sp_arithmetic`].
+//! specific use case natively built into Rust and libraries like [`pezsp_arithmetic`].
 //!
 //! ## Infallible Arithmetic
 //!
-//! Both Rust and Substrate provide safe ways to deal with numbers and alternatives to floating
+//! Both Rust and Bizinikiwi provide safe ways to deal with numbers and alternatives to floating
 //! point arithmetic.
 //!
 //! Known scenarios that could be fallible should be avoided: i.e., avoiding the possibility of
@@ -124,8 +124,9 @@
 //! A developer should use fixed-point instead of floating-point arithmetic to mitigate the
 //! potential for inaccuracy, rounding errors, or other unexpected behavior.
 //!
-//! - [Fixed point types](sp_arithmetic::fixed_point) and their associated usage can be found here.
-//! - [PerThing](sp_arithmetic::per_things) and its associated types can be found here.
+//! - [Fixed point types](pezsp_arithmetic::fixed_point) and their associated usage can be found
+//!   here.
+//! - [PerThing](pezsp_arithmetic::per_things) and its associated types can be found here.
 //!
 //! Using floating point number types (i.e. f32, f64) in the runtime should be avoided, as a single non-deterministic result could cause chaos for blockchain consensus along with the issues above. For more on the specifics of the peculiarities of floating point calculations, [watch this video by the Computerphile](https://www.youtube.com/watch?v=PZRI1IfStY0).
 //!
@@ -187,15 +188,15 @@
 //! to avoid introducing the notion of any potential-panic or wrapping behavior.
 //!
 //! There is also a series of defensive alternatives via
-//! [`DefensiveSaturating`](frame::traits::DefensiveSaturating), which introduces the same behavior
-//! of the [`Defensive`](frame::traits::Defensive) trait, only with saturating, mathematical
+//! [`DefensiveSaturating`](pezframe::traits::DefensiveSaturating), which introduces the same behavior
+//! of the [`Defensive`](pezframe::traits::Defensive) trait, only with saturating, mathematical
 //! operations:
 #![doc = docify::embed!(
     "./src/reference_docs/defensive_programming.rs",
     saturated_defensive_example
 )]
 //!
-//! ### Mathematical Operations in Substrate Development - Further Context
+//! ### Mathematical Operations in Bizinikiwi Development - Further Context
 //!
 //! As a recap, we covered the following concepts:
 //!
@@ -214,9 +215,9 @@
 //!
 //! #### Bob's Overflowed Balance
 //!
-//! **Bob's** balance exceeds the `Balance` type on the `EduChain`. Because the pallet developer did
-//! not handle the calculation to add to Bob's balance with any regard to this overflow, **Bob's**
-//! balance is now essentially `0`, the operation **wrapped**.
+//! **Bob's** balance exceeds the `Balance` type on the `EduChain`. Because the pezpallet developer
+//! did not handle the calculation to add to Bob's balance with any regard to this overflow,
+//! **Bob's** balance is now essentially `0`, the operation **wrapped**.
 //!
 //! <details>
 //!   <summary><b>Solution: Saturating or Checked</b></summary>
@@ -247,7 +248,7 @@
 //!
 //! A `u8` parameter, called `proposals_count`, represents the type for counting the number of
 //! proposals on-chain. Every time a new proposal is added to the system, this number increases.
-//! With the proposal pallet's high usage, it has reached `u8::MAX`’s limit of 255, causing
+//! With the proposal pezpallet's high usage, it has reached `u8::MAX`’s limit of 255, causing
 //! `proposals_count` to go to 0. Unfortunately, this results in new proposals overwriting old ones,
 //! effectively erasing any notion of past proposals!
 //!
@@ -267,17 +268,17 @@
 //! From the above, we can clearly see the problematic nature of seemingly simple operations in the
 //! runtime, and care should be given to ensure a defensive approach is taken.
 //!
-//! ### Edge cases of `panic!`-able instances in Substrate
+//! ### Edge cases of `panic!`-able instances in Bizinikiwi
 //!
-//! As you traverse through the codebase (particularly in `substrate/frame`, where the majority of
+//! As you traverse through the codebase (particularly in `bizinikiwi/frame`, where the majority of
 //! runtime code lives), you may notice that there (only a few!) occurrences where `panic!` is used
 //! explicitly. This is used when the runtime should stall, rather than keep running, as that is
 //! considered safer. Particularly when it comes to mission-critical components, such as block
 //! authoring, consensus, or other protocol-level dependencies, going through with an action may
 //! actually cause harm to the network, and thus stalling would be the better option.
 //!
-//! Take the example of the BABE pallet ([`pallet_babe`]), which doesn't allow for a validator to
-//! participate if it is disabled (see: [`frame::traits::DisabledValidators`]):
+//! Take the example of the BABE pezpallet ([`pezpallet_babe`]), which doesn't allow for a validator
+//! to participate if it is disabled (see: [`pezframe::traits::DisabledValidators`]):
 //!
 //! ```ignore
 //! if T::DisabledValidators::is_disabled(authority_index) {
@@ -358,7 +359,7 @@ mod fake_runtime_types {
 
 #[cfg(test)]
 mod tests {
-	use frame::traits::DefensiveSaturating;
+	use pezframe::traits::DefensiveSaturating;
 	#[docify::export]
 	#[test]
 	fn checked_add_example() {

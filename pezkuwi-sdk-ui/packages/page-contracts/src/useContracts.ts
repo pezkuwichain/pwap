@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import { useEffect, useState } from 'react';
 
-import { createNamedHook, useIsMountedRef } from '@polkadot/react-hooks';
-import { keyring } from '@polkadot/ui-keyring';
-import { nextTick } from '@polkadot/util';
+import { createNamedHook, useIsMountedRef } from '@pezkuwi/react-hooks';
+import { keyring } from '@pezkuwi/ui-keyring';
+import { nextTick } from '@pezkuwi/util';
 
 interface UseContracts {
   allContracts: string[];

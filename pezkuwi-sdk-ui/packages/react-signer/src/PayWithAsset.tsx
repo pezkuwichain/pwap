@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @polkadot/react-signer authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-signer authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { DropdownItemProps } from 'semantic-ui-react';
@@ -6,10 +6,10 @@ import type { ExtendedSignerOptions } from './types.js';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { Dropdown, Modal } from '@polkadot/react-components';
-import { useApi, usePayWithAsset } from '@polkadot/react-hooks';
-import { getFeeAssetLocation } from '@polkadot/react-hooks/utils/getFeeAssetLocation';
-import { BN } from '@polkadot/util';
+import { Dropdown, Modal } from '@pezkuwi/react-components';
+import { useApi, usePayWithAsset } from '@pezkuwi/react-hooks';
+import { getFeeAssetLocation } from '@pezkuwi/react-hooks/utils/getFeeAssetLocation';
+import { BN } from '@pezkuwi/util';
 
 import { useTranslation } from './translate.js';
 

@@ -1,19 +1,19 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { PalletStakingEraRewardPoints } from '@polkadot/types/lookup';
+import type { PezpalletStakingEraRewardPoints } from '@pezkuwi/types/lookup';
 import type { SessionInfo } from '../types.js';
 import type { UsePoints } from './types.js';
 
 import { useMemo } from 'react';
 
-import { createNamedHook, useApi, useCall } from '@polkadot/react-hooks';
-import { BN_ZERO } from '@polkadot/util';
+import { createNamedHook, useApi, useCall } from '@pezkuwi/react-hooks';
+import { BN_ZERO } from '@pezkuwi/util';
 
 import { useCacheValue } from '../useCache.js';
 
 const OPT_POINTS = {
-  transform: ({ individual }: PalletStakingEraRewardPoints): UsePoints =>
+  transform: ({ individual }: PezpalletStakingEraRewardPoints): UsePoints =>
     [...individual.entries()]
       .filter(([, points]) => points.gt(BN_ZERO))
       .reduce((result: UsePoints, [stashId, points]): UsePoints => {

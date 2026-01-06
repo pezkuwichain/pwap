@@ -6,7 +6,7 @@
 //! other options when it comes to running a node.
 //!
 //! [`your_first_runtime`] is a runtime with no consensus related code, and therefore can only be
-//! executed with a node that also expects no consensus ([`sc_consensus_manual_seal`]).
+//! executed with a node that also expects no consensus ([`pezsc_consensus_manual_seal`]).
 //! `pezkuwi-omni-node`'s [`--dev-block-time`] precisely does this.
 //!
 //! > All of the following steps are coded as unit tests of this module. Please see `Source` of the
@@ -28,7 +28,7 @@
 //! described in [`crate::guides::your_first_runtime#genesis-configuration`].
 //!
 //! ```text
-//! cargo install staging-chain-spec-builder
+//! cargo install pezstaging-chain-spec-builder
 //! ```
 //!
 //! > The name of the crate is prefixed with `staging` as the crate name `chain-spec-builder` on
@@ -49,7 +49,7 @@
 //! ### Building Chain Spec
 //!
 //! Next, we can generate the corresponding chain-spec file. For this example, we will use the
-//! `development` (`sp_genesis_config::DEVELOPMENT`) preset.
+//! `development` (`pezsp_genesis_config::DEVELOPMENT`) preset.
 //!
 //! Note that we intend to run this chain-spec with `pezkuwi-omni-node`, which is tailored for
 //! running teyrchains. This requires the chain-spec to always contain the `para_id` and a
@@ -82,7 +82,7 @@
 //!
 //! > Note that we always prefer to use `--tmp` for testing, as it will save the chain state to a
 //! > temporary folder, allowing the chain-to be easily restarted without `purge-chain`. See
-//! > [`sc_cli::commands::PurgeChainCmd`] and [`sc_cli::commands::RunCmd::tmp`] for more info.
+//! > [`pezsc_cli::commands::PurgeChainCmd`] and [`pezsc_cli::commands::RunCmd::tmp`] for more info.
 //!
 //! This will start the node and import the blocks. Note while using `--dev-block-time`, the node
 //! will use the testing-specific manual-seal consensus. This is an efficient way to test the
@@ -103,9 +103,9 @@
 mod tests {
 	use assert_cmd::assert::OutputAssertExt;
 	use cmd_lib::*;
+	use pezsc_chain_spec::{DEV_RUNTIME_PRESET, LOCAL_TESTNET_RUNTIME_PRESET};
+	use pezsp_genesis_builder::PresetId;
 	use rand::Rng;
-	use sc_chain_spec::{DEV_RUNTIME_PRESET, LOCAL_TESTNET_RUNTIME_PRESET};
-	use sp_genesis_builder::PresetId;
 	use std::{
 		io::{BufRead, BufReader},
 		path::PathBuf,
@@ -182,7 +182,7 @@ mod tests {
 				.arg("build")
 				.arg("--release")
 				.arg("-p")
-				.arg("staging-chain-spec-builder")
+				.arg("pezstaging-chain-spec-builder")
 				.assert()
 				.success();
 		}
@@ -224,7 +224,7 @@ mod tests {
 		block_time: u64,
 		maybe_preset: Option<PresetId>,
 	) {
-		sp_tracing::try_init_simple();
+		pezsp_tracing::try_init_simple();
 		maybe_build_runtimes();
 		maybe_build_chain_spec_builder();
 		maybe_build_omni_node();
@@ -332,7 +332,7 @@ mod tests {
 	#[tokio::test]
 	// This is a regresion test so that we still remain compatible with runtimes that use
 	// `para-id` in chain specs, instead of implementing the
-	// `cumulus_primitives_core::GetTeyrchainInfo`.
+	// `pezcumulus_primitives_core::GetTeyrchainInfo`.
 	async fn omni_node_dev_mode_works_without_getteyrchaininfo() {
 		let dev_chain_spec = std::env::current_dir()
 			.unwrap()

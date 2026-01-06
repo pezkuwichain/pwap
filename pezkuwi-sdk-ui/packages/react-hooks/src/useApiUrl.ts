@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ProviderInterface } from '@polkadot/rpc-provider/types';
+import type { ProviderInterface } from '@pezkuwi/rpc-provider/types';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { ApiPromise, WsProvider } from '@polkadot/api';
-import { createWsEndpoints, typesBundle } from '@polkadot/apps-config';
-import { settings } from '@polkadot/ui-settings';
-import { arrayShuffle, isString } from '@polkadot/util';
+import { ApiPromise, WsProvider } from '@pezkuwi/api';
+import { createWsEndpoints, typesBundle } from '@pezkuwi/apps-config';
+import { settings } from '@pezkuwi/ui-settings';
+import { arrayShuffle, isString } from '@pezkuwi/util';
 
 import { createNamedHook } from './createNamedHook.js';
 import { useIsMountedRef } from './useIsMountedRef.js';

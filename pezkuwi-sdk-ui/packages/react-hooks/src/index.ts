@@ -1,8 +1,8 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 // we use augmented types in this tsconfig
-import '@polkadot/api-augment/substrate';
+import '@pezkuwi/api-augment/bizinikiwi';
 
 export { createNamedHook } from './createNamedHook.js';
 export * from './ctx/index.js';

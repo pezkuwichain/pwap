@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/react-params authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-params authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Codec, TypeDef } from '@polkadot/types/types';
+import type { Codec, TypeDef } from '@pezkuwi/types/types';
 import type { ParamDef, Props, RawParamOnChangeValue } from '../types.js';
 
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { Toggle } from '@polkadot/react-components';
-import { Option } from '@polkadot/types';
-import { isU8a, u8aConcat } from '@polkadot/util';
+import { Toggle } from '@pezkuwi/react-components';
+import { Option } from '@pezkuwi/types';
+import { isU8a, u8aConcat } from '@pezkuwi/util';
 
 import Holder from '../Holder.js';
 import { useTranslation } from '../translate.js';

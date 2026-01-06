@@ -1,8 +1,8 @@
-// Copyright 2017-2025 @polkadot/app-society authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-society authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveSocietyCandidate } from '@polkadot/api-derive/types';
-import type { AccountId, Balance, BlockNumber, SocietyVote, StrikeCount } from '@polkadot/types/interfaces';
+import type { DeriveSocietyCandidate } from '@pezkuwi/api-derive/types';
+import type { AccountId, Balance, BlockNumber, SocietyVote, StrikeCount } from '@pezkuwi/types/interfaces';
 
 export interface MapMember {
   accountId: AccountId;

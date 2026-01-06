@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { DropdownItemProps, DropdownProps, StrictDropdownProps } from 'semantic-ui-react';
@@ -6,7 +6,7 @@ import type { DropdownItemProps, DropdownProps, StrictDropdownProps } from 'sema
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Button as SUIButton, Dropdown as SUIDropdown } from 'semantic-ui-react';
 
-import { isUndefined } from '@polkadot/util';
+import { isUndefined } from '@pezkuwi/util';
 
 import Labelled from './Labelled.js';
 import { styled } from './styled.js';

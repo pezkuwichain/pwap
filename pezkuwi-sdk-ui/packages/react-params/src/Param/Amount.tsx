@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/react-params authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-params authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { BitLength } from '@polkadot/react-components/types';
-import type { Registry, TypeDef } from '@polkadot/types/types';
-import type { BN } from '@polkadot/util';
+import type { BitLength } from '@pezkuwi/react-components/types';
+import type { Registry, TypeDef } from '@pezkuwi/types/types';
+import type { BN } from '@pezkuwi/util';
 import type { Props } from '../types.js';
 
 import React, { useCallback, useMemo } from 'react';
 
-import { Input, InputNumber } from '@polkadot/react-components';
-import { bnToBn, formatNumber, isUndefined } from '@polkadot/util';
+import { Input, InputNumber } from '@pezkuwi/react-components';
+import { bnToBn, formatNumber, isUndefined } from '@pezkuwi/util';
 
 import Bare from './Bare.js';
 

@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-coretime authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-coretime authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ChainInformation, ChainWorkTaskInformation } from '@polkadot/react-hooks/types';
+import type { ChainInformation, ChainWorkTaskInformation } from '@pezkuwi/react-hooks/types';
 import type { RelayName } from './types.js';
 
 import React from 'react';
 
-import { ExpandButton } from '@polkadot/react-components';
-import { useToggle } from '@polkadot/react-hooks';
+import { ExpandButton } from '@pezkuwi/react-components';
+import { useToggle } from '@pezkuwi/react-hooks';
 
 import Row from './Row.js';
 

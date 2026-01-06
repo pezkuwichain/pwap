@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/app-democracy authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-democracy authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { SubmittableExtrinsic } from '@polkadot/api/types';
-import type { Hash, VoteThreshold } from '@polkadot/types/interfaces';
-import type { HexString } from '@polkadot/util/types';
+import type { SubmittableExtrinsic } from '@pezkuwi/api/types';
+import type { Hash, VoteThreshold } from '@pezkuwi/types/interfaces';
+import type { HexString } from '@pezkuwi/util/types';
 
 import React, { useEffect, useMemo, useState } from 'react';
 
-import { getFastTrackThreshold } from '@polkadot/apps-config';
-import { Button, Input, InputAddress, InputNumber, Modal, Toggle, TxButton } from '@polkadot/react-components';
-import { useApi, useCall, useCollectiveInstance, useToggle } from '@polkadot/react-hooks';
-import { BN, isString } from '@polkadot/util';
+import { getFastTrackThreshold } from '@pezkuwi/apps-config';
+import { Button, Input, InputAddress, InputNumber, Modal, Toggle, TxButton } from '@pezkuwi/react-components';
+import { useApi, useCall, useCollectiveInstance, useToggle } from '@pezkuwi/react-hooks';
+import { BN, isString } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 

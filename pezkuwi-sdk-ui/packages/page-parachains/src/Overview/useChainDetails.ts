@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/app-parachains authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { BlockNumber, Header, ParaId, RuntimeVersion } from '@polkadot/types/interfaces';
+import type { BlockNumber, Header, ParaId, RuntimeVersion } from '@pezkuwi/types/interfaces';
 
-import { createNamedHook, useCall, useParaApi } from '@polkadot/react-hooks';
+import { createNamedHook, useCall, useParaApi } from '@pezkuwi/react-hooks';
 
 interface Result {
   bestNumber?: BlockNumber;

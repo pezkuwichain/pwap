@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/app-democracy authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-democracy authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveReferendumExt } from '@polkadot/api-derive/types';
-import type { Balance } from '@polkadot/types/interfaces';
+import type { DeriveReferendumExt } from '@pezkuwi/api-derive/types';
+import type { Balance } from '@pezkuwi/types/interfaces';
 
 import React, { useMemo } from 'react';
 
-import { Badge, Button, Columar, ExpandButton, Icon, LinkExternal, Progress, Table } from '@polkadot/react-components';
-import { useAccounts, useApi, useBestNumber, useCall, useToggle } from '@polkadot/react-hooks';
-import { BlockToTime } from '@polkadot/react-query';
-import { BN, BN_ONE, formatNumber, isBoolean } from '@polkadot/util';
+import { Badge, Button, Columar, ExpandButton, Icon, LinkExternal, Progress, Table } from '@pezkuwi/react-components';
+import { useAccounts, useApi, useBestNumber, useCall, useToggle } from '@pezkuwi/react-hooks';
+import { BlockToTime } from '@pezkuwi/react-query';
+import { BN, BN_ONE, formatNumber, isBoolean } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 import useChangeCalc from '../useChangeCalc.js';

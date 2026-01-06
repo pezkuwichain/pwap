@@ -1,19 +1,19 @@
-// Copyright 2017-2025 @polkadot/app-explorer authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-explorer authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { HeaderExtended } from '@polkadot/api-derive/types';
-import type { KeyedEvent } from '@polkadot/react-hooks/ctx/types';
-import type { V2Weight } from '@polkadot/react-hooks/useWeight';
-import type { EventRecord, Hash, RuntimeVersionPartial, SignedBlock } from '@polkadot/types/interfaces';
-import type { FrameSupportDispatchPerDispatchClassWeight } from '@polkadot/types/lookup';
+import type { HeaderExtended } from '@pezkuwi/api-derive/types';
+import type { KeyedEvent } from '@pezkuwi/react-hooks/ctx/types';
+import type { V2Weight } from '@pezkuwi/react-hooks/useWeight';
+import type { EventRecord, Hash, RuntimeVersionPartial, SignedBlock } from '@pezkuwi/types/interfaces';
+import type { PezframeSupportDispatchPerDispatchClassWeight } from '@pezkuwi/types/lookup';
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { AddressSmall, Columar, CopyButton, LinkExternal, MarkError, styled, Table } from '@polkadot/react-components';
-import { useApi, useIsMountedRef } from '@polkadot/react-hooks';
-import { convertWeight } from '@polkadot/react-hooks/useWeight';
-import { formatNumber, isBn } from '@polkadot/util';
+import { AddressSmall, Columar, CopyButton, LinkExternal, MarkError, styled, Table } from '@pezkuwi/react-components';
+import { useApi, useIsMountedRef } from '@pezkuwi/react-hooks';
+import { convertWeight } from '@pezkuwi/react-hooks/useWeight';
+import { formatNumber, isBn } from '@pezkuwi/util';
 
 import Events from '../Events.js';
 import { useTranslation } from '../translate.js';
@@ -30,7 +30,7 @@ interface Props {
 
 interface State {
   events?: KeyedEvent[] | null;
-  blockWeight?: FrameSupportDispatchPerDispatchClassWeight | null;
+  blockWeight?: PezframeSupportDispatchPerDispatchClassWeight | null;
   getBlock?: SignedBlock;
   getHeader?: HeaderExtended;
   nextBlockHash?: Hash | null;
@@ -39,7 +39,7 @@ interface State {
 
 const EMPTY_HEADER: [React.ReactNode?, string?, number?][] = [['...', 'start', 6]];
 
-function transformResult ([[runtimeVersion, events, blockWeight], getBlock, getHeader]: [[RuntimeVersionPartial, EventRecord[] | null, FrameSupportDispatchPerDispatchClassWeight|null], SignedBlock, HeaderExtended?]): State {
+function transformResult ([[runtimeVersion, events, blockWeight], getBlock, getHeader]: [[RuntimeVersionPartial, EventRecord[] | null, PezframeSupportDispatchPerDispatchClassWeight|null], SignedBlock, HeaderExtended?]): State {
   return {
     blockWeight,
     events: events?.map((record, index) => ({
@@ -124,7 +124,7 @@ function BlockByHash ({ className = '', error, value }: Props): React.ReactEleme
         if (!hash.isEmpty) {
           setState((prev) => ({
             ...prev,
-            nextBlockHash: hash
+            nextBlockHash: hash as unknown as State['nextBlockHash']
           }));
         } else {
           // Subscribe to new block headers until the next block is found, then unsubscribes.
@@ -132,7 +132,7 @@ function BlockByHash ({ className = '', error, value }: Props): React.ReactEleme
             if (mountedRef.current && header.number.unwrap().eq(nextBlockNumber)) {
               setState((prev) => ({
                 ...prev,
-                nextBlockHash: header.hash
+                nextBlockHash: header.hash as unknown as State['nextBlockHash']
               }));
               unsub && unsub();
             }

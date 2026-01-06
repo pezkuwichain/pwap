@@ -3,10 +3,10 @@
 // ========================================
 // Full on-chain multisig using Substrate pallet-multisig
 
-import type { ApiPromise } from '@polkadot/api';
-import type { SubmittableExtrinsic } from '@polkadot/api/types';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { SubmittableExtrinsic } from '@pezkuwi/api/types';
 import { Tiki } from './tiki';
-import { encodeAddress, sortAddresses } from '@polkadot/util-crypto';
+import { encodeAddress, sortAddresses } from '@pezkuwi/util-crypto';
 
 // ========================================
 // MULTISIG CONFIGURATION

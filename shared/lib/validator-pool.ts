@@ -1,5 +1,5 @@
-import { ApiPromise } from '@polkadot/api';
-import { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
+import { ApiPromise } from '@pezkuwi/api';
+import { InjectedAccountWithMeta } from '@pezkuwi/extension-inject/types';
 import { toast } from 'sonner';
 
 /**

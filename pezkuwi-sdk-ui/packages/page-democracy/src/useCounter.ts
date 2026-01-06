@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/app-democracy authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-democracy authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import { useEffect, useState } from 'react';
 
-import { createNamedHook, useAccounts, useApi, useCall, useIsMountedRef } from '@polkadot/react-hooks';
+import { createNamedHook, useAccounts, useApi, useCall, useIsMountedRef } from '@pezkuwi/react-hooks';
 
 function useCounterImpl (): number {
   const { hasAccounts } = useAccounts();

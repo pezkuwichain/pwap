@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-rpc authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-rpc authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { BN } from '@polkadot/util';
+import type { BN } from '@pezkuwi/util';
 
 import React, { useEffect, useState } from 'react';
 
-import { InputAddress, Labelled, styled } from '@polkadot/react-components';
-import { Nonce } from '@polkadot/react-query';
-import { BN_ZERO } from '@polkadot/util';
+import { InputAddress, Labelled, styled } from '@pezkuwi/react-components';
+import { Nonce } from '@pezkuwi/react-query';
+import { BN_ZERO } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 

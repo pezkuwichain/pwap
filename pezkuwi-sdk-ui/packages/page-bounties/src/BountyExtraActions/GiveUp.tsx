@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/app-bounties authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-bounties authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AccountId, BountyIndex } from '@polkadot/types/interfaces';
+import type { AccountId, BountyIndex } from '@pezkuwi/types/interfaces';
 
 import React from 'react';
 
-import { InputAddress, Modal, TxButton } from '@polkadot/react-components';
+import { InputAddress, Modal, TxButton } from '@pezkuwi/react-components';
 
 import { truncateTitle } from '../helpers/index.js';
 import { useBounties } from '../hooks/index.js';

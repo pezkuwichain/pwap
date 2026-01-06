@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-extrinsics authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-extrinsics authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AppProps as Props, TabItem } from '@polkadot/react-components/types';
+import type { AppProps as Props, TabItem } from '@pezkuwi/react-components/types';
 import type { DecodedExtrinsic } from './types.js';
 
 import React, { useRef, useState } from 'react';
 import { Route, Routes } from 'react-router';
 
-import { Tabs } from '@polkadot/react-components';
+import { Tabs } from '@pezkuwi/react-components';
 
 import Decoder from './Decoder.js';
 import Submission from './Submission.js';

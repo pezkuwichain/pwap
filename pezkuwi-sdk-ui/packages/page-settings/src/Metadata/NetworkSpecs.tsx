@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/app-settings authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-settings authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { BlockNumber, RuntimeVersion } from '@polkadot/types/interfaces';
-import type { NetworkSpecsStruct } from '@polkadot/ui-settings/types';
+import type { BlockNumber, RuntimeVersion } from '@pezkuwi/types/interfaces';
+import type { NetworkSpecsStruct } from '@pezkuwi/ui-settings/types';
 import type { ChainInfo, ChainType } from '../types.js';
 
 import React, { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 
-import { ChainImg, Input, QrNetworkSpecs, Spinner, styled, Table } from '@polkadot/react-components';
-import { useApi, useCall, useDebounce } from '@polkadot/react-hooks';
-import { formatNumber } from '@polkadot/util';
+import { ChainImg, Input, QrNetworkSpecs, Spinner, styled, Table } from '@pezkuwi/react-components';
+import { useApi, useCall, useDebounce } from '@pezkuwi/react-hooks';
+import { formatNumber } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 import ChainColorIndicator from './ChainColorIndicator.js';

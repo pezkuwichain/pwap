@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/app-alliance authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-alliance authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
 
-import { AddressSmall } from '@polkadot/react-components';
+import { AddressSmall } from '@pezkuwi/react-components';
 
 interface Props {
   className?: string;

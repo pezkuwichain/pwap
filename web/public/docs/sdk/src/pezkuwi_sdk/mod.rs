@@ -4,7 +4,7 @@
 //! start building on the [Pezkuwi network](https://pezkuwichain.io/), a scalable, multi-chain
 //! blockchain platform that enables different blockchains to securely interoperate.
 //!
-//! [![StackExchange](https://img.shields.io/badge/StackExchange-Polkadot%20and%20Substrate-222222?logo=stackexchange)](https://exchange.pezkuwichain.app/)
+//! [![StackExchange](https://img.shields.io/badge/StackExchange-Polkadot%20and%20Bizinikiwi-222222?logo=stackexchange)](https://exchange.pezkuwichain.app/)
 //!
 //! [![awesomeDot](https://img.shields.io/badge/polkadot-awesome-e6007a?logo=polkadot)](https://github.com/Awsmdot/awesome-dot)
 //! [![wiki](https://img.shields.io/badge/polkadot-wiki-e6007a?logo=polkadot)](https://wiki.network.pezkuwichain.io/)
@@ -20,56 +20,56 @@
 //! See:
 //!
 //! * [`pezkuwi`], to understand what is Pezkuwi as a development platform.
-//! * [`substrate`], for an overview of what Substrate as the main blockchain framework of Pezkuwi
+//! * [`bizinikiwi`], for an overview of what Bizinikiwi as the main blockchain framework of Pezkuwi
 //!   SDK.
 //! * [`frame`], to learn about how to write blockchain applications aka. "App Chains".
 //! * Continue with the [`pezkuwi_sdk_docs`'s "getting started"](crate#getting-started).
 //!
 //! ## Components
 //!
-//! #### Substrate
+//! #### Bizinikiwi
 //!
-//! [![Substrate-license](https://img.shields.io/badge/License-GPL3%2FApache2.0-blue)](https://github.com/pezkuwichain/pezkuwi-sdk/blob/master/substrate/LICENSE-APACHE2)
+//! [![Bizinikiwi-license](https://img.shields.io/badge/License-GPL3%2FApache2.0-blue)](https://github.com/pezkuwichain/pezkuwi-sdk/blob/master/bizinikiwi/LICENSE-APACHE2)
 //! [![GitHub
-//! Repo](https://img.shields.io/badge/github-substrate-2324CC85)](https://github.com/pezkuwichain/pezkuwi-sdk/blob/master/substrate)
+//! Repo](https://img.shields.io/badge/github-bizinikiwi-2324CC85)](https://github.com/pezkuwichain/pezkuwi-sdk/blob/master/bizinikiwi)
 //!
-//! [`substrate`] is the base blockchain framework used to power the Pezkuwi SDK. It is a full
+//! [`bizinikiwi`] is the base blockchain framework used to power the Pezkuwi SDK. It is a full
 //! toolkit to create sovereign blockchains, including but not limited to those which connect to
 //! Pezkuwi as teyrchains.
 //!
 //! #### FRAME
 //!
-//! [![Substrate-license](https://img.shields.io/badge/License-Apache2.0-blue)](https://github.com/pezkuwichain/pezkuwi-sdk/blob/master/substrate/LICENSE-APACHE2)
+//! [![Bizinikiwi-license](https://img.shields.io/badge/License-Apache2.0-blue)](https://github.com/pezkuwichain/pezkuwi-sdk/blob/master/bizinikiwi/LICENSE-APACHE2)
 //! [![GitHub
-//! Repo](https://img.shields.io/badge/github-frame-2324CC85)](https://github.com/pezkuwichain/pezkuwi-sdk/blob/master/substrate/frame)
+//! Repo](https://img.shields.io/badge/github-frame-2324CC85)](https://github.com/pezkuwichain/pezkuwi-sdk/blob/master/bizinikiwi/pezframe)
 //!
-//! [`frame`] is the framework used to create Substrate-based application logic, aka. runtimes.
+//! [`frame`] is the framework used to create Bizinikiwi-based application logic, aka. runtimes.
 //! Learn more about the distinction of a runtime and node in
 //! [`reference_docs::wasm_meta_protocol`].
 //!
-//! #### Cumulus
+//! #### Pezcumulus
 //!
-//! [![Cumulus-license](https://img.shields.io/badge/License-GPL3-blue)](https://github.com/pezkuwichain/pezkuwi-sdk/blob/master/cumulus/LICENSE)
+//! [![Pezcumulus-license](https://img.shields.io/badge/License-GPL3-blue)](https://github.com/pezkuwichain/pezkuwi-sdk/blob/master/pezcumulus/LICENSE)
 //! [![GitHub
-//! Repo](https://img.shields.io/badge/github-cumulus-white)](https://github.com/pezkuwichain/pezkuwi-sdk/blob/master/cumulus)
+//! Repo](https://img.shields.io/badge/github-pezcumulus-white)](https://github.com/pezkuwichain/pezkuwi-sdk/blob/master/pezcumulus)
 //!
-//! [`cumulus`] transforms FRAME-based runtimes into Pezkuwi-compatible teyrchain runtimes, and
-//! Substrate-based nodes into Pezkuwi/Teyrchain-compatible nodes.
+//! [`pezcumulus`] transforms FRAME-based runtimes into Pezkuwi-compatible teyrchain runtimes, and
+//! Bizinikiwi-based nodes into Pezkuwi/Teyrchain-compatible nodes.
 //!
 //! #### XCM
 //!
-//! [![XCM-license](https://img.shields.io/badge/License-GPL3-blue)](https://github.com/paritytech/polkadot-sdk/blob/master/polkadot/LICENSE)
+//! [![XCM-license](https://img.shields.io/badge/License-GPL3-blue)](https://github.com/pezkuwichain/pezkuwi-sdk/blob/master/pezkuwi/LICENSE)
 //! [![GitHub
-//! Repo](https://img.shields.io/badge/github-XCM-e6007a?logo=polkadot)](https://github.com/paritytech/polkadot-sdk/blob/master/polkadot/xcm)
+//! Repo](https://img.shields.io/badge/github-XCM-e6007a?logo=polkadot)](https://github.com/pezkuwichain/pezkuwi-sdk/blob/master/pezkuwi/xcm)
 //!
 //! [`xcm`], short for "cross consensus message", is the primary format that is used for
 //! communication between teyrchains, but is intended to be extensible to other use cases as well.
 //!
 //! #### Pezkuwi
 //!
-//! [![Pezkuwi-license](https://img.shields.io/badge/License-GPL3-blue)](https://github.com/paritytech/polkadot-sdk/blob/master/polkadot/LICENSE)
+//! [![Pezkuwi-license](https://img.shields.io/badge/License-GPL3-blue)](https://github.com/pezkuwichain/pezkuwi-sdk/blob/master/pezkuwi/LICENSE)
 //! [![GitHub
-//! Repo](https://img.shields.io/badge/github-polkadot-e6007a?logo=polkadot)](https://github.com/paritytech/polkadot-sdk/blob/master/polkadot)
+//! Repo](https://img.shields.io/badge/github-polkadot-e6007a?logo=polkadot)](https://github.com/pezkuwichain/pezkuwi-sdk/blob/master/pezkuwi)
 //!
 //! [`pezkuwi`] is an implementation of a Pezkuwi node in Rust, by `@paritytech`. The Pezkuwi
 //! runtimes are located under the
@@ -89,35 +89,35 @@
 //!  `benchmark` subcommand that does the same.
 //! * [`chain_spec_builder`]: Utility to build chain-specs Nodes  typically contain a `build-spec`
 //!   subcommand that does the same.
-//! * [`subkey`]: Substrate's key management utility.
-//! * [`substrate-node`](node_cli) is an extensive substrate node that contains the superset of all
-//!   runtime and node side features. The corresponding runtime, called [`kitchensink_runtime`]
-//!   contains all of the modules that are provided with `FRAME`. This node and runtime is only used
-//!   for testing and demonstration.
+//! * [`pez_subkey`]: Bizinikiwi's key management utility.
+//! * [`bizinikiwi-node`](node_cli) is an extensive bizinikiwi node that contains the superset of
+//!   all runtime and node side features. The corresponding runtime, called
+//!   [`pez_kitchensink_runtime`] contains all of the modules that are provided with `FRAME`. This
+//!   node and runtime is only used for testing and demonstration.
 //!
 //! ### Summary
 //!
 //! The following diagram summarizes how some of the components of Pezkuwi SDK work together:
-#![doc = simple_mermaid::mermaid!("../../../mermaid/pezkuwi_sdk_substrate.mmd")]
+#![doc = simple_mermaid::mermaid!("../../../mermaid/pezkuwi_sdk_bizinikiwi.mmd")]
 //!
-//! A Substrate-based chain is a blockchain composed of a runtime and a node. As noted above, the
+//! A Bizinikiwi-based chain is a blockchain composed of a runtime and a node. As noted above, the
 //! runtime is the application logic of the blockchain, and the node is everything else.
 //! See [`reference_docs::wasm_meta_protocol`] for an in-depth explanation of this. The
-//! former is built with [`frame`], and the latter is built with rest of Substrate.
+//! former is built with [`frame`], and the latter is built with rest of Bizinikiwi.
 //!
-//! > You can think of a Substrate-based chain as a white-labeled blockchain.
+//! > You can think of a Bizinikiwi-based chain as a white-labeled blockchain.
 #![doc = simple_mermaid::mermaid!("../../../mermaid/pezkuwi_sdk_pezkuwi.mmd")]
-//! Pezkuwi is itself a Substrate-based chain, composed of the exact same two components. It has
+//! Pezkuwi is itself a Bizinikiwi-based chain, composed of the exact same two components. It has
 //! specialized logic in both the node and the runtime side, but it is not "special" in any way.
 //!
-//! A teyrchain is a "special" Substrate-based chain, whereby both the node and the runtime
-//! components have became "Pezkuwi-aware" using Cumulus.
+//! A teyrchain is a "special" Bizinikiwi-based chain, whereby both the node and the runtime
+//! components have became "Pezkuwi-aware" using Pezcumulus.
 #![doc = simple_mermaid::mermaid!("../../../mermaid/pezkuwi_sdk_teyrchain.mmd")]
 //!
 //! ## Notable Upstream Crates
 //!
-//! - [`parity-scale-codec`](https://github.com/paritytech/parity-scale-codec)
-//! - [`parity-db`](https://github.com/paritytech/parity-db)
+//! - [`parity-scale-codec`](https://github.com/pezkuwichain/parity-scale-codec)
+//! - [`parity-db`](https://github.com/pezkuwichain/parity-db)
 //! - [`trie`](https://github.com/paritytech/trie)
 //! - [`parity-common`](https://github.com/paritytech/parity-common)
 //!
@@ -131,27 +131,27 @@
 //! * [Starknet's Madara Sequencer](https://github.com/keep-starknet-strange/madara)
 //! * [Polymesh](https://polymesh.network/)
 //!
-//! [`substrate`]: crate::pezkuwi_sdk::substrate
+//! [`bizinikiwi`]: crate::pezkuwi_sdk::bizinikiwi
 //! [`frame`]: crate::pezkuwi_sdk::frame_runtime
-//! [`cumulus`]: crate::pezkuwi_sdk::cumulus
+//! [`pezcumulus`]: crate::pezkuwi_sdk::pezcumulus
 //! [`pezkuwi`]: crate::pezkuwi_sdk::pezkuwi
 //! [`xcm`]: crate::pezkuwi_sdk::xcm
 //! [`frame-omni-bencher`]: https://crates.io/crates/frame-omni-bencher
 //! [`pezkuwi-teyrchain-bin`]: https://crates.io/crates/polkadot-parachain-bin
 //! [`pezkuwi-omni-node`]: https://crates.io/crates/polkadot-omni-node
 
-/// Learn about Cumulus, the framework that transforms [`substrate`]-based chains into
-/// [`pezkuwi`]-enabled teyrchains.
-pub mod cumulus;
-/// Learn about FRAME, the framework used to build Substrate runtimes.
+/// Learn about Bizinikiwi, the main blockchain framework used in the Pezkuwi ecosystem.
+pub mod bizinikiwi;
+/// Learn about FRAME, the framework used to build Bizinikiwi runtimes.
 pub mod frame_runtime;
+/// Learn about Pezcumulus, the framework that transforms [`bizinikiwi`]-based chains into
+/// [`pezkuwi`]-enabled teyrchains.
+pub mod pezcumulus;
 /// Learn about Pezkuwi as a platform.
 pub mod pezkuwi;
-/// Learn about different ways through which smart contracts can be utilized on top of Substrate,
+/// Learn about different ways through which smart contracts can be utilized on top of Bizinikiwi,
 /// and in the Pezkuwi ecosystem.
 pub mod smart_contracts;
-/// Learn about Substrate, the main blockchain framework used in the Pezkuwi ecosystem.
-pub mod substrate;
 /// Index of all the templates that can act as first scaffold for a new project.
 pub mod templates;
 /// Learn about XCM, the de-facto communication language between different consensus systems.

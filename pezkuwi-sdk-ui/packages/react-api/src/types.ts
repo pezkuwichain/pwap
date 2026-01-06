@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/react-api authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-api authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Blockchain } from '@acala-network/chopsticks-core';
 import type React from 'react';
-import type { ApiPromise } from '@polkadot/api';
-import type { SubmittableExtrinsicFunction } from '@polkadot/api/promise/types';
-import type { LinkOption } from '@polkadot/apps-config/endpoints/types';
-import type { InjectedExtension } from '@polkadot/extension-inject/types';
-import type { KeypairType } from '@polkadot/util-crypto/types';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { SubmittableExtrinsicFunction } from '@pezkuwi/api/promise/types';
+import type { LinkOption } from '@pezkuwi/apps-config/endpoints/types';
+import type { InjectedExtension } from '@pezkuwi/extension-inject/types';
+import type { KeypairType } from '@pezkuwi/util-crypto/types';
 
 // helpers for HOC props
 export type OmitProps<T, K> = Pick<T, Exclude<keyof T, K>>;

@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 // named exports
@@ -107,4 +107,4 @@ export * from './themes.js';
 // external exports
 // See https://github.com/import-js/eslint-plugin-import/issues/2556
 // eslint-disable-next-line import/export
-export * from '@polkadot/react-qr';
+export * from '@pezkuwi/react-qr';

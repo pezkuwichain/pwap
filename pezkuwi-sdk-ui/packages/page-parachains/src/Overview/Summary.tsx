@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/app-parachains authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { LeasePeriod } from '../types.js';
 
 import React from 'react';
 
-import SummarySession from '@polkadot/app-explorer/SummarySession';
-import { CardSummary, SummaryBox } from '@polkadot/react-components';
-import { BestFinalized } from '@polkadot/react-query';
-import { BN_THREE, BN_TWO, formatNumber, isNumber } from '@polkadot/util';
+import SummarySession from '@pezkuwi/app-explorer/SummarySession';
+import { CardSummary, SummaryBox } from '@pezkuwi/react-components';
+import { BestFinalized } from '@pezkuwi/react-query';
+import { BN_THREE, BN_TWO, formatNumber, isNumber } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 

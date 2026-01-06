@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/app-staking-async authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking-async authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { DeriveBalancesAll, DeriveStakingAccount } from '@polkadot/api-derive/types';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { DeriveBalancesAll, DeriveStakingAccount } from '@pezkuwi/api-derive/types';
 import type { AmountValidateState } from '../types.js';
 
 import React, { useMemo, useState } from 'react';
 
-import { InputAddress, InputBalance, Modal, TxButton } from '@polkadot/react-components';
-import { useApi, useCall } from '@polkadot/react-hooks';
-import { BalanceFree } from '@polkadot/react-query';
-import { BN, BN_ZERO } from '@polkadot/util';
+import { InputAddress, InputBalance, Modal, TxButton } from '@pezkuwi/react-components';
+import { useApi, useCall } from '@pezkuwi/react-hooks';
+import { BalanceFree } from '@pezkuwi/react-query';
+import { BN, BN_ZERO } from '@pezkuwi/util';
 
 import { useTranslation } from '../../translate.js';
 import ValidateAmount from './InputValidateAmount.js';

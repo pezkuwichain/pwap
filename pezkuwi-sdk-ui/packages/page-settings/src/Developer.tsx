@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/app-settings authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-settings authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ActionStatus } from '@polkadot/react-components/Status/types';
+import type { ActionStatus } from '@pezkuwi/react-components/Status/types';
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { Trans } from 'react-i18next';
 import store from 'store';
 
-import { decodeUrlTypes, encodeUrlTypes } from '@polkadot/react-api/urlTypes';
-import { Button, CopyButton, Editor, InputFile, styled } from '@polkadot/react-components';
-import { useApi } from '@polkadot/react-hooks';
-import { isJsonObject, stringToU8a, u8aToString } from '@polkadot/util';
+import { decodeUrlTypes, encodeUrlTypes } from '@pezkuwi/react-api/urlTypes';
+import { Button, CopyButton, Editor, InputFile, styled } from '@pezkuwi/react-components';
+import { useApi } from '@pezkuwi/react-hooks';
+import { isJsonObject, stringToU8a, u8aToString } from '@pezkuwi/util';
 
 import { useTranslation } from './translate.js';
 

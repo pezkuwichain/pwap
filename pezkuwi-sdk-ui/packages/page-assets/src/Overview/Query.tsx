@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/app-explorer authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-explorer authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useCallback, useState } from 'react';
 
-import { Button, FilterOverlay, Input, styled } from '@polkadot/react-components';
+import { Button, FilterOverlay, Input, styled } from '@pezkuwi/react-components';
 
 import { useTranslation } from '../translate.js';
 

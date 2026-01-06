@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/app-parachains authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Option, StorageKey } from '@polkadot/types';
-import type { BlockNumber, WinningData } from '@polkadot/types/interfaces';
+import type { Option, StorageKey } from '@pezkuwi/types';
+import type { BlockNumber, WinningData } from '@pezkuwi/types/interfaces';
 import type { AuctionInfo, WinnerData, Winning } from './types.js';
 
 import { useEffect, useRef, useState } from 'react';
 
-import { createNamedHook, useApi, useBestNumber, useCall, useEventTrigger, useIsMountedRef } from '@polkadot/react-hooks';
-import { BN, BN_ONE, BN_ZERO, u8aEq } from '@polkadot/util';
+import { createNamedHook, useApi, useBestNumber, useCall, useEventTrigger, useIsMountedRef } from '@pezkuwi/react-hooks';
+import { BN, BN_ONE, BN_ZERO, u8aEq } from '@pezkuwi/util';
 
 import { CROWD_PREFIX } from './constants.js';
 import { useLeaseRanges } from './useLeaseRanges.js';

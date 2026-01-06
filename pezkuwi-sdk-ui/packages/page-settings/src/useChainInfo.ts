@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/app-settings authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-settings authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ChainInfo } from './types.js';
 
 import { useMemo } from 'react';
 
-import { getSystemIcon } from '@polkadot/apps-config';
-import { DEFAULT_DECIMALS, DEFAULT_SS58 } from '@polkadot/react-api';
-import { createNamedHook, useApi } from '@polkadot/react-hooks';
-import { getSpecTypes } from '@polkadot/types-known';
-import { formatBalance, isNumber } from '@polkadot/util';
-import { base64Encode } from '@polkadot/util-crypto';
+import { getSystemIcon } from '@pezkuwi/apps-config';
+import { DEFAULT_DECIMALS, DEFAULT_SS58 } from '@pezkuwi/react-api';
+import { createNamedHook, useApi } from '@pezkuwi/react-hooks';
+import { getSpecTypes } from '@pezkuwi/types-known';
+import { formatBalance, isNumber } from '@pezkuwi/util';
+import { base64Encode } from '@pezkuwi/util-crypto';
 
 function useChainInfoImpl (): ChainInfo | null {
   const { api, apiEndpoint, isApiReady, isEthereum, specName, systemChain, systemName } = useApi();

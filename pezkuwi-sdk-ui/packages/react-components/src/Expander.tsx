@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Text } from '@polkadot/types';
+import type { Text } from '@pezkuwi/types';
 
 import React, { useMemo } from 'react';
 
-import { useToggle } from '@polkadot/react-hooks';
+import { useToggle } from '@pezkuwi/react-hooks';
 
 import Icon from './Icon.js';
 import { styled } from './styled.js';

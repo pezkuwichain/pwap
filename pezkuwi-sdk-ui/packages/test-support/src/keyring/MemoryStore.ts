@@ -1,7 +1,7 @@
-// Copyright 2017-2025 @polkadot/test-support authors & contributors
+// Copyright 2017-2025 @pezkuwi/test-support authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { KeyringJson, KeyringStore } from '@polkadot/ui-keyring/types';
+import type { KeyringJson, KeyringStore } from '@pezkuwi/ui-keyring/types';
 
 type AccountsMap = Record<string, KeyringJson>;
 

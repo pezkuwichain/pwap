@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/app-bounties authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-bounties authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { BountyApi } from './hooks/useBounties.js';
 
 import React, { useMemo } from 'react';
 
-import { CardSummary, SummaryBox } from '@polkadot/react-components';
-import { useTreasury } from '@polkadot/react-hooks';
-import { FormatBalance } from '@polkadot/react-query';
-import { BN, formatNumber } from '@polkadot/util';
+import { CardSummary, SummaryBox } from '@pezkuwi/react-components';
+import { useTreasury } from '@pezkuwi/react-hooks';
+import { FormatBalance } from '@pezkuwi/react-query';
+import { BN, formatNumber } from '@pezkuwi/util';
 
 import { useTranslation } from './translate.js';
 

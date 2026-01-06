@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-broker authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-broker authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { PalletBrokerConfigRecord } from '@polkadot/react-hooks/types';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { PezpalletBrokerConfigRecord } from '@pezkuwi/react-hooks/types';
 
 import React, { useRef } from 'react';
 
-import { Table } from '@polkadot/react-components';
+import { Table } from '@pezkuwi/react-components';
 
 import { useTranslation } from '../translate.js';
 import { type CoreWorkloadType, type CoreWorkplanType } from '../types.js';
@@ -15,7 +15,7 @@ import Workload from './Workload.js';
 interface Props {
   api: ApiPromise;
   core: number;
-  config: PalletBrokerConfigRecord,
+  config: PezpalletBrokerConfigRecord,
   workload?: CoreWorkloadType[],
   workplan?: CoreWorkplanType[],
 }

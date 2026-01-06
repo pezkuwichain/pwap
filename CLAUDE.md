@@ -20,6 +20,14 @@ This is a **production-grade blockchain monorepo** for PezkuwiChain with live va
 5. **DO NOT** deploy to production without testing locally first
 6. **DO NOT** make assumptions about blockchain operations - **ALWAYS ASK**
 
+### User Preferences (MUST FOLLOW!)
+
+1. **Screenshot Location:** When user says "ekrana bak" (look at screen), read `/home/mamostehp/pwap/screenshot.png`
+2. **Git Commits:** NEVER add Claude signature/attribution to commit messages (no "🤖 Generated with Claude Code" or "Co-Authored-By: Claude")
+3. **Deploy Path:** Web app deploys to `root@37.60.230.9:/var/www/pezkuwichain/web/dist/` - Nginx config points here
+4. **Documentation:** ALL docs go in `/home/mamostehp/pwap/docs/` folder (subfolders: p2p/, commission/, reports/, testing/, presale/) - NEVER put .md files in project root except README.md and CLAUDE.md
+5. **Production Wallet:** P2P Escrow wallet is `5DFwqK698vL4gXHEcanaewnAqhxJ2rjhAogpSTHw3iwGDwd3` - NEVER use dev/test addresses like Alice
+
 ### VPS Infrastructure
 
 - **IP:** 37.60.230.9

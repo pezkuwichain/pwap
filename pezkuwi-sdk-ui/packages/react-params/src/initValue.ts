@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/react-params authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-params authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Registry, TypeDef } from '@polkadot/types/types';
+import type { Registry, TypeDef } from '@pezkuwi/types/types';
 
-import { getTypeDef } from '@polkadot/types';
-import { TypeDefInfo } from '@polkadot/types/types';
-import { BN_ZERO, isBn } from '@polkadot/util';
+import { getTypeDef } from '@pezkuwi/types';
+import { TypeDefInfo } from '@pezkuwi/types/types';
+import { BN_ZERO, isBn } from '@pezkuwi/util';
 
 const warnList: string[] = [];
 

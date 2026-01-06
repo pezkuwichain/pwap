@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/react-params authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-params authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Call, Extrinsic } from '@polkadot/types/interfaces';
-import type { BN } from '@polkadot/util';
+import type { Call, Extrinsic } from '@pezkuwi/types/interfaces';
+import type { BN } from '@pezkuwi/util';
 
 import React, { useMemo } from 'react';
 
-import { Expander } from '@polkadot/react-components';
+import { Expander } from '@pezkuwi/react-components';
 
 import CallDisplay from './Call.js';
 

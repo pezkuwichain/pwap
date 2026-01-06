@@ -1,19 +1,19 @@
-// Copyright 2017-2025 @polkadot/app-claims authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-claims authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { SubmittableExtrinsic } from '@polkadot/api/types';
-import type { TxCallback } from '@polkadot/react-components/Status/types';
-import type { Option } from '@polkadot/types';
-import type { BalanceOf, EthereumAddress, EthereumSignature, StatementKind } from '@polkadot/types/interfaces';
-import type { BN } from '@polkadot/util';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { SubmittableExtrinsic } from '@pezkuwi/api/types';
+import type { TxCallback } from '@pezkuwi/react-components/Status/types';
+import type { Option } from '@pezkuwi/types';
+import type { BalanceOf, EthereumAddress, EthereumSignature, StatementKind } from '@pezkuwi/types/interfaces';
+import type { BN } from '@pezkuwi/util';
 
 import React, { useEffect, useState } from 'react';
 
-import { Button, Card, styled, TxButton } from '@polkadot/react-components';
-import { useApi } from '@polkadot/react-hooks';
-import { FormatBalance } from '@polkadot/react-query';
-import { BN_ZERO } from '@polkadot/util';
+import { Button, Card, styled, TxButton } from '@pezkuwi/react-components';
+import { useApi } from '@pezkuwi/react-hooks';
+import { FormatBalance } from '@pezkuwi/react-query';
+import { BN_ZERO } from '@pezkuwi/util';
 
 import { useTranslation } from './translate.js';
 import { addrToChecksum, getStatement } from './util.js';

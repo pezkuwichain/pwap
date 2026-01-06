@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-parachains authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AccountId, CoreAssignment, GroupIndex, ParaId, ParaValidatorIndex } from '@polkadot/types/interfaces';
+import type { AccountId, CoreAssignment, GroupIndex, ParaId, ParaValidatorIndex } from '@pezkuwi/types/interfaces';
 import type { ValidatorInfo } from './types.js';
 
 import { useEffect, useMemo, useState } from 'react';
 
-import { createNamedHook, useApi, useCallMulti } from '@polkadot/react-hooks';
+import { createNamedHook, useApi, useCallMulti } from '@pezkuwi/react-hooks';
 
 type MultiResult = [AccountId[] | null, CoreAssignment[] | null, ParaValidatorIndex[][] | null, ParaValidatorIndex[] | null];
 

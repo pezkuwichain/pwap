@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/app-utilities authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-utilities authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useCallback, useState } from 'react';
 
-import { Input, Output, Static } from '@polkadot/react-components';
-import { hexToU8a, isHex, stringToU8a } from '@polkadot/util';
-import { blake2AsHex } from '@polkadot/util-crypto';
+import { Input, Output, Static } from '@pezkuwi/react-components';
+import { hexToU8a, isHex, stringToU8a } from '@pezkuwi/util';
+import { blake2AsHex } from '@pezkuwi/util-crypto';
 
 import { useTranslation } from './translate.js';
 

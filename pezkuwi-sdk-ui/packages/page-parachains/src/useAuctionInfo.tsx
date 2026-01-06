@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-parachains authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Option } from '@polkadot/types';
-import type { AuctionIndex, BlockNumber, LeasePeriodOf } from '@polkadot/types/interfaces';
-import type { ITuple } from '@polkadot/types/types';
+import type { Option } from '@pezkuwi/types';
+import type { AuctionIndex, BlockNumber, LeasePeriodOf } from '@pezkuwi/types/interfaces';
+import type { ITuple } from '@pezkuwi/types/types';
 import type { AuctionInfo } from './types.js';
 
-import { createNamedHook, useApi, useCallMulti } from '@polkadot/react-hooks';
+import { createNamedHook, useApi, useCallMulti } from '@pezkuwi/react-hooks';
 
 const OPT_MULTI = {
   transform: ([numAuctions, optInfo]: [AuctionIndex, Option<ITuple<[LeasePeriodOf, BlockNumber]>>]): AuctionInfo => {

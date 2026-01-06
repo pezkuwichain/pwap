@@ -1,7 +1,7 @@
-// Copyright 2017-2025 @polkadot/apps authors & contributors
+// Copyright 2017-2025 @pezkuwi/apps authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { LinkOption } from '@polkadot/apps-config/endpoints/types';
+import type { LinkOption } from '@pezkuwi/apps-config/endpoints/types';
 import type { Group, IFavoriteChainProps } from './types.js';
 
 // ok, this seems to be an eslint bug, this _is_ a package import
@@ -9,12 +9,12 @@ import punycode from 'punycode/';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import store from 'store';
 
-import { createWsEndpoints, CUSTOM_ENDPOINT_KEY } from '@polkadot/apps-config';
-import { Button, Input, Sidebar, styled } from '@polkadot/react-components';
-import { defaultHighlight } from '@polkadot/react-components/styles';
-import { useApi } from '@polkadot/react-hooks';
-import { settings } from '@polkadot/ui-settings';
-import { isAscii } from '@polkadot/util';
+import { createWsEndpoints, CUSTOM_ENDPOINT_KEY } from '@pezkuwi/apps-config';
+import { Button, Input, Sidebar, styled } from '@pezkuwi/react-components';
+import { defaultHighlight } from '@pezkuwi/react-components/styles';
+import { useApi } from '@pezkuwi/react-hooks';
+import { settings } from '@pezkuwi/ui-settings';
+import { isAscii } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 import GroupDisplay from './Group.js';

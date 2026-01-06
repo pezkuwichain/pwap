@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-explorer authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-explorer authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ChartContents, Detail } from './types.js';
 
 import React, { useEffect, useMemo, useState } from 'react';
 
-import { CardSummary, NextTick, styled, SummaryBox } from '@polkadot/react-components';
-import { formatNumber, nextTick } from '@polkadot/util';
+import { CardSummary, NextTick, styled, SummaryBox } from '@pezkuwi/react-components';
+import { formatNumber, nextTick } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 import Chart from './Chart.js';

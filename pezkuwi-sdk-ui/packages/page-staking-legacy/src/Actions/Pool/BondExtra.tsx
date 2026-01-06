@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { BN } from '@polkadot/util';
+import type { BN } from '@pezkuwi/util';
 
 import React, { useRef, useState } from 'react';
 
-import useAmountError from '@polkadot/app-staking2/Pools/useAmountError';
-import { Dropdown, InputBalance, Modal, TxButton } from '@polkadot/react-components';
-import { useApi } from '@polkadot/react-hooks';
-import { BalanceFree } from '@polkadot/react-query';
-import { BN_ZERO } from '@polkadot/util';
+import useAmountError from '@pezkuwi/app-staking2/Pools/useAmountError';
+import { Dropdown, InputBalance, Modal, TxButton } from '@pezkuwi/react-components';
+import { useApi } from '@pezkuwi/react-hooks';
+import { BalanceFree } from '@pezkuwi/react-query';
+import { BN_ZERO } from '@pezkuwi/util';
 
 import { useTranslation } from '../../translate.js';
 import PoolInfo from '../partials/PoolInfo.js';

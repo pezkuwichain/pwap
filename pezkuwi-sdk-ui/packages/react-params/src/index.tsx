@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/react-params authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-params authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { I18nProps } from '@polkadot/react-components/types';
-import type { Registry } from '@polkadot/types/types';
+import type { I18nProps } from '@pezkuwi/react-components/types';
+import type { Registry } from '@pezkuwi/types/types';
 import type { ComponentMap, ParamDef, RawParam, RawParamOnChangeValue, RawParams } from './types.js';
 
 import React from 'react';
 
-import { statics } from '@polkadot/react-api/statics';
-import { ErrorBoundary } from '@polkadot/react-components';
-import { stringify } from '@polkadot/util';
+import { statics } from '@pezkuwi/react-api/statics';
+import { ErrorBoundary } from '@pezkuwi/react-components';
+import { stringify } from '@pezkuwi/util';
 
 import Holder from './Holder.js';
 import ParamComp from './ParamComp.js';

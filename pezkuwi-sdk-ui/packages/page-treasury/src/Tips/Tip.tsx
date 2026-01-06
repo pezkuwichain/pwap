@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/app-treasury authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-treasury authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AccountId, Balance, BlockNumber, OpenTipTo225 } from '@polkadot/types/interfaces';
-import type { PalletTipsOpenTip } from '@polkadot/types/lookup';
-import type { BN } from '@polkadot/util';
+import type { AccountId, Balance, BlockNumber, OpenTipTo225 } from '@pezkuwi/types/interfaces';
+import type { PezpalletTipsOpenTip } from '@pezkuwi/types/lookup';
+import type { BN } from '@pezkuwi/util';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { AddressMini, AddressSmall, Checkbox, ExpanderScroll, Icon, LinkExternal, styled, TxButton } from '@polkadot/react-components';
-import { useAccounts, useApi } from '@polkadot/react-hooks';
-import { BlockToTime, FormatBalance } from '@polkadot/react-query';
-import { BN_ZERO, formatNumber } from '@polkadot/util';
+import { AddressMini, AddressSmall, Checkbox, ExpanderScroll, Icon, LinkExternal, styled, TxButton } from '@pezkuwi/react-components';
+import { useAccounts, useApi } from '@pezkuwi/react-hooks';
+import { BlockToTime, FormatBalance } from '@pezkuwi/react-query';
+import { BN_ZERO, formatNumber } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 import TipEndorse from './TipEndorse.js';
@@ -25,7 +25,7 @@ interface Props {
   members: string[];
   onSelect: (hash: string, isSelected: boolean, value: BN) => void;
   onlyUntipped: boolean;
-  tip: PalletTipsOpenTip | OpenTipTo225;
+  tip: PezpalletTipsOpenTip | OpenTipTo225;
 }
 
 interface TipState {
@@ -38,11 +38,11 @@ interface TipState {
   median: BN;
 }
 
-function isCurrentTip (tip: PalletTipsOpenTip | OpenTipTo225): tip is PalletTipsOpenTip {
-  return !!(tip as PalletTipsOpenTip)?.findersFee;
+function isCurrentTip (tip: PezpalletTipsOpenTip | OpenTipTo225): tip is PezpalletTipsOpenTip {
+  return !!(tip as PezpalletTipsOpenTip)?.findersFee;
 }
 
-function extractTipState (tip: PalletTipsOpenTip | OpenTipTo225, allAccounts: string[]): TipState {
+function extractTipState (tip: PezpalletTipsOpenTip | OpenTipTo225, allAccounts: string[]): TipState {
   const closesAt = tip.closes.unwrapOr(null);
   let finder: AccountId | null = null;
   let deposit: Balance | null = null;

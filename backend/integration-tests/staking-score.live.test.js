@@ -8,8 +8,8 @@
  *  3. Test accounts must be funded to be able to bond stake.
  */
 
-import { ApiPromise, WsProvider, Keyring } from '@polkadot/api';
-import { BN } from '@polkadot/util';
+import { ApiPromise, WsProvider, Keyring } from '@pezkuwi/api';
+import { BN } from '@pezkuwi/util';
 import { jest } from '@jest/globals';
 
 // ========================================

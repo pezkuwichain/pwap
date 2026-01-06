@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-society authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-society authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AccountId } from '@polkadot/types/interfaces';
+import type { AccountId } from '@pezkuwi/types/interfaces';
 
 import React, { useEffect, useRef, useState } from 'react';
 
-import { KUSAMA_GENESIS } from '@polkadot/apps-config';
-import { Button, Modal } from '@polkadot/react-components';
-import { useApi, useToggle } from '@polkadot/react-hooks';
+import { KUSAMA_GENESIS } from '@pezkuwi/apps-config';
+import { Button, Modal } from '@pezkuwi/react-components';
+import { useApi, useToggle } from '@pezkuwi/react-hooks';
 
 import drawCanary, { PADD, SIZE } from '../draw/canary.js';
 import { useTranslation } from '../translate.js';

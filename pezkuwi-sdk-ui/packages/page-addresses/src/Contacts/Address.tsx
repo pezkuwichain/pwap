@@ -1,17 +1,17 @@
-// Copyright 2017-2025 @polkadot/app-addresses authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-addresses authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ActionStatus } from '@polkadot/react-components/Status/types';
-import type { KeyringAddress } from '@polkadot/ui-keyring/types';
-import type { HexString } from '@polkadot/util/types';
+import type { ActionStatus } from '@pezkuwi/react-components/Status/types';
+import type { KeyringAddress } from '@pezkuwi/ui-keyring/types';
+import type { HexString } from '@pezkuwi/util/types';
 
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { AddressInfo, AddressSmall, Button, ChainLock, Columar, Forget, LinkExternal, Menu, Popup, Table, Tags, TransferModal } from '@polkadot/react-components';
-import { MATCHERS } from '@polkadot/react-components/AccountName';
-import { useApi, useBalancesAll, useDeriveAccountInfo, useToggle } from '@polkadot/react-hooks';
-import { keyring } from '@polkadot/ui-keyring';
-import { isFunction } from '@polkadot/util';
+import { AddressInfo, AddressSmall, Button, ChainLock, Columar, Forget, LinkExternal, Menu, Popup, Table, Tags, TransferModal } from '@pezkuwi/react-components';
+import { MATCHERS } from '@pezkuwi/react-components/AccountName';
+import { useApi, useBalancesAll, useDeriveAccountInfo, useToggle } from '@pezkuwi/react-hooks';
+import { keyring } from '@pezkuwi/ui-keyring';
+import { isFunction } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 

@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/app-democracy authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-democracy authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveReferendumVote } from '@polkadot/api-derive/types';
-import type { BN } from '@polkadot/util';
+import type { DeriveReferendumVote } from '@pezkuwi/api-derive/types';
+import type { BN } from '@pezkuwi/util';
 
 import React, { useCallback, useMemo } from 'react';
 
-import { ExpanderScroll } from '@polkadot/react-components';
-import { FormatBalance } from '@polkadot/react-query';
-import { BN_TEN, formatNumber } from '@polkadot/util';
+import { ExpanderScroll } from '@pezkuwi/react-components';
+import { FormatBalance } from '@pezkuwi/react-query';
+import { BN_TEN, formatNumber } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 import ReferendumVote from './ReferendumVote.js';

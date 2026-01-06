@@ -1,17 +1,17 @@
-// Copyright 2017-2025 @polkadot/app-settings authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-settings authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { MetadataDef } from '@polkadot/extension-inject/types';
-import type { HexString } from '@polkadot/util/types';
+import type { MetadataDef } from '@pezkuwi/extension-inject/types';
+import type { HexString } from '@pezkuwi/util/types';
 import type { ChainInfo } from '../types.js';
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { knownExtensions } from '@polkadot/apps-config';
-import { externalEmptySVG } from '@polkadot/apps-config/ui/logos/external';
-import { Button, Dropdown, Spinner, styled, Table } from '@polkadot/react-components';
-import { useToggle } from '@polkadot/react-hooks';
-import { objectSpread } from '@polkadot/util';
+import { knownExtensions } from '@pezkuwi/apps-config';
+import { externalEmptySVG } from '@pezkuwi/apps-config/ui/logos/external';
+import { Button, Dropdown, Spinner, styled, Table } from '@pezkuwi/react-components';
+import { useToggle } from '@pezkuwi/react-hooks';
+import { objectSpread } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 import useExtensions from '../useExtensions.js';

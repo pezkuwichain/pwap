@@ -1,18 +1,18 @@
-// Copyright 2017-2025 @polkadot/app-accounts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-accounts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ActionStatus } from '@polkadot/react-components/Status/types';
+import type { ActionStatus } from '@pezkuwi/react-components/Status/types';
 import type { AddressState, CreateOptions, CreateProps, DeriveValidationOutput, PairType, SeedType } from '../types.js';
 
 import React, { useCallback, useRef, useState } from 'react';
 
-import { DEV_PHRASE } from '@polkadot/keyring/defaults';
-import { AddressRow, Button, Checkbox, CopyButton, Dropdown, Expander, Input, MarkError, MarkWarning, Modal, styled, TextArea } from '@polkadot/react-components';
-import { useApi, useLedger, useStepper } from '@polkadot/react-hooks';
-import { keyring } from '@polkadot/ui-keyring';
-import { settings } from '@polkadot/ui-settings';
-import { isHex, nextTick, u8aToHex } from '@polkadot/util';
-import { hdLedger, hdValidatePath, keyExtractSuri, mnemonicGenerate, mnemonicValidate, randomAsU8a } from '@polkadot/util-crypto';
+import { DEV_PHRASE } from '@pezkuwi/keyring/defaults';
+import { AddressRow, Button, Checkbox, CopyButton, Dropdown, Expander, Input, MarkError, MarkWarning, Modal, styled, TextArea } from '@pezkuwi/react-components';
+import { useApi, useLedger, useStepper } from '@pezkuwi/react-hooks';
+import { keyring } from '@pezkuwi/ui-keyring';
+import { settings } from '@pezkuwi/ui-settings';
+import { isHex, nextTick, u8aToHex } from '@pezkuwi/util';
+import { hdLedger, hdValidatePath, keyExtractSuri, mnemonicGenerate, mnemonicValidate, randomAsU8a } from '@pezkuwi/util-crypto';
 
 import { useTranslation } from '../translate.js';
 import { tryCreateAccount } from '../util.js';

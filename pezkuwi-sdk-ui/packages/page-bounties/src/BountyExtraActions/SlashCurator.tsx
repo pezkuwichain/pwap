@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/app-bounties authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-bounties authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { SubmittableExtrinsicFunction } from '@polkadot/api/types';
-import type { AccountId, BountyIndex } from '@polkadot/types/interfaces';
+import type { SubmittableExtrinsicFunction } from '@pezkuwi/api/types';
+import type { AccountId, BountyIndex } from '@pezkuwi/types/interfaces';
 import type { ValidUnassignCuratorAction } from '../types.js';
 
 import React, { useEffect, useMemo, useState } from 'react';
 
-import { getTreasuryProposalThreshold } from '@polkadot/apps-config';
-import { InputAddress, Modal, TxButton } from '@polkadot/react-components';
-import { useAccounts, useApi, useCollectiveInstance, useCollectiveMembers } from '@polkadot/react-hooks';
-import { BN } from '@polkadot/util';
+import { getTreasuryProposalThreshold } from '@pezkuwi/apps-config';
+import { InputAddress, Modal, TxButton } from '@pezkuwi/react-components';
+import { useAccounts, useApi, useCollectiveInstance, useCollectiveMembers } from '@pezkuwi/react-hooks';
+import { BN } from '@pezkuwi/util';
 
 import { truncateTitle } from '../helpers/index.js';
 import { useBounties } from '../hooks/index.js';

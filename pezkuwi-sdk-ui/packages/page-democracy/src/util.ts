@@ -1,10 +1,10 @@
-// Copyright 2017-2025 @polkadot/app-democracy authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-democracy authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { VoteThreshold } from '@polkadot/types/interfaces';
+import type { VoteThreshold } from '@pezkuwi/types/interfaces';
 
-import { calcPassing } from '@polkadot/api-derive/democracy/util';
-import { BN, BN_ONE, BN_TEN, BN_ZERO } from '@polkadot/util';
+import { calcPassing } from '@pezkuwi/api-derive/democracy/util';
+import { BN, BN_ONE, BN_TEN, BN_ZERO } from '@pezkuwi/util';
 
 interface Approx {
   changeAye: BN;

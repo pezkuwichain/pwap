@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AbiMessage } from '@polkadot/api-contract/types';
+import type { AbiMessage } from '@pezkuwi/api-contract/types';
 
 import React from 'react';
 
-import { Icon, styled, Tooltip } from '@polkadot/react-components';
-import { useApi } from '@polkadot/react-hooks';
-import { encodeTypeDef } from '@polkadot/types/create';
+import { Icon, styled, Tooltip } from '@pezkuwi/react-components';
+import { useApi } from '@pezkuwi/react-hooks';
+import { encodeTypeDef } from '@pezkuwi/types/create';
 
 import { useTranslation } from '../translate.js';
 

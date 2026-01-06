@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-assets authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-assets authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ForeignAssetInfo } from '../useForeignAssetInfos.js';
 
 import React, { useMemo } from 'react';
 
-import { AddressSmall, CopyButton, Expander, styled } from '@polkadot/react-components';
-import { FormatBalance } from '@polkadot/react-query';
+import { AddressSmall, CopyButton, Expander, styled } from '@pezkuwi/react-components';
+import { FormatBalance } from '@pezkuwi/react-query';
 
 interface Props {
   className?: string;

@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import queryString from 'query-string';
 import React, { useCallback, useEffect } from 'react';
 
-import { Input, Toggle } from '@polkadot/react-components';
-import { useApi } from '@polkadot/react-hooks';
-import { isString } from '@polkadot/util';
+import { Input, Toggle } from '@pezkuwi/react-components';
+import { useApi } from '@pezkuwi/react-hooks';
+import { isString } from '@pezkuwi/util';
 
 import { useTranslation } from './translate.js';
 

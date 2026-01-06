@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AddressFlags } from '@polkadot/react-hooks/types';
+import type { AddressFlags } from '@pezkuwi/react-hooks/types';
 
 import React, { useCallback } from 'react';
 
-import { useApi, useToggle } from '@polkadot/react-hooks';
-import { isFunction } from '@polkadot/util';
+import { useApi, useToggle } from '@pezkuwi/react-hooks';
+import { isFunction } from '@pezkuwi/util';
 
 import Button from '../Button/index.js';
 import { TransferModal } from '../modals/index.js';

@@ -1,8 +1,8 @@
-// Copyright 2017-2025 @polkadot/app-referenda authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-referenda authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { PalletConvictionVotingVoteVoting } from '@polkadot/types/lookup';
-import type { BN } from '@polkadot/util';
+import type { PezpalletConvictionVotingVoteVoting } from '@pezkuwi/types/lookup';
+import type { BN } from '@pezkuwi/util';
 
 export interface LockResultItem {
   classId: BN;
@@ -15,7 +15,7 @@ export interface VoteResultCasting {
 }
 
 export interface VoteResultDelegating {
-  conviction: PalletConvictionVotingVoteVoting['asDelegating']['conviction']['type'];
+  conviction: PezpalletConvictionVotingVoteVoting['asDelegating']['conviction']['type'];
   targetId: string;
 }
 

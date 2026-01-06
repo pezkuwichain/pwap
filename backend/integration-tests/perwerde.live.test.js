@@ -7,7 +7,7 @@
  *  2. The node must have the `perwerde` pallet included.
  */
 
-import { ApiPromise, WsProvider, Keyring } from '@polkadot/api';
+import { ApiPromise, WsProvider, Keyring } from '@pezkuwi/api';
 
 // ========================================
 // TEST CONFIGURATION

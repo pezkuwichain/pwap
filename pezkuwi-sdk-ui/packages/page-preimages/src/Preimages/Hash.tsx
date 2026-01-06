@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/app-preimages authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-preimages authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { HexString } from '@polkadot/util/types';
+import type { HexString } from '@pezkuwi/util/types';
 
 import React from 'react';
 
-import { CopyButton, styled } from '@polkadot/react-components';
+import { CopyButton, styled } from '@pezkuwi/react-components';
 
 interface Props {
   className?: string;

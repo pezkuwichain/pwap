@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/apps authors & contributors
+// Copyright 2017-2025 @pezkuwi/apps authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ActionStatus } from '@polkadot/react-components/Status/types';
-import type { EventRecord } from '@polkadot/types/interfaces';
-import type { KeyringOptions } from '@polkadot/ui-keyring/options/types';
+import type { ActionStatus } from '@pezkuwi/react-components/Status/types';
+import type { EventRecord } from '@pezkuwi/types/interfaces';
+import type { KeyringOptions } from '@pezkuwi/ui-keyring/options/types';
 
 import React, { useEffect } from 'react';
 
-import { Status as StatusDisplay } from '@polkadot/react-components';
-import { useAccounts, useApi, useCall, useQueue } from '@polkadot/react-hooks';
-import { stringToU8a } from '@polkadot/util';
-import { xxhashAsHex } from '@polkadot/util-crypto';
+import { Status as StatusDisplay } from '@pezkuwi/react-components';
+import { useAccounts, useApi, useCall, useQueue } from '@pezkuwi/react-hooks';
+import { stringToU8a } from '@pezkuwi/util';
+import { xxhashAsHex } from '@pezkuwi/util-crypto';
 
 import { useTranslation } from '../translate.js';
 

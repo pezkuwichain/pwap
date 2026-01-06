@@ -1,7 +1,7 @@
-//! # Substrate CLI
+//! # Bizinikiwi CLI
 //!
 //! Let's see some examples of typical CLI arguments used when setting up and running a
-//! Substrate-based blockchain. We use the [`solochain-template`](https://github.com/pezkuwichain/pezkuwi-sdk/issues/25)
+//! Bizinikiwi-based blockchain. We use the [`solochain-template`](https://github.com/pezkuwichain/pezkuwi-sdk/issues/195)
 //! on these examples.
 //!
 //! #### Checking the available CLI arguments
@@ -10,7 +10,7 @@
 //! ```
 //! - `--help`: Displays the available CLI arguments.
 //!
-//! #### Starting a Local Substrate Node in Development Mode
+//! #### Starting a Local Bizinikiwi Node in Development Mode
 //! ```bash
 //! ./target/release/node-template \
 //! --dev
@@ -97,8 +97,8 @@
 //! ---
 //!
 //! > If you are interested in learning how to extend the CLI with your custom arguments, you can
-//! > check out the [Customize your Substrate chain CLI](https://www.youtube.com/watch?v=IVifko1fqjw)
+//! > check out the [Customize your Bizinikiwi chain CLI](https://www.youtube.com/watch?v=IVifko1fqjw)
 //! > seminar.
-//! > Please note that the seminar is based on an older version of Substrate, and [Clap](https://docs.rs/clap/latest/clap/)
+//! > Please note that the seminar is based on an older version of Bizinikiwi, and [Clap](https://docs.rs/clap/latest/clap/)
 //! > is now used instead of [StructOpt](https://docs.rs/structopt/latest/structopt/) for parsing
 //! > CLI arguments.

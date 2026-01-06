@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/react-params authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-params authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Registry, TypeDef } from '@polkadot/types/types';
+import type { Registry, TypeDef } from '@pezkuwi/types/types';
 import type { ParamDef, Props, RawParam } from '../types.js';
 
 import React, { useCallback, useState } from 'react';
 
-import { Dropdown } from '@polkadot/react-components';
-import { Enum, getTypeDef } from '@polkadot/types';
-import { isObject } from '@polkadot/util';
+import { Dropdown } from '@pezkuwi/react-components';
+import { Enum, getTypeDef } from '@pezkuwi/types';
+import { isObject } from '@pezkuwi/util';
 
 import Params from '../index.js';
 import Bare from './Bare.js';

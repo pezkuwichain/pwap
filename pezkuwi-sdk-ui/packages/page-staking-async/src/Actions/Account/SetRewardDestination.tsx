@@ -1,21 +1,21 @@
-// Copyright 2017-2025 @polkadot/app-staking-async authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking-async authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveBalancesAll } from '@polkadot/api-derive/types';
-import type { PalletStakingRewardDestination } from '@polkadot/types/lookup';
+import type { DeriveBalancesAll } from '@pezkuwi/api-derive/types';
+import type { PezpalletStakingRewardDestination } from '@pezkuwi/types/lookup';
 import type { DestinationType } from '../types.js';
 
 import React, { useMemo, useState } from 'react';
 
-import { Dropdown, InputAddress, MarkError, Modal, TxButton } from '@polkadot/react-components';
-import { useApi, useCall } from '@polkadot/react-hooks';
+import { Dropdown, InputAddress, MarkError, Modal, TxButton } from '@pezkuwi/react-components';
+import { useApi, useCall } from '@pezkuwi/react-hooks';
 
 import { useTranslation } from '../../translate.js';
 import { createDestCurr } from '../destOptions.js';
 import SenderInfo from '../partials/SenderInfo.js';
 
 interface Props {
-  defaultDestination?: PalletStakingRewardDestination | null;
+  defaultDestination?: PezpalletStakingRewardDestination | null;
   controllerId: string;
   onClose: () => void;
   stashId: string;

@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/app-parachains authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { BN } from '@polkadot/util';
+import type { BN } from '@pezkuwi/util';
 import type { AuctionInfo, LeasePeriod, OwnedId, OwnerInfo } from '../types.js';
 
 import React, { useState } from 'react';
 
-import { Button, InputBalance, InputNumber, Modal, TxButton } from '@polkadot/react-components';
-import { useApi, useToggle } from '@polkadot/react-hooks';
-import { BN_ONE, BN_ZERO } from '@polkadot/util';
+import { Button, InputBalance, InputNumber, Modal, TxButton } from '@pezkuwi/react-components';
+import { useApi, useToggle } from '@pezkuwi/react-hooks';
+import { BN_ONE, BN_ZERO } from '@pezkuwi/util';
 
 import InputOwner from '../InputOwner.js';
 import { useTranslation } from '../translate.js';

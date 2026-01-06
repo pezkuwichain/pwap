@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/app-parachains authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { BalanceOf } from '@polkadot/types/interfaces';
-import type { PolkadotRuntimeParachainsConfigurationHostConfiguration } from '@polkadot/types/lookup';
+import type { BalanceOf } from '@pezkuwi/types/interfaces';
+import type { PezkuwiRuntimeTeyrchainsConfigurationHostConfiguration } from '@pezkuwi/types/lookup';
 import type { OwnedId, OwnerInfo } from '../types.js';
 
 import React, { useCallback, useMemo, useState } from 'react';
 
-import { InputAddress, InputBalance, InputFile, InputNumber, Modal, TxButton } from '@polkadot/react-components';
-import { useApi, useCall } from '@polkadot/react-hooks';
-import { BN, compactAddLength } from '@polkadot/util';
+import { InputAddress, InputBalance, InputFile, InputNumber, Modal, TxButton } from '@pezkuwi/react-components';
+import { useApi, useCall } from '@pezkuwi/react-hooks';
+import { BN, compactAddLength } from '@pezkuwi/util';
 
 import InputOwner from '../InputOwner.js';
 import { useTranslation } from '../translate.js';
@@ -29,7 +29,7 @@ function RegisterThread ({ className, nextParaId, onClose, ownedIds }: Props): R
   const [paraId, setParaId] = useState<BN | undefined>();
   const [wasm, setWasm] = useState<Uint8Array | null>(null);
   const [genesisState, setGenesisState] = useState<Uint8Array | null>(null);
-  const paraConfig = useCall<PolkadotRuntimeParachainsConfigurationHostConfiguration>(api.query.configuration?.activeConfig);
+  const paraConfig = useCall<PezkuwiRuntimeTeyrchainsConfigurationHostConfiguration>(api.query.configuration?.activeConfig);
 
   const _setGenesisState = useCallback(
     (data: Uint8Array) => setGenesisState(compactAddLength(data)),

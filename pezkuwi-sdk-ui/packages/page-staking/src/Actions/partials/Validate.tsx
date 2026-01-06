@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ValidateInfo } from './types.js';
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { Dropdown, InputNumber, MarkError, Modal } from '@polkadot/react-components';
-import { useApi } from '@polkadot/react-hooks';
-import { BN, BN_HUNDRED as MAX_COMM, BN_ONE, bnMax, isFunction } from '@polkadot/util';
+import { Dropdown, InputNumber, MarkError, Modal } from '@pezkuwi/react-components';
+import { useApi } from '@pezkuwi/react-hooks';
+import { BN, BN_HUNDRED as MAX_COMM, BN_ONE, bnMax, isFunction } from '@pezkuwi/util';
 
 import { useTranslation } from '../../translate.js';
 import SenderInfo from './SenderInfo.js';
@@ -47,7 +47,8 @@ function Validate ({ className = '', controllerId, minCommission, onChange, stas
         validateTx: api.tx.staking.validate({
           blocked: !allowNoms,
           commission
-        })
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } as any)
       });
     } catch {
       onChange({ validateTx: null });

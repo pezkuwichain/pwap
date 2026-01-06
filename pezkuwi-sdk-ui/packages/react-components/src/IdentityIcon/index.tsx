@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { LinkOption } from '@polkadot/apps-config/endpoints/types';
-import type { IdentityProps } from '@polkadot/react-identicon/types';
-import type { AccountId, AccountIndex, Address } from '@polkadot/types/interfaces';
+import type { LinkOption } from '@pezkuwi/apps-config/endpoints/types';
+import type { IdentityProps } from '@pezkuwi/react-identicon/types';
+import type { AccountId, AccountIndex, Address } from '@pezkuwi/types/interfaces';
 
 import React, { useCallback } from 'react';
 
-import { getSystemIcon } from '@polkadot/apps-config';
-import { useApi, useQueue } from '@polkadot/react-hooks';
-import BaseIdentityIcon from '@polkadot/react-identicon';
-import { settings } from '@polkadot/ui-settings';
+import { getSystemIcon } from '@pezkuwi/apps-config';
+import { useApi, useQueue } from '@pezkuwi/react-hooks';
+import BaseIdentityIcon from '@pezkuwi/react-identicon';
+import { settings } from '@pezkuwi/ui-settings';
 
 import { useTranslation } from '../translate.js';
 import RoboHash from './RoboHash/index.js';

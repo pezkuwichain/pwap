@@ -1,17 +1,17 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { DeriveSessionInfo, DeriveStakingElected, DeriveStakingWaiting } from '@polkadot/api-derive/types';
-import type { Inflation } from '@polkadot/react-hooks/types';
-import type { Option, u32, Vec } from '@polkadot/types';
-import type { PalletStakingStakingLedger } from '@polkadot/types/lookup';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { DeriveSessionInfo, DeriveStakingElected, DeriveStakingWaiting } from '@pezkuwi/api-derive/types';
+import type { Inflation } from '@pezkuwi/react-hooks/types';
+import type { Option, u32, Vec } from '@pezkuwi/types';
+import type { PezpalletStakingStakingLedger } from '@pezkuwi/types/lookup';
 import type { SortedTargets, TargetSortBy, ValidatorInfo } from './types.js';
 
 import { useMemo } from 'react';
 
-import { createNamedHook, useAccounts, useApi, useCall, useCallMulti, useInflation } from '@polkadot/react-hooks';
-import { arrayFlatten, BN, BN_HUNDRED, BN_MAX_INTEGER, BN_ONE, BN_ZERO } from '@polkadot/util';
+import { createNamedHook, useAccounts, useApi, useCall, useCallMulti, useInflation } from '@pezkuwi/react-hooks';
+import { arrayFlatten, BN, BN_HUNDRED, BN_MAX_INTEGER, BN_ONE, BN_ZERO } from '@pezkuwi/util';
 
 interface LastEra {
   activeEra: BN;
@@ -68,7 +68,7 @@ const OPT_MULTI = {
   })
 };
 
-function getLegacyRewards (ledger: PalletStakingStakingLedger): u32[] {
+function getLegacyRewards (ledger: PezpalletStakingStakingLedger): u32[] {
   return ledger.legacyClaimedRewards || (ledger as unknown as OldLedger).claimedRewards || [];
 }
 

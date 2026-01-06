@@ -1,18 +1,18 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { SubmittableExtrinsic } from '@polkadot/api/types';
-import type { BatchOptions } from '@polkadot/react-hooks/types';
-import type { AccountId } from '@polkadot/types/interfaces';
-import type { KitchensinkRuntimeProxyType, PalletProxyProxyDefinition } from '@polkadot/types/lookup';
-import type { BN } from '@polkadot/util';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { SubmittableExtrinsic } from '@pezkuwi/api/types';
+import type { BatchOptions } from '@pezkuwi/react-hooks/types';
+import type { AccountId } from '@pezkuwi/types/interfaces';
+import type { KitchensinkRuntimeProxyType, PezpalletProxyProxyDefinition } from '@pezkuwi/types/lookup';
+import type { BN } from '@pezkuwi/util';
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { BatchWarning, Button, Dropdown, InputAddress, InputBalance, MarkError, Modal, styled, TxButton } from '@polkadot/react-components';
-import { useApi, useTxBatch } from '@polkadot/react-hooks';
-import { BN_ZERO } from '@polkadot/util';
+import { BatchWarning, Button, Dropdown, InputAddress, InputBalance, MarkError, Modal, styled, TxButton } from '@pezkuwi/react-components';
+import { useApi, useTxBatch } from '@pezkuwi/react-hooks';
+import { BN_ZERO } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 
@@ -21,7 +21,7 @@ type PrevProxyProp = [AccountId | null, KitchensinkRuntimeProxyType];
 interface Props {
   className?: string;
   onClose: () => void;
-  previousProxy?: [PalletProxyProxyDefinition[], BN];
+  previousProxy?: [PezpalletProxyProxyDefinition[], BN];
   proxiedAccount: string;
 }
 
@@ -43,7 +43,7 @@ interface PrevProxyProps extends ValueProps {
 }
 
 const BATCH_OPTS: BatchOptions = { type: 'all' };
-const EMPTY_EXISTING: [PalletProxyProxyDefinition[], BN] = [[], BN_ZERO];
+const EMPTY_EXISTING: [PezpalletProxyProxyDefinition[], BN] = [[], BN_ZERO];
 
 function createAddProxy (api: ApiPromise, account: AccountId, type: KitchensinkRuntimeProxyType, delay = 0): SubmittableExtrinsic<'promise'> {
   return api.tx.proxy.addProxy.meta.args.length === 2

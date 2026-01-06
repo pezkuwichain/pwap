@@ -1,26 +1,26 @@
-// Copyright 2017-2025 @polkadot/app-accounts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-accounts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-/// <reference types="@polkadot/dev-test/globals.d.ts" />
+/// <reference types="@pezkuwi/dev-test/globals.d.ts" />
 
-import type { AddressFlags } from '@polkadot/react-hooks/types';
-import type { Table } from '@polkadot/test-support/pagesElements';
-import type { u32 } from '@polkadot/types';
-import type { AccountId, Multisig, ProxyDefinition, Timepoint, Voting, VotingDelegating } from '@polkadot/types/interfaces';
+import type { AddressFlags } from '@pezkuwi/react-hooks/types';
+import type { Table } from '@pezkuwi/test-support/pagesElements';
+import type { u32 } from '@pezkuwi/types';
+import type { AccountId, Multisig, ProxyDefinition, Timepoint, Voting, VotingDelegating } from '@pezkuwi/types/interfaces';
 import type { AccountRow } from '../../test/pageElements/AccountRow.js';
 
 import { fireEvent, screen, within } from '@testing-library/react';
 
-import { POLKADOT_GENESIS } from '@polkadot/apps-config';
-import i18next from '@polkadot/react-components/i18n';
-import { toShortAddress } from '@polkadot/react-components/util';
-import { anAccountWithBalance, anAccountWithBalanceAndMeta, anAccountWithInfo, anAccountWithInfoAndMeta, anAccountWithMeta, anAccountWithStaking } from '@polkadot/test-support/creation/account';
-import { makeStakingLedger as ledger } from '@polkadot/test-support/creation/staking';
-import { alice, bob, MemoryStore } from '@polkadot/test-support/keyring';
-import { balance, mockApiHooks, showBalance } from '@polkadot/test-support/utils';
-import { TypeRegistry } from '@polkadot/types/create';
-import { keyring } from '@polkadot/ui-keyring';
-import { BN } from '@polkadot/util';
+import { POLKADOT_GENESIS } from '@pezkuwi/apps-config';
+import i18next from '@pezkuwi/react-components/i18n';
+import { toShortAddress } from '@pezkuwi/react-components/util';
+import { anAccountWithBalance, anAccountWithBalanceAndMeta, anAccountWithInfo, anAccountWithInfoAndMeta, anAccountWithMeta, anAccountWithStaking } from '@pezkuwi/test-support/creation/account';
+import { makeStakingLedger as ledger } from '@pezkuwi/test-support/creation/staking';
+import { alice, bob, MemoryStore } from '@pezkuwi/test-support/keyring';
+import { balance, mockApiHooks, showBalance } from '@pezkuwi/test-support/utils';
+import { TypeRegistry } from '@pezkuwi/types/create';
+import { keyring } from '@pezkuwi/ui-keyring';
+import { BN } from '@pezkuwi/util';
 
 import { AccountsPage } from '../../test/pages/accountsPage.js';
 

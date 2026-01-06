@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/app-referenda authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-referenda authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { PalletConvictionVotingTally, PalletRankedCollectiveTally, PalletRankedCollectiveVoteRecord } from '@polkadot/types/lookup';
-import type { BN } from '@polkadot/util';
+import type { PezpalletConvictionVotingTally, PezpalletRankedCollectiveTally, PezpalletRankedCollectiveVoteRecord } from '@pezkuwi/types/lookup';
+import type { BN } from '@pezkuwi/util';
 import type { PalletVote } from '../types.js';
 
 import React, { useCallback, useMemo } from 'react';
 
-import { AddressMini, Expander } from '@polkadot/react-components';
-import { FormatBalance } from '@polkadot/react-query';
-import { formatNumber } from '@polkadot/util';
+import { AddressMini, Expander } from '@pezkuwi/react-components';
+import { FormatBalance } from '@pezkuwi/react-query';
+import { formatNumber } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 import useVotes from './useVotes.js';
@@ -19,7 +19,7 @@ interface Props {
   id: BN;
   isConvictionVote: boolean;
   palletVote: PalletVote;
-  tally: PalletConvictionVotingTally | PalletRankedCollectiveTally;
+  tally: PezpalletConvictionVotingTally | PezpalletRankedCollectiveTally;
 }
 
 function renderMini (list?: [string, BN][]): React.ReactNode[] | undefined {
@@ -33,7 +33,7 @@ function renderMini (list?: [string, BN][]): React.ReactNode[] | undefined {
     ));
 }
 
-function extractVotes (votes: Record<string, PalletRankedCollectiveVoteRecord> = {}): [[string, BN][]?, [string, BN][]?] {
+function extractVotes (votes: Record<string, PezpalletRankedCollectiveVoteRecord> = {}): [[string, BN][]?, [string, BN][]?] {
   const ayes: [string, BN][] = [];
   const nays: [string, BN][] = [];
   const entries = Object.entries(votes);

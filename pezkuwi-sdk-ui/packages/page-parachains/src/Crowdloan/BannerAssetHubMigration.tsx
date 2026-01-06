@@ -1,10 +1,10 @@
-// Copyright 2017-2025 @polkadot/app-parachains authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
 
-import { MarkWarning, styled } from '@polkadot/react-components';
-import { useStakingAsyncApis } from '@polkadot/react-hooks';
+import { MarkWarning, styled } from '@pezkuwi/react-components';
+import { useStakingAsyncApis } from '@pezkuwi/react-hooks';
 
 import { useTranslation } from '../translate.js';
 

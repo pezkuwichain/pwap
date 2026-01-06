@@ -1,19 +1,19 @@
-// Copyright 2017-2025 @polkadot/app-accounts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-accounts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { Bytes, Data, Option, Struct } from '@polkadot/types';
-import type { H160, IdentityInfo, Registration } from '@polkadot/types/interfaces';
-import type { PalletIdentityRegistration } from '@polkadot/types/lookup';
-import type { ITuple } from '@polkadot/types-codec/types';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { Bytes, Data, Option, Struct } from '@pezkuwi/types';
+import type { H160, IdentityInfo, Registration } from '@pezkuwi/types/interfaces';
+import type { PezpalletIdentityRegistration } from '@pezkuwi/types/lookup';
+import type { ITuple } from '@pezkuwi/types-codec/types';
 
 import React, { useEffect, useState } from 'react';
 
-import { Input, InputBalance, Modal, Toggle, TxButton } from '@polkadot/react-components';
-import { getAddressMeta } from '@polkadot/react-components/util';
-import { useApi, useCall } from '@polkadot/react-hooks';
-import { AddressIdentityOtherDiscordKey } from '@polkadot/react-hooks/constants';
-import { u8aToString } from '@polkadot/util';
+import { Input, InputBalance, Modal, Toggle, TxButton } from '@pezkuwi/react-components';
+import { getAddressMeta } from '@pezkuwi/react-components/util';
+import { useApi, useCall } from '@pezkuwi/react-hooks';
+import { AddressIdentityOtherDiscordKey } from '@pezkuwi/react-hooks/constants';
+import { u8aToString } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 
@@ -95,7 +95,7 @@ function checkValue (hasValue: boolean, value: string | null | undefined, minLen
 function IdentityMain ({ address, className = '', onClose }: Props): React.ReactElement<Props> {
   const { t } = useTranslation();
   const { apiIdentity, enableIdentity, specName } = useApi();
-  const identityOpt = useCall<Option<ITuple<[PalletIdentityRegistration, Option<Bytes>]>>>(apiIdentity.query.identity.identityOf, [address]);
+  const identityOpt = useCall<Option<ITuple<[PezpalletIdentityRegistration, Option<Bytes>]>>>(apiIdentity.query.identity.identityOf, [address]);
   const [{ okAll, okDiscord, okDisplay, okEmail, okGithub, okLegal, okMatrix, okRiot, okTwitter, okWeb }, setOkInfo] = useState<ValueState>({ okAll: false });
   const [legacyInfo, setLegacyInfo] = useState<Record<string, unknown>>({});
   const [info, setInfo] = useState<Record<string, unknown>>({});

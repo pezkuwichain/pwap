@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/app-contracts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-contracts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { DropdownItemProps } from 'semantic-ui-react';
-import type { ApiPromise } from '@polkadot/api';
-import type { AbiMessage } from '@polkadot/api-contract/types';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { AbiMessage } from '@pezkuwi/api-contract/types';
 
 import React from 'react';
 
-import { ContractPromise } from '@polkadot/api-contract';
-import { getContractAbi } from '@polkadot/react-components/util';
+import { ContractPromise } from '@pezkuwi/api-contract';
+import { getContractAbi } from '@pezkuwi/react-components/util';
 
 import MessageSignature from '../shared/MessageSignature.js';
 

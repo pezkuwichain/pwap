@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/apps authors & contributors
+// Copyright 2017-2025 @pezkuwi/apps authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import { unzlibSync, zlibSync } from 'fflate';
 import queryString from 'query-string';
 
-import { settings } from '@polkadot/ui-settings';
-import { assert, stringToU8a, u8aToString } from '@polkadot/util';
-import { base64Decode, base64Encode } from '@polkadot/util-crypto';
+import { settings } from '@pezkuwi/ui-settings';
+import { assert, stringToU8a, u8aToString } from '@pezkuwi/util';
+import { base64Decode, base64Encode } from '@pezkuwi/util-crypto';
 
 export function decodeUrlTypes (): Record<string, any> | null {
   const urlOptions = queryString.parse(location.href.split('?')[1]);

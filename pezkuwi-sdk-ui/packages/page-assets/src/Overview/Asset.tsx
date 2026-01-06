@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-assets authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-assets authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AssetInfo } from '@polkadot/react-hooks/types';
+import type { AssetInfo } from '@pezkuwi/react-hooks/types';
 
 import React, { useMemo } from 'react';
 
-import { AddressSmall } from '@polkadot/react-components';
-import { FormatBalance } from '@polkadot/react-query';
+import { AddressSmall } from '@pezkuwi/react-components';
+import { FormatBalance } from '@pezkuwi/react-query';
 
 import Mint from './Mint/index.js';
 

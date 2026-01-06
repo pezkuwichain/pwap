@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/app-bounties authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-bounties authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { SubmittableExtrinsicFunction } from '@polkadot/api/types';
-import type { DeriveBounties } from '@polkadot/api-derive/types';
-import type { Codec } from '@polkadot/types/types';
-import type { BN } from '@polkadot/util';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { SubmittableExtrinsicFunction } from '@pezkuwi/api/types';
+import type { DeriveBounties } from '@pezkuwi/api-derive/types';
+import type { Codec } from '@pezkuwi/types/types';
+import type { BN } from '@pezkuwi/util';
 
 import { useMemo } from 'react';
 
-import { createNamedHook, useApi, useBestNumber, useCall } from '@polkadot/react-hooks';
-import { BN_ZERO } from '@polkadot/util';
+import { createNamedHook, useApi, useBestNumber, useCall } from '@pezkuwi/react-hooks';
+import { BN_ZERO } from '@pezkuwi/util';
 
 interface BountyApiTxs {
   acceptCurator: SubmittableExtrinsicFunction<'promise'>;

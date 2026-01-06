@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-storage authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-storage authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AppProps as Props } from '@polkadot/react-components/types';
+import type { AppProps as Props } from '@pezkuwi/react-components/types';
 import type { QueryTypes } from './types.js';
 
 import React, { useCallback, useState } from 'react';
 
-import { styled } from '@polkadot/react-components';
+import { styled } from '@pezkuwi/react-components';
 
 import Selection from './Selection/index.js';
 import Queries from './Queries.js';

@@ -5,7 +5,7 @@
 //!
 //! The main user-journey covered by these guides is:
 //!
-//! * [`your_first_pallet`], where you learn what a FRAME pallet is, and write your first
+//! * [`your_first_pallet`], where you learn what a FRAME pezpallet is, and write your first
 //!   application logic.
 //! * [`your_first_runtime`], where you learn how to compile your pallets into a WASM runtime.
 //! * [`your_first_node`], where you learn how to run the said runtime in a node.
@@ -20,17 +20,17 @@
 //!
 //! Other guides are related to other miscellaneous topics and are listed as modules below.
 
-/// Write your first simple pallet, learning the most most basic features of FRAME along the way.
+/// Write your first simple pezpallet, learning the most most basic features of FRAME along the way.
 pub mod your_first_pallet;
 
 /// Write your first real [runtime](`crate::reference_docs::wasm_meta_protocol`),
-/// compiling it to [WASM](crate::pezkuwi_sdk::substrate#wasm-build).
+/// compiling it to [WASM](crate::pezkuwi_sdk::bizinikiwi#wasm-build).
 pub mod your_first_runtime;
 
 /// Running the given runtime with a node. No specific consensus mechanism is used at this stage.
 pub mod your_first_node;
 
-/// How to enhance a given runtime and node to be cumulus-enabled, run it as a teyrchain
+/// How to enhance a given runtime and node to be pezcumulus-enabled, run it as a teyrchain
 /// and connect it to a relay-chain.
 // pub mod your_first_teyrchain;
 

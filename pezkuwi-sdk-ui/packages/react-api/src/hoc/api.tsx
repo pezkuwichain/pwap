@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @polkadot/react-api authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-api authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ApiProps, SubtractProps } from '../types.js';
@@ -6,8 +6,8 @@ import type { DefaultProps } from './types.js';
 
 import React from 'react';
 
-import { ApiCtx } from '@polkadot/react-hooks/ctx/Api';
-import { assert } from '@polkadot/util';
+import { ApiCtx } from '@pezkuwi/react-hooks/ctx/Api';
+import { assert } from '@pezkuwi/util';
 
 export default function withApi <P extends ApiProps> (Inner: React.ComponentType<P>, defaultProps: DefaultProps = {}): React.ComponentType<any> {
   class WithApi extends React.PureComponent<SubtractProps<P, ApiProps>> {

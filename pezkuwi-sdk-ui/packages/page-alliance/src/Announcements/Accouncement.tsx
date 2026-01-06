@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/app-alliance authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-alliance authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Cid } from '../types.js';
 
 import React from 'react';
 
-import { useIpfsLink } from '@polkadot/react-hooks';
+import { useIpfsLink } from '@pezkuwi/react-hooks';
 
 interface Props {
   className?: string;

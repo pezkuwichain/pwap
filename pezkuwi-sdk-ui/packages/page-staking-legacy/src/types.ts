@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Inflation } from '@polkadot/react-hooks/types';
-import type { AccountId, Balance, BlockNumber, EraIndex, Exposure, Hash, SessionIndex, ValidatorPrefs, ValidatorPrefsTo196 } from '@polkadot/types/interfaces';
-import type { BN } from '@polkadot/util';
+import type { Inflation } from '@pezkuwi/react-hooks/types';
+import type { AccountId, Balance, BlockNumber, EraIndex, Exposure, Hash, SessionIndex, ValidatorPrefs, ValidatorPrefsTo196 } from '@pezkuwi/types/interfaces';
+import type { BN } from '@pezkuwi/util';
 
 export type Nominators = Record<string, string[]>;
 

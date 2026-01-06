@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { DeriveAccountInfo } from '@polkadot/api-derive/types';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { DeriveAccountInfo } from '@pezkuwi/api-derive/types';
 
-import { keyring } from '@polkadot/ui-keyring';
-import { isFunction } from '@polkadot/util';
+import { keyring } from '@pezkuwi/ui-keyring';
+import { isFunction } from '@pezkuwi/util';
 
 export function checkVisibility (api: ApiPromise, address: string, accountInfo: DeriveAccountInfo, filterName = '', onlyNamed = false): boolean {
   let isVisible = false;

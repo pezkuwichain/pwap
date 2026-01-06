@@ -1,10 +1,10 @@
-// Copyright 2017-2025 @polkadot/app-contracts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-contracts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useCallback, useState } from 'react';
 
-import { Button, styled } from '@polkadot/react-components';
-import { useToggle } from '@polkadot/react-hooks';
+import { Button, styled } from '@pezkuwi/react-components';
+import { useToggle } from '@pezkuwi/react-hooks';
 
 import CodeAdd from '../Codes/Add.js';
 import Codes from '../Codes/index.js';

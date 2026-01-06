@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/app-referenda authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-referenda authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Option } from '@polkadot/types';
-import type { AccountId } from '@polkadot/types/interfaces';
-import type { ITuple } from '@polkadot/types/types';
+import type { Option } from '@pezkuwi/types';
+import type { AccountId } from '@pezkuwi/types/interfaces';
+import type { ITuple } from '@pezkuwi/types/types';
 
 import { useMemo } from 'react';
 
-import { createNamedHook, useApi, useCall } from '@polkadot/react-hooks';
-import { isFunction } from '@polkadot/util';
+import { createNamedHook, useApi, useCall } from '@pezkuwi/react-hooks';
+import { isFunction } from '@pezkuwi/util';
 
 const SUPEROF_OPT = {
   transform: ([[ids], optSupers]: [[string[]], Option<ITuple<[AccountId]>>[]]): string[] =>

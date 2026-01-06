@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/apps authors & contributors
+// Copyright 2017-2025 @pezkuwi/apps authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { BareProps as Props } from '@polkadot/react-components/types';
+import type { BareProps as Props } from '@pezkuwi/react-components/types';
 
 import React from 'react';
 
-import { packageInfo } from '@polkadot/apps-config';
-import { styled } from '@polkadot/react-components';
-import { useApi } from '@polkadot/react-hooks';
-import { NodeName, NodeVersion } from '@polkadot/react-query';
+import { packageInfo } from '@pezkuwi/apps-config';
+import { styled } from '@pezkuwi/react-components';
+import { useApi } from '@pezkuwi/react-hooks';
+import { NodeName, NodeVersion } from '@pezkuwi/react-query';
 
 const appsVersion = `apps v${packageInfo.version.replace('-x', '')}`;
 
@@ -23,7 +23,7 @@ function NodeInfo ({ className = '' }: Props): React.ReactElement<Props> {
           <NodeVersion label='v' />
         </div>
       )}
-      <div>{api.libraryInfo.replace('@polkadot/', '')}</div>
+      <div>{api.libraryInfo.replace('@pezkuwi/', '')}</div>
       <div>{appsVersion}</div>
     </StyledDiv>
   );

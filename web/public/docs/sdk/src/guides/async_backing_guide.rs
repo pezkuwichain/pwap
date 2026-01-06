@@ -1,6 +1,6 @@
 //! # Upgrade Teyrchain for Asynchronous Backing Compatibility
 //!
-//! This guide is relevant for cumulus based teyrchain projects started in 2023 or before, whose
+//! This guide is relevant for pezcumulus based teyrchain projects started in 2023 or before, whose
 //! backing process is synchronous where parablocks can only be built on the latest Relay Chain
 //! block. Async Backing allows collators to build parablocks on older Relay Chain blocks and create
 //! pipelines of multiple pending parablocks. This parallel block generation increases efficiency
@@ -53,21 +53,21 @@
 //! 3. Establish constants `MILLISECS_PER_BLOCK` and `SLOT_DURATION` if not already present in the
 //!    runtime.
 //! ```ignore
-//! // `SLOT_DURATION` is picked up by `pallet_timestamp` which is in turn picked
-//! // up by `pallet_aura` to implement `fn slot_duration()`.
+//! // `SLOT_DURATION` is picked up by `pezpallet_timestamp` which is in turn picked
+//! // up by `pezpallet_aura` to implement `fn slot_duration()`.
 //! //
 //! // Change this to adjust the block time.
 //! pub const MILLISECS_PER_BLOCK: u64 = 12000;
 //! pub const SLOT_DURATION: u64 = MILLISECS_PER_BLOCK;
 //! ```
 //!
-//! 4. Configure `cumulus_pallet_teyrchain_system` in the runtime.
+//! 4. Configure `pezcumulus_pezpallet_teyrchain_system` in the runtime.
 //!
 //! - Define a `FixedVelocityConsensusHook` using our capacity, velocity, and relay slot duration
 //! constants. Use this to set the teyrchain system `ConsensusHook` property.
 #![doc = docify::embed!("../../templates/teyrchain/runtime/src/lib.rs", ConsensusHook)]
 //! ```ignore
-//! impl cumulus_pallet_teyrchain_system::Config for Runtime {
+//! impl pezcumulus_pezpallet_teyrchain_system::Config for Runtime {
 //!     ..
 //!     type ConsensusHook = ConsensusHook;
 //!     ..
@@ -76,21 +76,21 @@
 //! - Set the teyrchain system property `CheckAssociatedRelayNumber` to
 //! `RelayNumberMonotonicallyIncreases`
 //! ```ignore
-//! impl cumulus_pallet_teyrchain_system::Config for Runtime {
+//! impl pezcumulus_pezpallet_teyrchain_system::Config for Runtime {
 //! 	..
 //! 	type CheckAssociatedRelayNumber = RelayNumberMonotonicallyIncreases;
 //! 	..
 //! }
 //! ```
 //!
-//! 5. Configure `pallet_aura` in the runtime.
+//! 5. Configure `pezpallet_aura` in the runtime.
 //!
 //! - Set `AllowMultipleBlocksPerSlot` to `false` (don't worry, we will set it to `true` when we
 //! activate async backing in phase 3).
 //!
-//! - Define `pallet_aura::SlotDuration` using our constant `SLOT_DURATION`
+//! - Define `pezpallet_aura::SlotDuration` using our constant `SLOT_DURATION`
 //! ```ignore
-//! impl pallet_aura::Config for Runtime {
+//! impl pezpallet_aura::Config for Runtime {
 //! 	..
 //! 	type AllowMultipleBlocksPerSlot = ConstBool<false>;
 //! 	#[cfg(feature = "experimental")]
@@ -99,25 +99,25 @@
 //! }
 //! ```
 //!
-//! 6. Update `sp_consensus_aura::AuraApi::slot_duration` in `sp_api::impl_runtime_apis` to match
-//!    the constant `SLOT_DURATION`
+//! 6. Update `pezsp_consensus_aura::AuraApi::slot_duration` in `pezsp_api::impl_runtime_apis` to
+//!    match the constant `SLOT_DURATION`
 #![doc = docify::embed!("../../templates/teyrchain/runtime/src/apis.rs", impl_slot_duration)]
 //!
 //! 7. Implement the `AuraUnincludedSegmentApi`, which allows the collator client to query its
 //!    runtime to determine whether it should author a block.
 //!
-//!    - Add the dependency `cumulus-primitives-aura` to the `runtime/Cargo.toml` file for your
+//!    - Add the dependency `pezcumulus-primitives-aura` to the `runtime/Cargo.toml` file for your
 //!      runtime
 //! ```ignore
 //! ..
-//! cumulus-primitives-aura = { path = "../../../../primitives/aura", default-features = false }
+//! pezcumulus-primitives-aura = { path = "../../../../primitives/aura", default-features = false }
 //! ..
 //! ```
 //!
-//! - In the same file, add `"cumulus-primitives-aura/std",` to the `std` feature.
+//! - In the same file, add `"pezcumulus-primitives-aura/std",` to the `std` feature.
 //!
 //! - Inside the `impl_runtime_apis!` block for your runtime, implement the
-//!   `cumulus_primitives_aura::AuraUnincludedSegmentApi` as shown below.
+//!   `pezcumulus_primitives_aura::AuraUnincludedSegmentApi` as shown below.
 #![doc = docify::embed!("../../templates/teyrchain/runtime/src/apis.rs", impl_can_build_upon)]
 //!
 //! **Note:** With a capacity of 1 we have an effective velocity of ½ even when velocity is
@@ -136,13 +136,13 @@
 //!
 //! This phase consists of plugging in the new lookahead collator node.
 //!
-//! 1. Import `cumulus_primitives_core::ValidationCode` to `node/src/service.rs`.
-#![doc = docify::embed!("../../templates/teyrchain/node/src/service.rs", cumulus_primitives)]
+//! 1. Import `pezcumulus_primitives_core::ValidationCode` to `node/src/service.rs`.
+#![doc = docify::embed!("../../templates/teyrchain/node/src/service.rs", pezcumulus_primitives)]
 //!
-//! 2. In `node/src/service.rs`, modify `sc_service::spawn_tasks` to use a clone of `Backend` rather
-//!    than the original
+//! 2. In `node/src/service.rs`, modify `pezsc_service::spawn_tasks` to use a clone of `Backend`
+//!    rather than the original
 //! ```ignore
-//! sc_service::spawn_tasks(sc_service::SpawnTasksParams {
+//! pezsc_service::spawn_tasks(pezsc_service::SpawnTasksParams {
 //!     ..
 //!     backend: backend.clone(),
 //!     ..
@@ -197,7 +197,7 @@
 //! 6. In `start_consensus()` replace `basic_aura::run` with `aura::run`
 //! ```ignore
 //! let fut =
-//! aura::run::<Block, sp_consensus_aura::sr25519::AuthorityPair, _, _, _, _, _, _, _, _, _>(
+//! aura::run::<Block, pezsp_consensus_aura::sr25519::AuthorityPair, _, _, _, _, _, _, _, _, _>(
 //!    params,
 //! );
 //! task_manager.spawn_essential_handle().spawn("aura", None, fut);
@@ -207,7 +207,7 @@
 //!
 //! This phase consists of changes to your teyrchain’s runtime that activate async backing feature.
 //!
-//! 1. Configure `pallet_aura`, setting `AllowMultipleBlocksPerSlot` to true in
+//! 1. Configure `pezpallet_aura`, setting `AllowMultipleBlocksPerSlot` to true in
 //!    `runtime/src/lib.rs`.
 #![doc = docify::embed!("../../templates/teyrchain/runtime/src/configs/mod.rs", aura_config)]
 //!
@@ -224,11 +224,11 @@
 //! 4. Update `MAXIMUM_BLOCK_WEIGHT` to reflect the increased time available for block production.
 #![doc = docify::embed!("../../templates/teyrchain/runtime/src/lib.rs", max_block_weight)]
 //!
-//! 5. Add a feature flagged alternative for `MinimumPeriod` in `pallet_timestamp`. The type should
-//!    be `ConstU64<0>` with the feature flag experimental, and `ConstU64<{SLOT_DURATION / 2}>`
-//!    without.
+//! 5. Add a feature flagged alternative for `MinimumPeriod` in `pezpallet_timestamp`. The type
+//!    should be `ConstU64<0>` with the feature flag experimental, and `ConstU64<{SLOT_DURATION /
+//!    2}>` without.
 //! ```ignore
-//! impl pallet_timestamp::Config for Runtime {
+//! impl pezpallet_timestamp::Config for Runtime {
 //!     ..
 //!     #[cfg(feature = "experimental")]
 //!     type MinimumPeriod = ConstU64<0>;
@@ -246,7 +246,7 @@
 //! actual time not matching up, stalling the teyrchain.
 //!
 //! One strategy to deal with this issue is to instead rely on relay chain block numbers for timing.
-//! Relay block number is kept track of by each teyrchain in `pallet-teyrchain-system` with the
+//! Relay block number is kept track of by each teyrchain in `pezpallet-teyrchain-system` with the
 //! storage value `LastRelayChainBlockNumber`. This value can be obtained and used wherever timing
 //! based on block number is needed.
 

@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Nominations, ValidatorPrefs } from '@polkadot/types/interfaces';
-import type { KeyringJson$Meta } from '@polkadot/ui-keyring/types';
-import type { HexString } from '@polkadot/util/types';
+import type { Nominations, ValidatorPrefs } from '@pezkuwi/types/interfaces';
+import type { KeyringJson$Meta } from '@pezkuwi/ui-keyring/types';
+import type { HexString } from '@pezkuwi/util/types';
 import type { AddressFlags, AddressIdentity, UseAccountInfo } from './types.js';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { keyring } from '@polkadot/ui-keyring';
-import { isFunction, isHex } from '@polkadot/util';
+import { keyring } from '@pezkuwi/ui-keyring';
+import { isFunction, isHex } from '@pezkuwi/util';
 
 import { isEmpty } from './utils/isEmpty.js';
 import { createNamedHook } from './createNamedHook.js';

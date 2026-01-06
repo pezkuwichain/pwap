@@ -4,8 +4,8 @@ import dotenv from 'dotenv'
 import pino from 'pino'
 import pinoHttp from 'pino-http'
 import { createClient } from '@supabase/supabase-js'
-import { ApiPromise, WsProvider, Keyring } from '@polkadot/api'
-import { cryptoWaitReady, signatureVerify } from '@polkadot/util-crypto'
+import { ApiPromise, WsProvider, Keyring } from '@pezkuwi/api'
+import { cryptoWaitReady, signatureVerify } from '@pezkuwi/util-crypto'
 
 dotenv.config()
 

@@ -1,21 +1,21 @@
-// Copyright 2017-2025 @polkadot/app-assets authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-assets authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { PalletAssetsAssetDetails, PalletAssetsAssetMetadata } from '@polkadot/types/lookup';
-import type { BN } from '@polkadot/util';
+import type { PezpalletAssetsAssetDetails, PezpalletAssetsAssetMetadata } from '@pezkuwi/types/lookup';
+import type { BN } from '@pezkuwi/util';
 
 import React, { useMemo, useState } from 'react';
 
-import { InputAddress, InputBalance, Modal, TxButton } from '@polkadot/react-components';
-import { useApi } from '@polkadot/react-hooks';
+import { InputAddress, InputBalance, Modal, TxButton } from '@pezkuwi/react-components';
+import { useApi } from '@pezkuwi/react-hooks';
 
 import { useTranslation } from '../../translate.js';
 
 interface Props {
   className?: string;
-  details: PalletAssetsAssetDetails;
+  details: PezpalletAssetsAssetDetails;
   id: BN;
-  metadata: PalletAssetsAssetMetadata;
+  metadata: PezpalletAssetsAssetMetadata;
   onClose: () => void;
 }
 

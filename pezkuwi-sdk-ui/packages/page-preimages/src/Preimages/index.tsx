@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-preimages authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-preimages authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { SubmittableExtrinsicFunction } from '@polkadot/api/types';
-import type { Preimage as TPreimage } from '@polkadot/react-hooks/types';
+import type { SubmittableExtrinsicFunction } from '@pezkuwi/api/types';
+import type { Preimage as TPreimage } from '@pezkuwi/react-hooks/types';
 
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 
-import { Button, styled, Table } from '@polkadot/react-components';
-import { useAccounts } from '@polkadot/react-hooks';
+import { Button, styled, Table } from '@pezkuwi/react-components';
+import { useAccounts } from '@pezkuwi/react-hooks';
 
 import { useTranslation } from '../translate.js';
 import usePreimages from '../usePreimages.js';

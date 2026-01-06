@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-preimages authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-preimages authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { HashState } from './types.js';
 
 import React, { useState } from 'react';
 
-import { Button, InputAddress, Modal, TxButton } from '@polkadot/react-components';
-import { useToggle } from '@polkadot/react-hooks';
-import { Available } from '@polkadot/react-query';
+import { Button, InputAddress, Modal, TxButton } from '@pezkuwi/react-components';
+import { useToggle } from '@pezkuwi/react-hooks';
+import { Available } from '@pezkuwi/react-query';
 
 import { useTranslation } from '../../translate.js';
 import Proposal, { EMPTY_PROPOSAL } from './Partial.js';

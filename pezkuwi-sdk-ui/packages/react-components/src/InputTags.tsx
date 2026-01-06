@@ -1,10 +1,10 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
 import store from 'store';
 
-import { useTheme } from '@polkadot/react-hooks';
+import { useTheme } from '@pezkuwi/react-hooks';
 
 import Dropdown from './Dropdown.js';
 import { styled } from './styled.js';

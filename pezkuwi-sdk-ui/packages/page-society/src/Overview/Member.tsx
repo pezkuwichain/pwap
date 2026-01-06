@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/app-society authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-society authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Balance, BlockNumber } from '@polkadot/types/interfaces';
-import type { BN } from '@polkadot/util';
+import type { Balance, BlockNumber } from '@pezkuwi/types/interfaces';
+import type { BN } from '@pezkuwi/util';
 import type { MapMember } from '../types.js';
 
 import React, { useCallback, useMemo } from 'react';
 
-import { AddressSmall, Columar, Expander, styled, Tag, TxButton } from '@polkadot/react-components';
-import { useAccounts, useApi } from '@polkadot/react-hooks';
-import { BlockToTime, FormatBalance } from '@polkadot/react-query';
-import { formatNumber } from '@polkadot/util';
+import { AddressSmall, Columar, Expander, styled, Tag, TxButton } from '@pezkuwi/react-components';
+import { useAccounts, useApi } from '@pezkuwi/react-hooks';
+import { BlockToTime, FormatBalance } from '@pezkuwi/react-query';
+import { formatNumber } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 import DesignKusama from './DesignKusama.js';

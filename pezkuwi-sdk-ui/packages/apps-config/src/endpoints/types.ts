@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/apps-config authors & contributors
+// Copyright 2017-2025 @pezkuwi/apps-config authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type React from 'react';
-import type { IconTheme } from '@polkadot/react-identicon/types';
-import type { HexString } from '@polkadot/util/types';
+import type { IconTheme } from '@pezkuwi/react-identicon/types';
+import type { HexString } from '@pezkuwi/util/types';
 import type { Option } from '../settings/types.js';
 
 interface BaseOption {

@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/app-democracy authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-democracy authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { PropIndex, Proposal } from '@polkadot/types/interfaces';
-import type { BN } from '@polkadot/util';
+import type { PropIndex, Proposal } from '@pezkuwi/types/interfaces';
+import type { BN } from '@pezkuwi/util';
 
 import React, { useMemo, useState } from 'react';
 
-import { Button, ConvictionDropdown, Modal, TxButton, VoteAccount, VoteValue } from '@polkadot/react-components';
-import { useAccounts, useApi, useToggle } from '@polkadot/react-hooks';
-import { ProposedAction } from '@polkadot/react-params';
+import { Button, ConvictionDropdown, Modal, TxButton, VoteAccount, VoteValue } from '@pezkuwi/react-components';
+import { useAccounts, useApi, useToggle } from '@pezkuwi/react-hooks';
+import { ProposedAction } from '@pezkuwi/react-params';
 
 import { useTranslation } from '../translate.js';
 

@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { QueryableStorageMultiArg } from '@polkadot/api/types';
-import type { DeriveSessionIndexes } from '@polkadot/api-derive/types';
-import type { Option, u32 } from '@polkadot/types';
-import type { EraIndex, Exposure, Nominations, SlashingSpans } from '@polkadot/types/interfaces';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { QueryableStorageMultiArg } from '@pezkuwi/api/types';
+import type { DeriveSessionIndexes } from '@pezkuwi/api-derive/types';
+import type { Option, u32 } from '@pezkuwi/types';
+import type { EraIndex, Exposure, Nominations, SlashingSpans } from '@pezkuwi/types/interfaces';
 
 import { useEffect, useState } from 'react';
 
-import { createNamedHook, useApi, useCall, useIsMountedRef } from '@polkadot/react-hooks';
-import { BN_ZERO } from '@polkadot/util';
+import { createNamedHook, useApi, useCall, useIsMountedRef } from '@pezkuwi/react-hooks';
+import { BN_ZERO } from '@pezkuwi/util';
 
 interface Inactives {
   nomsActive?: string[];

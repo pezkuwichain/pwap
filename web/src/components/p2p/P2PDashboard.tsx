@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { PlusCircle, Home, ClipboardList, TrendingUp, CheckCircle2, Clock, Store } from 'lucide-react';
+import { PlusCircle, Home, ClipboardList, TrendingUp, CheckCircle2, Clock, Store, Zap, Blocks } from 'lucide-react';
 import { AdList } from './AdList';
 import { CreateAd } from './CreateAd';
 import { NotificationBell } from './NotificationBell';
@@ -12,6 +12,8 @@ import { QuickFilterBar } from './OrderFilters';
 import { InternalBalanceCard } from './InternalBalanceCard';
 import { DepositModal } from './DepositModal';
 import { WithdrawModal } from './WithdrawModal';
+import { ExpressMode } from './ExpressMode';
+import { BlockTrade } from './BlockTrade';
 import { DEFAULT_FILTERS, type P2PFilters } from './types';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -185,11 +187,49 @@ export function P2PDashboard() {
           <QuickFilterBar filters={filters} onFiltersChange={setFilters} />
 
           <Tabs defaultValue="buy">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-5">
+              <TabsTrigger value="express" className="flex items-center gap-1">
+                <Zap className="w-3 h-3" />
+                Express
+              </TabsTrigger>
               <TabsTrigger value="buy">Buy</TabsTrigger>
               <TabsTrigger value="sell">Sell</TabsTrigger>
               <TabsTrigger value="my-ads">My Ads</TabsTrigger>
+              <TabsTrigger value="otc" className="flex items-center gap-1">
+                <Blocks className="w-3 h-3" />
+                OTC
+              </TabsTrigger>
             </TabsList>
+            <TabsContent value="express">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
+                <ExpressMode onTradeStarted={(id) => navigate(`/p2p/trade/${id}`)} />
+                <div className="space-y-4">
+                  <Card className="bg-gray-900 border-gray-800">
+                    <CardContent className="pt-6">
+                      <h3 className="text-lg font-semibold text-white mb-2">Why Express Mode?</h3>
+                      <ul className="space-y-2 text-sm text-gray-400">
+                        <li className="flex items-center gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-green-400" />
+                          Instant best-rate matching
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-green-400" />
+                          Verified merchants only
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-green-400" />
+                          Escrow protection
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-green-400" />
+                          No manual offer selection
+                        </li>
+                      </ul>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </TabsContent>
             <TabsContent value="buy">
               <AdList type="buy" filters={filters} />
             </TabsContent>
@@ -198,6 +238,40 @@ export function P2PDashboard() {
             </TabsContent>
             <TabsContent value="my-ads">
               <AdList type="my-ads" filters={filters} />
+            </TabsContent>
+            <TabsContent value="otc">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
+                <BlockTrade />
+                <div className="space-y-4">
+                  <Card className="bg-gray-900 border-gray-800">
+                    <CardContent className="pt-6">
+                      <h3 className="text-lg font-semibold text-white mb-2">Block Trade Benefits</h3>
+                      <ul className="space-y-2 text-sm text-gray-400">
+                        <li className="flex items-center gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-purple-400" />
+                          Custom pricing negotiation
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-purple-400" />
+                          Dedicated OTC desk support
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-purple-400" />
+                          Multi-tranche settlements
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-purple-400" />
+                          Enhanced privacy
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-purple-400" />
+                          Flexible payment terms
+                        </li>
+                      </ul>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
             </TabsContent>
           </Tabs>
         </>

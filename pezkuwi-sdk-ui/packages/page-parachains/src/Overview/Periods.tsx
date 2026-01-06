@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-parachains authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { BN } from '@polkadot/util';
+import type { BN } from '@pezkuwi/util';
 import type { LeasePeriod } from '../types.js';
 
 import React, { useMemo } from 'react';
 
-import { BN_ONE, formatNumber } from '@polkadot/util';
+import { BN_ONE, formatNumber } from '@pezkuwi/util';
 
 import LeaseBlocks from './LeaseBlocks.js';
 

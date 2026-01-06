@@ -1,17 +1,17 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ExtrinsicSignature } from '@polkadot/types/interfaces';
-import type { Codec, IExtrinsic, IMethod, TypeDef } from '@polkadot/types/types';
-import type { BN } from '@polkadot/util';
+import type { ExtrinsicSignature } from '@pezkuwi/types/interfaces';
+import type { Codec, IExtrinsic, IMethod, TypeDef } from '@pezkuwi/types/types';
+import type { BN } from '@pezkuwi/util';
 import type { ComponentMap } from '../types.js';
 
 import React, { useEffect, useState } from 'react';
 
-import { Static, styled } from '@polkadot/react-components';
-import Params from '@polkadot/react-params';
-import { FormatBalance } from '@polkadot/react-query';
-import { Enum, getTypeDef } from '@polkadot/types';
+import { Static, styled } from '@pezkuwi/react-components';
+import Params from '@pezkuwi/react-params';
+import { FormatBalance } from '@pezkuwi/react-query';
+import { Enum, getTypeDef } from '@pezkuwi/types';
 
 import { balanceCalls, balanceCallsOverrides } from '../overrides.js';
 import { useTranslation } from '../translate.js';

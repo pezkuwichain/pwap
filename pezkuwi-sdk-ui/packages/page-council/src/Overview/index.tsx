@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-council authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-council authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveCouncilVotes, DeriveElectionsInfo } from '@polkadot/api-derive/types';
-import type { AccountId } from '@polkadot/types/interfaces';
+import type { DeriveCouncilVotes, DeriveElectionsInfo } from '@pezkuwi/api-derive/types';
+import type { AccountId } from '@pezkuwi/types/interfaces';
 
 import React from 'react';
 
-import { Button } from '@polkadot/react-components';
-import { useApi, useBestNumber, useCall } from '@polkadot/react-hooks';
+import { Button } from '@pezkuwi/react-components';
+import { useApi, useBestNumber, useCall } from '@pezkuwi/react-hooks';
 
 import { useModuleElections } from '../useModuleElections.js';
 import Candidates from './Candidates.js';

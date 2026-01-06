@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/app-files authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-files authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { CSSProperties } from 'react';
 
 import React from 'react';
 
-import { styled } from '@polkadot/react-components';
+import { styled } from '@pezkuwi/react-components';
 
 export interface Props {
   className?: string,

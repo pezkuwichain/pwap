@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/app-staking-async authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking-async authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
 
-import { Icon, styled } from '@polkadot/react-components';
+import { Icon, styled } from '@pezkuwi/react-components';
 
 interface Props {
   children?: React.ReactNode;

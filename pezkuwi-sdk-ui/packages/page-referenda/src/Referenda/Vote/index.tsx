@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/app-democracy authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-democracy authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { Preimage } from '@polkadot/react-hooks/types';
-import type { BN } from '@polkadot/util';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { Preimage } from '@pezkuwi/react-hooks/types';
+import type { BN } from '@pezkuwi/util';
 import type { PalletVote, TrackInfo } from '../../types.js';
 
 import React, { useMemo, useState } from 'react';
 
-import { Button, Modal, styled, ToggleGroup, TxButton, VoteAccount } from '@polkadot/react-components';
-import { useAccounts, useApi, useToggle } from '@polkadot/react-hooks';
-import { ProposedAction } from '@polkadot/react-params';
+import { Button, Modal, styled, ToggleGroup, TxButton, VoteAccount } from '@pezkuwi/react-components';
+import { useAccounts, useApi, useToggle } from '@pezkuwi/react-hooks';
+import { ProposedAction } from '@pezkuwi/react-params';
 
 import { useTranslation } from '../../translate.js';
 import VoteAbstain from './VoteAbstain.js';
@@ -49,7 +49,7 @@ function createVoteOpts (api: ApiPromise, t: (key: string, options?: { replace: 
   let hasAbstain = false;
 
   try {
-    hasAbstain = !!api.createType('PalletConvictionVotingVoteAccountVote', { SplitAbstain: { abstain: 1 } }).isSplitAbstain;
+    hasAbstain = !!api.createType('PezpalletConvictionVotingVoteAccountVote', { SplitAbstain: { abstain: 1 } }).isSplitAbstain;
   } catch {
     hasAbstain = false;
   }

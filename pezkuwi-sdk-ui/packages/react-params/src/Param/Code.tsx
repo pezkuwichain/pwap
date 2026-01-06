@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/react-params authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-params authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Props } from '../types.js';
 
 import React, { useCallback, useState } from 'react';
 
-import { isWasm } from '@polkadot/util';
+import { isWasm } from '@pezkuwi/util';
 
 import Bytes from './Bytes.js';
 import BytesFile from './File.js';

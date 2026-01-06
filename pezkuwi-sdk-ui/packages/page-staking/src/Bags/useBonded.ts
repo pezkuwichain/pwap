@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveStakingAccount } from '@polkadot/api-derive/types';
-import type { AccountId32 } from '@polkadot/types/interfaces';
+import type { DeriveStakingAccount } from '@pezkuwi/api-derive/types';
+import type { AccountId32 } from '@pezkuwi/types/interfaces';
 import type { ListNode } from './types.js';
 
-import { createNamedHook, useApi, useCall } from '@polkadot/react-hooks';
+import { createNamedHook, useApi, useCall } from '@pezkuwi/react-hooks';
 
 const DERIVE_OPTS = {
   transform: (all: DeriveStakingAccount[]): ListNode[] => {

@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/app-nis authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-nis authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
 
-import { Button } from '@polkadot/react-components';
+import { Button } from '@pezkuwi/react-components';
 
 import { useProxies } from '../useProxies.js';
 import BidAdd from './BidAdd.js';

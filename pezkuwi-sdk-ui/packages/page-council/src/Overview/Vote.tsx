@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/app-council authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-council authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveElectionsInfo } from '@polkadot/api-derive/types';
-import type { BN } from '@polkadot/util';
+import type { DeriveElectionsInfo } from '@pezkuwi/api-derive/types';
+import type { BN } from '@pezkuwi/util';
 
 import React, { useEffect, useMemo, useState } from 'react';
 
-import { Button, InputAddress, InputAddressMulti, InputBalance, Modal, TxButton, VoteValue } from '@polkadot/react-components';
-import { useApi, useToggle } from '@polkadot/react-hooks';
-import { BN_ZERO } from '@polkadot/util';
+import { Button, InputAddress, InputAddressMulti, InputBalance, Modal, TxButton, VoteValue } from '@pezkuwi/react-components';
+import { useApi, useToggle } from '@pezkuwi/react-hooks';
+import { BN_ZERO } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 import { useModuleElections } from '../useModuleElections.js';

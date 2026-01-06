@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-assets authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-assets authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AssetInfoComplete } from '@polkadot/react-hooks/types';
+import type { AssetInfoComplete } from '@pezkuwi/react-hooks/types';
 
 import React, { useMemo } from 'react';
 
-import { styled } from '@polkadot/react-components';
-import { formatNumber } from '@polkadot/util';
+import { styled } from '@pezkuwi/react-components';
+import { formatNumber } from '@pezkuwi/util';
 
 import Account from './Account.js';
 import useBalances from './useBalances.js';

@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/apps authors & contributors
+// Copyright 2017-2025 @pezkuwi/apps authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { formatNumber, stringCamelCase } from '@polkadot/util';
+import { formatNumber, stringCamelCase } from '@pezkuwi/util';
 
 const MAX_SIZE = 48 * 1024;
 
 // FIXME The sorting here and the sorting from linting seems like a mismatch...
-const HEADER = '// Copyright 2017-2025 @polkadot/apps authors & contributors\n// SPDX-License-Identifier: Apache-2.0\n\n// Do not edit. Auto-generated via node scripts/imgConvert.mjs\n\n';
+const HEADER = '// Copyright 2017-2025 @pezkuwi/apps authors & contributors\n// SPDX-License-Identifier: Apache-2.0\n\n// Do not edit. Auto-generated via node scripts/imgConvert.mjs\n\n';
 
 /** @type {Record<string, string>} */
 const MIME = {

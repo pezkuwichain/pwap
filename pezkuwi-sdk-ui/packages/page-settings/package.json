@@ -1,24 +1,24 @@
 {
-  "bugs": "https://github.com/polkadot-js/apps/issues",
+  "bugs": "https://github.com/pezkuwichain/pezkuwi-web-app-projects/issues",
   "engines": {
     "node": ">=18"
   },
-  "homepage": "https://github.com/polkadot-js/apps/tree/master/packages/page-settings#readme",
+  "homepage": "https://github.com/pezkuwichain/pezkuwi-web-app-projects/tree/master/packages/page-settings#readme",
   "license": "Apache-2.0",
-  "name": "@polkadot/app-settings",
+  "name": "@pezkuwi/app-settings",
   "private": true,
   "repository": {
     "directory": "packages/page-settings",
     "type": "git",
-    "url": "https://github.com/polkadot-js/apps.git"
+    "url": "https://github.com/pezkuwichain/pezkuwi-web-app-projects.git"
   },
   "sideEffects": false,
   "type": "module",
   "version": "0.168.2-0-x",
   "dependencies": {
-    "@polkadot/apps-config": "^0.168.2-0-x",
-    "@polkadot/react-components": "^0.168.2-0-x",
-    "@polkadot/react-query": "^0.168.2-0-x",
+    "@pezkuwi/apps-config": "^0.168.2-0-x",
+    "@pezkuwi/react-components": "^0.168.2-0-x",
+    "@pezkuwi/react-query": "^0.168.2-0-x",
     "query-string": "^8.1.0"
   },
   "peerDependencies": {

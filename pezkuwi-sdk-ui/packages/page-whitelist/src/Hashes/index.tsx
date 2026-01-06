@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/app-whitelist authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-whitelist authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { SubmittableExtrinsicFunction } from '@polkadot/api/types';
+import type { SubmittableExtrinsicFunction } from '@pezkuwi/api/types';
 
 import React, { useRef } from 'react';
 
-import { Table } from '@polkadot/react-components';
+import { Table } from '@pezkuwi/react-components';
 
 import { useTranslation } from '../translate.js';
 import useHashes from '../useHashes.js';

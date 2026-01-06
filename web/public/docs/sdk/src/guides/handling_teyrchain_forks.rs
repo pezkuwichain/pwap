@@ -28,10 +28,10 @@
 //! latency and reduces throughput, affecting the overall performance of the teyrchain.
 //!
 //! # Building on Older Pelay Parents
-//! Cumulus offers a way to mitigate the occurence of forks. Instead of picking a block at the tip
-//! of the relay chain to build blocks, the node side can pick a relay chain block that is older. By
-//! building on 12s old relay chain blocks, forks will already have settled and the teyrchain can
-//! build fork-free.
+//! Pezcumulus offers a way to mitigate the occurence of forks. Instead of picking a block at the
+//! tip of the relay chain to build blocks, the node side can pick a relay chain block that is
+//! older. By building on 12s old relay chain blocks, forks will already have settled and the
+//! teyrchain can build fork-free.
 //!
 //! ```text
 //! Without offset:
@@ -68,10 +68,10 @@
 //! ```ignore
 //! const RELAY_PARENT_OFFSET = 2;
 //! ```
-//! 2. Pass this constant to the `teyrchain-system` pallet.
+//! 2. Pass this constant to the `teyrchain-system` pezpallet.
 //!
 //! ```ignore
-//! impl cumulus_pallet_teyrchain_system::Config for Runtime {
+//! impl pezcumulus_pezpallet_teyrchain_system::Config for Runtime {
 //! 	// Other config items here
 //!     ...
 //! 	type RelayParentOffset = ConstU32<RELAY_PARENT_OFFSET>;
@@ -80,7 +80,7 @@
 //! 3. Implement the `RelayParentOffsetApi` runtime API for your runtime.
 //!
 //! ```ignore
-//! impl cumulus_primitives_core::RelayParentOffsetApi<Block> for Runtime {
+//! impl pezcumulus_primitives_core::RelayParentOffsetApi<Block> for Runtime {
 //!     fn relay_parent_offset() -> u32 {
 //! 		RELAY_PARENT_OFFSET
 //! 	}

@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/app-parachains authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Option, StorageKey } from '@polkadot/types';
-import type { Hash, ParaId } from '@polkadot/types/interfaces';
-import type { PolkadotRuntimeCommonParasRegistrarParaInfo } from '@polkadot/types/lookup';
+import type { Option, StorageKey } from '@pezkuwi/types';
+import type { Hash, ParaId } from '@pezkuwi/types/interfaces';
+import type { PezkuwiRuntimeCommonParasRegistrarParaInfo } from '@pezkuwi/types/lookup';
 import type { OwnedId, OwnedIdPartial } from './types.js';
 
 import { useMemo } from 'react';
 
-import { createNamedHook, useAccounts, useApi, useCall, useEventTrigger, useMapEntries } from '@polkadot/react-hooks';
+import { createNamedHook, useAccounts, useApi, useCall, useEventTrigger, useMapEntries } from '@pezkuwi/react-hooks';
 
 interface CodeHash {
   hash: Hash | null;
@@ -21,7 +21,7 @@ interface Owned {
 }
 
 const OPT_ENTRIES = {
-  transform: (entries: [StorageKey<[ParaId]>, Option<PolkadotRuntimeCommonParasRegistrarParaInfo>][]): Owned => {
+  transform: (entries: [StorageKey<[ParaId]>, Option<PezkuwiRuntimeCommonParasRegistrarParaInfo>][]): Owned => {
     const owned = entries
       .map(([{ args: [paraId] }, optInfo]): OwnedIdPartial | null => {
         if (optInfo.isNone) {

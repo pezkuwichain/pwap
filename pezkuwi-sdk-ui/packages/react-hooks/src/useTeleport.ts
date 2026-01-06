@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { LinkOption } from '@polkadot/apps-config/endpoints/types';
-import type { ParaId } from '@polkadot/types/interfaces';
+import type { LinkOption } from '@pezkuwi/apps-config/endpoints/types';
+import type { ParaId } from '@pezkuwi/types/interfaces';
 
 import { useEffect, useState } from 'react';
 
-import { createWsEndpoints } from '@polkadot/apps-config';
-import { isNumber } from '@polkadot/util';
+import { createWsEndpoints } from '@pezkuwi/apps-config';
+import { isNumber } from '@pezkuwi/util';
 
 import { createNamedHook } from './createNamedHook.js';
 import { useApi } from './useApi.js';

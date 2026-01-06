@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-assets authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-assets authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { TeamState } from './types.js';
 
 import React, { useEffect, useState } from 'react';
 
-import { InputAddress, Modal } from '@polkadot/react-components';
-import { useApi } from '@polkadot/react-hooks';
+import { InputAddress, Modal } from '@pezkuwi/react-components';
+import { useApi } from '@pezkuwi/react-hooks';
 
 import { useTranslation } from '../../translate.js';
 

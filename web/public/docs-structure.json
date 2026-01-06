@@ -27,5 +27,7 @@
     "SECURITY": "contributor/SECURITY.md",
     "STYLE GUIDE": "contributor/STYLE_GUIDE.md",
     "Weight Generation": "contributor/weight-generation.md"
-  }
+  },
+  "README": "README.md",
+  "REBRAND PROGRESS": "REBRAND_PROGRESS.md"
 }

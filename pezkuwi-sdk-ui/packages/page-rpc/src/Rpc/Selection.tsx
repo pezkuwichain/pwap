@@ -1,17 +1,17 @@
-// Copyright 2017-2025 @polkadot/app-rpc authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-rpc authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { QueueTxRpcAdd } from '@polkadot/react-components/Status/types';
-import type { ParamDef, RawParam } from '@polkadot/react-params/types';
-import type { DefinitionRpcExt } from '@polkadot/types/types';
+import type { QueueTxRpcAdd } from '@pezkuwi/react-components/Status/types';
+import type { ParamDef, RawParam } from '@pezkuwi/react-params/types';
+import type { DefinitionRpcExt } from '@pezkuwi/types/types';
 
 import React, { useCallback, useMemo, useState } from 'react';
 
-import { Button, InputRpc } from '@polkadot/react-components';
-import Params from '@polkadot/react-params';
-import { getTypeDef } from '@polkadot/types/create';
-import jsonrpc from '@polkadot/types/interfaces/jsonrpc';
-import { isNull } from '@polkadot/util';
+import { Button, InputRpc } from '@pezkuwi/react-components';
+import Params from '@pezkuwi/react-params';
+import { getTypeDef } from '@pezkuwi/types/create';
+import jsonrpc from '@pezkuwi/types/interfaces/jsonrpc';
+import { isNull } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 

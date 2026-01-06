@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/app-nfts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-nfts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ItemInfo } from './types.js';
 
 import React from 'react';
 
-import { AddressSmall, IconLink, Table } from '@polkadot/react-components';
+import { AddressSmall, IconLink, Table } from '@pezkuwi/react-components';
 
 interface Props {
   className?: string;

@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { StorageEntryBase } from '@polkadot/api/types';
-import type { PalletConstantMetadataLatest } from '@polkadot/types/interfaces';
-import type { AnyTuple } from '@polkadot/types/types';
+import type { StorageEntryBase } from '@pezkuwi/api/types';
+import type { PezpalletConstantMetadataLatest } from '@pezkuwi/types/interfaces';
+import type { AnyTuple } from '@pezkuwi/types/types';
 
 export type StorageEntryPromise = StorageEntryBase<'promise', any, AnyTuple>;
 
@@ -13,5 +13,5 @@ export interface ConstValueBase {
 }
 
 export interface ConstValue extends ConstValueBase {
-  meta: PalletConstantMetadataLatest;
+  meta: PezpalletConstantMetadataLatest;
 }

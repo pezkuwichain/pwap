@@ -1,4 +1,4 @@
-import { ApiPromise } from '@polkadot/api';
+import { ApiPromise } from '@pezkuwi/api';
 import { KNOWN_TOKENS, PoolInfo, SwapQuote, UserLiquidityPosition } from '@pezkuwi/types/dex';
 
 /**

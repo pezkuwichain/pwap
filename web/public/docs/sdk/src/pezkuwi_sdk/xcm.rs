@@ -5,7 +5,7 @@
 //!
 //! ## Overview
 //!
-//! XCM is a standard, specification of which lives in the [xcm format repo](https://github.com/paritytech/xcm-format).
+//! XCM is a standard, specification of which lives in the [xcm format repo](https://github.com/polkadot-fellows/xcm-format).
 //! It's agnostic both in programming language and blockchain platform, which means it could be used
 //! in Rust in Pezkuwi, or in Go or C++ in any other platform like Cosmos or Ethereum.
 //!
@@ -30,15 +30,15 @@
 //!
 //! ## Implementation
 //!
-//! A ready-to-use Rust implementation lives in the [pezkuwi-sdk repo](https://github.com/paritytech/polkadot-sdk/tree/master/polkadot/xcm),
+//! A ready-to-use Rust implementation lives in the [pezkuwi-sdk repo](https://github.com/pezkuwichain/pezkuwi-sdk/tree/main/pezkuwi/xcm),
 //! but will be moved to its own repo in the future.
 //!
 //! Its main components are:
 //! - [`xcm`](::xcm): The definition of the basic types and instructions.
 //! - [`xcm_executor`]: An implementation of the virtual machine to execute instructions.
-//! - [`pallet_xcm`]: A FRAME pallet for interacting with the executor.
+//! - [`pezpallet_xcm`]: A FRAME pezpallet for interacting with the executor.
 //! - [`xcm_builder`]: A collection of types to configure the executor.
-//! - [`xcm_simulator`]: A playground for trying out different XCM programs and executor
+//! - [`xcm_pez_simulator`]: A playground for trying out different XCM programs and executor
 //!   configurations.
 //!
 //! ## Example
@@ -49,7 +49,7 @@
 //!
 //! ## Get started
 //!
-//! To learn how it works and to get started, go to the [XCM docs](xcm_docs).
+//! To learn how it works and to get started, go to the [XCM docs](xcm_pez_docs).
 
 #[cfg(test)]
 mod tests {

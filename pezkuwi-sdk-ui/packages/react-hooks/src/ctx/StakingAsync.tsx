@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { PropsWithChildren } from 'react';
@@ -6,9 +6,9 @@ import type { StakingAsyncApis } from './types.js';
 
 import React, { useEffect, useMemo, useState } from 'react';
 
-import { ApiPromise, WsProvider } from '@polkadot/api';
-import { createWsEndpoints } from '@polkadot/apps-config';
-import { useApi } from '@polkadot/react-hooks';
+import { ApiPromise, WsProvider } from '@pezkuwi/api';
+import { createWsEndpoints } from '@pezkuwi/apps-config';
+import { useApi } from '@pezkuwi/react-hooks';
 
 const allEndPoints = createWsEndpoints((k, v) => v?.toString() || k);
 

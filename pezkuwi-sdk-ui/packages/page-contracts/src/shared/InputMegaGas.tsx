@@ -1,14 +1,14 @@
-// Copyright 2017-2025 @polkadot/app-contracts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-contracts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { WeightV2 } from '@polkadot/types/interfaces';
-import type { BN } from '@polkadot/util';
+import type { WeightV2 } from '@pezkuwi/types/interfaces';
+import type { BN } from '@pezkuwi/util';
 import type { UseWeight } from '../types.js';
 
 import React, { useEffect, useMemo, useState } from 'react';
 
-import { InputNumber, Toggle } from '@polkadot/react-components';
-import { BN_MILLION, BN_ONE, BN_ZERO } from '@polkadot/util';
+import { InputNumber, Toggle } from '@pezkuwi/react-components';
+import { BN_MILLION, BN_ONE, BN_ZERO } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 

@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/react-api authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-api authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Blockchain } from '@acala-network/chopsticks-core';
-import type { LinkOption } from '@polkadot/apps-config/endpoints/types';
-import type { InjectedExtension } from '@polkadot/extension-inject/types';
-import type { ChainProperties, ChainType } from '@polkadot/types/interfaces';
-import type { KeyringStore } from '@polkadot/ui-keyring/types';
+import type { LinkOption } from '@pezkuwi/apps-config/endpoints/types';
+import type { InjectedExtension } from '@pezkuwi/extension-inject/types';
+import type { ChainProperties, ChainType } from '@pezkuwi/types/interfaces';
+import type { KeyringStore } from '@pezkuwi/ui-keyring/types';
 import type { ApiProps, ApiState, InjectedAccountExt } from './types.js';
 
 import { ChopsticksProvider, setStorage } from '@acala-network/chopsticks-core';
@@ -13,18 +13,18 @@ import * as Sc from '@substrate/connect';
 import React, { useEffect, useMemo, useState } from 'react';
 import store from 'store';
 
-import { ApiPromise, ScProvider, WsProvider } from '@polkadot/api';
-import { deriveMapCache, setDeriveCache } from '@polkadot/api-derive/util';
-import { ethereumChains, typesBundle } from '@polkadot/apps-config';
-import { web3Accounts, web3Enable } from '@polkadot/extension-dapp';
-import { TokenUnit } from '@polkadot/react-components/InputConsts/units';
-import { useApiUrl, useCoretimeEndpoint, useEndpoint, usePeopleEndpoint, useQueue } from '@polkadot/react-hooks';
-import { ApiCtx } from '@polkadot/react-hooks/ctx/Api';
-import { ApiSigner } from '@polkadot/react-signer/signers';
-import { keyring } from '@polkadot/ui-keyring';
-import { settings } from '@polkadot/ui-settings';
-import { formatBalance, isNumber, isTestChain, objectSpread, stringify } from '@polkadot/util';
-import { defaults as addressDefaults } from '@polkadot/util-crypto/address/defaults';
+import { ApiPromise, ScProvider, WsProvider } from '@pezkuwi/api';
+import { deriveMapCache, setDeriveCache } from '@pezkuwi/api-derive/util';
+import { ethereumChains, typesBundle } from '@pezkuwi/apps-config';
+import { web3Accounts, web3Enable } from '@pezkuwi/extension-dapp';
+import { TokenUnit } from '@pezkuwi/react-components/InputConsts/units';
+import { useApiUrl, useCoretimeEndpoint, useEndpoint, usePeopleEndpoint, useQueue } from '@pezkuwi/react-hooks';
+import { ApiCtx } from '@pezkuwi/react-hooks/ctx/Api';
+import { ApiSigner } from '@pezkuwi/react-signer/signers';
+import { keyring } from '@pezkuwi/ui-keyring';
+import { settings } from '@pezkuwi/ui-settings';
+import { formatBalance, isNumber, isTestChain, objectSpread, stringify } from '@pezkuwi/util';
+import { defaults as addressDefaults } from '@pezkuwi/util-crypto/address/defaults';
 
 import { lightSpecs, relaySpecs } from './light/index.js';
 import { statics } from './statics.js';
@@ -224,6 +224,7 @@ async function getLightProvider (chain: string): Promise<ScProvider> {
     throw new Error(`Unable to construct light chain ${chain}`);
   }
 
+  // @ts-expect-error WellKnownChain type mismatch with @substrate/connect
   const relay = new ScProvider(Sc, relaySpecs[relayName]);
 
   if (!paraName) {
@@ -234,6 +235,7 @@ async function getLightProvider (chain: string): Promise<ScProvider> {
   const specMod = await import(`${lightSpecs[relayName][paraName]}`);
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+  // @ts-expect-error WellKnownChain type mismatch with @substrate/connect
   return new ScProvider(Sc, JSON.stringify(specMod.default), relay);
 }
 

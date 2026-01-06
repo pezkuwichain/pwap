@@ -1,15 +1,15 @@
-// Copyright 2017-2025 @polkadot/app-accounts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-accounts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ActionStatus } from '@polkadot/react-components/Status/types';
-import type { HexString } from '@polkadot/util/types';
+import type { ActionStatus } from '@pezkuwi/react-components/Status/types';
+import type { HexString } from '@pezkuwi/util/types';
 import type { ModalProps } from '../types.js';
 
 import React, { useCallback, useMemo, useState } from 'react';
 
-import { AddressRow, Button, Input, InputAddress, MarkWarning, Modal, QrScanAddress, styled } from '@polkadot/react-components';
-import { useApi, useIpfs } from '@polkadot/react-hooks';
-import { keyring } from '@polkadot/ui-keyring';
+import { AddressRow, Button, Input, InputAddress, MarkWarning, Modal, QrScanAddress, styled } from '@pezkuwi/react-components';
+import { useApi, useIpfs } from '@pezkuwi/react-hooks';
+import { keyring } from '@pezkuwi/ui-keyring';
 
 import { useTranslation } from '../translate.js';
 import PasswordInput from './PasswordInput.js';

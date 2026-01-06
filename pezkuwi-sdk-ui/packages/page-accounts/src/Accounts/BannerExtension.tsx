@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/app-accounts authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-accounts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import { detect } from 'detect-browser';
 import React, { useRef } from 'react';
 import { Trans } from 'react-i18next';
 
-import useExtensionCounter from '@polkadot/app-settings/useCounter';
-import { availableExtensions } from '@polkadot/apps-config';
-import { isWeb3Injected } from '@polkadot/extension-dapp';
-import { onlyOnWeb } from '@polkadot/react-api/hoc';
-import { useApi } from '@polkadot/react-hooks';
-import { stringUpperFirst } from '@polkadot/util';
+import useExtensionCounter from '@pezkuwi/app-settings/useCounter';
+import { availableExtensions } from '@pezkuwi/apps-config';
+import { isWeb3Injected } from '@pezkuwi/extension-dapp';
+import { onlyOnWeb } from '@pezkuwi/react-api/hoc';
+import { useApi } from '@pezkuwi/react-hooks';
+import { stringUpperFirst } from '@pezkuwi/util';
 
 import { useTranslation } from '../translate.js';
 import Banner from './Banner.js';

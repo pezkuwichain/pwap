@@ -1,17 +1,17 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { PalletDemocracyVoteVoting } from '@polkadot/types/lookup';
+import type { PezpalletDemocracyVoteVoting } from '@pezkuwi/types/lookup';
 
-import { useAccounts, useApi, useCall } from '@polkadot/react-hooks';
+import { useAccounts, useApi, useCall } from '@pezkuwi/react-hooks';
 
 import { createNamedHook } from './createNamedHook.js';
 
-function useDelegationsImpl (): PalletDemocracyVoteVoting[] | undefined {
+function useDelegationsImpl (): PezpalletDemocracyVoteVoting[] | undefined {
   const { api } = useApi();
   const { allAccounts } = useAccounts();
 
-  return useCall<PalletDemocracyVoteVoting[]>(api.query.democracy?.votingOf?.multi, [allAccounts]);
+  return useCall<PezpalletDemocracyVoteVoting[]>(api.query.democracy?.votingOf?.multi, [allAccounts]);
 }
 
 export const useDelegations = createNamedHook('useDelegations', useDelegationsImpl);

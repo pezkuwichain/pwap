@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-tech-comm authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-tech-comm authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { SubmittableExtrinsicFunction } from '@polkadot/api/types';
-import type { Hash } from '@polkadot/types/interfaces';
+import type { SubmittableExtrinsicFunction } from '@pezkuwi/api/types';
+import type { Hash } from '@pezkuwi/types/interfaces';
 import type { ComponentProps } from '../types.js';
 
 import React, { useRef } from 'react';
 
-import { Button, Table } from '@polkadot/react-components';
+import { Button, Table } from '@pezkuwi/react-components';
 
 import { useTranslation } from '../translate.js';
 import Proposal from './Proposal.js';

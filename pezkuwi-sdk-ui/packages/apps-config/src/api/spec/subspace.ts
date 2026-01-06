@@ -1,19 +1,19 @@
-// Copyright 2017-2025 @polkadot/apps-config authors & contributors
+// Copyright 2017-2025 @pezkuwi/apps-config authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 // structs need to be in order
 /* eslint-disable sort-keys */
 
 import type { Observable } from 'rxjs';
-import type { ApiInterfaceRx } from '@polkadot/api/types';
-import type { Struct, u64 } from '@polkadot/types';
-import type { AccountId32, Digest, Header } from '@polkadot/types/interfaces';
-import type { OverrideBundleDefinition, Registry } from '@polkadot/types/types';
+import type { ApiInterfaceRx } from '@pezkuwi/api/types';
+import type { Struct, u64 } from '@pezkuwi/types';
+import type { AccountId32, Digest, Header } from '@pezkuwi/types/interfaces';
+import type { OverrideBundleDefinition, Registry } from '@pezkuwi/types/types';
 
 import { combineLatest, map } from 'rxjs';
 
-import { bestNumber, bestNumberFinalized, bestNumberLag, getBlock, subscribeNewBlocks } from '@polkadot/api-derive/chain';
-import { memo } from '@polkadot/api-derive/util';
+import { bestNumber, bestNumberFinalized, bestNumberLag, getBlock, subscribeNewBlocks } from '@pezkuwi/api-derive/chain';
+import { memo } from '@pezkuwi/api-derive/util';
 
 interface HeaderExtended extends Header {
   readonly author: AccountId32 | undefined;
@@ -53,13 +53,13 @@ function createHeaderExtended (
 ): HeaderExtended {
   const HeaderBase = registry.createClass('Header');
 
-  class SubHeaderExtended extends HeaderBase implements HeaderExtended {
+  class SubHeaderExtended extends HeaderBase {
     readonly #author?: AccountId32;
 
     constructor (registry: Registry, header: Header, api: ApiInterfaceRx) {
       super(registry, header);
-      this.#author = extractAuthor(this.digest, api);
-      this.createdAtHash = header?.createdAtHash;
+      this.#author = extractAuthor((this as any).digest, api);
+      (this as any).createdAtHash = header?.createdAtHash;
     }
 
     public get author (): AccountId32 | undefined {
@@ -67,7 +67,7 @@ function createHeaderExtended (
     }
   }
 
-  return new SubHeaderExtended(registry, header, api);
+  return new SubHeaderExtended(registry, header, api) as unknown as HeaderExtended;
 }
 
 function subscribeNewHeads (

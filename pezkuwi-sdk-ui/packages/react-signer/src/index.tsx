@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/react-signer authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-signer authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { QueueTx, QueueTxMessageSetStatus, QueueTxResult } from '@polkadot/react-components/Status/types';
-import type { BareProps as Props } from '@polkadot/react-components/types';
-import type { DefinitionRpcExt } from '@polkadot/types/types';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { QueueTx, QueueTxMessageSetStatus, QueueTxResult } from '@pezkuwi/react-components/Status/types';
+import type { BareProps as Props } from '@pezkuwi/react-components/types';
+import type { DefinitionRpcExt } from '@pezkuwi/types/types';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { Modal, styled } from '@polkadot/react-components';
-import { useApi, useQueue } from '@polkadot/react-hooks';
-import { assert, isFunction, loggerFormat } from '@polkadot/util';
+import { Modal, styled } from '@pezkuwi/react-components';
+import { useApi, useQueue } from '@pezkuwi/react-hooks';
+import { assert, isFunction, loggerFormat } from '@pezkuwi/util';
 
 import { useTranslation } from './translate.js';
 import TxSigned from './TxSigned.js';

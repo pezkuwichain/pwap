@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/app-broker authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-broker authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { LinkOption } from '@polkadot/apps-config/endpoints/types';
+import type { LinkOption } from '@pezkuwi/apps-config/endpoints/types';
 import type { statsType } from '../types.js';
 
 import React from 'react';
 
-import { CardSummary, styled, SummaryBox, UsageBar } from '@polkadot/react-components';
-import { defaultHighlight } from '@polkadot/react-components/styles';
-import { useApi } from '@polkadot/react-hooks';
-import { type CoreWorkload } from '@polkadot/react-hooks/types';
-import { BN, BN_ZERO } from '@polkadot/util';
+import { CardSummary, styled, SummaryBox, UsageBar } from '@pezkuwi/react-components';
+import { defaultHighlight } from '@pezkuwi/react-components/styles';
+import { useApi } from '@pezkuwi/react-hooks';
+import { type CoreWorkload } from '@pezkuwi/react-hooks/types';
+import { BN, BN_ZERO } from '@pezkuwi/util';
 
 import { useBrokerContext } from '../BrokerContext.js';
 import { useTranslation } from '../translate.js';

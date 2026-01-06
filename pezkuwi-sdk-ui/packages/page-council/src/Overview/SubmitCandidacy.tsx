@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-council authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-council authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { u128 } from '@polkadot/types';
+import type { u128 } from '@pezkuwi/types';
 import type { ComponentProps as Props } from './types.js';
 
 import React, { useState } from 'react';
 
-import { Button, InputAddress, InputBalance, Modal, TxButton } from '@polkadot/react-components';
-import { useApi, useModal } from '@polkadot/react-hooks';
+import { Button, InputAddress, InputBalance, Modal, TxButton } from '@pezkuwi/react-components';
+import { useApi, useModal } from '@pezkuwi/react-hooks';
 
 import { useTranslation } from '../translate.js';
 import { useModuleElections } from '../useModuleElections.js';

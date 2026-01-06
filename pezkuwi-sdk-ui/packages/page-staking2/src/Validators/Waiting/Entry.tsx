@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Validator } from '../../types.js';
 
 import React from 'react';
 
-import { useToggle } from '@polkadot/react-hooks';
+import { useToggle } from '@pezkuwi/react-hooks';
 
 import Bottom from '../Active/Row/Bottom.js';
 import Middle from '../Active/Row/Middle.js';

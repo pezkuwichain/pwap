@@ -1,18 +1,18 @@
-// Copyright 2017-2025 @polkadot/app-staking-async authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking-async authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { AccountId32, Event, Hash } from '@polkadot/types/interfaces';
-import type { FrameSupportDispatchPerDispatchClassWeight, PolkadotRuntimeParachainsConfigurationHostConfiguration } from '@polkadot/types/lookup';
-import type { IEventData, ITuple } from '@polkadot/types/types';
-import type { u32, Vec } from '@polkadot/types-codec';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { AccountId32, Event, Hash } from '@pezkuwi/types/interfaces';
+import type { PezframeSupportDispatchPerDispatchClassWeight, PezkuwiRuntimeTeyrchainsConfigurationHostConfiguration } from '@pezkuwi/types/lookup';
+import type { IEventData, ITuple } from '@pezkuwi/types/types';
+import type { u32, Vec } from '@pezkuwi/types-codec';
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { Button, Dropdown, Input, MarkWarning, styled } from '@polkadot/react-components';
-import { useApi } from '@polkadot/react-hooks';
-import { getApi } from '@polkadot/react-hooks/ctx/StakingAsync';
-import { formatBalance } from '@polkadot/util';
+import { Button, Dropdown, Input, MarkWarning, styled } from '@pezkuwi/react-components';
+import { useApi } from '@pezkuwi/react-hooks';
+import { getApi } from '@pezkuwi/react-hooks/ctx/StakingAsync';
+import { formatBalance } from '@pezkuwi/util';
 
 import AssetHubSection from './ah.js';
 import RelaySection from './relay.js';
@@ -149,7 +149,7 @@ const commandCenterHandler = async (
     let parachainConfig;
 
     try {
-      const configuration = await rcApi.query.configuration.activeConfig() as PolkadotRuntimeParachainsConfigurationHostConfiguration;
+      const configuration = await rcApi.query.configuration.activeConfig() as PezkuwiRuntimeTeyrchainsConfigurationHostConfiguration;
 
       parachainConfig = {
         maxDownwardMessageSize: configuration.maxDownwardMessageSize?.toNumber() || 0,
@@ -284,7 +284,7 @@ const commandCenterHandler = async (
     // Get block weight
     const weight = await (await ahApi.at(header.hash)).query.system.blockWeight();
 
-    const formatWeight = (w: FrameSupportDispatchPerDispatchClassWeight) => {
+    const formatWeight = (w: PezframeSupportDispatchPerDispatchClassWeight) => {
       const normalRef = w.normal?.refTime?.toBigInt() || 0n;
       const operationalRef = w.operational?.refTime?.toBigInt() || 0n;
       const mandatoryRef = w.mandatory?.refTime?.toBigInt() || 0n;
@@ -310,7 +310,8 @@ const commandCenterHandler = async (
     const formattedQueuedScore = parsedQueuedScore.isSome
       ? (() => {
         const score = parsedQueuedScore.unwrap();
-        const minimalStake = score.minimalStake?.toString() || '0';
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const minimalStake = (score as any).minimalStake?.toString() || '0';
         const formattedMinStake = formatBalance(minimalStake, { forceUnit: '-', withSi: true });
 
         return `minStake: ${formattedMinStake}, ...`;
@@ -523,7 +524,7 @@ function CommandCenter ({ ahApi: initialAhApi, ahEndPoints, isRelayChain, rcApi:
           // Get block weight
           const weight = await (await ahApi.at(currentBlockHash)).query.system.blockWeight();
 
-          const formatWeight = (w: FrameSupportDispatchPerDispatchClassWeight) => {
+          const formatWeight = (w: PezframeSupportDispatchPerDispatchClassWeight) => {
             const normalRef = w.normal?.refTime?.toBigInt() || 0n;
             const operationalRef = w.operational?.refTime?.toBigInt() || 0n;
             const mandatoryRef = w.mandatory?.refTime?.toBigInt() || 0n;

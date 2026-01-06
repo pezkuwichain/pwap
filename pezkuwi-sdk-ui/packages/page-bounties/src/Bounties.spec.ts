@@ -1,45 +1,45 @@
-// Copyright 2017-2025 @polkadot/app-bounties authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-bounties authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-/// <reference types="@polkadot/dev-test/globals.d.ts" />
+/// <reference types="@pezkuwi/dev-test/globals.d.ts" />
 
 /* eslint-disable jest/expect-expect */
 
-import type { ApiPromise } from '@polkadot/api';
-import type { SubmittableExtrinsic } from '@polkadot/api/types';
-import type { DeriveCollectiveProposal } from '@polkadot/api-derive/types';
-import type { BountyIndex } from '@polkadot/types/interfaces';
-import type { PalletBountiesBounty, PalletBountiesBountyStatus } from '@polkadot/types/lookup';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { SubmittableExtrinsic } from '@pezkuwi/api/types';
+import type { DeriveCollectiveProposal } from '@pezkuwi/api-derive/types';
+import type { BountyIndex } from '@pezkuwi/types/interfaces';
+import type { PezpalletBountiesBounty, PezpalletBountiesBountyStatus } from '@pezkuwi/types/lookup';
 
 import { fireEvent } from '@testing-library/react';
 
-import i18next from '@polkadot/react-components/i18n';
-import { createAugmentedApi } from '@polkadot/test-support/api';
-import { balanceOf } from '@polkadot/test-support/creation/balance';
-import { BountyFactory } from '@polkadot/test-support/creation/bounties';
-import { proposalFactory } from '@polkadot/test-support/creation/treasury';
-import { mockHooks } from '@polkadot/test-support/hooks';
-import { alice, bob, MemoryStore } from '@polkadot/test-support/keyring';
-import { keyring } from '@polkadot/ui-keyring';
-import { BN } from '@polkadot/util';
+import i18next from '@pezkuwi/react-components/i18n';
+import { createAugmentedApi } from '@pezkuwi/test-support/api';
+import { balanceOf } from '@pezkuwi/test-support/creation/balance';
+import { BountyFactory } from '@pezkuwi/test-support/creation/bounties';
+import { proposalFactory } from '@pezkuwi/test-support/creation/treasury';
+import { mockHooks } from '@pezkuwi/test-support/hooks';
+import { alice, bob, MemoryStore } from '@pezkuwi/test-support/keyring';
+import { keyring } from '@pezkuwi/ui-keyring';
+import { BN } from '@pezkuwi/util';
 
 import { defaultBountyUpdatePeriod, mockBountyHooks } from '../test/hooks/defaults.js';
 import { BountiesPage } from '../test/pages/bountiesPage.js';
 import { BLOCKS_PERCENTAGE_LEFT_TO_SHOW_WARNING } from './BountyNextActionInfo/BountyActionMessage.js';
 
-jest.mock('@polkadot/react-hooks/useTreasury', () => ({
+jest.mock('@pezkuwi/react-hooks/useTreasury', () => ({
   useTreasury: () => mockHooks.treasury
 }));
 
-jest.mock('@polkadot/react-hooks/useCollectiveInstance', () => ({
+jest.mock('@pezkuwi/react-hooks/useCollectiveInstance', () => ({
   useCollectiveInstance: () => 'council'
 }));
 
-jest.mock('@polkadot/react-hooks/useCollectiveMembers', () => ({
+jest.mock('@pezkuwi/react-hooks/useCollectiveMembers', () => ({
   useCollectiveMembers: () => mockHooks.members
 }));
 
-jest.mock('@polkadot/react-hooks/useBlockTime', () => ({
+jest.mock('@pezkuwi/react-hooks/useBlockTime', () => ({
   useBlockTime: () => mockHooks.blockTime
 }));
 
@@ -53,10 +53,10 @@ jest.mock('./hooks/useBounties', () => ({
 
 let aProposal: (extrinsic: SubmittableExtrinsic<'promise'>, ayes?: string[], nays?: string[]) => DeriveCollectiveProposal;
 let augmentedApi: ApiPromise;
-let aBounty: ({ status, value }?: Partial<PalletBountiesBounty>) => PalletBountiesBounty;
+let aBounty: ({ status, value }?: Partial<PezpalletBountiesBounty>) => PezpalletBountiesBounty;
 let aBountyIndex: (index?: number) => BountyIndex;
-let bountyStatusWith: ({ curator, status, updateDue }: { curator?: string, status?: string, updateDue?: number}) => PalletBountiesBountyStatus;
-let bountyWith: ({ status, value }: { status?: string, value?: number }) => PalletBountiesBounty;
+let bountyStatusWith: ({ curator, status, updateDue }: { curator?: string, status?: string, updateDue?: number}) => PezpalletBountiesBountyStatus;
+let bountyWith: ({ status, value }: { status?: string, value?: number }) => PezpalletBountiesBounty;
 
 describe('Bounties', () => {
   let bountiesPage: BountiesPage;

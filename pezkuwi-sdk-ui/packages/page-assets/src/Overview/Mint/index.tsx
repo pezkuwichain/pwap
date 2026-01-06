@@ -1,22 +1,22 @@
-// Copyright 2017-2025 @polkadot/app-assets authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-assets authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { PalletAssetsAssetDetails, PalletAssetsAssetMetadata } from '@polkadot/types/lookup';
-import type { BN } from '@polkadot/util';
+import type { PezpalletAssetsAssetDetails, PezpalletAssetsAssetMetadata } from '@pezkuwi/types/lookup';
+import type { BN } from '@pezkuwi/util';
 
 import React from 'react';
 
-import { Button } from '@polkadot/react-components';
-import { useToggle } from '@polkadot/react-hooks';
+import { Button } from '@pezkuwi/react-components';
+import { useToggle } from '@pezkuwi/react-hooks';
 
 import { useTranslation } from '../../translate.js';
 import Modal from './Mint.js';
 
 interface Props {
   className?: string;
-  details: PalletAssetsAssetDetails;
+  details: PezpalletAssetsAssetDetails;
   id: BN;
-  metadata: PalletAssetsAssetMetadata;
+  metadata: PezpalletAssetsAssetMetadata;
 }
 
 function Mint ({ className, details, id, metadata }: Props): React.ReactElement<Props> {

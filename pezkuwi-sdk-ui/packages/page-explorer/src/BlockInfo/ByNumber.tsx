@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/app-explorer authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-explorer authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Hash } from '@polkadot/types/interfaces';
+import type { Hash } from '@pezkuwi/types/interfaces';
 
 import React, { useEffect, useState } from 'react';
 
-import { useApi, useIsMountedRef } from '@polkadot/react-hooks';
+import { useApi, useIsMountedRef } from '@pezkuwi/react-hooks';
 
 import BlockByHash from './ByHash.js';
 

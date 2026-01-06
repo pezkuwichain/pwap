@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/app-referenda authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-referenda authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { PalletConvictionVotingTally, PalletRankedCollectiveTally, PalletReferendaCurve, PalletReferendaReferendumInfoConvictionVotingTally, PalletReferendaReferendumInfoRankedCollectiveTally, PalletReferendaTrackDetails } from '@polkadot/types/lookup';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { PezpalletConvictionVotingTally, PezpalletRankedCollectiveTally, PezpalletReferendaCurve, PezpalletReferendaReferendumInfoConvictionVotingTally, PezpalletReferendaReferendumInfoRankedCollectiveTally, PezpalletReferendaTrackDetails } from '@pezkuwi/types/lookup';
 import type { CurveGraph, TrackDescription, TrackInfoExt } from './types.js';
 
-import { getGovernanceTracks } from '@polkadot/apps-config';
-import { BN, BN_BILLION, BN_ONE, BN_ZERO, bnMax, bnMin, formatNumber, objectSpread, stringPascalCase } from '@polkadot/util';
+import { getGovernanceTracks } from '@pezkuwi/apps-config';
+import { BN, BN_BILLION, BN_ONE, BN_ZERO, bnMax, bnMin, formatNumber, objectSpread, stringPascalCase } from '@pezkuwi/util';
 
 const CURVE_LENGTH = 500;
 
-export function getTrackName (trackId: BN, { name }: PalletReferendaTrackDetails): string {
+export function getTrackName (trackId: BN, { name }: PezpalletReferendaTrackDetails): string {
   return `${
     formatNumber(trackId)
   } / ${
@@ -48,15 +48,15 @@ export function getTrackInfo (api: ApiPromise, specName: string, palletReferenda
   return info;
 }
 
-export function isConvictionTally (tally: PalletRankedCollectiveTally | PalletConvictionVotingTally): tally is PalletConvictionVotingTally {
-  return !!(tally as PalletConvictionVotingTally).support && !(tally as PalletRankedCollectiveTally).bareAyes;
+export function isConvictionTally (tally: PezpalletRankedCollectiveTally | PezpalletConvictionVotingTally): tally is PezpalletConvictionVotingTally {
+  return !!(tally as PezpalletConvictionVotingTally).support && !(tally as PezpalletRankedCollectiveTally).bareAyes;
 }
 
-export function isConvictionVote (info: PalletReferendaReferendumInfoConvictionVotingTally | PalletReferendaReferendumInfoRankedCollectiveTally): info is PalletReferendaReferendumInfoConvictionVotingTally {
+export function isConvictionVote (info: PezpalletReferendaReferendumInfoConvictionVotingTally | PezpalletReferendaReferendumInfoRankedCollectiveTally): info is PezpalletReferendaReferendumInfoConvictionVotingTally {
   return info.isOngoing && isConvictionTally(info.asOngoing.tally);
 }
 
-export function curveThreshold (curve: PalletReferendaCurve, input: BN, div: BN): BN {
+export function curveThreshold (curve: PezpalletReferendaCurve, input: BN, div: BN): BN {
   // if divisor is zero, we return the max
   if (div.isZero()) {
     return BN_BILLION;
@@ -118,7 +118,7 @@ export function curveThreshold (curve: PalletReferendaCurve, input: BN, div: BN)
   throw new Error(`Unknown curve found ${curve.type}`);
 }
 
-export function curveDelay (curve: PalletReferendaCurve, input: BN, div: BN): BN {
+export function curveDelay (curve: PezpalletReferendaCurve, input: BN, div: BN): BN {
   try {
     // if divisor is zero, we return the max
     if (div.isZero()) {
@@ -211,7 +211,7 @@ export function curveDelay (curve: PalletReferendaCurve, input: BN, div: BN): BN
   throw new Error(`Unknown curve found ${curve.type}`);
 }
 
-export function calcDecidingEnd (totalEligible: BN, tally: PalletRankedCollectiveTally | PalletConvictionVotingTally, { decisionPeriod, minApproval, minSupport }: PalletReferendaTrackDetails, since: BN): BN | undefined {
+export function calcDecidingEnd (totalEligible: BN, tally: PezpalletRankedCollectiveTally | PezpalletConvictionVotingTally, { decisionPeriod, minApproval, minSupport }: PezpalletReferendaTrackDetails, since: BN): BN | undefined {
   const support = isConvictionTally(tally)
     ? tally.support
     : tally.bareAyes;
@@ -228,7 +228,7 @@ export function calcDecidingEnd (totalEligible: BN, tally: PalletRankedCollectiv
   );
 }
 
-export function calcCurves ({ decisionPeriod, minApproval, minSupport }: PalletReferendaTrackDetails): CurveGraph {
+export function calcCurves ({ decisionPeriod, minApproval, minSupport }: PezpalletReferendaTrackDetails): CurveGraph {
   const approval = new Array<BN>(CURVE_LENGTH);
   const support = new Array<BN>(CURVE_LENGTH);
   const x = new Array<BN>(CURVE_LENGTH);

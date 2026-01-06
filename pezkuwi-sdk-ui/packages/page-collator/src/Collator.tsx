@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-collator authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-collator authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Collator as CollatorType } from './types.js';
 
 import React, { useMemo } from 'react';
 
-import { AddressSmall, Badge, Table } from '@polkadot/react-components';
-import { BalanceFree } from '@polkadot/react-query';
-import { formatNumber } from '@polkadot/util';
+import { AddressSmall, Badge, Table } from '@pezkuwi/react-components';
+import { BalanceFree } from '@pezkuwi/react-query';
+import { formatNumber } from '@pezkuwi/util';
 
 interface Props {
   className?: string;

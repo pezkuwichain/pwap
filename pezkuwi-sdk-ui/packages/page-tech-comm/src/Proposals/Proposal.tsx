@@ -1,17 +1,17 @@
-// Copyright 2017-2025 @polkadot/app-tech-comm authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-tech-comm authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveCollectiveProposal } from '@polkadot/api-derive/types';
-import type { CollectiveType } from '@polkadot/react-hooks/types';
-import type { Hash } from '@polkadot/types/interfaces';
+import type { DeriveCollectiveProposal } from '@pezkuwi/api-derive/types';
+import type { CollectiveType } from '@pezkuwi/react-hooks/types';
+import type { Hash } from '@pezkuwi/types/interfaces';
 
 import React from 'react';
 
-import ProposalCell from '@polkadot/app-democracy/Overview/ProposalCell';
-import { AddressMini, Table } from '@polkadot/react-components';
-import { useApi, useCall, useCollectiveInstance, useVotingStatus } from '@polkadot/react-hooks';
-import { BlockToTime } from '@polkadot/react-query';
-import { formatNumber } from '@polkadot/util';
+import ProposalCell from '@pezkuwi/app-democracy/Overview/ProposalCell';
+import { AddressMini, Table } from '@pezkuwi/react-components';
+import { useApi, useCall, useCollectiveInstance, useVotingStatus } from '@pezkuwi/react-hooks';
+import { BlockToTime } from '@pezkuwi/react-query';
+import { formatNumber } from '@pezkuwi/util';
 
 import Close from './Close.js';
 import Voting from './Voting.js';

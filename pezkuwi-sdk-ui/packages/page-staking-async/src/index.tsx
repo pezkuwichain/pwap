@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-staking-async authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking-async authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AppProps as Props } from '@polkadot/react-components/types';
+import type { AppProps as Props } from '@pezkuwi/react-components/types';
 
 import React from 'react';
 
-import { styled } from '@polkadot/react-components';
-import { useStakingAsyncApis } from '@polkadot/react-hooks';
+import { styled } from '@pezkuwi/react-components';
+import { useStakingAsyncApis } from '@pezkuwi/react-hooks';
 
 import StakingRelayApp from './Relay/index.js';
 import StakingSystemApp from './System/index.js';

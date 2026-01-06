@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-addresses authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-addresses authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ActionStatus } from '@polkadot/react-components/Status/types';
+import type { ActionStatus } from '@pezkuwi/react-components/Status/types';
 import type { SortedAddress } from './types.js';
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { Button, FilterInput, styled, SummaryBox, Table } from '@polkadot/react-components';
-import { useAddresses, useFavorites, useNextTick, useToggle } from '@polkadot/react-hooks';
+import { Button, FilterInput, styled, SummaryBox, Table } from '@pezkuwi/react-components';
+import { useAddresses, useFavorites, useNextTick, useToggle } from '@pezkuwi/react-hooks';
 
 import CreateModal from '../modals/Create.js';
 import { useTranslation } from '../translate.js';

@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeriveHeartbeats, DeriveStakingOverview } from '@polkadot/api-derive/types';
-import type { AccountId } from '@polkadot/types/interfaces';
-import type { BN } from '@polkadot/util';
+import type { DeriveHeartbeats, DeriveStakingOverview } from '@pezkuwi/api-derive/types';
+import type { AccountId } from '@pezkuwi/types/interfaces';
+import type { BN } from '@pezkuwi/util';
 import type { NominatedByMap, SortedTargets, ValidatorInfo } from '../types.js';
 
 import React, { useMemo, useRef, useState } from 'react';
 
-import Legend from '@polkadot/app-staking2/Legend';
-import { Table } from '@polkadot/react-components';
-import { useApi, useBlockAuthors, useNextTick } from '@polkadot/react-hooks';
+import Legend from '@pezkuwi/app-staking2/Legend';
+import { Table } from '@pezkuwi/react-components';
+import { useApi, useBlockAuthors, useNextTick } from '@pezkuwi/react-hooks';
 
 import Filtering from '../Filtering.js';
 import { useTranslation } from '../translate.js';

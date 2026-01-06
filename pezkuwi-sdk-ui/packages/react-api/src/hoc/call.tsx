@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @polkadot/react-api authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-api authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 // SInce this file is deemed deprecated (and awaiting removal), we just don't care
@@ -14,7 +14,7 @@ import type { Options } from './types.js';
 
 import React from 'react';
 
-import { assert, isNull, isUndefined, nextTick } from '@polkadot/util';
+import { assert, isNull, isUndefined, nextTick } from '@pezkuwi/util';
 
 import echoTransform from '../transform/echo.js';
 import { isEqual, triggerChange } from '../util/index.js';

@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/app-coretime authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-coretime authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ChainConstants, PalletBrokerConfigRecord, PalletBrokerSaleInfoRecord } from '@polkadot/react-hooks/types';
+import type { ChainConstants, PezpalletBrokerConfigRecord, PezpalletBrokerSaleInfoRecord } from '@pezkuwi/react-hooks/types';
 import type { GetResponse, PhaseConfig, RegionInfo, RelayName, SaleParameters } from '../types.js';
 
-import { type ProgressBarSection } from '@polkadot/react-components/types';
-import { BN, formatBalance } from '@polkadot/util';
+import { type ProgressBarSection } from '@pezkuwi/react-components/types';
+import { BN, formatBalance } from '@pezkuwi/util';
 
 import { PhaseName } from '../constants.js';
 import { createGet, estimateTime, FirstCycleStart, getCurrentRegionStartEndTs } from './index.js';
@@ -33,7 +33,7 @@ export const leadinFactorAt = (scaledWhen: BN): BN => {
   }
 };
 
-export const getCorePriceAt = (blockNow: number | null, saleInfo: PalletBrokerSaleInfoRecord | undefined): BN => {
+export const getCorePriceAt = (blockNow: number | null, saleInfo: PezpalletBrokerSaleInfoRecord | undefined): BN => {
   if (!saleInfo || !blockNow) {
     return new BN(0);
   }
@@ -78,7 +78,7 @@ export const getCorePriceAt = (blockNow: number | null, saleInfo: PalletBrokerSa
 export const getCurrentSaleNumber = (
   currentRegionEnd: number,
   relayName: RelayName,
-  config: Pick<PalletBrokerConfigRecord, 'interludeLength' | 'leadinLength' | 'regionLength'>
+  config: Pick<PezpalletBrokerConfigRecord, 'interludeLength' | 'leadinLength' | 'regionLength'>
 ): number => {
   if (!relayName || !currentRegionEnd) {
     return -1;
@@ -185,7 +185,7 @@ const getPhaseConfiguration = (
 };
 
 export const getSaleParameters = (
-  { config, constants, salesInfo }: {salesInfo: RegionInfo, config: Pick<PalletBrokerConfigRecord, 'interludeLength' | 'leadinLength' | 'regionLength'>, constants: ChainConstants},
+  { config, constants, salesInfo }: {salesInfo: RegionInfo, config: Pick<PezpalletBrokerConfigRecord, 'interludeLength' | 'leadinLength' | 'regionLength'>, constants: ChainConstants},
   relayName: RelayName,
   lastCommittedTimeslice: number,
   chosenSaleNumber = -1

@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/react-params authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-params authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Registry, TypeDef } from '@polkadot/types/types';
+import type { Registry, TypeDef } from '@pezkuwi/types/types';
 import type { ParamDef } from '../types.js';
 
 import { useMemo } from 'react';
 
-import { createNamedHook } from '@polkadot/react-hooks';
-import { getTypeDef } from '@polkadot/types/create';
+import { createNamedHook } from '@pezkuwi/react-hooks';
+import { getTypeDef } from '@pezkuwi/types/create';
 
 function expandDef (registry: Registry, td: TypeDef): TypeDef {
   try {

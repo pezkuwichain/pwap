@@ -1,10 +1,10 @@
-// Copyright 2017-2025 @polkadot/apps-routing authors & contributors
+// Copyright 2017-2025 @pezkuwi/apps-routing authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Route, TFunction } from './types.js';
 
-import Component, { useCounter } from '@polkadot/app-claims';
-import { hasBuffer, u8aToBuffer } from '@polkadot/util';
+import Component, { useCounter } from '@pezkuwi/app-claims';
+import { hasBuffer, u8aToBuffer } from '@pezkuwi/util';
 
 // See https://github.com/polkadot-js/apps/issues/10115 - this may not work,
 // if not we will have to disable it all (no way of testing)

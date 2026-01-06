@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-staking-async authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking-async authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { SubmittableExtrinsic } from '@polkadot/api/types';
-import type { DeriveStakingQuery } from '@polkadot/api-derive/types';
+import type { SubmittableExtrinsic } from '@pezkuwi/api/types';
+import type { DeriveStakingQuery } from '@pezkuwi/api-derive/types';
 
 import React, { useEffect, useMemo, useState } from 'react';
 
-import { InputAddressMulti, Modal, Spinner, TxButton } from '@polkadot/react-components';
-import { useApi, useCall } from '@polkadot/react-hooks';
+import { InputAddressMulti, Modal, Spinner, TxButton } from '@pezkuwi/react-components';
+import { useApi, useCall } from '@pezkuwi/react-hooks';
 
 import { useTranslation } from '../../translate.js';
 import SenderInfo from '../partials/SenderInfo.js';

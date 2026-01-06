@@ -1,22 +1,22 @@
-// Copyright 2017-2025 @polkadot/app-storage authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-storage authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { QueryableStorageEntry } from '@polkadot/api/types';
-import type { ComponentRenderer, DefaultProps, RenderFn } from '@polkadot/react-api/hoc/types';
-import type { ConstValue } from '@polkadot/react-components/InputConsts/types';
-import type { Option, Raw } from '@polkadot/types';
-import type { Registry } from '@polkadot/types/types';
+import type { QueryableStorageEntry } from '@pezkuwi/api/types';
+import type { ComponentRenderer, DefaultProps, RenderFn } from '@pezkuwi/react-api/hoc/types';
+import type { ConstValue } from '@pezkuwi/react-components/InputConsts/types';
+import type { Option, Raw } from '@pezkuwi/types';
+import type { Registry } from '@pezkuwi/types/types';
 import type { QueryTypes, StorageModuleQuery } from './types.js';
 
 import React, { useCallback, useMemo } from 'react';
 
-import { withCallDiv } from '@polkadot/react-api/hoc';
-import { Button, Labelled, styled } from '@polkadot/react-components';
-import { useApi } from '@polkadot/react-hooks';
-import valueToText from '@polkadot/react-params/valueToText';
-import { getSiName } from '@polkadot/types/metadata/util';
-import { unwrapStorageType } from '@polkadot/types/util';
-import { compactStripLength, isU8a, u8aToHex, u8aToString } from '@polkadot/util';
+import { withCallDiv } from '@pezkuwi/react-api/hoc';
+import { Button, Labelled, styled } from '@pezkuwi/react-components';
+import { useApi } from '@pezkuwi/react-hooks';
+import valueToText from '@pezkuwi/react-params/valueToText';
+import { getSiName } from '@pezkuwi/types/metadata/util';
+import { unwrapStorageType } from '@pezkuwi/types/util';
+import { compactStripLength, isU8a, u8aToHex, u8aToString } from '@pezkuwi/util';
 
 interface Props {
   className?: string;

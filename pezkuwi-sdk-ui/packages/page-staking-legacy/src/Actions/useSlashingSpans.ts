@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Option } from '@polkadot/types';
-import type { PalletStakingSlashingSlashingSpans } from '@polkadot/types/lookup';
+import type { Option } from '@pezkuwi/types';
+import type { PezpalletStakingSlashingSlashingSpans } from '@pezkuwi/types/lookup';
 
-import { createNamedHook, useApi, useCall } from '@polkadot/react-hooks';
+import { createNamedHook, useApi, useCall } from '@pezkuwi/react-hooks';
 
 const OPT_SPAN = {
-  transform: (optSpans: Option<PalletStakingSlashingSlashingSpans>): number =>
+  transform: (optSpans: Option<PezpalletStakingSlashingSlashingSpans>): number =>
     optSpans.isNone
       ? 0
       : optSpans.unwrap().prior.length + 1

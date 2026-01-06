@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Option } from '@polkadot/types';
-import type { AccountId32 } from '@polkadot/types/interfaces';
-import type { PalletBagsListListNode } from '@polkadot/types/lookup';
+import type { Option } from '@pezkuwi/types';
+import type { AccountId32 } from '@pezkuwi/types/interfaces';
+import type { PezpalletBagsListListNode } from '@pezkuwi/types/lookup';
 
 import { useEffect, useState } from 'react';
 
-import { createNamedHook, useCall } from '@polkadot/react-hooks';
+import { createNamedHook, useCall } from '@pezkuwi/react-hooks';
 
 import useQueryModule from './useQueryModule.js';
 
@@ -22,7 +22,7 @@ const EMPTY_LIST: AccountId32[] = [];
 function useBagEntriesImpl (headId: AccountId32 | null, trigger: number): [boolean, AccountId32[]] {
   const mod = useQueryModule();
   const [[currId, { isCompleted, list }], setCurrent] = useState<[AccountId32 | null, Result]>(EMPTY);
-  const node = useCall<Option<PalletBagsListListNode>>(!!currId && mod.listNodes, [currId]);
+  const node = useCall<Option<PezpalletBagsListListNode>>(!!currId && mod.listNodes, [currId]);
 
   useEffect(
     () => setCurrent(

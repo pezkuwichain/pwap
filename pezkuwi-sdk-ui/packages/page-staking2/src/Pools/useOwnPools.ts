@@ -1,18 +1,18 @@
-// Copyright 2017-2025 @polkadot/app-staking authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Option } from '@polkadot/types';
-import type { PalletNominationPoolsPoolMember } from '@polkadot/types/lookup';
+import type { Option } from '@pezkuwi/types';
+import type { PezpalletNominationPoolsPoolMember } from '@pezkuwi/types/lookup';
 import type { OwnPool, OwnPoolBase } from './types.js';
 
 import { useMemo } from 'react';
 
-import { createNamedHook, useAccounts, useApi, useCall } from '@polkadot/react-hooks';
+import { createNamedHook, useAccounts, useApi, useCall } from '@pezkuwi/react-hooks';
 
 import { createAccounts } from './usePoolAccounts.js';
 
 const OPT_MULTI = {
-  transform: ([[ids], opts]: [[string[]], Option<PalletNominationPoolsPoolMember>[]]): OwnPoolBase[] => {
+  transform: ([[ids], opts]: [[string[]], Option<PezpalletNominationPoolsPoolMember>[]]): OwnPoolBase[] => {
     const pools: OwnPoolBase[] = [];
 
     for (let i = 0; i < ids.length; i++) {

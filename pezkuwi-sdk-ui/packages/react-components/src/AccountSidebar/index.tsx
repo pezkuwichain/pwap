@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/react-components authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useCallback, useState } from 'react';
 
-import { AccountSidebarCtx } from '@polkadot/react-hooks/ctx/AccountSidebar';
+import { AccountSidebarCtx } from '@pezkuwi/react-hooks/ctx/AccountSidebar';
 
 import Sidebar from './Sidebar.js';
 

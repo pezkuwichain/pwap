@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-coretime authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-coretime authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ChainInformation } from '@polkadot/react-hooks/types';
+import type { ChainInformation } from '@pezkuwi/react-hooks/types';
 import type { ActiveFilters } from '../types.js';
 
 import React, { useCallback, useState } from 'react';
 
-import { Button, Dropdown, Input } from '@polkadot/react-components';
+import { Button, Dropdown, Input } from '@pezkuwi/react-components';
 
 import { useTranslation } from '../translate.js';
 import { FilterType, useBlocksSort, useSearchFilter, useTypeFilter } from './filters/index.js';

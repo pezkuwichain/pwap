@@ -1,16 +1,16 @@
-// Copyright 2017-2025 @polkadot/react-hooks authors & contributors
+// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ApiPromise } from '@polkadot/api';
-import type { PromiseResult, QueryableStorageEntry } from '@polkadot/api/types';
-import type { StorageEntryTypeLatest } from '@polkadot/types/interfaces';
-import type { AnyFunction, Codec } from '@polkadot/types/types';
+import type { ApiPromise } from '@pezkuwi/api';
+import type { PromiseResult, QueryableStorageEntry } from '@pezkuwi/api/types';
+import type { StorageEntryTypeLatest } from '@pezkuwi/types/interfaces';
+import type { AnyFunction, Codec } from '@pezkuwi/types/types';
 import type { CallOptions, CallParam, CallParams } from './types.js';
 import type { MountedRef } from './useIsMountedRef.js';
 
 import { useEffect, useRef, useState } from 'react';
 
-import { isFunction, isNull, isUndefined, nextTick } from '@polkadot/util';
+import { isFunction, isNull, isUndefined, nextTick } from '@pezkuwi/util';
 
 import { useApi } from './useApi.js';
 import { useIsMountedRef } from './useIsMountedRef.js';

@@ -1,23 +1,23 @@
 {
-  "bugs": "https://github.com/polkadot-js/apps/issues",
+  "bugs": "https://github.com/pezkuwichain/pezkuwi-web-app-projects/issues",
   "engines": {
     "node": ">=18"
   },
-  "homepage": "https://github.com/polkadot-js/apps/tree/master/packages/page-storage#readme",
+  "homepage": "https://github.com/pezkuwichain/pezkuwi-web-app-projects/tree/master/packages/page-storage#readme",
   "license": "Apache-2.0",
-  "name": "@polkadot/app-storage",
+  "name": "@pezkuwi/app-storage",
   "private": true,
   "repository": {
     "directory": "packages/page-storage",
     "type": "git",
-    "url": "https://github.com/polkadot-js/apps.git"
+    "url": "https://github.com/pezkuwichain/pezkuwi-web-app-projects.git"
   },
   "sideEffects": false,
   "type": "module",
   "version": "0.168.2-0-x",
   "dependencies": {
-    "@polkadot/react-components": "^0.168.2-0-x",
-    "@polkadot/react-params": "^0.168.2-0-x"
+    "@pezkuwi/react-components": "^0.168.2-0-x",
+    "@pezkuwi/react-params": "^0.168.2-0-x"
   },
   "peerDependencies": {
     "react": "*",

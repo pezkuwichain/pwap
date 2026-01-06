@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @polkadot/app-settings authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-settings authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Option } from '@polkadot/apps-config/settings/types';
-import type { SettingsStruct } from '@polkadot/ui-settings/types';
+import type { Option } from '@pezkuwi/apps-config/settings/types';
+import type { SettingsStruct } from '@pezkuwi/ui-settings/types';
 
 import React from 'react';
 
-import { ChainImg, Dropdown, IdentityIcon } from '@polkadot/react-components';
-import { settings } from '@polkadot/ui-settings';
+import { ChainImg, Dropdown, IdentityIcon } from '@pezkuwi/react-components';
+import { settings } from '@pezkuwi/ui-settings';
 
 export function createOption ({ info, isHeader, text, value }: Option, overrides: string[] = [], override = 'empty', extra?: string): Option | React.ReactNode {
   if (isHeader) {

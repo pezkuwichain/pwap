@@ -1,11 +1,11 @@
-// Copyright 2017-2025 @polkadot/app-parachains authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AccountId, AuctionIndex, BalanceOf, BlockNumber, LeasePeriodOf, ParachainProposal, ParaId, SessionIndex } from '@polkadot/types/interfaces';
-import type { PolkadotParachainPrimitivesPrimitivesHrmpChannelId, PolkadotRuntimeCommonCrowdloanFundInfo, PolkadotRuntimeCommonParasRegistrarParaInfo, PolkadotRuntimeParachainsHrmpHrmpChannel } from '@polkadot/types/lookup';
-import type { BN } from '@polkadot/util';
+import type { AccountId, AuctionIndex, BalanceOf, BlockNumber, LeasePeriodOf, TeyrchainProposal, ParaId, SessionIndex } from '@pezkuwi/types/interfaces';
+import type { PezkuwiTeyrchainPrimitivesPrimitivesHrmpChannelId, PezkuwiRuntimeCommonCrowdloanFundInfo, PezkuwiRuntimeCommonParasRegistrarParaInfo, PezkuwiRuntimeTeyrchainsHrmpHrmpChannel } from '@pezkuwi/types/lookup';
+import type { BN } from '@pezkuwi/util';
 
-export type ChannelMap = Record<string, [PolkadotParachainPrimitivesPrimitivesHrmpChannelId, PolkadotRuntimeParachainsHrmpHrmpChannel][]>;
+export type ChannelMap = Record<string, [PezkuwiTeyrchainPrimitivesPrimitivesHrmpChannelId, PezkuwiRuntimeTeyrchainsHrmpHrmpChannel][]>;
 
 export interface AllChannels {
   dst: ChannelMap;
@@ -33,7 +33,7 @@ export interface ProposalExt {
   id: ParaId;
   isApproved: boolean;
   isScheduled: boolean;
-  proposal?: ParachainProposal;
+  proposal?: TeyrchainProposal;
 }
 
 export interface ScheduledProposals {
@@ -51,7 +51,7 @@ export interface Campaigns {
 }
 
 export interface Campaign extends WinnerData {
-  info: PolkadotRuntimeCommonCrowdloanFundInfo;
+  info: PezkuwiRuntimeCommonCrowdloanFundInfo;
   isCapped?: boolean;
   isEnded?: boolean;
   isWinner?: boolean;
@@ -73,7 +73,7 @@ export interface Proposals {
 export interface OwnedIdPartial {
   manager: string;
   paraId: ParaId;
-  paraInfo: PolkadotRuntimeCommonParasRegistrarParaInfo;
+  paraInfo: PezkuwiRuntimeCommonParasRegistrarParaInfo;
 }
 
 export interface OwnedId extends OwnedIdPartial {

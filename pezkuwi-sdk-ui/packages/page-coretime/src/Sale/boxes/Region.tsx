@@ -1,12 +1,12 @@
-// Copyright 2017-2025 @polkadot/app-coretime authors & contributors
+// Copyright 2017-2025 @pezkuwi/app-coretime authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { SaleParameters } from 'page-coretime/src/types.js';
 
 import React from 'react';
 
-import { styled } from '@polkadot/react-components';
-import { formatNumber } from '@polkadot/util';
+import { styled } from '@pezkuwi/react-components';
+import { formatNumber } from '@pezkuwi/util';
 
 import { useTranslation } from '../../translate.js';
 import { WhiteBox } from '../../WhiteBox.js';

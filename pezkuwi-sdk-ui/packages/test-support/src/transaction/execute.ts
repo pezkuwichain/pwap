@@ -1,9 +1,9 @@
-// Copyright 2017-2025 @polkadot/test-support authors & contributors
+// Copyright 2017-2025 @pezkuwi/test-support authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { SubmittableExtrinsic } from '@polkadot/api/types';
-import type { KeyringPair } from '@polkadot/keyring/types';
-import type { EventRecord, ExtrinsicStatus } from '@polkadot/types/interfaces';
+import type { SubmittableExtrinsic } from '@pezkuwi/api/types';
+import type { KeyringPair } from '@pezkuwi/keyring/types';
+import type { EventRecord, ExtrinsicStatus } from '@pezkuwi/types/interfaces';
 
 import { waitFor } from '../utils/waitFor.js';
 
