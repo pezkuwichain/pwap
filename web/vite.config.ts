@@ -40,7 +40,7 @@ export default defineConfig(() => ({
       "@pezkuwi/lib": path.resolve(__dirname, "../shared/lib"),
       "@pezkuwi/utils": path.resolve(__dirname, "../shared/utils"),
       "@pezkuwi/theme": path.resolve(__dirname, "../shared/theme"),
-      "@pezkuwi/types": path.resolve(__dirname, "../shared/types"),
+      "@local/types": path.resolve(__dirname, "../shared/types"),
       "@pezkuwi/components": path.resolve(__dirname, "../shared/components"),
       "@shared": path.resolve(__dirname, "../shared"),
     },
