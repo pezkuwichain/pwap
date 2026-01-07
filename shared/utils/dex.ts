@@ -1,5 +1,5 @@
 import { ApiPromise } from '@pezkuwi/api';
-import { KNOWN_TOKENS, PoolInfo, SwapQuote, UserLiquidityPosition } from '@pezkuwi/types/dex';
+import { KNOWN_TOKENS, PoolInfo, SwapQuote, UserLiquidityPosition } from '@local/types/dex';
 
 /**
  * Format balance with proper decimals
