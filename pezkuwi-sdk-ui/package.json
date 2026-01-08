@@ -67,7 +67,7 @@
     "test:skipped": "echo 'tests skipped'"
   },
   "dependencies": {
-    "@pezkuwi/ui-shared": "3.16.8"
+    "@pezkuwi/ui-shared": "^3.17.1"
   },
   "devDependencies": {
     "@crustio/crust-pin": "^1.0.0",

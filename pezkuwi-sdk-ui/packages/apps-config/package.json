@@ -41,7 +41,7 @@
     "@pezkuwi/api": "^16.5.2",
     "@pezkuwi/api-derive": "^16.5.2",
     "@pezkuwi/networks": "^14.0.5",
-    "@pezkuwi/react-identicon": "^3.16.3",
+    "@pezkuwi/react-identicon": "^3.17.1",
     "@pezkuwi/types": "^16.5.2",
     "@pezkuwi/types-codec": "^16.5.2",
     "@pezkuwi/util": "^14.0.5",
