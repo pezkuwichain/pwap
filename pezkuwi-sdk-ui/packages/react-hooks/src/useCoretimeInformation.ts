@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
+// Copyright 2017-2026 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ApiPromise } from '@pezkuwi/api';
@@ -132,7 +132,7 @@ function useCoretimeInformationImpl (api: ApiPromise, ready: boolean): CoretimeI
       const workloads = workloadData?.filter((one) => one.info.task === taskId);
 
       const workTaskInfo = workloads.map((workload) => {
-        // parachain can be renewed on a different core
+        // teyrchain can be renewed on a different core
         const workplan = workplans?.filter((workplan) => workplan.info.task.toString() === taskId);
         const type = getOccupancyType(lease, reservation, workload?.info.isPool ?? false);
 

@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ParaId } from '@pezkuwi/types/interfaces';
@@ -10,7 +10,7 @@ import { Table } from '@pezkuwi/react-components';
 import { useBestNumber, useIsParasLinked } from '@pezkuwi/react-hooks';
 
 import { useTranslation } from '../translate.js';
-import Parachain from './Parachain.js';
+import TeyrChain from './Parachain.js';
 import useEvents from './useEvents.js';
 import useValidators from './useValidators.js';
 
@@ -51,7 +51,7 @@ function extractIds (hasLinksMap: Record<string, boolean>, ids: ParaId[]): [Para
     });
 }
 
-function Parachains ({ actionsQueue, ids, leasePeriod, scheduled }: Props): React.ReactElement<Props> {
+function TeyrChains ({ actionsQueue, ids, leasePeriod, scheduled }: Props): React.ReactElement<Props> {
   const { t } = useTranslation();
   const bestNumber = useBestNumber();
   const { lastBacked, lastIncluded, lastTimeout } = useEvents();
@@ -59,7 +59,7 @@ function Parachains ({ actionsQueue, ids, leasePeriod, scheduled }: Props): Reac
   const [validators, validatorMap] = useValidators(ids);
 
   const headerRef = useRef<([React.ReactNode?, string?, number?] | false)[]>([
-    [t('parachains'), 'start', 2],
+    [t('teyrchains'), 'start', 2],
     ['', 'media--1400'],
     [t('head'), 'start media--1500'],
     [t('lifecycle'), 'start'],
@@ -89,11 +89,11 @@ function Parachains ({ actionsQueue, ids, leasePeriod, scheduled }: Props): Reac
 
   return (
     <Table
-      empty={knownIds && t('There are no registered parachains')}
+      empty={knownIds && t('There are no registered teyrchains')}
       header={headerRef.current}
     >
       {knownIds?.map(([id, key]): React.ReactNode => (
-        <Parachain
+        <TeyrChain
           bestNumber={bestNumber}
           id={id}
           isScheduled={scheduledIds[key]}
@@ -111,4 +111,4 @@ function Parachains ({ actionsQueue, ids, leasePeriod, scheduled }: Props): Reac
   );
 }
 
-export default React.memo(Parachains);
+export default React.memo(TeyrChains);

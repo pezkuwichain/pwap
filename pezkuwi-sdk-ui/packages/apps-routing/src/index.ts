@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/apps-routing authors & contributors
+// Copyright 2017-2026 @pezkuwi/apps-routing authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Routes, TFunction } from './types.js';
@@ -26,7 +26,7 @@ import js from './js.js';
 import membership from './membership.js';
 import nfts from './nfts.js';
 import nis from './nis.js';
-import parachains from './parachains.js';
+import teyrchains from './parachains.js';
 import poll from './poll.js';
 import preimages from './preimages.js';
 import ranked from './ranked.js';
@@ -86,7 +86,7 @@ export default function create (t: TFunction): Routes {
     treasury(t),
     bounties(t),
     // others
-    parachains(t),
+    teyrchains(t),
     assets(t),
     nfts(t),
     society(t),

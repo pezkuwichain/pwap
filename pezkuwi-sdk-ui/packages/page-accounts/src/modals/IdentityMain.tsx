@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-accounts authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-accounts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ApiPromise } from '@pezkuwi/api';
@@ -119,7 +119,7 @@ function IdentityMain ({ address, className = '', onClose }: Props): React.React
   const [gotPreviousIdentity, setGotPreviousIdentity] = useState(false);
   // HACK This ensures we can deal with legacy indentity information for chains while
   // also giving support for the new identity logic inside of the Peoples chain.
-  // The new logic is specific to people system parachains.
+  // The new logic is specific to people system teyrchains.
   const [isLegacyIdentity, setIsLegacyIdentity] = useState<boolean>(!specName.includes('people-'));
   const [isPalletChecked, setIsPalletChecked] = useState<boolean>(false);
 

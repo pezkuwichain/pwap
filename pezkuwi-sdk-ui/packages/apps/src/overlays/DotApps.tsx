@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/apps authors & contributors
+// Copyright 2017-2026 @pezkuwi/apps authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useMemo } from 'react';
@@ -9,7 +9,7 @@ import { useApi } from '@pezkuwi/react-hooks';
 import { useTranslation } from '../translate.js';
 import BaseOverlay from './Base.js';
 
-const isDev = window.location.host.startsWith('polkadot.js.org');
+const isDev = window.location.host.startsWith('pezkuwichain.app');
 const dnsLinks = createWsEndpoints(() => '')
   .map((e) => e.dnslink)
   .reduce((all: string[], dnslink) => {
@@ -33,8 +33,8 @@ function DotApps ({ className }: Props): React.ReactElement<Props> | null {
       const lowerChain = systemChain?.toLowerCase();
 
       return (lowerChain && dnsLinks.includes(lowerChain))
-        ? `https://${lowerChain}.dotapps.io`
-        : 'https://dotapps.io';
+        ? `https://${lowerChain}.pezkuwichain.app`
+        : 'https://pezkuwichain.app';
     },
     [systemChain]
   );

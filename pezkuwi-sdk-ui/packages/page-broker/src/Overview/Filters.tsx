@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-broker authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-broker authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { CoreInfo } from '../types.js';
@@ -21,9 +21,9 @@ interface Props {
   onFilter: (data: CoreInfo[]) => void
 }
 
-const filterLoad = (parachainId: string, data: CoreInfo[], workloadCoreSelected: number): CoreInfo[] => {
-  if (parachainId) {
-    return data.filter(({ workload, workplan }) => !!workload?.filter(({ info }) => info.task === parachainId).length || !!workplan?.filter(({ info }) => info.task === parachainId).length);
+const filterLoad = (teyrchainId: string, data: CoreInfo[], workloadCoreSelected: number): CoreInfo[] => {
+  if (teyrchainId) {
+    return data.filter(({ workload, workplan }) => !!workload?.filter(({ info }) => info.task === teyrchainId).length || !!workplan?.filter(({ info }) => info.task === teyrchainId).length);
   }
 
   if (workloadCoreSelected === -1) {
@@ -35,7 +35,7 @@ const filterLoad = (parachainId: string, data: CoreInfo[], workloadCoreSelected:
 
 function Filters ({ data, onFilter }: Props): React.ReactElement<Props> {
   const [workloadCoreSelected, setWorkloadCoreSelected] = useState(-1);
-  const [_parachainId, setParachainId] = useState<string>('');
+  const [_teyrchainId, setTeyrChainId] = useState<string>('');
 
   const coreArr: number[] = useMemo(() =>
     data?.length
@@ -44,7 +44,7 @@ function Filters ({ data, onFilter }: Props): React.ReactElement<Props> {
   , [data]);
 
   const { t } = useTranslation();
-  const parachainId = useDebounce(_parachainId);
+  const teyrchainId = useDebounce(_teyrchainId);
 
   const workloadCoreOpts = useMemo(
     () => coreArr && [{ text: t('All active/available cores'), value: -1 }].concat(
@@ -65,18 +65,18 @@ function Filters ({ data, onFilter }: Props): React.ReactElement<Props> {
       return;
     }
 
-    const filtered = filterLoad(parachainId, data, workloadCoreSelected);
+    const filtered = filterLoad(teyrchainId, data, workloadCoreSelected);
 
     onFilter(filtered);
-  }, [data, workloadCoreSelected, parachainId, onFilter]);
+  }, [data, workloadCoreSelected, teyrchainId, onFilter]);
 
   const onDropDownChange = useCallback((v: number) => {
     setWorkloadCoreSelected(v);
-    setParachainId('');
+    setTeyrChainId('');
   }, []);
 
   const onInputChange = useCallback((v: string) => {
-    setParachainId(v);
+    setTeyrChainId(v);
     setWorkloadCoreSelected(-1);
   }, []);
 
@@ -92,10 +92,10 @@ function Filters ({ data, onFilter }: Props): React.ReactElement<Props> {
       <div style={{ minWidth: '150px' }}>
         <Input
           className='full isSmall'
-          label={t('parachain id')}
+          label={t('teyrchain id')}
           onChange={onInputChange}
-          placeholder={t('parachain id')}
-          value={_parachainId}
+          placeholder={t('teyrchain id')}
+          value={_teyrchainId}
         />
       </div>
     </StyledDiv>

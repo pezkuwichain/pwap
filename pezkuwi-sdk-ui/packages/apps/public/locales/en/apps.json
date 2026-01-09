@@ -23,5 +23,6 @@
   "update on #{{index}}": "update on #{{index}}",
   "{{relay}} Common": "{{relay}} Common",
   "{{relay}} Parachain": "{{relay}} Parachain",
-  "{{relay}} System": "{{relay}} System"
+  "{{relay}} System": "{{relay}} System",
+  "{{relay}} TeyrChain": "{{relay}} TeyrChain"
 }

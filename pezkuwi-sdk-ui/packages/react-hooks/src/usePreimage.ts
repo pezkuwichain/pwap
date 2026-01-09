@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
+// Copyright 2017-2026 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ApiPromise } from '@pezkuwi/api';
@@ -225,7 +225,7 @@ function usePreimageImpl (hashOrBounded?: Hash | HexString | PezframeSupportPrei
   );
 
   // api.query.preimage.statusFor has been deprecated in favor of api.query.preimage.requestStatusFor.
-  // To ensure we get all preimages correctly we query both storages. see: https://github.com/polkadot-js/apps/pull/10310
+  // To ensure we get all preimages correctly we query both storages. see: https://github.com/pezkuwi-js/apps/pull/10310
   const optStatus = useCall<Option<PezpalletPreimageRequestStatus>>(!inlineData && paramsStatus && api.query.preimage?.statusFor, paramsStatus);
   const optRequstStatus = useCall<Option<PezpalletPreimageRequestStatus>>(!inlineData && paramsStatus && api.query.preimage?.requestStatusFor, paramsStatus);
   const someOptStatus = optStatus?.isSome ? optStatus : optRequstStatus;

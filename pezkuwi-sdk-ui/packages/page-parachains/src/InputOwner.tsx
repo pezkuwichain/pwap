@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { OwnedId, OwnerInfo } from './types.js';
@@ -52,14 +52,14 @@ function InputOwner ({ noCodeCheck, onChange, ownedIds }: Props): React.ReactEle
   return (
     <Modal.Columns hint={
       <>
-        <p>{t('This account that has been used to register the parachain. This will pay all associated fees.')}</p>
-        <p>{t('The parachain id is associated with the selected account via parathread registration.')}</p>
+        <p>{t('This account that has been used to register the teyrchain. This will pay all associated fees.')}</p>
+        <p>{t('The teyrchain id is associated with the selected account via parathread registration.')}</p>
       </>
     }
     >
       <InputAddress
         filter={owners}
-        label={t('parachain owner')}
+        label={t('teyrchain owner')}
         onChange={setAccountId}
         type='account'
         value={accountId}
@@ -68,7 +68,7 @@ function InputOwner ({ noCodeCheck, onChange, ownedIds }: Props): React.ReactEle
         <Dropdown
           defaultValue={optIds[0].value}
           key={accountId}
-          label={t('parachain id')}
+          label={t('teyrchain id')}
           onChange={_setParaId}
           options={optIds}
         />

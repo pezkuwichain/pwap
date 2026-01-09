@@ -21,6 +21,7 @@
   "Sale timeline": "Sale timeline",
   "Search": "Search",
   "Search by parachain id or name": "Search by parachain id or name",
+  "Search by teyrchain id or name": "Search by teyrchain id or name",
   "Subscan Links": "Subscan Links",
   "Timeslices": "Timeslices",
   "available cores": "available cores",
@@ -53,6 +54,8 @@
   "sale progress": "sale progress",
   "sale ts": "sale ts",
   "sold/offered": "sold/offered",
+  "teyrchain id or name": "teyrchain id or name",
+  "teyrchains": "teyrchains",
   "timeslice": "timeslice",
   "timeslice progress": "timeslice progress",
   "type": "type"

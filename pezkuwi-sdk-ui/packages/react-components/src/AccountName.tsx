@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/react-query authors & contributors
+// Copyright 2017-2026 @pezkuwi/react-query authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { IconName } from '@fortawesome/fontawesome-svg-core';
@@ -69,10 +69,10 @@ export const MATCHERS: AddrMatcher[] = [
   createAllMatcher('modlpy/trsry', 'Treasury'),
   createAllMatcher('modlpy/xcmch', 'XCM'),
   createNumMatcher('modlpy/cfund', 'Crowdloan'),
-  // Substrate master
+  // Bizinikiwi master
   createNumMatcher('modlpy/npols\x00', 'Pool', 'Stash'),
   createNumMatcher('modlpy/npols\x01', 'Pool', 'Reward'),
-  // Westend
+  // Zagros
   createNumMatcher('modlpy/nopls\x00', 'Pool', 'Stash'),
   createNumMatcher('modlpy/nopls\x01', 'Pool', 'Reward'),
   createNumMatcher('para', 'Child'),

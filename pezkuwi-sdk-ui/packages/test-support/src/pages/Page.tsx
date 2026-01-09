@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/test-support authors & contributors
+// Copyright 2017-2026 @pezkuwi/test-support authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 /* global jest, fail */
@@ -207,7 +207,7 @@ export abstract class Page {
       isApiInitialized: true,
       isApiReady: true,
       isEthereum: false,
-      systemName: 'substrate'
+      systemName: 'bizinikiwi'
     } as unknown as ApiProps;
 
     queueExtrinsic = jest.fn() as QueueTxExtrinsicAdd;

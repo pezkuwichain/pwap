@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-settings authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-settings authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Option } from '@pezkuwi/apps-config/settings/types';
@@ -43,7 +43,7 @@ export function createOption ({ info, isHeader, text, value }: Option, overrides
 export function createIdenticon ({ info, text, value }: Option, overrides: string[] = [], override = 'empty'): Option {
   const theme = info && overrides.includes(info)
     ? override as 'empty'
-    : info as 'substrate';
+    : info as 'bizinikiwi';
 
   return {
     text: (

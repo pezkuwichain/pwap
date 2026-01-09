@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-accounts authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-accounts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useMemo } from 'react';
@@ -36,7 +36,7 @@ const BannerAssetHubMigration = () => {
         <br />
         {t('For more information about Asset Hub migration, check the ')}
         <a
-          href='https://support.polkadot.network/support/solutions/articles/65000190561#What-would-happen-after-the-migration?'
+          href='https://docs.pezkuwichain.io/migration/asset-hub'
           rel='noopener noreferrer'
           target='_blank'
         >details here</a>.

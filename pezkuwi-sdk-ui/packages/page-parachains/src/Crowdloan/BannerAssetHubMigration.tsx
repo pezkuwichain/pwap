@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
@@ -28,7 +28,7 @@ const BannerAssetHubMigration = () => {
           rel='noopener noreferrer'
           target='_blank'
         >
-          {t('the Polkadot Crowdloan UI')}
+          {t('the Pezkuwi Crowdloan UI')}
         </a>
         {t(' for more details.')}
       </p>

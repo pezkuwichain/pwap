@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-accounts authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-accounts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useEffect, useRef, useState } from 'react';
@@ -21,7 +21,7 @@ function CreateSuriLedger ({ className, onChange, seedType }: Props): React.Reac
   const { t } = useTranslation();
   const [accIndex, setAccIndex] = useState(0);
   const [addIndex, setAddIndex] = useState(0);
-  const [chainType, setChainType] = useState('polkadot');
+  const [chainType, setChainType] = useState('pezkuwi');
 
   const netOpts = useRef(ledgerNets.map(({ displayName, network }) => ({
     text: displayName,

@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/react-params authors & contributors
+// Copyright 2017-2026 @pezkuwi/react-params authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Props as BaseProps } from '../types.js';
@@ -47,7 +47,7 @@ function BasicAccountIdBase (props: Props): React.ReactElement<Props> {
         bytesLength={bytesLength}
         className='full'
         defaultValue={defaultValue}
-        forceIconType={bytesLength === 20 ? 'ethereum' : 'substrate'}
+        forceIconType={bytesLength === 20 ? 'ethereum' : 'bizinikiwi'}
         isDisabled={isDisabled}
         isError={isError}
         label={label}

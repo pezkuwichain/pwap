@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { OwnedId, OwnerInfo } from '../types.js';
@@ -57,7 +57,7 @@ function DeregisterId ({ className, nextParaId, onClose, ownedIds }: Props): Rea
           )
           : (
             <>
-              <Modal.Columns hint={t('This account will be associated with the parachain and pay the deposit.')}>
+              <Modal.Columns hint={t('This account will be associated with the teyrchain and pay the deposit.')}>
                 <InputAddress
                   label={t('register from')}
                   onChange={setAccountId}
@@ -65,13 +65,13 @@ function DeregisterId ({ className, nextParaId, onClose, ownedIds }: Props): Rea
                   value={accountId}
                 />
               </Modal.Columns>
-              <Modal.Columns hint={t('The id of this parachain as known on the network')}>
+              <Modal.Columns hint={t('The id of this teyrchain as known on the network')}>
                 <InputNumber
                   autoFocus
                   defaultValue={nextParaId}
                   isError={isIdError}
                   isZeroable={false}
-                  label={t('parachain id')}
+                  label={t('teyrchain id')}
                   onChange={setParaId}
                 />
               </Modal.Columns>
@@ -89,7 +89,7 @@ function DeregisterId ({ className, nextParaId, onClose, ownedIds }: Props): Rea
           <MarkWarning withIcon={false}>
             <strong>{t('Deregistering a paraID will:')}</strong>
             <WarningList>
-              <WarningItem>{t('Remove it from the active parachain/parathread set.')}</WarningItem>
+              <WarningItem>{t('Remove it from the active teyrchain/parathread set.')}</WarningItem>
               <WarningItem>{t('Exclude it from future auctions and onboarding.')}</WarningItem>
               <WarningItem>{t('Potentially release any reserved deposits linked to it.')}</WarningItem>
               <WarningItem>{t('Require re-registration if you wish to use it again.')}</WarningItem>

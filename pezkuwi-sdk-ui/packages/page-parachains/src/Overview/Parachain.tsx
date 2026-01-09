@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { AccountId, GroupIndex, ParaId } from '@pezkuwi/types/interfaces';
@@ -42,7 +42,7 @@ function renderAddresses (list?: AccountId[], indices?: BN[]): React.ReactElemen
   ));
 }
 
-function Parachain ({ bestNumber, className = '', id, lastBacked, lastInclusion, lastTimeout, leasePeriod, nextAction, sessionValidators, validators }: Props): React.ReactElement<Props> {
+function TeyrChain ({ bestNumber, className = '', id, lastBacked, lastInclusion, lastTimeout, leasePeriod, nextAction, sessionValidators, validators }: Props): React.ReactElement<Props> {
   const { t } = useTranslation();
   const paraInfo = useParaInfo(id);
   const [nonBacked, setNonBacked] = useState<AccountId[]>([]);
@@ -96,7 +96,7 @@ function Parachain ({ bestNumber, className = '', id, lastBacked, lastInclusion,
           ? (
             <Badge
               color='orange'
-              hover={t('The parachain can be modified, replaced, or removed - it\'s neither protected nor in a transitional state')}
+              hover={t('The teyrchain can be modified, replaced, or removed - it\'s neither protected nor in a transitional state')}
               icon='unlock'
             />
           )
@@ -191,4 +191,4 @@ const StyledTr = styled.tr`
   }
 `;
 
-export default React.memo(Parachain);
+export default React.memo(TeyrChain);

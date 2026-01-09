@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-signing authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-signing authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { AppProps as Props } from '@pezkuwi/react-components/types';

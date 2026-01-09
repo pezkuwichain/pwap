@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-coretime authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-coretime authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { RelayName } from '../types.js';
@@ -22,7 +22,7 @@ function Overview ({ className, relayName }: Props): React.ReactElement<Props> {
       {coretimeInfo && (
         <Summary
           config={coretimeInfo?.config}
-          parachainCount={coretimeInfo.taskIds?.length || 0}
+          teyrchainCount={coretimeInfo.taskIds?.length || 0}
           region={coretimeInfo?.region}
           relayName={relayName}
           saleInfo={coretimeInfo?.salesInfo}

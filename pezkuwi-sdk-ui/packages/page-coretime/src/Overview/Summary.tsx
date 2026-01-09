@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-coretime authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-coretime authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { BrokerStatus, CoreDescription, PezpalletBrokerConfigRecord, PezpalletBrokerSaleInfoRecord, RegionInfo } from '@pezkuwi/react-hooks/types';
@@ -19,11 +19,11 @@ interface Props {
   config: PezpalletBrokerConfigRecord,
   region: RegionInfo[],
   status: BrokerStatus,
-  parachainCount: number
+  teyrchainCount: number
   relayName: RelayName,
 }
 
-function Summary ({ config, parachainCount, relayName, status }: Props): React.ReactElement<Props> {
+function Summary ({ config, teyrchainCount, relayName, status }: Props): React.ReactElement<Props> {
   const { t } = useTranslation();
   const { coretimeInfo, currentRegionEnd, currentRegionStart, saleEndDate, saleStartDate } = useCoretimeContext();
 
@@ -52,8 +52,8 @@ function Summary ({ config, parachainCount, relayName, status }: Props): React.R
         <CardSummary label={t('timeslice')}>
           {status?.lastTimeslice}
         </CardSummary>
-        <CardSummary label={t('parachains')}>
-          {parachainCount && parachainCount}
+        <CardSummary label={t('teyrchains')}>
+          {teyrchainCount && teyrchainCount}
         </CardSummary>
         {config && status && currentRegionEnd && saleEndDate && saleStartDate && timeslicesSinceCycleStart && coretimeInfo?.constants &&
           <>

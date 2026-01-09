@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-society authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-society authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { PezpalletSocietyBid } from '@pezkuwi/types/lookup';

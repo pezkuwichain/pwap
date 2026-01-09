@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ParaId } from '@pezkuwi/types/interfaces';
@@ -30,15 +30,15 @@ function Proposal ({ approvedIds, id, scheduled }: Props): React.ReactElement<Pr
 
   const cancelTx = useMemo(
     () => api.tx.sudo && hasSudoKey
-      ? api.tx.sudo.sudo(api.tx.proposeParachain.cancelProposal(id))
+      ? api.tx.sudo.sudo(api.tx.proposeTeyrChain.cancelProposal(id))
       : allAccounts.some((a) => proposal.proposal?.proposer.eq(a))
-        ? api.tx.proposeParachain.cancelProposal(id)
+        ? api.tx.proposeTeyrChain.cancelProposal(id)
         : null,
     [api, allAccounts, hasSudoKey, id, proposal]
   );
 
   const approveTx = useMemo(
-    () => api.tx.sudo?.sudo(api.tx.proposeParachain.approveProposal(id)),
+    () => api.tx.sudo?.sudo(api.tx.proposeTeyrChain.approveProposal(id)),
     [api, id]
   );
 

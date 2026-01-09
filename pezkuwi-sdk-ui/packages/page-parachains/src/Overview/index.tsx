@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ParaId } from '@pezkuwi/types/interfaces';
@@ -6,7 +6,7 @@ import type { LeasePeriod, Proposals, QueuedAction } from '../types.js';
 
 import React from 'react';
 
-import Parachains from './Parachains.js';
+import TeyrChains from './Parachains.js';
 import Summary from './Summary.js';
 
 interface Props {
@@ -24,11 +24,11 @@ function Overview ({ actionsQueue, className, leasePeriod, paraIds, proposals, t
     <div className={className}>
       <Summary
         leasePeriod={leasePeriod}
-        parachainCount={paraIds?.length}
+        teyrchainCount={paraIds?.length}
         proposalCount={proposals?.proposalIds.length}
         upcomingCount={threadIds?.length}
       />
-      <Parachains
+      <TeyrChains
         actionsQueue={actionsQueue}
         ids={paraIds}
         leasePeriod={leasePeriod}

@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-claims authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-claims authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { StatementKind } from '@pezkuwi/types/interfaces';
@@ -22,7 +22,7 @@ function StatementFullText ({ statementUrl, systemChain }: { statementUrl?: stri
 
   switch (systemChain) {
     case 'Polkadot':
-    case 'Polkadot CC1':
+    case 'Pezkuwi CC1':
       return statementUrl
         ? <iframe src={statementUrl} />
         : null;

@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
+// Copyright 2017-2026 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type BN from 'bn.js';
@@ -64,7 +64,7 @@ function getValues (api: ApiPromise, selectedId: string | null | undefined, noDe
     defaultValue = BN_ZERO;
   } else if (defaultValue.isZero()) {
     // NOTE As of now (7 Jan 2023) taking the max and subtracting existential is still too high
-    // (on Kusama) where the tx fees for a conviction vote is more than the existential. So try to
+    // (on Dicle) where the tx fees for a conviction vote is more than the existential. So try to
     // adapt to get some sane default starting value
     let withoutExist = maxValue.sub(existential);
 

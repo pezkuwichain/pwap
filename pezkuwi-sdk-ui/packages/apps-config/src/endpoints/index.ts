@@ -1,13 +1,13 @@
-// Copyright 2017-2025 @pezkuwi/apps-config authors & contributors
+// Copyright 2017-2026 @pezkuwi/apps-config authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { TFunction, TOptions } from '../types.js';
 import type { LinkOption } from './types.js';
 
 import { createCustom, createDev, createOwn } from './development.js';
-import { prodChains, prodRelayKusama, prodRelayPolkadot } from './production.js';
-import { testChains, testRelayWestend } from './testing.js';
-import { testRelayPaseo } from './testingRelayPaseo.js';
+import { prodChains, prodRelayDicle, prodRelayPolkadot } from './production.js';
+import { testChains, testRelayZagros } from './testing.js';
+import { testRelayTeyrChain } from './testingRelayTeyrChain.js';
 import { expandEndpoints } from './util.js';
 
 export { CUSTOM_ENDPOINT_KEY } from './development.js';
@@ -38,7 +38,7 @@ export function createWsEndpoints (t: TFunction = defaultT, firstOnly = false, w
       isDisabled: false,
       isHeader: true,
       isSpaced: true,
-      text: t('rpc.header.polkadot.relay', 'Polkadot & parachains', { ns: 'apps-config' }),
+      text: t('rpc.header.polkadot.relay', 'Polkadot & teyrchains', { ns: 'apps-config' }),
       textBy: '',
       ui: {},
       value: ''
@@ -48,32 +48,32 @@ export function createWsEndpoints (t: TFunction = defaultT, firstOnly = false, w
       isDisabled: false,
       isHeader: true,
       isSpaced: true,
-      text: t('rpc.header.kusama.relay', 'Kusama & parachains', { ns: 'apps-config' }),
+      text: t('rpc.header.kusama.relay', 'Dicle & teyrchains', { ns: 'apps-config' }),
       textBy: '',
       ui: {},
       value: ''
     },
-    ...expandEndpoints(t, [prodRelayKusama], firstOnly, withSort),
+    ...expandEndpoints(t, [prodRelayDicle], firstOnly, withSort),
     {
       isDisabled: false,
       isHeader: true,
       isSpaced: true,
-      text: t('rpc.header.westend.relay', 'Test Westend & parachains', { ns: 'apps-config' }),
+      text: t('rpc.header.westend.relay', 'Test Zagros & teyrchains', { ns: 'apps-config' }),
       textBy: '',
       ui: {},
       value: ''
     },
-    ...expandEndpoints(t, [testRelayWestend], firstOnly, withSort),
+    ...expandEndpoints(t, [testRelayZagros], firstOnly, withSort),
     {
       isDisabled: false,
       isHeader: true,
       isSpaced: true,
-      text: t('rpc.header.paseo.relay', 'Test Paseo & parachains', { ns: 'apps-config' }),
+      text: t('rpc.header.paseo.relay', 'Test TeyrChain & teyrchains', { ns: 'apps-config' }),
       textBy: '',
       ui: {},
       value: ''
     },
-    ...expandEndpoints(t, [testRelayPaseo], firstOnly, withSort),
+    ...expandEndpoints(t, [testRelayTeyrChain], firstOnly, withSort),
     {
       isDisabled: false,
       isHeader: true,

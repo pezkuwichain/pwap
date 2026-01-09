@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/apps-config authors & contributors
+// Copyright 2017-2026 @pezkuwi/apps-config authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { TrackInfo } from './types.js';
@@ -37,21 +37,21 @@ export const kusama: Record<string, TrackInfo[]> = {
       id: 0,
       name: 'candidates',
       origin: { Origins: 'FellowshipInitiates' },
-      text: 'Origin commanded by any members of the Polkadot Fellowship (no Dan grade needed)'
+      text: 'Origin commanded by any members of the Pezkuwi Fellowship (no Dan grade needed)'
     },
     {
       compare: compareFellowshipRank(1),
       id: 1,
       name: 'members',
       origin: { Origins: 'Fellowship1Dan' },
-      text: 'Origin commanded by rank 1 of the Polkadot Fellowship and with a success of 1'
+      text: 'Origin commanded by rank 1 of the Pezkuwi Fellowship and with a success of 1'
     },
     {
       compare: compareFellowshipRank(2),
       id: 2,
       name: 'proficients',
       origin: { Origins: 'Fellowship2Dan' },
-      text: 'Origin commanded by rank 2 of the Polkadot Fellowship and with a success of 2'
+      text: 'Origin commanded by rank 2 of the Pezkuwi Fellowship and with a success of 2'
     },
     {
 
@@ -69,7 +69,7 @@ export const kusama: Record<string, TrackInfo[]> = {
       id: 4,
       name: 'senior fellows',
       origin: { Origins: 'Fellowship4Dan' },
-      text: 'Origin commanded by rank 4 of the Polkadot Fellowship and with a success of 4'
+      text: 'Origin commanded by rank 4 of the Pezkuwi Fellowship and with a success of 4'
     },
     {
       compare: compareFellowshipRank(5),
@@ -86,7 +86,7 @@ export const kusama: Record<string, TrackInfo[]> = {
       id: 6,
       name: 'senior experts',
       origin: { Origins: 'Fellowship6Dan' },
-      text: 'Origin commanded by rank 6 of the Polkadot Fellowship and with a success of 6'
+      text: 'Origin commanded by rank 6 of the Pezkuwi Fellowship and with a success of 6'
     },
     {
       compare: compareFellowshipRank(7),
@@ -103,14 +103,14 @@ export const kusama: Record<string, TrackInfo[]> = {
       id: 8,
       name: 'senior masters',
       origin: { Origins: 'Fellowship8Dan' },
-      text: 'Origin commanded by rank 8 of the Polkadot Fellowship and with a success of 8'
+      text: 'Origin commanded by rank 8 of the Pezkuwi Fellowship and with a success of 8'
     },
     {
       compare: compareFellowshipRank(9),
       id: 9,
       name: 'grand masters',
       origin: { Origins: 'Fellowship9Dan' },
-      text: 'Origin commanded by rank 9 of the Polkadot Fellowship and with a success of 9'
+      text: 'Origin commanded by rank 9 of the Pezkuwi Fellowship and with a success of 9'
     }
   ],
   referenda: [

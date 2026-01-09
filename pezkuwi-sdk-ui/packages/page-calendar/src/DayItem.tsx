@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-calendar authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-calendar authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { EntryInfoTyped } from './types.js';
@@ -95,10 +95,10 @@ function DayItem ({ className, item: { blockNumber, date, info, type }, showAllE
                     ? createLink('staking/slashes', t('via Staking/Slashed'))
                     : ['treasurySpend'].includes(type)
                       ? createLink('treasury', t('via Treasury'))
-                      : ['parachainLease'].includes(type)
-                        ? createLink('parachains', t('via Parachains'))
-                        : ['parachainAuction'].includes(type)
-                          ? createLink('parachains/auction', t('via Parachains/Auction'))
+                      : ['teyrchainLease'].includes(type)
+                        ? createLink('teyrchains', t('via TeyrChains'))
+                        : ['teyrchainAuction'].includes(type)
+                          ? createLink('teyrchains/auction', t('via TeyrChains/Auction'))
                           : undefined;
       let s = '';
 
@@ -119,12 +119,12 @@ function DayItem ({ className, item: { blockNumber, date, info, type }, showAllE
           s = t('Start of the next referendum voting period');
           break;
 
-        case 'parachainAuction':
-          s = t('End of the current parachain auction {{id}}', { replace: { id } });
+        case 'teyrchainAuction':
+          s = t('End of the current teyrchain auction {{id}}', { replace: { id } });
           break;
 
-        case 'parachainLease':
-          s = t('Start of the next parachain lease period {{id}}', { replace: { id } });
+        case 'teyrchainLease':
+          s = t('Start of the next teyrchain lease period {{id}}', { replace: { id } });
           break;
 
         case 'referendumDispatch':

@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
+// Copyright 2017-2026 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { LinkOption } from '@pezkuwi/apps-config/endpoints/types';
@@ -17,21 +17,21 @@ import RoboHash from './RoboHash/index.js';
 
 interface Props {
   className?: string;
-  forceIconType?: 'ethereum' | 'substrate';
+  forceIconType?: 'ethereum' | 'bizinikiwi';
   prefix?: IdentityProps['prefix'];
   size?: number;
   theme?: IdentityProps['theme'] | 'robohash';
   value?: AccountId | AccountIndex | Address | string | Uint8Array | null;
 }
 
-export function getIdentityTheme (apiEndpoint: LinkOption | null, systemName: string, specName: string): 'substrate' {
+export function getIdentityTheme (apiEndpoint: LinkOption | null, systemName: string, specName: string): 'bizinikiwi' {
   return (
     (settings.icon === 'default' && (
       apiEndpoint?.ui?.identityIcon ||
       getSystemIcon(systemName, specName)
     )) ||
     settings.icon
-  ) as 'substrate';
+  ) as 'bizinikiwi';
 }
 
 function isCodec (value?: AccountId | AccountIndex | Address | string | Uint8Array | null): value is AccountId | AccountIndex | Address {
@@ -68,7 +68,7 @@ function IdentityIcon ({ className = '', forceIconType, prefix, size = 24, theme
       onCopy={onCopy}
       prefix={prefix}
       size={size}
-      theme={forceIconType || (isEthereum ? 'ethereum' : thisTheme as 'substrate')}
+      theme={forceIconType || (isEthereum ? 'ethereum' : thisTheme as 'bizinikiwi')}
       value={isCodec(value) ? value.toString() : value}
     />
   );

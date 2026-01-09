@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-coretime authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-coretime authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ChainInformation } from '@pezkuwi/react-hooks/types';
@@ -83,7 +83,7 @@ export interface RegionInfo {
   regionEnd: number;
 }
 
-export type RelayName = 'kusama' | 'polkadot' | 'paseo testnet' | 'westend'
+export type RelayName = 'dicle' | 'pezkuwi' | 'paseo testnet' | 'zagros'
 
 export interface GetResponse {
   blocks: {

@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
+// Copyright 2017-2026 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { DeriveSessionProgress, DeriveStakingAccount } from '@pezkuwi/api-derive/types';
@@ -54,7 +54,7 @@ function extractTotals (stakingInfo?: DeriveStakingAccountPartial, progress?: De
           // would be down and then when a session completes, would be higher again, just to
           // repeat the cycle again
           //
-          // See https://github.com/polkadot-js/apps/issues/9397#issuecomment-1532465939
+          // See https://github.com/pezkuwi-js/apps/issues/9397#issuecomment-1532465939
           isStalled
             ? progress.eraProgress.mod(progress.eraLength)
             : progress.eraProgress

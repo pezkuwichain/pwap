@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/react-api authors & contributors
+// Copyright 2017-2026 @pezkuwi/react-api authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Blockchain } from '@acala-network/chopsticks-core';
@@ -85,7 +85,7 @@ async function getInjectedAccounts (injectedPromise: Promise<InjectedExtension[]
     return accounts.map(({ address, meta, type }, whenCreated): InjectedAccountExt => ({
       address,
       meta: objectSpread({}, meta, {
-        name: `${meta.name || 'unknown'} (${meta.source === 'polkadot-js' ? 'extension' : meta.source})`,
+        name: `${meta.name || 'unknown'} (${meta.source === 'pezkuwi-js' ? 'extension' : meta.source})`,
         whenCreated
       }),
       type: type || 'sr25519'
@@ -100,7 +100,7 @@ async function getInjectedAccounts (injectedPromise: Promise<InjectedExtension[]
 function makeCreateLink (baseApiUrl: string, isElectron: boolean): (path: string) => string {
   return (path: string, apiUrl?: string): string =>
     `${isElectron
-      ? 'https://polkadot.js.org/apps/'
+      ? 'https://pezkuwichain.app/'
       : `${window.location.origin}${window.location.pathname}`
     }?rpc=${encodeURIComponent(apiUrl || baseApiUrl)}#${path}`;
 }
@@ -213,7 +213,7 @@ async function loadOnReady (api: ApiPromise, endpoint: LinkOption | null, fork: 
 
 /**
  * @internal
- * Creates a ScProvider from a <relay>[/parachain] string
+ * Creates a ScProvider from a <relay>[/teyrchain] string
  */
 async function getLightProvider (chain: string): Promise<ScProvider> {
   const [sc, relayName, paraName] = chain.split('/');
@@ -290,7 +290,7 @@ async function createApi (apiUrl: string, signer: ApiSigner, isLocalFork: boolea
       typesBundle
     });
 
-    // See https://github.com/polkadot-js/api/pull/4672#issuecomment-1078843960
+    // See https://github.com/pezkuwi-js/api/pull/4672#issuecomment-1078843960
     if (isLight) {
       await provider?.connect();
     }
@@ -338,7 +338,7 @@ export function ApiCtxRoot ({ apiUrl, beforeApiInit, children, isElectron, store
     [apiUrl, isElectron]
   );
   const enableIdentity = apiEndpoint?.isPeople ||
-    // Ensure that parachains that don't have isPeopleForIdentity set, can access there own identity pallet.
+    // Ensure that teyrchains that don't have isPeopleForIdentity set, can access there own identity pallet.
     (isNumber(apiEndpoint?.paraId) && (apiEndpoint?.paraId >= 2000) && !apiEndpoint?.isPeopleForIdentity) ||
     // Ensure that when isPeopleForIdentity is set to false that it enables the identity pallet access.
     (typeof apiEndpoint?.isPeopleForIdentity === 'boolean' && !apiEndpoint?.isPeopleForIdentity);
@@ -361,7 +361,7 @@ export function ApiCtxRoot ({ apiUrl, beforeApiInit, children, isElectron, store
         statics.api.on('disconnected', () => setIsApiConnected(false));
         statics.api.on('error', onError);
         statics.api.on('ready', (): void => {
-          const injectedPromise = web3Enable('polkadot-js/apps');
+          const injectedPromise = web3Enable('pezkuwi-js/apps');
 
           injectedPromise
             .then(setExtensions)

@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
+// Copyright 2017-2026 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { LinkOption } from '@pezkuwi/apps-config/endpoints/types';
@@ -64,7 +64,7 @@ function extractRelayDestinations (relayGenesis: string, filter: (l: ExtLinkOpti
 
 function useTeleportImpl (): Teleport {
   const { api, apiUrl, isApiReady } = useApi();
-  const paraId = useCall<ParaId>(isApiReady && api.query.parachainInfo?.parachainId);
+  const paraId = useCall<ParaId>(isApiReady && api.query.teyrchainInfo?.teyrchainId);
   const [state, setState] = useState<Teleport>(() => ({ ...DEFAULT_STATE }));
 
   useEffect((): void => {

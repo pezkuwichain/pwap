@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/react-query authors & contributors
+// Copyright 2017-2026 @pezkuwi/react-query authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Bytes, Option } from '@pezkuwi/types';
@@ -40,7 +40,7 @@ const OPT_ID = {
       ? optId.unwrap()
       : null;
 
-    // Backwards compatibility - https://github.com/polkadot-js/apps/issues/10493
+    // Backwards compatibility - https://github.com/pezkuwi-js/apps/issues/10493
     return !id
       ? null
       : Array.isArray(id)

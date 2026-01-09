@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-referenda authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-referenda authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 /// <reference types="@pezkuwi/dev-test/globals.d.ts" />
@@ -36,7 +36,7 @@ function curveReciprocal (factor: BN | string | number, xOffset: BN | string | n
   } as PezpalletReferendaCurve;
 }
 
-// We don't currently have curves on Kusama for this, so needs a check
+// We don't currently have curves on Dicle for this, so needs a check
 // function curveStepped (begin: BN | string | number, end: BN | string | number, period: BN | string | number, step: BN | string | number): PezpalletReferendaCurve {
 //   return {
 //     asSteppedDecreasing: {
@@ -57,7 +57,7 @@ function percentValue (percent: number): BN {
 
 describe('curveThreshold', (): void => {
   describe('LinearDecreasing', (): void => {
-    // linear support curve from root track on Kusama
+    // linear support curve from root track on Dicle
     const rootCurve = curveLinear(BN_BILLION.divn(2), BN_ZERO, BN_BILLION);
 
     it('has a correct starting point', (): void => {
@@ -80,7 +80,7 @@ describe('curveThreshold', (): void => {
   });
 
   describe('Reciprocal', (): void => {
-    // linear approval curve from root track on Kusama
+    // linear approval curve from root track on Dicle
     const rootCurve = curveReciprocal(222_222_224, 333_333_335, 333_333_332);
 
     it('has a correct starting point', (): void => {
@@ -108,7 +108,7 @@ describe('curveThreshold', (): void => {
 
 describe('curveDelay', (): void => {
   describe('LinearDecreasing', (): void => {
-    // linear support curve from root track on Kusama
+    // linear support curve from root track on Dicle
     const rootCurve = curveLinear(BN_BILLION.divn(2), BN_ZERO, BN_BILLION);
 
     it('has the correct result for 25%', (): void => {
@@ -119,7 +119,7 @@ describe('curveDelay', (): void => {
   });
 
   describe('Reciprocal', (): void => {
-    // linear approval curve from root track on Kusama
+    // linear approval curve from root track on Dicle
     const rootCurve = curveReciprocal(222_222_224, 333_333_335, 333_333_332);
 
     it('has the correct result for 75%', (): void => {

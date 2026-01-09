@@ -116,6 +116,7 @@
   "Stop": "Stop",
   "Submit key": "Submit key",
   "Targets": "Targets",
+  "TeyrChains": "TeyrChains",
   "The All bags list is composed of bags that each describe a range of active bonded funds of the nominators. In each bag is a list of nodes that correspond to a nominator and their staked funds.": "The All bags list is composed of bags that each describe a range of active bonded funds of the nominators. In each bag is a list of nodes that correspond to a nominator and their staked funds.",
   "The Threshold must be a positive number": "The Threshold must be a positive number",
   "The Threshold must lower than 11": "The Threshold must lower than 11",

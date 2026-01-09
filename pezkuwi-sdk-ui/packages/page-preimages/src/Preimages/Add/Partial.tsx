@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-preimages authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-preimages authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ApiPromise } from '@pezkuwi/api';
@@ -45,7 +45,7 @@ function getState (api: ApiPromise, proposal?: SubmittableExtrinsic<'promise'>):
     encodedHash = blake2AsHex(encodedProposal);
     notePreimageTx = api.tx.preimage.notePreimage(encodedProposal);
 
-    // we currently don't have a constant exposed, however match to Substrate
+    // we currently don't have a constant exposed, however match to Bizinikiwi
     storageFee = ((api.consts.preimage?.baseDeposit || BN_ZERO) as unknown as BN).add(
       ((api.consts.preimage?.byteDeposit || BN_ZERO) as unknown as BN).muln(encodedLength)
     );

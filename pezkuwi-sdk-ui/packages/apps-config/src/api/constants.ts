@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/apps-config authors & contributors
+// Copyright 2017-2026 @pezkuwi/apps-config authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { HexString } from '@pezkuwi/util/types';
@@ -16,14 +16,14 @@ export function getGenesis (name: string): HexString {
 
 export const KULUPU_GENESIS = getGenesis('kulupu');
 
-export const KUSAMA_GENESIS = getGenesis('kusama');
+export const KUSAMA_GENESIS = getGenesis('dicle');
 
-export const POLKADOT_GENESIS = getGenesis('polkadot');
+export const POLKADOT_GENESIS = getGenesis('pezkuwi');
 export const POLKADOT_DENOM_BLOCK = new BN(1248328);
 
 export const PASEO_GENESIS = '0x77afd6190f1554ad45fd0d31aee62aacc33c6db0ea801129acb813f913e0764f';
 
-export const WESTEND_GENESIS = getGenesis('westend');
+export const WESTEND_GENESIS = getGenesis('zagros');
 
 export const NEATCOIN_GENESIS = '0xfbb541421d30423c9a753ffa844b64fd44d823f513bf49e3b73b3a656309a595';
 

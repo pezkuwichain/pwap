@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
+// Copyright 2017-2026 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { LanguageDetectorModule, Newable } from 'i18next';
@@ -61,7 +61,7 @@ i18next
       'app-extrinsics',
       'app-generic-asset',
       'app-js',
-      'app-parachains',
+      'app-teyrchains',
       'app-poll',
       'app-rpc',
       'app-settings',
