@@ -2719,16 +2719,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pezkuwi/phishing@npm:^0.25.26":
-  version: 0.25.26
-  resolution: "@pezkuwi/phishing@npm:0.25.26"
+"@pezkuwi/phishing@npm:^0.25.27":
+  version: 0.25.27
+  resolution: "@pezkuwi/phishing@npm:0.25.27"
   dependencies:
     "@pezkuwi/util": "npm:^14.0.5"
     "@pezkuwi/util-crypto": "npm:^14.0.5"
     "@pezkuwi/x-fetch": "npm:^14.0.5"
     tldts: "npm:^7.0.8"
     tslib: "npm:^2.8.1"
-  checksum: 10/ecbc8b9bd0e40d00e16e331bc9e0cb41c3ccc7eae1381224ea24e530ae8e4c19cd54251eb714d8b93022ed37e4951063d2ccdcc740742bfb6296aa886929ba73
+  checksum: 10/16f40e1c9e7a3c4398891f31d61b38fc3039ec53d242b560b85669a3eb20d461c5c75ca6e77d9e5a82e62fec07bf02d4ddeb007b2a6ff47e312158db54e3bbec
   languageName: node
   linkType: hard
 
