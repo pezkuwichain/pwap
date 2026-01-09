@@ -103,7 +103,7 @@
     "@pezkuwi/hw-ledger": "^14.0.7",
     "@pezkuwi/keyring": "^14.0.7",
     "@pezkuwi/networks": "^14.0.7",
-    "@pezkuwi/phishing": "^0.25.27",
+    "@pezkuwi/phishing": "^0.25.28",
     "@pezkuwi/rpc-augment": "^16.5.6",
     "@pezkuwi/rpc-core": "^16.5.6",
     "@pezkuwi/rpc-provider": "^16.5.6",
