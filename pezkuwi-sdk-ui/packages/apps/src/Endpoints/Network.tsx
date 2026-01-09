@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/apps authors & contributors
+// Copyright 2017-2026 @pezkuwi/apps authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { IFavoriteChainProps, Network } from './types.js';
@@ -82,7 +82,7 @@ function NetworkDisplay ({ apiUrl, className = '', isFavorite, setApiUrl, toggle
                     ? t('{{relay}} System', { replace: { relay } })
                     : paraId && paraId < 2000
                       ? t('{{relay}} Common', { replace: { relay } })
-                      : t('{{relay}} Parachain', { replace: { relay } })
+                      : t('{{relay}} TeyrChain', { replace: { relay } })
                 }
               </div>
             )}

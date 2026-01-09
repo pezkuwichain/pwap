@@ -108,6 +108,8 @@
   "Stashed": "Stashed",
   "Stop": "Stop",
   "Submit key": "Submit key",
+  "TeyrChain Config": "TeyrChain Config",
+  "TeyrChains": "TeyrChains",
   "The Threshold must be a positive number": "The Threshold must be a positive number",
   "The Threshold must lower than 11": "The Threshold must lower than 11",
   "The amount placed at-stake should allow some free funds for future transactions.": "The amount placed at-stake should allow some free funds for future transactions.",

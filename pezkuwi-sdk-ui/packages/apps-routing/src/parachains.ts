@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/apps-routing authors & contributors
+// Copyright 2017-2026 @pezkuwi/apps-routing authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Route, TFunction } from './types.js';
@@ -10,13 +10,13 @@ export default function create (t: TFunction): Route {
     Component,
     display: {
       needsApi: [
-        // children - parachainInfo.arachainId / parachainUpgrade.didSetValidationCode
-        ['query.paras.parachains']
+        // children - teyrchainInfo.arachainId / teyrchainUpgrade.didSetValidationCode
+        ['query.paras.teyrchains']
       ]
     },
     group: 'network',
     icon: 'link',
-    name: 'parachains',
-    text: t('nav.parachains', 'Parachains', { ns: 'apps-routing' })
+    name: 'teyrchains',
+    text: t('nav.teyrchains', 'TeyrChains', { ns: 'apps-routing' })
   };
 }

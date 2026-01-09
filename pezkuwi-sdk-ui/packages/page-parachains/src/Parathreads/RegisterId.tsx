@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { u128 } from '@pezkuwi/types';
@@ -38,11 +38,11 @@ function RegisterId ({ className, nextParaId, onClose }: Props): React.ReactElem
             value={accountId}
           />
         </Modal.Columns>
-        <Modal.Columns hint={t('The Id of this parachain as known on the network (selected from nextFreeId)')}>
+        <Modal.Columns hint={t('The Id of this teyrchain as known on the network (selected from nextFreeId)')}>
           <InputNumber
             defaultValue={nextParaId}
             isDisabled
-            label={t('parachain id')}
+            label={t('teyrchain id')}
           />
         </Modal.Columns>
         <Modal.Columns hint={t('The reservation fee for this Id')}>

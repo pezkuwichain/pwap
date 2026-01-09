@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-referenda authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-referenda authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { PezpalletReferendaDeposit, PezpalletReferendaTrackDetails } from '@pezkuwi/types/lookup';

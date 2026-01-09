@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { AccountId, CoreAssignment, GroupIndex, ParaId, ParaValidatorIndex } from '@pezkuwi/types/interfaces';
@@ -19,7 +19,7 @@ const optionsMulti = {
 function mapValidators (startWith: Record<string, [GroupIndex, ValidatorInfo[]]>, ids: ParaId[], validators: AccountId[], groups: ParaValidatorIndex[][], indices: ParaValidatorIndex[], scheduled: CoreAssignment[]): Record<string, [GroupIndex, ValidatorInfo[]]> {
   return ids.reduce((all: Record<string, [GroupIndex, ValidatorInfo[]]>, id) => {
     // paraId should never be undefined, since it comes from the state, yet here we are...
-    // See https://github.com/polkadot-js/apps/issues/6435
+    // See https://github.com/pezkuwi-js/apps/issues/6435
     const assignment = scheduled.find(({ paraId }) => paraId && paraId.eq(id));
 
     if (!assignment) {

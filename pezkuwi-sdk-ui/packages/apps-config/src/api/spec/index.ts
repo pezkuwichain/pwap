@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/apps-config authors & contributors
+// Copyright 2017-2026 @pezkuwi/apps-config authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { OverrideBundleDefinition } from '@pezkuwi/types/types';
@@ -8,7 +8,7 @@ import ajuna from './ajuna.js';
 import altair from './altair.js';
 import apron from './apron.js';
 import aresGladios from './ares-gladios.js';
-import aresParachain from './ares-parachain.js';
+import aresTeyrChain from './ares-parachain.js';
 import argon from './argon.js';
 import astar from './astar.js';
 import bajun from './bajun.js';
@@ -16,16 +16,16 @@ import basilisk from './basilisk.js';
 import beresheet from './beresheet.js';
 import bifrost from './bifrost.js';
 import bifrostAsgard from './bifrost-asgard.js';
-import bifrostParachain from './bifrost-parachain.js';
+import bifrostTeyrChain from './bifrost-parachain.js';
 import bitcountry from './bitcountry.js';
 import bitcountryPioneer from './bitcountry-pioneer.js';
-import bitcountryParachain from './bitcountry-rococo.js';
+import bitcountryTeyrChain from './bitcountry-rococo.js';
 import bittensor from './bittensor.js';
 import centrifuge from './centrifuge.js';
 import centrifugeChain from './centrifuge-chain.js';
 import chainx from './chainx.js';
 import clover from './clover.js';
-import cloverRococo from './clover-rococo.js';
+import cloverPezkuwiChain from './clover-rococo.js';
 import coinversation from './coinversation.js';
 import communeai from './communeai.js';
 import competitorsClub from './competitors-club.js';
@@ -34,7 +34,7 @@ import crownSterlingChain from './crown-sterling.js';
 import crust from './crust.js';
 import testPara from './cumulus-test-parachain.js';
 import curio from './curio.js';
-import datahighwayParachain from './datahighway.js';
+import datahighwayTeyrChain from './datahighway.js';
 import dockMainnet from './dock-mainnet.js';
 import dockTestnet from './dock-testnet.js';
 import dotmog from './dotmog.js';
@@ -46,12 +46,12 @@ import encointerNodeTeeproxy from './encointer-node-teeproxy.js';
 import encointerPara from './encointer-para.js';
 import equilibrium from './equilibrium.js';
 import fantour from './fantour.js';
-// See https://github.com/polkadot-js/apps/pull/9243
+// See https://github.com/pezkuwi-js/apps/pull/9243
 // import fragnova from './fragnova.js';
 import ferrum from './ferrum.js';
 import frequency from './frequency.js';
 import galital from './galital.js';
-import galitalParachain from './galital-parachain.js';
+import galitalTeyrChain from './galital-parachain.js';
 import galois from './galois.js';
 import gamepower from './gamepower.js';
 import genshiro from './genshiro.js';
@@ -66,7 +66,7 @@ import interbtc from './interbtc.js';
 import ipse from './ipse.js';
 import jamton from './jamton.js';
 import jupiter from './jupiter.js';
-import jupiterRococo from './jupiter-rococo.js';
+import jupiterPezkuwiChain from './jupiter-rococo.js';
 import jur from './jur.js';
 import khala from './khala.js';
 import kilt from './kilt.js';
@@ -77,7 +77,7 @@ import kusari from './kusari.js';
 import kylin from './kylin.js';
 import laminar from './laminar.js';
 import logion from './logion.js';
-import logionParachain from './logion-parachain.js';
+import logionTeyrChain from './logion-parachain.js';
 import mangata from './mangata.js';
 import manta from './manta.js';
 import mathchain from './mathchain.js';
@@ -155,8 +155,8 @@ const spec: Record<string, OverrideBundleDefinition> = {
   amplitude: pendulum,
   apron,
   'ares-gladios': aresGladios,
-  'ares-mars': aresParachain,
-  'ares-odyssey': aresParachain,
+  'ares-mars': aresTeyrChain,
+  'ares-odyssey': aresTeyrChain,
   argon,
   asgard: bifrostAsgard,
   astar,
@@ -164,16 +164,16 @@ const spec: Record<string, OverrideBundleDefinition> = {
   basilisk,
   beresheet,
   bifrost,
-  'bifrost-parachain': bifrostParachain,
+  'bifrost-parachain': bifrostTeyrChain,
   'bitcountry-node': bitcountry,
-  'bitcountry-parachain': bitcountryParachain,
+  'bitcountry-teyrchain': bitcountryTeyrChain,
   bittensor,
   centrifuge,
   'centrifuge-chain': centrifugeChain,
   chainx,
-  'chainx-parachain': chainx,
+  'chainx-teyrchain': chainx,
   clover,
-  'clover-rococo': cloverRococo,
+  'clover-rococo': cloverPezkuwiChain,
   coinversation,
   communeai,
   'competitors-club': competitorsClub,
@@ -181,14 +181,14 @@ const spec: Record<string, OverrideBundleDefinition> = {
   contracts,
   'crown-sterling': crownSterlingChain,
   crust,
-  'crust-parachain': crust,
+  'crust-teyrchain': crust,
   'cumulus-test-parachain': testPara,
   'curio-mainnet': curio,
   'curio-testnet': curio,
   datahighway: westlake,
-  'datahighway-parachain': datahighwayParachain,
+  'datahighway-teyrchain': datahighwayTeyrChain,
   dawn: eave,
-  'dev-parachain': zenlink,
+  'dev-teyrchain': zenlink,
   'dock-pos-main-runtime': dockMainnet,
   'dock-pos-test-runtime': dockTestnet,
   'dotmog-node': dotmog,
@@ -196,17 +196,17 @@ const spec: Record<string, OverrideBundleDefinition> = {
   elysium,
   'encointer-node-notee': encointerNodeNotee,
   'encointer-node-teeproxy': encointerNodeTeeproxy,
-  'encointer-parachain': encointerPara,
+  'encointer-teyrchain': encointerPara,
   fantour,
-  // See https://github.com/polkadot-js/apps/pull/9243
+  // See https://github.com/pezkuwi-js/apps/pull/9243
   // fragnova,
   // 'fragnova-testnet': fragnova,
-  'ferrum-parachain': ferrum,
+  'ferrum-teyrchain': ferrum,
   foucoco: pendulum,
   frequency,
   'frequency-testnet': frequency,
   galital,
-  'galital-collator': galitalParachain,
+  'galital-collator': galitalTeyrChain,
   gamepower,
   gargantua: hyperbridge,
   'hack-hydra-dx': hydrate,
@@ -218,20 +218,20 @@ const spec: Record<string, OverrideBundleDefinition> = {
   hyperbridge,
   idavoll,
   imbue,
-  'integritee-parachain': integritee,
-  'interbtc-parachain': interbtc as OverrideBundleDefinition,
+  'integritee-teyrchain': integritee,
+  'interbtc-teyrchain': interbtc as OverrideBundleDefinition,
   'interbtc-standalone': interbtc as OverrideBundleDefinition,
-  'interlay-parachain': interbtc as OverrideBundleDefinition,
+  'interlay-teyrchain': interbtc as OverrideBundleDefinition,
   'ipse-node': ipse,
   'jamton-runtime': jamton,
   'jupiter-prep': jupiter,
-  'jupiter-rococo': jupiterRococo,
+  'jupiter-rococo': jupiterPezkuwiChain,
   'jur-chain': jur,
   'jur-node': jur,
   kerria: parallel,
   khala,
   ...kilt,
-  'kintsugi-parachain': interbtc as OverrideBundleDefinition,
+  'kintsugi-teyrchain': interbtc as OverrideBundleDefinition,
   konomi,
   kpron,
   kulupu,
@@ -239,9 +239,9 @@ const spec: Record<string, OverrideBundleDefinition> = {
   kylin,
   laminar,
   logion: logion as OverrideBundleDefinition,
-  'logion-parachain': logionParachain as OverrideBundleDefinition,
+  'logion-parachain': logionTeyrChain as OverrideBundleDefinition,
   mangata: mangata as OverrideBundleDefinition,
-  'mangata-parachain': mangata as OverrideBundleDefinition,
+  'mangata-teyrchain': mangata as OverrideBundleDefinition,
   'manta-node': manta,
   mathchain,
   'mathchain-galois': galois,
@@ -271,14 +271,14 @@ const spec: Record<string, OverrideBundleDefinition> = {
   peerplays,
   pendulum,
   'phoenix-node': phoenix,
-  'phoenix-parachain': phoenix,
+  'phoenix-teyrchain': phoenix,
   pichiu,
   'pioneer-runtime': bitcountryPioneer,
   polymesh_mainnet: polymeshMainnet,
   polymesh_testnet: polymeshTestnet,
   'pontem-node': pontem as OverrideBundleDefinition,
   prism,
-  'quantum-portal-network-parachain': ferrum,
+  'quantum-portal-network-teyrchain': ferrum,
   quartz: quartz as OverrideBundleDefinition,
   realis,
   'riochain-runtime': riochain,
@@ -312,9 +312,9 @@ const spec: Record<string, OverrideBundleDefinition> = {
   uart,
   unique: unique as OverrideBundleDefinition,
   'unit-node': unitv,
-  'unit-parachain': unitv,
+  'unit-teyrchain': unitv,
   'unitnetwork-node': unitnetwork,
-  'unitnetwork-parachain': unitnetwork,
+  'unitnetwork-teyrchain': unitnetwork,
   unorthodox: standard,
   vanilla: parallel,
   vara: standard,

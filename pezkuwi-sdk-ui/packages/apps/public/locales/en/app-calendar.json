@@ -4,6 +4,7 @@
   "Election of new council candidates": "Election of new council candidates",
   "Enactment of the result of referendum {{id}}": "Enactment of the result of referendum {{id}}",
   "End of the current parachain auction {{id}}": "End of the current parachain auction {{id}}",
+  "End of the current teyrchain auction {{id}}": "End of the current teyrchain auction {{id}}",
   "Execute anonymous scheduled task": "Execute anonymous scheduled task",
   "Execute named scheduled task {{id}}": "Execute named scheduled task {{id}}",
   "Potential dispatch of referendum {{id}} (if passed)": "Potential dispatch of referendum {{id}} (if passed)",
@@ -13,6 +14,7 @@
   "Start of next spending period": "Start of next spending period",
   "Start of the next parachain lease period {{id}}": "Start of the next parachain lease period {{id}}",
   "Start of the next referendum voting period": "Start of the next referendum voting period",
+  "Start of the next teyrchain lease period {{id}}": "Start of the next teyrchain lease period {{id}}",
   "Upcoming Events": "Upcoming Events",
   "Upcoming events": "Upcoming events",
   "Voting ends for referendum {{id}}": "Voting ends for referendum {{id}}",
@@ -26,5 +28,7 @@
   "via Society": "via Society",
   "via Staking": "via Staking",
   "via Staking/Slashed": "via Staking/Slashed",
+  "via TeyrChains": "via TeyrChains",
+  "via TeyrChains/Auction": "via TeyrChains/Auction",
   "via Treasury": "via Treasury"
 }

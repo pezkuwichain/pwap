@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-addresses authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-addresses authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { KeyringAddress } from '@pezkuwi/ui-keyring/types';

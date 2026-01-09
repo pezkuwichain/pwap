@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/apps-config authors & contributors
+// Copyright 2017-2026 @pezkuwi/apps-config authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { OverrideBundleDefinition } from '@pezkuwi/types/types';
@@ -11,7 +11,7 @@ const definitions: OverrideBundleDefinition = {
       // on all versions
       minmax: [0, undefined],
       types: {
-        GatewayVendor: { _enum: ['Substrate', 'Ethereum'] },
+        GatewayVendor: { _enum: ['Bizinikiwi', 'Ethereum'] },
         GatewayType: {
           _enum: {
             ProgrammableInternal: 'u32',
@@ -194,7 +194,7 @@ const definitions: OverrideBundleDefinition = {
         HasherAlgo: { _enum: ['Blake2', 'Keccak256'] },
         CryptoAlgo: { _enum: ['Ed25519', 'Sr25519', 'Ecdsa'] },
         StructDecl: { name: 'Type', fields: 'Vec<Parameter>', offsets: 'Vec<u16>' },
-        Parachain: { relay_chain_id: 'ChainId', id: 'u32' }
+        TeyrChain: { relay_chain_id: 'ChainId', id: 'u32' }
       }
     }
   ]

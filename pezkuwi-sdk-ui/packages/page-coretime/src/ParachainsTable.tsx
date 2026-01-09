@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-coretime authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-coretime authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { RelayName } from './types.js';
@@ -20,7 +20,7 @@ interface Props {
 function ParachainsTable ({ coretimeInfo, relayName }: Props): React.ReactElement<Props> {
   const { t } = useTranslation();
   const headerRef = useRef<([React.ReactNode?, string?, number?] | false)[]>([
-    [t('parachains'), 'start'],
+    [t('teyrchains'), 'start'],
     [t('name'), 'start media--800'],
     [t('core number'), 'start'],
     [t('type'), 'start'],

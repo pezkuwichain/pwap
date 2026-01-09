@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/apps authors & contributors
+// Copyright 2017-2026 @pezkuwi/apps authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Route, Routes } from '@pezkuwi/apps-routing/types';
@@ -27,13 +27,13 @@ interface Props {
 function createExternals (t: (key: string, optionsOrText?: string | { replace: Record<string, unknown> }, options?: { ns: string }) => string): ItemRoute[] {
   return [
     {
-      href: 'https://github.com/polkadot-js/apps',
+      href: 'https://github.com/pezkuwichain/pwap',
       icon: 'code-branch',
       name: 'github',
       text: t('nav.github', 'GitHub', { ns: 'apps-routing' })
     },
     {
-      href: 'https://wiki.polkadot.network',
+      href: 'https://wiki.pezkuwichain.io',
       icon: 'book',
       name: 'wiki',
       text: t('nav.wiki', 'Wiki', { ns: 'apps-routing' })

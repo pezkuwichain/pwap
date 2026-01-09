@@ -17,7 +17,7 @@
   "version": "0.168.2-0-x",
   "dependencies": {
     "@pezkuwi/hw-ledger": "^14.0.5",
-    "@pezkuwi/phishing": "^0.25.22",
+    "@pezkuwi/phishing": "^0.25.26",
     "@pezkuwi/react-components": "^0.168.2-0-x",
     "@pezkuwi/react-hooks": "^0.168.2-0-x",
     "@pezkuwi/util": "^14.0.5",

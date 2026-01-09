@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-settings authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-settings authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { BlockNumber, RuntimeVersion } from '@pezkuwi/types/interfaces';
@@ -36,7 +36,7 @@ function getRandomColor (): string {
 }
 
 const initialState = {
-  chainType: 'substrate' as ChainType,
+  chainType: 'bizinikiwi' as ChainType,
   color: '#FFFFFF',
   decimals: 0,
   genesisHash: '',

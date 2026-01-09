@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import '@pezkuwi/api-augment/bizinikiwi';
@@ -32,7 +32,7 @@ interface Props {
   className?: string;
 }
 
-function ParachainsApp ({ basePath, className }: Props): React.ReactElement<Props> {
+function TeyrChainsApp ({ basePath, className }: Props): React.ReactElement<Props> {
   const { t } = useTranslation();
   const { api } = useApi();
   const { pathname } = useLocation();
@@ -44,7 +44,7 @@ function ParachainsApp ({ basePath, className }: Props): React.ReactElement<Prop
   const proposals = useProposals();
   const actionsQueue = useActionsQueue();
   const upcomingIds = useUpcomingIds();
-  const paraIds = useCall<ParaId[]>(api.query.paras.parachains);
+  const paraIds = useCall<ParaId[]>(api.query.paras.teyrchains);
 
   const items = useRef([
     {
@@ -56,7 +56,7 @@ function ParachainsApp ({ basePath, className }: Props): React.ReactElement<Prop
       name: 'parathreads',
       text: t('Parathreads')
     },
-    api.query.proposeParachain && {
+    api.query.proposeTeyrChain && {
       name: 'proposals',
       text: t('Proposals')
     },
@@ -127,4 +127,4 @@ function ParachainsApp ({ basePath, className }: Props): React.ReactElement<Prop
   );
 }
 
-export default React.memo(ParachainsApp);
+export default React.memo(TeyrChainsApp);

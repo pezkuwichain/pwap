@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-claims authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-claims authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { TxCallback } from '@pezkuwi/react-components/Status/types';
@@ -88,7 +88,7 @@ function Attest ({ accountId, className, ethereumAddress, onSuccess, statementKi
     return (
       <Card isError>
         <StyledDiv className={className}>
-          {t('We found a pre-claim with this Polkadot address. However, attesting requires signing with this account. To continue with attesting, please add this account as an owned account first.')}
+          {t('We found a pre-claim with this Pezkuwi address. However, attesting requires signing with this account. To continue with attesting, please add this account as an owned account first.')}
           <h2>
             <FormatBalance
               label={t('Account balance:')}

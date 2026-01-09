@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-explorer authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-explorer authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { KeyedEvent } from '@pezkuwi/react-hooks/ctx/types';

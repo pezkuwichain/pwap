@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-staking-async authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-staking-async authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ApiPromise } from '@pezkuwi/api';
@@ -43,7 +43,7 @@ export interface IRcOutput {
     validatorCount?: number,
     electionPhase?: string
   },
-  parachainConfig?: {
+  teyrchainConfig?: {
     maxDownwardMessageSize: number,
     maxUpwardMessageSize: number
   }
@@ -145,18 +145,18 @@ const commandCenterHandler = async (
     // Validator points
     const validatorPointsKeys = await rcApi.query.stakingAhClient.validatorPoints.keys();
 
-    // Parachain config
-    let parachainConfig;
+    // TeyrChain config
+    let teyrchainConfig;
 
     try {
       const configuration = await rcApi.query.configuration.activeConfig() as PezkuwiRuntimeTeyrchainsConfigurationHostConfiguration;
 
-      parachainConfig = {
+      teyrchainConfig = {
         maxDownwardMessageSize: configuration.maxDownwardMessageSize?.toNumber() || 0,
         maxUpwardMessageSize: configuration.maxUpwardMessageSize?.toNumber() || 0
       };
     } catch {
-      parachainConfig = undefined;
+      teyrchainConfig = undefined;
     }
 
     // Events that we are interested in from RC:
@@ -173,7 +173,7 @@ const commandCenterHandler = async (
 
     setRcOutput({
       finalizedBlock: header.number.toNumber(),
-      parachainConfig,
+      teyrchainConfig,
       session: {
         hasQueuedInSession: hasQueuedInSession.isTrue,
         historicalRange: historicalRange.isSome

@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/apps-config authors & contributors
+// Copyright 2017-2026 @pezkuwi/apps-config authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 /// <reference types="@pezkuwi/dev-test/globals.d.ts" />
@@ -137,15 +137,15 @@ describe('endpopints naming', (): void => {
         assert(!provider.includes(' ') || (provider.toLocaleUpperCase() !== provider), `${name}:: ${provider} should not be all uppercase`);
       });
 
-      it(`[${key}] does not contain "Parachain`, (): void => {
-        assert(!name.includes('Parachain'), `${name} should not contain "Parachain" (redundant)`);
+      it(`[${key}] does not contain "TeyrChain`, (): void => {
+        assert(!name.includes('TeyrChain'), `${name} should not contain "TeyrChain" (redundant)`);
       });
 
       it(`[${key}] does not contain a relay name`, (): void => {
-        assert(name.includes('Kusama') ? true : !name.includes(' ') || !name.includes('Kusama'), `${name} should not contain "Kusama" (redundant)`);
+        assert(name.includes('Dicle') ? true : !name.includes(' ') || !name.includes('Dicle'), `${name} should not contain "Dicle" (redundant)`);
         assert(name.includes('Polkadot') ? true : !name.includes(' ') || !name.includes('Polkadot'), `${name} should not contain "Polkadot" (redundant)`);
-        assert(name.includes('Rococo') ? true : !name.includes(' ') || !name.includes('Rococo'), `${name} should not contain "Rococo" (redundant)`);
-        assert(name.includes('Westend') ? true : !name.includes(' ') || !name.includes('Westend'), `${name} should not contain "Westend" (redundant)`);
+        assert(name.includes('PezkuwiChain') ? true : !name.includes(' ') || !name.includes('PezkuwiChain'), `${name} should not contain "PezkuwiChain" (redundant)`);
+        assert(name.includes('Zagros') ? true : !name.includes(' ') || !name.includes('Zagros'), `${name} should not contain "Zagros" (redundant)`);
       });
     });
   }

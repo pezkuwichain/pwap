@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-settings authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-settings authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { QueryableStorageEntry } from '@pezkuwi/api/types';
@@ -10,7 +10,7 @@ import { useEffect, useState } from 'react';
 
 import { createNamedHook, useAccounts, useApi, useCall, useIsMountedRef } from '@pezkuwi/react-hooks';
 
-function usePolkadotPreclaimsImpl (): string[] {
+function usePezkuwiPreclaimsImpl (): string[] {
   const { allAccounts } = useAccounts();
   const { api } = useApi();
   const mountedRef = useIsMountedRef();
@@ -49,4 +49,4 @@ function usePolkadotPreclaimsImpl (): string[] {
   return needsAttest;
 }
 
-export default createNamedHook('usePolkadotPreclaims', usePolkadotPreclaimsImpl);
+export default createNamedHook('usePezkuwiPreclaims', usePezkuwiPreclaimsImpl);

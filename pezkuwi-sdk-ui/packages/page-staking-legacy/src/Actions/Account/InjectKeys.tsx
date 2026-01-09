@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { KeypairType } from '@pezkuwi/util-crypto/types';
@@ -41,7 +41,7 @@ function InjectKeys ({ onClose }: Props): React.ReactElement<Props> | null {
     { text: t('Babe'), value: 'babe' },
     { text: t('Grandpa'), value: 'gran' },
     { text: t('I\'m Online'), value: 'imon' },
-    { text: t('Parachains'), value: 'para' }
+    { text: t('TeyrChains'), value: 'para' }
   ]);
 
   useEffect((): void => {

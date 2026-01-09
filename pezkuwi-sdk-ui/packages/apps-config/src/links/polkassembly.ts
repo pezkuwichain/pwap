@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/apps-config authors & contributors
+// Copyright 2017-2026 @pezkuwi/apps-config authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { BN } from '@pezkuwi/util';
@@ -18,28 +18,28 @@ export const PolkassemblyIo: ExternalDef = {
     'Centrifuge Mainnet': 'centrifuge',
     'Cere Mainnet Beta': 'cere',
     Collectives: 'collectives',
-    'Equilibrium parachain': 'equilibrium',
+    'Equilibrium teyrchain': 'equilibrium',
     'Hashed Network': 'hashed',
     Hydration: 'hydradx',
-    'Integritee Network (Kusama)': 'integritee',
+    'Integritee Network (Dicle)': 'integritee',
     Khala: 'khala',
     Kintsugi: 'kintsugi',
-    Kusama: 'kusama',
-    'Kusama Asset Hub': 'kusama',
-    'Kusama CC3': 'kusama',
-    'Kusama People': 'kusama',
+    Dicle: 'dicle',
+    'Dicle Asset Hub': 'dicle',
+    'Dicle CC3': 'dicle',
+    'Dicle People': 'dicle',
     Parallel: 'parallel',
     'Parallel Heiko': 'heiko',
     Picasso: 'picasso',
     'Pioneer Network': 'pioneer',
     'Polkadex Main Network': 'polkadex',
-    Polkadot: 'polkadot',
+    Polkadot: 'pezkuwi',
     Robonomics: 'robonomics',
-    Rococo: 'rococo',
+    PezkuwiChain: 'pezkuwichain',
     Shibuya: 'shibuya',
     Shiden: 'shiden',
     'Vara Network': 'vara',
-    'Westend Collectives': 'westend-collectives',
+    'Zagros Collectives': 'westend-collectives',
     Zeitgeist: 'zeitgeist'
   },
   create: (chain: string, path: string, data: BN | number | string): string =>

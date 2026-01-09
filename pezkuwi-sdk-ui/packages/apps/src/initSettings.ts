@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/apps authors & contributors
+// Copyright 2017-2026 @pezkuwi/apps authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import queryString from 'query-string';
@@ -27,7 +27,7 @@ function getApiUrl (): string {
   if (urlOptions.rpc) {
     assert(!Array.isArray(urlOptions.rpc), 'Invalid WS endpoint specified');
 
-    // https://polkadot.js.org/apps/?rpc=ws://127.0.0.1:9944#/explorer;
+    // https://pezkuwichain.app/?rpc=ws://127.0.0.1:9944#/explorer;
     const url = decodeURIComponent(urlOptions.rpc.split('#')[0]);
 
     assert(url.startsWith('ws://') || url.startsWith('wss://') || url.startsWith('light://'), 'Non-prefixed ws/wss/light url');
@@ -58,7 +58,7 @@ function getApiUrl (): string {
       : 'ws://127.0.0.1:9944'; // nothing found, go local
 }
 
-// There cannot be a Substrate Connect light client default (expect only jrpc EndpointType)
+// There cannot be a Bizinikiwi Connect light client default (expect only jrpc EndpointType)
 const apiUrl = getApiUrl();
 
 // set the default as retrieved here

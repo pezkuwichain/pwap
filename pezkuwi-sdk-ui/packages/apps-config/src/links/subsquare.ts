@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/apps-config authors & contributors
+// Copyright 2017-2026 @pezkuwi/apps-config authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { BN } from '@pezkuwi/util';
@@ -9,7 +9,7 @@ import { externalSubsquareSVG } from '../ui/logos/external/index.js';
 export const Subsquare: ExternalDef = {
   chains: {
     Acala: 'acala',
-    'Ajuna Polkadot': 'ajuna',
+    'Ajuna Pezkuwi': 'ajuna',
     Altair: 'altair',
     Astar: 'astar',
     Basilisk: 'basilisk',
@@ -23,17 +23,17 @@ export const Subsquare: ExternalDef = {
     'Hyperbridge (Nexus)': 'hyperbridge',
     Interlay: 'interlay',
     Karura: 'karura',
-    Kusama: 'kusama',
-    'Kusama Asset Hub': 'kusama',
+    Dicle: 'dicle',
+    'Dicle Asset Hub': 'dicle',
     'Laos Network': 'laos',
-    'Paseo Asset Hub': 'paseo',
-    'Paseo Testnet': 'paseo',
+    'TeyrChain Asset Hub': 'teyrchain',
+    'TeyrChain Testnet': 'teyrchain',
     Phala: 'phala',
-    Polkadot: 'polkadot',
-    'Polkadot Asset Hub': 'polkadot',
+    Polkadot: 'pezkuwi',
+    'Polkadot Asset Hub': 'pezkuwi',
     'Vara Network': 'vara',
-    Westend: 'westend',
-    'Westend Asset Hub': 'westend',
+    Zagros: 'zagros',
+    'Zagros Asset Hub': 'zagros',
     Zeitgeist: 'zeitgeist',
     kintsugi: 'kintsugi'
   },

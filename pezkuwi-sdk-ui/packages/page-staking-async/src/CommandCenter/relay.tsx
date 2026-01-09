@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-staking-async authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-staking-async authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ReactNode } from 'react';
@@ -101,13 +101,13 @@ function RelaySection ({ children, isRelayChain, rcApi, rcEvents, rcOutput, rcUr
               </div>
             </div>
             <div className='section'>
-              <h4>{t('Parachain Config')}</h4>
+              <h4>{t('TeyrChain Config')}</h4>
               <div className='stats'>
                 <CardSummary label={t('max downward msg size')}>
-                  {rcOutput.parachainConfig ? formatNumber(rcOutput.parachainConfig.maxDownwardMessageSize) : 'None'}
+                  {rcOutput.teyrchainConfig ? formatNumber(rcOutput.teyrchainConfig.maxDownwardMessageSize) : 'None'}
                 </CardSummary>
                 <CardSummary label={t('max upward msg size')}>
-                  {rcOutput.parachainConfig ? formatNumber(rcOutput.parachainConfig.maxUpwardMessageSize) : 'None'}
+                  {rcOutput.teyrchainConfig ? formatNumber(rcOutput.teyrchainConfig.maxUpwardMessageSize) : 'None'}
                 </CardSummary>
               </div>
             </div>

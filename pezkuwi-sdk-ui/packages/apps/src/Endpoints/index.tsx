@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/apps authors & contributors
+// Copyright 2017-2026 @pezkuwi/apps authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { LinkOption } from '@pezkuwi/apps-config/endpoints/types';
@@ -106,7 +106,7 @@ function combineEndpoints (endpoints: LinkOption[]): Group[] {
 
   // Swap first two items in `networks` if first item is relay chain
   combinedEndpoints.forEach((r) => {
-    if (r.networks.length >= 2 && r.networks[0].isRelay && r.header?.toString().includes('parachains')) {
+    if (r.networks.length >= 2 && r.networks[0].isRelay && r.header?.toString().includes('teyrchains')) {
       [r.networks[0], r.networks[1]] = [r.networks[1], r.networks[0]];
     }
   });

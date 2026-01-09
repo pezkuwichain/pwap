@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-preimages authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-preimages authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ApiPromise } from '@pezkuwi/api';
@@ -45,7 +45,7 @@ function filterEvents (records: EventRecord[], _: ApiPromise, id?: BN): Changes<
 function useVotesImpl (palletVote: PalletVote, id: BN, isConvictionVote: boolean): Record<string, PezpalletRankedCollectiveVoteRecord> | undefined {
   const { api } = useApi();
 
-  // After v1.4.0 runtime upgrade, Relay chains i.e. Kusama and Polkadot, or other parachains chains, replaced `voting` method with `votingFor`.
+  // After v1.4.0 runtime upgrade, Relay chains i.e. Dicle and Polkadot, or other teyrchains chains, replaced `voting` method with `votingFor`.
   // Adding a safety check here so that app doesn't break
   const query = useMemo(() => api.query[palletVote].voting ?? api.query[palletVote].votingFor, [api.query, palletVote]);
 

@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-coretime authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-coretime authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ChainInformation } from '@pezkuwi/react-hooks/types';
@@ -87,11 +87,11 @@ function Filters ({ chainInfo, data: initialData, onFilter }: Props): React.Reac
     <div style={{ alignItems: 'center', display: 'flex', flexDirection: 'row', gap: '10px' }}>
       <div style={{ minWidth: '250px' }}>
         <Input
-          aria-label={t('Search by parachain id or name')}
+          aria-label={t('Search by teyrchain id or name')}
           className='full isSmall'
           label={t('Search')}
           onChange={onApplySearch}
-          placeholder={t('parachain id or name')}
+          placeholder={t('teyrchain id or name')}
           value={searchValue}
         />
       </div>

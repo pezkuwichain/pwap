@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-bounties authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-bounties authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 /// <reference types="@pezkuwi/dev-test/globals.d.ts" />
@@ -14,7 +14,7 @@ describe('Calculate bounty bond', () => {
     const depositBase = registry.createType('BalanceOf', new BN(166666666666));
     const depositPerByte = registry.createType('BalanceOf', new BN(1666666666));
 
-    expect(calculateBountyBond('Kusama network UI Bounty', depositBase, depositPerByte)).toEqual(new BN(206666666650));
+    expect(calculateBountyBond('Dicle network UI Bounty', depositBase, depositPerByte)).toEqual(new BN(206666666650));
   });
 
   it('handles utf-8 chars', () => {

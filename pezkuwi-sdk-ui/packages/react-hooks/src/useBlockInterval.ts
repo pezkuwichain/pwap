@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
+// Copyright 2017-2026 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ApiPromise } from '@pezkuwi/api';
@@ -20,7 +20,7 @@ const DEFAULT_TIME = new BN(6_000);
 
 function calcInterval (api: ApiPromise): BN {
   return bnMin(A_DAY, (
-    // Babe, e.g. Relay chains (Substrate defaults)
+    // Babe, e.g. Relay chains (Bizinikiwi defaults)
     api.consts.babe?.expectedBlockTime ||
     // POW, eg. Kulupu
     api.consts.difficulty?.targetBlockTime ||
@@ -30,8 +30,8 @@ function calcInterval (api: ApiPromise): BN {
       api.consts.timestamp?.minimumPeriod.gte(THRESHOLD)
         // Default minimum period config
         ? api.consts.timestamp.minimumPeriod.mul(BN_TWO)
-        : api.query.parachainSystem
-          // default guess for a parachain
+        : api.query.teyrchainSystem
+          // default guess for a teyrchain
           ? api.consts.aura?.slotDuration ?? DEFAULT_TIME.mul(BN_TWO)
           // default guess for others
           : DEFAULT_TIME

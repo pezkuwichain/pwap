@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-coretime authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-coretime authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ChainConstants, PezpalletBrokerConfigRecord, PezpalletBrokerSaleInfoRecord } from '@pezkuwi/react-hooks/types';
@@ -200,9 +200,9 @@ export const getSaleParameters = (
   let currentRegionInfo: SaleParameters['currentRegion'];
 
   if (chosenSaleNumber !== -1) {
-    // A hack for Kusama as one of the sales had an unusual length
+    // A hack for Dicle as one of the sales had an unusual length
     // checked against Subscan historical sales
-    if (relayName === 'kusama') {
+    if (relayName === 'dicle') {
       const irregularRegionLength = 848;
 
       if (chosenSaleNumber === 0) {

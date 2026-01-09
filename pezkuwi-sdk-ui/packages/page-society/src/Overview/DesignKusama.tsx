@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-society authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-society authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { AccountId } from '@pezkuwi/types/interfaces';
@@ -28,7 +28,7 @@ function DesignKusama ({ accountId }: Props): React.ReactElement<Props> | null {
   const { t } = useTranslation();
   const { api } = useApi();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [onKusama] = useState(() => api.genesisHash.eq(KUSAMA_GENESIS));
+  const [onDicle] = useState(() => api.genesisHash.eq(KUSAMA_GENESIS));
   const [isShowing, toggleDesign] = useToggle();
 
   useEffect((): void => {
@@ -41,7 +41,7 @@ function DesignKusama ({ accountId }: Props): React.ReactElement<Props> | null {
     }
   });
 
-  if (!onKusama) {
+  if (!onDicle) {
     return null;
   }
 

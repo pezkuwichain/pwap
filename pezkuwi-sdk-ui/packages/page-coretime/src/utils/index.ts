@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-coretime authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-coretime authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ChainBlockConstants, ChainConstants, CoretimeInformation } from '@pezkuwi/react-hooks/types';
@@ -19,18 +19,18 @@ Record<RelayName, number>
 export const FirstCycleStart: FirstCycleStartType = {
   block: {
     coretime: {
-      kusama: 53793,
+      dicle: 53793,
       'paseo testnet': 22316,
-      polkadot: 100988,
-      westend: 7363
+      pezkuwi: 100988,
+      zagros: 7363
     }
   },
   timeslice: {
     coretime: {
-      kusama: 284920,
+      dicle: 284920,
       'paseo testnet': 38469,
-      polkadot: 282525,
-      westend: 245402
+      pezkuwi: 282525,
+      zagros: 245402
     }
   }
 };

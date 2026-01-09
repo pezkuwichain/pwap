@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/apps-config authors & contributors
+// Copyright 2017-2026 @pezkuwi/apps-config authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { BN } from '@pezkuwi/util';
@@ -17,7 +17,7 @@ const getNetwork = (_chain: string) => {
 
 export const Singular: ExternalDef = {
   chains: {
-    Kusama: 'kusama',
+    Dicle: 'dicle',
     Statemine: 'statemine'
   },
   create: (_chain: string, _path: string, data: BN | number | string): string =>

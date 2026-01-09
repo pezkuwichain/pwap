@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-staking authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-staking authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ApiPromise } from '@pezkuwi/api';
@@ -148,10 +148,10 @@ function NewProxy ({ index, onChangeAccount, onChangeType, onRemove, proxiedAcco
 }
 
 function getProxyTypeInstance (api: ApiPromise, index = 0): KitchensinkRuntimeProxyType {
-  // This is not perfect, but should work for `{Kusama, Node, Polkadot}RuntimeProxyType`
+  // This is not perfect, but should work for `{Dicle, Node, Polkadot}RuntimeProxyType`
   const proxyNames = api.registry.lookup.names.filter((name) => name.endsWith('RuntimeProxyType'));
 
-  // fallback to previous version (may be Substrate default), when not found
+  // fallback to previous version (may be Bizinikiwi default), when not found
   return api.createType<KitchensinkRuntimeProxyType>(proxyNames.length ? proxyNames[0] : 'ProxyType', index);
 }
 

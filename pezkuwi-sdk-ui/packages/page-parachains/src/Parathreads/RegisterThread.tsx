@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { BalanceOf } from '@pezkuwi/types/interfaces';
@@ -82,7 +82,7 @@ function RegisterThread ({ className, nextParaId, onClose, ownedIds }: Props): R
           )
           : (
             <>
-              <Modal.Columns hint={t('This account will be associated with the parachain and pay the deposit.')}>
+              <Modal.Columns hint={t('This account will be associated with the teyrchain and pay the deposit.')}>
                 <InputAddress
                   label={t('register from')}
                   onChange={setAccountId}
@@ -90,34 +90,34 @@ function RegisterThread ({ className, nextParaId, onClose, ownedIds }: Props): R
                   value={accountId}
                 />
               </Modal.Columns>
-              <Modal.Columns hint={t('The id of this parachain as known on the network')}>
+              <Modal.Columns hint={t('The id of this teyrchain as known on the network')}>
                 <InputNumber
                   autoFocus
                   defaultValue={nextParaId}
                   isError={isIdError}
                   isZeroable={false}
-                  label={t('parachain id')}
+                  label={t('teyrchain id')}
                   onChange={setParaId}
                 />
               </Modal.Columns>
             </>
           )
         }
-        <Modal.Columns hint={t('The WASM validation function for this parachain.')}>
+        <Modal.Columns hint={t('The WASM validation function for this teyrchain.')}>
           <InputFile
             isError={!wasm}
             label={t('code')}
             onChange={_setWasm}
           />
         </Modal.Columns>
-        <Modal.Columns hint={t('The genesis state for this parachain.')}>
+        <Modal.Columns hint={t('The genesis state for this teyrchain.')}>
           <InputFile
             isError={!genesisState}
             label={t('initial state')}
             onChange={_setGenesisState}
           />
         </Modal.Columns>
-        <Modal.Columns hint={t('The reservation fee for this parachain, including base fee and per-byte fees')}>
+        <Modal.Columns hint={t('The reservation fee for this teyrchain, including base fee and per-byte fees')}>
           <InputBalance
             defaultValue={reservedDeposit}
             isDisabled

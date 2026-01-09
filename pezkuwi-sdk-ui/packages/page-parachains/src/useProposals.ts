@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { StorageKey } from '@pezkuwi/types';
@@ -36,12 +36,12 @@ const OPT_SCHED = {
 function useProposalsImpl (): Proposals | undefined {
   const { api } = useApi();
   const mountedRef = useIsMountedRef();
-  const trigger = useEventTrigger([api.events.proposeParachain?.ProposeParachain]);
-  const proposalIds = useMapKeys(api.query.proposeParachain?.proposals, [], OPT_IDS, trigger.blockHash);
-  const scheduled = useMapEntries(api.query.proposeParachain?.scheduledProposals, [], OPT_SCHED, trigger.blockHash);
+  const trigger = useEventTrigger([api.events.proposeTeyrChain?.ProposeTeyrChain]);
+  const proposalIds = useMapKeys(api.query.proposeTeyrChain?.proposals, [], OPT_IDS, trigger.blockHash);
+  const scheduled = useMapEntries(api.query.proposeTeyrChain?.scheduledProposals, [], OPT_SCHED, trigger.blockHash);
   const [sessionIndex, approvedIds] = useCallMulti<MultiQuery>([
     api.query.session.currentIndex,
-    api.query.proposeParachain?.approvedProposals
+    api.query.proposeTeyrChain?.approvedProposals
   ], OPT_MULTI);
 
   return useMemo(

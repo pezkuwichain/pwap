@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { BlockNumber } from '@pezkuwi/types/interfaces';
@@ -101,7 +101,7 @@ function Bid ({ auctionInfo, className, lastWinners, ownedIds }: Props): React.R
             </Modal.Columns>
             <Modal.Columns hint={
               <>
-                <p>{t('The amount to bid for this parachain lease period range.')}</p>
+                <p>{t('The amount to bid for this teyrchain lease period range.')}</p>
                 <p>{t('The bid should be more than the current range winner to be accepted and influence the auction outcome.')}</p>
               </>
             }

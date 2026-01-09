@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-staking-async authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-staking-async authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
@@ -15,8 +15,8 @@ function StakingAsyncOverview ({ children, className = '', withIcon = true }: Pr
   return (
     <StyledArticle className={`${className} mark warning`}>
       {withIcon && <Icon icon='exclamation-triangle' />}
-      <strong>Staking Async is Polkadot&apos;s staking system</strong> which elects validators <em>for the Relay Chain</em>, <em>on AssetHub</em>.
-      The actual collators of the AssetHub parachain are managed by the collator-selection system. To nominate a Relay Chain validator, please use this page and everything works as before. To setup a validator, please see{' '}
+      <strong>Staking Async is Pezkuwi&apos;s staking system</strong> which elects validators <em>for the Relay Chain</em>, <em>on AssetHub</em>.
+      The actual collators of the AssetHub teyrchain are managed by the collator-selection system. To nominate a Relay Chain validator, please use this page and everything works as before. To setup a validator, please see{' '}
       <a
         href='https://docs.google.com/document/d/1X4EjL-7he70vtUumNhEqnUs7XdTCDj8TQpGJhNuAklY/edit?tab=t.0#heading=h.xh97bpw96bkk'
         rel='noreferrer'

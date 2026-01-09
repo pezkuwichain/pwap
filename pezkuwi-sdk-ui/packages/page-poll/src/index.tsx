@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-poll authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-poll authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Approvals, Balance, BlockNumber } from '@pezkuwi/types/interfaces';
@@ -196,7 +196,7 @@ function PollApp ({ basePath, className }: Props): React.ReactElement<Props> {
             <li>{t('Locked funds (e.g. for staking) are counted.')}</li>
             <li>{t('No discretionary lock-voting is in place; all DOT used to vote counts the same.')}</li>
             <li>{t('Voting is made on a per-account basis; a single account must all vote the same way and cannot split its vote.')}</li>
-            <li>{t('This vote does not affect any economics of the Polkadot platform. Staking rewards, inflation, effective market capitalisation and the underlying balances of every account remain completely unchanged. It is "merely" about what units we use to denominate the balances into "DOT" for the purpose of display.')}</li>
+            <li>{t('This vote does not affect any economics of the Pezkuwi platform. Staking rewards, inflation, effective market capitalisation and the underlying balances of every account remain completely unchanged. It is "merely" about what units we use to denominate the balances into "DOT" for the purpose of display.')}</li>
           </ul>
         </div>
       </div>

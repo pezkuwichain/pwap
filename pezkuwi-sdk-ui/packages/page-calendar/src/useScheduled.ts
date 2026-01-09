@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-calendar authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-calendar authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { DeriveCollectiveProposal, DeriveDispatch, DeriveReferendumExt, DeriveSessionProgress } from '@pezkuwi/api-derive/types';
@@ -175,7 +175,7 @@ function createAuctionInfo (bestNumber: BlockNumber, blockTime: BN, rangeMax: BN
   const blocks = endBlock.sub(bestNumber);
 
   return [
-    ['parachainAuction', [{
+    ['teyrchainAuction', [{
       ...newDate(blocks, blockTime),
       blockNumber: endBlock,
       blocks,
@@ -252,7 +252,7 @@ function useScheduledImpl (): EntryInfoTyped[] {
       addFiltered(state, createConstDurations(bestNumber, blockTime, [
         ['councilElection', (api.consts.elections || api.consts.phragmenElection || api.consts.electionsPhragmen)?.termDuration],
         ['democracyLaunch', api.consts.democracy?.launchPeriod],
-        ['parachainLease', api.consts.slots?.leasePeriod as BlockNumber, BN_ONE, api.consts.slots?.leaseOffset as BlockNumber],
+        ['teyrchainLease', api.consts.slots?.leasePeriod as BlockNumber, BN_ONE, api.consts.slots?.leaseOffset as BlockNumber],
         ['societyChallenge', api.consts.society?.challengePeriod],
         ['societyRotate', api.consts.society?.rotationPeriod as BlockNumber],
         ['treasurySpend', api.consts.treasury?.spendPeriod]

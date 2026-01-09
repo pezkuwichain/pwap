@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-claims authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-claims authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { EcdsaSignature, EthereumAddress, StatementKind } from '@pezkuwi/types/interfaces';
@@ -114,14 +114,14 @@ export interface Statement {
   url: string;
 }
 
-function getPolkadot (kind?: StatementKind | null): Statement | undefined {
+function getPezkuwi (kind?: StatementKind | null): Statement | undefined {
   if (!kind) {
     return undefined;
   }
 
   const url = kind.isRegular
-    ? 'https://statement.polkadot.network/regular.html'
-    : 'https://statement.polkadot.network/saft.html';
+    ? 'https://docs.pezkuwichain.io/statement/regular.html'
+    : 'https://docs.pezkuwichain.io/statement/saft.html';
   const hash = kind.isRegular
     ? 'Qmc1XYqT6S39WNp2UeiRUrZichUWUPpGEThDE6dAb3f6Ny'
     : 'QmXEkMahfhHJPzT3RjkXiZVFi77ZeVeuxtAjhojGRNYckz';
@@ -134,9 +134,9 @@ function getPolkadot (kind?: StatementKind | null): Statement | undefined {
 
 export function getStatement (network: string, kind?: StatementKind | null): Statement | undefined {
   switch (network) {
-    case 'Polkadot':
-    case 'Polkadot CC1':
-      return getPolkadot(kind);
+    case 'Pezkuwi':
+    case 'Pezkuwi CC1':
+      return getPezkuwi(kind);
 
     default:
       return undefined;

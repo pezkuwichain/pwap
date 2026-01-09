@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-claims authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-claims authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
@@ -6,7 +6,7 @@ import React from 'react';
 import { AddressMini, Card, styled } from '@pezkuwi/react-components';
 
 import { useTranslation } from './translate.js';
-import usePolkadotPreclaims from './usePolkadotPreclaims.js';
+import usePezkuwiPreclaims from './usePezkuwiPreclaims.js';
 
 export interface Props{
   className?: string;
@@ -14,7 +14,7 @@ export interface Props{
 
 function Warning ({ className }: Props): React.ReactElement<Props> | null {
   const { t } = useTranslation();
-  const needsAttest = usePolkadotPreclaims();
+  const needsAttest = usePezkuwiPreclaims();
 
   if (!needsAttest.length) {
     return null;

@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { LeasePeriod } from '../types.js';
@@ -14,20 +14,20 @@ import { useTranslation } from '../translate.js';
 
 interface Props {
   leasePeriod?: LeasePeriod;
-  parachainCount?: number;
+  teyrchainCount?: number;
   proposalCount?: number;
   upcomingCount?: number;
 }
 
-function Summary ({ leasePeriod, parachainCount, proposalCount, upcomingCount }: Props): React.ReactElement<Props> {
+function Summary ({ leasePeriod, teyrchainCount, proposalCount, upcomingCount }: Props): React.ReactElement<Props> {
   const { t } = useTranslation();
 
   return (
     <SummaryBox>
       <section>
-        <CardSummary label={t('parachains')}>
-          {isNumber(parachainCount)
-            ? formatNumber(parachainCount)
+        <CardSummary label={t('teyrchains')}>
+          {isNumber(teyrchainCount)
+            ? formatNumber(teyrchainCount)
             : <span className='--tmp'>99</span>}
         </CardSummary>
         <CardSummary

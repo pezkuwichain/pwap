@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useCallback, useState } from 'react';
@@ -84,12 +84,12 @@ function Propose ({ className, onClose }: Props): React.ReactElement<Props> {
   return (
     <Modal
       className={className}
-      header={t('Propose parachain')}
+      header={t('Propose teyrchain')}
       onClose={onClose}
       size='large'
     >
       <Modal.Content>
-        <Modal.Columns hint={t('This account will be associated with the parachain and pay the deposit.')}>
+        <Modal.Columns hint={t('This account will be associated with the teyrchain and pay the deposit.')}>
           <InputAddress
             label={t('propose from')}
             onChange={setAccountId}
@@ -97,11 +97,11 @@ function Propose ({ className, onClose }: Props): React.ReactElement<Props> {
             value={accountId}
           />
         </Modal.Columns>
-        <Modal.Columns hint={t('The name for this parachain, the id and the allocated/requested balance.')}>
+        <Modal.Columns hint={t('The name for this teyrchain, the id and the allocated/requested balance.')}>
           <Input
             autoFocus
             isError={!isNameValid}
-            label={t('parachain name')}
+            label={t('teyrchain name')}
             onChange={setName}
           />
           <InputNumber
@@ -115,7 +115,7 @@ function Propose ({ className, onClose }: Props): React.ReactElement<Props> {
             onChange={setBalance}
           />
         </Modal.Columns>
-        <Modal.Columns hint={t('The WASM validation function as well as the genesis state for this parachain.')}>
+        <Modal.Columns hint={t('The WASM validation function as well as the genesis state for this teyrchain.')}>
           <InputWasm
             isError={!isWasmValid}
             label={t('validation code')}
@@ -128,7 +128,7 @@ function Propose ({ className, onClose }: Props): React.ReactElement<Props> {
             onChange={_setGenesisState}
           />
         </Modal.Columns>
-        <Modal.Columns hint={t('The validators for this parachain. At least one is required and where multiple is supplied, they need to be unique.')}>
+        <Modal.Columns hint={t('The validators for this teyrchain. At least one is required and where multiple is supplied, they need to be unique.')}>
           {validators.map((address, index) => (
             <Validator
               address={address}
@@ -139,7 +139,7 @@ function Propose ({ className, onClose }: Props): React.ReactElement<Props> {
             />
           ))}
           {!validators.length && (
-            <MarkWarning content={t('You need to supply at last one running validator for your parachain alongside this request.')} />
+            <MarkWarning content={t('You need to supply at last one running validator for your teyrchain alongside this request.')} />
           )}
           {isValDuplicate && (
             <MarkWarning content={t('You have duplicated validator entries, ensure each is unique.')} />
@@ -166,7 +166,7 @@ function Propose ({ className, onClose }: Props): React.ReactElement<Props> {
           isDisabled={!isWasmValid || !genesisState || !isNameValid || !validators.length || !paraId?.gt(BN_ZERO)}
           onStart={onClose}
           params={[paraId, name, wasm, genesisState, validators, balance]}
-          tx={api.tx.proposeParachain?.proposeParachain}
+          tx={api.tx.proposeTeyrChain?.proposeTeyrChain}
         />
       </Modal.Actions>
     </Modal>

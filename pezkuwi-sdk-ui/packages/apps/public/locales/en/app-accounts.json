@@ -129,6 +129,7 @@
   "Set on-chain sub-identities": "Set on-chain sub-identities",
   "Setup account as recoverable": "Setup account as recoverable",
   "Show address on hardware device": "Show address on hardware device",
+  "Since some extensions, such as the pezkuwi-js extension, protects you against all community reported phishing sites, there are valid reasons to use them for additional protection, even if you are not storing accounts in it.": "Since some extensions, such as the pezkuwi-js extension, protects you against all community reported phishing sites, there are valid reasons to use them for additional protection, even if you are not storing accounts in it.",
   "Since some extensions, such as the polkadot-js extension, protects you against all community reported phishing sites, there are valid reasons to use them for additional protection, even if you are not storing accounts in it.": "Since some extensions, such as the polkadot-js extension, protects you against all community reported phishing sites, there are valid reasons to use them for additional protection, even if you are not storing accounts in it.",
   "Since the multisig function like any other account, once created it is available for selection anywhere accounts are used and needs to be funded before use.": "Since the multisig function like any other account, once created it is available for selection anywhere accounts are used and needs to be funded before use.",
   "Soft derivation paths are not allowed on ed25519": "Soft derivation paths are not allowed on ed25519",

@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/react-hooks authors & contributors
+// Copyright 2017-2026 @pezkuwi/react-hooks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ApiPromise } from '@pezkuwi/api';
@@ -124,7 +124,7 @@ function getBatchSize ({ v1Weight, v2Weight }: WeightResult, { baseExtrinsic, ma
 
   // If we don't have a size calculation above, we create the extrinsic with a fallback
   // of up to 65% of the block weight (applied here as 64 for a safety margin)
-  // (This is based on the Kusama/Polkadot 75% allowance for all extrinsics)
+  // (This is based on the Dicle/Polkadot 75% allowance for all extrinsics)
   return div || Math.floor(
     maxBlock.refTime
       .muln(64)

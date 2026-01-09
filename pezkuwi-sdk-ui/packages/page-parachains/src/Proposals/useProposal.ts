@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-parachains authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-parachains authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Option } from '@pezkuwi/types';
@@ -11,7 +11,7 @@ import { createNamedHook, useApi, useCall } from '@pezkuwi/react-hooks';
 
 function useProposalImpl (id: ParaId, approvedIds: ParaId[], scheduled: ScheduledProposals[]): ProposalExt {
   const { api } = useApi();
-  const opt = useCall<Option<TeyrchainProposal>>(api.query.proposeParachain.proposals, [id]);
+  const opt = useCall<Option<TeyrchainProposal>>(api.query.proposeTeyrChain.proposals, [id]);
 
   return useMemo(
     (): ProposalExt => ({

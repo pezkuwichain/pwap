@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/apps-config authors & contributors
+// Copyright 2017-2026 @pezkuwi/apps-config authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 // The list of Ethereum networks, for these the UI will default to Ethereum-only accounts
@@ -17,7 +17,7 @@ export const ethereumChains = [
   'datahaven-mainnet',
   'dracones',
   'dracones-dwarf',
-  'ferrum-parachain',
+  'ferrum-teyrchain',
   'flash-layer',
   'frontier-template',
   'innovatorchain',
@@ -32,7 +32,7 @@ export const ethereumChains = [
   'muse',
   'mythical-devnet',
   'peerplays',
-  'quantum-portal-network-parachain',
+  'quantum-portal-network-teyrchain',
   'root',
   'subspace-evm-domain',
   'thebifrost-dev',

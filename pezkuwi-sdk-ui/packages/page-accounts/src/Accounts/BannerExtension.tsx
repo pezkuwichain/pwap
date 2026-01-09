@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-accounts authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-accounts authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import { detect } from 'detect-browser';
@@ -26,7 +26,7 @@ function BannerExtension (): React.ReactElement | null {
   const { t } = useTranslation();
   const { hasInjectedAccounts } = useApi();
   const upgradableCount = useExtensionCounter();
-  const phishing = useRef<string>(t('Since some extensions, such as the polkadot-js extension, protects you against all community reported phishing sites, there are valid reasons to use them for additional protection, even if you are not storing accounts in it.'));
+  const phishing = useRef<string>(t('Since some extensions, such as the pezkuwi-js extension, protects you against all community reported phishing sites, there are valid reasons to use them for additional protection, even if you are not storing accounts in it.'));
 
   if (!isSupported || !browserName) {
     return null;
@@ -82,7 +82,7 @@ function BannerExtension (): React.ReactElement | null {
       }</ul>
       <p>{t('Accounts injected from any of these extensions will appear in this application and be available for use. The above list is updated as more extensions with external signing capability become available.')}&nbsp;
         <a
-          href='https://github.com/polkadot-js/extension'
+          href='https://github.com/pezkuwi-js/extension'
           rel='noopener noreferrer'
           target='_blank'
         >{t('Learn more...')}</a>

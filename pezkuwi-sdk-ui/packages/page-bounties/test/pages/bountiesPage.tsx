@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/app-bounties authors & contributors
+// Copyright 2017-2026 @pezkuwi/app-bounties authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 /* global jest, expect */
@@ -118,7 +118,7 @@ export class BountiesPage {
       isApiInitialized: true,
       isApiReady: true,
       isEthereum: false,
-      systemName: 'substrate'
+      systemName: 'bizinikiwi'
     } as unknown as ApiProps;
 
     queueExtrinsic = jest.fn() as QueueTxExtrinsicAdd;

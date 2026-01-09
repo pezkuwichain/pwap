@@ -1,4 +1,4 @@
-// Copyright 2017-2025 @pezkuwi/react-components authors & contributors
+// Copyright 2017-2026 @pezkuwi/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useCallback, useState } from 'react';
@@ -14,7 +14,7 @@ interface Props {
   children?: React.ReactNode;
   className?: string;
   defaultValue?: string | null;
-  forceIconType?: 'ethereum' | 'substrate';
+  forceIconType?: 'ethereum' | 'bizinikiwi';
   isDisabled?: boolean;
   isError?: boolean;
   isFull?: boolean;
