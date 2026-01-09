@@ -2597,7 +2597,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pezkuwi/extension-compat-metamask@npm:^0.62.10":
+"@pezkuwi/extension-compat-metamask@npm:^0.62.14":
   version: 0.62.14
   resolution: "@pezkuwi/extension-compat-metamask@npm:0.62.14"
   dependencies:
@@ -2614,7 +2614,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pezkuwi/extension-dapp@npm:^0.62.11":
+"@pezkuwi/extension-dapp@npm:^0.62.14":
   version: 0.62.14
   resolution: "@pezkuwi/extension-dapp@npm:0.62.14"
   dependencies:
@@ -2737,8 +2737,8 @@ __metadata:
   resolution: "@pezkuwi/react-api@workspace:packages/react-api"
   dependencies:
     "@pezkuwi/api": "npm:^16.5.6"
-    "@pezkuwi/extension-compat-metamask": "npm:^0.62.10"
-    "@pezkuwi/extension-dapp": "npm:^0.62.11"
+    "@pezkuwi/extension-compat-metamask": "npm:^0.62.14"
+    "@pezkuwi/extension-dapp": "npm:^0.62.14"
     "@pezkuwi/extension-inject": "npm:^0.62.14"
     "@pezkuwi/rpc-provider": "npm:^16.5.6"
     fflate: "npm:^0.8.1"
