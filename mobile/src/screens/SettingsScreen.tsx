@@ -111,12 +111,14 @@ const SettingsScreen: React.FC = () => {
     subtitle,
     value,
     onToggle,
+    testID,
   }: {
     icon: string;
     title: string;
     subtitle?: string;
     value: boolean;
     onToggle: (value: boolean) => void;
+    testID?: string;
   }) => (
     <View style={styles.settingItem}>
       <View style={styles.settingIcon}>
@@ -127,6 +129,7 @@ const SettingsScreen: React.FC = () => {
         {subtitle && <Text style={styles.settingSubtitle}>{subtitle}</Text>}
       </View>
       <Switch
+        testID={testID}
         value={value}
         onValueChange={onToggle}
         trackColor={{ false: '#E0E0E0', true: KurdistanColors.kesk }}
@@ -136,7 +139,7 @@ const SettingsScreen: React.FC = () => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} testID="settings-screen">
       <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} />
 
       {/* Header */}
@@ -161,6 +164,7 @@ const SettingsScreen: React.FC = () => {
             onToggle={async () => {
               await toggleDarkMode();
             }}
+            testID="dark-mode-switch"
           />
 
           <SettingItem
