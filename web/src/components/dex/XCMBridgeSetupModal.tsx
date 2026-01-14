@@ -1,6 +1,6 @@
 // Force reload for mock XCM update
 import React, { useState, useEffect, useCallback } from 'react';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { X, AlertCircle, Loader2, CheckCircle, Info, ExternalLink, Zap } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -34,7 +34,7 @@ export const XCMBridgeSetupModal: React.FC<XCMBridgeSetupModalProps> = ({
   onClose,
   onSuccess,
 }) => {
-  const { api, isApiReady } = usePolkadot();
+  const { api, isApiReady } = usePezkuwi();
   const { account, signer } = useWallet();
   const { toast } = useToast();
 

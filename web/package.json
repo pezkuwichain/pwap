@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
-    "@pezkuwi/api": "^16.5.6",
+    "@pezkuwi/api": "^16.5.9",
     "@pezkuwi/extension-dapp": "^0.62.14",
     "@pezkuwi/keyring": "^14.0.7",
     "@pezkuwi/util": "^14.0.7",

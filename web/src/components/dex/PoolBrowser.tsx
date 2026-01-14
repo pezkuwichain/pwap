@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -22,7 +22,7 @@ export const PoolBrowser: React.FC<PoolBrowserProps> = ({
   onSwap,
   onCreatePool,
 }) => {
-  const { api, isApiReady, sudoKey } = usePolkadot();
+  const { api, isApiReady, sudoKey } = usePezkuwi();
   const { account } = useWallet();
   const [pools, setPools] = useState<PoolInfo[]>([]);
   const [loading, setLoading] = useState(true);

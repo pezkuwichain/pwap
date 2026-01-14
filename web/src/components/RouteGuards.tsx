@@ -5,7 +5,7 @@
 
 import React, { useEffect, useState, ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   checkCitizenStatus,
@@ -59,7 +59,7 @@ export const CitizenRoute: React.FC<RouteGuardProps> = ({
   children,
   fallbackPath = '/be-citizen',
 }) => {
-  const { api, isApiReady, selectedAccount } = usePolkadot();
+  const { api, isApiReady, selectedAccount } = usePezkuwi();
   const {} = useAuth();
   const [isCitizen, setIsCitizen] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
@@ -149,7 +149,7 @@ export const ValidatorRoute: React.FC<RouteGuardProps> = ({
   children,
   fallbackPath = '/staking',
 }) => {
-  const { api, isApiReady, selectedAccount } = usePolkadot();
+  const { api, isApiReady, selectedAccount } = usePezkuwi();
   const [isValidator, setIsValidator] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -240,7 +240,7 @@ export const EducatorRoute: React.FC<RouteGuardProps> = ({
   children,
   fallbackPath = '/education',
 }) => {
-  const { api, isApiReady, selectedAccount } = usePolkadot();
+  const { api, isApiReady, selectedAccount } = usePezkuwi();
   const [isEducator, setIsEducator] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -337,7 +337,7 @@ export const ModeratorRoute: React.FC<RouteGuardProps> = ({
   children,
   fallbackPath = '/',
 }) => {
-  const { api, isApiReady, selectedAccount } = usePolkadot();
+  const { api, isApiReady, selectedAccount } = usePezkuwi();
   const [isModerator, setIsModerator] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
 

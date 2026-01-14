@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
@@ -38,7 +38,7 @@ interface PresaleData {
 
 export default function PresaleDetail() {
   const { id } = useParams();
-  const { api, selectedAccount, isApiReady } = usePolkadot();
+  const { api, selectedAccount, isApiReady } = usePezkuwi();
   const { balances } = useWallet();
   const navigate = useNavigate();
 

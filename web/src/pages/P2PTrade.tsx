@@ -33,7 +33,7 @@ import {
   Star,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import {
@@ -73,7 +73,7 @@ export default function P2PTrade() {
   const { tradeId } = useParams<{ tradeId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { api, selectedAccount } = usePolkadot();
+  const { api, selectedAccount } = usePezkuwi();
 
   const [trade, setTrade] = useState<TradeWithDetails | null>(null);
   const [loading, setLoading] = useState(true);

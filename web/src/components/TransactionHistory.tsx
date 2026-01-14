@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import {
   Dialog,
   DialogContent,
@@ -30,7 +30,7 @@ interface Transaction {
 }
 
 export const TransactionHistory: React.FC<TransactionHistoryProps> = ({ isOpen, onClose }) => {
-  const { api, isApiReady, selectedAccount } = usePolkadot();
+  const { api, isApiReady, selectedAccount } = usePezkuwi();
   const { toast } = useToast();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(false);

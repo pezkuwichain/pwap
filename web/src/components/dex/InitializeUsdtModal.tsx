@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { X, AlertCircle, Loader2, CheckCircle, Info } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -25,7 +25,7 @@ export const InitializeUsdtModal: React.FC<InitializeUsdtModalProps> = ({
   onClose,
   onSuccess,
 }) => {
-  const { api, isApiReady } = usePolkadot();
+  const { api, isApiReady } = usePezkuwi();
   const { account, signer } = useWallet();
   const { toast } = useToast();
 

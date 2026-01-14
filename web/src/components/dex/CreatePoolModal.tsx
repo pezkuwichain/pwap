@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { X, Plus, AlertCircle, Loader2, CheckCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,7 +20,7 @@ export const CreatePoolModal: React.FC<CreatePoolModalProps> = ({
   onClose,
   onSuccess,
 }) => {
-  const { api, isApiReady } = usePolkadot();
+  const { api, isApiReady } = usePezkuwi();
   const { account, signer } = useWallet();
 
   const [asset1Id, setAsset1Id] = useState<number | null>(null);

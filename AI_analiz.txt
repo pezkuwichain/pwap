@@ -1956,10 +1956,47 @@ supabase db reset
 
 ---
 
- 
+ 1. Navigasyon Yapısı (Kesinleşen)
+  Alt Menü (Bottom Bar - 5'li):
+   1. 🏠 Home: Ana Dashboard (Gruplandırılmış ikonlar burada).
+   2. 📱 Apps: Tüm mini-app'lerin alfabetik veya kategorik tam listesi (Hızlı erişim çekmecesi).
+   3. 🏛️ Citizen (Ortada, Büyük): "Dijital Kimlik Kartı". Tıklayınca eğer vatandaş değilse başvuruya,
+      vatandaşsa dijital kimlik kartına (QR kodlu) döner.
+   4. 🤝 Referral: Büyüme motoru.
+   5. 👤 Profile: Kişisel alan.
 
-**Last Updated:** 2025-11-17
+  Üst Header:
+   * Sol: Avatar (Tıklayınca hızlı durum değişimi: Online/Busy).
+   * Sağ: 🔔 Bildirimler, ⚙️ Ayarlar.
+   * Ekstra : Avatarın yanına pezpallet tiki den canli veri ceken ve kullanicinin sahip oldugu tikileri gosteren alan.
 
-**Maintained By:** PezkuwiChain Development Team
+  2. Body (Gövde) Gruplandırması ve Yeni Fikirler
+  Sizin dikdörtgen alanlarınızı zenginleştirelim:
 
-**Production Status:** 95% Complete - Beta Testnet Active
+  💰 FINANCE (Finansal Alan)
+  Mevcut: Wallet, Bank, Exchange, P2P, B2B.
+   * Benim Eklemelerim:
+       * 📊 Tax (Vergi/Zekat): Gönüllü katkı veya sistem vergilerini şeffafça ödeme/izleme.
+       * 🌱 Launchpad: Yeni Kürt girişimlerine/tokenlarına erken yatırım yapma alanı.
+       * 💳 Cards: Sanal veya fiziksel Pezkuwi Kart yönetimi (Gelecek vizyonu).
+
+  🏛️ GOVERNANCE (Yönetim Alanı)
+  Mevcut: President, Assembly, Government, Validators, Nominators, Vote.
+   * Benim Eklemelerim:
+       * ⚖️ Justice (Dad): Anlaşmazlık çözüm merkezi (AI Lawyer entegreli).
+       * 📜 Proposals: Halkın doğrudan yasa teklifi verebileceği alan.
+       * 🗳️ Polls: Hızlı kamuoyu yoklamaları (Anketler).
+
+  💬 SOCIAL (Sosyal Alan)
+  Mevcut: whatsKURD, VPN, Forum, KurdMedia.
+   * Benim Eklemelerim:
+       * 🎭 Events (Çalakî): Kürt dünyasındaki konser, miting, konferans takvimi ve biletleme.
+       * 🤝 Help (Harîkarî): Deprem, sel gibi durumlarda acil yardımlaşma ve bağış ağı.
+       * 🎵 Music: Kürtçe müzik streaming servisi entegrasyonu (Spotify gibi ama yerel).
+
+  📚 EDUCATION (Eğitim Alanı)
+  Mevcut: University, College, Kids, Programs.
+   * Benim Eklemelerim:
+       * 📜 Library (Pirtûkxane): Dijital Kürtçe kütüphane ve arşiv.
+       * 🗣️ Language (Ziman): Kürtçe (Kurmancî/Sorani/Zazaki) öğrenme modülü (Duolingo tarzı).
+       * 🏆 Certificates: Blokzincir tabanlı diplomalar ve sertifikalar cüzdanı.

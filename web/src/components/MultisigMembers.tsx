@@ -3,7 +3,7 @@ import { Shield, Users, CheckCircle, XCircle, ExternalLink } from 'lucide-react'
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import {
   getMultisigMemberInfo,
   calculateMultisigAddress,
@@ -31,7 +31,7 @@ export const MultisigMembers: React.FC<MultisigMembersProps> = ({
   specificAddresses = {},
   showMultisigAddress = true,
 }) => {
-  const { api, isApiReady } = usePolkadot();
+  const { api, isApiReady } = usePezkuwi();
   const [members, setMembers] = useState<MultisigMember[]>([]);
   const [multisigAddress, setMultisigAddress] = useState('');
   const [loading, setLoading] = useState(true);

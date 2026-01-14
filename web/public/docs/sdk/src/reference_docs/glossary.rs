@@ -104,7 +104,7 @@
 //! #### Teyrchain
 //!
 //! Short for "parallelized chain" a teyrchain is a specialized blockchain that runs in parallel to
-//! the Relay Chain (Pezkuwi, Kusama, etc.), benefiting from the shared security and
+//! the Relay Chain (Pezkuwi, Dicle, etc.), benefiting from the shared security and
 //! interoperability features of it.
 //!
 //! **Synonyms**: AppChain

@@ -283,7 +283,17 @@ BEGIN
   RETURN QUERY
   SELECT 
     pm.method_name,
-    v_offer.payment_details_encrypted::JSONB -- TODO: Decrypt
+    CASE
+      WHEN v_offer.payment_details_encrypted IS NOT NULL THEN
+        pgsodium.crypto_aead_aes256gcm_decrypt(
+          pgsodium.url_decode((v_offer.payment_details_encrypted->>'ciphertext')::TEXT),
+          NULL, -- No associated data used in this context
+          pgsodium.url_decode((v_offer.payment_details_encrypted->>'nonce')::TEXT),
+          pg_catalog.get_secret_variable('app.app_encryption_key')::BYTEA
+        )::TEXT::JSONB
+      ELSE
+        NULL
+    END AS payment_details
   FROM public.payment_methods pm
   WHERE pm.id = v_offer.payment_method_id;
 END;

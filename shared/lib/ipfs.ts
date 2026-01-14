@@ -1,6 +1,20 @@
 import { toast } from 'sonner';
 
-const PINATA_JWT = import.meta.env.VITE_PINATA_JWT;
+// Helper to get environment variables that works in both web (Vite) and React Native (Expo)
+const getEnv = (key: string): string | undefined => {
+  // Check for Vite environment (web)
+  if (typeof import.meta !== 'undefined' && import.meta.env) {
+    return (import.meta.env as any)[key];
+  }
+  // Check for Expo environment (React Native)
+  if (typeof process !== 'undefined' && process.env) {
+    const expoKey = key.replace('VITE_', 'EXPO_PUBLIC_');
+    return process.env[expoKey] || process.env[key];
+  }
+  return undefined;
+};
+
+const PINATA_JWT = getEnv('VITE_PINATA_JWT');
 const PINATA_API = 'https://api.pinata.cloud/pinning/pinFileToIPFS';
 
 export async function uploadToIPFS(file: File): Promise<string> {

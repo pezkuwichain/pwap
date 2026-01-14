@@ -5,6 +5,6 @@
  * that can be used across web and mobile applications.
  */
 
-export * from './polkadot';
+export * from './pezkuwi';
 
 // Add more blockchain utility exports as needed

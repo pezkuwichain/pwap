@@ -220,16 +220,22 @@ export function DisputeModal({
         reference_id: dispute.id,
       });
 
-      // Create notification for admin (user-100 / platform admin)
-      // In production, this would be a specific admin role
-      await supabase.from('p2p_notifications').insert({
-        user_id: counterpartyId, // TODO: Replace with actual admin user ID
-        type: 'dispute_opened',
-        title: 'New Dispute Requires Attention',
-        message: `Dispute #${dispute.id.slice(0, 8)} opened. Trade: ${tradeId.slice(0, 8)}`,
-        reference_type: 'dispute',
-        reference_id: dispute.id,
-      });
+      // Fetch admin user IDs and create notifications for each admin
+      const { data: adminIds, error: adminError } = await supabase.rpc('get_admin_user_ids');
+      if (adminError) {
+        console.error('Failed to fetch admin IDs:', adminError);
+        // Continue without admin notifications if fetching fails, but log the error
+      } else if (adminIds && adminIds.length > 0) {
+        const adminNotifications = adminIds.map((admin: { user_id: string }) => ({
+          user_id: admin.user_id,
+          type: 'dispute_opened',
+          title: 'New Dispute Requires Attention',
+          message: `Dispute #${dispute.id.slice(0, 8)} opened. Trade: ${tradeId.slice(0, 8)}`,
+          reference_type: 'dispute',
+          reference_id: dispute.id,
+        }));
+        await supabase.from('p2p_notifications').insert(adminNotifications);
+      }
 
       toast.success('Dispute opened successfully');
       onClose();

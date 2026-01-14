@@ -2,7 +2,7 @@ import { useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { ThemeProvider } from '@/components/theme-provider';
 import { AppProvider } from '@/contexts/AppContext';
-import { PolkadotProvider } from '@/contexts/PolkadotContext';
+import { PezkuwiProvider } from '@/contexts/PezkuwiContext';
 import { WalletProvider } from '@/contexts/WalletContext';
 import { WebSocketProvider } from '@/contexts/WebSocketContext';
 import { IdentityProvider } from '@/contexts/IdentityContext';
@@ -102,7 +102,7 @@ function App() {
       <ErrorBoundary>
         <AuthProvider>
           <AppProvider>
-            <PolkadotProvider endpoint={endpoint}>
+            <PezkuwiProvider endpoint={endpoint}>
               <WalletProvider>
                 <WebSocketProvider>
                   <IdentityProvider>
@@ -218,7 +218,7 @@ function App() {
                   </IdentityProvider>
                 </WebSocketProvider>
               </WalletProvider>
-            </PolkadotProvider>
+            </PezkuwiProvider>
           </AppProvider>
         </AuthProvider>
         <Toaster />

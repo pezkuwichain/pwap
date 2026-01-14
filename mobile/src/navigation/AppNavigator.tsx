@@ -1,55 +1,59 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
-import { useLanguage } from '../contexts/LanguageContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAuth } from '../contexts/AuthContext'; // Import useAuth
 import { KurdistanColors } from '../theme/colors';
 
 // Screens
 import WelcomeScreen from '../screens/WelcomeScreen';
-import SignInScreen from '../screens/SignInScreen';
-import SignUpScreen from '../screens/SignUpScreen';
+import VerifyHumanScreen, { checkHumanVerification } from '../screens/VerifyHumanScreen';
+import AuthScreen from '../screens/AuthScreen';
 import BottomTabNavigator from './BottomTabNavigator';
+import SettingsScreen from '../screens/SettingsScreen';
+import BeCitizenChoiceScreen from '../screens/BeCitizenChoiceScreen';
+import BeCitizenApplyScreen from '../screens/BeCitizenApplyScreen';
+import BeCitizenClaimScreen from '../screens/BeCitizenClaimScreen';
 
 export type RootStackParamList = {
   Welcome: undefined;
-  SignIn: undefined;
-  SignUp: undefined;
+  VerifyHuman: undefined;
+  Auth: undefined;
   MainApp: undefined;
+  Settings: undefined;
+  BeCitizenChoice: undefined;
+  BeCitizenApply: undefined;
+  BeCitizenClaim: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
 
 const AppNavigator: React.FC = () => {
-  const { hasSelectedLanguage } = useLanguage();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  // Language is now hard-coded at build time, no selection needed
+  const { user, loading } = useAuth(); // Use real auth state
+  const [isHumanVerified, setIsHumanVerified] = React.useState<boolean | null>(null);
+  const [privacyConsent, setPrivacyConsent] = React.useState<boolean | null>(null);
 
-  useEffect(() => {
-    // Check authentication status
-    // TODO: Implement actual auth check
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
+  React.useEffect(() => {
+    // Check privacy consent and human verification
+    const checkAppState = async () => {
+      try {
+        const consent = await AsyncStorage.getItem('@pezkuwi/privacy_consent_accepted');
+        setPrivacyConsent(consent === 'true');
+
+        const verified = await checkHumanVerification();
+        setIsHumanVerified(verified);
+      } catch (error) {
+        if (__DEV__) console.error('Error checking app state:', error);
+        setPrivacyConsent(false);
+        setIsHumanVerified(false);
+      }
+    };
+    checkAppState();
   }, []);
 
-  const handleLanguageSelected = () => {
-    // Navigate to sign in after language selection
-  };
-
-  const handleSignIn = () => {
-    setIsAuthenticated(true);
-  };
-
-  const handleSignUp = () => {
-    setIsAuthenticated(true);
-  };
-
-  const _handleLogout = () => {
-    setIsAuthenticated(false);
-  };
-
-  if (isLoading) {
+  if (loading || isHumanVerified === null || privacyConsent === null) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size="large" color={KurdistanColors.kesk} />
@@ -65,41 +69,57 @@ const AppNavigator: React.FC = () => {
           cardStyle: { backgroundColor: '#FFFFFF' },
         }}
       >
-        {!hasSelectedLanguage ? (
-          // Show welcome screen if language not selected
-          <Stack.Screen name="Welcome">
-            {(props) => (
-              <WelcomeScreen
-                {...props}
-                onLanguageSelected={handleLanguageSelected}
-              />
-            )}
+        {!privacyConsent ? (
+          // Step 0: Show Welcome screen if privacy not accepted
+          <Stack.Screen name="Welcome" options={{ headerShown: false }}>
+            {() => <WelcomeScreen onContinue={() => setPrivacyConsent(true)} />}
           </Stack.Screen>
-        ) : !isAuthenticated ? (
-          // Show auth screens if not authenticated
-          <>
-            <Stack.Screen name="SignIn">
-              {(props) => (
-                <SignInScreen
-                  {...props}
-                  onSignIn={handleSignIn}
-                  onNavigateToSignUp={() => props.navigation.navigate('SignUp')}
-                />
-              )}
-            </Stack.Screen>
-            <Stack.Screen name="SignUp">
-              {(props) => (
-                <SignUpScreen
-                  {...props}
-                  onSignUp={handleSignUp}
-                  onNavigateToSignIn={() => props.navigation.navigate('SignIn')}
-                />
-              )}
-            </Stack.Screen>
-          </>
+        ) : !isHumanVerified ? (
+          // Step 1: Show verify human screen if not verified
+          <Stack.Screen name="VerifyHuman">
+            {() => <VerifyHumanScreen onVerified={() => setIsHumanVerified(true)} />}
+          </Stack.Screen>
+        ) : !user ? (
+          // Step 2: Show unified auth screen if not authenticated
+          <Stack.Screen name="Auth" component={AuthScreen} />
         ) : (
-          // Show main app (bottom tabs) if authenticated
-          <Stack.Screen name="MainApp" component={BottomTabNavigator} />
+          // Step 3: Show main app (bottom tabs) if authenticated
+          <>
+            <Stack.Screen name="MainApp" component={BottomTabNavigator} />
+            <Stack.Screen
+              name="Settings"
+              component={SettingsScreen}
+              options={{
+                presentation: 'modal',
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="BeCitizenChoice"
+              component={BeCitizenChoiceScreen}
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="BeCitizenApply"
+              component={BeCitizenApplyScreen}
+              options={{
+                headerShown: true,
+                headerTitle: 'Apply for Citizenship',
+                headerBackTitle: 'Back',
+              }}
+            />
+            <Stack.Screen
+              name="BeCitizenClaim"
+              component={BeCitizenClaimScreen}
+              options={{
+                headerShown: true,
+                headerTitle: 'Verify Citizenship',
+                headerBackTitle: 'Back',
+              }}
+            />
+          </>
         )}
       </Stack.Navigator>
     </NavigationContainer>

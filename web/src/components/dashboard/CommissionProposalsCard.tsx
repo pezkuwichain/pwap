@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { Loader2, ThumbsUp, ThumbsDown, Vote } from 'lucide-react';
 
 interface Proposal {
@@ -17,7 +17,7 @@ interface Proposal {
 }
 
 export function CommissionProposalsCard() {
-  const { api, isApiReady, selectedAccount } = usePolkadot();
+  const { api, isApiReady, selectedAccount } = usePezkuwi();
   const { toast } = useToast();
 
   const [loading, setLoading] = useState(true);

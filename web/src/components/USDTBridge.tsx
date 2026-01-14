@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, ArrowDown, ArrowUp, AlertCircle, Info, Clock, CheckCircle2 } from 'lucide-react';
 import { web3FromAddress } from '@pezkuwi/extension-dapp';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -28,7 +28,7 @@ export const USDTBridge: React.FC<USDTBridgeProps> = ({
   onClose,
   specificAddresses = {},
 }) => {
-  const { api, selectedAccount, isApiReady } = usePolkadot();
+  const { api, selectedAccount, isApiReady } = usePezkuwi();
   const { refreshBalances } = useWallet();
 
   const [depositAmount, setDepositAmount] = useState('');

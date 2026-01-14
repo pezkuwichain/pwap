@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 
 export interface TreasuryMetrics {
   totalBalance: number;
@@ -21,7 +21,7 @@ export interface TreasuryProposal {
 }
 
 export function useTreasury() {
-  const { api, isConnected } = usePolkadot();
+  const { api, isConnected } = usePezkuwi();
   const [metrics, setMetrics] = useState<TreasuryMetrics>({
     totalBalance: 0,
     monthlyIncome: 0,

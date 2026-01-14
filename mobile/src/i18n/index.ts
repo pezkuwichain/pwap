@@ -1,75 +1,55 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Import shared translations and language configurations
 import {
-  translations,
+  comprehensiveTranslations as translations,
   LANGUAGES,
   DEFAULT_LANGUAGE,
-  LANGUAGE_STORAGE_KEY,
   isRTL as checkIsRTL,
 } from '../../../shared/i18n';
 
-// Language storage key (re-export for compatibility)
-export const LANGUAGE_KEY = LANGUAGE_STORAGE_KEY;
+// Language is set at build time via environment variable
+const BUILD_LANGUAGE = (process.env.EXPO_PUBLIC_DEFAULT_LANGUAGE || DEFAULT_LANGUAGE) as string;
 
 // Available languages (re-export for compatibility)
 export const languages = LANGUAGES;
 
-// Initialize i18n
-const initializeI18n = async () => {
-  // Try to get saved language
-  let savedLanguage = DEFAULT_LANGUAGE;
-  try {
-    const stored = await AsyncStorage.getItem(LANGUAGE_KEY);
-    if (stored) {
-      savedLanguage = stored;
-    }
-  } catch (error) {
-    if (__DEV__) console.warn('Failed to load saved language:', error);
+// Initialize i18n with build-time language only
+const initializeI18n = () => {
+  if (__DEV__) {
+    console.log(`[i18n] Initializing with build language: ${BUILD_LANGUAGE}`);
   }
 
   i18n
     .use(initReactI18next)
     .init({
       resources: {
-        en: { translation: translations.en },
-        tr: { translation: translations.tr },
-        kmr: { translation: translations.kmr },
-        ckb: { translation: translations.ckb },
-        ar: { translation: translations.ar },
-        fa: { translation: translations.fa },
+        // Only load the build-time language (reduces APK size)
+        [BUILD_LANGUAGE]: { translation: translations[BUILD_LANGUAGE as keyof typeof translations] },
       },
-      lng: savedLanguage,
-      fallbackLng: DEFAULT_LANGUAGE,
+      lng: BUILD_LANGUAGE,
+      fallbackLng: BUILD_LANGUAGE,
       compatibilityJSON: 'v3',
       interpolation: {
         escapeValue: false,
       },
     });
 
-  return savedLanguage;
+  return BUILD_LANGUAGE;
 };
 
-// Save language preference
-export const saveLanguage = async (languageCode: string) => {
-  try {
-    await AsyncStorage.setItem(LANGUAGE_KEY, languageCode);
-    await i18n.changeLanguage(languageCode);
-  } catch (error) {
-    if (__DEV__) console.error('Failed to save language:', error);
-  }
-};
-
-// Get current language
-export const getCurrentLanguage = () => i18n.language;
+// Get current language (always returns BUILD_LANGUAGE)
+export const getCurrentLanguage = () => BUILD_LANGUAGE;
 
 // Check if language is RTL
 export const isRTL = (languageCode?: string) => {
-  const code = languageCode || i18n.language;
+  const code = languageCode || BUILD_LANGUAGE;
   return checkIsRTL(code);
 };
 
-export { initializeI18n };
+// Initialize i18n automatically
+initializeI18n();
+
+export { initializeI18n, BUILD_LANGUAGE };
 export default i18n;

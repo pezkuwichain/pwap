@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Plus, Info, AlertCircle } from 'lucide-react';
 import { web3FromAddress } from '@pezkuwi/extension-dapp';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -54,7 +54,7 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
   asset0 = 0,  // Default to wHEZ
   asset1 = 1   // Default to PEZ
 }) => {
-  const { api, selectedAccount, isApiReady } = usePolkadot();
+  const { api, selectedAccount, isApiReady } = usePezkuwi();
   const { balances, refreshBalances } = useWallet();
 
   const [amount0, setAmount0] = useState('');

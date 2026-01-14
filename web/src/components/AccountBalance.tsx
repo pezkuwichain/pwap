@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Wallet, TrendingUp, ArrowDownRight, RefreshCw, Award, Plus, Coins, Send, Shield, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -18,7 +18,7 @@ interface TokenBalance {
 }
 
 export const AccountBalance: React.FC = () => {
-  const { api, isApiReady, selectedAccount } = usePolkadot();
+  const { api, isApiReady, selectedAccount } = usePezkuwi();
   const [balance, setBalance] = useState<{
     free: string;
     reserved: string;

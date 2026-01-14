@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDashboard } from '@/contexts/DashboardContext';
 import { FileText, Building2, Home, Bell, ChevronLeft, ChevronRight, Upload, User, Sun, ShieldCheck } from 'lucide-react';
@@ -36,7 +36,7 @@ const announcements = [
 ];
 
 export default function Citizens() {
-  const { selectedAccount } = usePolkadot();
+  const { selectedAccount } = usePezkuwi();
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();

@@ -1,7 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { I18nManager } from 'react-native';
-import { saveLanguage, getCurrentLanguage, isRTL, LANGUAGE_KEY, languages } from '../i18n';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { isRTL, languages } from '../i18n';
+import i18n from '../i18n';
+
+// Language is set at build time via environment variable
+const BUILD_LANGUAGE = process.env.EXPO_PUBLIC_DEFAULT_LANGUAGE || 'en';
 
 interface Language {
   code: string;
@@ -12,7 +15,6 @@ interface Language {
 
 interface LanguageContextType {
   currentLanguage: string;
-  changeLanguage: (languageCode: string) => Promise<void>;
   isRTL: boolean;
   hasSelectedLanguage: boolean;
   availableLanguages: Language[];
@@ -21,52 +23,30 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [currentLanguage, setCurrentLanguage] = useState(getCurrentLanguage());
-  const [hasSelectedLanguage, setHasSelectedLanguage] = useState(false);
-  const [currentIsRTL, setCurrentIsRTL] = useState(isRTL());
-
-  const checkLanguageSelection = React.useCallback(async () => {
-    try {
-      const saved = await AsyncStorage.getItem(LANGUAGE_KEY);
-      setHasSelectedLanguage(!!saved);
-    } catch (error) {
-      if (__DEV__) console.error('Failed to check language selection:', error);
-    }
-  }, []);
+  // Language is fixed at build time - no runtime switching
+  const [currentLanguage] = useState(BUILD_LANGUAGE);
+  const [currentIsRTL] = useState(isRTL(BUILD_LANGUAGE));
 
   useEffect(() => {
-    // Check if user has already selected a language
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    checkLanguageSelection();
-  }, [checkLanguageSelection]);
+    // Initialize i18n with build-time language
+    i18n.changeLanguage(BUILD_LANGUAGE);
 
-  const changeLanguage = async (languageCode: string) => {
-    try {
-      await saveLanguage(languageCode);
-      setCurrentLanguage(languageCode);
-      setHasSelectedLanguage(true);
+    // Set RTL if needed
+    const isRTLLanguage = ['ar', 'ckb', 'fa'].includes(BUILD_LANGUAGE);
+    I18nManager.allowRTL(isRTLLanguage);
+    I18nManager.forceRTL(isRTLLanguage);
 
-      const newIsRTL = isRTL(languageCode);
-      setCurrentIsRTL(newIsRTL);
-
-      // Update RTL layout if needed
-      if (I18nManager.isRTL !== newIsRTL) {
-        // Note: Changing RTL requires app restart in React Native
-        I18nManager.forceRTL(newIsRTL);
-        // You may want to show a message to restart the app
-      }
-    } catch (error) {
-      if (__DEV__) console.error('Failed to change language:', error);
+    if (__DEV__) {
+      console.log(`[LanguageContext] Build language: ${BUILD_LANGUAGE}, RTL: ${isRTLLanguage}`);
     }
-  };
+  }, []);
 
   return (
     <LanguageContext.Provider
       value={{
         currentLanguage,
-        changeLanguage,
         isRTL: currentIsRTL,
-        hasSelectedLanguage,
+        hasSelectedLanguage: true, // Always true - language pre-selected at build time
         availableLanguages: languages,
       }}
     >

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Award, Crown, Shield, Users } from 'lucide-react';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { getUserTikis } from '@pezkuwi/lib/citizenship-workflow';
 import type { TikiInfo } from '@pezkuwi/lib/citizenship-workflow';
 
@@ -39,7 +39,7 @@ const getRoleBadgeColor = (role: string) => {
 };
 
 export const NftList: React.FC = () => {
-  const { api, isApiReady, selectedAccount } = usePolkadot();
+  const { api, isApiReady, selectedAccount } = usePezkuwi();
   const [tikis, setTikis] = useState<TikiInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,7 +12,7 @@ import { toast } from 'sonner';
 
 export default function Presale() {
   const { t } = useTranslation();
-  const { api, selectedAccount, isApiReady } = usePolkadot();
+  const { api, selectedAccount, isApiReady } = usePezkuwi();
   const { balances } = useWallet();
 
   const [wusdtAmount, setWusdtAmount] = useState('');

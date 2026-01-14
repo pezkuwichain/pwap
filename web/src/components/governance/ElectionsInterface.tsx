@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Vote, Trophy, AlertCircle, CheckCircle, Users, Clock, Activity, Loader2 } from 'lucide-react';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useWallet } from '@/contexts/WalletContext';
 import {
   getActiveElections,
@@ -28,7 +28,7 @@ interface ElectionWithCandidates extends ElectionInfo {
 }
 
 const ElectionsInterface: React.FC = () => {
-  const { api, isApiReady } = usePolkadot();
+  const { api, isApiReady } = usePezkuwi();
   const { account, signer } = useWallet();
   const [elections, setElections] = useState<ElectionWithCandidates[]>([]);
   const [completedResults, setCompletedResults] = useState<ElectionResult[]>([]);

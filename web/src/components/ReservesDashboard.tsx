@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { getWUSDTTotalSupply, checkReserveHealth, formatWUSDT } from '@pezkuwi/lib/usdt';
 import { MultisigMembers } from './MultisigMembers';
 
@@ -18,7 +18,7 @@ export const ReservesDashboard: React.FC<ReservesDashboardProps> = ({
   specificAddresses = {},
   offChainReserveAmount = 0,
 }) => {
-  const { api, isApiReady } = usePolkadot();
+  const { api, isApiReady } = usePezkuwi();
 
   const [wusdtSupply, setWusdtSupply] = useState(0);
   const [offChainReserve, setOffChainReserve] = useState(offChainReserveAmount);

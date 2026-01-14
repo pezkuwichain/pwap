@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,7 @@ import { ArrowLeft, Loader2, AlertCircle, Rocket } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function CreatePresale() {
-  const { api, selectedAccount } = usePolkadot();
+  const { api, selectedAccount } = usePezkuwi();
   const navigate = useNavigate();
 
   const [creating, setCreating] = useState(false);

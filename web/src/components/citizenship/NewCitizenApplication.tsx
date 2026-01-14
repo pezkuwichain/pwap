@@ -9,7 +9,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Loader2, AlertTriangle, CheckCircle, User, Users as UsersIcon, MapPin, Briefcase, Mail, Check, X, AlertCircle } from 'lucide-react';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import type { CitizenshipData, Region, MaritalStatus } from '@pezkuwi/lib/citizenship-workflow';
 import { FOUNDER_ADDRESS, submitKycApplication, subscribeToKycApproval, getKycStatus } from '@pezkuwi/lib/citizenship-workflow';
 import { generateCommitmentHash, generateNullifierHash, encryptData, saveLocalCitizenshipData, uploadToIPFS } from '@pezkuwi/lib/citizenship-workflow';
@@ -22,7 +22,7 @@ interface NewCitizenApplicationProps {
 type FormData = Omit<CitizenshipData, 'walletAddress' | 'timestamp'>;
 
 export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ onClose, referrerAddress }) => {
-  const { api, isApiReady, selectedAccount, connectWallet } = usePolkadot();
+  const { api, isApiReady, selectedAccount, connectWallet } = usePezkuwi();
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<FormData>();
 
   const [submitting, setSubmitting] = useState(false);

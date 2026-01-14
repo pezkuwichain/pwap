@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 // import { useNavigate } from 'react-router-dom';
 import { useWallet } from '@/contexts/WalletContext';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import TokenSwap from '@/components/TokenSwap';
 import PoolDashboard from '@/components/PoolDashboard';
@@ -14,7 +14,7 @@ import { isFounderWallet } from '@pezkuwi/utils/auth';
 
 export const DEXDashboard: React.FC = () => {
   const { account } = useWallet();
-  const { sudoKey } = usePolkadot();
+  const { sudoKey } = usePezkuwi();
   const [activeTab, setActiveTab] = useState('swap');
 
   // Admin modal states

@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { formatAddress } from '@pezkuwi/lib/wallet';
 import { getAllScores, type UserScores } from '@pezkuwi/lib/scores';
 
@@ -27,7 +27,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
     api,
     isApiReady,
     error
-  } = usePolkadot();
+  } = usePezkuwi();
 
   const [copied, setCopied] = useState(false);
   const [scores, setScores] = useState<UserScores>({

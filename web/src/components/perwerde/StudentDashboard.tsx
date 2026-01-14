@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { BookOpen, CheckCircle, Award } from 'lucide-react';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { toast } from 'sonner';
 import { LoadingState } from '@shared/components/AsyncComponent';
 import { completeCourse, type Enrollment } from '@shared/lib/perwerde';
@@ -15,7 +15,7 @@ interface StudentDashboardProps {
 }
 
 export function StudentDashboard({ enrollments, loading, onCourseCompleted }: StudentDashboardProps) {
-  const { api, selectedAccount } = usePolkadot();
+  const { api, selectedAccount } = usePezkuwi();
 
   const handleComplete = async (courseId: number) => {
     if (!api || !selectedAccount) {

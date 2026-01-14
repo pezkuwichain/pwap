@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FileText, Users, Trophy, CheckCircle, XCircle, Clock, Activity, Loader2, TrendingUp, Calendar } from 'lucide-react';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import {
   getElectionResults,
   getGovernanceStats,
@@ -25,7 +25,7 @@ interface CompletedProposal {
 }
 
 const GovernanceHistory: React.FC = () => {
-  const { api, isApiReady } = usePolkadot();
+  const { api, isApiReady } = usePezkuwi();
   const [completedElections, setCompletedElections] = useState<ElectionResult[]>([]);
   const [completedProposals, setCompletedProposals] = useState<CompletedProposal[]>([]);
   const [stats, setStats] = useState<GovernanceMetrics | null>(null);

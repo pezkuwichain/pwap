@@ -28,7 +28,7 @@ import {
   Clock,
   Info
 } from 'lucide-react';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { toast } from 'sonner';
 import {
   getInternalBalances,
@@ -48,7 +48,7 @@ interface WithdrawModalProps {
 type WithdrawStep = 'form' | 'confirm' | 'success';
 
 export function WithdrawModal({ isOpen, onClose, onSuccess }: WithdrawModalProps) {
-  const { selectedAccount } = usePolkadot();
+  const { selectedAccount } = usePezkuwi();
 
   const [step, setStep] = useState<WithdrawStep>('form');
   const [token, setToken] = useState<CryptoToken>('HEZ');

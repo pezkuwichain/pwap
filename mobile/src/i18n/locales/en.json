@@ -138,12 +138,77 @@
   },
   "settings": {
     "title": "Settings",
-    "language": "Language",
-    "theme": "Theme",
-    "notifications": "Notifications",
-    "security": "Security",
-    "about": "About",
-    "logout": "Logout"
+    "sections": {
+      "appearance": "APPEARANCE",
+      "language": "LANGUAGE",
+      "security": "SECURITY",
+      "notifications": "NOTIFICATIONS",
+      "about": "ABOUT"
+    },
+    "appearance": {
+      "darkMode": "Dark Mode",
+      "darkModeSubtitle": "Switch between light and dark theme",
+      "fontSize": "Font Size",
+      "fontSizeSubtitle": "Current: {{size}}",
+      "fontSizePrompt": "Choose your preferred font size",
+      "small": "Small",
+      "medium": "Medium",
+      "large": "Large"
+    },
+    "language": {
+      "title": "Language",
+      "changePrompt": "Switch to {{language}}?",
+      "changeSuccess": "Language updated successfully!"
+    },
+    "security": {
+      "biometric": "Biometric Authentication",
+      "biometricSubtitle": "Use fingerprint or face recognition",
+      "biometricPrompt": "Do you want to enable biometric authentication (fingerprint/face recognition)?",
+      "biometricEnabled": "Biometric authentication enabled",
+      "twoFactor": "Two-Factor Authentication",
+      "twoFactorSubtitle": "Add an extra layer of security",
+      "twoFactorPrompt": "Two-factor authentication adds an extra layer of security. You will need to set up an authenticator app.",
+      "twoFactorSetup": "Set Up",
+      "changePassword": "Change Password",
+      "changePasswordSubtitle": "Update your account password"
+    },
+    "notifications": {
+      "push": "Push Notifications",
+      "pushSubtitle": "Receive alerts and updates",
+      "email": "Email Notifications",
+      "emailSubtitle": "Manage email preferences"
+    },
+    "about": {
+      "pezkuwi": "About Pezkuwi",
+      "pezkuwiSubtitle": "Learn more about Digital Kurdistan",
+      "pezkuwiMessage": "Pezkuwi is a decentralized blockchain platform for Digital Kurdistan, enabling citizens to participate in governance, economy, and social life.\n\nVersion: 1.0.0\n\nBuilt with ❤️ by the Digital Kurdistan team",
+      "terms": "Terms of Service",
+      "privacy": "Privacy Policy",
+      "contact": "Contact Support",
+      "contactSubtitle": "Get help from our team",
+      "contactEmail": "Email: support@pezkuwichain.io"
+    },
+    "version": {
+      "app": "Pezkuwi Mobile",
+      "number": "Version 1.0.0",
+      "copyright": "© 2026 Digital Kurdistan"
+    },
+    "alerts": {
+      "comingSoon": "Coming Soon",
+      "darkModeMessage": "Dark mode will be available in the next update",
+      "twoFactorMessage": "2FA setup will be available soon",
+      "passwordMessage": "Password change will be available soon",
+      "emailMessage": "Email settings will be available soon",
+      "termsMessage": "Terms of Service will be available soon",
+      "privacyMessage": "Privacy Policy will be available soon"
+    },
+    "common": {
+      "enable": "Enable",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "success": "Success",
+      "error": "Error"
+    }
   },
   "common": {
     "cancel": "Cancel",

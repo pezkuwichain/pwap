@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { supabase } from '@/lib/supabase';
 import { User, Mail, Phone, Globe, MapPin, Calendar, Shield, AlertCircle, ArrowLeft, Award, Users, TrendingUp, UserMinus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -18,7 +18,7 @@ import { ReferralDashboard } from '@/components/referral/ReferralDashboard';
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const { api, isApiReady, selectedAccount } = usePolkadot();
+  const { api, isApiReady, selectedAccount } = usePezkuwi();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [profile, setProfile] = useState<Record<string, unknown> | null>(null);

@@ -1,0 +1,337 @@
+import React, { useState, useMemo } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  SafeAreaView,
+  ScrollView,
+  TouchableOpacity,
+  TextInput,
+  Image,
+  Alert,
+  Dimensions,
+  FlatList,
+  StatusBar,
+  Platform,
+} from 'react-native';
+import { KurdistanColors } from '../theme/colors';
+
+// Import Images (Reusing existing assets)
+import qaEducation from '../../../shared/images/quick-actions/qa_education.png';
+import qaExchange from '../../../shared/images/quick-actions/qa_exchange.png';
+import qaForum from '../../../shared/images/quick-actions/qa_forum.jpg';
+import qaGovernance from '../../../shared/images/quick-actions/qa_governance.jpg';
+import qaTrading from '../../../shared/images/quick-actions/qa_trading.jpg';
+import qaB2B from '../../../shared/images/quick-actions/qa_b2b.png';
+import qaBank from '../../../shared/images/quick-actions/qa_bank.png';
+import qaKurdMedia from '../../../shared/images/quick-actions/qa_kurdmedia.jpg';
+import qaUniversity from '../../../shared/images/quick-actions/qa_university.png';
+
+const { width } = Dimensions.get('window');
+const COLUMN_COUNT = 3;
+const ITEM_WIDTH = (width - 48) / COLUMN_COUNT; // 48 = padding (16*2) + gaps
+
+type CategoryType = 'All' | 'Finance' | 'Governance' | 'Social' | 'Education';
+
+interface MiniApp {
+  id: string;
+  name: string;
+  icon: any;
+  isEmoji: boolean;
+  category: CategoryType;
+  description: string;
+}
+
+const APPS_DATA: MiniApp[] = [
+  // FINANCE
+  { id: 'wallet', name: 'Wallet', icon: '👛', isEmoji: true, category: 'Finance', description: 'Crypto Wallet' },
+  { id: 'bank', name: 'Bank', icon: qaBank, isEmoji: false, category: 'Finance', description: 'Digital Banking' },
+  { id: 'exchange', name: 'Exchange', icon: qaExchange, isEmoji: false, category: 'Finance', description: 'Swap & Trade' },
+  { id: 'p2p', name: 'P2P', icon: qaTrading, isEmoji: false, category: 'Finance', description: 'Peer to Peer' },
+  { id: 'b2b', name: 'B2B', icon: qaB2B, isEmoji: false, category: 'Finance', description: 'Business Market' },
+  { id: 'tax', name: 'Tax', icon: '📊', isEmoji: true, category: 'Finance', description: 'Tax & Zekat' },
+  { id: 'launchpad', name: 'Launchpad', icon: '🚀', isEmoji: true, category: 'Finance', description: 'Startup Funding' },
+  { id: 'cards', name: 'Cards', icon: '💳', isEmoji: true, category: 'Finance', description: 'Pezkuwi Cards' },
+
+  // GOVERNANCE
+  { id: 'president', name: 'President', icon: '👑', isEmoji: true, category: 'Governance', description: 'Presidency Office' },
+  { id: 'assembly', name: 'Assembly', icon: qaGovernance, isEmoji: false, category: 'Governance', description: 'National Assembly' },
+  { id: 'vote', name: 'Vote', icon: '🗳️', isEmoji: true, category: 'Governance', description: 'Decentralized Voting' },
+  { id: 'validators', name: 'Validators', icon: '🛡️', isEmoji: true, category: 'Governance', description: 'Network Security' },
+  { id: 'justice', name: 'Justice', icon: '⚖️', isEmoji: true, category: 'Governance', description: 'Digital Court' },
+  { id: 'proposals', name: 'Proposals', icon: '📜', isEmoji: true, category: 'Governance', description: 'Law Proposals' },
+  { id: 'polls', name: 'Polls', icon: '📊', isEmoji: true, category: 'Governance', description: 'Public Surveys' },
+  { id: 'identity', name: 'Identity', icon: '🆔', isEmoji: true, category: 'Governance', description: 'Digital ID' },
+
+  // SOCIAL
+  { id: 'whatskurd', name: 'whatsKURD', icon: '💬', isEmoji: true, category: 'Social', description: 'Messenger' },
+  { id: 'forum', name: 'Forum', icon: qaForum, isEmoji: false, category: 'Social', description: 'Community Talk' },
+  { id: 'kurdmedia', name: 'KurdMedia', icon: qaKurdMedia, isEmoji: false, category: 'Social', description: 'News & Media' },
+  { id: 'events', name: 'Events', icon: '🎭', isEmoji: true, category: 'Social', description: 'Çalakî' },
+  { id: 'help', name: 'Help', icon: '🤝', isEmoji: true, category: 'Social', description: 'Harîkarî' },
+  { id: 'music', name: 'Music', icon: '🎵', isEmoji: true, category: 'Social', description: 'Kurdish Stream' },
+  { id: 'vpn', name: 'VPN', icon: '🛡️', isEmoji: true, category: 'Social', description: 'Secure Net' },
+  { id: 'referral', name: 'Referral', icon: '👥', isEmoji: true, category: 'Social', description: 'Invite Friends' },
+
+  // EDUCATION
+  { id: 'university', name: 'University', icon: qaUniversity, isEmoji: false, category: 'Education', description: 'Higher Ed' },
+  { id: 'perwerde', name: 'Perwerde', icon: qaEducation, isEmoji: false, category: 'Education', description: 'Academy' },
+  { id: 'library', name: 'Library', icon: '📚', isEmoji: true, category: 'Education', description: 'Pirtûkxane' },
+  { id: 'language', name: 'Language', icon: '🗣️', isEmoji: true, category: 'Education', description: 'Ziman / Learn' },
+  { id: 'kids', name: 'Kids', icon: '🧸', isEmoji: true, category: 'Education', description: 'Zarok TV' },
+  { id: 'certificates', name: 'Certificates', icon: '🏆', isEmoji: true, category: 'Education', description: 'NFT Diplomas' },
+  { id: 'research', name: 'Research', icon: '🔬', isEmoji: true, category: 'Education', description: 'Scientific Data' },
+  { id: 'history', name: 'History', icon: '🏺', isEmoji: true, category: 'Education', description: 'Kurdish History' },
+];
+
+const AppsScreen: React.FC = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<CategoryType>('All');
+
+  const filteredApps = useMemo(() => {
+    return APPS_DATA.filter(app => {
+      const matchesSearch = app.name.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = selectedCategory === 'All' || app.category === selectedCategory;
+      return matchesSearch && matchesCategory;
+    });
+  }, [searchQuery, selectedCategory]);
+
+  const handleAppPress = (appName: string) => {
+    Alert.alert(
+      'Di bin çêkirinê de ye / Under Maintenance',
+      `The "${appName}" mini-app is currently under development. Please check back later.\n\nSpas ji bo sebra we.`, 
+      [{ text: 'Temam (OK)' }]
+    );
+  };
+
+  const renderCategoryChip = (category: CategoryType) => (
+    <TouchableOpacity
+      key={category}
+      style={[
+        styles.categoryChip,
+        selectedCategory === category && styles.categoryChipActive
+      ]}
+      onPress={() => setSelectedCategory(category)}
+    >
+      <Text style={[
+        styles.categoryText,
+        selectedCategory === category && styles.categoryTextActive
+      ]}>
+        {category}
+      </Text>
+    </TouchableOpacity>
+  );
+
+  const renderAppItem = ({ item }: { item: MiniApp }) => (
+    <TouchableOpacity
+      style={styles.appCard}
+      onPress={() => handleAppPress(item.name)}
+      activeOpacity={0.7}
+    >
+      <View style={styles.iconContainer}>
+        {item.isEmoji ? (
+          <Text style={styles.emojiIcon}>{item.icon}</Text>
+        ) : (
+          <Image source={item.icon} style={styles.imageIcon} resizeMode="cover" />
+        )}
+      </View>
+      <Text style={styles.appName} numberOfLines={1}>{item.name}</Text>
+      <Text style={styles.appDesc} numberOfLines={1}>{item.description}</Text>
+    </TouchableOpacity>
+  );
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#F5F5F5" />
+      
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Apps Store</Text>
+        <Text style={styles.headerSubtitle}>Discover Pezkuwi Ecosystem</Text>
+      </View>
+
+      {/* Search Bar */}
+      <View style={styles.searchContainer}>
+        <View style={styles.searchBar}>
+          <Text style={styles.searchIcon}>🔍</Text>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search apps..."
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholderTextColor="#999"
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity onPress={() => setSearchQuery('')}>
+              <Text style={styles.clearIcon}>✕</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
+
+      {/* Category Filter */}
+      <View style={styles.categoriesContainer}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoriesContent}>
+          {['All', 'Finance', 'Governance', 'Social', 'Education'].map((cat) => 
+            renderCategoryChip(cat as CategoryType)
+          )}
+        </ScrollView>
+      </View>
+
+      {/* Apps Grid */}
+      <FlatList
+        data={filteredApps}
+        renderItem={renderAppItem}
+        keyExtractor={item => item.id}
+        numColumns={COLUMN_COUNT}
+        contentContainerStyle={styles.listContent}
+        columnWrapperStyle={styles.columnWrapper}
+        showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>No apps found matching "{searchQuery}"</Text>
+          </View>
+        }
+      />
+    </SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F5F5F5',
+  },
+  header: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 10,
+  },
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: KurdistanColors.reş,
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 4,
+  },
+  searchContainer: {
+    paddingHorizontal: 20,
+    marginBottom: 16,
+  },
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: KurdistanColors.spi,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    height: 48,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  searchIcon: {
+    fontSize: 18,
+    marginRight: 8,
+    opacity: 0.5,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    color: '#333',
+    height: '100%',
+  },
+  clearIcon: {
+    fontSize: 16,
+    color: '#999',
+    padding: 4,
+  },
+  categoriesContainer: {
+    marginBottom: 10,
+  },
+  categoriesContent: {
+    paddingHorizontal: 20,
+  },
+  categoryChip: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: '#E0E0E0',
+    marginRight: 8,
+  },
+  categoryChipActive: {
+    backgroundColor: KurdistanColors.kesk,
+  },
+  categoryText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#555',
+  },
+  categoryTextActive: {
+    color: KurdistanColors.spi,
+  },
+  listContent: {
+    paddingHorizontal: 16,
+    paddingBottom: 40,
+    paddingTop: 8,
+  },
+  columnWrapper: {
+    justifyContent: 'flex-start',
+    gap: 8, 
+  },
+  appCard: {
+    width: ITEM_WIDTH,
+    backgroundColor: KurdistanColors.spi,
+    borderRadius: 16,
+    padding: 12,
+    marginBottom: 12,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  iconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    backgroundColor: '#F8F9FA',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  imageIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+  },
+  emojiIcon: {
+    fontSize: 24,
+  },
+  appName: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#333',
+    marginBottom: 2,
+    textAlign: 'center',
+  },
+  appDesc: {
+    fontSize: 10,
+    color: '#888',
+    textAlign: 'center',
+  },
+  emptyContainer: {
+    padding: 40,
+    alignItems: 'center',
+  },
+  emptyText: {
+    color: '#999',
+    fontSize: 16,
+  },
+});
+
+export default AppsScreen;

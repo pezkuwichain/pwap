@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChevronRight, Shield } from 'lucide-react';
-import { usePolkadot } from '../contexts/PolkadotContext';
+import { ChevronRight, Shield, Smartphone } from 'lucide-react';
+import { usePezkuwi } from '../contexts/PezkuwiContext';
+import { useWallet } from '../contexts/WalletContext'; // Import useWallet
 import { formatBalance } from '@pezkuwi/lib/wallet';
 
 const HeroSection: React.FC = () => {
   const { t } = useTranslation();
-  const { api, isApiReady } = usePolkadot();
+  const { api, isApiReady } = usePezkuwi();
+  const { selectedAccount } = useWallet(); // Use selectedAccount from WalletContext
   const [stats, setStats] = useState({
     activeProposals: 0,
     totalVoters: 0,
@@ -17,6 +19,20 @@ const HeroSection: React.FC = () => {
   useEffect(() => {
     const fetchStats = async () => {
       if (!api || !isApiReady) return;
+
+      let currentTrustScore = 0; // Default if not fetched or no account
+      if (selectedAccount?.address) {
+        try {
+          // Assuming pallet-staking-score has a storage item for trust scores
+          // The exact query might need adjustment based on chain metadata
+          const rawTrustScore = await api.query.stakingScore.trustScore(selectedAccount.address);
+          // Assuming trustScore is a simple number or a wrapper around it
+          currentTrustScore = rawTrustScore.isSome ? rawTrustScore.unwrap().toNumber() : 0;
+        } catch (err) {
+          if (import.meta.env.DEV) console.warn('Failed to fetch trust score:', err);
+          currentTrustScore = 0;
+        }
+      }
 
       try {
         // Fetch active referenda
@@ -60,13 +76,14 @@ const HeroSection: React.FC = () => {
           activeProposals,
           totalVoters,
           tokensStaked,
-          trustScore: 0 // TODO: Calculate trust score
+          trustScore: currentTrustScore
         });
 
         if (import.meta.env.DEV) console.log('✅ Hero stats updated:', {
           activeProposals,
           totalVoters,
-          tokensStaked
+          tokensStaked,
+          trustScore: currentTrustScore
         });
       } catch (error) {
         if (import.meta.env.DEV) console.error('Failed to fetch hero stats:', error);
@@ -74,7 +91,7 @@ const HeroSection: React.FC = () => {
     };
 
     fetchStats();
-  }, [api, isApiReady]);
+  }, [api, isApiReady, selectedAccount]); // Add selectedAccount to dependencies
 
   return (
     <section className="relative min-h-screen flex items-center justify-start overflow-hidden bg-gray-950">
@@ -133,6 +150,14 @@ const HeroSection: React.FC = () => {
             {t('hero.exploreGovernance', 'Explore Governance')}
             <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </button>
+          <a
+            href="/pezkuwi-wallet.apk"
+            download="pezkuwi-wallet.apk"
+            className="px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold rounded-lg hover:shadow-lg hover:shadow-blue-500/50 transition-all transform hover:scale-105 flex items-center justify-center group"
+          >
+            <Smartphone className="mr-2 w-5 h-5" />
+            {t('hero.downloadWallet', 'Download Mobile Wallet')}
+          </a>
           <button
             onClick={() => document.getElementById('governance')?.scrollIntoView({ behavior: 'smooth' })}
             className="px-8 py-4 bg-gray-900/80 backdrop-blur-sm text-white font-semibold rounded-lg border border-gray-700 hover:bg-gray-800 hover:border-gray-600 transition-all"

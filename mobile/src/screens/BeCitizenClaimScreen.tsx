@@ -1,0 +1,161 @@
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  Alert,
+  ActivityIndicator,
+} from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { useNavigation } from '@react-navigation/native';
+import { usePezkuwi } from '../contexts/PezkuwiContext';
+import { getCitizenshipStatus } from '@pezkuwi/lib/citizenship-workflow';
+import { KurdistanColors } from '../theme/colors';
+
+const BeCitizenClaimScreen: React.FC = () => {
+  const { t } = useTranslation();
+  const navigation = useNavigation();
+  const { api, selectedAccount } = usePezkuwi();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleVerify = async () => {
+    if (!api || !selectedAccount) {
+      Alert.alert('Error', 'Please connect your wallet first');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const status = await getCitizenshipStatus(api, selectedAccount.address);
+
+      if (status.kycStatus === 'Approved' && status.hasCitizenTiki) {
+        Alert.alert(
+          'Success',
+          `Welcome back, Citizen!\n\nYour Tiki Number: ${status.tikiNumber || 'N/A'}`,
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                navigation.goBack();
+              },
+            },
+          ]
+        );
+      } else if (status.kycStatus === 'Approved' && !status.hasCitizenTiki) {
+        Alert.alert(
+          'Almost there!',
+          'Your KYC is approved, but you haven\'t claimed your Citizen Tiki yet. Please claim it on the web portal.',
+          [{ text: 'OK' }]
+        );
+      } else if (status.kycStatus === 'Pending') {
+        Alert.alert(
+          'Application Pending',
+          'Your citizenship application is still under review.',
+          [{ text: 'OK' }]
+        );
+      } else {
+        Alert.alert(
+          'Not a Citizen',
+          'We couldn\'t find a citizenship record for this wallet. If you have a Citizen ID and Password, please note that wallet-based verification is now preferred.',
+          [{ text: 'OK' }]
+        );
+      }
+    } catch (error: unknown) {
+      if (__DEV__) console.error('Citizenship verification error:', error);
+      Alert.alert('Error', 'Failed to verify citizenship status');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" />
+      <ScrollView style={styles.formContainer} showsVerticalScrollIndicator={false}>
+        <Text style={styles.formTitle}>Citizen Verification</Text>
+        <Text style={styles.formSubtitle}>
+          Verify your status using your connected wallet
+        </Text>
+
+        <View style={styles.infoCard}>
+          <Text style={styles.infoText}>
+            Existing citizens are verified through their blockchain identity. Ensure your citizenship wallet is selected in the wallet tab.
+          </Text>
+        </View>
+
+        <TouchableOpacity
+          style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]}
+          onPress={handleVerify}
+          activeOpacity={0.8}
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? (
+            <ActivityIndicator color={KurdistanColors.spi} />
+          ) : (
+            <Text style={styles.submitButtonText}>Verify Citizenship</Text>
+          )}
+        </TouchableOpacity>
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F5F5F5',
+  },
+  formContainer: {
+    flex: 1,
+    padding: 20,
+  },
+  formTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: KurdistanColors.reş,
+    marginBottom: 8,
+  },
+  formSubtitle: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 24,
+  },
+  infoCard: {
+    backgroundColor: `${KurdistanColors.kesk}15`,
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 24,
+    borderLeftWidth: 4,
+    borderLeftColor: KurdistanColors.kesk,
+  },
+  infoText: {
+    fontSize: 14,
+    color: KurdistanColors.reş,
+    lineHeight: 20,
+    opacity: 0.8,
+  },
+  submitButton: {
+    backgroundColor: KurdistanColors.kesk,
+    borderRadius: 12,
+    padding: 16,
+    alignItems: 'center',
+    marginTop: 20,
+    boxShadow: '0px 4px 6px rgba(0, 128, 0, 0.3)',
+    elevation: 6,
+  },
+  submitButtonDisabled: {
+    opacity: 0.6,
+  },
+  submitButtonText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: KurdistanColors.spi,
+  },
+});
+
+export default BeCitizenClaimScreen;

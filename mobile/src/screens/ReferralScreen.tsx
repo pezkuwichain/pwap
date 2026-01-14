@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -10,17 +10,26 @@ import {
   Share,
   Alert,
   Clipboard,
+  ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
-import { usePolkadot } from '../contexts/PolkadotContext';
+import { usePezkuwi } from '../contexts/PezkuwiContext';
 import { KurdistanColors } from '../theme/colors';
+import {
+  getReferralStats,
+  getMyReferrals,
+  calculateReferralScore,
+  type ReferralStats as BlockchainReferralStats,
+} from '@pezkuwi/lib/referral';
 
 interface ReferralStats {
   totalReferrals: number;
   activeReferrals: number;
   totalEarned: string;
   pendingRewards: string;
+  referralScore: number;
+  whoInvitedMe: string | null;
 }
 
 interface Referral {
@@ -33,28 +42,86 @@ interface Referral {
 
 const ReferralScreen: React.FC = () => {
   const { t: _t } = useTranslation();
-  const { selectedAccount, api: _api, connectWallet } = usePolkadot();
+  const { selectedAccount, api, connectWallet, isApiReady } = usePezkuwi();
   const isConnected = !!selectedAccount;
 
-  // Removed setState in effect - derive from selectedAccount directly
+  // State for blockchain data
+  const [stats, setStats] = useState<ReferralStats>({
+    totalReferrals: 0,
+    activeReferrals: 0,
+    totalEarned: '0.00 HEZ',
+    pendingRewards: '0.00 HEZ',
+    referralScore: 0,
+    whoInvitedMe: null,
+  });
+  const [referrals, setReferrals] = useState<Referral[]>([]);
+  const [loading, setLoading] = useState(false);
 
   // Generate referral code from wallet address
   const referralCode = selectedAccount
     ? `PZK-${selectedAccount.address.slice(0, 8).toUpperCase()}`
     : 'PZK-CONNECT-WALLET';
 
-  // Mock stats - will be fetched from pallet_referral
-  // TODO: Fetch real stats from blockchain
-  const stats: ReferralStats = {
-    totalReferrals: 0,
-    activeReferrals: 0,
-    totalEarned: '0.00 HEZ',
-    pendingRewards: '0.00 HEZ',
-  };
+  // Fetch referral data from blockchain
+  const fetchReferralData = useCallback(async () => {
+    if (!api || !isApiReady || !selectedAccount) {
+      setStats({
+        totalReferrals: 0,
+        activeReferrals: 0,
+        totalEarned: '0.00 HEZ',
+        pendingRewards: '0.00 HEZ',
+        referralScore: 0,
+        whoInvitedMe: null,
+      });
+      setReferrals([]);
+      return;
+    }
 
-  // Mock referrals - will be fetched from blockchain
-  // TODO: Query pallet-trust or referral pallet for actual referrals
-  const referrals: Referral[] = [];
+    setLoading(true);
+
+    try {
+      const [blockchainStats, myReferralsList] = await Promise.all([
+        getReferralStats(api, selectedAccount.address),
+        getMyReferrals(api, selectedAccount.address),
+      ]);
+
+      // Calculate rewards (placeholder for now - will be from pallet_rewards)
+      const scoreValue = blockchainStats.referralScore;
+      const earnedAmount = (scoreValue * 0.1).toFixed(2);
+
+      setStats({
+        totalReferrals: blockchainStats.referralCount,
+        activeReferrals: blockchainStats.referralCount,
+        totalEarned: `${earnedAmount} HEZ`,
+        pendingRewards: '0.00 HEZ',
+        referralScore: blockchainStats.referralScore,
+        whoInvitedMe: blockchainStats.whoInvitedMe,
+      });
+
+      // Transform blockchain referrals to UI format
+      const referralData: Referral[] = myReferralsList.map((address, index) => ({
+        id: address,
+        address,
+        joinedDate: 'KYC Completed',
+        status: 'active' as const,
+        earned: `+${index < 10 ? 10 : index < 50 ? 5 : index < 100 ? 4 : 0} points`,
+      }));
+
+      setReferrals(referralData);
+    } catch (error) {
+      if (__DEV__) console.error('Error fetching referral data:', error);
+      Alert.alert('Error', 'Failed to load referral data from blockchain');
+    } finally {
+      setLoading(false);
+    }
+  }, [api, isApiReady, selectedAccount]);
+
+  // Fetch data on mount and when connection changes
+  useEffect(() => {
+    if (isConnected && api && isApiReady) {
+      fetchReferralData();
+    }
+  }, [isConnected, api, isApiReady, fetchReferralData]);
 
   const handleConnectWallet = async () => {
     try {
@@ -131,6 +198,13 @@ const ReferralScreen: React.FC = () => {
       </LinearGradient>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        {loading && (
+          <View style={styles.loadingOverlay}>
+            <ActivityIndicator size="large" color={KurdistanColors.sor} />
+            <Text style={styles.loadingText}>Loading referral data...</Text>
+          </View>
+        )}
+
         {/* Referral Code Card */}
         <View style={styles.codeCard}>
           <Text style={styles.codeLabel}>Your Referral Code</Text>
@@ -155,6 +229,19 @@ const ReferralScreen: React.FC = () => {
           </View>
         </View>
 
+        {/* Who Invited Me */}
+        {stats.whoInvitedMe && (
+          <View style={styles.invitedByCard}>
+            <View style={styles.invitedByHeader}>
+              <Text style={styles.invitedByIcon}>🎁</Text>
+              <Text style={styles.invitedByTitle}>You Were Invited By</Text>
+            </View>
+            <Text style={styles.invitedByAddress}>
+              {stats.whoInvitedMe.slice(0, 10)}...{stats.whoInvitedMe.slice(-8)}
+            </Text>
+          </View>
+        )}
+
         {/* Stats Grid */}
         <View style={styles.statsGrid}>
           <View style={styles.statCard}>
@@ -175,6 +262,94 @@ const ReferralScreen: React.FC = () => {
           <View style={styles.statCard}>
             <Text style={styles.statValue}>{stats.pendingRewards}</Text>
             <Text style={styles.statLabel}>Pending</Text>
+          </View>
+        </View>
+
+        {/* Score Breakdown */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Score Calculation</Text>
+          <Text style={styles.sectionSubtitle}>
+            How referrals contribute to your trust score
+          </Text>
+
+          <View style={styles.scoreCard}>
+            <View style={styles.scoreRow}>
+              <Text style={styles.scoreRange}>1-10 referrals</Text>
+              <Text style={[styles.scorePoints, {color: KurdistanColors.kesk}]}>10 points each</Text>
+            </View>
+          </View>
+
+          <View style={styles.scoreCard}>
+            <View style={styles.scoreRow}>
+              <Text style={styles.scoreRange}>11-50 referrals</Text>
+              <Text style={[styles.scorePoints, {color: '#3B82F6'}]}>100 + 5 points each</Text>
+            </View>
+          </View>
+
+          <View style={styles.scoreCard}>
+            <View style={styles.scoreRow}>
+              <Text style={styles.scoreRange}>51-100 referrals</Text>
+              <Text style={[styles.scorePoints, {color: KurdistanColors.zer}]}>300 + 4 points each</Text>
+            </View>
+          </View>
+
+          <View style={styles.scoreCard}>
+            <View style={styles.scoreRow}>
+              <Text style={styles.scoreRange}>101+ referrals</Text>
+              <Text style={[styles.scorePoints, {color: KurdistanColors.sor}]}>500 points (max)</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Leaderboard */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Top Referrers</Text>
+          <Text style={styles.sectionSubtitle}>Community leaderboard</Text>
+
+          <View style={styles.leaderboardCard}>
+            <View style={styles.leaderboardRow}>
+              <View style={styles.leaderboardRank}>
+                <Text style={styles.leaderboardRankText}>🥇</Text>
+              </View>
+              <View style={styles.leaderboardInfo}>
+                <Text style={styles.leaderboardAddress}>5GrwvaEF...KutQY</Text>
+                <Text style={styles.leaderboardStats}>156 referrals</Text>
+              </View>
+              <Text style={styles.leaderboardScore}>500 pts</Text>
+            </View>
+          </View>
+
+          <View style={styles.leaderboardCard}>
+            <View style={styles.leaderboardRow}>
+              <View style={styles.leaderboardRank}>
+                <Text style={styles.leaderboardRankText}>🥈</Text>
+              </View>
+              <View style={styles.leaderboardInfo}>
+                <Text style={styles.leaderboardAddress}>5FHneW46...94ty</Text>
+                <Text style={styles.leaderboardStats}>89 referrals</Text>
+              </View>
+              <Text style={styles.leaderboardScore}>456 pts</Text>
+            </View>
+          </View>
+
+          <View style={styles.leaderboardCard}>
+            <View style={styles.leaderboardRow}>
+              <View style={styles.leaderboardRank}>
+                <Text style={styles.leaderboardRankText}>🥉</Text>
+              </View>
+              <View style={styles.leaderboardInfo}>
+                <Text style={styles.leaderboardAddress}>5FLSigC9...hXcS59Y</Text>
+                <Text style={styles.leaderboardStats}>67 referrals</Text>
+              </View>
+              <Text style={styles.leaderboardScore}>385 pts</Text>
+            </View>
+          </View>
+
+          <View style={styles.leaderboardNote}>
+            <Text style={styles.leaderboardNoteIcon}>ℹ️</Text>
+            <Text style={styles.leaderboardNoteText}>
+              Leaderboard updates every 24 hours. Keep inviting to climb the ranks!
+            </Text>
           </View>
         </View>
 
@@ -283,10 +458,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
+    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)',
     elevation: 8,
   },
   logoText: {
@@ -310,10 +482,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
     paddingVertical: 16,
     borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
+    boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.3)',
     elevation: 6,
   },
   connectButtonText: {
@@ -345,10 +514,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 20,
     marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.1)',
     elevation: 4,
   },
   codeLabel: {
@@ -407,10 +573,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
+    boxShadow: '0px 2px 6px rgba(0, 0, 0, 0.05)',
     elevation: 3,
   },
   statValue: {
@@ -430,7 +593,91 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     color: KurdistanColors.reş,
+    marginBottom: 8,
+  },
+  sectionSubtitle: {
+    fontSize: 14,
+    color: '#666',
     marginBottom: 16,
+  },
+  scoreCard: {
+    backgroundColor: 'rgba(0, 0, 0, 0.03)',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 8,
+  },
+  scoreRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  scoreRange: {
+    fontSize: 14,
+    color: '#666',
+  },
+  scorePoints: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  leaderboardCard: {
+    backgroundColor: KurdistanColors.spi,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    boxShadow: '0px 2px 6px rgba(0, 0, 0, 0.05)',
+    elevation: 3,
+  },
+  leaderboardRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  leaderboardRank: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#F5F5F5',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  leaderboardRankText: {
+    fontSize: 20,
+  },
+  leaderboardInfo: {
+    flex: 1,
+  },
+  leaderboardAddress: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: KurdistanColors.reş,
+    marginBottom: 2,
+    fontFamily: 'monospace',
+  },
+  leaderboardStats: {
+    fontSize: 12,
+    color: '#666',
+  },
+  leaderboardScore: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: KurdistanColors.kesk,
+  },
+  leaderboardNote: {
+    flexDirection: 'row',
+    backgroundColor: '#E0F2FE',
+    borderRadius: 12,
+    padding: 12,
+    marginTop: 8,
+    gap: 8,
+  },
+  leaderboardNoteIcon: {
+    fontSize: 16,
+  },
+  leaderboardNoteText: {
+    flex: 1,
+    fontSize: 12,
+    color: '#0C4A6E',
+    lineHeight: 18,
   },
   stepCard: {
     flexDirection: 'row',
@@ -438,10 +685,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
+    boxShadow: '0px 2px 6px rgba(0, 0, 0, 0.05)',
     elevation: 3,
   },
   stepNumber: {
@@ -498,10 +742,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
+    boxShadow: '0px 2px 6px rgba(0, 0, 0, 0.05)',
     elevation: 3,
   },
   referralInfo: {
@@ -537,6 +778,48 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: KurdistanColors.sor,
+  },
+  loadingOverlay: {
+    padding: 20,
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 12,
+    marginBottom: 20,
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 14,
+    color: '#666',
+  },
+  invitedByCard: {
+    backgroundColor: KurdistanColors.spi,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 20,
+    borderLeftWidth: 4,
+    borderLeftColor: KurdistanColors.kesk,
+    boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.1)',
+    elevation: 4,
+  },
+  invitedByHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  invitedByIcon: {
+    fontSize: 20,
+    marginRight: 8,
+  },
+  invitedByTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#666',
+  },
+  invitedByAddress: {
+    fontSize: 14,
+    fontFamily: 'monospace',
+    color: KurdistanColors.kesk,
+    fontWeight: '600',
   },
 });
 

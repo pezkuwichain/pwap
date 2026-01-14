@@ -28,7 +28,7 @@ import { StakingDashboard } from './staking/StakingDashboard';
 import { MultiSigWallet } from './wallet/MultiSigWallet';
 import { useWallet } from '@/contexts/WalletContext';
 import { supabase } from '@/lib/supabase';
-import { PolkadotWalletButton } from './PolkadotWalletButton';
+import { PezkuwiWalletButton } from './PezkuwiWalletButton';
 import { DEXDashboard } from './dex/DEXDashboard';
 import { P2PDashboard } from './p2p/P2PDashboard';
 import EducationPlatform from '../pages/EducationPlatform';
@@ -286,7 +286,7 @@ const AppLayout: React.FC = () => {
 
               <NotificationBell />
               <LanguageSwitcher />
-              <PolkadotWalletButton />
+              <PezkuwiWalletButton />
             </div>
           </div>
         </div>

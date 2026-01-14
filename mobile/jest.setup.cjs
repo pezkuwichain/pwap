@@ -69,6 +69,74 @@ jest.mock('@polkadot/api', () => ({
   WsProvider: jest.fn(),
 }));
 
+// Mock @pezkuwi packages (aliases for @polkadot packages)
+jest.mock('@pezkuwi/api', () => ({
+  ApiPromise: {
+    create: jest.fn(() =>
+      Promise.resolve({
+        isReady: Promise.resolve(true),
+        query: {
+          treasury: {
+            treasury: jest.fn(() => Promise.resolve({ toString: () => '1000000000000000' })),
+            proposals: {
+              entries: jest.fn(() => Promise.resolve([])),
+            },
+          },
+          democracy: {
+            referendumInfoOf: {
+              entries: jest.fn(() => Promise.resolve([])),
+            },
+          },
+          dynamicCommissionCollective: {
+            proposals: jest.fn(() => Promise.resolve([])),
+            voting: jest.fn(() => Promise.resolve({ isSome: false })),
+          },
+        },
+        tx: {},
+        rpc: {},
+        disconnect: jest.fn(),
+      })
+    ),
+  },
+  WsProvider: jest.fn(),
+}));
+
+jest.mock('@pezkuwi/keyring', () => ({
+  Keyring: jest.fn().mockImplementation(() => ({
+    addFromUri: jest.fn((mnemonic, meta, type) => ({
+      address: '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY',
+      meta: meta || {},
+      type: type || 'sr25519',
+      publicKey: new Uint8Array(32),
+      sign: jest.fn(),
+      verify: jest.fn(),
+    })),
+    addFromMnemonic: jest.fn((mnemonic, meta, type) => ({
+      address: '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY',
+      meta: meta || {},
+      type: type || 'sr25519',
+      publicKey: new Uint8Array(32),
+      sign: jest.fn(),
+      verify: jest.fn(),
+    })),
+    getPairs: jest.fn(() => []),
+    getPair: jest.fn((address) => ({
+      address: address,
+      meta: {},
+      type: 'sr25519',
+      publicKey: new Uint8Array(32),
+      sign: jest.fn(),
+      verify: jest.fn(),
+    })),
+  })),
+}));
+
+jest.mock('@pezkuwi/util-crypto', () => ({
+  cryptoWaitReady: jest.fn(() => Promise.resolve(true)),
+  mnemonicGenerate: jest.fn(() => 'test test test test test test test test test test test junk'),
+  mnemonicValidate: jest.fn(() => true),
+}));
+
 // Mock Supabase
 jest.mock('./src/lib/supabase', () => ({
   supabase: {
@@ -98,16 +166,11 @@ jest.mock('./src/lib/supabase', () => ({
 }));
 
 // Mock shared blockchain utilities
-jest.mock('../shared/blockchain/polkadot', () => ({
+jest.mock('../shared/blockchain', () => ({
   PEZKUWI_NETWORK: {
     name: 'Pezkuwi',
-    endpoint: 'wss://beta-rpc.pezkuwi.art',
+    endpoint: 'wss://rpc.pezkuwichain.io:9944',
     chainId: 'pezkuwi',
-  },
-  BLOCKCHAIN_ENDPOINTS: {
-    mainnet: 'wss://mainnet.pezkuwichain.io',
-    testnet: 'wss://ws.pezkuwichain.io',
-    local: 'ws://127.0.0.1:9944',
   },
   DEFAULT_ENDPOINT: 'ws://127.0.0.1:9944',
   getExplorerUrl: jest.fn((txHash) => `https://explorer.pezkuwichain.app/tx/${txHash}`),
@@ -204,6 +267,8 @@ jest.mock('i18next', () => ({
   language: 'en',
   isInitialized: true,
 }));
+
+// Note: Alert is mocked in individual test files where needed
 
 // Silence console warnings in tests
 global.console = {

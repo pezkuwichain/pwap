@@ -13,13 +13,17 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
-import { usePolkadot } from '../contexts/PolkadotContext';
-import { submitKycApplication, uploadToIPFS } from '@pezkuwi/lib/citizenship-workflow';
+import { usePezkuwi } from '../contexts/PezkuwiContext';
+import {
+  submitKycApplication,
+  uploadToIPFS,
+  getCitizenshipStatus,
+} from '@pezkuwi/lib/citizenship-workflow';
 import { KurdistanColors } from '../theme/colors';
 
 const BeCitizenScreen: React.FC = () => {
   const { t: _t } = useTranslation();
-  const { api, selectedAccount } = usePolkadot();
+  const { api, selectedAccount } = usePezkuwi();
   const [_isExistingCitizen, _setIsExistingCitizen] = useState(false);
   const [currentStep, setCurrentStep] = useState<'choice' | 'new' | 'existing'>('choice');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -116,23 +120,57 @@ const BeCitizenScreen: React.FC = () => {
     }
   };
 
-  const handleExistingCitizenLogin = () => {
-    if (!citizenId || !password) {
-      Alert.alert('Error', 'Please enter Citizen ID and Password');
+  const handleExistingCitizenLogin = async () => {
+    if (!api || !selectedAccount) {
+      Alert.alert('Error', 'Please connect your wallet first');
       return;
     }
 
-    // TODO: Implement actual citizenship verification
-    Alert.alert('Success', 'Welcome back, Citizen!', [
-      {
-        text: 'OK',
-        onPress: () => {
-          setCitizenId('');
-          setPassword('');
-          setCurrentStep('choice');
-        },
-      },
-    ]);
+    setIsSubmitting(true);
+
+    try {
+      const status = await getCitizenshipStatus(api, selectedAccount.address);
+
+      if (status.kycStatus === 'Approved' && status.hasCitizenTiki) {
+        Alert.alert(
+          'Success',
+          `Welcome back, Citizen!\n\nYour Tiki Number: ${status.tikiNumber || 'N/A'}`,
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                setCitizenId('');
+                setPassword('');
+                setCurrentStep('choice');
+              },
+            },
+          ]
+        );
+      } else if (status.kycStatus === 'Approved' && !status.hasCitizenTiki) {
+        Alert.alert(
+          'Almost there!',
+          'Your KYC is approved, but you haven\'t claimed your Citizen Tiki yet. Please claim it on the web portal.',
+          [{ text: 'OK' }]
+        );
+      } else if (status.kycStatus === 'Pending') {
+        Alert.alert(
+          'Application Pending',
+          'Your citizenship application is still under review.',
+          [{ text: 'OK' }]
+        );
+      } else {
+        Alert.alert(
+          'Not a Citizen',
+          'We couldn\'t find a citizenship record for this wallet. If you have a Citizen ID and Password, please note that wallet-based verification is now preferred.',
+          [{ text: 'OK' }]
+        );
+      }
+    } catch (error: unknown) {
+      if (__DEV__) console.error('Citizenship verification error:', error);
+      Alert.alert('Error', 'Failed to verify citizenship status');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (currentStep === 'choice') {
@@ -348,40 +386,28 @@ const BeCitizenScreen: React.FC = () => {
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
 
-        <Text style={styles.formTitle}>Citizen Login</Text>
+        <Text style={styles.formTitle}>Citizen Verification</Text>
         <Text style={styles.formSubtitle}>
-          Access your citizenship account
+          Verify your status using your connected wallet
         </Text>
 
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Citizen ID</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your Citizen ID"
-            value={citizenId}
-            onChangeText={setCitizenId}
-            placeholderTextColor="#999"
-          />
-        </View>
-
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Password</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            placeholderTextColor="#999"
-          />
+        <View style={styles.infoCard}>
+          <Text style={styles.infoText}>
+            Existing citizens are verified through their blockchain identity. Ensure your citizenship wallet is selected in the wallet tab.
+          </Text>
         </View>
 
         <TouchableOpacity
-          style={styles.submitButton}
+          style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]}
           onPress={handleExistingCitizenLogin}
           activeOpacity={0.8}
+          disabled={isSubmitting}
         >
-          <Text style={styles.submitButtonText}>Login</Text>
+          {isSubmitting ? (
+            <ActivityIndicator color={KurdistanColors.spi} />
+          ) : (
+            <Text style={styles.submitButtonText}>Verify Citizenship</Text>
+          )}
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
@@ -413,10 +439,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
+    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)',
     elevation: 8,
   },
   logoText: {
@@ -443,10 +466,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 24,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
+    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
     elevation: 6,
   },
   choiceIcon: {
@@ -490,6 +510,20 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: KurdistanColors.spi,
     flex: 1,
+  },
+  infoCard: {
+    backgroundColor: `${KurdistanColors.kesk}15`,
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 24,
+    borderLeftWidth: 4,
+    borderLeftColor: KurdistanColors.kesk,
+  },
+  infoText: {
+    fontSize: 14,
+    color: KurdistanColors.reş,
+    lineHeight: 20,
+    opacity: 0.8,
   },
   formContainer: {
     flex: 1,
@@ -537,10 +571,7 @@ const styles = StyleSheet.create({
     padding: 16,
     alignItems: 'center',
     marginTop: 20,
-    shadowColor: KurdistanColors.kesk,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
+    boxShadow: '0px 4px 6px rgba(0, 128, 0, 0.3)',
     elevation: 6,
   },
   submitButtonDisabled: {

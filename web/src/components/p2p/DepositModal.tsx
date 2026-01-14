@@ -28,7 +28,7 @@ import {
   QrCode,
   Wallet
 } from 'lucide-react';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { toast } from 'sonner';
 import {
@@ -46,7 +46,7 @@ interface DepositModalProps {
 type DepositStep = 'select' | 'send' | 'verify' | 'success';
 
 export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) {
-  const { api, selectedAccount } = usePolkadot();
+  const { api, selectedAccount } = usePezkuwi();
   const { balances, signTransaction } = useWallet();
 
   const [step, setStep] = useState<DepositStep>('select');

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import {
   Dialog,
   DialogContent,
@@ -66,7 +66,7 @@ const TOKENS: Token[] = [
 ];
 
 export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, selectedAsset }) => {
-  const { api, isApiReady, selectedAccount } = usePolkadot();
+  const { api, isApiReady, selectedAccount } = usePezkuwi();
   const { toast } = useToast();
 
   const [selectedToken, setSelectedToken] = useState<TokenType>('HEZ');

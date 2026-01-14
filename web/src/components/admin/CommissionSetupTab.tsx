@@ -3,13 +3,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { Loader2, Plus, CheckCircle, AlertTriangle, Shield } from 'lucide-react';
 import { COMMISSIONS } from '@/config/commissions';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export function CommissionSetupTab() {
-  const { api, isApiReady, selectedAccount } = usePolkadot();
+  const { api, isApiReady, selectedAccount } = usePezkuwi();
   const { toast } = useToast();
 
   const [loading, setLoading] = useState(true);

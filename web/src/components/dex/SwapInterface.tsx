@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { ArrowDownUp, AlertCircle, Loader2, Info, Settings, AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -32,7 +32,7 @@ const USER_TOKENS = [
 ] as const;
 
 export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
-  const { api, isApiReady } = usePolkadot();
+  const { api, isApiReady } = usePezkuwi();
   const { account, signer } = useWallet();
   const { toast } = useToast();
 

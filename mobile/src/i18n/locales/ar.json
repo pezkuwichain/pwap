@@ -138,12 +138,77 @@
   },
   "settings": {
     "title": "الإعدادات",
-    "language": "اللغة",
-    "theme": "المظهر",
-    "notifications": "الإشعارات",
-    "security": "الأمان",
-    "about": "حول",
-    "logout": "تسجيل الخروج"
+    "sections": {
+      "appearance": "المظهر",
+      "language": "اللغة",
+      "security": "الأمان",
+      "notifications": "الإشعارات",
+      "about": "حول"
+    },
+    "appearance": {
+      "darkMode": "الوضع الداكن",
+      "darkModeSubtitle": "التبديل بين السمة الفاتحة والداكنة",
+      "fontSize": "حجم الخط",
+      "fontSizeSubtitle": "الحالي: {{size}}",
+      "fontSizePrompt": "اختر حجم الخط المفضل لديك",
+      "small": "صغير",
+      "medium": "متوسط",
+      "large": "كبير"
+    },
+    "language": {
+      "title": "اللغة",
+      "changePrompt": "التبديل إلى {{language}}؟",
+      "changeSuccess": "تم تحديث اللغة بنجاح!"
+    },
+    "security": {
+      "biometric": "المصادقة البيومترية",
+      "biometricSubtitle": "استخدم بصمة الإصبع أو التعرف على الوجه",
+      "biometricPrompt": "هل تريد تفعيل المصادقة البيومترية؟",
+      "biometricEnabled": "تم تفعيل المصادقة البيومترية",
+      "twoFactor": "المصادقة الثنائية",
+      "twoFactorSubtitle": "أضف طبقة أمان إضافية",
+      "twoFactorPrompt": "المصادقة الثنائية تضيف طبقة أمان إضافية.",
+      "twoFactorSetup": "إعداد",
+      "changePassword": "تغيير كلمة المرور",
+      "changePasswordSubtitle": "تحديث كلمة مرور حسابك"
+    },
+    "notifications": {
+      "push": "الإشعارات الفورية",
+      "pushSubtitle": "تلقي التنبيهات والتحديثات",
+      "email": "إشعارات البريد الإلكتروني",
+      "emailSubtitle": "إدارة تفضيلات البريد الإلكتروني"
+    },
+    "about": {
+      "pezkuwi": "حول بيزكوي",
+      "pezkuwiSubtitle": "تعرف أكثر على كردستان الرقمية",
+      "pezkuwiMessage": "بيزكوي هو منصة بلوكتشين لامركزية لكردستان الرقمية.\n\nالإصدار: 1.0.0\n\nصُنع بـ ❤️",
+      "terms": "شروط الخدمة",
+      "privacy": "سياسة الخصوصية",
+      "contact": "اتصل بالدعم",
+      "contactSubtitle": "احصل على مساعدة من فريقنا",
+      "contactEmail": "البريد الإلكتروني: support@pezkuwichain.io"
+    },
+    "version": {
+      "app": "بيزكوي موبايل",
+      "number": "الإصدار 1.0.0",
+      "copyright": "© 2026 كردستان الرقمية"
+    },
+    "alerts": {
+      "comingSoon": "قريباً",
+      "darkModeMessage": "الوضع الداكن سيكون متاحاً قريباً",
+      "twoFactorMessage": "إعداد المصادقة الثنائية سيكون متاحاً قريباً",
+      "passwordMessage": "تغيير كلمة المرور سيكون متاحاً قريباً",
+      "emailMessage": "إعدادات البريد الإلكتروني ستكون متاحة قريباً",
+      "termsMessage": "شروط الخدمة ستكون متاحة قريباً",
+      "privacyMessage": "سياسة الخصوصية ستكون متاحة قريباً"
+    },
+    "common": {
+      "enable": "تفعيل",
+      "cancel": "إلغاء",
+      "confirm": "تأكيد",
+      "success": "نجح",
+      "error": "خطأ"
+    }
   },
   "common": {
     "cancel": "إلغاء",

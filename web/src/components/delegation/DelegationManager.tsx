@@ -10,13 +10,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Users, TrendingUp, Shield, Clock, ChevronRight, Award, Activity } from 'lucide-react';
 import DelegateProfile from './DelegateProfile';
 import { useDelegation } from '@/hooks/useDelegation';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { formatNumber } from '@/lib/utils';
 import { LoadingState } from '@pezkuwi/components/AsyncComponent';
 
 const DelegationManager: React.FC = () => {
   const { t } = useTranslation();
-  const { selectedAccount } = usePolkadot();
+  const { selectedAccount } = usePezkuwi();
   const { delegates, userDelegations, stats, loading, error } = useDelegation(selectedAccount?.address);
   const [selectedDelegate, setSelectedDelegate] = useState<Record<string, unknown> | null>(null);
   const [delegationAmount, setDelegationAmount] = useState('');
