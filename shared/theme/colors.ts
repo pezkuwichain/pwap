@@ -11,8 +11,8 @@ export const KurdistanColors = {
   reş: '#000000',     // Black - Text
 };
 
-// Application color palette
-export const AppColors = {
+// Light theme color palette
+export const LightColors = {
   primary: KurdistanColors.kesk,
   secondary: KurdistanColors.zer,
   accent: KurdistanColors.sor,
@@ -26,5 +26,24 @@ export const AppColors = {
   warning: KurdistanColors.zer,
   info: '#2196F3',
 };
+
+// Dark theme color palette
+export const DarkColors = {
+  primary: KurdistanColors.kesk,
+  secondary: KurdistanColors.zer,
+  accent: KurdistanColors.sor,
+  background: '#121212',
+  surface: '#1E1E1E',
+  text: '#FFFFFF',
+  textSecondary: '#B0B0B0',
+  border: '#333333',
+  error: KurdistanColors.sor,
+  success: KurdistanColors.kesk,
+  warning: KurdistanColors.zer,
+  info: '#2196F3',
+};
+
+// Default to light theme for backward compatibility
+export const AppColors = LightColors;
 
 export default AppColors;
