@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 // import { Badge } from '@/components/ui/badge';
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { toast } from 'sonner';
 import { web3FromAddress } from '@pezkuwi/extension-dapp';
@@ -25,7 +25,7 @@ import { ValidatorPoolDashboard } from './ValidatorPoolDashboard';
 import { handleBlockchainError, handleBlockchainSuccess } from '@pezkuwi/lib/error-handler';
 
 export const StakingDashboard: React.FC = () => {
-  const { api, selectedAccount, isApiReady } = usePolkadot();
+  const { api, selectedAccount, isApiReady } = usePezkuwi();
   const { balances, refreshBalances } = useWallet();
 
   const [stakingInfo, setStakingInfo] = useState<StakingInfo | null>(null);

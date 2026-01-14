@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { supabase } from '@/lib/supabase';
 import { getAllTikiNFTDetails, generateCitizenNumber, type TikiNFTDetails } from '@pezkuwi/lib/tiki';
 import { getKycStatus } from '@pezkuwi/lib/kyc';
@@ -17,7 +17,7 @@ const DashboardContext = createContext<DashboardData | undefined>(undefined);
 
 export function DashboardProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
-  const { api, isApiReady, selectedAccount } = usePolkadot();
+  const { api, isApiReady, selectedAccount } = usePezkuwi();
   const [profile, setProfile] = useState<Record<string, unknown> | null>(null);
   const [nftDetails, setNftDetails] = useState<{ citizenNFT: TikiNFTDetails | null; roleNFTs: TikiNFTDetails[]; totalNFTs: number }>({
     citizenNFT: null,

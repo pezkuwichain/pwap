@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -7,682 +7,477 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
+  Modal,
   ActivityIndicator,
   Alert,
-  Modal,
+  Platform,
+  Image,
 } from 'react-native';
-import { useTranslation } from 'react-i18next';
-import { usePolkadot } from '../contexts/PolkadotContext';
-import { TokenSelector, Token } from '../components/TokenSelector';
-import { Button, Card } from '../components';
-import { KurdistanColors, AppColors } from '../theme/colors';
+import { KurdistanColors } from '../theme/colors';
+import { usePezkuwi } from '../contexts/PezkuwiContext';
 
-// Import shared utilities
-import {
-  formatTokenBalance,
-  parseTokenInput,
-  calculatePriceImpact,
-  getAmountOut,
-  calculateMinAmount,
-} from '../../../shared/utils/dex';
+// Token Images
+const hezLogo = require('../../../shared/images/hez_logo.png');
+const pezLogo = require('../../../shared/images/pez_logo.jpg');
+const usdtLogo = require('../../../shared/images/USDT(hez)logo.png');
 
-interface SwapState {
-  fromToken: Token | null;
-  toToken: Token | null;
-  fromAmount: string;
-  toAmount: string;
-  slippage: number;
-  loading: boolean;
-  swapping: boolean;
+interface TokenInfo {
+  symbol: string;
+  name: string;
+  assetId: number;
+  decimals: number;
+  logo: any;
 }
 
-// Available tokens for swapping
-const AVAILABLE_TOKENS: Token[] = [
-  { symbol: 'HEZ', name: 'Pezkuwi Native', decimals: 12 },
-  { symbol: 'wHEZ', name: 'Wrapped HEZ', assetId: 0, decimals: 12 },
-  { symbol: 'PEZ', name: 'Pezkuwi Token', assetId: 1, decimals: 12 },
-  { symbol: 'wUSDT', name: 'Wrapped USDT', assetId: 2, decimals: 6 },
+const TOKENS: TokenInfo[] = [
+  { symbol: 'HEZ', name: 'Hemuwelet', assetId: 0, decimals: 12, logo: hezLogo },
+  { symbol: 'PEZ', name: 'Pezkunel', assetId: 1, decimals: 12, logo: pezLogo },
+  { symbol: 'USDT', name: 'Tether USD', assetId: 1000, decimals: 6, logo: usdtLogo },
 ];
 
+type TransactionStatus = 'idle' | 'signing' | 'submitting' | 'success' | 'error';
+
 const SwapScreen: React.FC = () => {
-  const { t: _t } = useTranslation();
-  const { api, isApiReady, selectedAccount, getKeyPair } = usePolkadot();
+  const { api, isApiReady, selectedAccount, getKeyPair } = usePezkuwi();
 
-  const [state, setState] = useState<SwapState>({
-    fromToken: null,
-    toToken: null,
-    fromAmount: '',
-    toAmount: '',
-    slippage: 1, // 1% default slippage
-    loading: false,
-    swapping: false,
-  });
+  const [fromToken, setFromToken] = useState<TokenInfo>(TOKENS[0]);
+  const [toToken, setToToken] = useState<TokenInfo>(TOKENS[1]);
+  const [fromAmount, setFromAmount] = useState('');
+  const [toAmount, setToAmount] = useState('');
+  const [slippage, setSlippage] = useState(0.5); // 0.5% default
 
-  const [balances, setBalances] = useState<{ [key: string]: string }>({});
-  const [poolReserves, setPoolReserves] = useState<{
-    reserve1: string;
-    reserve2: string;
-  } | null>(null);
-  const [priceImpact, setPriceImpact] = useState<string>('0');
-  const [settingsModalVisible, setSettingsModalVisible] = useState(false);
-  const [tempSlippage, setTempSlippage] = useState('1');
+  const [fromBalance, setFromBalance] = useState('0');
+  const [toBalance, setToBalance] = useState('0');
 
-  // Fetch user balances for all tokens
-  const fetchBalances = useCallback(async () => {
-    if (!api || !isApiReady || !selectedAccount) return;
+  const [txStatus, setTxStatus] = useState<TransactionStatus>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const [showTokenSelector, setShowTokenSelector] = useState<'from' | 'to' | null>(null);
+  const [showSettings, setShowSettings] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  // Fetch balances
+  useEffect(() => {
+    const fetchBalances = async () => {
+      if (!api || !isApiReady || !selectedAccount) return;
+
+      // Fetch From Token Balance
+      try {
+        if (fromToken.symbol === 'HEZ') {
+          const accountInfo = await api.query.system.account(selectedAccount.address);
+          setFromBalance(accountInfo.data.free.toString());
+        } else {
+          const balanceData = await api.query.assets.account(fromToken.assetId, selectedAccount.address);
+          setFromBalance(balanceData.isSome ? balanceData.unwrap().balance.toString() : '0');
+        }
+      } catch (error) {
+        console.error('Failed to fetch from balance:', error);
+        setFromBalance('0');
+      }
+
+      // Fetch To Token Balance
+      try {
+        if (toToken.symbol === 'HEZ') {
+          const accountInfo = await api.query.system.account(selectedAccount.address);
+          setToBalance(accountInfo.data.free.toString());
+        } else {
+          const balanceData = await api.query.assets.account(toToken.assetId, selectedAccount.address);
+          setToBalance(balanceData.isSome ? balanceData.unwrap().balance.toString() : '0');
+        }
+      } catch (error) {
+        console.error('Failed to fetch to balance:', error);
+        setToBalance('0');
+      }
+    };
+
+    fetchBalances();
+  }, [api, isApiReady, selectedAccount, fromToken, toToken]);
+
+  // Calculate output amount (simple 1:1 for now - should use pool reserves)
+  useEffect(() => {
+    if (!fromAmount || parseFloat(fromAmount) <= 0) {
+      setToAmount('');
+      return;
+    }
+
+    // TODO: Implement proper AMM calculation using pool reserves
+    // For now, simple 1:1 conversion (placeholder)
+    const calculatedAmount = (parseFloat(fromAmount) * 0.97).toFixed(6); // 3% fee simulation
+    setToAmount(calculatedAmount);
+  }, [fromAmount, fromToken, toToken]);
+
+  // Calculate formatted balances
+  const fromBalanceFormatted = useMemo(() => {
+    return (Number(fromBalance) / Math.pow(10, fromToken.decimals)).toFixed(4);
+  }, [fromBalance, fromToken]);
+
+  const toBalanceFormatted = useMemo(() => {
+    return (Number(toBalance) / Math.pow(10, toToken.decimals)).toFixed(4);
+  }, [toBalance, toToken]);
+
+  const hasInsufficientBalance = useMemo(() => {
+    const amountNum = parseFloat(fromAmount || '0');
+    const balanceNum = parseFloat(fromBalanceFormatted);
+    return amountNum > 0 && amountNum > balanceNum;
+  }, [fromAmount, fromBalanceFormatted]);
+
+  const handleSwapDirection = () => {
+    const tempToken = fromToken;
+    const tempBalance = fromBalance;
+    const tempAmount = fromAmount;
+
+    setFromToken(toToken);
+    setToToken(tempToken);
+    setFromBalance(toBalance);
+    setToBalance(tempBalance);
+    setFromAmount(toAmount);
+    setToAmount(tempAmount);
+  };
+
+  const handleMaxClick = () => {
+    setFromAmount(fromBalanceFormatted);
+  };
+
+  const handleTokenSelect = (token: TokenInfo) => {
+    if (showTokenSelector === 'from') {
+      if (token.symbol === toToken.symbol) {
+        Alert.alert('Error', 'Cannot select the same token for both sides');
+        return;
+      }
+      setFromToken(token);
+    } else if (showTokenSelector === 'to') {
+      if (token.symbol === fromToken.symbol) {
+        Alert.alert('Error', 'Cannot select the same token for both sides');
+        return;
+      }
+      setToToken(token);
+    }
+    setShowTokenSelector(null);
+  };
+
+  const handleConfirmSwap = async () => {
+    if (!api || !selectedAccount) {
+      Alert.alert('Error', 'Please connect your wallet');
+      return;
+    }
+
+    setTxStatus('signing');
+    setShowConfirm(false);
+    setErrorMessage('');
 
     try {
-      const newBalances: { [key: string]: string } = {};
+      const keypair = await getKeyPair(selectedAccount.address);
+      if (!keypair) throw new Error('Failed to load keypair');
 
-      // Fetch HEZ (native) balance
-      const { data } = await api.query.system.account(selectedAccount.address);
-      newBalances.HEZ = formatTokenBalance(data.free.toString(), 12, 4);
+      const amountIn = BigInt(Math.floor(parseFloat(fromAmount) * Math.pow(10, fromToken.decimals)));
+      const minAmountOut = BigInt(
+        Math.floor(parseFloat(toAmount) * (1 - slippage / 100) * Math.pow(10, toToken.decimals))
+      );
 
-      // Fetch asset balances
-      for (const token of AVAILABLE_TOKENS) {
-        if (token.assetId !== undefined) {
-          try {
-            const assetData = await api.query.assets.account(
-              token.assetId,
-              selectedAccount.address
-            );
+      let tx;
 
-            if (assetData.isSome) {
-              const balance = assetData.unwrap().balance.toString();
-              newBalances[token.symbol] = formatTokenBalance(
-                balance,
-                token.decimals,
-                4
-              );
-            } else {
-              newBalances[token.symbol] = '0.0000';
-            }
-          } catch {
-            if (__DEV__) console.warn(`No balance for ${token.symbol}`);
-            newBalances[token.symbol] = '0.0000';
+      if (fromToken.symbol === 'HEZ' && toToken.symbol === 'PEZ') {
+        // HEZ → PEZ: wrap(HEZ→wHEZ) then swap(wHEZ→PEZ)
+        const wrapTx = api.tx.tokenWrapper.wrap(amountIn.toString());
+        const swapTx = api.tx.assetConversion.swapExactTokensForTokens(
+          [0, 1], // wHEZ → PEZ
+          amountIn.toString(),
+          minAmountOut.toString(),
+          selectedAccount.address,
+          true
+        );
+        tx = api.tx.utility.batchAll([wrapTx, swapTx]);
+
+      } else if (fromToken.symbol === 'PEZ' && toToken.symbol === 'HEZ') {
+        // PEZ → HEZ: swap(PEZ→wHEZ) then unwrap(wHEZ→HEZ)
+        const swapTx = api.tx.assetConversion.swapExactTokensForTokens(
+          [1, 0], // PEZ → wHEZ
+          amountIn.toString(),
+          minAmountOut.toString(),
+          selectedAccount.address,
+          true
+        );
+        const unwrapTx = api.tx.tokenWrapper.unwrap(minAmountOut.toString());
+        tx = api.tx.utility.batchAll([swapTx, unwrapTx]);
+
+      } else if (fromToken.symbol === 'HEZ') {
+        // HEZ → Any Asset: wrap(HEZ→wHEZ) then swap(wHEZ→Asset)
+        const wrapTx = api.tx.tokenWrapper.wrap(amountIn.toString());
+        const swapTx = api.tx.assetConversion.swapExactTokensForTokens(
+          [0, toToken.assetId],
+          amountIn.toString(),
+          minAmountOut.toString(),
+          selectedAccount.address,
+          true
+        );
+        tx = api.tx.utility.batchAll([wrapTx, swapTx]);
+
+      } else if (toToken.symbol === 'HEZ') {
+        // Any Asset → HEZ: swap(Asset→wHEZ) then unwrap(wHEZ→HEZ)
+        const swapTx = api.tx.assetConversion.swapExactTokensForTokens(
+          [fromToken.assetId, 0],
+          amountIn.toString(),
+          minAmountOut.toString(),
+          selectedAccount.address,
+          true
+        );
+        const unwrapTx = api.tx.tokenWrapper.unwrap(minAmountOut.toString());
+        tx = api.tx.utility.batchAll([swapTx, unwrapTx]);
+
+      } else {
+        // Direct swap between assets (PEZ ↔ USDT, etc.)
+        tx = api.tx.assetConversion.swapExactTokensForTokens(
+          [fromToken.assetId, toToken.assetId],
+          amountIn.toString(),
+          minAmountOut.toString(),
+          selectedAccount.address,
+          true
+        );
+      }
+
+      setTxStatus('submitting');
+
+      await tx.signAndSend(keypair, ({ status, dispatchError }) => {
+        if (status.isInBlock) {
+          if (dispatchError) {
+            const errorMsg = dispatchError.toString();
+            setErrorMessage(errorMsg);
+            setTxStatus('error');
+            Alert.alert('Transaction Failed', errorMsg);
+          } else {
+            setTxStatus('success');
+            Alert.alert('Success!', `Swapped ${fromAmount} ${fromToken.symbol} for ~${toAmount} ${toToken.symbol}`);
+            setTimeout(() => {
+              setFromAmount('');
+              setToAmount('');
+              setTxStatus('idle');
+            }, 2000);
           }
         }
-      }
-
-      setBalances(newBalances);
-    } catch (error) {
-      if (__DEV__) console.error('Failed to fetch balances:', error);
-    }
-  }, [api, isApiReady, selectedAccount]);
-
-  // Fetch pool reserves
-  const fetchPoolReserves = useCallback(async () => {
-    if (
-      !api ||
-      !isApiReady ||
-      !state.fromToken ||
-      !state.toToken ||
-      state.fromToken.assetId === undefined ||
-      state.toToken.assetId === undefined
-    ) {
-      return;
-    }
-
-    try {
-      setState((prev) => ({ ...prev, loading: true }));
-
-      // Get pool account
-      const poolAccount = await api.query.assetConversion.pools([
-        state.fromToken.assetId,
-        state.toToken.assetId,
-      ]);
-
-      if (poolAccount.isNone) {
-        Alert.alert('Pool Not Found', 'No liquidity pool exists for this pair.');
-        setPoolReserves(null);
-        setState((prev) => ({ ...prev, loading: false }));
-        return;
-      }
-
-      // Get reserves
-      const reserve1Data = await api.query.assets.account(
-        state.fromToken.assetId,
-        poolAccount.unwrap()
-      );
-      const reserve2Data = await api.query.assets.account(
-        state.toToken.assetId,
-        poolAccount.unwrap()
-      );
-
-      const reserve1 = reserve1Data.isSome
-        ? reserve1Data.unwrap().balance.toString()
-        : '0';
-      const reserve2 = reserve2Data.isSome
-        ? reserve2Data.unwrap().balance.toString()
-        : '0';
-
-      setPoolReserves({ reserve1, reserve2 });
-      setState((prev) => ({ ...prev, loading: false }));
-    } catch (error) {
-      if (__DEV__) console.error('Failed to fetch pool reserves:', error);
-      Alert.alert('Error', 'Failed to fetch pool information.');
-      setState((prev) => ({ ...prev, loading: false }));
-    }
-  }, [api, isApiReady, state.fromToken, state.toToken]);
-
-  // Calculate output amount when input changes
-  useEffect(() => {
-    if (
-      !state.fromAmount ||
-      !state.fromToken ||
-      !state.toToken ||
-      !poolReserves
-    ) {
-      setState((prev) => ({ ...prev, toAmount: '' }));
-      setPriceImpact('0');
-      return;
-    }
-
-    try {
-      const fromAmountRaw = parseTokenInput(
-        state.fromAmount,
-        state.fromToken.decimals
-      );
-
-      if (fromAmountRaw === '0') {
-        setState((prev) => ({ ...prev, toAmount: '' }));
-        setPriceImpact('0');
-        return;
-      }
-
-      // Calculate output amount
-      const toAmountRaw = getAmountOut(
-        fromAmountRaw,
-        poolReserves.reserve1,
-        poolReserves.reserve2,
-        30 // 0.3% fee
-      );
-
-      const toAmountFormatted = formatTokenBalance(
-        toAmountRaw,
-        state.toToken.decimals,
-        6
-      );
-
-      // Calculate price impact
-      const impact = calculatePriceImpact(
-        poolReserves.reserve1,
-        poolReserves.reserve2,
-        fromAmountRaw
-      );
-
-      setState((prev) => ({ ...prev, toAmount: toAmountFormatted }));
-      setPriceImpact(impact);
-    } catch (error) {
-      if (__DEV__) console.error('Calculation error:', error);
-      setState((prev) => ({ ...prev, toAmount: '' }));
-    }
-  }, [state.fromAmount, state.fromToken, state.toToken, poolReserves]);
-
-  // Load balances on mount
-  useEffect(() => {
-    fetchBalances();
-  }, [fetchBalances]);
-
-  // Load pool reserves when tokens change
-  useEffect(() => {
-    if (state.fromToken && state.toToken) {
-      fetchPoolReserves();
-    }
-  }, [state.fromToken, state.toToken, fetchPoolReserves]);
-
-  // Handle token selection
-  const handleFromTokenSelect = (token: Token) => {
-    // Prevent selecting same token
-    if (state.toToken && token.symbol === state.toToken.symbol) {
-      setState((prev) => ({
-        ...prev,
-        fromToken: token,
-        toToken: null,
-        fromAmount: '',
-        toAmount: '',
-      }));
-    } else {
-      setState((prev) => ({
-        ...prev,
-        fromToken: token,
-        fromAmount: '',
-        toAmount: '',
-      }));
-    }
-  };
-
-  const handleToTokenSelect = (token: Token) => {
-    // Prevent selecting same token
-    if (state.fromToken && token.symbol === state.fromToken.symbol) {
-      setState((prev) => ({
-        ...prev,
-        toToken: token,
-        fromToken: null,
-        fromAmount: '',
-        toAmount: '',
-      }));
-    } else {
-      setState((prev) => ({
-        ...prev,
-        toToken: token,
-        fromAmount: '',
-        toAmount: '',
-      }));
-    }
-  };
-
-  // Swap token positions
-  const handleSwapTokens = () => {
-    setState((prev) => ({
-      ...prev,
-      fromToken: prev.toToken,
-      toToken: prev.fromToken,
-      fromAmount: prev.toAmount,
-      toAmount: prev.fromAmount,
-    }));
-  };
-
-  // Execute swap
-  const handleSwap = async () => {
-    if (
-      !api ||
-      !isApiReady ||
-      !selectedAccount ||
-      !state.fromToken ||
-      !state.toToken ||
-      !state.fromAmount ||
-      !state.toAmount ||
-      state.fromToken.assetId === undefined ||
-      state.toToken.assetId === undefined
-    ) {
-      Alert.alert('Error', 'Please fill in all fields.');
-      return;
-    }
-
-    try {
-      setState((prev) => ({ ...prev, swapping: true }));
-
-      // Get keypair for signing
-      const keyPair = await getKeyPair(selectedAccount.address);
-      if (!keyPair) {
-        throw new Error('Failed to load keypair');
-      }
-
-      // Parse amounts
-      const amountIn = parseTokenInput(
-        state.fromAmount,
-        state.fromToken.decimals
-      );
-      const amountOutExpected = parseTokenInput(
-        state.toAmount,
-        state.toToken.decimals
-      );
-      const amountOutMin = calculateMinAmount(
-        amountOutExpected,
-        state.slippage
-      );
-
-      // Create swap path
-      const path = [state.fromToken.assetId, state.toToken.assetId];
-
-      if (__DEV__) {
-        if (__DEV__) console.warn('Swap params:', {
-          path,
-          amountIn,
-          amountOutMin,
-          slippage: state.slippage,
-        });
-      }
-
-      // Create transaction
-      const tx = api.tx.assetConversion.swapTokensForExactTokens(
-        path,
-        amountOutMin,
-        amountIn,
-        selectedAccount.address,
-        false // keep_alive
-      );
-
-      // Sign and send
-      await new Promise<void>((resolve, reject) => {
-        let unsub: (() => void) | undefined;
-
-        tx.signAndSend(keyPair, ({ status, events: _events, dispatchError }) => {
-          if (__DEV__) console.warn('Transaction status:', status.type);
-
-          if (dispatchError) {
-            if (dispatchError.isModule) {
-              const decoded = api.registry.findMetaError(
-                dispatchError.asModule
-              );
-              reject(
-                new Error(`${decoded.section}.${decoded.name}: ${decoded.docs}`)
-              );
-            } else {
-              reject(new Error(dispatchError.toString()));
-            }
-            if (unsub) unsub();
-            return;
-          }
-
-          if (status.isInBlock || status.isFinalized) {
-            if (__DEV__) console.warn('Transaction included in block');
-            resolve();
-            if (unsub) unsub();
-          }
-        })
-          .then((unsubscribe) => {
-            unsub = unsubscribe;
-          })
-          .catch(reject);
       });
-
-      // Success!
-      Alert.alert(
-        'Swap Successful',
-        `Swapped ${state.fromAmount} ${state.fromToken.symbol} for ${state.toAmount} ${state.toToken.symbol}`,
-        [
-          {
-            text: 'OK',
-            onPress: () => {
-              // Reset form
-              setState((prev) => ({
-                ...prev,
-                fromAmount: '',
-                toAmount: '',
-                swapping: false,
-              }));
-              // Refresh balances
-              fetchBalances();
-            },
-          },
-        ]
-      );
-    } catch (error: unknown) {
-      if (__DEV__) console.error('Swap failed:', error);
-      Alert.alert('Swap Failed', error instanceof Error ? error.message : 'An error occurred.');
-      setState((prev) => ({ ...prev, swapping: false }));
+    } catch (error: any) {
+      console.error('Swap failed:', error);
+      setErrorMessage(error.message || 'Transaction failed');
+      setTxStatus('error');
+      Alert.alert('Error', error.message || 'Swap transaction failed');
     }
   };
 
-  // Save slippage settings
-  const handleSaveSettings = () => {
-    const slippageValue = parseFloat(tempSlippage);
-    if (isNaN(slippageValue) || slippageValue < 0.1 || slippageValue > 50) {
-      Alert.alert('Invalid Slippage', 'Please enter a value between 0.1% and 50%');
-      return;
-    }
-    setState((prev) => ({ ...prev, slippage: slippageValue }));
-    setSettingsModalVisible(false);
-  };
-
-  const availableFromTokens = AVAILABLE_TOKENS.map((token) => ({
-    ...token,
-    balance: balances[token.symbol] || '0.0000',
-  }));
-
-  const availableToTokens = AVAILABLE_TOKENS.filter(
-    (token) => token.symbol !== state.fromToken?.symbol
-  ).map((token) => ({
-    ...token,
-    balance: balances[token.symbol] || '0.0000',
-  }));
-
-  const canSwap =
-    !state.swapping &&
-    !state.loading &&
-    state.fromToken &&
-    state.toToken &&
-    state.fromAmount &&
-    state.toAmount &&
-    parseFloat(state.fromAmount) > 0 &&
-    selectedAccount;
-
-  const impactLevel =
-    parseFloat(priceImpact) < 1
-      ? 'low'
-      : parseFloat(priceImpact) < 3
-      ? 'medium'
-      : 'high';
+  if (!selectedAccount) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.centerContent}>
+          <Text style={styles.emptyIcon}>💱</Text>
+          <Text style={styles.emptyText}>Connect your wallet to swap tokens</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-      >
+      {/* Transaction Loading Overlay */}
+      {(txStatus === 'signing' || txStatus === 'submitting') && (
+        <View style={styles.loadingOverlay}>
+          <View style={styles.loadingCard}>
+            <ActivityIndicator size="large" color={KurdistanColors.kesk} />
+            <Text style={styles.loadingText}>
+              {txStatus === 'signing' ? 'Waiting for signature...' : 'Processing swap...'}
+            </Text>
+          </View>
+        </View>
+      )}
+
+      <ScrollView style={styles.scrollContent} contentContainerStyle={styles.scrollContentContainer}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>Swap Tokens</Text>
-          <TouchableOpacity
-            style={styles.settingsButton}
-            onPress={() => {
-              setTempSlippage(state.slippage.toString());
-              setSettingsModalVisible(true);
-            }}
-          >
+          <Text style={styles.headerTitle}>Swap Tokens</Text>
+          <TouchableOpacity onPress={() => setShowSettings(true)} style={styles.settingsButton}>
             <Text style={styles.settingsIcon}>⚙️</Text>
           </TouchableOpacity>
         </View>
 
-        {!isApiReady && (
-          <Card style={styles.warningCard}>
-            <Text style={styles.warningText}>Connecting to blockchain...</Text>
-          </Card>
-        )}
+        {/* From Token Card */}
+        <View style={styles.tokenCard}>
+          <View style={styles.tokenCardHeader}>
+            <Text style={styles.tokenCardLabel}>From</Text>
+            <Text style={styles.tokenCardBalance}>
+              Balance: {fromBalanceFormatted} {fromToken.symbol}
+            </Text>
+          </View>
 
-        {!selectedAccount && (
-          <Card style={styles.warningCard}>
-            <Text style={styles.warningText}>Please connect your wallet</Text>
-          </Card>
-        )}
-
-        {/* Swap Card */}
-        <Card style={styles.swapCard}>
-          {/* From Token */}
-          <View style={styles.swapSection}>
-            <TokenSelector
-              label="From"
-              selectedToken={state.fromToken}
-              tokens={availableFromTokens}
-              onSelectToken={handleFromTokenSelect}
-              disabled={!isApiReady || !selectedAccount}
-            />
-
+          <View style={styles.tokenInputRow}>
             <TextInput
               style={styles.amountInput}
-              value={state.fromAmount}
-              onChangeText={(text) =>
-                setState((prev) => ({ ...prev, fromAmount: text }))
-              }
-              placeholder="0.00"
+              placeholder="0.0"
+              placeholderTextColor="#999"
               keyboardType="decimal-pad"
-              editable={!state.loading && !state.swapping}
+              value={fromAmount}
+              onChangeText={setFromAmount}
             />
-
-            {state.fromToken && (
-              <Text style={styles.balanceText}>
-                Balance: {balances[state.fromToken.symbol] || '0.0000'}{' '}
-                {state.fromToken.symbol}
-              </Text>
-            )}
+            <TouchableOpacity
+              style={styles.tokenSelector}
+              onPress={() => setShowTokenSelector('from')}
+            >
+              <Image source={fromToken.logo} style={styles.tokenLogo} resizeMode="contain" />
+              <Text style={styles.tokenSymbol}>{fromToken.symbol}</Text>
+              <Text style={styles.tokenSelectorArrow}>▼</Text>
+            </TouchableOpacity>
           </View>
 
-          {/* Swap Button */}
-          <TouchableOpacity
-            style={styles.swapIconContainer}
-            onPress={handleSwapTokens}
-            disabled={state.loading || state.swapping}
-          >
-            <View style={styles.swapIcon}>
-              <Text style={styles.swapIconText}>⇅</Text>
-            </View>
+          <TouchableOpacity style={styles.maxButton} onPress={handleMaxClick}>
+            <Text style={styles.maxButtonText}>MAX</Text>
           </TouchableOpacity>
+        </View>
 
-          {/* To Token */}
-          <View style={styles.swapSection}>
-            <TokenSelector
-              label="To"
-              selectedToken={state.toToken}
-              tokens={availableToTokens}
-              onSelectToken={handleToTokenSelect}
-              disabled={!isApiReady || !selectedAccount || !state.fromToken}
-            />
+        {/* Swap Direction Button */}
+        <View style={styles.swapDirectionContainer}>
+          <TouchableOpacity style={styles.swapDirectionButton} onPress={handleSwapDirection}>
+            <Text style={styles.swapDirectionIcon}>⇅</Text>
+          </TouchableOpacity>
+        </View>
 
+        {/* To Token Card */}
+        <View style={styles.tokenCard}>
+          <View style={styles.tokenCardHeader}>
+            <Text style={styles.tokenCardLabel}>To</Text>
+            <Text style={styles.tokenCardBalance}>
+              Balance: {toBalanceFormatted} {toToken.symbol}
+            </Text>
+          </View>
+
+          <View style={styles.tokenInputRow}>
             <TextInput
-              style={[styles.amountInput, styles.disabledInput]}
-              value={state.toAmount}
-              placeholder="0.00"
+              style={styles.amountInput}
+              placeholder="0.0"
+              placeholderTextColor="#999"
+              value={toAmount}
               editable={false}
             />
-
-            {state.toToken && (
-              <Text style={styles.balanceText}>
-                Balance: {balances[state.toToken.symbol] || '0.0000'}{' '}
-                {state.toToken.symbol}
-              </Text>
-            )}
+            <TouchableOpacity
+              style={styles.tokenSelector}
+              onPress={() => setShowTokenSelector('to')}
+            >
+              <Image source={toToken.logo} style={styles.tokenLogo} resizeMode="contain" />
+              <Text style={styles.tokenSymbol}>{toToken.symbol}</Text>
+              <Text style={styles.tokenSelectorArrow}>▼</Text>
+            </TouchableOpacity>
           </View>
-        </Card>
+        </View>
 
         {/* Swap Details */}
-        {state.fromToken && state.toToken && state.toAmount && (
-          <Card style={styles.detailsCard}>
-            <Text style={styles.detailsTitle}>Swap Details</Text>
+        <View style={styles.detailsCard}>
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>ℹ️ Exchange Rate</Text>
+            <Text style={styles.detailValue}>1 {fromToken.symbol} ≈ 1 {toToken.symbol}</Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>Slippage Tolerance</Text>
+            <Text style={styles.detailValueHighlight}>{slippage}%</Text>
+          </View>
+        </View>
 
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Price Impact</Text>
-              <Text
-                style={[
-                  styles.detailValue,
-                  impactLevel === 'high' && styles.highImpact,
-                  impactLevel === 'medium' && styles.mediumImpact,
-                ]}
-              >
-                {priceImpact}%
-              </Text>
-            </View>
-
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Slippage Tolerance</Text>
-              <Text style={styles.detailValue}>{state.slippage}%</Text>
-            </View>
-
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Minimum Received</Text>
-              <Text style={styles.detailValue}>
-                {formatTokenBalance(
-                  calculateMinAmount(
-                    parseTokenInput(state.toAmount, state.toToken.decimals),
-                    state.slippage
-                  ),
-                  state.toToken.decimals,
-                  6
-                )}{' '}
-                {state.toToken.symbol}
-              </Text>
-            </View>
-
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Fee (0.3%)</Text>
-              <Text style={styles.detailValue}>
-                {formatTokenBalance(
-                  (
-                    BigInt(
-                      parseTokenInput(state.fromAmount, state.fromToken.decimals)
-                    ) *
-                    BigInt(30) /
-                    BigInt(10000)
-                  ).toString(),
-                  state.fromToken.decimals,
-                  6
-                )}{' '}
-                {state.fromToken.symbol}
-              </Text>
-            </View>
-          </Card>
+        {/* Warnings */}
+        {hasInsufficientBalance && (
+          <View style={[styles.warningCard, styles.errorCard]}>
+            <Text style={styles.warningIcon}>⚠️</Text>
+            <Text style={styles.warningText}>Insufficient {fromToken.symbol} balance</Text>
+          </View>
         )}
 
         {/* Swap Button */}
-        <Button
-          variant={canSwap ? 'primary' : 'disabled'}
-          onPress={handleSwap}
-          disabled={!canSwap}
-          style={styles.swapButton}
+        <TouchableOpacity
+          style={[
+            styles.swapButton,
+            (!fromAmount || hasInsufficientBalance || txStatus !== 'idle') && styles.swapButtonDisabled
+          ]}
+          onPress={() => setShowConfirm(true)}
+          disabled={!fromAmount || hasInsufficientBalance || txStatus !== 'idle'}
         >
-          {state.swapping ? (
-            <ActivityIndicator color="#FFFFFF" />
-          ) : state.loading ? (
-            'Loading...'
-          ) : !selectedAccount ? (
-            'Connect Wallet'
-          ) : !state.fromToken || !state.toToken ? (
-            'Select Tokens'
-          ) : !state.fromAmount ? (
-            'Enter Amount'
-          ) : (
-            'Swap'
-          )}
-        </Button>
+          <Text style={styles.swapButtonText}>
+            {hasInsufficientBalance
+              ? `Insufficient ${fromToken.symbol} Balance`
+              : 'Swap Tokens'}
+          </Text>
+        </TouchableOpacity>
       </ScrollView>
 
+      {/* Token Selector Modal */}
+      <Modal visible={showTokenSelector !== null} transparent animationType="slide" onRequestClose={() => setShowTokenSelector(null)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalHeader}>Select Token</Text>
+            {TOKENS.map((token) => (
+              <TouchableOpacity
+                key={token.symbol}
+                style={styles.tokenOption}
+                onPress={() => handleTokenSelect(token)}
+              >
+                <Image source={token.logo} style={styles.tokenOptionLogo} resizeMode="contain" />
+                <View style={styles.tokenOptionInfo}>
+                  <Text style={styles.tokenOptionSymbol}>{token.symbol}</Text>
+                  <Text style={styles.tokenOptionName}>{token.name}</Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity style={styles.modalCloseButton} onPress={() => setShowTokenSelector(null)}>
+              <Text style={styles.modalCloseButtonText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
       {/* Settings Modal */}
-      <Modal
-        visible={settingsModalVisible}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setSettingsModalVisible(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Swap Settings</Text>
-
-            <Text style={styles.inputLabel}>Slippage Tolerance (%)</Text>
-            <TextInput
-              style={styles.settingsInput}
-              value={tempSlippage}
-              onChangeText={setTempSlippage}
-              keyboardType="decimal-pad"
-              placeholder="1.0"
-            />
-
-            <View style={styles.presetContainer}>
-              {['0.5', '1.0', '2.0', '5.0'].map((value) => (
+      <Modal visible={showSettings} transparent animationType="slide" onRequestClose={() => setShowSettings(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalHeader}>Swap Settings</Text>
+            <Text style={styles.settingsLabel}>Slippage Tolerance</Text>
+            <View style={styles.slippageButtons}>
+              {[0.1, 0.5, 1.0, 2.0].map((val) => (
                 <TouchableOpacity
-                  key={value}
-                  style={[
-                    styles.presetButton,
-                    tempSlippage === value && styles.presetButtonActive,
-                  ]}
-                  onPress={() => setTempSlippage(value)}
+                  key={val}
+                  style={[styles.slippageButton, slippage === val && styles.slippageButtonActive]}
+                  onPress={() => setSlippage(val)}
                 >
-                  <Text
-                    style={[
-                      styles.presetText,
-                      tempSlippage === value && styles.presetTextActive,
-                    ]}
-                  >
-                    {value}%
+                  <Text style={[styles.slippageButtonText, slippage === val && styles.slippageButtonTextActive]}>
+                    {val}%
                   </Text>
                 </TouchableOpacity>
               ))}
             </View>
+            <TouchableOpacity style={styles.modalCloseButton} onPress={() => setShowSettings(false)}>
+              <Text style={styles.modalCloseButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.cancelButton]}
-                onPress={() => setSettingsModalVisible(false)}
-              >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+      {/* Confirm Modal */}
+      <Modal visible={showConfirm} transparent animationType="slide" onRequestClose={() => setShowConfirm(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalHeader}>Confirm Swap</Text>
+            <View style={styles.confirmDetails}>
+              <View style={styles.confirmRow}>
+                <Text style={styles.confirmLabel}>You Pay</Text>
+                <Text style={styles.confirmValue}>{fromAmount} {fromToken.symbol}</Text>
+              </View>
+              <View style={styles.confirmRow}>
+                <Text style={styles.confirmLabel}>You Receive</Text>
+                <Text style={styles.confirmValue}>{toAmount} {toToken.symbol}</Text>
+              </View>
+              <View style={[styles.confirmRow, styles.confirmRowBorder]}>
+                <Text style={styles.confirmLabelSmall}>Slippage</Text>
+                <Text style={styles.confirmValueSmall}>{slippage}%</Text>
+              </View>
+            </View>
+            <View style={styles.confirmButtons}>
+              <TouchableOpacity style={styles.confirmCancelButton} onPress={() => setShowConfirm(false)}>
+                <Text style={styles.confirmCancelButtonText}>Cancel</Text>
               </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.modalButton, styles.saveButton]}
-                onPress={handleSaveSettings}
-              >
-                <Text style={styles.saveButtonText}>Save</Text>
+              <TouchableOpacity style={styles.confirmSwapButton} onPress={handleConfirmSwap}>
+                <Text style={styles.confirmSwapButtonText}>Confirm Swap</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -695,12 +490,27 @@ const SwapScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: AppColors.background,
+    backgroundColor: '#F8F9FA',
   },
-  scrollView: {
+  centerContent: {
     flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 40,
+  },
+  emptyIcon: {
+    fontSize: 64,
+    marginBottom: 16,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
   },
   scrollContent: {
+    flex: 1,
+  },
+  scrollContentContainer: {
     padding: 16,
   },
   header: {
@@ -709,88 +519,124 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
   },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#000',
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#333',
   },
   settingsButton: {
-    padding: 8,
-  },
-  settingsIcon: {
-    fontSize: 24,
-  },
-  warningCard: {
-    padding: 16,
-    marginBottom: 16,
-    backgroundColor: '#FFF3CD',
-    borderColor: '#FFE69C',
-  },
-  warningText: {
-    fontSize: 14,
-    color: '#856404',
-    textAlign: 'center',
-  },
-  swapCard: {
-    padding: 20,
-    marginBottom: 16,
-  },
-  swapSection: {
-    marginBottom: 8,
-  },
-  amountInput: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: '#000',
-    padding: 16,
-    backgroundColor: '#F5F5F5',
-    borderRadius: 12,
-    marginTop: 8,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-  },
-  disabledInput: {
-    opacity: 0.6,
-  },
-  balanceText: {
-    fontSize: 12,
-    color: '#666',
-    marginTop: 4,
-    textAlign: 'right',
-  },
-  swapIconContainer: {
-    alignItems: 'center',
-    marginVertical: 8,
-  },
-  swapIcon: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: KurdistanColors.kesk,
+    backgroundColor: '#F5F5F5',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  swapIconText: {
+  settingsIcon: {
+    fontSize: 20,
+  },
+  tokenCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 8,
+    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.05)',
+    elevation: 2,
+  },
+  tokenCardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  tokenCardLabel: {
+    fontSize: 14,
+    color: '#666',
+  },
+  tokenCardBalance: {
+    fontSize: 12,
+    color: '#999',
+  },
+  tokenInputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  amountInput: {
+    flex: 1,
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#333',
+    padding: 0,
+  },
+  tokenSelector: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F5F5F5',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
+    gap: 8,
+  },
+  tokenLogo: {
+    width: 24,
+    height: 24,
+  },
+  tokenSymbol: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+  },
+  tokenSelectorArrow: {
+    fontSize: 10,
+    color: '#666',
+  },
+  maxButton: {
+    alignSelf: 'flex-start',
+    marginTop: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: 'rgba(0, 143, 67, 0.1)',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 143, 67, 0.3)',
+  },
+  maxButtonText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: KurdistanColors.kesk,
+  },
+  swapDirectionContainer: {
+    alignItems: 'center',
+    marginVertical: -12,
+    zIndex: 10,
+  },
+  swapDirectionButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 2,
+    borderColor: '#E5E5E5',
+    justifyContent: 'center',
+    alignItems: 'center',
+    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
+    elevation: 3,
+  },
+  swapDirectionIcon: {
     fontSize: 24,
-    color: '#FFFFFF',
+    color: '#333',
   },
   detailsCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
     padding: 16,
+    marginTop: 16,
     marginBottom: 16,
-  },
-  detailsTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#000',
-    marginBottom: 12,
   },
   detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
     paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
   },
   detailLabel: {
     fontSize: 14,
@@ -798,102 +644,217 @@ const styles = StyleSheet.create({
   },
   detailValue: {
     fontSize: 14,
+    color: '#333',
+    fontWeight: '500',
+  },
+  detailValueHighlight: {
+    fontSize: 14,
+    color: '#3B82F6',
     fontWeight: '600',
-    color: '#000',
   },
-  highImpact: {
-    color: KurdistanColors.sor,
+  warningCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FEF3C7',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 16,
+    gap: 8,
   },
-  mediumImpact: {
-    color: KurdistanColors.zer,
+  errorCard: {
+    backgroundColor: '#FEE2E2',
+  },
+  warningIcon: {
+    fontSize: 20,
+  },
+  warningText: {
+    flex: 1,
+    fontSize: 14,
+    color: '#991B1B',
   },
   swapButton: {
-    marginTop: 8,
+    backgroundColor: KurdistanColors.kesk,
+    borderRadius: 16,
+    padding: 18,
+    alignItems: 'center',
+    marginBottom: 20,
   },
-  modalContainer: {
+  swapButtonDisabled: {
+    backgroundColor: '#CCC',
+  },
+  swapButtonText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  loadingCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 32,
+    alignItems: 'center',
+    gap: 16,
+  },
+  loadingText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+  },
+  modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
   },
-  modalContent: {
+  modalCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
     padding: 24,
     width: '100%',
     maxWidth: 400,
   },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#000',
+  modalHeader: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#333',
     marginBottom: 20,
-  },
-  inputLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#666',
-    marginBottom: 8,
-  },
-  settingsInput: {
-    fontSize: 18,
-    padding: 16,
-    backgroundColor: '#F5F5F5',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    marginBottom: 16,
-  },
-  presetContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 24,
-  },
-  presetButton: {
-    flex: 1,
-    padding: 12,
-    backgroundColor: '#F5F5F5',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    marginHorizontal: 4,
-  },
-  presetButtonActive: {
-    backgroundColor: KurdistanColors.kesk,
-    borderColor: KurdistanColors.kesk,
-  },
-  presetText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#666',
     textAlign: 'center',
   },
-  presetTextActive: {
+  tokenOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 12,
+    backgroundColor: '#F8F9FA',
+    marginBottom: 8,
+    gap: 12,
+  },
+  tokenOptionLogo: {
+    width: 40,
+    height: 40,
+  },
+  tokenOptionInfo: {
+    flex: 1,
+  },
+  tokenOptionSymbol: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  tokenOptionName: {
+    fontSize: 12,
+    color: '#666',
+  },
+  modalCloseButton: {
+    backgroundColor: '#EEE',
+    borderRadius: 12,
+    padding: 16,
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  modalCloseButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+  },
+  settingsLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#666',
+    marginBottom: 12,
+  },
+  slippageButtons: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 20,
+  },
+  slippageButton: {
+    flex: 1,
+    padding: 12,
+    borderRadius: 12,
+    backgroundColor: '#F5F5F5',
+    alignItems: 'center',
+  },
+  slippageButtonActive: {
+    backgroundColor: KurdistanColors.kesk,
+  },
+  slippageButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#666',
+  },
+  slippageButtonTextActive: {
     color: '#FFFFFF',
   },
-  modalButtons: {
+  confirmDetails: {
+    backgroundColor: '#F8F9FA',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 20,
+  },
+  confirmRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 8,
+  },
+  confirmRowBorder: {
+    borderTopWidth: 1,
+    borderTopColor: '#E5E5E5',
+    marginTop: 8,
+    paddingTop: 16,
+  },
+  confirmLabel: {
+    fontSize: 14,
+    color: '#666',
+  },
+  confirmValue: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  confirmLabelSmall: {
+    fontSize: 12,
+    color: '#999',
+  },
+  confirmValueSmall: {
+    fontSize: 12,
+    color: '#666',
+  },
+  confirmButtons: {
     flexDirection: 'row',
     gap: 12,
   },
-  modalButton: {
+  confirmCancelButton: {
     flex: 1,
     padding: 16,
     borderRadius: 12,
+    backgroundColor: '#EEE',
     alignItems: 'center',
   },
-  cancelButton: {
-    backgroundColor: '#F5F5F5',
-  },
-  cancelButtonText: {
+  confirmCancelButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#666',
+    color: '#333',
   },
-  saveButton: {
+  confirmSwapButton: {
+    flex: 1,
+    padding: 16,
+    borderRadius: 12,
     backgroundColor: KurdistanColors.kesk,
+    alignItems: 'center',
   },
-  saveButtonText: {
+  confirmSwapButtonText: {
     fontSize: 16,
     fontWeight: '600',
     color: '#FFFFFF',

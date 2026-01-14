@@ -6,7 +6,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { ASSET_IDS, getAssetSymbol } from '@pezkuwi/lib/wallet';
 import { AddLiquidityModal } from '@/components/AddLiquidityModal';
 import { RemoveLiquidityModal } from '@/components/RemoveLiquidityModal';
@@ -43,7 +43,7 @@ interface LPPosition {
 }
 
 const PoolDashboard = () => {
-  const { api, isApiReady, selectedAccount } = usePolkadot();
+  const { api, isApiReady, selectedAccount } = usePezkuwi();
 
   const [poolData, setPoolData] = useState<PoolData | null>(null);
   const [lpPosition, setLPPosition] = useState<LPPosition | null>(null);

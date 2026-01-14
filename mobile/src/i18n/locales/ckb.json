@@ -138,12 +138,77 @@
   },
   "settings": {
     "title": "ڕێکخستنەکان",
-    "language": "زمان",
-    "theme": "ڕووکار",
-    "notifications": "ئاگادارییەکان",
-    "security": "پاراستن",
-    "about": "دەربارە",
-    "logout": "دەرچوون"
+    "sections": {
+      "appearance": "دەرکەوتن",
+      "language": "زمان",
+      "security": "ئاسایش",
+      "notifications": "ئاگادارییەکان",
+      "about": "دەربارە"
+    },
+    "appearance": {
+      "darkMode": "دۆخی تاریک",
+      "darkModeSubtitle": "لە نێوان دۆخی ڕووناک و تاریک بگۆڕە",
+      "fontSize": "قەبارەی فۆنت",
+      "fontSizeSubtitle": "ئێستا: {{size}}",
+      "fontSizePrompt": "قەبارەی فۆنتی دڵخوازت هەڵبژێرە",
+      "small": "بچووک",
+      "medium": "مامناوەند",
+      "large": "گەورە"
+    },
+    "language": {
+      "title": "زمان",
+      "changePrompt": "بگۆڕدرێت بۆ {{language}}؟",
+      "changeSuccess": "زمان بە سەرکەوتوویی نوێکرایەوە!"
+    },
+    "security": {
+      "biometric": "ناسینەوەی بایۆمێتریک",
+      "biometricSubtitle": "پەنجە نوێن یان ناسینەوەی ڕوخسار بەکاربهێنە",
+      "biometricPrompt": "دەتەوێت ناسینەوەی بایۆمێتریک چالاک بکەیت؟",
+      "biometricEnabled": "ناسینەوەی بایۆمێتریک چالاککرا",
+      "twoFactor": "ناسینەوەی دوو-هەنگاوی",
+      "twoFactorSubtitle": "چینێکی ئاسایشی زیادە زیاد بکە",
+      "twoFactorPrompt": "ناسینەوەی دوو-هەنگاوی چینێکی ئاسایشی زیادە زیاد دەکات.",
+      "twoFactorSetup": "ڕێکبخە",
+      "changePassword": "وشەی نهێنی بگۆڕە",
+      "changePasswordSubtitle": "وشەی نهێنی هەژمارەکەت نوێ بکەرەوە"
+    },
+    "notifications": {
+      "push": "ئاگادارییە خێراکان",
+      "pushSubtitle": "ئاگاداری و نوێکارییەکان وەربگرە",
+      "email": "ئاگادارییەکانی ئیمەیل",
+      "emailSubtitle": "هەڵبژاردنەکانی ئیمەیل بەڕێوەببە"
+    },
+    "about": {
+      "pezkuwi": "دەربارەی پێزکووی",
+      "pezkuwiSubtitle": "زیاتر دەربارەی کوردستانی دیجیتاڵ بزانە",
+      "pezkuwiMessage": "پێزکووی پلاتفۆرمێکی بلۆکچەینی ناناوەندییە بۆ کوردستانی دیجیتاڵ.\n\nوەشان: 1.0.0\n\nبە ❤️ دروستکرا",
+      "terms": "مەرجەکانی خزمەتگوزاری",
+      "privacy": "سیاسەتی تایبەتمەندی",
+      "contact": "پەیوەندی پشتگیری",
+      "contactSubtitle": "یارمەتی لە تیمەکەمان وەربگرە",
+      "contactEmail": "ئیمەیل: support@pezkuwichain.io"
+    },
+    "version": {
+      "app": "پێزکووی مۆبایل",
+      "number": "وەشان 1.0.0",
+      "copyright": "© 2026 کوردستانی دیجیتاڵ"
+    },
+    "alerts": {
+      "comingSoon": "بەم زووانە",
+      "darkModeMessage": "دۆخی تاریک لە نوێکردنەوەی داهاتوودا بەردەست دەبێت",
+      "twoFactorMessage": "ڕێکخستنی 2FA بەم زووانە بەردەست دەبێت",
+      "passwordMessage": "گۆڕینی وشەی نهێنی بەم زووانە بەردەست دەبێت",
+      "emailMessage": "ڕێکخستنەکانی ئیمەیل بەم زووانە بەردەست دەبن",
+      "termsMessage": "مەرجەکانی خزمەتگوزاری بەم زووانە بەردەست دەبن",
+      "privacyMessage": "سیاسەتی تایبەتمەندی بەم زووانە بەردەست دەبێت"
+    },
+    "common": {
+      "enable": "چالاککردن",
+      "cancel": "هەڵوەشاندنەوە",
+      "confirm": "پشتڕاستکردنەوە",
+      "success": "سەرکەوتوو",
+      "error": "هەڵە"
+    }
   },
   "common": {
     "cancel": "هەڵوەشاندنەوە",

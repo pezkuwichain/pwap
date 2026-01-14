@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { GraduationCap, BookOpen, ExternalLink, Play } from 'lucide-react';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { toast } from 'sonner';
 import { LoadingState } from '@shared/components/AsyncComponent';
 import { getCourses, enrollInCourse, type Course } from '@shared/lib/perwerde';
@@ -15,7 +15,7 @@ interface CourseListProps {
 }
 
 export function CourseList({ enrolledCourseIds, onEnroll }: CourseListProps) {
-  const { api, selectedAccount } = usePolkadot();
+  const { api, selectedAccount } = usePezkuwi();
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
 

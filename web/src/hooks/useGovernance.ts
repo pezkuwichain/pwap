@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 
 export interface Proposal {
   id: string;
@@ -28,7 +28,7 @@ export interface Referendum {
 }
 
 export function useGovernance() {
-  const { api, isConnected } = usePolkadot();
+  const { api, isConnected } = usePezkuwi();
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [referenda, setReferenda] = useState<Referendum[]>([]);
   const [loading, setLoading] = useState(true);

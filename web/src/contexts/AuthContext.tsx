@@ -178,7 +178,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(false);
     });
 
-    // Listen for wallet changes (from PolkadotContext)
+    // Listen for wallet changes (from PezkuwiContext)
     const handleWalletChange = () => {
       checkAdminStatus();
     };

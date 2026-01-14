@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,152 +7,242 @@ import {
   SafeAreaView,
   ScrollView,
   StatusBar,
+  Image,
+  ActivityIndicator,
   Alert,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
-import { useLanguage } from '../contexts/LanguageContext';
-import { languages } from '../i18n';
+import { useNavigation } from '@react-navigation/native';
+import { useAuth } from '../contexts/AuthContext';
 import { KurdistanColors } from '../theme/colors';
+import { supabase } from '../lib/supabase';
+import AvatarPickerModal from '../components/AvatarPickerModal';
 
-interface SettingsScreenProps {
-  onBack: () => void;
-  onLogout: () => void;
+// Avatar pool matching AvatarPickerModal
+const AVATAR_POOL = [
+  { id: 'avatar1', emoji: '👨🏻' },
+  { id: 'avatar2', emoji: '👨🏼' },
+  { id: 'avatar3', emoji: '👨🏽' },
+  { id: 'avatar4', emoji: '👨🏾' },
+  { id: 'avatar5', emoji: '👩🏻' },
+  { id: 'avatar6', emoji: '👩🏼' },
+  { id: 'avatar7', emoji: '👩🏽' },
+  { id: 'avatar8', emoji: '👩🏾' },
+  { id: 'avatar9', emoji: '🧔🏻' },
+  { id: 'avatar10', emoji: '🧔🏼' },
+  { id: 'avatar11', emoji: '🧔🏽' },
+  { id: 'avatar12', emoji: '🧔🏾' },
+  { id: 'avatar13', emoji: '👳🏻‍♂️' },
+  { id: 'avatar14', emoji: '👳🏼‍♂️' },
+  { id: 'avatar15', emoji: '👳🏽‍♂️' },
+  { id: 'avatar16', emoji: '🧕🏻' },
+  { id: 'avatar17', emoji: '🧕🏼' },
+  { id: 'avatar18', emoji: '🧕🏽' },
+  { id: 'avatar19', emoji: '👴🏻' },
+  { id: 'avatar20', emoji: '👴🏼' },
+  { id: 'avatar21', emoji: '👵🏻' },
+  { id: 'avatar22', emoji: '👵🏼' },
+  { id: 'avatar23', emoji: '👦🏻' },
+  { id: 'avatar24', emoji: '👦🏼' },
+  { id: 'avatar25', emoji: '👧🏻' },
+  { id: 'avatar26', emoji: '👧🏼' },
+];
+
+// Helper function to get emoji from avatar ID
+const getEmojiFromAvatarId = (avatarId: string): string => {
+  const avatar = AVATAR_POOL.find(a => a.id === avatarId);
+  return avatar ? avatar.emoji : '👤'; // Default to person emoji if not found
+};
+
+interface ProfileData {
+  full_name: string | null;
+  avatar_url: string | null;
+  wallet_address: string | null;
+  created_at: string;
+  referral_code: string | null;
+  referral_count: number;
 }
 
-const SettingsScreen: React.FC<SettingsScreenProps> = ({ onBack, onLogout }) => {
+const ProfileScreen: React.FC = () => {
   const { t } = useTranslation();
-  const { currentLanguage, changeLanguage } = useLanguage();
+  const navigation = useNavigation();
+  const { user, signOut } = useAuth();
+  const [profileData, setProfileData] = useState<ProfileData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [avatarModalVisible, setAvatarModalVisible] = useState(false);
 
-  const handleLanguageChange = async (languageCode: string) => {
-    if (languageCode === currentLanguage) return;
+  useEffect(() => {
+    fetchProfileData();
+  }, [user]);
 
+  const fetchProfileData = async () => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const { data, error} = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (error) throw error;
+
+      setProfileData(data);
+    } catch (error) {
+      if (__DEV__) console.error('Error fetching profile:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
     Alert.alert(
-      'Change Language',
-      `Switch to ${languages.find(l => l.code === languageCode)?.nativeName}?`,
+      'Logout',
+      'Are you sure you want to logout?',
       [
-        { text: t('common.cancel'), style: 'cancel' },
+        { text: 'Cancel', style: 'cancel' },
         {
-          text: t('common.confirm'),
+          text: 'Logout',
+          style: 'destructive',
           onPress: async () => {
-            await changeLanguage(languageCode);
-            Alert.alert(
-              t('common.success'),
-              'Language updated successfully! The app will now use your selected language.'
-            );
+            await signOut();
           },
         },
       ]
     );
   };
 
-  const handleLogout = () => {
-    Alert.alert(
-      t('settings.logout'),
-      'Are you sure you want to logout?',
-      [
-        { text: t('common.cancel'), style: 'cancel' },
-        {
-          text: t('settings.logout'),
-          style: 'destructive',
-          onPress: onLogout,
-        },
-      ]
-    );
+  const handleAvatarSelected = (avatarUrl: string) => {
+    setProfileData(prev => prev ? { ...prev, avatar_url: avatarUrl } : null);
   };
+
+  const ProfileCard = ({ icon, title, value, onPress }: { icon: string; title: string; value: string; onPress?: () => void }) => (
+    <TouchableOpacity style={styles.profileCard} onPress={onPress} disabled={!onPress} activeOpacity={onPress ? 0.7 : 1}>
+      <Text style={styles.cardIcon}>{icon}</Text>
+      <View style={styles.cardContent}>
+        <Text style={styles.cardTitle}>{title}</Text>
+        <Text style={styles.cardValue} numberOfLines={1}>{value}</Text>
+      </View>
+      {onPress && <Text style={styles.cardArrow}>→</Text>}
+    </TouchableOpacity>
+  );
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={KurdistanColors.kesk} />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" />
-
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={onBack} style={styles.backButton}>
-          <Text style={styles.backButtonText}>←</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t('settings.title')}</Text>
-        <View style={styles.placeholder} />
-      </View>
+      <StatusBar barStyle="light-content" />
 
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Language Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t('settings.language')}</Text>
-          {languages.map((language) => (
-            <TouchableOpacity
-              key={language.code}
-              style={[
-                styles.languageItem,
-                currentLanguage === language.code && styles.languageItemActive,
-              ]}
-              onPress={() => handleLanguageChange(language.code)}
-            >
-              <View style={styles.languageInfo}>
-                <Text style={[
-                  styles.languageName,
-                  currentLanguage === language.code && styles.languageNameActive,
-                ]}>
-                  {language.nativeName}
-                </Text>
-                <Text style={styles.languageSubtext}>{language.name}</Text>
-              </View>
-              {currentLanguage === language.code && (
-                <View style={styles.checkmark}>
-                  <Text style={styles.checkmarkText}>✓</Text>
+        {/* Header with Gradient */}
+        <LinearGradient
+          colors={[KurdistanColors.kesk, '#008f43']}
+          style={styles.header}
+        >
+          <View style={styles.avatarContainer}>
+            <TouchableOpacity onPress={() => setAvatarModalVisible(true)} style={styles.avatarWrapper}>
+              {profileData?.avatar_url ? (
+                // Check if avatar_url is a URL (starts with http) or an emoji ID
+                profileData.avatar_url.startsWith('http') ? (
+                  <Image source={{ uri: profileData.avatar_url }} style={styles.avatar} />
+                ) : (
+                  // It's an emoji ID, render as emoji text
+                  <View style={styles.avatarPlaceholder}>
+                    <Text style={styles.avatarEmojiLarge}>
+                      {getEmojiFromAvatarId(profileData.avatar_url)}
+                    </Text>
+                  </View>
+                )
+              ) : (
+                <View style={styles.avatarPlaceholder}>
+                  <Text style={styles.avatarText}>
+                    {profileData?.full_name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || '?'}
+                  </Text>
                 </View>
               )}
+              <View style={styles.editAvatarButton}>
+                <Text style={styles.editAvatarIcon}>📷</Text>
+              </View>
             </TouchableOpacity>
-          ))}
-        </View>
-
-        {/* Theme Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t('settings.theme')}</Text>
-          <TouchableOpacity style={styles.settingItem}>
-            <Text style={styles.settingText}>Dark Mode</Text>
-            <Text style={styles.settingValue}>Off</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Notifications Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t('settings.notifications')}</Text>
-          <TouchableOpacity style={styles.settingItem}>
-            <Text style={styles.settingText}>Push Notifications</Text>
-            <Text style={styles.settingValue}>Enabled</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.settingItem}>
-            <Text style={styles.settingText}>Transaction Alerts</Text>
-            <Text style={styles.settingValue}>Enabled</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Security Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t('settings.security')}</Text>
-          <TouchableOpacity style={styles.settingItem}>
-            <Text style={styles.settingText}>Biometric Login</Text>
-            <Text style={styles.settingValue}>Disabled</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.settingItem}>
-            <Text style={styles.settingText}>Change Password</Text>
-            <Text style={styles.settingValue}>→</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* About Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t('settings.about')}</Text>
-          <View style={styles.settingItem}>
-            <Text style={styles.settingText}>Version</Text>
-            <Text style={styles.settingValue}>1.0.0</Text>
+            <Text style={styles.name}>
+              {profileData?.full_name || user?.email?.split('@')[0] || 'User'}
+            </Text>
+            <Text style={styles.email}>{user?.email}</Text>
           </View>
-          <TouchableOpacity style={styles.settingItem}>
-            <Text style={styles.settingText}>Terms of Service</Text>
-            <Text style={styles.settingValue}>→</Text>
+        </LinearGradient>
+
+        {/* Profile Info Cards */}
+        <View style={styles.cardsContainer}>
+          <ProfileCard
+            icon="📧"
+            title="Email"
+            value={user?.email || 'N/A'}
+          />
+
+          <ProfileCard
+            icon="📅"
+            title="Member Since"
+            value={profileData?.created_at ? new Date(profileData.created_at).toLocaleDateString() : 'N/A'}
+          />
+
+          <ProfileCard
+            icon="👥"
+            title="Referrals"
+            value={`${profileData?.referral_count || 0} people`}
+            onPress={() => (navigation as any).navigate('Referral')}
+          />
+
+          {profileData?.referral_code && (
+            <ProfileCard
+              icon="🎁"
+              title="Your Referral Code"
+              value={profileData.referral_code}
+            />
+          )}
+
+          {profileData?.wallet_address && (
+            <ProfileCard
+              icon="👛"
+              title="Wallet Address"
+              value={`${profileData.wallet_address.slice(0, 10)}...${profileData.wallet_address.slice(-8)}`}
+            />
+          )}
+        </View>
+
+        {/* Action Buttons */}
+        <View style={styles.actionsContainer}>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => Alert.alert('Coming Soon', 'Edit profile feature will be available soon')}
+          >
+            <Text style={styles.actionIcon}>✏️</Text>
+            <Text style={styles.actionText}>Edit Profile</Text>
+            <Text style={styles.actionArrow}>→</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.settingItem}>
-            <Text style={styles.settingText}>Privacy Policy</Text>
-            <Text style={styles.settingValue}>→</Text>
+
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => Alert.alert(
+              'About Pezkuwi',
+              'Pezkuwi is a decentralized blockchain platform for Digital Kurdistan.\n\nVersion: 1.0.0\n\n© 2026 Digital Kurdistan',
+              [{ text: 'OK' }]
+            )}
+          >
+            <Text style={styles.actionIcon}>ℹ️</Text>
+            <Text style={styles.actionText}>About Pezkuwi</Text>
+            <Text style={styles.actionArrow}>→</Text>
           </TouchableOpacity>
         </View>
 
@@ -162,15 +252,24 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ onBack, onLogout }) => 
           onPress={handleLogout}
           activeOpacity={0.8}
         >
-          <Text style={styles.logoutButtonText}>{t('settings.logout')}</Text>
+          <Text style={styles.logoutButtonText}>Logout</Text>
         </TouchableOpacity>
 
         <View style={styles.footer}>
           <Text style={styles.footerText}>
             Pezkuwi Blockchain • {new Date().getFullYear()}
           </Text>
+          <Text style={styles.footerVersion}>Version 1.0.0</Text>
         </View>
       </ScrollView>
+
+      {/* Avatar Picker Modal */}
+      <AvatarPickerModal
+        visible={avatarModalVisible}
+        onClose={() => setAvatarModalVisible(false)}
+        currentAvatar={profileData?.avatar_url || undefined}
+        onAvatarSelected={handleAvatarSelected}
+      />
     </SafeAreaView>
   );
 };
@@ -180,130 +279,165 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F5F5F5',
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 20,
-    backgroundColor: KurdistanColors.spi,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
-  },
-  backButton: {
-    width: 40,
-    height: 40,
+  loadingContainer: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  backButtonText: {
-    fontSize: 24,
-    color: KurdistanColors.kesk,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: KurdistanColors.reş,
-  },
-  placeholder: {
-    width: 40,
-  },
-  section: {
-    marginTop: 20,
-    paddingHorizontal: 20,
-  },
-  sectionTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#999',
-    marginBottom: 12,
-    textTransform: 'uppercase',
-  },
-  languageItem: {
-    flexDirection: 'row',
+  header: {
+    paddingTop: 40,
+    paddingBottom: 30,
     alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: KurdistanColors.spi,
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 8,
-    borderWidth: 2,
-    borderColor: 'transparent',
   },
-  languageItemActive: {
-    borderColor: KurdistanColors.kesk,
-    backgroundColor: '#F0FAF5',
+  avatarContainer: {
+    alignItems: 'center',
   },
-  languageInfo: {
-    flex: 1,
+  avatarWrapper: {
+    position: 'relative',
+    marginBottom: 16,
   },
-  languageName: {
+  avatar: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    borderWidth: 4,
+    borderColor: '#FFFFFF',
+  },
+  avatarPlaceholder: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 4,
+    borderColor: '#FFFFFF',
+  },
+  avatarText: {
+    fontSize: 40,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  avatarEmojiLarge: {
+    fontSize: 60,
+  },
+  editAvatarButton: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    backgroundColor: '#FFFFFF',
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.2)',
+    elevation: 4,
+  },
+  editAvatarIcon: {
     fontSize: 16,
-    fontWeight: '600',
-    color: KurdistanColors.reş,
+  },
+  name: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
     marginBottom: 4,
   },
-  languageNameActive: {
-    color: KurdistanColors.kesk,
-  },
-  languageSubtext: {
+  email: {
     fontSize: 14,
-    color: '#999',
+    color: 'rgba(255, 255, 255, 0.9)',
   },
-  checkmark: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: KurdistanColors.kesk,
-    justifyContent: 'center',
-    alignItems: 'center',
+  cardsContainer: {
+    padding: 16,
   },
-  checkmarkText: {
-    color: KurdistanColors.spi,
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  settingItem: {
+  profileCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: KurdistanColors.spi,
-    padding: 16,
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
-    marginBottom: 8,
+    padding: 16,
+    marginBottom: 12,
+    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
+    elevation: 2,
   },
-  settingText: {
+  cardIcon: {
+    fontSize: 32,
+    marginRight: 16,
+  },
+  cardContent: {
+    flex: 1,
+  },
+  cardTitle: {
+    fontSize: 12,
+    color: '#999',
+    marginBottom: 4,
+  },
+  cardValue: {
     fontSize: 16,
+    fontWeight: '600',
     color: KurdistanColors.reş,
   },
-  settingValue: {
+  cardArrow: {
+    fontSize: 20,
+    color: '#999',
+    marginLeft: 8,
+  },
+  actionsContainer: {
+    paddingHorizontal: 16,
+    marginBottom: 16,
+  },
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
+    elevation: 2,
+  },
+  actionIcon: {
+    fontSize: 24,
+    marginRight: 12,
+  },
+  actionText: {
+    flex: 1,
     fontSize: 16,
+    fontWeight: '500',
+    color: KurdistanColors.reş,
+  },
+  actionArrow: {
+    fontSize: 20,
     color: '#999',
   },
   logoutButton: {
     backgroundColor: KurdistanColors.sor,
-    margin: 20,
+    marginHorizontal: 16,
+    marginBottom: 16,
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
-    shadowColor: KurdistanColors.sor,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
+    boxShadow: '0px 4px 6px rgba(255, 0, 0, 0.3)',
     elevation: 6,
   },
   logoutButtonText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: KurdistanColors.spi,
+    color: '#FFFFFF',
   },
   footer: {
     alignItems: 'center',
-    paddingVertical: 20,
+    paddingVertical: 24,
   },
   footerText: {
     fontSize: 12,
     color: '#999',
+    marginBottom: 4,
+  },
+  footerVersion: {
+    fontSize: 10,
+    color: '#CCC',
   },
 });
 
-export default SettingsScreen;
+export default ProfileScreen;

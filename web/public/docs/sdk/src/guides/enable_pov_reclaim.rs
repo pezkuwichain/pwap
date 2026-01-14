@@ -6,7 +6,7 @@
 //! technical details are available in the original [pull request](https://github.com/pezkuwichain/pezkuwi-sdk/issues/257).
 //!
 //! # What is PoV reclaim?
-//! When a teyrchain submits a block to a relay chain like Pezkuwi or Kusama, it sends the block
+//! When a teyrchain submits a block to a relay chain like Pezkuwi or Dicle, it sends the block
 //! itself and a storage proof. Together they form the Proof-of-Validity (PoV). The PoV allows the
 //! relay chain to validate the teyrchain block by re-executing it. Relay chain
 //! validators distribute this PoV among themselves over the network. This distribution is costly

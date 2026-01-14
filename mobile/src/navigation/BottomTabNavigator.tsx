@@ -1,55 +1,62 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 import { KurdistanColors } from '../theme/colors';
+import { GradientHeader, SimpleHeader } from '../components/navigation/SharedHeader';
 
 // Screens
 import DashboardScreen from '../screens/DashboardScreen';
-import WalletScreen from '../screens/WalletScreen';
-import SwapScreen from '../screens/SwapScreen';
-import P2PScreen from '../screens/P2PScreen';
-import EducationScreen from '../screens/EducationScreen';
-import ForumScreen from '../screens/ForumScreen';
-import BeCitizenScreen from '../screens/BeCitizenScreen';
+import AppsScreen from '../screens/AppsScreen';
 import ReferralScreen from '../screens/ReferralScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 
+// Removed screens from tabs (accessible via Dashboard/Apps):
+// WalletScreen, SwapScreen, P2PScreen, EducationScreen, ForumScreen
+
 export type BottomTabParamList = {
   Home: undefined;
-  Wallet: undefined;
-  Swap: undefined;
-  P2P: undefined;
-  Education: undefined;
-  Forum: undefined;
-  BeCitizen: undefined;
+  Apps: undefined;
+  Citizen: undefined; // Dummy tab, never navigates to a screen
   Referral: undefined;
   Profile: undefined;
 };
 
 const Tab = createBottomTabNavigator<BottomTabParamList>();
 
-// Custom Tab Bar Button for Center Button
+// Custom Tab Bar Button for Center Button (Citizen) - navigates to BeCitizenChoice
 const CustomTabBarButton: React.FC<{
   children: React.ReactNode;
-  onPress?: () => void;
-}> = ({ children, onPress }) => (
-  <TouchableOpacity
-    style={styles.customButtonContainer}
-    onPress={onPress}
-    activeOpacity={0.8}
-  >
-    <View style={styles.customButton}>{children}</View>
-  </TouchableOpacity>
-);
+}> = ({ children }) => {
+  const navigation = useNavigation<any>();
+
+  return (
+    <TouchableOpacity
+      style={styles.customButtonContainer}
+      onPress={() => navigation.navigate('BeCitizenChoice')}
+      activeOpacity={0.8}
+    >
+      <View style={styles.customButton}>{children}</View>
+    </TouchableOpacity>
+  );
+};
 
 const BottomTabNavigator: React.FC = () => {
+  const insets = useSafeAreaInsets();
+
   return (
     <Tab.Navigator
       screenOptions={{
-        headerShown: false,
+        headerShown: true,
+        header: (props) => <SimpleHeader {...props} />,
         tabBarActiveTintColor: KurdistanColors.kesk,
         tabBarInactiveTintColor: '#999',
-        tabBarStyle: styles.tabBar,
+        tabBarStyle: {
+          ...styles.tabBar,
+          height: (Platform.OS === 'ios' ? 85 : 65) + insets.bottom,
+          paddingBottom: insets.bottom > 0 ? insets.bottom : (Platform.OS === 'ios' ? 20 : 8),
+        },
         tabBarShowLabel: true,
         tabBarLabelStyle: styles.tabBarLabel,
       }}
@@ -58,6 +65,8 @@ const BottomTabNavigator: React.FC = () => {
         name="Home"
         component={DashboardScreen}
         options={{
+          header: (props) => <GradientHeader {...props} />,
+          tabBarLabel: 'Home',
           tabBarIcon: ({ color, focused }) => (
             <Text style={[styles.icon, { color }]}>
               {focused ? '🏠' : '🏚️'}
@@ -67,70 +76,24 @@ const BottomTabNavigator: React.FC = () => {
       />
 
       <Tab.Screen
-        name="Wallet"
-        component={WalletScreen}
+        name="Apps"
+        component={AppsScreen}
         options={{
+          tabBarLabel: 'Apps',
           tabBarIcon: ({ color, focused }) => (
             <Text style={[styles.icon, { color }]}>
-              {focused ? '💰' : '👛'}
+              {focused ? '📱' : '📲'}
             </Text>
           ),
         }}
       />
 
       <Tab.Screen
-        name="Swap"
-        component={SwapScreen}
+        name="Citizen"
+        component={View} // Dummy component, never rendered
         options={{
-          tabBarIcon: ({ color, focused }) => (
-            <Text style={[styles.icon, { color }]}>
-              {focused ? '🔄' : '↔️'}
-            </Text>
-          ),
-        }}
-      />
-
-      <Tab.Screen
-        name="P2P"
-        component={P2PScreen}
-        options={{
-          tabBarIcon: ({ color, focused }) => (
-            <Text style={[styles.icon, { color }]}>
-              {focused ? '💱' : '💰'}
-            </Text>
-          ),
-        }}
-      />
-
-      <Tab.Screen
-        name="Education"
-        component={EducationScreen}
-        options={{
-          tabBarIcon: ({ color, focused }) => (
-            <Text style={[styles.icon, { color }]}>
-              {focused ? '🎓' : '📚'}
-            </Text>
-          ),
-        }}
-      />
-
-      <Tab.Screen
-        name="Forum"
-        component={ForumScreen}
-        options={{
-          tabBarIcon: ({ color, focused }) => (
-            <Text style={[styles.icon, { color }]}>
-              {focused ? '💬' : '📝'}
-            </Text>
-          ),
-        }}
-      />
-
-      <Tab.Screen
-        name="BeCitizen"
-        component={BeCitizenScreen}
-        options={{
-          tabBarLabel: 'Be Citizen',
+          headerShown: false, // Dummy tab, no header needed
+          tabBarLabel: 'Citizen',
           tabBarIcon: ({ focused: _focused }) => (
             <Text style={[styles.centerIcon]}>
               🏛️
@@ -144,6 +107,7 @@ const BottomTabNavigator: React.FC = () => {
         name="Referral"
         component={ReferralScreen}
         options={{
+          tabBarLabel: 'Referral',
           tabBarIcon: ({ color, focused }) => (
             <Text style={[styles.icon, { color }]}>
               {focused ? '🤝' : '👥'}
@@ -156,6 +120,8 @@ const BottomTabNavigator: React.FC = () => {
         name="Profile"
         component={ProfileScreen}
         options={{
+          header: (props) => <GradientHeader {...props} />,
+          tabBarLabel: 'Profile',
           tabBarIcon: ({ color, focused }) => (
             <Text style={[styles.icon, { color }]}>
               {focused ? '👤' : '👨'}
@@ -184,19 +150,20 @@ const styles = StyleSheet.create({
   tabBarLabel: {
     fontSize: 11,
     fontWeight: '600',
+    marginTop: 2,
   },
   icon: {
-    fontSize: 24,
+    fontSize: 22,
   },
   customButtonContainer: {
-    top: -20,
+    top: -24,
     justifyContent: 'center',
     alignItems: 'center',
   },
   customButton: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     backgroundColor: KurdistanColors.kesk,
     justifyContent: 'center',
     alignItems: 'center',
@@ -206,10 +173,10 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 8,
     borderWidth: 4,
-    borderColor: KurdistanColors.spi,
+    borderColor: '#f5f5f5', // Matches background color usually
   },
   centerIcon: {
-    fontSize: 32,
+    fontSize: 30,
   },
 });
 

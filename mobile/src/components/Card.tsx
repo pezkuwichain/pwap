@@ -72,21 +72,18 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   elevated: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.1)',
     elevation: 4,
   },
   outlined: {
     borderWidth: 1,
     borderColor: AppColors.border,
-    shadowOpacity: 0,
+    boxShadow: 'none',
     elevation: 0,
   },
   filled: {
     backgroundColor: AppColors.background,
-    shadowOpacity: 0,
+    boxShadow: 'none',
     elevation: 0,
   },
   pressed: {

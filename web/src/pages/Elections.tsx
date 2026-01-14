@@ -28,7 +28,7 @@ import {
   Scale,
   Building,
 } from 'lucide-react';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { toast } from '@/components/ui/use-toast';
 import { LoadingState } from '@pezkuwi/components/AsyncComponent';
 import {
@@ -50,7 +50,7 @@ import {
 // import { web3FromAddress } from '@pezkuwi/extension-dapp';
 
 export default function Elections() {
-  const { api, isApiReady } = usePolkadot();
+  const { api, isApiReady } = usePezkuwi();
 
   const [loading, setLoading] = useState(true);
   const [elections, setElections] = useState<ElectionInfo[]>([]);

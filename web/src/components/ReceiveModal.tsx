@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import {
   Dialog,
   DialogContent,
@@ -18,7 +18,7 @@ interface ReceiveModalProps {
 }
 
 export const ReceiveModal: React.FC<ReceiveModalProps> = ({ isOpen, onClose }) => {
-  const { selectedAccount } = usePolkadot();
+  const { selectedAccount } = usePezkuwi();
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('');

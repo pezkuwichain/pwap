@@ -137,13 +137,78 @@
     "history": "Dîrok"
   },
   "settings": {
-    "title": "Mîheng",
-    "language": "Ziman",
-    "theme": "Tema",
-    "notifications": "Agahdarî",
-    "security": "Ewlekarî",
-    "about": "Derbarê",
-    "logout": "Derkeve"
+    "title": "Mîhengên",
+    "sections": {
+      "appearance": "XUYANÎ",
+      "language": "ZIMAN",
+      "security": "EWLEHÎ",
+      "notifications": "AGAHDARÎ",
+      "about": "DER BARÊ"
+    },
+    "appearance": {
+      "darkMode": "Moda Tarî",
+      "darkModeSubtitle": "Di navbera moda ronî û tarî de biguherîne",
+      "fontSize": "Mezinahiya Nivîsê",
+      "fontSizeSubtitle": "Niha: {{size}}",
+      "fontSizePrompt": "Mezinahiya nivîsê ya xwe hilbijêre",
+      "small": "Piçûk",
+      "medium": "Nav",
+      "large": "Mezin"
+    },
+    "language": {
+      "title": "Ziman",
+      "changePrompt": "Biguherîne bo {{language}}?",
+      "changeSuccess": "Ziman bi serkeftî hate nûkirin!"
+    },
+    "security": {
+      "biometric": "Naskirina Bîyometrîk",
+      "biometricSubtitle": "Şopa tilî yan naskirina rû bikar bîne",
+      "biometricPrompt": "Hûn dixwazin naskirina bîyometrîk çalak bikin?",
+      "biometricEnabled": "Naskirina bîyometrîk çalak kirin",
+      "twoFactor": "Naskirina Du-Pîlan",
+      "twoFactorSubtitle": "Qateka ewlehiyê zêde bikin",
+      "twoFactorPrompt": "Naskirina du-pîlan qateka ewlehiyê zêde dike.",
+      "twoFactorSetup": "Saz Bike",
+      "changePassword": "Şîfreyê Biguherîne",
+      "changePasswordSubtitle": "Şîfreya hesabê xwe nû bike"
+    },
+    "notifications": {
+      "push": "Agahdariyên Zû",
+      "pushSubtitle": "Hişyarî û nûvekirinên werbigire",
+      "email": "Agahdariyên E-nameyê",
+      "emailSubtitle": "Vebijarkên e-nameyê birêve bibin"
+    },
+    "about": {
+      "pezkuwi": "Der barê Pezkuwi",
+      "pezkuwiSubtitle": "Zêdetir der barê Kurdistana Dîjîtal bizanin",
+      "pezkuwiMessage": "Pezkuwi platformek blockchain-ê ya bê-navend e ji bo Kurdistana Dîjîtal.\n\nGuherto: 1.0.0\n\nBi ❤️ hatiye çêkirin",
+      "terms": "Mercên Karûbarê",
+      "privacy": "Siyaseta Nepenîtiyê",
+      "contact": "Têkiliya Piştgiriyê",
+      "contactSubtitle": "Ji tîma me alîkarî bistînin",
+      "contactEmail": "E-name: support@pezkuwichain.io"
+    },
+    "version": {
+      "app": "Pezkuwi Mobîl",
+      "number": "Guherto 1.0.0",
+      "copyright": "© 2026 Kurdistana Dîjîtal"
+    },
+    "alerts": {
+      "comingSoon": "Zû tê",
+      "darkModeMessage": "Moda tarî di nûvekirina pêş de berdest dibe",
+      "twoFactorMessage": "Sazkirina 2FA zû berdest dibe",
+      "passwordMessage": "Guherandina şîfreyê zû berdest dibe",
+      "emailMessage": "Mîhengên e-nameyê zû berdest dibin",
+      "termsMessage": "Mercên karûbarê zû berdest dibin",
+      "privacyMessage": "Siyaseta nepenîtiyê zû berdest dibe"
+    },
+    "common": {
+      "enable": "Çalak Bike",
+      "cancel": "Betal Bike",
+      "confirm": "Pejirandin",
+      "success": "Serkeft",
+      "error": "Çewtî"
+    }
   },
   "common": {
     "cancel": "Betal bike",

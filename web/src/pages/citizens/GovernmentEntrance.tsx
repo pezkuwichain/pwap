@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useDashboard } from '@/contexts/DashboardContext';
 import {
   ArrowLeft,
@@ -79,7 +79,7 @@ const GOVERNMENT_AUTHORIZED_TIKIS = [
 ];
 
 export default function GovernmentEntrance() {
-  const { api, isApiReady, selectedAccount } = usePolkadot();
+  const { api, isApiReady, selectedAccount } = usePezkuwi();
   const { nftDetails, loading: dashboardLoading } = useDashboard();
   const navigate = useNavigate();
   const { toast } = useToast();

@@ -1,34 +1,21 @@
 {
-  "name": "pezkuwi-kyc-backend",
+  "name": "pezkuwi-indexer-service",
   "version": "1.0.0",
-  "description": "KYC Approval Council Backend",
+  "description": "Simple Transaction Indexer for Pezkuwi Chain",
   "main": "src/index.js",
   "type": "module",
   "scripts": {
-    "dev": "node --watch src/index.js",
     "start": "node src/index.js",
-    "lint": "eslint 'src/**/*.js' --fix"
+    "dev": "node --watch src/index.js"
   },
   "dependencies": {
-    "@pezkuwi/keyring": "^12.5.1",
-    "@pezkuwi/util-crypto": "^12.5.1",
-    "@supabase/supabase-js": "^2.83.0",
+    "@pezkuwi/api": "^16.5.9",
+    "@pezkuwi/util": "^14.0.11",
+    "@pezkuwi/util-crypto": "^14.0.11",
     "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
-    "express": "^4.18.2",
-    "pino": "^10.1.0",
-    "pino-http": "^11.0.0",
-    "pino-pretty": "^13.1.2"
-  },
-  "devDependencies": {
-    "@pezkuwi/api": "^16.5.2",
-    "eslint": "^8.57.1",
-    "eslint-config-standard": "^17.1.0",
-    "eslint-plugin-import": "^2.32.0",
-    "eslint-plugin-n": "^16.6.2",
-    "eslint-plugin-promise": "^6.6.0",
-    "jest": "^30.2.0",
-    "nodemon": "^3.0.2",
-    "supertest": "^7.1.4"
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7"
   }
 }

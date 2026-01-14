@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, CheckCircle, AlertTriangle, Shield } from 'lucide-react';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { verifyCitizenNumber } from '@pezkuwi/lib/tiki';
 import { generateAuthChallenge, signChallenge, verifySignature, saveCitizenSession } from '@pezkuwi/lib/citizenship-workflow';
 import type { AuthChallenge } from '@pezkuwi/lib/citizenship-workflow';
@@ -15,7 +15,7 @@ interface ExistingCitizenAuthProps {
 }
 
 export const ExistingCitizenAuth: React.FC<ExistingCitizenAuthProps> = ({ onClose }) => {
-  const { api, isApiReady, selectedAccount, connectWallet } = usePolkadot();
+  const { api, isApiReady, selectedAccount, connectWallet } = usePezkuwi();
 
   const [citizenNumber, setCitizenNumber] = useState('');
   const [step, setStep] = useState<'input' | 'verifying' | 'signing' | 'success' | 'error'>('input');

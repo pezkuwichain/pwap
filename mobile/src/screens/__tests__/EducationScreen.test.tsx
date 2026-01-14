@@ -1,7 +1,7 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
 import { LanguageProvider } from '../../contexts/LanguageContext';
-import { PolkadotProvider } from '../../contexts/PolkadotContext';
+import { PezkuwiProvider } from '../contexts/PezkuwiContext';
 import EducationScreen from '../EducationScreen';
 
 jest.mock('@react-navigation/native', () => ({
@@ -11,9 +11,9 @@ jest.mock('@react-navigation/native', () => ({
 
 const EducationScreenWrapper = () => (
   <LanguageProvider>
-    <PolkadotProvider>
+    <PezkuwiProvider>
       <EducationScreen />
-    </PolkadotProvider>
+    </PezkuwiProvider>
   </LanguageProvider>
 );
 

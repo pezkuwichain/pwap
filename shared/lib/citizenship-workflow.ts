@@ -4,8 +4,15 @@
 // Handles citizenship verification, status checks, and workflow logic
 
 import type { ApiPromise } from '@pezkuwi/api';
-import { web3FromAddress } from '@pezkuwi/extension-dapp';
+// Temporarily disabled for React Native compatibility
+// import { web3FromAddress } from '@pezkuwi/extension-dapp';
 import type { InjectedAccountWithMeta } from '@pezkuwi/extension-inject/types';
+
+// Stub for mobile - TODO: implement proper React Native version
+const web3FromAddress = async (address: string) => {
+  // In React Native, we'll use a different signing mechanism
+  throw new Error('web3FromAddress not implemented for React Native yet');
+};
 
 // ========================================
 // TYPE DEFINITIONS

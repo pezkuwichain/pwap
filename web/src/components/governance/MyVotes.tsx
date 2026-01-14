@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Vote, FileText, Users, CheckCircle, XCircle, Clock, Activity, Loader2, Wallet } from 'lucide-react';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { formatNumber } from '@/lib/utils';
 
@@ -35,7 +35,7 @@ interface DelegationInfo {
 }
 
 const MyVotes: React.FC = () => {
-  const { api, isApiReady } = usePolkadot();
+  const { api, isApiReady } = usePezkuwi();
   const { account, isConnected } = useWallet();
   const [proposalVotes, setProposalVotes] = useState<ProposalVote[]>([]);
   const [electionVotes, setElectionVotes] = useState<ElectionVote[]>([]);

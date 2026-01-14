@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { GraduationCap } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CourseList } from '@/components/perwerde/CourseList';
 import { StudentDashboard } from '@/components/perwerde/StudentDashboard';
@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 
 export default function EducationPlatform() {
   const { user } = useAuth();
-  const { selectedAccount } = usePolkadot();
+  const { selectedAccount } = usePezkuwi();
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('courses');

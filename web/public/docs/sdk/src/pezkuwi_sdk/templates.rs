@@ -18,7 +18,7 @@
 //!   template can act as a good starting point for those who want to launch a solochain.
 //! - [`teyrchain-template`](https://github.com/pezkuwichain/pezkuwi-sdk-teyrchain-template):
 //! A teyrchain template ready to be connected to a relay-chain, such as [Paseo](https://github.com/paseo-network/.github)
-//! , Kusama  or Pezkuwi.
+//! , Dicle  or Pezkuwi.
 //!
 //! Note that these templates are mirrored automatically from [this](https://github.com/pezkuwichain/pezkuwi-sdk/blob/master/templates)
 //! directory of pezkuwi-sdk, therefore any changes to them should be made as a PR to this repo.

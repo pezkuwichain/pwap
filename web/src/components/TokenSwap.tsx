@@ -7,7 +7,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { ASSET_IDS, formatBalance, parseAmount } from '@pezkuwi/lib/wallet';
 import { useToast } from '@/hooks/use-toast';
@@ -22,7 +22,7 @@ const AVAILABLE_TOKENS = [
 ] as const;
 
 const TokenSwap = () => {
-  const { api, isApiReady, selectedAccount } = usePolkadot();
+  const { api, isApiReady, selectedAccount } = usePezkuwi();
   const { balances, refreshBalances } = useWallet();
   const { toast } = useToast();
 

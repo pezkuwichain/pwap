@@ -14,7 +14,7 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, AlertTriangle, Clock } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { toast } from 'sonner';
 import { acceptFiatOffer, type P2PFiatOffer } from '@shared/lib/p2p-fiat';
 
@@ -26,7 +26,7 @@ interface TradeModalProps {
 export function TradeModal({ offer, onClose }: TradeModalProps) {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { api, selectedAccount } = usePolkadot();
+  const { api, selectedAccount } = usePezkuwi();
   const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);
 

@@ -20,7 +20,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 
 export default function GovEntrance() {
-  // usePolkadot removed
+  // usePezkuwi removed
   const { nftDetails, kycStatus, loading: dashboardLoading } = useDashboard();
   const navigate = useNavigate();
   const { toast } = useToast();

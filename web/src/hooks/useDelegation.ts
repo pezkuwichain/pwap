@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 
 export interface Delegate {
   id: string;
@@ -41,7 +41,7 @@ export interface DelegationStats {
 }
 
 export function useDelegation(userAddress?: string) {
-  const { api, isConnected } = usePolkadot();
+  const { api, isConnected } = usePezkuwi();
   const [delegates, setDelegates] = useState<Delegate[]>([]);
   const [userDelegations, setUserDelegations] = useState<UserDelegation[]>([]);
   const [stats, setStats] = useState<DelegationStats>({

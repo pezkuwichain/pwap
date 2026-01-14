@@ -139,7 +139,7 @@ export async function getReferralScore(
 ): Promise<number> {
   try {
     if (!api?.query?.referral?.referralCount) {
-      if (import.meta.env.DEV) console.warn('Referral pallet not available');
+      if (typeof __DEV__ !== 'undefined' && __DEV__) console.warn('Referral pallet not available');
       return 0;
     }
 

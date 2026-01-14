@@ -1,0 +1,578 @@
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  SafeAreaView,
+  ScrollView,
+  TouchableOpacity,
+  RefreshControl,
+  Alert,
+  ActivityIndicator,
+} from 'react-native';
+import { KurdistanColors } from '../../theme/colors';
+import { usePezkuwi } from '../../contexts/PezkuwiContext';
+
+interface Proposal {
+  id: string;
+  title: string;
+  description: string;
+  proposer: string;
+  status: 'active' | 'passed' | 'rejected' | 'expired';
+  votesFor: number;
+  votesAgainst: number;
+  endBlock: number;
+  deposit: string;
+}
+
+// Mock data removed - using real blockchain queries from democracy pallet
+
+const ProposalsScreen: React.FC = () => {
+  const { api, isApiReady, selectedAccount, error: connectionError } = usePezkuwi();
+
+  const [proposals, setProposals] = useState<Proposal[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState<'all' | 'active' | 'passed' | 'rejected'>('all');
+
+  const formatBalance = (balance: string, decimals: number = 12): string => {
+    const value = BigInt(balance);
+    const divisor = BigInt(10 ** decimals);
+    const wholePart = value / divisor;
+    return wholePart.toLocaleString();
+  };
+
+  const fetchProposals = async () => {
+    if (!api || !isApiReady) return;
+
+    try {
+      setLoading(true);
+
+      // Fetch democracy referenda
+      if (api.query.democracy?.referendumInfoOf) {
+        const referendaData = await api.query.democracy.referendumInfoOf.entries();
+        const parsedProposals: Proposal[] = referendaData.map(([key, value]: any) => {
+          const index = key.args[0].toNumber();
+          const info = value.unwrap();
+
+          if (info.isOngoing) {
+            const ongoing = info.asOngoing;
+            const ayeVotes = ongoing.tally?.ayes ? BigInt(ongoing.tally.ayes.toString()) : BigInt(0);
+            const nayVotes = ongoing.tally?.nays ? BigInt(ongoing.tally.nays.toString()) : BigInt(0);
+
+            return {
+              id: `${index}`,
+              title: `Referendum #${index}`,
+              description: `Proposal hash: ${ongoing.proposalHash?.toString().slice(0, 20)}...`,
+              proposer: 'Unknown',
+              status: 'active' as const,
+              votesFor: Number(ayeVotes / BigInt(10 ** 12)),
+              votesAgainst: Number(nayVotes / BigInt(10 ** 12)),
+              endBlock: ongoing.end?.toNumber() || 0,
+              deposit: '0',
+            };
+          }
+
+          return null;
+        }).filter(Boolean) as Proposal[];
+
+        setProposals(parsedProposals);
+      }
+    } catch (error) {
+      console.error('Failed to load proposals:', error);
+      Alert.alert('Error', 'Failed to load proposals from blockchain');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProposals();
+    const interval = setInterval(fetchProposals, 30000);
+    return () => clearInterval(interval);
+  }, [api, isApiReady]);
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchProposals();
+  };
+
+  const handleProposalPress = (proposal: Proposal) => {
+    Alert.alert(
+      proposal.title,
+      `${proposal.description}\n\nProposer: ${proposal.proposer.slice(0, 10)}...\nDeposit: ${proposal.deposit}`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Vote', onPress: () => handleVote(proposal) },
+      ]
+    );
+  };
+
+  const handleVote = (proposal: Proposal) => {
+    Alert.alert(
+      'Cast Your Vote',
+      `Vote on: ${proposal.title}`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Vote Yes', onPress: () => submitVote(proposal, true) },
+        { text: 'Vote No', onPress: () => submitVote(proposal, false) },
+      ]
+    );
+  };
+
+  const submitVote = async (proposal: Proposal, voteYes: boolean) => {
+    Alert.alert('Success', `Voted ${voteYes ? 'YES' : 'NO'} on "${proposal.title}"`);
+    // TODO: Submit vote to chain
+  };
+
+  const handleCreateProposal = () => {
+    Alert.alert('Create Proposal', 'Create proposal form would open here');
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active':
+        return KurdistanColors.kesk;
+      case 'passed':
+        return '#3B82F6';
+      case 'rejected':
+        return '#EF4444';
+      case 'expired':
+        return '#999';
+      default:
+        return '#666';
+    }
+  };
+
+  const calculateVotePercentage = (proposal: Proposal) => {
+    const total = proposal.votesFor + proposal.votesAgainst;
+    if (total === 0) return { forPercentage: 0, againstPercentage: 0 };
+    return {
+      forPercentage: Math.round((proposal.votesFor / total) * 100),
+      againstPercentage: Math.round((proposal.votesAgainst / total) * 100),
+    };
+  };
+
+  const filteredProposals = selectedFilter === 'all'
+    ? proposals
+    : proposals.filter(p => p.status === selectedFilter);
+
+  // Show error state
+  if (connectionError && !api) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.centerContainer}>
+          <Text style={styles.errorIcon}>⚠️</Text>
+          <Text style={styles.errorTitle}>Connection Failed</Text>
+          <Text style={styles.errorMessage}>{connectionError}</Text>
+          <Text style={styles.errorHint}>
+            • Check your internet connection{'\n'}
+            • Connection will retry automatically
+          </Text>
+          <TouchableOpacity style={styles.retryButton} onPress={fetchProposals}>
+            <Text style={styles.retryButtonText}>Retry Now</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // Show loading state
+  if (!isApiReady || (loading && proposals.length === 0)) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.centerContainer}>
+          <ActivityIndicator size="large" color={KurdistanColors.kesk} />
+          <Text style={styles.loadingText}>Connecting to blockchain...</Text>
+          <Text style={styles.loadingHint}>Please wait</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <ScrollView
+        style={styles.scrollContent}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
+      >
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Proposals</Text>
+          <Text style={styles.headerSubtitle}>Vote on governance proposals</Text>
+        </View>
+
+        {/* Create Proposal Button */}
+        <TouchableOpacity style={styles.createButton} onPress={handleCreateProposal}>
+          <Text style={styles.createButtonText}>➕ Create Proposal</Text>
+        </TouchableOpacity>
+
+        {/* Filter Tabs */}
+        <View style={styles.filterTabs}>
+          <TouchableOpacity
+            style={[styles.filterTab, selectedFilter === 'all' && styles.filterTabActive]}
+            onPress={() => setSelectedFilter('all')}
+          >
+            <Text style={[styles.filterTabText, selectedFilter === 'all' && styles.filterTabTextActive]}>
+              All
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.filterTab, selectedFilter === 'active' && styles.filterTabActive]}
+            onPress={() => setSelectedFilter('active')}
+          >
+            <Text style={[styles.filterTabText, selectedFilter === 'active' && styles.filterTabTextActive]}>
+              Active
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.filterTab, selectedFilter === 'passed' && styles.filterTabActive]}
+            onPress={() => setSelectedFilter('passed')}
+          >
+            <Text style={[styles.filterTabText, selectedFilter === 'passed' && styles.filterTabTextActive]}>
+              Passed
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.filterTab, selectedFilter === 'rejected' && styles.filterTabActive]}
+            onPress={() => setSelectedFilter('rejected')}
+          >
+            <Text style={[styles.filterTabText, selectedFilter === 'rejected' && styles.filterTabTextActive]}>
+              Rejected
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Proposals List */}
+        <View style={styles.proposalsList}>
+          {filteredProposals.length === 0 ? (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyIcon}>📋</Text>
+              <Text style={styles.emptyText}>No proposals found</Text>
+            </View>
+          ) : (
+            filteredProposals.map((proposal) => {
+              const { forPercentage, againstPercentage } = calculateVotePercentage(proposal);
+              return (
+                <TouchableOpacity
+                  key={proposal.id}
+                  style={styles.proposalCard}
+                  onPress={() => handleProposalPress(proposal)}
+                >
+                  {/* Proposal Header */}
+                  <View style={styles.proposalHeader}>
+                    <Text style={styles.proposalTitle}>{proposal.title}</Text>
+                    <View style={[styles.statusBadge, { backgroundColor: `${getStatusColor(proposal.status)}15` }]}>
+                      <Text style={[styles.statusBadgeText, { color: getStatusColor(proposal.status) }]}>
+                        {proposal.status.toUpperCase()}
+                      </Text>
+                    </View>
+                  </View>
+
+                  {/* Description */}
+                  <Text style={styles.proposalDescription} numberOfLines={2}>
+                    {proposal.description}
+                  </Text>
+
+                  {/* Proposer */}
+                  <Text style={styles.proposer}>
+                    By: {proposal.proposer.slice(0, 10)}...{proposal.proposer.slice(-6)}
+                  </Text>
+
+                  {/* Vote Progress Bar */}
+                  <View style={styles.voteProgressContainer}>
+                    <View style={styles.voteProgressBar}>
+                      <View style={[styles.voteProgressFor, { width: `${forPercentage}%` }]} />
+                    </View>
+                    <View style={styles.voteStats}>
+                      <View style={styles.voteStat}>
+                        <Text style={styles.voteStatIcon}>✅</Text>
+                        <Text style={styles.voteStatText}>{proposal.votesFor.toLocaleString()} ({forPercentage}%)</Text>
+                      </View>
+                      <View style={styles.voteStat}>
+                        <Text style={styles.voteStatIcon}>❌</Text>
+                        <Text style={styles.voteStatText}>{proposal.votesAgainst.toLocaleString()} ({againstPercentage}%)</Text>
+                      </View>
+                    </View>
+                  </View>
+
+                  {/* Metadata */}
+                  <View style={styles.proposalMetadata}>
+                    <Text style={styles.metadataItem}>📦 Deposit: {proposal.deposit}</Text>
+                    <Text style={styles.metadataItem}>⏰ Block: {proposal.endBlock.toLocaleString()}</Text>
+                  </View>
+
+                  {/* Vote Button */}
+                  {proposal.status === 'active' && (
+                    <TouchableOpacity
+                      style={styles.voteButton}
+                      onPress={() => handleVote(proposal)}
+                    >
+                      <Text style={styles.voteButtonText}>Vote Now</Text>
+                    </TouchableOpacity>
+                  )}
+                </TouchableOpacity>
+              );
+            })
+          )}
+        </View>
+
+        {/* Info Note */}
+        <View style={styles.infoNote}>
+          <Text style={styles.infoNoteIcon}>ℹ️</Text>
+          <Text style={styles.infoNoteText}>
+            Creating a proposal requires a deposit that will be returned if the proposal passes. Only citizens can vote.
+          </Text>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F8F9FA',
+  },
+  scrollContent: {
+    flex: 1,
+  },
+  header: {
+    padding: 20,
+    paddingBottom: 16,
+  },
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 4,
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: '#666',
+  },
+  createButton: {
+    backgroundColor: KurdistanColors.kesk,
+    marginHorizontal: 16,
+    marginBottom: 20,
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  createButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+  filterTabs: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    marginBottom: 20,
+    gap: 8,
+  },
+  filterTab: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: '#E5E5E5',
+  },
+  filterTabActive: {
+    backgroundColor: KurdistanColors.kesk,
+  },
+  filterTabText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#666',
+  },
+  filterTabTextActive: {
+    color: '#FFFFFF',
+  },
+  proposalsList: {
+    paddingHorizontal: 16,
+  },
+  emptyContainer: {
+    padding: 40,
+    alignItems: 'center',
+  },
+  emptyIcon: {
+    fontSize: 64,
+    marginBottom: 16,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+  },
+  proposalCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  proposalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 12,
+  },
+  proposalTitle: {
+    flex: 1,
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+    marginRight: 8,
+  },
+  statusBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  statusBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  proposalDescription: {
+    fontSize: 14,
+    color: '#666',
+    lineHeight: 20,
+    marginBottom: 8,
+  },
+  proposer: {
+    fontSize: 12,
+    color: '#999',
+    fontFamily: 'monospace',
+    marginBottom: 16,
+  },
+  voteProgressContainer: {
+    marginBottom: 12,
+  },
+  voteProgressBar: {
+    height: 8,
+    backgroundColor: '#FEE2E2',
+    borderRadius: 4,
+    overflow: 'hidden',
+    marginBottom: 8,
+  },
+  voteProgressFor: {
+    height: '100%',
+    backgroundColor: KurdistanColors.kesk,
+  },
+  voteStats: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  voteStat: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  voteStatIcon: {
+    fontSize: 14,
+  },
+  voteStatText: {
+    fontSize: 13,
+    color: '#666',
+    fontWeight: '500',
+  },
+  proposalMetadata: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#F0F0F0',
+  },
+  metadataItem: {
+    fontSize: 12,
+    color: '#999',
+  },
+  voteButton: {
+    backgroundColor: KurdistanColors.kesk,
+    paddingVertical: 10,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  voteButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+  infoNote: {
+    flexDirection: 'row',
+    backgroundColor: '#FEF3C7',
+    marginHorizontal: 16,
+    marginTop: 16,
+    marginBottom: 24,
+    padding: 16,
+    borderRadius: 12,
+    gap: 12,
+  },
+  infoNoteIcon: {
+    fontSize: 20,
+  },
+  infoNoteText: {
+    flex: 1,
+    fontSize: 12,
+    color: '#92400E',
+    lineHeight: 18,
+  },
+  // Error & Loading States
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 32,
+  },
+  errorIcon: {
+    fontSize: 64,
+    marginBottom: 16,
+  },
+  errorTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 8,
+  },
+  errorMessage: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  errorHint: {
+    fontSize: 12,
+    color: '#999',
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: 24,
+  },
+  retryButton: {
+    backgroundColor: KurdistanColors.kesk,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  retryButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#333',
+    marginTop: 16,
+  },
+  loadingHint: {
+    fontSize: 12,
+    color: '#999',
+    marginTop: 8,
+  },
+});
+
+export default ProposalsScreen;

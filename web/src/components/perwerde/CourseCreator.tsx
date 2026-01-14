@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { toast } from 'sonner';
 import { createCourse } from '@shared/lib/perwerde';
 import { uploadToIPFS } from '@shared/lib/ipfs';
@@ -15,7 +15,7 @@ interface CourseCreatorProps {
 }
 
 export function CourseCreator({ onCourseCreated }: CourseCreatorProps) {
-  const { api, selectedAccount } = usePolkadot();
+  const { api, selectedAccount } = usePezkuwi();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [content, setContent] = useState('');

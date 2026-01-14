@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { toast } from 'sonner';
 import { 
   getPoolMember, 
@@ -16,7 +16,7 @@ import { Loader2, Users, UserCheck, UserX } from 'lucide-react';
 import { PoolCategorySelector } from './PoolCategorySelector';
 
 export function ValidatorPoolDashboard() {
-  const { api, selectedAccount } = usePolkadot();
+  const { api, selectedAccount } = usePezkuwi();
   const [poolMember, setPoolMember] = useState<ValidatorPoolCategory | null>(null);
   const [poolSize, setPoolSize] = useState(0);
   const [validatorCount, setValidatorCount] = useState(0);

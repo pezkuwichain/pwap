@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import {
   Copy,
   Check,
@@ -21,7 +21,7 @@ interface InviteUserModalProps {
 }
 
 export const InviteUserModal: React.FC<InviteUserModalProps> = ({ isOpen, onClose }) => {
-  const { api, selectedAccount } = usePolkadot();
+  const { api, selectedAccount } = usePezkuwi();
   const [copied, setCopied] = useState(false);
   const [inviteeAddress, setInviteeAddress] = useState('');
   const [initiating, setInitiating] = useState(false);

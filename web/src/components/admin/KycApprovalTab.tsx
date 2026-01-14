@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { Loader2, CheckCircle, XCircle, Clock, User, Mail, FileText, AlertTriangle } from 'lucide-react';
 import { COMMISSIONS } from '@/config/commissions';
 import {
@@ -37,7 +37,7 @@ interface IdentityInfo {
 }
 
 export function KycApprovalTab() {
-  const { api, isApiReady, selectedAccount, connectWallet } = usePolkadot();
+  const { api, isApiReady, selectedAccount, connectWallet } = usePezkuwi();
   const { toast } = useToast();
 
   const [loading, setLoading] = useState(true);

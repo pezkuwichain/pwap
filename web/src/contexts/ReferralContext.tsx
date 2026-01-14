@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -21,7 +21,7 @@ interface ReferralContextValue {
 const ReferralContext = createContext<ReferralContextValue | undefined>(undefined);
 
 export function ReferralProvider({ children }: { children: ReactNode }) {
-  const { api, isApiReady } = usePolkadot();
+  const { api, isApiReady } = usePezkuwi();
   const { account } = useWallet();
   const { toast } = useToast();
 

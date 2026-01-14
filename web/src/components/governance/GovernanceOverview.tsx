@@ -7,7 +7,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Progress } from '../ui/progress';
-import { usePolkadot } from '../../contexts/PolkadotContext';
+import { usePezkuwi } from '../../contexts/PezkuwiContext';
 import { formatBalance } from '@pezkuwi/lib/wallet';
 import { LoadingState } from '@pezkuwi/components/AsyncComponent';
 
@@ -23,7 +23,7 @@ interface GovernanceStats {
 }
 
 const GovernanceOverview: React.FC = () => {
-  const { api, isApiReady } = usePolkadot();
+  const { api, isApiReady } = usePezkuwi();
   const [stats, setStats] = useState<GovernanceStats>({
     activeProposals: 0,
     activeElections: 0,

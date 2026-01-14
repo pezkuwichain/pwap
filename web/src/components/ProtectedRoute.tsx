@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { Loader2, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -15,7 +15,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   requireAdmin = false
 }) => {
   const { user, loading, isAdmin } = useAuth();
-  const { selectedAccount, connectWallet } = usePolkadot();
+  const { selectedAccount, connectWallet } = usePezkuwi();
   const [walletRestoreChecked, setWalletRestoreChecked] = useState(false);
   const [forceUpdate, setForceUpdate] = useState(0);
 

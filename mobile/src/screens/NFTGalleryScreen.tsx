@@ -8,7 +8,7 @@ import {
   Dimensions,
   Pressable,
 } from 'react-native';
-import { usePolkadot } from '../contexts/PolkadotContext';
+import { usePezkuwi } from '../contexts/PezkuwiContext';
 import { AppColors, KurdistanColors } from '../theme/colors';
 import {
   Card,
@@ -39,7 +39,7 @@ interface NFT {
  * Inspired by OpenSea, Rarible, and modern NFT galleries
  */
 export default function NFTGalleryScreen() {
-  const { api, selectedAccount, isApiReady } = usePolkadot();
+  const { api, selectedAccount, isApiReady } = usePezkuwi();
   const [nfts, setNfts] = useState<NFT[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -420,10 +420,7 @@ const styles = StyleSheet.create({
     backgroundColor: AppColors.surface,
     borderRadius: 16,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.1)',
     elevation: 4,
   },
   nftCardPressed: {

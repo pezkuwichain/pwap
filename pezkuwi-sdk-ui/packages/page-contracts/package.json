@@ -16,7 +16,7 @@
   "type": "module",
   "version": "0.168.2-0-x",
   "dependencies": {
-    "@pezkuwi/api-contract": "16.5.2",
+    "@pezkuwi/api-contract": "^16.5.9",
     "eventemitter3": "^5.0.1"
   },
   "peerDependencies": {

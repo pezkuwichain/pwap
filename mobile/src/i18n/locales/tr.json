@@ -138,12 +138,77 @@
   },
   "settings": {
     "title": "Ayarlar",
-    "language": "Dil",
-    "theme": "Tema",
-    "notifications": "Bildirimler",
-    "security": "Güvenlik",
-    "about": "Hakkında",
-    "logout": "Çıkış Yap"
+    "sections": {
+      "appearance": "GÖRÜNÜM",
+      "language": "DİL",
+      "security": "GÜVENLİK",
+      "notifications": "BİLDİRİMLER",
+      "about": "HAKKINDA"
+    },
+    "appearance": {
+      "darkMode": "Karanlık Mod",
+      "darkModeSubtitle": "Açık ve karanlık tema arasında geçiş yapın",
+      "fontSize": "Yazı Boyutu",
+      "fontSizeSubtitle": "Şu anki: {{size}}",
+      "fontSizePrompt": "Tercih ettiğiniz yazı boyutunu seçin",
+      "small": "Küçük",
+      "medium": "Orta",
+      "large": "Büyük"
+    },
+    "language": {
+      "title": "Dil",
+      "changePrompt": "{{language}} diline geçilsin mi?",
+      "changeSuccess": "Dil başarıyla güncellendi!"
+    },
+    "security": {
+      "biometric": "Biyometrik Kimlik Doğrulama",
+      "biometricSubtitle": "Parmak izi veya yüz tanıma kullanın",
+      "biometricPrompt": "Biyometrik kimlik doğrulamayı (parmak izi/yüz tanıma) etkinleştirmek istiyor musunuz?",
+      "biometricEnabled": "Biyometrik kimlik doğrulama etkinleştirildi",
+      "twoFactor": "İki Faktörlü Kimlik Doğrulama",
+      "twoFactorSubtitle": "Ekstra bir güvenlik katmanı ekleyin",
+      "twoFactorPrompt": "İki faktörlü kimlik doğrulama ekstra bir güvenlik katmanı ekler. Bir kimlik doğrulayıcı uygulama kurmanız gerekecek.",
+      "twoFactorSetup": "Kur",
+      "changePassword": "Şifre Değiştir",
+      "changePasswordSubtitle": "Hesap şifrenizi güncelleyin"
+    },
+    "notifications": {
+      "push": "Anlık Bildirimler",
+      "pushSubtitle": "Uyarılar ve güncellemeler alın",
+      "email": "E-posta Bildirimleri",
+      "emailSubtitle": "E-posta tercihlerini yönetin"
+    },
+    "about": {
+      "pezkuwi": "Pezkuwi Hakkında",
+      "pezkuwiSubtitle": "Dijital Kürdistan hakkında daha fazla bilgi edinin",
+      "pezkuwiMessage": "Pezkuwi, vatandaşların yönetişim, ekonomi ve sosyal yaşama katılımını sağlayan Dijital Kürdistan için merkezi olmayan bir blockchain platformudur.\n\nVersiyon: 1.0.0\n\nDijital Kürdistan ekibi tarafından ❤️ ile yapıldı",
+      "terms": "Hizmet Şartları",
+      "privacy": "Gizlilik Politikası",
+      "contact": "Destek İletişim",
+      "contactSubtitle": "Ekibimizden yardım alın",
+      "contactEmail": "E-posta: support@pezkuwichain.io"
+    },
+    "version": {
+      "app": "Pezkuwi Mobil",
+      "number": "Versiyon 1.0.0",
+      "copyright": "© 2026 Dijital Kürdistan"
+    },
+    "alerts": {
+      "comingSoon": "Yakında",
+      "darkModeMessage": "Karanlık mod bir sonraki güncellemede kullanılabilir olacak",
+      "twoFactorMessage": "2FA kurulumu yakında kullanılabilir olacak",
+      "passwordMessage": "Şifre değiştirme yakında kullanılabilir olacak",
+      "emailMessage": "E-posta ayarları yakında kullanılabilir olacak",
+      "termsMessage": "Hizmet Şartları yakında kullanılabilir olacak",
+      "privacyMessage": "Gizlilik Politikası yakında kullanılabilir olacak"
+    },
+    "common": {
+      "enable": "Etkinleştir",
+      "cancel": "İptal",
+      "confirm": "Onayla",
+      "success": "Başarılı",
+      "error": "Hata"
+    }
   },
   "common": {
     "cancel": "İptal",

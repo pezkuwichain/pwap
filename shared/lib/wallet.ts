@@ -6,14 +6,29 @@
 import type { InjectedAccountWithMeta } from '@pezkuwi/extension-inject/types';
 import { getCurrentNetworkConfig } from '../blockchain/endpoints';
 
+// Helper to get environment variables that works in both web (Vite) and React Native (Expo)
+const getEnv = (key: string, defaultValue: string = ''): string => {
+  // Check for Vite environment (web)
+  if (typeof import.meta !== 'undefined' && import.meta.env) {
+    return (import.meta.env as any)[key] || defaultValue;
+  }
+  // Check for Expo environment (React Native)
+  if (typeof process !== 'undefined' && process.env) {
+    // Expo uses EXPO_PUBLIC_ prefix, Vite uses VITE_ prefix
+    const expoKey = key.replace('VITE_', 'EXPO_PUBLIC_');
+    return process.env[expoKey] || process.env[key] || defaultValue;
+  }
+  return defaultValue;
+};
+
 // ========================================
 // CHAIN CONFIGURATION
 // ========================================
 export const CHAIN_CONFIG = {
-  name: import.meta.env.VITE_CHAIN_NAME || 'PezkuwiChain',
-  symbol: import.meta.env.VITE_CHAIN_TOKEN_SYMBOL || 'PEZ',
-  decimals: parseInt(import.meta.env.VITE_CHAIN_TOKEN_DECIMALS || '12'),
-  ss58Format: parseInt(import.meta.env.VITE_CHAIN_SS58_FORMAT || '42'),
+  name: getEnv('VITE_CHAIN_NAME', 'PezkuwiChain'),
+  symbol: getEnv('VITE_CHAIN_TOKEN_SYMBOL', 'PEZ'),
+  decimals: parseInt(getEnv('VITE_CHAIN_TOKEN_DECIMALS', '12')),
+  ss58Format: parseInt(getEnv('VITE_CHAIN_SS58_FORMAT', '42')),
 };
 
 // ========================================
@@ -26,13 +41,13 @@ export const CHAIN_CONFIG = {
 // - 0-999: Reserved for protocol tokens (wHEZ, PEZ, etc.)
 // - 1000+: Bridged/wrapped external assets (wUSDT, etc.)
 export const ASSET_IDS = {
-  WHEZ: parseInt(import.meta.env.VITE_ASSET_WHEZ || '0'),  // Wrapped HEZ
-  PEZ: parseInt(import.meta.env.VITE_ASSET_PEZ || '1'),    // PEZ utility token
-  WUSDT: parseInt(import.meta.env.VITE_ASSET_WUSDT || '1000'), // Wrapped USDT (6 decimals, Asset ID 1000)
-  USDT: parseInt(import.meta.env.VITE_ASSET_USDT || '3'),
-  BTC: parseInt(import.meta.env.VITE_ASSET_BTC || '4'),
-  ETH: parseInt(import.meta.env.VITE_ASSET_ETH || '5'),
-  DOT: parseInt(import.meta.env.VITE_ASSET_DOT || '6'),
+  WHEZ: parseInt(getEnv('VITE_ASSET_WHEZ', '0')),  // Wrapped HEZ
+  PEZ: parseInt(getEnv('VITE_ASSET_PEZ', '1')),    // PEZ utility token
+  WUSDT: parseInt(getEnv('VITE_ASSET_WUSDT', '1000')), // Wrapped USDT (6 decimals, Asset ID 1000)
+  USDT: parseInt(getEnv('VITE_ASSET_USDT', '3')),
+  BTC: parseInt(getEnv('VITE_ASSET_BTC', '4')),
+  ETH: parseInt(getEnv('VITE_ASSET_ETH', '5')),
+  DOT: parseInt(getEnv('VITE_ASSET_DOT', '6')),
 } as const;
 
 // ========================================
@@ -66,8 +81,8 @@ export const ASSET_CONFIGS = {
 // EXPLORER URLS
 // ========================================
 export const EXPLORER_URLS = {
-  polkadotJs: import.meta.env.VITE_EXPLORER_URL || 'https://polkadot.js.org/apps/?rpc=',
-  custom: import.meta.env.VITE_CUSTOM_EXPLORER_URL || 'https://explorer.pezkuwichain.io',
+  pezkuwiJs: getEnv('VITE_EXPLORER_URL', 'https://js.pezkuwichain.io'),
+  custom: getEnv('VITE_CUSTOM_EXPLORER_URL', 'https://explorer.pezkuwichain.io'),
 };
 
 // ========================================

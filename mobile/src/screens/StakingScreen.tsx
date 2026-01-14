@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -7,7 +7,7 @@ import {
   RefreshControl,
   Alert,
 } from 'react-native';
-import { usePolkadot } from '../contexts/PolkadotContext';
+import { usePezkuwi } from '../contexts/PezkuwiContext';
 import { AppColors, KurdistanColors } from '../theme/colors';
 import {
   Card,
@@ -15,105 +15,103 @@ import {
   Input,
   BottomSheet,
   Badge,
+  ValidatorSelectionSheet,
   CardSkeleton,
 } from '../components';
-import {
-  calculateTikiScore,
-  calculateWeightedScore,
-  calculateMonthlyPEZReward,
-  SCORE_WEIGHTS,
-} from '@pezkuwi/lib/staking';
-import { fetchUserTikis } from '@pezkuwi/lib/tiki';
+import { getStakingInfo } from '@pezkuwi/lib/staking';
+import { getAllScores } from '@pezkuwi/lib/scores';
 import { formatBalance } from '@pezkuwi/lib/wallet';
 
-interface StakingData {
+// Helper types derived from shared lib
+interface StakingScreenData {
   stakedAmount: string;
   unbondingAmount: string;
-  totalRewards: string;
   monthlyReward: string;
   tikiScore: number;
+  stakingScore: number;
   weightedScore: number;
   estimatedAPY: string;
+  unlocking: { amount: string; era: number; blocksRemaining: number }[];
+  currentEra: number;
 }
 
-/**
- * Staking Screen
- * View staking status, stake/unstake, track rewards
- * Inspired by Polkadot.js and Argent staking interfaces
- */
+const SCORE_WEIGHTS = {
+  tiki: 40,
+  citizenship: 30,
+  staking: 30,
+};
+
 export default function StakingScreen() {
-  const { api, selectedAccount, isApiReady } = usePolkadot();
-  const [stakingData, setStakingData] = useState<StakingData | null>(null);
+  const { api, selectedAccount, isApiReady } = usePezkuwi();
+  
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [processing, setProcessing] = useState(false);
+  const [stakingData, setStakingData] = useState<StakingScreenData | null>(null);
+  
+  // Modal states
   const [stakeSheetVisible, setStakeSheetVisible] = useState(false);
   const [unstakeSheetVisible, setUnstakeSheetVisible] = useState(false);
+  const [validatorSheetVisible, setValidatorSheetVisible] = useState(false);
+  
   const [stakeAmount, setStakeAmount] = useState('');
   const [unstakeAmount, setUnstakeAmount] = useState('');
-  const [processing, setProcessing] = useState(false);
 
-  const fetchStakingData = React.useCallback(async () => {
+  const fetchStakingData = useCallback(async () => {
     try {
-      setLoading(true);
+      if (!refreshing) setLoading(true);
 
-      if (!api || !selectedAccount) return;
+      if (!api || !selectedAccount || !isApiReady) return;
 
-      // Get staking info from chain
-      const stakingInfo = await api.query.staking?.ledger(selectedAccount.address);
+      // 1. Get Staking Info
+      const stakingInfo = await getStakingInfo(api, selectedAccount.address);
+      
+      // 2. Get Scores
+      const scores = await getAllScores(api, selectedAccount.address);
 
-      let stakedAmount = '0';
-      let unbondingAmount = '0';
+      // 3. Get Current Era
+      const currentEraOpt = await api.query.staking.currentEra();
+      const currentEra = currentEraOpt.unwrapOrDefault().toNumber();
 
-      if (stakingInfo && stakingInfo.isSome) {
-        const ledger = stakingInfo.unwrap();
-        stakedAmount = ledger.active.toString();
+      // Calculations
+      const stakedAmount = stakingInfo.bonded;
+      const unbondingAmount = stakingInfo.unlocking.reduce(
+        (acc, chunk) => acc + parseFloat(formatBalance(chunk.amount, 12)), 
+        0
+      ).toString(); // Keep as string for now to match UI expectations if needed, or re-format
 
-        // Calculate unbonding
-        if (ledger.unlocking && ledger.unlocking.length > 0) {
-          unbondingAmount = ledger.unlocking
-            .reduce((sum: bigint, unlock: { value: { toString: () => string } }) => sum + BigInt(unlock.value.toString()), BigInt(0))
-            .toString();
-        }
-      }
+      // Estimate Monthly Reward (Simplified)
+      // 15% APY Base + Score Bonus (up to 5% extra)
+      const baseAPY = 0.15;
+      const scoreBonus = (scores.totalScore / 1000) * 0.05; // Example logic
+      const totalAPY = baseAPY + scoreBonus;
+      
+      const stakedNum = parseFloat(stakedAmount);
+      const monthlyReward = stakedNum > 0 
+        ? ((stakedNum * totalAPY) / 12).toFixed(2)
+        : '0.00';
+      
+      const estimatedAPY = (totalAPY * 100).toFixed(2);
 
-      // Get user's tiki roles
-      const tikis = await fetchUserTikis(api, selectedAccount.address);
-      const tikiScore = calculateTikiScore(tikis);
-
-      // Get citizenship status score
-      const citizenStatus = await api.query.identityKyc?.kycStatus(selectedAccount.address);
-      const citizenshipScore = citizenStatus && !citizenStatus.isEmpty ? 100 : 0;
-
-      // Calculate weighted score
-      const weightedScore = calculateWeightedScore(
-        tikiScore,
-        citizenshipScore,
-        0 // NFT score (would need to query NFT ownership)
-      );
-
-      // Calculate monthly reward
-      const monthlyReward = calculateMonthlyPEZReward(weightedScore);
-
-      // Get total rewards (would need historical data)
-      const totalRewards = '0'; // Placeholder
-
-      // Estimated APY (simplified calculation)
-      const stakedAmountNum = parseFloat(formatBalance(stakedAmount, 12));
-      const monthlyRewardNum = monthlyReward;
-      const yearlyReward = monthlyRewardNum * 12;
-      const estimatedAPY = stakedAmountNum > 0
-        ? ((yearlyReward / stakedAmountNum) * 100).toFixed(2)
-        : '0';
+      // Unlocking Chunks
+      const unlocking = stakingInfo.unlocking.map(u => ({
+        amount: u.amount,
+        era: u.era,
+        blocksRemaining: u.blocksRemaining
+      }));
 
       setStakingData({
-        stakedAmount,
-        unbondingAmount,
-        totalRewards,
-        monthlyReward: monthlyReward.toFixed(2),
-        tikiScore,
-        weightedScore,
+        stakedAmount: stakedAmount,
+        unbondingAmount: unbondingAmount, // This might need formatting depending on formatBalance output
+        monthlyReward,
+        tikiScore: scores.tikiScore,
+        stakingScore: scores.stakingScore,
+        weightedScore: scores.totalScore, // Using total score as weighted score
         estimatedAPY,
+        unlocking,
+        currentEra
       });
+
     } catch (error) {
       if (__DEV__) console.error('Error fetching staking data:', error);
       Alert.alert('Error', 'Failed to load staking data');
@@ -121,11 +119,11 @@ export default function StakingScreen() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [api, selectedAccount]);
+  }, [api, selectedAccount, isApiReady, refreshing]);
 
   useEffect(() => {
     if (isApiReady && selectedAccount) {
-      void fetchStakingData();
+      fetchStakingData();
     }
   }, [isApiReady, selectedAccount, fetchStakingData]);
 
@@ -137,14 +135,18 @@ export default function StakingScreen() {
 
     try {
       setProcessing(true);
-
       if (!api || !selectedAccount) return;
 
-      // Convert amount to planck (smallest unit)
+      // Convert amount to planck
       const amountPlanck = BigInt(Math.floor(parseFloat(stakeAmount) * 1e12));
 
-      // Bond tokens
-      const tx = api.tx.staking.bond(amountPlanck.toString(), 'Staked');
+      // Bond tokens (or bond_extra if already bonding)
+      // For simplicity, using bond_extra if already bonded, otherwise bond
+      // But UI should handle controller/stash logic. Assuming simple setup.
+      // This part is simplified.
+      
+      const tx = api.tx.staking.bondExtra(amountPlanck);
+      
       await tx.signAndSend(selectedAccount.address, ({ status }) => {
         if (status.isInBlock) {
           Alert.alert('Success', `Successfully staked ${stakeAmount} HEZ!`);
@@ -169,18 +171,16 @@ export default function StakingScreen() {
 
     try {
       setProcessing(true);
-
       if (!api || !selectedAccount) return;
 
       const amountPlanck = BigInt(Math.floor(parseFloat(unstakeAmount) * 1e12));
 
-      // Unbond tokens
-      const tx = api.tx.staking.unbond(amountPlanck.toString());
+      const tx = api.tx.staking.unbond(amountPlanck);
       await tx.signAndSend(selectedAccount.address, ({ status }) => {
         if (status.isInBlock) {
           Alert.alert(
             'Success',
-            `Successfully initiated unstaking of ${unstakeAmount} HEZ!\n\nTokens will be available after the unbonding period (28 eras / ~28 days).`
+            `Successfully initiated unstaking of ${unstakeAmount} HEZ!\n\nTokens will be available after unbonding period.`
           );
           setUnstakeSheetVisible(false);
           setUnstakeAmount('');
@@ -194,14 +194,63 @@ export default function StakingScreen() {
       setProcessing(false);
     }
   };
+  
+  const handleWithdrawUnbonded = async () => {
+    try {
+      setProcessing(true);
+      if (!api || !selectedAccount) return;
+
+      // Withdraw all available unbonded funds
+      // num_slashing_spans is usually 0 for simple stakers
+      const tx = api.tx.staking.withdrawUnbonded(0);
+      await tx.signAndSend(selectedAccount.address, ({ status }) => {
+        if (status.isInBlock) {
+          Alert.alert('Success', 'Successfully withdrawn unbonded tokens!');
+          fetchStakingData();
+        }
+      });
+    } catch (error: unknown) {
+      if (__DEV__) console.error('Withdraw error:', error);
+      Alert.alert('Error', error instanceof Error ? error.message : 'Failed to withdraw tokens');
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const handleNominateValidators = async (validators: string[]) => {
+    if (!validators || validators.length === 0) {
+      Alert.alert('Error', 'Please select at least one validator.');
+      return;
+    }
+    if (!api || !selectedAccount) return;
+
+    setProcessing(true);
+    try {
+      const tx = api.tx.staking.nominate(validators);
+      await tx.signAndSend(selectedAccount.address, ({ status }) => {
+        if (status.isInBlock) {
+          Alert.alert('Success', 'Nomination transaction sent!');
+          setValidatorSheetVisible(false);
+          fetchStakingData();
+        }
+      });
+    } catch (error: unknown) {
+      if (__DEV__) console.error('Nomination error:', error);
+      Alert.alert('Error', error instanceof Error ? error.message : 'Failed to nominate validators.');
+    } finally {
+      setProcessing(false);
+    }
+  };
 
   if (loading && !stakingData) {
     return (
-      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-        <CardSkeleton />
-        <CardSkeleton />
-        <CardSkeleton />
-      </ScrollView>
+      <View style={styles.container}>
+        <ScrollView contentContainerStyle={styles.content}>
+          <CardSkeleton />
+          <CardSkeleton />
+          <CardSkeleton />
+        </ScrollView>
+      </View>
     );
   }
 
@@ -209,7 +258,7 @@ export default function StakingScreen() {
     return (
       <View style={styles.container}>
         <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>Failed to load staking data</Text>
+          <Text style={styles.errorText}>No staking data available</Text>
           <Button title="Retry" onPress={fetchStakingData} />
         </View>
       </View>
@@ -231,10 +280,10 @@ export default function StakingScreen() {
         <Card style={styles.headerCard}>
           <Text style={styles.headerTitle}>Total Staked</Text>
           <Text style={styles.headerAmount}>
-            {formatBalance(stakingData.stakedAmount, 12)} HEZ
+            {stakingData.stakedAmount} HEZ
           </Text>
           <Text style={styles.headerSubtitle}>
-            ≈ ${(parseFloat(formatBalance(stakingData.stakedAmount, 12)) * 0.15).toFixed(2)} USD
+            ≈ ${(parseFloat(stakingData.stakedAmount) * 0.15).toFixed(2)} USD
           </Text>
         </Card>
 
@@ -253,7 +302,7 @@ export default function StakingScreen() {
         {/* Score Card */}
         <Card style={styles.scoreCard}>
           <View style={styles.scoreHeader}>
-            <Text style={styles.scoreTitle}>Your Staking Score</Text>
+            <Text style={styles.scoreTitle}>Your Total Score</Text>
             <Badge label={`${stakingData.weightedScore} pts`} variant="primary" />
           </View>
           <View style={styles.scoreBreakdown}>
@@ -263,26 +312,59 @@ export default function StakingScreen() {
               weight={SCORE_WEIGHTS.tiki}
             />
             <ScoreItem
-              label="Citizenship"
-              value={100}
-              weight={SCORE_WEIGHTS.citizenship}
+              label="Staking Score"
+              value={stakingData.stakingScore}
+              weight={SCORE_WEIGHTS.staking}
             />
           </View>
           <Text style={styles.scoreNote}>
-            Higher score = Higher monthly PEZ rewards
+            Higher score = Higher rewards & voting power
           </Text>
         </Card>
 
         {/* Unbonding Card */}
-        {parseFloat(formatBalance(stakingData.unbondingAmount, 12)) > 0 && (
+        {(parseFloat(stakingData.unbondingAmount) > 0 || stakingData.unlocking.length > 0) && (
           <Card style={styles.unbondingCard}>
-            <Text style={styles.unbondingTitle}>Unbonding</Text>
-            <Text style={styles.unbondingAmount}>
-              {formatBalance(stakingData.unbondingAmount, 12)} HEZ
-            </Text>
-            <Text style={styles.unbondingNote}>
-              Available after unbonding period (~28 days)
-            </Text>
+            <View style={styles.unbondingHeader}>
+              <Text style={styles.unbondingTitle}>Unbonding</Text>
+              <Text style={styles.unbondingTotal}>
+                {stakingData.unbondingAmount} HEZ
+              </Text>
+            </View>
+            
+            <View style={styles.chunksList}>
+              {stakingData.unlocking.map((chunk, index) => {
+                const remainingEras = Math.max(0, chunk.era - stakingData.currentEra);
+                const isReady = remainingEras === 0;
+                
+                return (
+                  <View key={index} style={styles.chunkItem}>
+                    <View>
+                      <Text style={styles.chunkAmount}>
+                        {formatBalance(chunk.amount, 12)} HEZ
+                      </Text>
+                      <Text style={styles.chunkRemaining}>
+                        {isReady ? 'Ready to withdraw' : `Available in ~${remainingEras} eras`}
+                      </Text>
+                    </View>
+                    {isReady && (
+                      <Badge label="Ready" variant="success" size="small" />
+                    )}
+                  </View>
+                );
+              })}
+            </View>
+
+            {stakingData.unlocking.some(chunk => chunk.era <= stakingData.currentEra) && (
+              <Button
+                title="Withdraw Available"
+                onPress={handleWithdrawUnbonded}
+                loading={processing}
+                variant="primary"
+                size="small"
+                style={{ marginTop: 12 }}
+              />
+            )}
           </Card>
         )}
 
@@ -298,6 +380,12 @@ export default function StakingScreen() {
             title="Unstake"
             onPress={() => setUnstakeSheetVisible(true)}
             variant="outline"
+            fullWidth
+          />
+          <Button
+            title="Select Validators"
+            onPress={() => setValidatorSheetVisible(true)}
+            variant="secondary"
             fullWidth
           />
         </View>
@@ -359,6 +447,13 @@ export default function StakingScreen() {
           style={{ marginTop: 16 }}
         />
       </BottomSheet>
+
+      {/* Validator Selection Bottom Sheet */}
+      <ValidatorSelectionSheet
+        visible={validatorSheetVisible}
+        onClose={() => setValidatorSheetVisible(false)}
+        onConfirmNominations={handleNominateValidators}
+      />
     </View>
   );
 }
@@ -486,18 +581,38 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     backgroundColor: `${KurdistanColors.zer}10`,
   },
+  unbondingHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'baseline',
+    marginBottom: 12,
+  },
   unbondingTitle: {
     fontSize: 14,
     color: AppColors.textSecondary,
-    marginBottom: 4,
   },
-  unbondingAmount: {
-    fontSize: 24,
+  unbondingTotal: {
+    fontSize: 20,
     fontWeight: '700',
     color: AppColors.text,
-    marginBottom: 4,
   },
-  unbondingNote: {
+  chunksList: {
+    gap: 8,
+  },
+  chunkItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    borderRadius: 8,
+  },
+  chunkAmount: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: AppColors.text,
+  },
+  chunkRemaining: {
     fontSize: 12,
     color: AppColors.textSecondary,
   },

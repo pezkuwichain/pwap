@@ -7,12 +7,14 @@
 export { translations as comprehensiveTranslations, supportedLocales } from './translations';
 
 // Import all translation JSON files for i18next compatibility
-import en from './locales/en.json?url';
-import tr from './locales/tr.json?url';
-import kmr from './locales/kmr.json?url';
-import ckb from './locales/ckb.json?url';
-import ar from './locales/ar.json?url';
-import fa from './locales/fa.json?url';
+// Note: For Metro bundler (React Native), we import JSON directly
+// For Vite (web), the ?url syntax would be used, but we handle this via conditional exports
+import en from './locales/en.json';
+import tr from './locales/tr.json';
+import kmr from './locales/kmr.json';
+import ckb from './locales/ckb.json';
+import ar from './locales/ar.json';
+import fa from './locales/fa.json';
 
 /**
  * Language configuration with RTL support
@@ -59,9 +61,16 @@ export const translationUrls = {
 };
 
 /**
- * Translation resources (empty - load dynamically)
+ * Translation resources (for React Native)
  */
-export const translations = {};
+export const translations = {
+  en,
+  tr,
+  kmr,
+  ckb,
+  ar,
+  fa,
+};
 
 /**
  * Check if a language is RTL

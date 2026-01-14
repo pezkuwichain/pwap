@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Minus, AlertCircle, Info } from 'lucide-react';
 import { web3FromAddress } from '@pezkuwi/extension-dapp';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -42,7 +42,7 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
   asset0,
   asset1,
 }) => {
-  const { api, selectedAccount } = usePolkadot();
+  const { api, selectedAccount } = usePezkuwi();
   const { refreshBalances } = useWallet();
 
   const [percentage, setPercentage] = useState(100);

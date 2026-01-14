@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { X, Plus, AlertCircle, Loader2, CheckCircle, Info } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,7 +21,7 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
   onClose,
   onSuccess,
 }) => {
-  const { api, isApiReady } = usePolkadot();
+  const { api, isApiReady } = usePezkuwi();
   const { account, signer } = useWallet();
 
   const [amount1Input, setAmount1Input] = useState('');

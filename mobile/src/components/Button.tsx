@@ -95,18 +95,12 @@ const styles = StyleSheet.create({
   // Variants
   primary: {
     backgroundColor: KurdistanColors.kesk,
-    shadowColor: KurdistanColors.kesk,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
+    boxShadow: '0px 4px 8px rgba(0, 128, 0, 0.3)',
     elevation: 4,
   },
   secondary: {
     backgroundColor: KurdistanColors.zer,
-    shadowColor: KurdistanColors.zer,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
+    boxShadow: '0px 4px 6px rgba(255, 215, 0, 0.2)',
     elevation: 3,
   },
   outline: {
@@ -119,10 +113,7 @@ const styles = StyleSheet.create({
   },
   danger: {
     backgroundColor: KurdistanColors.sor,
-    shadowColor: KurdistanColors.sor,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
+    boxShadow: '0px 4px 8px rgba(255, 0, 0, 0.3)',
     elevation: 4,
   },
   // Sizes
@@ -146,7 +137,7 @@ const styles = StyleSheet.create({
   },
   disabled: {
     opacity: 0.5,
-    shadowOpacity: 0,
+    boxShadow: 'none',
     elevation: 0,
   },
   pressed: {

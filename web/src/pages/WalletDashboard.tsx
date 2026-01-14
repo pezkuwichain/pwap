@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { AccountBalance } from '@/components/AccountBalance';
 import { TransferModal } from '@/components/TransferModal';
 import { ReceiveModal } from '@/components/ReceiveModal';
@@ -24,7 +24,7 @@ interface Transaction {
 
 const WalletDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const { api, isApiReady, selectedAccount } = usePolkadot();
+  const { api, isApiReady, selectedAccount } = usePezkuwi();
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
   const [isReceiveModalOpen, setIsReceiveModalOpen] = useState(false);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);

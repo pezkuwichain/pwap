@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { usePolkadot } from '@/contexts/PolkadotContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Activity, Wifi, WifiOff, Users, Box, TrendingUp } from 'lucide-react';
 
 export const NetworkStats: React.FC = () => {
-  const { api, isApiReady, error } = usePolkadot();
+  const { api, isApiReady, error } = usePezkuwi();
   const [blockNumber, setBlockNumber] = useState<number>(0);
   const [blockHash, setBlockHash] = useState<string>('');
   const [finalizedBlock, setFinalizedBlock] = useState<number>(0);
