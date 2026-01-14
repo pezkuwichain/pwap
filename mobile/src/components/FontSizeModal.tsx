@@ -30,14 +30,20 @@ const FontSizeModal: React.FC<FontSizeModalProps> = ({ visible, onClose }) => {
       transparent={true}
       onRequestClose={onClose}
     >
-      <View style={styles.overlay}>
-        <View style={styles.container}>
-          <View style={styles.header}>
-            <Text style={styles.headerTitle}>Font Size</Text>
-            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <Text style={styles.closeButtonText}>✕</Text>
-            </TouchableOpacity>
-          </View>
+      <TouchableOpacity
+        style={styles.overlay}
+        activeOpacity={1}
+        onPress={onClose}
+        testID="font-size-modal-backdrop"
+      >
+        <TouchableOpacity activeOpacity={1} onPress={(e) => e.stopPropagation()}>
+          <View style={styles.container}>
+            <View style={styles.header}>
+              <Text style={styles.headerTitle}>Font Size</Text>
+              <TouchableOpacity onPress={onClose} style={styles.closeButton} testID="font-size-modal-close">
+                <Text style={styles.closeButtonText}>✕</Text>
+              </TouchableOpacity>
+            </View>
 
           <View style={styles.content}>
             <Text style={styles.description}>
@@ -50,6 +56,7 @@ const FontSizeModal: React.FC<FontSizeModalProps> = ({ visible, onClose }) => {
                 fontSize === 'small' && styles.sizeOptionSelected,
               ]}
               onPress={() => handleSelectSize('small')}
+              testID="font-size-small"
             >
               <Text style={styles.sizeLabel}>Small</Text>
               <Text style={[styles.sizeExample, { fontSize: 14 }]}>
@@ -64,6 +71,7 @@ const FontSizeModal: React.FC<FontSizeModalProps> = ({ visible, onClose }) => {
                 fontSize === 'medium' && styles.sizeOptionSelected,
               ]}
               onPress={() => handleSelectSize('medium')}
+              testID="font-size-medium"
             >
               <Text style={styles.sizeLabel}>Medium (Default)</Text>
               <Text style={[styles.sizeExample, { fontSize: 16 }]}>
@@ -78,6 +86,7 @@ const FontSizeModal: React.FC<FontSizeModalProps> = ({ visible, onClose }) => {
                 fontSize === 'large' && styles.sizeOptionSelected,
               ]}
               onPress={() => handleSelectSize('large')}
+              testID="font-size-large"
             >
               <Text style={styles.sizeLabel}>Large</Text>
               <Text style={[styles.sizeExample, { fontSize: 18 }]}>
@@ -86,8 +95,9 @@ const FontSizeModal: React.FC<FontSizeModalProps> = ({ visible, onClose }) => {
               {fontSize === 'large' && <Text style={styles.checkmark}>✓</Text>}
             </TouchableOpacity>
           </View>
-        </View>
-      </View>
+          </View>
+        </TouchableOpacity>
+      </TouchableOpacity>
     </Modal>
   );
 };
