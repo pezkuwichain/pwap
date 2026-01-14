@@ -30,6 +30,20 @@ if (typeof global.TextEncoder === 'undefined') {
   console.log('ℹ️ [INDEX] TextEncoder/TextDecoder already available');
 }
 
+// Filter out known third-party deprecation warnings
+const originalWarn = console.warn;
+console.warn = (...args: any[]) => {
+  const message = args[0]?.toString() || '';
+
+  // Filter react-native-web deprecation warnings
+  if (message.includes('props.pointerEvents is deprecated')) {
+    return;
+  }
+
+  // Pass through all other warnings
+  originalWarn.apply(console, args);
+};
+
 console.log('📦 [INDEX] Loading Expo...');
 import { registerRootComponent } from 'expo';
 console.log('✅ [INDEX] Expo loaded');
