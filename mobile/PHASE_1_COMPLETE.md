@@ -188,14 +188,39 @@ boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
 **Files Fixed:**
 - SettingsScreen.tsx
 
+### Fixed React Native Web Compatibility
+
+**Issue:** Alert.alert() with button arrays doesn't work properly on React Native Web
+
+**Fix:**
+- Created FontSizeModal.tsx to replace Alert-based font size selector
+- Simplified biometric toggle to avoid button arrays
+- Now all interactive elements use proper modals or simple alerts
+
+**Files Fixed:**
+- SettingsScreen.tsx - Replaced Alert.alert() with modal
+- FontSizeModal.tsx - NEW professional font size selector
+
+### Fixed TypeScript Errors
+
+**Issue:** TermsOfServiceModal and PrivacyPolicyModal don't accept `onAccept` prop
+
+**Fix:**
+- Removed `onAccept` prop from modal calls in SettingsScreen
+- Modals now only use `visible` and `onClose` props
+
+**Files Fixed:**
+- SettingsScreen.tsx
+
 ---
 
 ## Files Created
 
 1. `/home/mamostehp/pwap/mobile/src/components/EmailNotificationsModal.tsx` - 350 lines
 2. `/home/mamostehp/pwap/mobile/src/components/ChangePasswordModal.tsx` - 350 lines
+3. `/home/mamostehp/pwap/mobile/src/components/FontSizeModal.tsx` - 200 lines
 
-**Total:** 2 new files, 700 lines of code
+**Total:** 3 new files, 900 lines of code
 
 ---
 

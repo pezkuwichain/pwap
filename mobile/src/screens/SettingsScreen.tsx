@@ -17,6 +17,7 @@ import TermsOfServiceModal from '../components/TermsOfServiceModal';
 import PrivacyPolicyModal from '../components/PrivacyPolicyModal';
 import EmailNotificationsModal from '../components/EmailNotificationsModal';
 import ChangePasswordModal from '../components/ChangePasswordModal';
+import FontSizeModal from '../components/FontSizeModal';
 import { useTheme } from '../contexts/ThemeContext';
 import { useBiometricAuth } from '../contexts/BiometricAuthContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -36,9 +37,18 @@ const SettingsScreen: React.FC = () => {
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showEmailPrefs, setShowEmailPrefs] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
+  const [showFontSize, setShowFontSize] = useState(false);
 
   // Create styles with current theme colors
   const styles = React.useMemo(() => createStyles(colors), [colors]);
+
+  React.useEffect(() => {
+    console.log('[Settings] Screen mounted');
+    console.log('[Settings] isDarkMode:', isDarkMode);
+    console.log('[Settings] fontSize:', fontSize);
+    console.log('[Settings] isBiometricEnabled:', isBiometricEnabled);
+    console.log('[Settings] styles:', styles ? 'DEFINED' : 'UNDEFINED');
+  }, []);
 
   const handleBiometryToggle = async (value: boolean) => {
     if (value) {
@@ -51,24 +61,13 @@ const SettingsScreen: React.FC = () => {
         return;
       }
 
-      Alert.alert(
-        t('biometricAuth'),
-        t('settingsScreen.biometricAlerts.prompt'),
-        [
-          { text: t('common.cancel'), style: 'cancel' },
-          {
-            text: t('common.confirm'),
-            onPress: async () => {
-              const success = await enableBiometric();
-              if (success) {
-                Alert.alert(t('settingsScreen.biometricAlerts.successTitle'), t('settingsScreen.biometricAlerts.enabled'));
-              } else {
-                Alert.alert('Error', 'Failed to enable biometric authentication. Please try again.');
-              }
-            },
-          },
-        ]
-      );
+      // Try to enable biometric directly
+      const success = await enableBiometric();
+      if (success) {
+        Alert.alert(t('settingsScreen.biometricAlerts.successTitle'), t('settingsScreen.biometricAlerts.enabled'));
+      } else {
+        Alert.alert('Error', 'Failed to enable biometric authentication. Please try again.');
+      }
     } else {
       await disableBiometric();
       Alert.alert(t('settingsScreen.biometricAlerts.successTitle'), t('settingsScreen.biometricAlerts.disabled'));
@@ -88,7 +87,13 @@ const SettingsScreen: React.FC = () => {
     onPress: () => void;
     showArrow?: boolean;
   }) => (
-    <TouchableOpacity style={styles.settingItem} onPress={onPress}>
+    <TouchableOpacity
+      style={styles.settingItem}
+      onPress={() => {
+        console.log(`[Settings] Button pressed: ${title}`);
+        onPress();
+      }}
+    >
       <View style={styles.settingIcon}>
         <Text style={styles.settingIconText}>{icon}</Text>
       </View>
@@ -162,27 +167,7 @@ const SettingsScreen: React.FC = () => {
             icon="📏"
             title="Font Size"
             subtitle={`Current: ${fontSize.charAt(0).toUpperCase() + fontSize.slice(1)}`}
-            onPress={() => {
-              Alert.alert(
-                'Font Size',
-                'Choose your preferred font size',
-                [
-                  {
-                    text: 'Small',
-                    onPress: async () => await setFontSize('small'),
-                  },
-                  {
-                    text: 'Medium',
-                    onPress: async () => await setFontSize('medium'),
-                  },
-                  {
-                    text: 'Large',
-                    onPress: async () => await setFontSize('large'),
-                  },
-                  { text: t('common.cancel'), style: 'cancel' },
-                ]
-              );
-            }}
+            onPress={() => setShowFontSize(true)}
           />
         </View>
 
@@ -274,13 +259,11 @@ const SettingsScreen: React.FC = () => {
       <TermsOfServiceModal
         visible={showTerms}
         onClose={() => setShowTerms(false)}
-        onAccept={() => setShowTerms(false)}
       />
 
       <PrivacyPolicyModal
         visible={showPrivacy}
         onClose={() => setShowPrivacy(false)}
-        onAccept={() => setShowPrivacy(false)}
       />
 
       <EmailNotificationsModal
@@ -291,6 +274,11 @@ const SettingsScreen: React.FC = () => {
       <ChangePasswordModal
         visible={showChangePassword}
         onClose={() => setShowChangePassword(false)}
+      />
+
+      <FontSizeModal
+        visible={showFontSize}
+        onClose={() => setShowFontSize(false)}
       />
     </SafeAreaView>
   );
