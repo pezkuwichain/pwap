@@ -18,9 +18,9 @@ import { KurdistanColors } from '../theme/colors';
 import { usePezkuwi } from '../contexts/PezkuwiContext';
 import { KurdistanSun } from '../components/KurdistanSun';
 
-// Token Images
-const hezLogo = require('../../../shared/images/hez_logo.png');
-const pezLogo = require('../../../shared/images/pez_logo.jpg');
+// Standardized token logos
+const hezLogo = require('../../../shared/images/hez_token_512.png');
+const pezLogo = require('../../../shared/images/pez_token_512.png');
 const usdtLogo = require('../../../shared/images/USDT(hez)logo.png');
 
 interface TokenInfo {

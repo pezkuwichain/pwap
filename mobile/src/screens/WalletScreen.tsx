@@ -26,6 +26,7 @@ import { KurdistanColors } from '../theme/colors';
 import { usePezkuwi, NetworkType, NETWORKS } from '../contexts/PezkuwiContext';
 import { AddTokenModal } from '../components/wallet/AddTokenModal';
 import { HezTokenLogo, PezTokenLogo } from '../components/icons';
+import { decodeAddress, checkAddress, encodeAddress } from '@pezkuwi/util-crypto';
 
 // Secure storage helper - same as in PezkuwiContext
 const secureStorage = {
@@ -58,8 +59,9 @@ const showAlert = (title: string, message: string, buttons?: Array<{text: string
 };
 
 // Token Images - From shared/images
-const hezLogo = require('../../../shared/images/hez_logo.png');
-const pezLogo = require('../../../shared/images/pez_logo.jpg');
+// Standardized token logos
+const hezLogo = require('../../../shared/images/hez_token_512.png');
+const pezLogo = require('../../../shared/images/pez_token_512.png');
 const usdtLogo = require('../../../shared/images/USDT(hez)logo.png');
 const dotLogo = require('../../../shared/images/dot.png');
 const btcLogo = require('../../../shared/images/bitcoin.png');
@@ -136,6 +138,22 @@ const WalletScreen: React.FC = () => {
     USDT: '0.00',
   });
 
+  // Gas fee estimation state
+  const [estimatedFee, setEstimatedFee] = useState<string>('');
+  const [isEstimatingFee, setIsEstimatingFee] = useState(false);
+  const [addressError, setAddressError] = useState<string>('');
+
+  // Address Book state
+  interface SavedAddress {
+    address: string;
+    name: string;
+    lastUsed?: number;
+  }
+  const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
+  const [addressBookVisible, setAddressBookVisible] = useState(false);
+  const [saveAddressModalVisible, setSaveAddressModalVisible] = useState(false);
+  const [newAddressName, setNewAddressName] = useState('');
+
   const tokens: Token[] = [
     {
       symbol: 'HEZ',
@@ -174,58 +192,54 @@ const WalletScreen: React.FC = () => {
 
     setIsLoadingBalances(true);
     try {
-      // 1. Fetch Balances
-      const accountInfo = await api.query.system.account(selectedAccount.address);
+      // 1. Fetch Balances - decode address to raw bytes to avoid SS58 encoding issues
+      let accountId: Uint8Array;
+      try {
+        accountId = decodeAddress(selectedAccount.address);
+      } catch (e) {
+        console.warn('[Wallet] Failed to decode address, using raw:', e);
+        accountId = selectedAccount.address as any;
+      }
+
+      const accountInfo = await api.query.system.account(accountId);
       const hezBalance = (Number(accountInfo.data.free.toString()) / 1e12).toFixed(2);
 
       let pezBalance = '0.00';
       try {
         if (api.query.assets?.account) {
-          const pezAsset = await api.query.assets.account(1, selectedAccount.address);
+          const pezAsset = await api.query.assets.account(1, accountId);
           if (pezAsset.isSome) pezBalance = (Number(pezAsset.unwrap().balance.toString()) / 1e12).toFixed(2);
         }
-      } catch {}
+      } catch (e) {
+        console.warn('[Wallet] PEZ balance fetch failed:', e);
+      }
 
       let usdtBalance = '0.00';
       try {
         if (api.query.assets?.account) {
           // Check ID 1000 first (as per constants), fallback to 2 just in case
-          let usdtAsset = await api.query.assets.account(1000, selectedAccount.address);
+          let usdtAsset = await api.query.assets.account(1000, accountId);
           if (usdtAsset.isNone) {
-             usdtAsset = await api.query.assets.account(2, selectedAccount.address);
+             usdtAsset = await api.query.assets.account(2, accountId);
           }
-          
+
           if (usdtAsset.isSome) {
              // USDT uses 6 decimals usually, checking constants or assuming standard
-             usdtBalance = (Number(usdtAsset.unwrap().balance.toString()) / 1e6).toFixed(2); 
+             usdtBalance = (Number(usdtAsset.unwrap().balance.toString()) / 1e6).toFixed(2);
           }
         }
-      } catch {}
+      } catch (e) {
+        console.warn('[Wallet] USDT balance fetch failed:', e);
+      }
 
       setBalances({ HEZ: hezBalance, PEZ: pezBalance, USDT: usdtBalance });
 
-      // 2. Fetch History from Indexer API (MUCH FASTER)
+      // 2. Fetch History - TODO: Connect to production indexer when available
+      // For now, skip indexer and show empty history (chain query is too slow for mobile)
       setIsLoadingHistory(true);
-      try {
-        const INDEXER_URL = 'http://172.31.134.70:3001'; // Update this to your local IP for physical device testing
-        const response = await fetch(`${INDEXER_URL}/api/history/${selectedAccount.address}`);
-        const data = await response.json();
-        
-        const txList = data.map((tx: any) => ({
-          hash: tx.hash,
-          method: tx.asset_id ? 'transfer' : 'transfer',
-          section: tx.asset_id ? 'assets' : 'balances',
-          from: tx.sender,
-          to: tx.receiver,
-          amount: tx.amount,
-          blockNumber: tx.block_number,
-          isIncoming: tx.receiver === selectedAccount.address,
-        }));
-        
-        setTransactions(txList);
-      } catch (e) {
-        console.warn('Indexer API unreachable, history not updated', e);
-      }
+      // Indexer disabled until production endpoint is available
+      // When ready, use: https://indexer.pezkuwichain.io/api/history/${selectedAccount.address}
+      setTransactions([]);
 
     } catch (error) {
       console.error('Fetch error:', error);
@@ -235,11 +249,45 @@ const WalletScreen: React.FC = () => {
     }
   }, [api, isApiReady, selectedAccount]);
 
+  // Real-time balance subscription
   useEffect(() => {
+    if (!api || !isApiReady || !selectedAccount) return;
+
+    let unsubscribe: (() => void) | null = null;
+
+    const subscribeToBalance = async () => {
+      try {
+        let accountId: Uint8Array;
+        try {
+          accountId = decodeAddress(selectedAccount.address);
+        } catch {
+          return;
+        }
+
+        // Subscribe to balance changes
+        unsubscribe = await api.query.system.account(accountId, (accountInfo: any) => {
+          const hezBalance = (Number(accountInfo.data.free.toString()) / 1e12).toFixed(2);
+          setBalances(prev => ({ ...prev, HEZ: hezBalance }));
+          console.log('[Wallet] Balance updated via subscription:', hezBalance, 'HEZ');
+        }) as unknown as () => void;
+      } catch (e) {
+        console.warn('[Wallet] Subscription failed, falling back to polling:', e);
+        // Fallback to polling if subscription fails
+        fetchData();
+      }
+    };
+
+    subscribeToBalance();
+
+    // Initial fetch for other tokens (PEZ, USDT)
     fetchData();
-    const interval = setInterval(fetchData, 30000);
-    return () => clearInterval(interval);
-  }, [fetchData]);
+
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
+  }, [api, isApiReady, selectedAccount]);
 
   const handleTokenPress = (token: Token) => {
     if (!token.isLive) return;
@@ -257,36 +305,178 @@ const WalletScreen: React.FC = () => {
     setReceiveModalVisible(true);
   };
 
+  // Load saved addresses from storage
+  useEffect(() => {
+    const loadAddressBook = async () => {
+      try {
+        const stored = await AsyncStorage.getItem('@pezkuwi_address_book');
+        if (stored) {
+          setSavedAddresses(JSON.parse(stored));
+        }
+      } catch (e) {
+        console.warn('[Wallet] Failed to load address book:', e);
+      }
+    };
+    loadAddressBook();
+  }, []);
+
+  // Save address to address book
+  const saveAddress = async (address: string, name: string) => {
+    try {
+      const newAddress: SavedAddress = {
+        address,
+        name,
+        lastUsed: Date.now(),
+      };
+      const updated = [...savedAddresses.filter(a => a.address !== address), newAddress];
+      setSavedAddresses(updated);
+      await AsyncStorage.setItem('@pezkuwi_address_book', JSON.stringify(updated));
+      showAlert('Saved', `Address "${name}" saved to address book`);
+    } catch (e) {
+      console.warn('[Wallet] Failed to save address:', e);
+    }
+  };
+
+  // Delete address from address book
+  const deleteAddress = async (address: string) => {
+    try {
+      const updated = savedAddresses.filter(a => a.address !== address);
+      setSavedAddresses(updated);
+      await AsyncStorage.setItem('@pezkuwi_address_book', JSON.stringify(updated));
+    } catch (e) {
+      console.warn('[Wallet] Failed to delete address:', e);
+    }
+  };
+
+  // Select address from address book
+  const selectSavedAddress = (address: string) => {
+    setRecipientAddress(address);
+    setAddressBookVisible(false);
+    validateAddress(address);
+  };
+
+  // Validate address format
+  const validateAddress = (address: string): boolean => {
+    if (!address || address.length < 10) {
+      setAddressError('Address is too short');
+      return false;
+    }
+    try {
+      // Try to decode the address - will throw if invalid
+      decodeAddress(address);
+      setAddressError('');
+      return true;
+    } catch (e) {
+      setAddressError('Invalid address format');
+      return false;
+    }
+  };
+
+  // Estimate gas fee before sending
+  const estimateFee = async () => {
+    if (!api || !isApiReady || !selectedAccount || !recipientAddress || !sendAmount || !selectedToken) {
+      return;
+    }
+
+    if (!validateAddress(recipientAddress)) {
+      return;
+    }
+
+    setIsEstimatingFee(true);
+    try {
+      const decimals = selectedToken.symbol === 'USDT' ? 1e6 : 1e12;
+      const amountInUnits = BigInt(Math.floor(parseFloat(sendAmount) * decimals));
+
+      let tx;
+      if (selectedToken.symbol === 'HEZ') {
+        tx = api.tx.balances.transferKeepAlive(recipientAddress, amountInUnits);
+      } else if (selectedToken.assetId !== undefined) {
+        tx = api.tx.assets.transfer(selectedToken.assetId, recipientAddress, amountInUnits);
+      } else {
+        return;
+      }
+
+      // Get payment info for fee estimation
+      const paymentInfo = await tx.paymentInfo(selectedAccount.address);
+      const feeInHez = (Number(paymentInfo.partialFee.toString()) / 1e12).toFixed(6);
+      setEstimatedFee(feeInHez);
+    } catch (e) {
+      console.warn('[Wallet] Fee estimation failed:', e);
+      setEstimatedFee('~0.001'); // Fallback estimate
+    } finally {
+      setIsEstimatingFee(false);
+    }
+  };
+
+  // Auto-estimate fee when inputs change
+  useEffect(() => {
+    if (sendModalVisible && recipientAddress && sendAmount && parseFloat(sendAmount) > 0) {
+      const timer = setTimeout(estimateFee, 500); // Debounce 500ms
+      return () => clearTimeout(timer);
+    }
+  }, [recipientAddress, sendAmount, sendModalVisible, selectedToken]);
+
   const handleConfirmSend = async () => {
     if (!recipientAddress || !sendAmount || !selectedToken || !selectedAccount || !api) {
       showAlert('Error', 'Please enter recipient address and amount');
       return;
     }
-    
+
+    // Validate address before sending
+    if (!validateAddress(recipientAddress)) {
+      showAlert('Error', 'Invalid recipient address');
+      return;
+    }
+
+    // Check if amount is valid
+    const amount = parseFloat(sendAmount);
+    if (isNaN(amount) || amount <= 0) {
+      showAlert('Error', 'Please enter a valid amount');
+      return;
+    }
+
+    // Check if user has enough balance
+    const currentBalance = parseFloat(balances[selectedToken.symbol] || '0');
+    const feeEstimate = parseFloat(estimatedFee || '0.001');
+    if (selectedToken.symbol === 'HEZ' && amount + feeEstimate > currentBalance) {
+      showAlert('Error', `Insufficient balance. You need ${(amount + feeEstimate).toFixed(4)} HEZ (including fee)`);
+      return;
+    } else if (selectedToken.symbol !== 'HEZ' && amount > currentBalance) {
+      showAlert('Error', `Insufficient ${selectedToken.symbol} balance`);
+      return;
+    }
+
     setIsSending(true);
     try {
         const keypair = await getKeyPair(selectedAccount.address);
         if (!keypair) throw new Error('Failed to load keypair');
-        
+
         // Adjust decimals based on token
         const decimals = selectedToken.symbol === 'USDT' ? 1e6 : 1e12;
-        const amountInUnits = BigInt(Math.floor(parseFloat(sendAmount) * decimals));
-        
+        const amountInUnits = BigInt(Math.floor(amount * decimals));
+
         let tx;
         if (selectedToken.symbol === 'HEZ') {
-            tx = api.tx.balances.transfer(recipientAddress, amountInUnits);
+            // Use transferKeepAlive to prevent account from being reaped
+            tx = api.tx.balances.transferKeepAlive(recipientAddress, amountInUnits);
         } else if (selectedToken.assetId !== undefined) {
             tx = api.tx.assets.transfer(selectedToken.assetId, recipientAddress, amountInUnits);
         } else {
             throw new Error('Unknown token type');
         }
-        
-        await tx.signAndSend(keypair, ({ status }) => {
+
+        await tx.signAndSend(keypair, ({ status, events }) => {
+            if (status.isInBlock) {
+                console.log('[Wallet] Transaction in block:', status.asInBlock.toHex());
+            }
             if (status.isFinalized) {
                 setSendModalVisible(false);
                 setIsSending(false);
-                showAlert('Success', 'Transaction Sent!');
-                fetchData(); 
+                setRecipientAddress('');
+                setSendAmount('');
+                setEstimatedFee('');
+                showAlert('Success', `Transaction finalized!\nBlock: ${status.asFinalized.toHex().slice(0, 10)}...`);
+                fetchData();
             }
         });
     } catch (e: any) {
@@ -561,11 +751,83 @@ const WalletScreen: React.FC = () => {
                 <View style={{alignItems:'center', marginBottom:16}}>
                     {selectedToken && <Image source={selectedToken.logo} style={{width:48, height:48}} />}
                 </View>
-                <TextInput style={styles.inputField} placeholder="Address" value={recipientAddress} onChangeText={setRecipientAddress} />
-                <TextInput style={styles.inputField} placeholder="Amount" keyboardType="numeric" value={sendAmount} onChangeText={setSendAmount} />
+
+                {/* Recipient Address Input with Address Book */}
+                <View style={styles.addressInputRow}>
+                  <TextInput
+                    style={[styles.inputFieldFlex, addressError ? styles.inputError : null]}
+                    placeholder="Recipient Address"
+                    value={recipientAddress}
+                    onChangeText={(text) => {
+                      setRecipientAddress(text);
+                      if (text.length > 10) validateAddress(text);
+                    }}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                  />
+                  <TouchableOpacity
+                    style={styles.addressBookButton}
+                    onPress={() => setAddressBookVisible(true)}
+                  >
+                    <Text style={styles.addressBookIcon}>📒</Text>
+                  </TouchableOpacity>
+                </View>
+                {addressError ? <Text style={styles.errorText}>{addressError}</Text> : null}
+
+                {/* Save Address Button (if valid new address) */}
+                {recipientAddress && !addressError && !savedAddresses.find(a => a.address === recipientAddress) && (
+                  <TouchableOpacity
+                    style={styles.saveAddressLink}
+                    onPress={() => setSaveAddressModalVisible(true)}
+                  >
+                    <Text style={styles.saveAddressLinkText}>💾 Save this address</Text>
+                  </TouchableOpacity>
+                )}
+
+                {/* Amount Input */}
+                <TextInput
+                  style={styles.inputField}
+                  placeholder={`Amount (Balance: ${balances[selectedToken?.symbol || 'HEZ']} ${selectedToken?.symbol})`}
+                  keyboardType="numeric"
+                  value={sendAmount}
+                  onChangeText={setSendAmount}
+                />
+
+                {/* Gas Fee Preview */}
+                {(estimatedFee || isEstimatingFee) && (
+                  <View style={styles.feePreview}>
+                    <Text style={styles.feeLabel}>Estimated Fee:</Text>
+                    {isEstimatingFee ? (
+                      <ActivityIndicator size="small" color={KurdistanColors.kesk} />
+                    ) : (
+                      <Text style={styles.feeAmount}>{estimatedFee} HEZ</Text>
+                    )}
+                  </View>
+                )}
+
+                {/* Total (Amount + Fee) */}
+                {estimatedFee && sendAmount && selectedToken?.symbol === 'HEZ' && (
+                  <View style={styles.totalPreview}>
+                    <Text style={styles.totalLabel}>Total (incl. fee):</Text>
+                    <Text style={styles.totalAmount}>
+                      {(parseFloat(sendAmount || '0') + parseFloat(estimatedFee || '0')).toFixed(6)} HEZ
+                    </Text>
+                  </View>
+                )}
+
                 <View style={styles.modalActions}>
-                    <TouchableOpacity style={styles.btnCancel} onPress={() => setSendModalVisible(false)}><Text>Cancel</Text></TouchableOpacity>
-                    <TouchableOpacity style={styles.btnConfirm} onPress={handleConfirmSend} disabled={isSending}>
+                    <TouchableOpacity style={styles.btnCancel} onPress={() => {
+                      setSendModalVisible(false);
+                      setRecipientAddress('');
+                      setSendAmount('');
+                      setEstimatedFee('');
+                      setAddressError('');
+                    }}><Text>Cancel</Text></TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.btnConfirm, (isSending || !!addressError) && styles.btnDisabled]}
+                      onPress={handleConfirmSend}
+                      disabled={isSending || !!addressError}
+                    >
                         <Text style={{color:'white'}}>{isSending ? 'Sending...' : 'Confirm'}</Text>
                     </TouchableOpacity>
                 </View>
@@ -764,6 +1026,79 @@ const WalletScreen: React.FC = () => {
         onClose={() => setAddTokenModalVisible(false)}
         onTokenAdded={fetchData}
       />
+
+      {/* Address Book Modal */}
+      <Modal visible={addressBookVisible} transparent animationType="slide" onRequestClose={() => setAddressBookVisible(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalHeader}>📒 Address Book</Text>
+            {savedAddresses.length === 0 ? (
+              <Text style={styles.emptyAddressBook}>No saved addresses yet</Text>
+            ) : (
+              <ScrollView style={styles.addressList}>
+                {savedAddresses.map((saved) => (
+                  <View key={saved.address} style={styles.savedAddressRow}>
+                    <TouchableOpacity
+                      style={styles.savedAddressInfo}
+                      onPress={() => selectSavedAddress(saved.address)}
+                    >
+                      <Text style={styles.savedAddressName}>{saved.name}</Text>
+                      <Text style={styles.savedAddressAddr} numberOfLines={1}>
+                        {saved.address.slice(0, 12)}...{saved.address.slice(-8)}
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.deleteAddressButton}
+                      onPress={() => deleteAddress(saved.address)}
+                    >
+                      <Text>🗑️</Text>
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </ScrollView>
+            )}
+            <TouchableOpacity style={styles.btnConfirm} onPress={() => setAddressBookVisible(false)}>
+              <Text style={{color:'white'}}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Save Address Modal */}
+      <Modal visible={saveAddressModalVisible} transparent animationType="slide" onRequestClose={() => setSaveAddressModalVisible(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalHeader}>💾 Save Address</Text>
+            <Text style={styles.savedAddressAddr}>{recipientAddress.slice(0, 16)}...{recipientAddress.slice(-12)}</Text>
+            <TextInput
+              style={styles.inputField}
+              placeholder="Name (e.g. Alice, Exchange)"
+              value={newAddressName}
+              onChangeText={setNewAddressName}
+            />
+            <View style={styles.modalActions}>
+              <TouchableOpacity style={styles.btnCancel} onPress={() => {
+                setSaveAddressModalVisible(false);
+                setNewAddressName('');
+              }}>
+                <Text>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.btnConfirm}
+                onPress={() => {
+                  if (newAddressName.trim()) {
+                    saveAddress(recipientAddress, newAddressName.trim());
+                    setSaveAddressModalVisible(false);
+                    setNewAddressName('');
+                  }
+                }}
+              >
+                <Text style={{color:'white'}}>Save</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
 
     </SafeAreaView>
   );
@@ -1048,6 +1383,132 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginVertical: 10,
     fontFamily: 'monospace'
+  },
+  inputError: {
+    borderWidth: 1,
+    borderColor: '#EF4444',
+    backgroundColor: '#FEF2F2',
+  },
+  errorText: {
+    color: '#EF4444',
+    fontSize: 12,
+    marginTop: -8,
+    marginBottom: 8,
+    paddingHorizontal: 4,
+  },
+  feePreview: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#F0FDF4',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  feeLabel: {
+    fontSize: 14,
+    color: '#666',
+  },
+  feeAmount: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: KurdistanColors.kesk,
+  },
+  totalPreview: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#FEF3C7',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  totalLabel: {
+    fontSize: 14,
+    color: '#92400E',
+  },
+  totalAmount: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#92400E',
+  },
+  btnDisabled: {
+    backgroundColor: '#9CA3AF',
+    opacity: 0.7,
+  },
+  // Address Book styles
+  addressInputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    marginBottom: 12,
+  },
+  inputFieldFlex: {
+    flex: 1,
+    backgroundColor: '#F5F5F5',
+    padding: 16,
+    borderRadius: 12,
+    marginRight: 8,
+  },
+  addressBookButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    backgroundColor: '#F5F5F5',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  addressBookIcon: {
+    fontSize: 24,
+  },
+  saveAddressLink: {
+    alignSelf: 'flex-start',
+    marginTop: -8,
+    marginBottom: 8,
+  },
+  saveAddressLinkText: {
+    fontSize: 13,
+    color: KurdistanColors.kesk,
+  },
+  emptyAddressBook: {
+    color: '#999',
+    textAlign: 'center',
+    paddingVertical: 32,
+  },
+  addressList: {
+    width: '100%',
+    maxHeight: 300,
+    marginBottom: 16,
+  },
+  savedAddressRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8F9FA',
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  savedAddressInfo: {
+    flex: 1,
+  },
+  savedAddressName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 2,
+  },
+  savedAddressAddr: {
+    fontSize: 12,
+    color: '#999',
+    fontFamily: 'monospace',
+  },
+  deleteAddressButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 8,
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   // Network Selector Styles

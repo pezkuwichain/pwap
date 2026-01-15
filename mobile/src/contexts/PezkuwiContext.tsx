@@ -86,7 +86,7 @@ export const NETWORKS: Record<NetworkType, NetworkConfig> = {
   zombienet: {
     name: 'zombienet',
     displayName: 'Zombienet Dev (Alice/Bob)',
-    rpcEndpoint: 'wss://zombienet-rpc.pezkuwichain.io',
+    rpcEndpoint: 'wss://beta-rpc.pezkuwichain.io:19944',
     ss58Format: 42,
     type: 'dev',
   },
