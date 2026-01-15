@@ -148,3 +148,6 @@ COMMISSION_SYSTEM_SUMMARY -
 *.md
 !README.md
 COMMISSION_SYSTEM_SUMMARY - Copy.md:Zone.Identifier
+
+# APK files (too large for GitHub)
+*.apk
