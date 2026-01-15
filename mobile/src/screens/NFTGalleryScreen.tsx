@@ -17,7 +17,7 @@ import {
   Badge,
   CardSkeleton,
 } from '../components';
-import { fetchUserTikis, getTikiDisplayName, getTikiEmoji } from '@pezkuwi/lib/tiki';
+import { fetchUserTikis, getTikiDisplayName, getTikiEmoji } from '../../shared/lib/tiki';
 
 const { width } = Dimensions.get('window');
 const NFT_SIZE = (width - 48) / 2; // 2 columns with padding

@@ -18,9 +18,9 @@ import {
   ValidatorSelectionSheet,
   CardSkeleton,
 } from '../components';
-import { getStakingInfo } from '@pezkuwi/lib/staking';
-import { getAllScores } from '@pezkuwi/lib/scores';
-import { formatBalance } from '@pezkuwi/lib/wallet';
+import { getStakingInfo } from '../../shared/lib/staking';
+import { getAllScores } from '../../shared/lib/scores';
+import { formatBalance } from '../../shared/lib/wallet';
 
 // Helper types derived from shared lib
 interface StakingScreenData {

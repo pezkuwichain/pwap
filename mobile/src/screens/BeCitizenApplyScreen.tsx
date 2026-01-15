@@ -18,8 +18,8 @@ import {
   submitKycApplication,
   uploadToIPFS,
   FOUNDER_ADDRESS,
-} from '@pezkuwi/lib/citizenship-workflow';
-import type { Region, MaritalStatus } from '@pezkuwi/lib/citizenship-workflow';
+} from '../../shared/lib/citizenship-workflow';
+import type { Region, MaritalStatus } from '../../shared/lib/citizenship-workflow';
 import { KurdistanColors } from '../theme/colors';
 
 // Temporary custom picker component (until we fix @react-native-picker/picker installation)

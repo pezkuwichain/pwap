@@ -17,7 +17,7 @@ import {
   submitKycApplication,
   uploadToIPFS,
   getCitizenshipStatus,
-} from '@pezkuwi/lib/citizenship-workflow';
+} from '../../shared/lib/citizenship-workflow';
 import { KurdistanColors } from '../theme/colors';
 
 const BeCitizenScreen: React.FC = () => {
