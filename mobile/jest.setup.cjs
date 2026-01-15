@@ -5,27 +5,78 @@
 process.env.EXPO_USE_STATIC_RENDERING = 'true';
 global.__ExpoImportMetaRegistry__ = {};
 
+// Mock navigation context for @react-navigation/core
+const mockNavigationObject = {
+  navigate: jest.fn(),
+  goBack: jest.fn(),
+  setOptions: jest.fn(),
+  addListener: jest.fn(() => () => {}),
+  removeListener: jest.fn(),
+  replace: jest.fn(),
+  reset: jest.fn(),
+  canGoBack: jest.fn(() => true),
+  isFocused: jest.fn(() => true),
+  dispatch: jest.fn(),
+  getParent: jest.fn(),
+  getState: jest.fn(() => ({
+    routes: [],
+    index: 0,
+  })),
+  setParams: jest.fn(),
+};
+
+jest.mock('@react-navigation/core', () => {
+  const actualCore = jest.requireActual('@react-navigation/core');
+  return {
+    ...actualCore,
+    useNavigation: () => mockNavigationObject,
+    useRoute: () => ({
+      params: {},
+      key: 'test-route',
+      name: 'TestScreen',
+    }),
+    useFocusEffect: jest.fn(),
+    useIsFocused: () => true,
+  };
+});
+
 // Mock @react-navigation/native
 jest.mock('@react-navigation/native', () => {
   const actualNav = jest.requireActual('@react-navigation/native');
   return {
     ...actualNav,
-    useNavigation: () => ({
-      navigate: jest.fn(),
-      goBack: jest.fn(),
-      setOptions: jest.fn(),
-      addListener: jest.fn(),
-      removeListener: jest.fn(),
-    }),
+    useNavigation: () => mockNavigationObject,
     useRoute: () => ({
       params: {},
+      key: 'test-route',
+      name: 'TestScreen',
     }),
+    useFocusEffect: jest.fn(),
+    useIsFocused: () => true,
   };
 });
+
+// Mock PezkuwiContext globally
+jest.mock('./src/contexts/PezkuwiContext', () => require('./src/__mocks__/contexts/PezkuwiContext'));
+
+// Mock AuthContext globally
+jest.mock('./src/contexts/AuthContext', () => require('./src/__mocks__/contexts/AuthContext'));
+
+// Mock ThemeContext globally
+jest.mock('./src/contexts/ThemeContext', () => require('./src/__mocks__/contexts/ThemeContext'));
+
+// Mock BiometricAuthContext globally
+jest.mock('./src/contexts/BiometricAuthContext', () => require('./src/__mocks__/contexts/BiometricAuthContext'));
 
 // Mock expo modules
 jest.mock('expo-linear-gradient', () => ({
   LinearGradient: 'LinearGradient',
+}));
+
+// Mock react-native-webview
+jest.mock('react-native-webview', () => ({
+  WebView: 'WebView',
+  WebViewMessageEvent: {},
 }));
 
 jest.mock('expo-secure-store', () => ({

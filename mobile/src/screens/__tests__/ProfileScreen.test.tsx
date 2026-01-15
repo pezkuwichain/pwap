@@ -1,14 +1,12 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
+import { PezkuwiProvider } from '../../contexts/PezkuwiContext';
 import ProfileScreen from '../ProfileScreen';
 
-jest.mock('@react-navigation/native', () => ({
-  ...jest.requireActual('@react-navigation/native'),
-  useNavigation: () => ({ navigate: jest.fn() }),
-}));
-
 const ProfileScreenWrapper = () => (
-  <ProfileScreen />
+  <PezkuwiProvider>
+    <ProfileScreen />
+  </PezkuwiProvider>
 );
 
 describe('ProfileScreen', () => {

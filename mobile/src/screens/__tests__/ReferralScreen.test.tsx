@@ -1,12 +1,7 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import { PezkuwiProvider } from '../contexts/PezkuwiContext';
+import { PezkuwiProvider } from '../../contexts/PezkuwiContext';
 import ReferralScreen from '../ReferralScreen';
-
-jest.mock('@react-navigation/native', () => ({
-  ...jest.requireActual('@react-navigation/native'),
-  useNavigation: () => ({ navigate: jest.fn() }),
-}));
 
 const ReferralScreenWrapper = () => (
   <PezkuwiProvider>

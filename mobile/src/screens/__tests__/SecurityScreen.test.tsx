@@ -3,11 +3,6 @@ import { render } from '@testing-library/react-native';
 import { BiometricAuthProvider } from '../../contexts/BiometricAuthContext';
 import SecurityScreen from '../SecurityScreen';
 
-jest.mock('@react-navigation/native', () => ({
-  ...jest.requireActual('@react-navigation/native'),
-  useNavigation: () => ({ navigate: jest.fn() }),
-}));
-
 const SecurityScreenWrapper = () => (
   <BiometricAuthProvider>
     <SecurityScreen />

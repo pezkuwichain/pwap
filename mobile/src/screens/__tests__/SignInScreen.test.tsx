@@ -3,11 +3,6 @@ import { render } from '@testing-library/react-native';
 import { AuthProvider } from '../../contexts/AuthContext';
 import SignInScreen from '../SignInScreen';
 
-jest.mock('@react-navigation/native', () => ({
-  ...jest.requireActual('@react-navigation/native'),
-  useNavigation: () => ({ navigate: jest.fn() }),
-}));
-
 // Wrapper with required providers
 const SignInScreenWrapper = () => (
   <AuthProvider>
