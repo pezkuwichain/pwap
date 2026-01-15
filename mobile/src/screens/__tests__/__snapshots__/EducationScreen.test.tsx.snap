@@ -121,12 +121,12 @@ exports[`EducationScreen should match snapshot 1`] = `
 
       // Create native bridge for wallet operations
       window.PezkuwiNativeBridge = {
-        // Request transaction signing from native wallet
-        signTransaction: function(extrinsicHex, callback) {
+        // Request transaction signing and submission from native wallet
+        signTransaction: function(payload, callback) {
           window.__pendingSignCallback = callback;
           window.ReactNativeWebView?.postMessage(JSON.stringify({
             type: 'SIGN_TRANSACTION',
-            payload: { extrinsicHex }
+            payload: payload
           }));
         },
 
