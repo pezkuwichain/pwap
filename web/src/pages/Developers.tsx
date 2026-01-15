@@ -49,7 +49,7 @@ const unsub = await api.tx.balances
             <h2 className="text-2xl font-bold mb-2">Quick Start Guide</h2>
             <p className="text-gray-400 mb-4">Your first steps to building a dApp on PezkuwiChain.</p>
                           <ol className="list-decimal list-inside space-y-2">
-                            <li>Install the Pezkuwi Wallet extension.</li>
+                            <li>Install the Pezkuwi.js extension.</li>
                             <li>Get some testnet HEZ from the Faucet.</li>              <li>Clone a starter project from our GitHub.</li>
               <li>Start building!</li>
             </ol>

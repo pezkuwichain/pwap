@@ -107,7 +107,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
           <DialogDescription>
             {selectedAccount
               ? 'Manage your Pezkuwi account'
-              : 'Connect your Pezkuwi Wallet extension to interact with PezkuwiChain'}
+              : 'Connect your Pezkuwi.js extension to interact with PezkuwiChain'}
           </DialogDescription>
         </DialogHeader>
 
@@ -116,7 +116,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
           <div className="space-y-4">
             <div className="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
               <p className="text-sm text-yellow-300">
-                Pezkuwi Wallet extension not detected. Please install it to continue.
+                Pezkuwi.js extension not detected. Please install it to continue.
               </p>
             </div>
 
@@ -129,7 +129,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
               >
                 <Button className="w-full bg-green-600 hover:bg-green-700">
                   <Chrome className="mr-2 h-4 w-4" />
-                  Install Pezkuwi Wallet
+                  Install Pezkuwi.js
                 </Button>
               </a>
             </div>
@@ -306,11 +306,11 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                   className="w-full bg-gradient-to-r from-purple-600 to-cyan-400 hover:from-purple-700 hover:to-cyan-500"
                 >
                   <Wallet className="mr-2 h-4 w-4" />
-                  Connect Pezkuwi Wallet
+                  Connect Pezkuwi.js
                 </Button>
 
                 <div className="text-sm text-gray-400 text-center">
-                  Don&apos;t have Pezkuwi Wallet?{' '}
+                  Don&apos;t have Pezkuwi.js?{' '}
                   <a
                     href="https://js.pezkuwichain.io"
                     target="_blank"

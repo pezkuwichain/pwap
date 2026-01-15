@@ -178,15 +178,15 @@ export const PezkuwiWalletButton: React.FC = () => {
         <Dialog open={!!error} onOpenChange={() => {}}>
           <DialogContent className="bg-gray-900 border-gray-800">
             <DialogHeader>
-              <DialogTitle className="text-white">Install Pezkuwi Wallet Extension</DialogTitle>
+              <DialogTitle className="text-white">Install Pezkuwi.js Extension</DialogTitle>
               <DialogDescription className="text-gray-400">
-                You need the Pezkuwi Wallet browser extension to connect your wallet
+                You need the Pezkuwi.js browser extension to connect your wallet
               </DialogDescription>
             </DialogHeader>
 
             <div className="space-y-4">
               <p className="text-gray-300">
-                The Pezkuwi Wallet extension allows you to manage your accounts and sign transactions securely.
+                The Pezkuwi.js extension allows you to manage your accounts and sign transactions securely.
               </p>
 
               <div className="flex gap-3">
