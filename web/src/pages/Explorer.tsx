@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -62,9 +62,39 @@ interface NetworkStats {
   era: number;
 }
 
+type ExplorerView = 'overview' | 'accounts' | 'assets' | 'account' | 'block' | 'tx';
+
 const Explorer: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { api, isApiReady } = usePezkuwi();
+
+  // Parse URL to determine view
+  const getViewFromPath = (): { view: ExplorerView; param?: string } => {
+    const path = location.pathname.replace('/explorer', '').replace(/^\//, '');
+    if (!path) return { view: 'overview' };
+
+    const parts = path.split('/');
+    const viewType = parts[0];
+    const param = parts[1];
+
+    switch (viewType) {
+      case 'accounts':
+        return param ? { view: 'account', param } : { view: 'accounts' };
+      case 'account':
+        return { view: 'account', param };
+      case 'assets':
+        return { view: 'assets' };
+      case 'block':
+        return { view: 'block', param };
+      case 'tx':
+        return { view: 'tx', param };
+      default:
+        return { view: 'overview' };
+    }
+  };
+
+  const { view: currentView, param: viewParam } = getViewFromPath();
 
   const [stats, setStats] = useState<NetworkStats>({
     bestBlock: 0,
@@ -381,6 +411,37 @@ const Explorer: React.FC = () => {
             </Button>
           </div>
 
+          {/* View Navigation */}
+          <div className="flex gap-2 mb-6 flex-wrap">
+            <Button
+              variant={currentView === 'overview' ? 'default' : 'outline'}
+              onClick={() => navigate('/explorer')}
+              className={currentView === 'overview' ? 'bg-green-600' : 'border-gray-700'}
+              size="sm"
+            >
+              <Blocks className="w-4 h-4 mr-2" />
+              Overview
+            </Button>
+            <Button
+              variant={currentView === 'accounts' ? 'default' : 'outline'}
+              onClick={() => navigate('/explorer/accounts')}
+              className={currentView === 'accounts' ? 'bg-green-600' : 'border-gray-700'}
+              size="sm"
+            >
+              <Users className="w-4 h-4 mr-2" />
+              Accounts
+            </Button>
+            <Button
+              variant={currentView === 'assets' ? 'default' : 'outline'}
+              onClick={() => navigate('/explorer/assets')}
+              className={currentView === 'assets' ? 'bg-green-600' : 'border-gray-700'}
+              size="sm"
+            >
+              <Wallet className="w-4 h-4 mr-2" />
+              Assets
+            </Button>
+          </div>
+
           {/* Search Bar */}
           <Card className="bg-gray-900 border-gray-800 mb-8">
             <CardContent className="p-4">
@@ -423,8 +484,102 @@ const Explorer: React.FC = () => {
             </CardContent>
           </Card>
 
-          {/* Stats Grid */}
-          {isLoading ? (
+          {/* View-specific content */}
+          {currentView === 'accounts' && (
+            <Card className="bg-gray-900 border-gray-800">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                  <Users className="w-5 h-5 text-blue-500" />
+                  Accounts
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-400 mb-4">
+                  Search for an account address to view details, balances, and transaction history.
+                </p>
+                <div className="bg-gray-800 rounded-lg p-6 text-center">
+                  <Users className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+                  <p className="text-gray-500">Use the search bar above to find an account by address</p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {currentView === 'assets' && (
+            <Card className="bg-gray-900 border-gray-800">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                  <Wallet className="w-5 h-5 text-yellow-500" />
+                  Assets
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-4">
+                  <div className="bg-gray-800 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-white font-semibold">HEZ</span>
+                      <Badge className="bg-green-500/20 text-green-400">Native</Badge>
+                    </div>
+                    <p className="text-gray-400 text-sm">Native token of PezkuwiChain</p>
+                  </div>
+                  <div className="bg-gray-800 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-white font-semibold">PEZ</span>
+                      <Badge className="bg-purple-500/20 text-purple-400">Asset ID: 1</Badge>
+                    </div>
+                    <p className="text-gray-400 text-sm">Pezkuwi governance token</p>
+                  </div>
+                  <div className="bg-gray-800 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-white font-semibold">wHEZ</span>
+                      <Badge className="bg-cyan-500/20 text-cyan-400">Asset ID: 0</Badge>
+                    </div>
+                    <p className="text-gray-400 text-sm">Wrapped HEZ token</p>
+                  </div>
+                  <div className="bg-gray-800 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-white font-semibold">wUSDT</span>
+                      <Badge className="bg-blue-500/20 text-blue-400">Asset ID: 2</Badge>
+                    </div>
+                    <p className="text-gray-400 text-sm">Wrapped USDT stablecoin (6 decimals)</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {currentView === 'account' && viewParam && (
+            <Card className="bg-gray-900 border-gray-800">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                  <Wallet className="w-5 h-5 text-purple-500" />
+                  Account Details
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-gray-800 rounded-lg p-4 mb-4">
+                  <div className="text-xs text-gray-400 mb-1">Address</div>
+                  <div className="flex items-center gap-2">
+                    <code className="text-white font-mono text-sm break-all">{viewParam}</code>
+                    <button
+                      onClick={() => copyToClipboard(viewParam)}
+                      className="text-gray-400 hover:text-white"
+                    >
+                      <Copy className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+                <p className="text-gray-400 text-center py-8">
+                  Account balance and transaction history loading...
+                </p>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Stats Grid - Only show for overview */}
+          {currentView === 'overview' && (
+            <>
+            {isLoading ? (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
               {[...Array(8)].map((_, i) => (
                 <Card key={i} className="bg-gray-900 border-gray-800">
@@ -712,6 +867,8 @@ const Explorer: React.FC = () => {
               </div>
             </CardContent>
           </Card>
+          </>
+          )}
         </div>
       </div>
     </Layout>

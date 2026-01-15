@@ -117,6 +117,7 @@ function App() {
                               <Route path="/reset-password" element={<PasswordReset />} />
                               <Route path="/" element={<Index />} />
                               <Route path="/explorer" element={<Explorer />} />
+                              <Route path="/explorer/*" element={<Explorer />} />
                               <Route path="/docs/*" element={<Docs />} />
                               <Route path="/wallet" element={<WalletDashboard />} />
                               <Route path="/api" element={<Api />} />
