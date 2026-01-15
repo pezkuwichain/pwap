@@ -16,7 +16,7 @@ const Wiki: React.FC = () => {
   const popularArticles = [
     'How to become a validator',
     'PezkuwiChain tokenomics explained',
-    'Connecting to the network with Pezkuwi Wallet',
+    'Connecting to the network with Pezkuwi.js',
     'Understanding the governance process',
   ];
 

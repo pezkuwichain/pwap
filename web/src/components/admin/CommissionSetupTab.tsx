@@ -376,11 +376,11 @@ export function CommissionSetupTab() {
                   <div className="flex gap-2 mb-2">
                     <Button
                       onClick={() => {
-                        // Get wallet addresses from Pezkuwi Wallet extension
+                        // Get wallet addresses from Pezkuwi.js extension
                         // For now, show instruction
                         toast({
                           title: 'Get Addresses',
-                          description: 'Copy addresses from Pezkuwi Wallet and paste below',
+                          description: 'Copy addresses from Pezkuwi.js and paste below',
                         });
                       }}
                       variant="outline"

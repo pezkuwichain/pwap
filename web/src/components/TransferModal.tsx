@@ -310,7 +310,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, s
             {txStatus === 'signing' && (
               <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3">
                 <p className="text-yellow-400 text-sm">
-                  Please sign the transaction in your Pezkuwi Wallet extension
+                  Please sign the transaction in your Pezkuwi.js extension
                 </p>
               </div>
             )}
