@@ -3,11 +3,16 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { KurdistanColors } from '../../theme/colors';
 import type { StackHeaderProps } from '@react-navigation/stack';
+import type { BottomTabHeaderProps } from '@react-navigation/bottom-tabs';
 
-interface GradientHeaderProps extends StackHeaderProps {
+type HeaderPropsBase = StackHeaderProps | BottomTabHeaderProps;
+
+interface GradientHeaderProps extends Omit<HeaderPropsBase, 'progress' | 'styleInterpolator'> {
   subtitle?: string;
   rightButtons?: React.ReactNode;
   gradientColors?: [string, string];
+  progress?: unknown;
+  styleInterpolator?: unknown;
 }
 
 export const GradientHeader: React.FC<GradientHeaderProps> = ({
@@ -18,11 +23,12 @@ export const GradientHeader: React.FC<GradientHeaderProps> = ({
   rightButtons,
   gradientColors = [KurdistanColors.kesk, '#008f43'],
 }) => {
-  const title = options.headerTitle !== undefined
-    ? options.headerTitle
-    : options.title !== undefined
-    ? options.title
-    : route.name;
+  const getTitle = () => {
+    if (typeof options.headerTitle === 'string') return options.headerTitle;
+    if (typeof options.title === 'string') return options.title;
+    return route.name;
+  };
+  const title = getTitle();
 
   const canGoBack = navigation.canGoBack();
 
@@ -51,8 +57,10 @@ export const GradientHeader: React.FC<GradientHeaderProps> = ({
   );
 };
 
-interface SimpleHeaderProps extends StackHeaderProps {
+interface SimpleHeaderProps extends Omit<HeaderPropsBase, 'progress' | 'styleInterpolator'> {
   rightButtons?: React.ReactNode;
+  progress?: unknown;
+  styleInterpolator?: unknown;
 }
 
 export const SimpleHeader: React.FC<SimpleHeaderProps> = ({
@@ -61,11 +69,12 @@ export const SimpleHeader: React.FC<SimpleHeaderProps> = ({
   route,
   rightButtons,
 }) => {
-  const title = options.headerTitle !== undefined
-    ? options.headerTitle
-    : options.title !== undefined
-    ? options.title
-    : route.name;
+  const getTitle = () => {
+    if (typeof options.headerTitle === 'string') return options.headerTitle;
+    if (typeof options.title === 'string') return options.title;
+    return route.name;
+  };
+  const title = getTitle();
 
   const canGoBack = navigation.canGoBack();
 
@@ -104,8 +113,10 @@ export const BackButton: React.FC<{ onPress?: () => void; color?: string }> = ({
   );
 };
 
-interface AppBarHeaderProps extends StackHeaderProps {
+interface AppBarHeaderProps extends Omit<HeaderPropsBase, 'progress' | 'styleInterpolator'> {
   rightButtons?: React.ReactNode;
+  progress?: unknown;
+  styleInterpolator?: unknown;
 }
 
 export const AppBarHeader: React.FC<AppBarHeaderProps> = ({
@@ -114,11 +125,12 @@ export const AppBarHeader: React.FC<AppBarHeaderProps> = ({
   route,
   rightButtons,
 }) => {
-  const title = options.headerTitle !== undefined
-    ? options.headerTitle
-    : options.title !== undefined
-    ? options.title
-    : route.name;
+  const getTitle = () => {
+    if (typeof options.headerTitle === 'string') return options.headerTitle;
+    if (typeof options.title === 'string') return options.title;
+    return route.name;
+  };
+  const title = getTitle();
 
   const canGoBack = navigation.canGoBack();
 

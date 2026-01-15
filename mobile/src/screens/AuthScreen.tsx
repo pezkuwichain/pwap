@@ -52,7 +52,7 @@ const AuthScreen: React.FC = () => {
     setLoading(true);
 
     try {
-      const { error: signInError } = await signIn(loginEmail, loginPassword, rememberMe);
+      const { error: signInError } = await signIn(loginEmail, loginPassword);
 
       if (signInError) {
         if (signInError.message?.includes('Invalid login credentials')) {

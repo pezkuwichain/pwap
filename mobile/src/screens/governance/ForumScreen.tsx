@@ -111,7 +111,7 @@ const ForumScreen: React.FC = () => {
   };
 
   const getCategoryById = (categoryId: string): Category | undefined => {
-    return CATEGORIES.find(c => c.id === categoryId);
+    return categories.find((c: Category) => c.id === categoryId);
   };
 
   const getTimeAgo = (dateString: string): string => {
@@ -209,7 +209,7 @@ const ForumScreen: React.FC = () => {
                 📋 All Topics
               </Text>
             </TouchableOpacity>
-            {CATEGORIES.map((category) => (
+            {categories.map((category) => (
               <TouchableOpacity
                 key={category.id}
                 style={[

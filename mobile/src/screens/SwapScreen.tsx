@@ -78,10 +78,10 @@ const SwapScreen: React.FC = () => {
       // Fetch From Token Balance
       try {
         if (fromToken.symbol === 'HEZ') {
-          const accountInfo = await api.query.system.account(selectedAccount.address);
+          const accountInfo = await api.query.system.account(selectedAccount.address) as any;
           setFromBalance(accountInfo.data.free.toString());
         } else {
-          const balanceData = await api.query.assets.account(fromToken.assetId, selectedAccount.address);
+          const balanceData = await api.query.assets.account(fromToken.assetId, selectedAccount.address) as any;
           setFromBalance(balanceData.isSome ? balanceData.unwrap().balance.toString() : '0');
         }
       } catch (error) {
@@ -92,10 +92,10 @@ const SwapScreen: React.FC = () => {
       // Fetch To Token Balance
       try {
         if (toToken.symbol === 'HEZ') {
-          const accountInfo = await api.query.system.account(selectedAccount.address);
+          const accountInfo = await api.query.system.account(selectedAccount.address) as any;
           setToBalance(accountInfo.data.free.toString());
         } else {
-          const balanceData = await api.query.assets.account(toToken.assetId, selectedAccount.address);
+          const balanceData = await api.query.assets.account(toToken.assetId, selectedAccount.address) as any;
           setToBalance(balanceData.isSome ? balanceData.unwrap().balance.toString() : '0');
         }
       } catch (error) {

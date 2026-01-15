@@ -261,7 +261,7 @@ export async function isStakingScoreTracking(
       return false;
     }
 
-    const startBlock = await api.query.stakingScore.stakingStartBlock(address);
+    const startBlock = await api.query.stakingScore.stakingStartBlock(address) as any;
     return !startBlock.isNone;
   } catch (error) {
     console.error('Error checking staking score tracking:', error);
@@ -281,7 +281,7 @@ export async function isStaking(
       return false;
     }
 
-    const ledger = await api.query.staking.ledger(address);
+    const ledger = await api.query.staking.ledger(address) as any;
     return !ledger.isNone;
   } catch (error) {
     console.error('Error checking staking status:', error);
@@ -370,7 +370,7 @@ export async function getCitizenDataCid(
     // Try to get from identity storage
     // This assumes the pallet stores IPFS CID somewhere
     // Adjust based on actual pallet storage structure
-    const identity = await api.query.identityKyc.identities(address);
+    const identity = await api.query.identityKyc.identities(address) as any;
 
     if (identity.isNone) {
       return null;

@@ -18,7 +18,8 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 import { Clipboard } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { RootStackParamList } from '../navigation/AppNavigator';
 import { KurdistanColors } from '../theme/colors';
 import { useTheme } from '../contexts/ThemeContext';
 import { useBiometricAuth } from '../contexts/BiometricAuthContext';
@@ -152,7 +153,7 @@ const SettingToggle = ({
 // --- MAIN SCREEN ---
 
 const SettingsScreen: React.FC = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { isDarkMode, toggleDarkMode, colors, fontSize, setFontSize } = useTheme();
   const { isBiometricEnabled, enableBiometric, disableBiometric, biometricType, autoLockTimer, setAutoLockTimer } = useBiometricAuth();
   const { signOut, user } = useAuth();

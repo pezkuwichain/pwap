@@ -50,7 +50,7 @@ export async function getMultisigMembers(
     if (memberConfig.isUnique) {
       // Query from chain for unique roles
       try {
-        const holder = await api.query.tiki.tikiHolder(memberConfig.tiki);
+        const holder = await api.query.tiki.tikiHolder(memberConfig.tiki) as any;
         if (holder.isSome) {
           const address = holder.unwrap().toString();
           members.push(address);
@@ -137,7 +137,7 @@ export async function getMultisigMemberInfo(
 
     if (memberConfig.isUnique) {
       try {
-        const holder = await api.query.tiki.tikiHolder(memberConfig.tiki);
+        const holder = await api.query.tiki.tikiHolder(memberConfig.tiki) as any;
         if (holder.isSome) {
           address = holder.unwrap().toString();
         }

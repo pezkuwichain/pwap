@@ -8,7 +8,10 @@
       "@pezkuwi/utils/*": ["../shared/utils/*"],
       "@pezkuwi/theme/*": ["../shared/theme/*"],
       "@pezkuwi/types/*": ["../shared/types/*"],
-      "@pezkuwi/i18n": ["../shared/i18n"]
-    }
-  }
+      "@pezkuwi/i18n": ["../shared/i18n"],
+      "@/*": ["src/*"]
+    },
+    "typeRoots": ["./src/types", "./node_modules/@types"]
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "shared/**/*.ts"]
 }

@@ -411,7 +411,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
               {kycStatus === 'NotStarted' && (
                 <TouchableOpacity
                   style={styles.kycButton}
-                  onPress={() => navigation.navigate('BeCitizen')}
+                  onPress={() => navigation.navigate('BeCitizenChoice')}
                 >
                   <Text style={styles.kycButtonText}>Apply</Text>
                 </TouchableOpacity>
@@ -454,7 +454,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
             {renderAppIcon('Justice', '⚖️', () => showComingSoon('Dad / Justice'), true, true)}
             {renderAppIcon('Proposals', '📜', () => showComingSoon('Proposals'), true, true)}
             {renderAppIcon('Polls', '📊', () => showComingSoon('Public Polls'), true, true)}
-            {renderAppIcon('Identity', '🆔', () => navigation.navigate('BeCitizen'), true)}
+            {renderAppIcon('Identity', '🆔', () => navigation.navigate('BeCitizenChoice'), true)}
           </View>
         </View>
 

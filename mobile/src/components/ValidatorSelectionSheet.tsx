@@ -56,11 +56,11 @@ export function ValidatorSelectionSheet({
           }
         } else {
           // Fallback to general staking validators if validatorPool pallet is not found/used
-          const rawStakingValidators = await api.query.staking.validators();
-          for (const validatorAddress of rawStakingValidators.keys) {
+          const rawStakingValidators = await api.query.staking.validators() as any;
+          for (const validatorAddress of (rawStakingValidators.keys || [])) {
             const address = validatorAddress.args[0].toString();
             // Fetch more details about each validator if needed, e.g., commission, total stake
-            const validatorPrefs = await api.query.staking.validators(address);
+            const validatorPrefs = await api.query.staking.validators(address) as any;
             const commission = validatorPrefs.commission.toNumber() / 10_000_000; // Assuming 10^7 for percentage
 
             // For simplicity, total stake and nominators are placeholders for now

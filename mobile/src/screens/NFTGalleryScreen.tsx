@@ -68,7 +68,7 @@ export default function NFTGalleryScreen() {
           description: 'Official citizenship NFT of Digital Kurdistan. This NFT represents your verified status as a citizen of the Pezkuwi nation.',
           image: '🪪', // Will use emoji/icon for now
           rarity: 'legendary',
-          mintDate: new Date(nftData?.mintedAt || Date.now()).toISOString(),
+          mintDate: new Date((nftData?.mintedAt as number | string | undefined) || Date.now()).toISOString(),
           attributes: [
             { trait: 'Type', value: 'Citizenship' },
             { trait: 'Nation', value: 'Kurdistan' },
