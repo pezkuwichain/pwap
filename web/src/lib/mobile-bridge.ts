@@ -19,7 +19,7 @@ declare global {
       postMessage: (message: string) => void;
     };
     PezkuwiNativeBridge?: {
-      signTransaction: (extrinsicHex: string, callback: (signature: string | null, error: string | null) => void) => void;
+      signTransaction: (payload: { section: string; method: string; args: unknown[] }, callback: (hash: string | null, error: string | null) => void) => void;
       connectWallet: () => void;
       goBack: () => void;
       isWalletConnected: () => boolean;
@@ -83,26 +83,54 @@ export function requestNativeWalletConnection(): void {
   window.PezkuwiNativeBridge?.connectWallet();
 }
 
+export interface TransactionPayload {
+  section: string;
+  method: string;
+  args: unknown[];
+}
+
 /**
- * Sign transaction using native wallet
- * Returns a promise that resolves with the signature or rejects with error
+ * Sign and submit transaction using native wallet
+ * Returns a promise that resolves with the block hash or rejects with error
  */
-export function signTransactionNative(extrinsicHex: string): Promise<string> {
+export function signTransactionNative(payload: TransactionPayload): Promise<string> {
   return new Promise((resolve, reject) => {
     if (!isMobileApp() || !window.PezkuwiNativeBridge) {
       reject(new Error('Native bridge not available'));
       return;
     }
 
-    window.PezkuwiNativeBridge.signTransaction(extrinsicHex, (signature, error) => {
+    window.PezkuwiNativeBridge.signTransaction(payload, (hash, error) => {
       if (error) {
         reject(new Error(error));
-      } else if (signature) {
-        resolve(signature);
+      } else if (hash) {
+        resolve(hash);
       } else {
-        reject(new Error('No signature returned'));
+        reject(new Error('No transaction hash returned'));
       }
     });
+  });
+}
+
+/**
+ * Legacy: Sign transaction using native wallet (raw hex - deprecated)
+ * @deprecated Use signTransactionNative with TransactionPayload instead
+ */
+export function signTransactionNativeHex(extrinsicHex: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    if (!isMobileApp() || !window.ReactNativeWebView) {
+      reject(new Error('Native bridge not available'));
+      return;
+    }
+
+    // For backwards compatibility, send as legacy format
+    window.ReactNativeWebView.postMessage(JSON.stringify({
+      type: 'SIGN_TRANSACTION_LEGACY',
+      payload: { extrinsicHex }
+    }));
+
+    // Note: This won't work without proper callback handling
+    reject(new Error('Legacy signing not supported - use TransactionPayload'));
   });
 }
 
