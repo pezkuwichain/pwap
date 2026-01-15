@@ -3,6 +3,7 @@ import { ApiPromise, WsProvider } from '@pezkuwi/api';
 import { web3Accounts, web3Enable } from '@pezkuwi/extension-dapp';
 import type { InjectedAccountWithMeta } from '@pezkuwi/extension-inject/types';
 import { DEFAULT_ENDPOINT } from '../../../shared/blockchain/pezkuwi';
+import { isMobileApp, getNativeWalletAddress, getNativeAccountName } from '@/lib/mobile-bridge';
 
 interface PezkuwiContextType {
   api: ApiPromise | null;
@@ -127,9 +128,36 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [endpoint]);
 
-  // Auto-restore wallet on page load
+  // Auto-restore wallet on page load (or setup mobile wallet)
   useEffect(() => {
     const restoreWallet = async () => {
+      // Check if running in mobile app
+      if (isMobileApp()) {
+        const nativeAddress = getNativeWalletAddress();
+        const nativeAccountName = getNativeAccountName();
+
+        if (nativeAddress) {
+          // Create a virtual account for the mobile wallet
+          const mobileAccount: InjectedAccountWithMeta = {
+            address: nativeAddress,
+            meta: {
+              name: nativeAccountName || 'Mobile Wallet',
+              source: 'pezkuwi-mobile',
+            },
+            type: 'sr25519',
+          };
+
+          setAccounts([mobileAccount]);
+          handleSetSelectedAccount(mobileAccount);
+
+          if (import.meta.env.DEV) {
+            console.log('[Mobile] Native wallet connected:', nativeAddress.slice(0, 8) + '...');
+          }
+          return;
+        }
+      }
+
+      // Desktop: Try to restore from localStorage
       const savedAddress = localStorage.getItem('selectedWallet');
       if (!savedAddress) return;
 
@@ -148,25 +176,69 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
           setAccounts(allAccounts);
           handleSetSelectedAccount(savedAccount);
           if (import.meta.env.DEV) {
-            if (import.meta.env.DEV) console.log('✅ Wallet restored:', savedAddress.slice(0, 8) + '...');
+            console.log('✅ Wallet restored:', savedAddress.slice(0, 8) + '...');
           }
         }
       } catch (err) {
         if (import.meta.env.DEV) {
-          if (import.meta.env.DEV) console.error('Failed to restore wallet:', err);
+          console.error('Failed to restore wallet:', err);
         }
       }
     };
 
     restoreWallet();
+
+    // Listen for native bridge ready event (mobile)
+    const handleNativeReady = () => {
+      if (import.meta.env.DEV) {
+        console.log('[Mobile] Native bridge ready, restoring wallet');
+      }
+      restoreWallet();
+    };
+
+    window.addEventListener('pezkuwi-native-ready', handleNativeReady);
+
+    return () => {
+      window.removeEventListener('pezkuwi-native-ready', handleNativeReady);
+    };
   }, []);
 
-  // Connect wallet (Pezkuwi.js extension)
+  // Connect wallet (Pezkuwi.js extension or native mobile)
   const connectWallet = async () => {
     try {
       setError(null);
 
-      // Enable extension
+      // Check if running in mobile app
+      if (isMobileApp()) {
+        const nativeAddress = getNativeWalletAddress();
+        const nativeAccountName = getNativeAccountName();
+
+        if (nativeAddress) {
+          // Create a virtual account for the mobile wallet
+          const mobileAccount: InjectedAccountWithMeta = {
+            address: nativeAddress,
+            meta: {
+              name: nativeAccountName || 'Mobile Wallet',
+              source: 'pezkuwi-mobile',
+            },
+            type: 'sr25519',
+          };
+
+          setAccounts([mobileAccount]);
+          handleSetSelectedAccount(mobileAccount);
+
+          if (import.meta.env.DEV) {
+            console.log('[Mobile] Native wallet connected:', nativeAddress.slice(0, 8) + '...');
+          }
+          return;
+        } else {
+          // Request wallet connection from native app
+          setError('Please connect your wallet in the app');
+          return;
+        }
+      }
+
+      // Desktop: Enable extension
       const extensions = await web3Enable('PezkuwiChain');
 
       if (extensions.length === 0) {
@@ -176,7 +248,7 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
       }
 
       if (import.meta.env.DEV) {
-        if (import.meta.env.DEV) console.log('✅ Pezkuwi.js extension enabled');
+        console.log('✅ Pezkuwi.js extension enabled');
       }
 
       // Get accounts
@@ -199,12 +271,12 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
       handleSetSelectedAccount(accountToSelect);
 
       if (import.meta.env.DEV) {
-        if (import.meta.env.DEV) console.log(`✅ Found ${allAccounts.length} account(s)`);
+        console.log(`✅ Found ${allAccounts.length} account(s)`);
       }
 
     } catch (err) {
       if (import.meta.env.DEV) {
-        if (import.meta.env.DEV) console.error('❌ Wallet connection failed:', err);
+        console.error('❌ Wallet connection failed:', err);
       }
       setError('Failed to connect wallet');
     }

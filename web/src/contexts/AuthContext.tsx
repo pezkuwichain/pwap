@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { User } from '@supabase/supabase-js';
+import { isMobileApp, getNativeWalletAddress, getNativeAccountName } from '@/lib/mobile-bridge';
 
 // Session timeout configuration
 const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
@@ -159,7 +160,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
+  // Setup native mobile wallet if running in mobile app
+  const setupMobileWallet = useCallback(() => {
+    if (isMobileApp()) {
+      const nativeAddress = getNativeWalletAddress();
+      const nativeAccountName = getNativeAccountName();
+
+      if (nativeAddress) {
+        // Store native wallet address for admin checks and wallet operations
+        localStorage.setItem('selectedWallet', nativeAddress);
+        if (nativeAccountName) {
+          localStorage.setItem('selectedWalletName', nativeAccountName);
+        }
+        if (import.meta.env.DEV) {
+          console.log('[Mobile] Native wallet detected:', nativeAddress);
+        }
+        // Dispatch wallet change event
+        window.dispatchEvent(new Event('walletChanged'));
+      }
+    }
+  }, []);
+
   useEffect(() => {
+    // Setup mobile wallet first
+    setupMobileWallet();
+
     // Check active sessions and sets the user
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
@@ -178,17 +203,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(false);
     });
 
-    // Listen for wallet changes (from PezkuwiContext)
+    // Listen for wallet changes (from PezkuwiContext or native bridge)
     const handleWalletChange = () => {
       checkAdminStatus();
     };
     window.addEventListener('walletChanged', handleWalletChange);
 
+    // Listen for native bridge ready event (mobile app)
+    const handleNativeReady = () => {
+      if (import.meta.env.DEV) {
+        console.log('[Mobile] Native bridge ready');
+      }
+      setupMobileWallet();
+      checkAdminStatus();
+    };
+    window.addEventListener('pezkuwi-native-ready', handleNativeReady);
+
     return () => {
       subscription.unsubscribe();
       window.removeEventListener('walletChanged', handleWalletChange);
+      window.removeEventListener('pezkuwi-native-ready', handleNativeReady);
     };
-  }, [checkAdminStatus]);
+  }, [checkAdminStatus, setupMobileWallet]);
 
   const signIn = async (email: string, password: string, rememberMe: boolean = false) => {
     try {

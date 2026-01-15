@@ -10,6 +10,7 @@ import { WALLET_ERRORS, formatBalance, ASSET_IDS } from '@pezkuwi/lib/wallet';
 import type { InjectedAccountWithMeta } from '@pezkuwi/extension-inject/types';
 import type { Signer } from '@pezkuwi/api/types';
 import { web3FromAddress } from '@pezkuwi/extension-dapp';
+import { isMobileApp, getNativeWalletAddress, signTransactionNative } from '@/lib/mobile-bridge';
 
 interface TokenBalances {
   HEZ: string;
@@ -165,11 +166,28 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
 
     try {
+      // Check if running in mobile app - use native bridge for signing
+      if (isMobileApp()) {
+        if (import.meta.env.DEV) console.log('[Mobile] Using native bridge for transaction signing');
+
+        // Get extrinsic hex for native signing
+        const extrinsicHex = (tx as { toHex?: () => string }).toHex?.() || '';
+
+        // Sign via native bridge
+        const signature = await signTransactionNative(extrinsicHex);
+
+        // Submit the signed transaction
+        // Note: The native app signs and may also submit, so we return the signature as hash
+        // In production, the mobile app handles the full submit flow
+        return signature;
+      }
+
+      // Desktop: Use browser extension for signing
       const { web3FromAddress } = await import('@pezkuwi/extension-dapp');
       const injector = await web3FromAddress(pezkuwi.selectedAccount.address);
 
       // Sign and send transaction
-      const hash = await tx.signAndSend(
+      const hash = await (tx as { signAndSend: (address: string, options: { signer: unknown }) => Promise<{ toHex: () => string }> }).signAndSend(
         pezkuwi.selectedAccount.address,
         { signer: injector.signer }
       );
