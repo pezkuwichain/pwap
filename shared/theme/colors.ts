@@ -2,13 +2,17 @@
  * Shared theme colors for all platforms
  */
 
-// Kurdistan Flag Colors
+// Kurdistan Flag Colors + Extended Palette
 export const KurdistanColors = {
   kesk: '#00A94F',    // Green - Primary
   sor: '#EE2A35',     // Red - Accent
   zer: '#FFD700',     // Gold - Secondary
   spi: '#FFFFFF',     // White - Background
   reş: '#000000',     // Black - Text
+  // Extended colors
+  mor: '#9C27B0',     // Purple - For special actions
+  şîn: '#2196F3',     // Blue - For info/links
+  gewr: '#9E9E9E',    // Gray - For disabled states
 };
 
 // Light theme color palette

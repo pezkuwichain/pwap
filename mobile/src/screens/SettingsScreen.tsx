@@ -16,6 +16,8 @@ import {
   Platform
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
+import { Clipboard } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { KurdistanColors } from '../theme/colors';
 import { useTheme } from '../contexts/ThemeContext';
@@ -154,7 +156,7 @@ const SettingsScreen: React.FC = () => {
   const { isDarkMode, toggleDarkMode, colors, fontSize, setFontSize } = useTheme();
   const { isBiometricEnabled, enableBiometric, disableBiometric, biometricType, autoLockTimer, setAutoLockTimer } = useBiometricAuth();
   const { signOut, user } = useAuth();
-  const { currentNetwork, switchNetwork } = usePezkuwi();
+  const { currentNetwork, switchNetwork, selectedAccount } = usePezkuwi();
 
   // Profile State (Supabase)
   const [profile, setProfile] = useState<any>({
@@ -171,6 +173,8 @@ const SettingsScreen: React.FC = () => {
   const [showProfileEdit, setShowProfileEdit] = useState(false);
   const [showFontSizeModal, setShowFontSizeModal] = useState(false);
   const [showAutoLockModal, setShowAutoLockModal] = useState(false);
+  const [showBackupModal, setShowBackupModal] = useState(false);
+  const [backupMnemonic, setBackupMnemonic] = useState('');
   const [editName, setEditName] = useState('');
   const [editBio, setEditBio] = useState('');
 
@@ -272,7 +276,7 @@ const SettingsScreen: React.FC = () => {
   };
 
   // 5. Network Switcher
-  const handleNetworkChange = async (network: 'pezkuwi' | 'bizinikiwi') => {
+  const handleNetworkChange = async (network: 'pezkuwi' | 'dicle' | 'zagros' | 'bizinikiwi' | 'zombienet') => {
     await switchNetwork(network);
     setShowNetworkModal(false);
 
@@ -305,6 +309,36 @@ const SettingsScreen: React.FC = () => {
   const getAutoLockLabel = () => {
     const option = AUTO_LOCK_OPTIONS.find(opt => opt.value === autoLockTimer);
     return option ? option.label : '5 minutes';
+  };
+
+  // 8. Wallet Backup Handler
+  const handleWalletBackup = async () => {
+    if (!selectedAccount) {
+      showAlert('No Wallet', 'Please create or import a wallet first.');
+      return;
+    }
+
+    try {
+      // Retrieve mnemonic from secure storage
+      const seedKey = `pezkuwi_seed_${selectedAccount.address}`;
+      let storedMnemonic: string | null = null;
+
+      if (Platform.OS === 'web') {
+        storedMnemonic = await AsyncStorage.getItem(seedKey);
+      } else {
+        storedMnemonic = await SecureStore.getItemAsync(seedKey);
+      }
+
+      if (storedMnemonic) {
+        setBackupMnemonic(storedMnemonic);
+        setShowBackupModal(true);
+      } else {
+        showAlert('No Backup', 'Recovery phrase not found. It may have been imported from another device.');
+      }
+    } catch (error) {
+      console.error('Error retrieving mnemonic:', error);
+      showAlert('Error', 'Failed to retrieve recovery phrase.');
+    }
   };
 
   return (
@@ -408,6 +442,14 @@ const SettingsScreen: React.FC = () => {
             subtitle={getAutoLockLabel()}
             onPress={() => setShowAutoLockModal(true)}
             testID="auto-lock-button"
+          />
+
+          <SettingItem
+            icon="🔑"
+            title="Backup Recovery Phrase"
+            subtitle={selectedAccount ? "View your wallet's recovery phrase" : "No wallet connected"}
+            onPress={handleWalletBackup}
+            testID="backup-recovery-button"
           />
         </View>
 
@@ -642,6 +684,44 @@ const SettingsScreen: React.FC = () => {
         </View>
       </Modal>
 
+      {/* WALLET BACKUP MODAL */}
+      <Modal visible={showBackupModal} transparent animationType="fade" testID="backup-modal">
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: colors.surface }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>🔐 Recovery Phrase</Text>
+            <Text style={[styles.warningText, { color: '#EF4444' }]}>
+              ⚠️ NEVER share this with anyone! Write it down and store safely.
+            </Text>
+
+            <View style={styles.mnemonicContainer}>
+              <Text style={[styles.mnemonicText, { color: colors.text }]}>{backupMnemonic}</Text>
+            </View>
+
+            <View style={styles.backupActions}>
+              <TouchableOpacity
+                style={styles.copyButton}
+                onPress={() => {
+                  Clipboard.setString(backupMnemonic);
+                  showAlert('Copied', 'Recovery phrase copied to clipboard');
+                }}
+              >
+                <Text style={styles.copyButtonText}>📋 Copy</Text>
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity
+              style={[styles.confirmButton, { backgroundColor: KurdistanColors.kesk }]}
+              onPress={() => {
+                setShowBackupModal(false);
+                setBackupMnemonic('');
+              }}
+            >
+              <Text style={styles.confirmButtonText}>Done</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
     </SafeAreaView>
   );
 };
@@ -798,6 +878,53 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
+  },
+  // Backup Modal Styles
+  warningText: {
+    fontSize: 12,
+    textAlign: 'center',
+    marginBottom: 16,
+    fontWeight: '600',
+  },
+  mnemonicContainer: {
+    backgroundColor: '#FEF9E7',
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#F5D76E',
+  },
+  mnemonicText: {
+    fontSize: 14,
+    lineHeight: 24,
+    textAlign: 'center',
+  },
+  backupActions: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  copyButton: {
+    backgroundColor: '#F5F5F5',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+  },
+  copyButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+  },
+  confirmButton: {
+    width: '100%',
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  confirmButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
 

@@ -17,3 +17,4 @@ export { TokenSelector } from './TokenSelector';
 export type { Token } from './TokenSelector';
 export { default as PezkuwiWebView } from './PezkuwiWebView';
 export type { PezkuwiWebViewProps } from './PezkuwiWebView';
+export { ValidatorSelectionSheet } from './ValidatorSelectionSheet';

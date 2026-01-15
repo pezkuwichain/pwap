@@ -119,6 +119,10 @@ const WalletScreen: React.FC = () => {
   const [networkSelectorVisible, setNetworkSelectorVisible] = useState(false);
   const [walletSelectorVisible, setWalletSelectorVisible] = useState(false);
   const [addTokenModalVisible, setAddTokenModalVisible] = useState(false);
+  const [tokenSearchVisible, setTokenSearchVisible] = useState(false);
+  const [tokenSearchQuery, setTokenSearchQuery] = useState('');
+  const [tokenSettingsVisible, setTokenSettingsVisible] = useState(false);
+  const [hiddenTokens, setHiddenTokens] = useState<string[]>([]);
   const [recipientAddress, setRecipientAddress] = useState('');
   const [sendAmount, setSendAmount] = useState('');
   const [walletName, setWalletName] = useState('');
@@ -701,13 +705,13 @@ const WalletScreen: React.FC = () => {
           <View style={styles.tokensSectionHeader}>
             <Text style={styles.tokensTitle}>Tokens</Text>
             <View style={styles.tokenHeaderIcons}>
-              <TouchableOpacity style={styles.tokenHeaderIcon}>
+              <TouchableOpacity style={styles.tokenHeaderIcon} onPress={() => setTokenSearchVisible(true)}>
                 <Text>🔍</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.tokenHeaderIcon} onPress={() => setAddTokenModalVisible(true)}>
                 <Text>➕</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.tokenHeaderIcon} onPress={handleBackupMnemonic}>
+              <TouchableOpacity style={styles.tokenHeaderIcon} onPress={() => setTokenSettingsVisible(true)}>
                 <Text>⚙️</Text>
               </TouchableOpacity>
             </View>
@@ -1096,6 +1100,116 @@ const WalletScreen: React.FC = () => {
                 <Text style={{color:'white'}}>Save</Text>
               </TouchableOpacity>
             </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Token Search Modal */}
+      <Modal visible={tokenSearchVisible} transparent animationType="slide" onRequestClose={() => setTokenSearchVisible(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalHeader}>🔍 Search Tokens</Text>
+            <TextInput
+              style={styles.inputField}
+              placeholder="Search by name or symbol..."
+              value={tokenSearchQuery}
+              onChangeText={setTokenSearchQuery}
+              autoCapitalize="none"
+              autoFocus
+            />
+            <ScrollView style={styles.tokenSearchResults}>
+              {tokens
+                .filter(t =>
+                  !hiddenTokens.includes(t.symbol) &&
+                  (t.symbol.toLowerCase().includes(tokenSearchQuery.toLowerCase()) ||
+                   t.name.toLowerCase().includes(tokenSearchQuery.toLowerCase()))
+                )
+                .map((token) => (
+                  <TouchableOpacity
+                    key={token.symbol}
+                    style={styles.tokenSearchItem}
+                    onPress={() => {
+                      setTokenSearchVisible(false);
+                      setTokenSearchQuery('');
+                      handleTokenPress(token);
+                    }}
+                  >
+                    <Image source={token.logo} style={styles.tokenSearchLogo} resizeMode="contain" />
+                    <View style={{flex: 1}}>
+                      <Text style={styles.tokenSearchSymbol}>{token.symbol}</Text>
+                      <Text style={styles.tokenSearchName}>{token.name}</Text>
+                    </View>
+                    <Text style={styles.tokenSearchBalance}>{balances[token.symbol] || '0.00'}</Text>
+                  </TouchableOpacity>
+                ))}
+              {tokens.filter(t =>
+                !hiddenTokens.includes(t.symbol) &&
+                (t.symbol.toLowerCase().includes(tokenSearchQuery.toLowerCase()) ||
+                 t.name.toLowerCase().includes(tokenSearchQuery.toLowerCase()))
+              ).length === 0 && (
+                <Text style={styles.noTokensFound}>No tokens found</Text>
+              )}
+            </ScrollView>
+            <TouchableOpacity style={styles.btnConfirm} onPress={() => {
+              setTokenSearchVisible(false);
+              setTokenSearchQuery('');
+            }}>
+              <Text style={{color:'white'}}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Token Settings Modal */}
+      <Modal visible={tokenSettingsVisible} transparent animationType="slide" onRequestClose={() => setTokenSettingsVisible(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalHeader}>⚙️ Token Settings</Text>
+            <Text style={styles.tokenSettingsSubtitle}>Manage your token visibility</Text>
+
+            <ScrollView style={styles.tokenSettingsList}>
+              {tokens.map((token) => {
+                const isHidden = hiddenTokens.includes(token.symbol);
+                return (
+                  <View key={token.symbol} style={styles.tokenSettingsItem}>
+                    <Image source={token.logo} style={styles.tokenSettingsLogo} resizeMode="contain" />
+                    <View style={{flex: 1}}>
+                      <Text style={styles.tokenSettingsSymbol}>{token.symbol}</Text>
+                      <Text style={styles.tokenSettingsName}>{token.name}</Text>
+                    </View>
+                    <TouchableOpacity
+                      style={[styles.tokenVisibilityToggle, isHidden && styles.tokenVisibilityHidden]}
+                      onPress={() => {
+                        if (isHidden) {
+                          setHiddenTokens(prev => prev.filter(s => s !== token.symbol));
+                        } else {
+                          setHiddenTokens(prev => [...prev, token.symbol]);
+                        }
+                      }}
+                    >
+                      <Text style={styles.tokenVisibilityText}>{isHidden ? '👁️‍🗨️' : '👁️'}</Text>
+                    </TouchableOpacity>
+                  </View>
+                );
+              })}
+            </ScrollView>
+
+            <View style={styles.tokenSettingsActions}>
+              <TouchableOpacity
+                style={styles.tokenSettingsOption}
+                onPress={() => {
+                  setTokenSettingsVisible(false);
+                  setAddTokenModalVisible(true);
+                }}
+              >
+                <Text style={styles.tokenSettingsOptionIcon}>➕</Text>
+                <Text style={styles.tokenSettingsOptionText}>Add Custom Token</Text>
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity style={styles.btnConfirm} onPress={() => setTokenSettingsVisible(false)}>
+              <Text style={{color:'white'}}>Done</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -1797,6 +1911,116 @@ const styles = StyleSheet.create({
   },
   deleteWalletIcon: {
     fontSize: 18,
+  },
+  // Token Search Modal
+  tokenSearchResults: {
+    width: '100%',
+    maxHeight: 300,
+    marginBottom: 16,
+  },
+  tokenSearchItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8F9FA',
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  tokenSearchLogo: {
+    width: 40,
+    height: 40,
+    marginRight: 12,
+  },
+  tokenSearchSymbol: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+  },
+  tokenSearchName: {
+    fontSize: 12,
+    color: '#999',
+    marginTop: 2,
+  },
+  tokenSearchBalance: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: KurdistanColors.kesk,
+  },
+  noTokensFound: {
+    textAlign: 'center',
+    color: '#999',
+    paddingVertical: 32,
+  },
+  // Token Settings Modal
+  tokenSettingsSubtitle: {
+    color: '#666',
+    fontSize: 14,
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  tokenSettingsList: {
+    width: '100%',
+    maxHeight: 300,
+    marginBottom: 16,
+  },
+  tokenSettingsItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8F9FA',
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  tokenSettingsLogo: {
+    width: 40,
+    height: 40,
+    marginRight: 12,
+  },
+  tokenSettingsSymbol: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+  },
+  tokenSettingsName: {
+    fontSize: 12,
+    color: '#999',
+    marginTop: 2,
+  },
+  tokenVisibilityToggle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(0, 143, 67, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  tokenVisibilityHidden: {
+    backgroundColor: 'rgba(156, 163, 175, 0.2)',
+  },
+  tokenVisibilityText: {
+    fontSize: 20,
+  },
+  tokenSettingsActions: {
+    width: '100%',
+    marginBottom: 16,
+  },
+  tokenSettingsOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 143, 67, 0.05)',
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 143, 67, 0.2)',
+  },
+  tokenSettingsOptionIcon: {
+    fontSize: 20,
+    marginRight: 12,
+  },
+  tokenSettingsOptionText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: KurdistanColors.kesk,
   },
 });
 
