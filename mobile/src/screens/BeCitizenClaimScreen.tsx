@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { usePezkuwi } from '../contexts/PezkuwiContext';
-import { getCitizenshipStatus } from '@pezkuwi/lib/citizenship-workflow';
+import { getCitizenshipStatus } from '../../shared/lib/citizenship-workflow';
 import { KurdistanColors } from '../theme/colors';
 
 const BeCitizenClaimScreen: React.FC = () => {

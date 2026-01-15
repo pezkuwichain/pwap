@@ -20,7 +20,7 @@ import {
   getMyReferrals,
   calculateReferralScore,
   type ReferralStats as BlockchainReferralStats,
-} from '@pezkuwi/lib/referral';
+} from '../../shared/lib/referral';
 
 interface ReferralStats {
   totalReferrals: number;

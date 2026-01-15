@@ -23,9 +23,9 @@ import { useAuth } from '../contexts/AuthContext';
 import { usePezkuwi } from '../contexts/PezkuwiContext';
 import { supabase } from '../lib/supabase';
 import AvatarPickerModal from '../components/AvatarPickerModal';
-import { fetchUserTikis, getPrimaryRole, getTikiDisplayName, getTikiEmoji, getTikiColor } from '@pezkuwi/lib/tiki';
-import { getAllScores, type UserScores } from '@pezkuwi/lib/scores';
-import { getKycStatus } from '@pezkuwi/lib/kyc';
+import { fetchUserTikis, getPrimaryRole, getTikiDisplayName, getTikiEmoji, getTikiColor } from '../../shared/lib/tiki';
+import { getAllScores, type UserScores } from '../../shared/lib/scores';
+import { getKycStatus } from '../../shared/lib/kyc';
 
 // Existing Quick Action Images (Reused)
 import qaEducation from '../../../shared/images/quick-actions/qa_education.png';
