@@ -13,7 +13,10 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "Pezkuwi needs camera access to scan QR codes for wallet addresses and payments."
+      }
     },
     "android": {
       "package": "io.pezkuwichain.wallet",
@@ -22,8 +25,17 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": ["android.permission.CAMERA"]
     },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Pezkuwi needs camera access to scan QR codes for wallet addresses and payments."
+        }
+      ]
+    ],
     "web": {
       "favicon": "./assets/favicon.png"
     }

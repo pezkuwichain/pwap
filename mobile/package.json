@@ -45,6 +45,7 @@
     "@supabase/supabase-js": "^2.90.1",
     "buffer": "^6.0.3",
     "expo": "~54.0.23",
+    "expo-camera": "~17.0.10",
     "expo-image-picker": "~17.0.10",
     "expo-linear-gradient": "^15.0.7",
     "expo-local-authentication": "^17.0.7",
@@ -113,7 +114,9 @@
   "private": true,
   "expo": {
     "install": {
-      "exclude": ["@types/react"]
+      "exclude": [
+        "@types/react"
+      ]
     }
   }
 }

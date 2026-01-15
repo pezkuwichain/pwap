@@ -25,6 +25,7 @@ import * as SecureStore from 'expo-secure-store';
 import { KurdistanColors } from '../theme/colors';
 import { usePezkuwi, NetworkType, NETWORKS } from '../contexts/PezkuwiContext';
 import { AddTokenModal } from '../components/wallet/AddTokenModal';
+import { QRScannerModal } from '../components/wallet/QRScannerModal';
 import { HezTokenLogo, PezTokenLogo } from '../components/icons';
 import { decodeAddress, checkAddress, encodeAddress } from '@pezkuwi/util-crypto';
 
@@ -119,6 +120,7 @@ const WalletScreen: React.FC = () => {
   const [networkSelectorVisible, setNetworkSelectorVisible] = useState(false);
   const [walletSelectorVisible, setWalletSelectorVisible] = useState(false);
   const [addTokenModalVisible, setAddTokenModalVisible] = useState(false);
+  const [qrScannerVisible, setQrScannerVisible] = useState(false);
   const [tokenSearchVisible, setTokenSearchVisible] = useState(false);
   const [tokenSearchQuery, setTokenSearchQuery] = useState('');
   const [tokenSettingsVisible, setTokenSettingsVisible] = useState(false);
@@ -307,6 +309,54 @@ const WalletScreen: React.FC = () => {
   const handleReceive = () => {
     setSelectedToken(tokens[0]);
     setReceiveModalVisible(true);
+  };
+
+  // Handle QR code scan result
+  const handleQRScan = (data: string) => {
+    // Try to parse the scanned data
+    let address = data;
+    let amount: string | undefined;
+
+    // Check if it's a Pezkuwi/Substrate URI format (e.g., "substrate:ADDRESS?amount=10")
+    if (data.startsWith('substrate:') || data.startsWith('pezkuwi:')) {
+      const uri = data.replace(/^(substrate:|pezkuwi:)/, '');
+      const [addr, params] = uri.split('?');
+      address = addr;
+
+      if (params) {
+        const urlParams = new URLSearchParams(params);
+        amount = urlParams.get('amount') || undefined;
+      }
+    }
+
+    // Validate the address
+    try {
+      const [isValid] = checkAddress(address, 42); // 42 is the SS58 prefix for Pezkuwi
+      if (!isValid) {
+        // Try with generic prefix
+        const [isValidGeneric] = checkAddress(address, -1);
+        if (!isValidGeneric) {
+          showAlert('Invalid QR Code', 'The scanned QR code does not contain a valid Pezkuwi address.');
+          return;
+        }
+      }
+    } catch {
+      showAlert('Invalid QR Code', 'The scanned QR code does not contain a valid address.');
+      return;
+    }
+
+    // Open send modal with the scanned address
+    setRecipientAddress(address);
+    if (amount) {
+      setSendAmount(amount);
+    }
+    setSelectedToken(tokens[0]); // Default to HEZ
+    setSendModalVisible(true);
+
+    // Show success feedback
+    if (Platform.OS !== 'web') {
+      Alert.alert('Address Scanned', `Address: ${address.slice(0, 8)}...${address.slice(-6)}${amount ? `\nAmount: ${amount}` : ''}`);
+    }
   };
 
   // Load saved addresses from storage
@@ -646,7 +696,7 @@ const WalletScreen: React.FC = () => {
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.scanButton}
-              onPress={() => showAlert('Scan', 'QR Scanner coming soon')}
+              onPress={() => setQrScannerVisible(true)}
               testID="wallet-scan-button"
             >
               <Text style={styles.scanIcon}>⊡</Text>
@@ -1029,6 +1079,15 @@ const WalletScreen: React.FC = () => {
         visible={addTokenModalVisible}
         onClose={() => setAddTokenModalVisible(false)}
         onTokenAdded={fetchData}
+      />
+
+      {/* QR Scanner Modal */}
+      <QRScannerModal
+        visible={qrScannerVisible}
+        onClose={() => setQrScannerVisible(false)}
+        onScan={handleQRScan}
+        title="Scan Address"
+        subtitle="Scan a wallet address QR code to send funds"
       />
 
       {/* Address Book Modal */}
