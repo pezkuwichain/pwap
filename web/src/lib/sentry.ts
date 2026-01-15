@@ -57,11 +57,15 @@ export const initSentry = () => {
 
     // Ignore common non-critical errors
     ignoreErrors: [
-      // Browser extensions
+      // Browser extensions (MetaMask, etc.)
       'top.GLOBALS',
       'canvas.contentDocument',
       'MyApp_RemoveAllHighlights',
       'atomicFindClose',
+      'ObjectMultiplex',
+      'StreamMiddleware',
+      'malformed chunk',
+      'Unknown response id',
       // Network errors that are expected
       'NetworkError',
       'Failed to fetch',
