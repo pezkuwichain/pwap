@@ -49,6 +49,9 @@ export const MockBiometricAuthProvider: React.FC<{
   return <BiometricAuthContext.Provider value={contextValue}>{children}</BiometricAuthContext.Provider>;
 };
 
+// Export as BiometricAuthProvider for compatibility with test imports
+export const BiometricAuthProvider = MockBiometricAuthProvider;
+
 export const useBiometricAuth = () => useContext(BiometricAuthContext);
 
 export default BiometricAuthContext;

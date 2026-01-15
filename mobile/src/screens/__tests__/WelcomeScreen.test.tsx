@@ -2,14 +2,6 @@ import React from 'react';
 import { render } from '@testing-library/react-native';
 import WelcomeScreen from '../WelcomeScreen';
 
-// Mock navigation
-jest.mock('@react-navigation/native', () => ({
-  ...jest.requireActual('@react-navigation/native'),
-  useNavigation: () => ({
-    navigate: jest.fn(),
-  }),
-}));
-
 // Wrapper with required providers
 const WelcomeScreenWrapper = () => (
   <WelcomeScreen />

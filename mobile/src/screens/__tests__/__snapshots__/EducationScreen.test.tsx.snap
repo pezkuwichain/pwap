@@ -4,7 +4,7 @@ exports[`EducationScreen should match snapshot 1`] = `
 <RCTSafeAreaView
   style={
     {
-      "backgroundColor": "#F5F5F5",
+      "backgroundColor": "#FFFFFF",
       "flex": 1,
     }
   }
@@ -12,209 +12,220 @@ exports[`EducationScreen should match snapshot 1`] = `
   <View
     style={
       {
-        "padding": 16,
-        "paddingBottom": 12,
+        "backgroundColor": "#FFFFFF",
+        "flex": 1,
       }
     }
   >
-    <View>
+    <View
+      style={
+        {
+          "alignItems": "center",
+          "backgroundColor": "#FFFFFF",
+          "borderBottomColor": "#E0E0E0",
+          "borderBottomWidth": 1,
+          "flexDirection": "row",
+          "justifyContent": "space-between",
+          "paddingHorizontal": 16,
+          "paddingVertical": 12,
+        }
+      }
+    >
       <Text
         style={
           {
             "color": "#000",
-            "fontSize": 28,
+            "flex": 1,
+            "fontSize": 18,
             "fontWeight": "700",
-            "marginBottom": 4,
+            "textAlign": "center",
           }
         }
       >
-        Perwerde 🎓
+        Perwerde
       </Text>
+      <View
+        accessibilityState={
+          {
+            "busy": undefined,
+            "checked": undefined,
+            "disabled": undefined,
+            "expanded": undefined,
+            "selected": undefined,
+          }
+        }
+        accessibilityValue={
+          {
+            "max": undefined,
+            "min": undefined,
+            "now": undefined,
+            "text": undefined,
+          }
+        }
+        accessible={true}
+        collapsable={false}
+        focusable={true}
+        onClick={[Function]}
+        onResponderGrant={[Function]}
+        onResponderMove={[Function]}
+        onResponderRelease={[Function]}
+        onResponderTerminate={[Function]}
+        onResponderTerminationRequest={[Function]}
+        onStartShouldSetResponder={[Function]}
+        style={
+          {
+            "opacity": 1,
+            "padding": 8,
+          }
+        }
+      >
+        <Text
+          style={
+            {
+              "color": "#00A94F",
+              "fontSize": 14,
+              "fontWeight": "600",
+            }
+          }
+        >
+          Reload
+        </Text>
+      </View>
+    </View>
+    <WebView
+      allowsBackForwardNavigationGestures={true}
+      allowsInlineMediaPlayback={true}
+      bounces={true}
+      cacheEnabled={true}
+      cacheMode="LOAD_DEFAULT"
+      domStorageEnabled={true}
+      injectedJavaScript="
+    (function() {
+      // Mark this as mobile app
+      window.PEZKUWI_MOBILE = true;
+      window.PEZKUWI_PLATFORM = 'ios';
+
+      // Inject wallet address if connected
+      window.PEZKUWI_ADDRESS = '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY';
+      window.PEZKUWI_ACCOUNT_NAME = 'Mobile Wallet';
+
+      // Override console.log to send to React Native (for debugging)
+      const originalConsoleLog = console.log;
+      console.log = function(...args) {
+        originalConsoleLog.apply(console, args);
+        window.ReactNativeWebView?.postMessage(JSON.stringify({
+          type: 'CONSOLE_LOG',
+          payload: args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' ')
+        }));
+      };
+
+      // Create native bridge for wallet operations
+      window.PezkuwiNativeBridge = {
+        // Request transaction signing from native wallet
+        signTransaction: function(extrinsicHex, callback) {
+          window.__pendingSignCallback = callback;
+          window.ReactNativeWebView?.postMessage(JSON.stringify({
+            type: 'SIGN_TRANSACTION',
+            payload: { extrinsicHex }
+          }));
+        },
+
+        // Request wallet connection
+        connectWallet: function() {
+          window.ReactNativeWebView?.postMessage(JSON.stringify({
+            type: 'CONNECT_WALLET'
+          }));
+        },
+
+        // Navigate back in native app
+        goBack: function() {
+          window.ReactNativeWebView?.postMessage(JSON.stringify({
+            type: 'GO_BACK'
+          }));
+        },
+
+        // Check if wallet is connected
+        isWalletConnected: function() {
+          return !!window.PEZKUWI_ADDRESS;
+        },
+
+        // Get connected address
+        getAddress: function() {
+          return window.PEZKUWI_ADDRESS || null;
+        }
+      };
+
+      // Notify web app that native bridge is ready
+      window.dispatchEvent(new CustomEvent('pezkuwi-native-ready', {
+        detail: {
+          address: window.PEZKUWI_ADDRESS,
+          platform: window.PEZKUWI_PLATFORM
+        }
+      }));
+
+      true; // Required for injectedJavaScript
+    })();
+  "
+      javaScriptEnabled={true}
+      mediaPlaybackRequiresUserAction={false}
+      onError={[Function]}
+      onHttpError={[Function]}
+      onLoadEnd={[Function]}
+      onLoadStart={[Function]}
+      onMessage={[Function]}
+      onNavigationStateChange={[Function]}
+      pullToRefreshEnabled={true}
+      ref={
+        {
+          "current": null,
+        }
+      }
+      sharedCookiesEnabled={true}
+      showsHorizontalScrollIndicator={false}
+      showsVerticalScrollIndicator={true}
+      source={
+        {
+          "uri": "https://pezkuwichain.io/education",
+        }
+      }
+      style={
+        {
+          "flex": 1,
+        }
+      }
+      thirdPartyCookiesEnabled={true}
+      webviewDebuggingEnabled={true}
+    />
+    <View
+      style={
+        {
+          "alignItems": "center",
+          "backgroundColor": "rgba(255, 255, 255, 0.9)",
+          "bottom": 0,
+          "justifyContent": "center",
+          "left": 0,
+          "position": "absolute",
+          "right": 0,
+          "top": 0,
+        }
+      }
+    >
+      <ActivityIndicator
+        color="#00A94F"
+        size="large"
+      />
       <Text
         style={
           {
             "color": "#666",
             "fontSize": 14,
+            "marginTop": 12,
           }
         }
       >
-        Decentralized Education Platform
+        Loading...
       </Text>
     </View>
-  </View>
-  <View
-    style={
-      {
-        "backgroundColor": "#FFF3CD",
-        "borderColor": "#FFE69C",
-        "borderRadius": 8,
-        "borderWidth": 1,
-        "marginBottom": 12,
-        "marginHorizontal": 16,
-        "padding": 12,
-      }
-    }
-  >
-    <Text
-      style={
-        {
-          "color": "#856404",
-          "fontSize": 14,
-          "textAlign": "center",
-        }
-      }
-    >
-      Connecting to blockchain...
-    </Text>
-  </View>
-  <View
-    style={
-      {
-        "borderBottomColor": "#E0E0E0",
-        "borderBottomWidth": 1,
-        "flexDirection": "row",
-        "marginBottom": 16,
-        "paddingHorizontal": 16,
-      }
-    }
-  >
-    <View
-      accessibilityState={
-        {
-          "busy": undefined,
-          "checked": undefined,
-          "disabled": undefined,
-          "expanded": undefined,
-          "selected": undefined,
-        }
-      }
-      accessibilityValue={
-        {
-          "max": undefined,
-          "min": undefined,
-          "now": undefined,
-          "text": undefined,
-        }
-      }
-      accessible={true}
-      collapsable={false}
-      focusable={true}
-      onClick={[Function]}
-      onResponderGrant={[Function]}
-      onResponderMove={[Function]}
-      onResponderRelease={[Function]}
-      onResponderTerminate={[Function]}
-      onResponderTerminationRequest={[Function]}
-      onStartShouldSetResponder={[Function]}
-      style={
-        {
-          "alignItems": "center",
-          "borderBottomColor": "#00A94F",
-          "borderBottomWidth": 2,
-          "flex": 1,
-          "opacity": 1,
-          "paddingVertical": 12,
-        }
-      }
-    >
-      <Text
-        style={
-          [
-            {
-              "color": "#666",
-              "fontSize": 16,
-              "fontWeight": "600",
-            },
-            {
-              "color": "#00A94F",
-            },
-          ]
-        }
-      >
-        All Courses
-      </Text>
-    </View>
-    <View
-      accessibilityState={
-        {
-          "busy": undefined,
-          "checked": undefined,
-          "disabled": undefined,
-          "expanded": undefined,
-          "selected": undefined,
-        }
-      }
-      accessibilityValue={
-        {
-          "max": undefined,
-          "min": undefined,
-          "now": undefined,
-          "text": undefined,
-        }
-      }
-      accessible={true}
-      collapsable={false}
-      focusable={true}
-      onClick={[Function]}
-      onResponderGrant={[Function]}
-      onResponderMove={[Function]}
-      onResponderRelease={[Function]}
-      onResponderTerminate={[Function]}
-      onResponderTerminationRequest={[Function]}
-      onStartShouldSetResponder={[Function]}
-      style={
-        {
-          "alignItems": "center",
-          "borderBottomColor": "transparent",
-          "borderBottomWidth": 2,
-          "flex": 1,
-          "opacity": 1,
-          "paddingVertical": 12,
-        }
-      }
-    >
-      <Text
-        style={
-          [
-            {
-              "color": "#666",
-              "fontSize": 16,
-              "fontWeight": "600",
-            },
-            false,
-          ]
-        }
-      >
-        My Courses (
-        0
-        )
-      </Text>
-    </View>
-  </View>
-  <View
-    style={
-      {
-        "alignItems": "center",
-        "flex": 1,
-        "justifyContent": "center",
-      }
-    }
-  >
-    <ActivityIndicator
-      color="#00A94F"
-      size="large"
-    />
-    <Text
-      style={
-        {
-          "color": "#666",
-          "fontSize": 14,
-          "marginTop": 12,
-        }
-      }
-    >
-      Loading courses...
-    </Text>
   </View>
 </RCTSafeAreaView>
 `;

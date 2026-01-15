@@ -59,33 +59,31 @@ exports[`WelcomeScreen should match snapshot 1`] = `
               {
                 "alignItems": "center",
                 "backgroundColor": "#FFFFFF",
-                "borderRadius": 50,
+                "borderRadius": 60,
+                "boxShadow": "0 4px 8px rgba(0, 0, 0, 0.3)",
                 "elevation": 8,
-                "height": 100,
+                "height": 120,
                 "justifyContent": "center",
                 "marginBottom": 20,
-                "shadowColor": "#000",
-                "shadowOffset": {
-                  "height": 4,
-                  "width": 0,
-                },
-                "shadowOpacity": 0.3,
-                "shadowRadius": 8,
-                "width": 100,
+                "padding": 10,
+                "width": 120,
               }
             }
           >
-            <Text
-              style={
+            <Image
+              resizeMode="contain"
+              source={
                 {
-                  "color": "#00A94F",
-                  "fontSize": 32,
-                  "fontWeight": "bold",
+                  "testUri": "../../../assets/kurdistan-map.png",
                 }
               }
-            >
-              PZK
-            </Text>
+              style={
+                {
+                  "height": "100%",
+                  "width": "100%",
+                }
+              }
+            />
           </View>
           <Text
             style={
@@ -98,7 +96,7 @@ exports[`WelcomeScreen should match snapshot 1`] = `
               }
             }
           >
-            welcome.title
+            Pezkuwi Super App
           </Text>
           <Text
             style={
@@ -110,13 +108,18 @@ exports[`WelcomeScreen should match snapshot 1`] = `
               }
             }
           >
-            welcome.subtitle
+            The First Digital Nation
           </Text>
         </View>
         <View
           style={
             {
+              "backgroundColor": "rgba(255, 255, 255, 0.15)",
+              "borderColor": "rgba(255, 255, 255, 0.3)",
+              "borderRadius": 16,
+              "borderWidth": 1,
               "marginBottom": 30,
+              "padding": 20,
             }
           }
         >
@@ -124,524 +127,287 @@ exports[`WelcomeScreen should match snapshot 1`] = `
             style={
               {
                 "color": "#FFFFFF",
-                "fontSize": 20,
-                "fontWeight": "600",
-                "marginBottom": 20,
+                "fontSize": 15,
+                "lineHeight": 24,
+                "marginBottom": 16,
                 "textAlign": "center",
               }
             }
           >
-            welcome.selectLanguage
+            Welcome to Pezkuwi, where blockchain technology transcends financial applications to address fundamental human challenges — statelessness, governance, and social justice.
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#FFFFFF",
+                "fontSize": 15,
+                "lineHeight": 24,
+                "marginBottom": 16,
+                "textAlign": "center",
+              }
+            }
+          >
+            Pezkuwi is a pioneering experiment in digital statehood, merging technology with sociology, economy with politics. Starting with the Kurdish digital nation, we are building the world's first territory-independent nation governed by algorithmic sovereignty and social trust rather than borders and bureaucracy.
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#FFFFFF",
+                "fontSize": 15,
+                "lineHeight": 24,
+                "marginBottom": 16,
+                "textAlign": "center",
+              }
+            }
+          >
+            Our meritocratic TNPoS consensus and modular digital nation infrastructure represent a new paradigm for Web3 — proving that decentralization is not just a technical promise, but a pathway to true self-governance.
           </Text>
           <View
             style={
               {
                 "gap": 12,
+                "marginTop": 12,
               }
             }
           >
             <View
-              accessibilityState={
-                {
-                  "busy": undefined,
-                  "checked": undefined,
-                  "disabled": undefined,
-                  "expanded": undefined,
-                  "selected": undefined,
-                }
-              }
-              accessibilityValue={
-                {
-                  "max": undefined,
-                  "min": undefined,
-                  "now": undefined,
-                  "text": undefined,
-                }
-              }
-              accessible={true}
-              collapsable={false}
-              focusable={true}
-              onClick={[Function]}
-              onResponderGrant={[Function]}
-              onResponderMove={[Function]}
-              onResponderRelease={[Function]}
-              onResponderTerminate={[Function]}
-              onResponderTerminationRequest={[Function]}
-              onStartShouldSetResponder={[Function]}
               style={
                 {
-                  "backgroundColor": "#FFFFFF",
-                  "borderColor": "#FFD700",
-                  "borderRadius": 12,
-                  "borderWidth": 2,
-                  "elevation": 4,
-                  "opacity": 1,
-                  "padding": 16,
-                  "shadowColor": "#FFD700",
-                  "shadowOffset": {
-                    "height": 2,
-                    "width": 0,
+                  "alignItems": "center",
+                  "flexDirection": "row",
+                  "paddingVertical": 4,
+                }
+              }
+            >
+              <Text
+                style={
+                  {
+                    "color": "#FFD700",
+                    "fontSize": 20,
+                    "fontWeight": "bold",
+                    "marginRight": 12,
+                  }
+                }
+              >
+                •
+              </Text>
+              <Text
+                style={
+                  {
+                    "color": "#FFFFFF",
+                    "fontSize": 15,
+                    "fontWeight": "500",
+                  }
+                }
+              >
+                Digital Citizenship & Identity
+              </Text>
+            </View>
+            <View
+              style={
+                {
+                  "alignItems": "center",
+                  "flexDirection": "row",
+                  "paddingVertical": 4,
+                }
+              }
+            >
+              <Text
+                style={
+                  {
+                    "color": "#FFD700",
+                    "fontSize": 20,
+                    "fontWeight": "bold",
+                    "marginRight": 12,
+                  }
+                }
+              >
+                •
+              </Text>
+              <Text
+                style={
+                  {
+                    "color": "#FFFFFF",
+                    "fontSize": 15,
+                    "fontWeight": "500",
+                  }
+                }
+              >
+                Decentralized Governance
+              </Text>
+            </View>
+            <View
+              style={
+                {
+                  "alignItems": "center",
+                  "flexDirection": "row",
+                  "paddingVertical": 4,
+                }
+              }
+            >
+              <Text
+                style={
+                  {
+                    "color": "#FFD700",
+                    "fontSize": 20,
+                    "fontWeight": "bold",
+                    "marginRight": 12,
+                  }
+                }
+              >
+                •
+              </Text>
+              <Text
+                style={
+                  {
+                    "color": "#FFFFFF",
+                    "fontSize": 15,
+                    "fontWeight": "500",
+                  }
+                }
+              >
+                Non-Custodial Wallet
+              </Text>
+            </View>
+            <View
+              style={
+                {
+                  "alignItems": "center",
+                  "flexDirection": "row",
+                  "paddingVertical": 4,
+                }
+              }
+            >
+              <Text
+                style={
+                  {
+                    "color": "#FFD700",
+                    "fontSize": 20,
+                    "fontWeight": "bold",
+                    "marginRight": 12,
+                  }
+                }
+              >
+                •
+              </Text>
+              <Text
+                style={
+                  {
+                    "color": "#FFFFFF",
+                    "fontSize": 15,
+                    "fontWeight": "500",
+                  }
+                }
+              >
+                Community-Driven Economy
+              </Text>
+            </View>
+          </View>
+        </View>
+        <View
+          style={
+            {
+              "backgroundColor": "rgba(255, 255, 255, 0.15)",
+              "borderColor": "rgba(255, 255, 255, 0.3)",
+              "borderRadius": 12,
+              "borderWidth": 1,
+              "marginBottom": 20,
+              "padding": 16,
+            }
+          }
+        >
+          <View
+            accessibilityState={
+              {
+                "busy": undefined,
+                "checked": undefined,
+                "disabled": undefined,
+                "expanded": undefined,
+                "selected": undefined,
+              }
+            }
+            accessibilityValue={
+              {
+                "max": undefined,
+                "min": undefined,
+                "now": undefined,
+                "text": undefined,
+              }
+            }
+            accessible={true}
+            collapsable={false}
+            focusable={true}
+            onClick={[Function]}
+            onResponderGrant={[Function]}
+            onResponderMove={[Function]}
+            onResponderRelease={[Function]}
+            onResponderTerminate={[Function]}
+            onResponderTerminationRequest={[Function]}
+            onStartShouldSetResponder={[Function]}
+            style={
+              {
+                "alignItems": "flex-start",
+                "flexDirection": "row",
+                "opacity": 1,
+              }
+            }
+          >
+            <View
+              style={
+                [
+                  {
+                    "alignItems": "center",
+                    "backgroundColor": "transparent",
+                    "borderColor": "#FFFFFF",
+                    "borderRadius": 6,
+                    "borderWidth": 2,
+                    "height": 24,
+                    "justifyContent": "center",
+                    "marginRight": 12,
+                    "width": 24,
                   },
-                  "shadowOpacity": 0.5,
-                  "shadowRadius": 4,
-                }
+                  false,
+                ]
               }
-            >
-              <Text
-                style={
-                  [
-                    {
-                      "color": "#FFFFFF",
-                      "fontSize": 18,
-                      "fontWeight": "600",
-                      "marginBottom": 4,
-                    },
-                    {
-                      "color": "#00A94F",
-                    },
-                  ]
-                }
-              >
-                English
-              </Text>
-              <Text
-                style={
-                  [
-                    {
-                      "color": "#FFFFFF",
-                      "fontSize": 14,
-                      "opacity": 0.8,
-                    },
-                    {
-                      "color": "#000000",
-                      "opacity": 0.6,
-                    },
-                  ]
-                }
-              >
-                English
-              </Text>
-            </View>
-            <View
-              accessibilityState={
-                {
-                  "busy": undefined,
-                  "checked": undefined,
-                  "disabled": undefined,
-                  "expanded": undefined,
-                  "selected": undefined,
-                }
-              }
-              accessibilityValue={
-                {
-                  "max": undefined,
-                  "min": undefined,
-                  "now": undefined,
-                  "text": undefined,
-                }
-              }
-              accessible={true}
-              collapsable={false}
-              focusable={true}
-              onClick={[Function]}
-              onResponderGrant={[Function]}
-              onResponderMove={[Function]}
-              onResponderRelease={[Function]}
-              onResponderTerminate={[Function]}
-              onResponderTerminationRequest={[Function]}
-              onStartShouldSetResponder={[Function]}
+            />
+            <Text
               style={
                 {
-                  "backgroundColor": "rgba(255, 255, 255, 0.2)",
-                  "borderColor": "transparent",
-                  "borderRadius": 12,
-                  "borderWidth": 2,
-                  "opacity": 1,
-                  "padding": 16,
+                  "color": "#FFFFFF",
+                  "flex": 1,
+                  "fontSize": 14,
+                  "lineHeight": 20,
                 }
               }
             >
+              I agree to the
+               
               <Text
-                style={
-                  [
-                    {
-                      "color": "#FFFFFF",
-                      "fontSize": 18,
-                      "fontWeight": "600",
-                      "marginBottom": 4,
-                    },
-                    false,
-                  ]
-                }
-              >
-                Türkçe
-              </Text>
-              <Text
-                style={
-                  [
-                    {
-                      "color": "#FFFFFF",
-                      "fontSize": 14,
-                      "opacity": 0.8,
-                    },
-                    false,
-                  ]
-                }
-              >
-                Turkish
-              </Text>
-            </View>
-            <View
-              accessibilityState={
-                {
-                  "busy": undefined,
-                  "checked": undefined,
-                  "disabled": undefined,
-                  "expanded": undefined,
-                  "selected": undefined,
-                }
-              }
-              accessibilityValue={
-                {
-                  "max": undefined,
-                  "min": undefined,
-                  "now": undefined,
-                  "text": undefined,
-                }
-              }
-              accessible={true}
-              collapsable={false}
-              focusable={true}
-              onClick={[Function]}
-              onResponderGrant={[Function]}
-              onResponderMove={[Function]}
-              onResponderRelease={[Function]}
-              onResponderTerminate={[Function]}
-              onResponderTerminationRequest={[Function]}
-              onStartShouldSetResponder={[Function]}
-              style={
-                {
-                  "backgroundColor": "rgba(255, 255, 255, 0.2)",
-                  "borderColor": "transparent",
-                  "borderRadius": 12,
-                  "borderWidth": 2,
-                  "opacity": 1,
-                  "padding": 16,
-                }
-              }
-            >
-              <Text
-                style={
-                  [
-                    {
-                      "color": "#FFFFFF",
-                      "fontSize": 18,
-                      "fontWeight": "600",
-                      "marginBottom": 4,
-                    },
-                    false,
-                  ]
-                }
-              >
-                Kurmancî
-              </Text>
-              <Text
-                style={
-                  [
-                    {
-                      "color": "#FFFFFF",
-                      "fontSize": 14,
-                      "opacity": 0.8,
-                    },
-                    false,
-                  ]
-                }
-              >
-                Kurdish Kurmanji
-              </Text>
-            </View>
-            <View
-              accessibilityState={
-                {
-                  "busy": undefined,
-                  "checked": undefined,
-                  "disabled": undefined,
-                  "expanded": undefined,
-                  "selected": undefined,
-                }
-              }
-              accessibilityValue={
-                {
-                  "max": undefined,
-                  "min": undefined,
-                  "now": undefined,
-                  "text": undefined,
-                }
-              }
-              accessible={true}
-              collapsable={false}
-              focusable={true}
-              onClick={[Function]}
-              onResponderGrant={[Function]}
-              onResponderMove={[Function]}
-              onResponderRelease={[Function]}
-              onResponderTerminate={[Function]}
-              onResponderTerminationRequest={[Function]}
-              onStartShouldSetResponder={[Function]}
-              style={
-                {
-                  "backgroundColor": "rgba(255, 255, 255, 0.2)",
-                  "borderColor": "transparent",
-                  "borderRadius": 12,
-                  "borderWidth": 2,
-                  "opacity": 1,
-                  "padding": 16,
-                }
-              }
-            >
-              <Text
-                style={
-                  [
-                    {
-                      "color": "#FFFFFF",
-                      "fontSize": 18,
-                      "fontWeight": "600",
-                      "marginBottom": 4,
-                    },
-                    false,
-                  ]
-                }
-              >
-                سۆرانی
-              </Text>
-              <Text
-                style={
-                  [
-                    {
-                      "color": "#FFFFFF",
-                      "fontSize": 14,
-                      "opacity": 0.8,
-                    },
-                    false,
-                  ]
-                }
-              >
-                Kurdish Sorani
-              </Text>
-              <View
+                onPress={[Function]}
                 style={
                   {
-                    "backgroundColor": "#FFD700",
-                    "borderRadius": 4,
-                    "paddingHorizontal": 8,
-                    "paddingVertical": 4,
-                    "position": "absolute",
-                    "right": 8,
-                    "top": 8,
+                    "fontWeight": "bold",
+                    "textDecorationLine": "underline",
                   }
                 }
               >
-                <Text
-                  style={
-                    {
-                      "color": "#000000",
-                      "fontSize": 10,
-                      "fontWeight": "bold",
-                    }
-                  }
-                >
-                  RTL
-                </Text>
-              </View>
-            </View>
-            <View
-              accessibilityState={
-                {
-                  "busy": undefined,
-                  "checked": undefined,
-                  "disabled": undefined,
-                  "expanded": undefined,
-                  "selected": undefined,
-                }
-              }
-              accessibilityValue={
-                {
-                  "max": undefined,
-                  "min": undefined,
-                  "now": undefined,
-                  "text": undefined,
-                }
-              }
-              accessible={true}
-              collapsable={false}
-              focusable={true}
-              onClick={[Function]}
-              onResponderGrant={[Function]}
-              onResponderMove={[Function]}
-              onResponderRelease={[Function]}
-              onResponderTerminate={[Function]}
-              onResponderTerminationRequest={[Function]}
-              onStartShouldSetResponder={[Function]}
-              style={
-                {
-                  "backgroundColor": "rgba(255, 255, 255, 0.2)",
-                  "borderColor": "transparent",
-                  "borderRadius": 12,
-                  "borderWidth": 2,
-                  "opacity": 1,
-                  "padding": 16,
-                }
-              }
-            >
-              <Text
-                style={
-                  [
-                    {
-                      "color": "#FFFFFF",
-                      "fontSize": 18,
-                      "fontWeight": "600",
-                      "marginBottom": 4,
-                    },
-                    false,
-                  ]
-                }
-              >
-                العربية
+                Privacy Policy
               </Text>
+               
+              and
+               
               <Text
-                style={
-                  [
-                    {
-                      "color": "#FFFFFF",
-                      "fontSize": 14,
-                      "opacity": 0.8,
-                    },
-                    false,
-                  ]
-                }
-              >
-                Arabic
-              </Text>
-              <View
+                onPress={[Function]}
                 style={
                   {
-                    "backgroundColor": "#FFD700",
-                    "borderRadius": 4,
-                    "paddingHorizontal": 8,
-                    "paddingVertical": 4,
-                    "position": "absolute",
-                    "right": 8,
-                    "top": 8,
+                    "fontWeight": "bold",
+                    "textDecorationLine": "underline",
                   }
                 }
               >
-                <Text
-                  style={
-                    {
-                      "color": "#000000",
-                      "fontSize": 10,
-                      "fontWeight": "bold",
-                    }
-                  }
-                >
-                  RTL
-                </Text>
-              </View>
-            </View>
-            <View
-              accessibilityState={
-                {
-                  "busy": undefined,
-                  "checked": undefined,
-                  "disabled": undefined,
-                  "expanded": undefined,
-                  "selected": undefined,
-                }
-              }
-              accessibilityValue={
-                {
-                  "max": undefined,
-                  "min": undefined,
-                  "now": undefined,
-                  "text": undefined,
-                }
-              }
-              accessible={true}
-              collapsable={false}
-              focusable={true}
-              onClick={[Function]}
-              onResponderGrant={[Function]}
-              onResponderMove={[Function]}
-              onResponderRelease={[Function]}
-              onResponderTerminate={[Function]}
-              onResponderTerminationRequest={[Function]}
-              onStartShouldSetResponder={[Function]}
-              style={
-                {
-                  "backgroundColor": "rgba(255, 255, 255, 0.2)",
-                  "borderColor": "transparent",
-                  "borderRadius": 12,
-                  "borderWidth": 2,
-                  "opacity": 1,
-                  "padding": 16,
-                }
-              }
-            >
-              <Text
-                style={
-                  [
-                    {
-                      "color": "#FFFFFF",
-                      "fontSize": 18,
-                      "fontWeight": "600",
-                      "marginBottom": 4,
-                    },
-                    false,
-                  ]
-                }
-              >
-                فارسی
+                Terms of Service
               </Text>
-              <Text
-                style={
-                  [
-                    {
-                      "color": "#FFFFFF",
-                      "fontSize": 14,
-                      "opacity": 0.8,
-                    },
-                    false,
-                  ]
-                }
-              >
-                Persian
-              </Text>
-              <View
-                style={
-                  {
-                    "backgroundColor": "#FFD700",
-                    "borderRadius": 4,
-                    "paddingHorizontal": 8,
-                    "paddingVertical": 4,
-                    "position": "absolute",
-                    "right": 8,
-                    "top": 8,
-                  }
-                }
-              >
-                <Text
-                  style={
-                    {
-                      "color": "#000000",
-                      "fontSize": 10,
-                      "fontWeight": "bold",
-                    }
-                  }
-                >
-                  RTL
-                </Text>
-              </View>
-            </View>
+            </Text>
           </View>
         </View>
         <View
@@ -649,7 +415,7 @@ exports[`WelcomeScreen should match snapshot 1`] = `
             {
               "busy": undefined,
               "checked": undefined,
-              "disabled": undefined,
+              "disabled": true,
               "expanded": undefined,
               "selected": undefined,
             }
@@ -664,7 +430,7 @@ exports[`WelcomeScreen should match snapshot 1`] = `
           }
           accessible={true}
           collapsable={false}
-          focusable={true}
+          focusable={false}
           onClick={[Function]}
           onResponderGrant={[Function]}
           onResponderMove={[Function]}
@@ -677,17 +443,11 @@ exports[`WelcomeScreen should match snapshot 1`] = `
               "alignItems": "center",
               "backgroundColor": "#FFFFFF",
               "borderRadius": 12,
+              "boxShadow": "0 4px 6px rgba(0, 0, 0, 0.3)",
               "elevation": 6,
               "marginBottom": 20,
-              "opacity": 1,
+              "opacity": 0.4,
               "padding": 16,
-              "shadowColor": "#000",
-              "shadowOffset": {
-                "height": 4,
-                "width": 0,
-              },
-              "shadowOpacity": 0.3,
-              "shadowRadius": 6,
             }
           }
         >
@@ -700,28 +460,153 @@ exports[`WelcomeScreen should match snapshot 1`] = `
               }
             }
           >
-            welcome.continue
+            Get Started
           </Text>
         </View>
         <View
           style={
             {
               "alignItems": "center",
+              "gap": 8,
               "paddingTop": 20,
             }
           }
         >
+          <View
+            accessibilityState={
+              {
+                "busy": undefined,
+                "checked": undefined,
+                "disabled": undefined,
+                "expanded": undefined,
+                "selected": undefined,
+              }
+            }
+            accessibilityValue={
+              {
+                "max": undefined,
+                "min": undefined,
+                "now": undefined,
+                "text": undefined,
+              }
+            }
+            accessible={true}
+            collapsable={false}
+            focusable={true}
+            onClick={[Function]}
+            onResponderGrant={[Function]}
+            onResponderMove={[Function]}
+            onResponderRelease={[Function]}
+            onResponderTerminate={[Function]}
+            onResponderTerminationRequest={[Function]}
+            onStartShouldSetResponder={[Function]}
+            style={
+              {
+                "opacity": 1,
+                "paddingVertical": 4,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#FFFFFF",
+                  "fontSize": 13,
+                  "fontWeight": "600",
+                  "textDecorationLine": "underline",
+                }
+              }
+            >
+              Privacy Policy
+            </Text>
+          </View>
           <Text
             style={
               {
                 "color": "#FFFFFF",
                 "fontSize": 12,
-                "opacity": 0.7,
+                "marginHorizontal": 8,
+                "opacity": 0.5,
               }
             }
           >
-            Pezkuwi Blockchain • 
-            2025
+            •
+          </Text>
+          <View
+            accessibilityState={
+              {
+                "busy": undefined,
+                "checked": undefined,
+                "disabled": undefined,
+                "expanded": undefined,
+                "selected": undefined,
+              }
+            }
+            accessibilityValue={
+              {
+                "max": undefined,
+                "min": undefined,
+                "now": undefined,
+                "text": undefined,
+              }
+            }
+            accessible={true}
+            collapsable={false}
+            focusable={true}
+            onClick={[Function]}
+            onResponderGrant={[Function]}
+            onResponderMove={[Function]}
+            onResponderRelease={[Function]}
+            onResponderTerminate={[Function]}
+            onResponderTerminationRequest={[Function]}
+            onStartShouldSetResponder={[Function]}
+            style={
+              {
+                "opacity": 1,
+                "paddingVertical": 4,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#FFFFFF",
+                  "fontSize": 13,
+                  "fontWeight": "600",
+                  "textDecorationLine": "underline",
+                }
+              }
+            >
+              Terms of Service
+            </Text>
+          </View>
+          <Text
+            style={
+              {
+                "color": "#FFFFFF",
+                "fontSize": 12,
+                "marginTop": 8,
+                "opacity": 0.7,
+                "textAlign": "center",
+              }
+            }
+          >
+            Pezkuwi Blockchain • Est. 2024 • 
+            2026
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#FFFFFF",
+                "fontSize": 11,
+                "fontStyle": "italic",
+                "opacity": 0.6,
+                "paddingHorizontal": 20,
+                "textAlign": "center",
+              }
+            }
+          >
+            Building the future of decentralized governance since the launch of PezkuwiChain testnet
           </Text>
         </View>
       </View>

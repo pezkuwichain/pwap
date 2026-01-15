@@ -72,17 +72,11 @@ exports[`SignUpScreen should match snapshot 1`] = `
                   "alignItems": "center",
                   "backgroundColor": "#FFFFFF",
                   "borderRadius": 40,
+                  "boxShadow": "0px 4px 8px rgba(0, 0, 0, 0.3)",
                   "elevation": 8,
                   "height": 80,
                   "justifyContent": "center",
                   "marginBottom": 16,
-                  "shadowColor": "#000",
-                  "shadowOffset": {
-                    "height": 4,
-                    "width": 0,
-                  },
-                  "shadowOpacity": 0.3,
-                  "shadowRadius": 8,
                   "width": 80,
                 }
               }
@@ -109,7 +103,7 @@ exports[`SignUpScreen should match snapshot 1`] = `
                 }
               }
             >
-              auth.getStarted
+              Get Started
             </Text>
             <Text
               style={
@@ -120,7 +114,7 @@ exports[`SignUpScreen should match snapshot 1`] = `
                 }
               }
             >
-              auth.createAccount
+              Create Account
             </Text>
           </View>
           <View
@@ -128,15 +122,9 @@ exports[`SignUpScreen should match snapshot 1`] = `
               {
                 "backgroundColor": "#FFFFFF",
                 "borderRadius": 20,
+                "boxShadow": "0px 4px 8px rgba(0, 0, 0, 0.2)",
                 "elevation": 8,
                 "padding": 24,
-                "shadowColor": "#000",
-                "shadowOffset": {
-                  "height": 4,
-                  "width": 0,
-                },
-                "shadowOpacity": 0.2,
-                "shadowRadius": 8,
               }
             }
           >
@@ -157,13 +145,13 @@ exports[`SignUpScreen should match snapshot 1`] = `
                   }
                 }
               >
-                auth.email
+                Email
               </Text>
               <TextInput
                 autoCapitalize="none"
                 keyboardType="email-address"
                 onChangeText={[Function]}
-                placeholder="auth.email"
+                placeholder="Email"
                 placeholderTextColor="rgba(0, 0, 0, 0.4)"
                 style={
                   {
@@ -195,12 +183,12 @@ exports[`SignUpScreen should match snapshot 1`] = `
                   }
                 }
               >
-                auth.username
+                Username
               </Text>
               <TextInput
                 autoCapitalize="none"
                 onChangeText={[Function]}
-                placeholder="auth.username"
+                placeholder="Username"
                 placeholderTextColor="rgba(0, 0, 0, 0.4)"
                 style={
                   {
@@ -232,11 +220,11 @@ exports[`SignUpScreen should match snapshot 1`] = `
                   }
                 }
               >
-                auth.password
+                Password
               </Text>
               <TextInput
                 onChangeText={[Function]}
-                placeholder="auth.password"
+                placeholder="Password"
                 placeholderTextColor="rgba(0, 0, 0, 0.4)"
                 secureTextEntry={true}
                 style={
@@ -269,11 +257,11 @@ exports[`SignUpScreen should match snapshot 1`] = `
                   }
                 }
               >
-                auth.confirmPassword
+                Confirm Password
               </Text>
               <TextInput
                 onChangeText={[Function]}
-                placeholder="auth.confirmPassword"
+                placeholder="Confirm Password"
                 placeholderTextColor="rgba(0, 0, 0, 0.4)"
                 secureTextEntry={true}
                 style={
@@ -322,17 +310,11 @@ exports[`SignUpScreen should match snapshot 1`] = `
                   "alignItems": "center",
                   "backgroundColor": "#EE2A35",
                   "borderRadius": 12,
+                  "boxShadow": "0px 4px 6px rgba(255, 0, 0, 0.3)",
                   "elevation": 6,
                   "marginTop": 8,
                   "opacity": 1,
                   "padding": 16,
-                  "shadowColor": "#EE2A35",
-                  "shadowOffset": {
-                    "height": 4,
-                    "width": 0,
-                  },
-                  "shadowOpacity": 0.3,
-                  "shadowRadius": 6,
                 }
               }
             >
@@ -345,7 +327,7 @@ exports[`SignUpScreen should match snapshot 1`] = `
                   }
                 }
               >
-                auth.signUp
+                Sign Up
               </Text>
             </View>
             <View
@@ -430,7 +412,7 @@ exports[`SignUpScreen should match snapshot 1`] = `
                   }
                 }
               >
-                auth.haveAccount
+                Already have an account?
                  
                 <Text
                   style={
@@ -440,7 +422,7 @@ exports[`SignUpScreen should match snapshot 1`] = `
                     }
                   }
                 >
-                  auth.signIn
+                  Sign In
                 </Text>
               </Text>
             </View>

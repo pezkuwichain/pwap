@@ -43,6 +43,9 @@ export const MockAuthProvider: React.FC<{
   return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
 };
 
+// Export as AuthProvider for compatibility with test imports
+export const AuthProvider = MockAuthProvider;
+
 export const useAuth = () => useContext(AuthContext);
 
 export default AuthContext;

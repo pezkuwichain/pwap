@@ -4,7 +4,7 @@ exports[`SwapScreen should match snapshot 1`] = `
 <RCTSafeAreaView
   style={
     {
-      "backgroundColor": "#F5F5F5",
+      "backgroundColor": "#F8F9FA",
       "flex": 1,
     }
   }
@@ -15,7 +15,6 @@ exports[`SwapScreen should match snapshot 1`] = `
         "padding": 16,
       }
     }
-    keyboardShouldPersistTaps="handled"
     style={
       {
         "flex": 1,
@@ -33,12 +32,63 @@ exports[`SwapScreen should match snapshot 1`] = `
           }
         }
       >
+        <View
+          accessibilityState={
+            {
+              "busy": undefined,
+              "checked": undefined,
+              "disabled": undefined,
+              "expanded": undefined,
+              "selected": undefined,
+            }
+          }
+          accessibilityValue={
+            {
+              "max": undefined,
+              "min": undefined,
+              "now": undefined,
+              "text": undefined,
+            }
+          }
+          accessible={true}
+          collapsable={false}
+          focusable={true}
+          onClick={[Function]}
+          onResponderGrant={[Function]}
+          onResponderMove={[Function]}
+          onResponderRelease={[Function]}
+          onResponderTerminate={[Function]}
+          onResponderTerminationRequest={[Function]}
+          onStartShouldSetResponder={[Function]}
+          style={
+            {
+              "alignItems": "center",
+              "backgroundColor": "#F5F5F5",
+              "borderRadius": 20,
+              "height": 40,
+              "justifyContent": "center",
+              "opacity": 1,
+              "width": 40,
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#333",
+                "fontSize": 24,
+              }
+            }
+          >
+            ←
+          </Text>
+        </View>
         <Text
           style={
             {
-              "color": "#000",
-              "fontSize": 28,
-              "fontWeight": "700",
+              "color": "#333",
+              "fontSize": 20,
+              "fontWeight": "bold",
             }
           }
         >
@@ -74,15 +124,20 @@ exports[`SwapScreen should match snapshot 1`] = `
           onStartShouldSetResponder={[Function]}
           style={
             {
+              "alignItems": "center",
+              "backgroundColor": "#F5F5F5",
+              "borderRadius": 20,
+              "height": 40,
+              "justifyContent": "center",
               "opacity": 1,
-              "padding": 8,
+              "width": 40,
             }
           }
         >
           <Text
             style={
               {
-                "fontSize": 24,
+                "fontSize": 20,
               }
             }
           >
@@ -92,240 +147,222 @@ exports[`SwapScreen should match snapshot 1`] = `
       </View>
       <View
         style={
-          [
-            {
-              "backgroundColor": "#FFFFFF",
-              "borderRadius": 16,
-              "padding": 16,
-            },
-            {
-              "elevation": 4,
-              "shadowColor": "#000",
-              "shadowOffset": {
-                "height": 2,
-                "width": 0,
-              },
-              "shadowOpacity": 0.1,
-              "shadowRadius": 8,
-            },
-            false,
-            false,
-            undefined,
-            {
-              "backgroundColor": "#FFF3CD",
-              "borderColor": "#FFE69C",
-              "marginBottom": 16,
-              "padding": 16,
-            },
-          ]
-        }
-      >
-        <Text
-          style={
-            {
-              "color": "#856404",
-              "fontSize": 14,
-              "textAlign": "center",
-            }
+          {
+            "backgroundColor": "#FFFFFF",
+            "borderRadius": 16,
+            "boxShadow": "0px 2px 4px rgba(0, 0, 0, 0.05)",
+            "elevation": 2,
+            "marginBottom": 8,
+            "padding": 16,
           }
-        >
-          Connecting to blockchain...
-        </Text>
-      </View>
-      <View
-        style={
-          [
-            {
-              "backgroundColor": "#FFFFFF",
-              "borderRadius": 16,
-              "padding": 16,
-            },
-            {
-              "elevation": 4,
-              "shadowColor": "#000",
-              "shadowOffset": {
-                "height": 2,
-                "width": 0,
-              },
-              "shadowOpacity": 0.1,
-              "shadowRadius": 8,
-            },
-            false,
-            false,
-            undefined,
-            {
-              "backgroundColor": "#FFF3CD",
-              "borderColor": "#FFE69C",
-              "marginBottom": 16,
-              "padding": 16,
-            },
-          ]
-        }
-      >
-        <Text
-          style={
-            {
-              "color": "#856404",
-              "fontSize": 14,
-              "textAlign": "center",
-            }
-          }
-        >
-          Please connect your wallet
-        </Text>
-      </View>
-      <View
-        style={
-          [
-            {
-              "backgroundColor": "#FFFFFF",
-              "borderRadius": 16,
-              "padding": 16,
-            },
-            {
-              "elevation": 4,
-              "shadowColor": "#000",
-              "shadowOffset": {
-                "height": 2,
-                "width": 0,
-              },
-              "shadowOpacity": 0.1,
-              "shadowRadius": 8,
-            },
-            false,
-            false,
-            undefined,
-            {
-              "marginBottom": 16,
-              "padding": 20,
-            },
-          ]
         }
       >
         <View
           style={
             {
-              "marginBottom": 8,
+              "flexDirection": "row",
+              "justifyContent": "space-between",
+              "marginBottom": 12,
             }
           }
         >
-          <View
+          <Text
             style={
               {
-                "marginBottom": 12,
+                "color": "#666",
+                "fontSize": 14,
               }
             }
           >
-            <Text
-              style={
-                {
-                  "color": "#666",
-                  "fontSize": 14,
-                  "fontWeight": "600",
-                  "marginBottom": 8,
-                }
-              }
-            >
-              From
-            </Text>
-            <View
-              accessibilityState={
-                {
-                  "busy": undefined,
-                  "checked": undefined,
-                  "disabled": true,
-                  "expanded": undefined,
-                  "selected": undefined,
-                }
-              }
-              accessibilityValue={
-                {
-                  "max": undefined,
-                  "min": undefined,
-                  "now": undefined,
-                  "text": undefined,
-                }
-              }
-              accessible={true}
-              collapsable={false}
-              focusable={false}
-              onClick={[Function]}
-              onResponderGrant={[Function]}
-              onResponderMove={[Function]}
-              onResponderRelease={[Function]}
-              onResponderTerminate={[Function]}
-              onResponderTerminationRequest={[Function]}
-              onStartShouldSetResponder={[Function]}
-              style={
-                {
-                  "backgroundColor": "#FFFFFF",
-                  "borderColor": "#E0E0E0",
-                  "borderRadius": 12,
-                  "borderWidth": 1,
-                  "opacity": 0.5,
-                  "padding": 12,
-                }
-              }
-            >
-              <View
-                style={
-                  {
-                    "alignItems": "center",
-                    "flexDirection": "row",
-                    "justifyContent": "space-between",
-                  }
-                }
-              >
-                <Text
-                  style={
-                    {
-                      "color": "#999",
-                      "fontSize": 16,
-                    }
-                  }
-                >
-                  Select Token
-                </Text>
-                <Text
-                  style={
-                    {
-                      "color": "#999",
-                      "fontSize": 12,
-                    }
-                  }
-                >
-                  ▼
-                </Text>
-              </View>
-            </View>
-          </View>
-          <TextInput
-            editable={true}
-            keyboardType="decimal-pad"
-            onChangeText={[Function]}
-            placeholder="0.00"
+            From
+          </Text>
+          <Text
             style={
               {
-                "backgroundColor": "#F5F5F5",
-                "borderColor": "#E0E0E0",
-                "borderRadius": 12,
-                "borderWidth": 1,
-                "color": "#000",
-                "fontSize": 32,
-                "fontWeight": "700",
-                "marginTop": 8,
-                "padding": 16,
+                "color": "#999",
+                "fontSize": 12,
+              }
+            }
+          >
+            Balance: 
+            0.0000
+             
+            HEZ
+          </Text>
+        </View>
+        <View
+          style={
+            {
+              "alignItems": "center",
+              "flexDirection": "row",
+              "gap": 12,
+            }
+          }
+        >
+          <TextInput
+            keyboardType="decimal-pad"
+            onChangeText={[Function]}
+            placeholder="0.0"
+            placeholderTextColor="#999"
+            style={
+              {
+                "color": "#333",
+                "flex": 1,
+                "fontSize": 28,
+                "fontWeight": "bold",
+                "padding": 0,
               }
             }
             value=""
           />
+          <View
+            accessibilityState={
+              {
+                "busy": undefined,
+                "checked": undefined,
+                "disabled": undefined,
+                "expanded": undefined,
+                "selected": undefined,
+              }
+            }
+            accessibilityValue={
+              {
+                "max": undefined,
+                "min": undefined,
+                "now": undefined,
+                "text": undefined,
+              }
+            }
+            accessible={true}
+            collapsable={false}
+            focusable={true}
+            onClick={[Function]}
+            onResponderGrant={[Function]}
+            onResponderMove={[Function]}
+            onResponderRelease={[Function]}
+            onResponderTerminate={[Function]}
+            onResponderTerminationRequest={[Function]}
+            onStartShouldSetResponder={[Function]}
+            style={
+              {
+                "alignItems": "center",
+                "backgroundColor": "#F5F5F5",
+                "borderRadius": 12,
+                "flexDirection": "row",
+                "gap": 8,
+                "opacity": 1,
+                "paddingHorizontal": 12,
+                "paddingVertical": 8,
+              }
+            }
+          >
+            <Image
+              resizeMode="contain"
+              source={
+                {
+                  "testUri": "../../../../shared/images/hez_token_512.png",
+                }
+              }
+              style={
+                {
+                  "height": 24,
+                  "width": 24,
+                }
+              }
+            />
+            <Text
+              style={
+                {
+                  "color": "#333",
+                  "fontSize": 16,
+                  "fontWeight": "600",
+                }
+              }
+            >
+              HEZ
+            </Text>
+            <Text
+              style={
+                {
+                  "color": "#666",
+                  "fontSize": 10,
+                }
+              }
+            >
+              ▼
+            </Text>
+          </View>
         </View>
         <View
           accessibilityState={
             {
               "busy": undefined,
               "checked": undefined,
-              "disabled": false,
+              "disabled": undefined,
+              "expanded": undefined,
+              "selected": undefined,
+            }
+          }
+          accessibilityValue={
+            {
+              "max": undefined,
+              "min": undefined,
+              "now": undefined,
+              "text": undefined,
+            }
+          }
+          accessible={true}
+          collapsable={false}
+          focusable={true}
+          onClick={[Function]}
+          onResponderGrant={[Function]}
+          onResponderMove={[Function]}
+          onResponderRelease={[Function]}
+          onResponderTerminate={[Function]}
+          onResponderTerminationRequest={[Function]}
+          onStartShouldSetResponder={[Function]}
+          style={
+            {
+              "alignSelf": "flex-start",
+              "backgroundColor": "rgba(0, 143, 67, 0.1)",
+              "borderColor": "rgba(0, 143, 67, 0.3)",
+              "borderRadius": 8,
+              "borderWidth": 1,
+              "marginTop": 8,
+              "opacity": 1,
+              "paddingHorizontal": 12,
+              "paddingVertical": 6,
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#00A94F",
+                "fontSize": 12,
+                "fontWeight": "600",
+              }
+            }
+          >
+            MAX
+          </Text>
+        </View>
+      </View>
+      <View
+        style={
+          {
+            "alignItems": "center",
+            "marginVertical": -12,
+            "zIndex": 10,
+          }
+        }
+      >
+        <View
+          accessibilityState={
+            {
+              "busy": undefined,
+              "checked": undefined,
+              "disabled": undefined,
               "expanded": undefined,
               "selected": undefined,
             }
@@ -351,155 +388,252 @@ exports[`SwapScreen should match snapshot 1`] = `
           style={
             {
               "alignItems": "center",
-              "marginVertical": 8,
+              "backgroundColor": "#FFFFFF",
+              "borderColor": "#E5E5E5",
+              "borderRadius": 24,
+              "borderWidth": 2,
+              "boxShadow": "0px 2px 4px rgba(0, 0, 0, 0.1)",
+              "elevation": 3,
+              "height": 48,
+              "justifyContent": "center",
               "opacity": 1,
+              "width": 48,
             }
           }
         >
-          <View
+          <Text
             style={
               {
-                "alignItems": "center",
-                "backgroundColor": "#00A94F",
-                "borderRadius": 20,
-                "height": 40,
-                "justifyContent": "center",
-                "width": 40,
+                "color": "#333",
+                "fontSize": 24,
               }
             }
           >
-            <Text
-              style={
-                {
-                  "color": "#FFFFFF",
-                  "fontSize": 24,
-                }
+            ⇅
+          </Text>
+        </View>
+      </View>
+      <View
+        style={
+          {
+            "backgroundColor": "#FFFFFF",
+            "borderRadius": 16,
+            "boxShadow": "0px 2px 4px rgba(0, 0, 0, 0.05)",
+            "elevation": 2,
+            "marginBottom": 8,
+            "padding": 16,
+          }
+        }
+      >
+        <View
+          style={
+            {
+              "flexDirection": "row",
+              "justifyContent": "space-between",
+              "marginBottom": 12,
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#666",
+                "fontSize": 14,
               }
-            >
-              ⇅
-            </Text>
-          </View>
+            }
+          >
+            To
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#999",
+                "fontSize": 12,
+              }
+            }
+          >
+            Balance: 
+            0.0000
+             
+            PEZ
+          </Text>
         </View>
         <View
           style={
             {
-              "marginBottom": 8,
+              "alignItems": "center",
+              "flexDirection": "row",
+              "gap": 12,
             }
           }
         >
-          <View
+          <TextInput
+            editable={false}
+            placeholder="0.0"
+            placeholderTextColor="#999"
             style={
               {
-                "marginBottom": 12,
+                "color": "#333",
+                "flex": 1,
+                "fontSize": 28,
+                "fontWeight": "bold",
+                "padding": 0,
+              }
+            }
+            value=""
+          />
+          <View
+            accessibilityState={
+              {
+                "busy": undefined,
+                "checked": undefined,
+                "disabled": undefined,
+                "expanded": undefined,
+                "selected": undefined,
+              }
+            }
+            accessibilityValue={
+              {
+                "max": undefined,
+                "min": undefined,
+                "now": undefined,
+                "text": undefined,
+              }
+            }
+            accessible={true}
+            collapsable={false}
+            focusable={true}
+            onClick={[Function]}
+            onResponderGrant={[Function]}
+            onResponderMove={[Function]}
+            onResponderRelease={[Function]}
+            onResponderTerminate={[Function]}
+            onResponderTerminationRequest={[Function]}
+            onStartShouldSetResponder={[Function]}
+            style={
+              {
+                "alignItems": "center",
+                "backgroundColor": "#F5F5F5",
+                "borderRadius": 12,
+                "flexDirection": "row",
+                "gap": 8,
+                "opacity": 1,
+                "paddingHorizontal": 12,
+                "paddingVertical": 8,
               }
             }
           >
+            <Image
+              resizeMode="contain"
+              source={
+                {
+                  "testUri": "../../../../shared/images/pez_token_512.png",
+                }
+              }
+              style={
+                {
+                  "height": 24,
+                  "width": 24,
+                }
+              }
+            />
+            <Text
+              style={
+                {
+                  "color": "#333",
+                  "fontSize": 16,
+                  "fontWeight": "600",
+                }
+              }
+            >
+              PEZ
+            </Text>
             <Text
               style={
                 {
                   "color": "#666",
-                  "fontSize": 14,
-                  "fontWeight": "600",
-                  "marginBottom": 8,
+                  "fontSize": 10,
                 }
               }
             >
-              To
+              ▼
             </Text>
-            <View
-              accessibilityState={
-                {
-                  "busy": undefined,
-                  "checked": undefined,
-                  "disabled": true,
-                  "expanded": undefined,
-                  "selected": undefined,
-                }
-              }
-              accessibilityValue={
-                {
-                  "max": undefined,
-                  "min": undefined,
-                  "now": undefined,
-                  "text": undefined,
-                }
-              }
-              accessible={true}
-              collapsable={false}
-              focusable={false}
-              onClick={[Function]}
-              onResponderGrant={[Function]}
-              onResponderMove={[Function]}
-              onResponderRelease={[Function]}
-              onResponderTerminate={[Function]}
-              onResponderTerminationRequest={[Function]}
-              onStartShouldSetResponder={[Function]}
-              style={
-                {
-                  "backgroundColor": "#FFFFFF",
-                  "borderColor": "#E0E0E0",
-                  "borderRadius": 12,
-                  "borderWidth": 1,
-                  "opacity": 0.5,
-                  "padding": 12,
-                }
-              }
-            >
-              <View
-                style={
-                  {
-                    "alignItems": "center",
-                    "flexDirection": "row",
-                    "justifyContent": "space-between",
-                  }
-                }
-              >
-                <Text
-                  style={
-                    {
-                      "color": "#999",
-                      "fontSize": 16,
-                    }
-                  }
-                >
-                  Select Token
-                </Text>
-                <Text
-                  style={
-                    {
-                      "color": "#999",
-                      "fontSize": 12,
-                    }
-                  }
-                >
-                  ▼
-                </Text>
-              </View>
-            </View>
           </View>
-          <TextInput
-            editable={false}
-            placeholder="0.00"
-            style={
-              [
-                {
-                  "backgroundColor": "#F5F5F5",
-                  "borderColor": "#E0E0E0",
-                  "borderRadius": 12,
-                  "borderWidth": 1,
-                  "color": "#000",
-                  "fontSize": 32,
-                  "fontWeight": "700",
-                  "marginTop": 8,
-                  "padding": 16,
-                },
-                {
-                  "opacity": 0.6,
-                },
-              ]
+        </View>
+      </View>
+      <View
+        style={
+          {
+            "backgroundColor": "#FFFFFF",
+            "borderRadius": 16,
+            "marginBottom": 16,
+            "marginTop": 16,
+            "padding": 16,
+          }
+        }
+      >
+        <View
+          style={
+            {
+              "flexDirection": "row",
+              "justifyContent": "space-between",
+              "paddingVertical": 8,
             }
-            value=""
-          />
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#666",
+                "fontSize": 14,
+              }
+            }
+          >
+            ℹ️ Exchange Rate
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#333",
+                "fontSize": 14,
+                "fontWeight": "500",
+              }
+            }
+          >
+            No pool available
+          </Text>
+        </View>
+        <View
+          style={
+            {
+              "flexDirection": "row",
+              "justifyContent": "space-between",
+              "paddingVertical": 8,
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#666",
+                "fontSize": 14,
+              }
+            }
+          >
+            Slippage Tolerance
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#3B82F6",
+                "fontSize": 14,
+                "fontWeight": "600",
+              }
+            }
+          >
+            0.5
+            %
+          </Text>
         </View>
       </View>
       <View
@@ -522,10 +656,8 @@ exports[`SwapScreen should match snapshot 1`] = `
         }
         accessible={true}
         collapsable={false}
-        focusable={true}
-        onBlur={[Function]}
+        focusable={false}
         onClick={[Function]}
-        onFocus={[Function]}
         onResponderGrant={[Function]}
         onResponderMove={[Function]}
         onResponderRelease={[Function]}
@@ -533,58 +665,27 @@ exports[`SwapScreen should match snapshot 1`] = `
         onResponderTerminationRequest={[Function]}
         onStartShouldSetResponder={[Function]}
         style={
-          [
-            {
-              "alignItems": "center",
-              "borderRadius": 12,
-              "flexDirection": "row",
-              "justifyContent": "center",
-              "paddingHorizontal": 24,
-              "paddingVertical": 12,
-            },
-            {
-              "elevation": 0,
-              "opacity": 0.5,
-              "shadowOpacity": 0,
-            },
-            {
-              "borderRadius": 12,
-              "paddingHorizontal": 24,
-              "paddingVertical": 12,
-            },
-            false,
-            {
-              "elevation": 0,
-              "opacity": 0.5,
-              "shadowOpacity": 0,
-            },
-            {
-              "marginTop": 8,
-            },
-            false,
-          ]
+          {
+            "alignItems": "center",
+            "backgroundColor": "#CCC",
+            "borderRadius": 16,
+            "marginBottom": 20,
+            "opacity": 1,
+            "padding": 18,
+          }
         }
       >
         <Text
           style={
-            [
-              {
-                "fontWeight": "600",
-                "textAlign": "center",
-              },
-              {
-                "opacity": 0.7,
-              },
-              {
-                "fontSize": 16,
-              },
-              {
-                "opacity": 0.7,
-              },
-              undefined,
-            ]
+            {
+              "color": "#FFFFFF",
+              "fontSize": 18,
+              "fontWeight": "bold",
+            }
           }
-        />
+        >
+          No Pool Available
+        </Text>
       </View>
     </View>
   </RCTScrollView>

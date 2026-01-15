@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import { PezkuwiProvider } from '../contexts/PezkuwiContext';
+import { PezkuwiProvider } from '../../contexts/PezkuwiContext';
 import NFTGalleryScreen from '../NFTGalleryScreen';
 
 jest.mock('@react-navigation/native', () => ({
