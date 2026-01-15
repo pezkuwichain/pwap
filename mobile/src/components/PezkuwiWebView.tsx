@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   BackHandler,
   Platform,
+  Alert,
 } from 'react-native';
 import { WebView, WebViewMessageEvent } from 'react-native-webview';
 import { useFocusEffect } from '@react-navigation/native';
@@ -40,7 +41,7 @@ const PezkuwiWebView: React.FC<PezkuwiWebViewProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [canGoBack, setCanGoBack] = useState(false);
 
-  const { selectedAccount, getKeyPair } = usePezkuwi();
+  const { selectedAccount, getKeyPair, api, isApiReady } = usePezkuwi();
 
   // JavaScript to inject into the WebView
   // This creates a bridge between the web app and native app
@@ -66,12 +67,12 @@ const PezkuwiWebView: React.FC<PezkuwiWebViewProps> = ({
 
       // Create native bridge for wallet operations
       window.PezkuwiNativeBridge = {
-        // Request transaction signing from native wallet
-        signTransaction: function(extrinsicHex, callback) {
+        // Request transaction signing and submission from native wallet
+        signTransaction: function(payload, callback) {
           window.__pendingSignCallback = callback;
           window.ReactNativeWebView?.postMessage(JSON.stringify({
             type: 'SIGN_TRANSACTION',
-            payload: { extrinsicHex }
+            payload: payload
           }));
         },
 
@@ -119,9 +120,8 @@ const PezkuwiWebView: React.FC<PezkuwiWebViewProps> = ({
 
       switch (message.type) {
         case 'SIGN_TRANSACTION':
-          // Handle transaction signing
+          // Handle transaction signing and submission
           if (!selectedAccount) {
-            // Send error back to WebView
             webViewRef.current?.injectJavaScript(`
               if (window.__pendingSignCallback) {
                 window.__pendingSignCallback(null, 'Wallet not connected');
@@ -131,29 +131,82 @@ const PezkuwiWebView: React.FC<PezkuwiWebViewProps> = ({
             return;
           }
 
-          try {
-            const { extrinsicHex } = message.payload as { extrinsicHex: string };
-            const keyPair = await getKeyPair(selectedAccount.address);
+          if (!api || !isApiReady) {
+            webViewRef.current?.injectJavaScript(`
+              if (window.__pendingSignCallback) {
+                window.__pendingSignCallback(null, 'Blockchain not connected');
+                delete window.__pendingSignCallback;
+              }
+            `);
+            return;
+          }
 
+          try {
+            const payload = message.payload as {
+              section: string;
+              method: string;
+              args: unknown[];
+            };
+
+            const keyPair = await getKeyPair(selectedAccount.address);
             if (!keyPair) {
               throw new Error('Could not retrieve key pair');
             }
 
-            // Sign the transaction
-            const signature = keyPair.sign(extrinsicHex);
-            const signatureHex = Buffer.from(signature).toString('hex');
+            // Build the transaction using native API
+            const { section, method, args } = payload;
 
-            // Send signature back to WebView
+            if (__DEV__) {
+              console.log('[WebView] Building transaction:', { section, method, args });
+            }
+
+            // Get the transaction method from API
+            const txModule = api.tx[section];
+            if (!txModule) {
+              throw new Error(`Unknown section: ${section}`);
+            }
+
+            const txMethod = txModule[method];
+            if (!txMethod) {
+              throw new Error(`Unknown method: ${section}.${method}`);
+            }
+
+            // Create the transaction
+            const tx = txMethod(...args);
+
+            // Sign and send transaction
+            const txHash = await new Promise<string>((resolve, reject) => {
+              tx.signAndSend(keyPair, { nonce: -1 }, (result: { status: { isInBlock?: boolean; isFinalized?: boolean; asInBlock?: { toString: () => string }; asFinalized?: { toString: () => string } }; dispatchError?: unknown }) => {
+                if (result.status.isInBlock) {
+                  const hash = result.status.asInBlock?.toString() || '';
+                  if (__DEV__) {
+                    console.log('[WebView] Transaction included in block:', hash);
+                  }
+                  resolve(hash);
+                } else if (result.status.isFinalized) {
+                  const hash = result.status.asFinalized?.toString() || '';
+                  if (__DEV__) {
+                    console.log('[WebView] Transaction finalized:', hash);
+                  }
+                }
+                if (result.dispatchError) {
+                  reject(new Error('Transaction failed'));
+                }
+              }).catch(reject);
+            });
+
+            // Send success back to WebView
             webViewRef.current?.injectJavaScript(`
               if (window.__pendingSignCallback) {
-                window.__pendingSignCallback('${signatureHex}', null);
+                window.__pendingSignCallback('${txHash}', null);
                 delete window.__pendingSignCallback;
               }
             `);
           } catch (signError) {
+            const errorMessage = (signError as Error).message.replace(/'/g, "\\'");
             webViewRef.current?.injectJavaScript(`
               if (window.__pendingSignCallback) {
-                window.__pendingSignCallback(null, '${(signError as Error).message}');
+                window.__pendingSignCallback(null, '${errorMessage}');
                 delete window.__pendingSignCallback;
               }
             `);

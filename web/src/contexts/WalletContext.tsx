@@ -10,7 +10,7 @@ import { WALLET_ERRORS, formatBalance, ASSET_IDS } from '@pezkuwi/lib/wallet';
 import type { InjectedAccountWithMeta } from '@pezkuwi/extension-inject/types';
 import type { Signer } from '@pezkuwi/api/types';
 import { web3FromAddress } from '@pezkuwi/extension-dapp';
-import { isMobileApp, getNativeWalletAddress, signTransactionNative } from '@/lib/mobile-bridge';
+import { isMobileApp, getNativeWalletAddress, signTransactionNative, type TransactionPayload } from '@/lib/mobile-bridge';
 
 interface TokenBalances {
   HEZ: string;
@@ -170,16 +170,38 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       if (isMobileApp()) {
         if (import.meta.env.DEV) console.log('[Mobile] Using native bridge for transaction signing');
 
-        // Get extrinsic hex for native signing
-        const extrinsicHex = (tx as { toHex?: () => string }).toHex?.() || '';
+        // Extract transaction details from the tx object
+        const txAny = tx as {
+          method: {
+            section: string;
+            method: string;
+            args: unknown[];
+            toHuman?: () => { args?: Record<string, unknown> };
+          };
+        };
 
-        // Sign via native bridge
-        const signature = await signTransactionNative(extrinsicHex);
+        // Get section, method and args from the transaction
+        const section = txAny.method.section;
+        const method = txAny.method.method;
 
-        // Submit the signed transaction
-        // Note: The native app signs and may also submit, so we return the signature as hash
-        // In production, the mobile app handles the full submit flow
-        return signature;
+        // Extract args - convert to array format
+        const argsHuman = txAny.method.toHuman?.()?.args || {};
+        const args = Object.values(argsHuman);
+
+        if (import.meta.env.DEV) {
+          console.log('[Mobile] Transaction details:', { section, method, args });
+        }
+
+        const payload: TransactionPayload = { section, method, args };
+
+        // Sign and send via native bridge
+        const blockHash = await signTransactionNative(payload);
+
+        if (import.meta.env.DEV) {
+          console.log('[Mobile] Transaction submitted, block hash:', blockHash);
+        }
+
+        return blockHash;
       }
 
       // Desktop: Use browser extension for signing
