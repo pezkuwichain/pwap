@@ -105,13 +105,13 @@ const Login: React.FC = () => {
       if (selectedAccount) {
         navigate('/');
       } else {
-        setError('Please select an account from your Polkadot.js extension');
+        setError('Please select an account from your Pezkuwi Wallet extension');
       }
     } catch (err) {
       if (import.meta.env.DEV) console.error('Wallet connection failed:', err);
       const errorMsg = err instanceof Error ? err.message : '';
       if (errorMsg?.includes('extension')) {
-        setError('Polkadot.js extension not found. Please install it first.');
+        setError('Pezkuwi Wallet extension not found. Please install it first.');
       } else {
         setError('Failed to connect wallet. Please try again.');
       }
@@ -366,11 +366,11 @@ const Login: React.FC = () => {
             disabled={loading}
           >
             <Wallet className="mr-2 h-4 w-4" />
-            {t('login.connectWallet', 'Connect with Polkadot.js')}
+            {t('login.connectWallet', 'Connect with Pezkuwi Wallet')}
           </Button>
 
           <p className="mt-2 text-xs text-center text-gray-500">
-            {t('login.walletHint', 'Connect your Polkadot wallet for instant access')}
+            {t('login.walletHint', 'Connect your Pezkuwi Wallet for instant access')}
           </p>
         </CardContent>
         

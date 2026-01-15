@@ -91,7 +91,7 @@ export const PezkuwiWalletButton: React.FC = () => {
             <DialogHeader>
               <DialogTitle className="text-white">Account Details</DialogTitle>
               <DialogDescription className="text-gray-400">
-                Your connected Polkadot account
+                Your connected Pezkuwi account
               </DialogDescription>
             </DialogHeader>
 
@@ -123,7 +123,7 @@ export const PezkuwiWalletButton: React.FC = () => {
               <div className="bg-gray-800/50 rounded-lg p-4">
                 <div className="text-sm text-gray-400 mb-1">Source</div>
                 <div className="text-white">
-                  {selectedAccount.meta.source || 'polkadot-js'}
+                  {selectedAccount.meta.source || 'pezkuwi'}
                 </div>
               </div>
 
@@ -174,29 +174,29 @@ export const PezkuwiWalletButton: React.FC = () => {
         Connect Wallet
       </Button>
 
-      {error && error.includes('install Polkadot.js') && (
+      {error && error.includes('extension') && (
         <Dialog open={!!error} onOpenChange={() => {}}>
           <DialogContent className="bg-gray-900 border-gray-800">
             <DialogHeader>
-              <DialogTitle className="text-white">Install Polkadot.js Extension</DialogTitle>
+              <DialogTitle className="text-white">Install Pezkuwi Wallet Extension</DialogTitle>
               <DialogDescription className="text-gray-400">
-                You need the Polkadot.js browser extension to connect your wallet
+                You need the Pezkuwi Wallet browser extension to connect your wallet
               </DialogDescription>
             </DialogHeader>
 
             <div className="space-y-4">
               <p className="text-gray-300">
-                The Polkadot.js extension allows you to manage your accounts and sign transactions securely.
+                The Pezkuwi Wallet extension allows you to manage your accounts and sign transactions securely.
               </p>
 
               <div className="flex gap-3">
                 <a
-                  href="https://polkadot.js.org/extension/"
+                  href="https://js.pezkuwichain.io"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex-1"
                 >
-                  <Button className="w-full bg-orange-600 hover:bg-orange-700">
+                  <Button className="w-full bg-green-600 hover:bg-green-700">
                     <ExternalLink className="w-4 h-4 mr-2" />
                     Install Extension
                   </Button>
