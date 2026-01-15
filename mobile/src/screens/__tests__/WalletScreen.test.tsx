@@ -1,6 +1,5 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import { LanguageProvider } from '../../contexts/LanguageContext';
 import { PezkuwiProvider } from '../contexts/PezkuwiContext';
 import WalletScreen from '../WalletScreen';
 
@@ -10,11 +9,9 @@ jest.mock('@react-navigation/native', () => ({
 }));
 
 const WalletScreenWrapper = () => (
-  <LanguageProvider>
-    <PezkuwiProvider>
-      <WalletScreen />
-    </PezkuwiProvider>
-  </LanguageProvider>
+  <PezkuwiProvider>
+    <WalletScreen />
+  </PezkuwiProvider>
 );
 
 describe('WalletScreen', () => {

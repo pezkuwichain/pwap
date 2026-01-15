@@ -22,7 +22,7 @@ const mockUser: User = {
   created_at: new Date().toISOString(),
 };
 
-const mockAuthContext: AuthContextType = {
+export const mockAuthContext: AuthContextType = {
   user: mockUser,
   session: null,
   loading: false,

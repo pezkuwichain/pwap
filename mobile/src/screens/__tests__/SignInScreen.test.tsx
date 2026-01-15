@@ -1,7 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
 import { AuthProvider } from '../../contexts/AuthContext';
-import { LanguageProvider } from '../../contexts/LanguageContext';
 import SignInScreen from '../SignInScreen';
 
 jest.mock('@react-navigation/native', () => ({
@@ -11,11 +10,9 @@ jest.mock('@react-navigation/native', () => ({
 
 // Wrapper with required providers
 const SignInScreenWrapper = () => (
-  <LanguageProvider>
-    <AuthProvider>
-      <SignInScreen />
-    </AuthProvider>
-  </LanguageProvider>
+  <AuthProvider>
+    <SignInScreen />
+  </AuthProvider>
 );
 
 describe('SignInScreen', () => {

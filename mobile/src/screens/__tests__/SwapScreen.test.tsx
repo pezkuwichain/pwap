@@ -1,6 +1,5 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import { LanguageProvider } from '../../contexts/LanguageContext';
 import { PezkuwiProvider } from '../contexts/PezkuwiContext';
 import SwapScreen from '../SwapScreen';
 
@@ -10,11 +9,9 @@ jest.mock('@react-navigation/native', () => ({
 }));
 
 const SwapScreenWrapper = () => (
-  <LanguageProvider>
-    <PezkuwiProvider>
-      <SwapScreen />
-    </PezkuwiProvider>
-  </LanguageProvider>
+  <PezkuwiProvider>
+    <SwapScreen />
+  </PezkuwiProvider>
 );
 
 describe('SwapScreen', () => {

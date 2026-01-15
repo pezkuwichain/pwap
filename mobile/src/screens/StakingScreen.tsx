@@ -42,7 +42,7 @@ const SCORE_WEIGHTS = {
 };
 
 export default function StakingScreen() {
-  const { api, selectedAccount, isApiReady } = usePezkuwi();
+  const { api, selectedAccount, isApiReady, getKeyPair } = usePezkuwi();
   
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -137,17 +137,20 @@ export default function StakingScreen() {
       setProcessing(true);
       if (!api || !selectedAccount) return;
 
+      // Get keypair for signing
+      const keyPair = await getKeyPair(selectedAccount.address);
+      if (!keyPair) {
+        Alert.alert('Error', 'Could not retrieve wallet keypair for signing');
+        return;
+      }
+
       // Convert amount to planck
       const amountPlanck = BigInt(Math.floor(parseFloat(stakeAmount) * 1e12));
 
       // Bond tokens (or bond_extra if already bonding)
-      // For simplicity, using bond_extra if already bonded, otherwise bond
-      // But UI should handle controller/stash logic. Assuming simple setup.
-      // This part is simplified.
-      
       const tx = api.tx.staking.bondExtra(amountPlanck);
-      
-      await tx.signAndSend(selectedAccount.address, ({ status }) => {
+
+      await tx.signAndSend(keyPair, ({ status }) => {
         if (status.isInBlock) {
           Alert.alert('Success', `Successfully staked ${stakeAmount} HEZ!`);
           setStakeSheetVisible(false);
@@ -173,10 +176,17 @@ export default function StakingScreen() {
       setProcessing(true);
       if (!api || !selectedAccount) return;
 
+      // Get keypair for signing
+      const keyPair = await getKeyPair(selectedAccount.address);
+      if (!keyPair) {
+        Alert.alert('Error', 'Could not retrieve wallet keypair for signing');
+        return;
+      }
+
       const amountPlanck = BigInt(Math.floor(parseFloat(unstakeAmount) * 1e12));
 
       const tx = api.tx.staking.unbond(amountPlanck);
-      await tx.signAndSend(selectedAccount.address, ({ status }) => {
+      await tx.signAndSend(keyPair, ({ status }) => {
         if (status.isInBlock) {
           Alert.alert(
             'Success',
@@ -200,10 +210,17 @@ export default function StakingScreen() {
       setProcessing(true);
       if (!api || !selectedAccount) return;
 
+      // Get keypair for signing
+      const keyPair = await getKeyPair(selectedAccount.address);
+      if (!keyPair) {
+        Alert.alert('Error', 'Could not retrieve wallet keypair for signing');
+        return;
+      }
+
       // Withdraw all available unbonded funds
       // num_slashing_spans is usually 0 for simple stakers
       const tx = api.tx.staking.withdrawUnbonded(0);
-      await tx.signAndSend(selectedAccount.address, ({ status }) => {
+      await tx.signAndSend(keyPair, ({ status }) => {
         if (status.isInBlock) {
           Alert.alert('Success', 'Successfully withdrawn unbonded tokens!');
           fetchStakingData();
@@ -226,8 +243,16 @@ export default function StakingScreen() {
 
     setProcessing(true);
     try {
+      // Get keypair for signing
+      const keyPair = await getKeyPair(selectedAccount.address);
+      if (!keyPair) {
+        Alert.alert('Error', 'Could not retrieve wallet keypair for signing');
+        setProcessing(false);
+        return;
+      }
+
       const tx = api.tx.staking.nominate(validators);
-      await tx.signAndSend(selectedAccount.address, ({ status }) => {
+      await tx.signAndSend(keyPair, ({ status }) => {
         if (status.isInBlock) {
           Alert.alert('Success', 'Nomination transaction sent!');
           setValidatorSheetVisible(false);

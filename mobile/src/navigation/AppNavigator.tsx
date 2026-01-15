@@ -15,6 +15,10 @@ import SettingsScreen from '../screens/SettingsScreen';
 import BeCitizenChoiceScreen from '../screens/BeCitizenChoiceScreen';
 import BeCitizenApplyScreen from '../screens/BeCitizenApplyScreen';
 import BeCitizenClaimScreen from '../screens/BeCitizenClaimScreen';
+import EditProfileScreen from '../screens/EditProfileScreen';
+import WalletScreen from '../screens/WalletScreen';
+import WalletSetupScreen from '../screens/WalletSetupScreen';
+import SwapScreen from '../screens/SwapScreen';
 
 export type RootStackParamList = {
   Welcome: undefined;
@@ -22,6 +26,10 @@ export type RootStackParamList = {
   Auth: undefined;
   MainApp: undefined;
   Settings: undefined;
+  EditProfile: undefined;
+  Wallet: undefined;
+  WalletSetup: undefined;
+  Swap: undefined;
   BeCitizenChoice: undefined;
   BeCitizenApply: undefined;
   BeCitizenClaim: undefined;
@@ -117,6 +125,34 @@ const AppNavigator: React.FC = () => {
                 headerShown: true,
                 headerTitle: 'Verify Citizenship',
                 headerBackTitle: 'Back',
+              }}
+            />
+            <Stack.Screen
+              name="EditProfile"
+              component={EditProfileScreen}
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="Wallet"
+              component={WalletScreen}
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="WalletSetup"
+              component={WalletSetupScreen}
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="Swap"
+              component={SwapScreen}
+              options={{
+                headerShown: false,
               }}
             />
           </>

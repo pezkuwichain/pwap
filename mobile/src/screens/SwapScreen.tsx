@@ -13,8 +13,10 @@ import {
   Platform,
   Image,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { KurdistanColors } from '../theme/colors';
 import { usePezkuwi } from '../contexts/PezkuwiContext';
+import { KurdistanSun } from '../components/KurdistanSun';
 
 // Token Images
 const hezLogo = require('../../../shared/images/hez_logo.png');
@@ -30,14 +32,15 @@ interface TokenInfo {
 }
 
 const TOKENS: TokenInfo[] = [
-  { symbol: 'HEZ', name: 'Hemuwelet', assetId: 0, decimals: 12, logo: hezLogo },
-  { symbol: 'PEZ', name: 'Pezkunel', assetId: 1, decimals: 12, logo: pezLogo },
+  { symbol: 'HEZ', name: 'Welati Coin', assetId: 0, decimals: 12, logo: hezLogo },
+  { symbol: 'PEZ', name: 'Pezkuwichain Token', assetId: 1, decimals: 12, logo: pezLogo },
   { symbol: 'USDT', name: 'Tether USD', assetId: 1000, decimals: 6, logo: usdtLogo },
 ];
 
 type TransactionStatus = 'idle' | 'signing' | 'submitting' | 'success' | 'error';
 
 const SwapScreen: React.FC = () => {
+  const navigation = useNavigation<any>();
   const { api, isApiReady, selectedAccount, getKeyPair } = usePezkuwi();
 
   const [fromToken, setFromToken] = useState<TokenInfo>(TOKENS[0]);
@@ -48,6 +51,17 @@ const SwapScreen: React.FC = () => {
 
   const [fromBalance, setFromBalance] = useState('0');
   const [toBalance, setToBalance] = useState('0');
+
+  // Pool reserves for AMM calculation
+  const [poolReserves, setPoolReserves] = useState<{
+    reserve0: number;
+    reserve1: number;
+    asset0: number;
+    asset1: number;
+  } | null>(null);
+  const [exchangeRate, setExchangeRate] = useState(0);
+  const [isLoadingRate, setIsLoadingRate] = useState(false);
+  const [isDexAvailable, setIsDexAvailable] = useState(false);
 
   const [txStatus, setTxStatus] = useState<TransactionStatus>('idle');
   const [errorMessage, setErrorMessage] = useState('');
@@ -93,18 +107,184 @@ const SwapScreen: React.FC = () => {
     fetchBalances();
   }, [api, isApiReady, selectedAccount, fromToken, toToken]);
 
-  // Calculate output amount (simple 1:1 for now - should use pool reserves)
+  // Check if AssetConversion pallet is available
+  useEffect(() => {
+    if (api && isApiReady) {
+      const hasAssetConversion = api.tx.assetConversion !== undefined;
+      setIsDexAvailable(hasAssetConversion);
+      if (__DEV__ && !hasAssetConversion) {
+        console.warn('AssetConversion pallet not available in runtime');
+      }
+    }
+  }, [api, isApiReady]);
+
+  // Fetch exchange rate from AssetConversion pool
+  useEffect(() => {
+    const fetchExchangeRate = async () => {
+      if (!api || !isApiReady || !isDexAvailable) {
+        return;
+      }
+
+      setIsLoadingRate(true);
+      try {
+        // Map user-selected tokens to actual pool assets
+        // HEZ → wHEZ (Asset 0) behind the scenes
+        const getPoolAssetId = (token: TokenInfo) => {
+          if (token.symbol === 'HEZ') return 0; // wHEZ
+          return token.assetId;
+        };
+
+        const fromAssetId = getPoolAssetId(fromToken);
+        const toAssetId = getPoolAssetId(toToken);
+
+        // Pool ID must be sorted (smaller asset ID first)
+        const [asset1, asset2] = fromAssetId < toAssetId
+          ? [fromAssetId, toAssetId]
+          : [toAssetId, fromAssetId];
+
+        // Create pool asset tuple [asset1, asset2] - must be sorted!
+        const poolAssets = [
+          { NativeOrAsset: { Asset: asset1 } },
+          { NativeOrAsset: { Asset: asset2 } }
+        ];
+
+        // Query pool from AssetConversion pallet
+        const poolInfo = await api.query.assetConversion.pools(poolAssets);
+
+        if (poolInfo && !poolInfo.isEmpty) {
+          try {
+            // Derive pool account using AccountIdConverter
+            // blake2_256(&Encode::encode(&(PalletId, PoolId))[..])
+            const { stringToU8a } = await import('@pezkuwi/util');
+            const { blake2AsU8a } = await import('@pezkuwi/util-crypto');
+
+            // PalletId for AssetConversion: "py/ascon" (8 bytes)
+            const PALLET_ID = stringToU8a('py/ascon');
+
+            // Create PoolId tuple (u32, u32)
+            const poolId = api.createType('(u32, u32)', [asset1, asset2]);
+
+            // Create (PalletId, PoolId) tuple: ([u8; 8], (u32, u32))
+            const palletIdType = api.createType('[u8; 8]', PALLET_ID);
+            const fullTuple = api.createType('([u8; 8], (u32, u32))', [palletIdType, poolId]);
+
+            // Hash the SCALE-encoded tuple
+            const accountHash = blake2AsU8a(fullTuple.toU8a(), 256);
+            const poolAccountId = api.createType('AccountId32', accountHash);
+
+            // Query pool account's asset balances
+            const reserve0Query = await api.query.assets.account(asset1, poolAccountId);
+            const reserve1Query = await api.query.assets.account(asset2, poolAccountId);
+
+            const reserve0Data = reserve0Query.toJSON() as { balance?: string } | null;
+            const reserve1Data = reserve1Query.toJSON() as { balance?: string } | null;
+
+            if (reserve0Data?.balance && reserve1Data?.balance) {
+              // Parse hex string balances to BigInt, then to number
+              const balance0Hex = reserve0Data.balance.toString();
+              const balance1Hex = reserve1Data.balance.toString();
+
+              // Use correct decimals for each asset
+              const decimals0 = asset1 === 1000 ? 6 : 12;
+              const decimals1 = asset2 === 1000 ? 6 : 12;
+
+              const reserve0 = Number(BigInt(balance0Hex)) / (10 ** decimals0);
+              const reserve1 = Number(BigInt(balance1Hex)) / (10 ** decimals1);
+
+              if (__DEV__) {
+                console.log('Pool reserves found:', { reserve0, reserve1, asset1, asset2 });
+              }
+
+              // Store pool reserves for AMM calculation
+              setPoolReserves({
+                reserve0,
+                reserve1,
+                asset0: asset1,
+                asset1: asset2
+              });
+
+              // Calculate simple exchange rate for display
+              const rate = fromAssetId === asset1
+                ? reserve1 / reserve0  // from asset1 to asset2
+                : reserve0 / reserve1; // from asset2 to asset1
+
+              setExchangeRate(rate);
+            } else {
+              if (__DEV__) console.warn('Pool has no reserves');
+              setExchangeRate(0);
+              setPoolReserves(null);
+            }
+          } catch (err) {
+            if (__DEV__) console.error('Error deriving pool account:', err);
+            setExchangeRate(0);
+            setPoolReserves(null);
+          }
+        } else {
+          if (__DEV__) console.warn('No liquidity pool found for this pair');
+          setExchangeRate(0);
+          setPoolReserves(null);
+        }
+      } catch (error) {
+        if (__DEV__) console.error('Failed to fetch exchange rate:', error);
+        setExchangeRate(0);
+        setPoolReserves(null);
+      } finally {
+        setIsLoadingRate(false);
+      }
+    };
+
+    fetchExchangeRate();
+  }, [api, isApiReady, isDexAvailable, fromToken, toToken]);
+
+  // Calculate output amount using Uniswap V2 AMM formula
   useEffect(() => {
     if (!fromAmount || parseFloat(fromAmount) <= 0) {
       setToAmount('');
       return;
     }
 
-    // TODO: Implement proper AMM calculation using pool reserves
-    // For now, simple 1:1 conversion (placeholder)
-    const calculatedAmount = (parseFloat(fromAmount) * 0.97).toFixed(6); // 3% fee simulation
-    setToAmount(calculatedAmount);
-  }, [fromAmount, fromToken, toToken]);
+    // If no pool reserves available, cannot calculate
+    if (!poolReserves) {
+      setToAmount('');
+      return;
+    }
+
+    const amountIn = parseFloat(fromAmount);
+    const { reserve0, reserve1, asset0 } = poolReserves;
+
+    // Determine which reserve is input and which is output
+    const getPoolAssetId = (token: TokenInfo) => {
+      if (token.symbol === 'HEZ') return 0; // wHEZ
+      return token.assetId;
+    };
+    const fromAssetId = getPoolAssetId(fromToken);
+    const isAsset0ToAsset1 = fromAssetId === asset0;
+
+    const reserveIn = isAsset0ToAsset1 ? reserve0 : reserve1;
+    const reserveOut = isAsset0ToAsset1 ? reserve1 : reserve0;
+
+    // Uniswap V2 AMM formula (matches Substrate runtime exactly)
+    // Runtime: amount_in_with_fee = amount_in * (1000 - LPFee) = amount_in * 970
+    // LPFee = 30 (3% fee)
+    // Formula: amountOut = (amountIn * 970 * reserveOut) / (reserveIn * 1000 + amountIn * 970)
+    const LP_FEE = 30; // 3% fee
+    const amountInWithFee = amountIn * (1000 - LP_FEE);
+    const numerator = amountInWithFee * reserveOut;
+    const denominator = reserveIn * 1000 + amountInWithFee;
+    const amountOut = numerator / denominator;
+
+    if (__DEV__) {
+      console.log('AMM calculation:', {
+        amountIn,
+        reserveIn,
+        reserveOut,
+        amountOut,
+        lpFee: `${LP_FEE / 10}%`
+      });
+    }
+
+    setToAmount(amountOut.toFixed(6));
+  }, [fromAmount, fromToken, toToken, poolReserves]);
 
   // Calculate formatted balances
   const fromBalanceFormatted = useMemo(() => {
@@ -158,6 +338,11 @@ const SwapScreen: React.FC = () => {
   const handleConfirmSwap = async () => {
     if (!api || !selectedAccount) {
       Alert.alert('Error', 'Please connect your wallet');
+      return;
+    }
+
+    if (!exchangeRate || exchangeRate === 0) {
+      Alert.alert('Error', 'No liquidity pool available for this pair');
       return;
     }
 
@@ -276,21 +461,22 @@ const SwapScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Transaction Loading Overlay */}
+      {/* Kurdistan Sun Loading Overlay */}
       {(txStatus === 'signing' || txStatus === 'submitting') && (
         <View style={styles.loadingOverlay}>
-          <View style={styles.loadingCard}>
-            <ActivityIndicator size="large" color={KurdistanColors.kesk} />
-            <Text style={styles.loadingText}>
-              {txStatus === 'signing' ? 'Waiting for signature...' : 'Processing swap...'}
-            </Text>
-          </View>
+          <KurdistanSun size={250} />
+          <Text style={styles.loadingText}>
+            {txStatus === 'signing' ? 'Waiting for signature...' : 'Processing your swap...'}
+          </Text>
         </View>
       )}
 
       <ScrollView style={styles.scrollContent} contentContainerStyle={styles.scrollContentContainer}>
         {/* Header */}
         <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <Text style={styles.backButtonText}>←</Text>
+          </TouchableOpacity>
           <Text style={styles.headerTitle}>Swap Tokens</Text>
           <TouchableOpacity onPress={() => setShowSettings(true)} style={styles.settingsButton}>
             <Text style={styles.settingsIcon}>⚙️</Text>
@@ -369,7 +555,13 @@ const SwapScreen: React.FC = () => {
         <View style={styles.detailsCard}>
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>ℹ️ Exchange Rate</Text>
-            <Text style={styles.detailValue}>1 {fromToken.symbol} ≈ 1 {toToken.symbol}</Text>
+            <Text style={styles.detailValue}>
+              {isLoadingRate
+                ? 'Loading...'
+                : exchangeRate > 0
+                ? `1 ${fromToken.symbol} ≈ ${exchangeRate.toFixed(4)} ${toToken.symbol}`
+                : 'No pool available'}
+            </Text>
           </View>
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>Slippage Tolerance</Text>
@@ -389,14 +581,16 @@ const SwapScreen: React.FC = () => {
         <TouchableOpacity
           style={[
             styles.swapButton,
-            (!fromAmount || hasInsufficientBalance || txStatus !== 'idle') && styles.swapButtonDisabled
+            (!fromAmount || hasInsufficientBalance || txStatus !== 'idle' || exchangeRate === 0) && styles.swapButtonDisabled
           ]}
           onPress={() => setShowConfirm(true)}
-          disabled={!fromAmount || hasInsufficientBalance || txStatus !== 'idle'}
+          disabled={!fromAmount || hasInsufficientBalance || txStatus !== 'idle' || exchangeRate === 0}
         >
           <Text style={styles.swapButtonText}>
             {hasInsufficientBalance
               ? `Insufficient ${fromToken.symbol} Balance`
+              : exchangeRate === 0
+              ? 'No Pool Available'
               : 'Swap Tokens'}
           </Text>
         </TouchableOpacity>
@@ -468,6 +662,10 @@ const SwapScreen: React.FC = () => {
                 <Text style={styles.confirmValue}>{toAmount} {toToken.symbol}</Text>
               </View>
               <View style={[styles.confirmRow, styles.confirmRowBorder]}>
+                <Text style={styles.confirmLabelSmall}>Exchange Rate</Text>
+                <Text style={styles.confirmValueSmall}>1 {fromToken.symbol} = {exchangeRate.toFixed(4)} {toToken.symbol}</Text>
+              </View>
+              <View style={styles.confirmRow}>
                 <Text style={styles.confirmLabelSmall}>Slippage</Text>
                 <Text style={styles.confirmValueSmall}>{slippage}%</Text>
               </View>
@@ -519,8 +717,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
   },
-  headerTitle: {
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#F5F5F5',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  backButtonText: {
     fontSize: 24,
+    color: '#333',
+  },
+  headerTitle: {
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#333',
   },
@@ -693,22 +903,16 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.7)',
+    backgroundColor: 'rgba(0,0,0,0.85)',
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1000,
   },
-  loadingCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 32,
-    alignItems: 'center',
-    gap: 16,
-  },
   loadingText: {
-    fontSize: 16,
+    marginTop: 24,
+    fontSize: 18,
     fontWeight: '600',
-    color: '#333',
+    color: '#FFFFFF',
   },
   modalOverlay: {
     flex: 1,

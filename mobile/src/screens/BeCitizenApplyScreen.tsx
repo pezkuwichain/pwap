@@ -12,7 +12,6 @@ import {
   ActivityIndicator,
   Modal,
 } from 'react-native';
-import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import { usePezkuwi } from '../contexts/PezkuwiContext';
 import {
@@ -97,7 +96,6 @@ const CustomPicker: React.FC<{
 };
 
 const BeCitizenApplyScreen: React.FC = () => {
-  const { t } = useTranslation();
   const navigation = useNavigation();
   const { api, selectedAccount } = usePezkuwi();
   const [isSubmitting, setIsSubmitting] = useState(false);

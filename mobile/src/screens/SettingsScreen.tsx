@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -9,289 +9,646 @@ import {
   StatusBar,
   Alert,
   Switch,
+  Linking,
+  ActivityIndicator,
+  Modal,
+  TextInput,
+  Platform
 } from 'react-native';
-import { useTranslation } from 'react-i18next';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { KurdistanColors } from '../theme/colors';
-import TermsOfServiceModal from '../components/TermsOfServiceModal';
-import PrivacyPolicyModal from '../components/PrivacyPolicyModal';
-import EmailNotificationsModal from '../components/EmailNotificationsModal';
-import ChangePasswordModal from '../components/ChangePasswordModal';
-import FontSizeModal from '../components/FontSizeModal';
 import { useTheme } from '../contexts/ThemeContext';
 import { useBiometricAuth } from '../contexts/BiometricAuthContext';
 import { useAuth } from '../contexts/AuthContext';
+import { usePezkuwi, NETWORKS } from '../contexts/PezkuwiContext';
+import { supabase } from '../lib/supabase';
 
-const SettingsScreen: React.FC = () => {
-  const { t } = useTranslation();
-  const navigation = useNavigation();
-  const { isDarkMode, toggleDarkMode, colors, fontSize, setFontSize } = useTheme();
-  const { isBiometricAvailable, isBiometricEnabled, enableBiometric, disableBiometric, biometricType } = useBiometricAuth();
-  const { changePassword } = useAuth();
-
-  // Settings state
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-
-  // Modal state
-  const [showTerms, setShowTerms] = useState(false);
-  const [showPrivacy, setShowPrivacy] = useState(false);
-  const [showEmailPrefs, setShowEmailPrefs] = useState(false);
-  const [showChangePassword, setShowChangePassword] = useState(false);
-  const [showFontSize, setShowFontSize] = useState(false);
-
-  // Create styles with current theme colors
-  const styles = React.useMemo(() => createStyles(colors), [colors]);
-
-  React.useEffect(() => {
-    console.log('[Settings] Screen mounted');
-    console.log('[Settings] isDarkMode:', isDarkMode);
-    console.log('[Settings] fontSize:', fontSize);
-    console.log('[Settings] isBiometricEnabled:', isBiometricEnabled);
-    console.log('[Settings] styles:', styles ? 'DEFINED' : 'UNDEFINED');
-  }, []);
-
-  const handleBiometryToggle = async (value: boolean) => {
-    if (value) {
-      // Check if biometric is available
-      if (!isBiometricAvailable) {
-        Alert.alert(
-          t('biometricAuth'),
-          'Biometric authentication is not available on this device. Please enroll fingerprint or face ID in your device settings.'
-        );
-        return;
-      }
-
-      // Try to enable biometric directly
-      const success = await enableBiometric();
-      if (success) {
-        Alert.alert(t('settingsScreen.biometricAlerts.successTitle'), t('settingsScreen.biometricAlerts.enabled'));
-      } else {
-        Alert.alert('Error', 'Failed to enable biometric authentication. Please try again.');
+// Cross-platform alert helper
+const showAlert = (title: string, message: string, buttons?: Array<{text: string; onPress?: () => void; style?: string}>) => {
+  if (Platform.OS === 'web') {
+    if (buttons && buttons.length > 1) {
+      // For confirm dialogs
+      const result = window.confirm(`${title}\n\n${message}`);
+      if (result && buttons[1]?.onPress) {
+        buttons[1].onPress();
       }
     } else {
-      await disableBiometric();
-      Alert.alert(t('settingsScreen.biometricAlerts.successTitle'), t('settingsScreen.biometricAlerts.disabled'));
+      window.alert(`${title}\n\n${message}`);
+    }
+  } else {
+    Alert.alert(title, message, buttons as any);
+  }
+};
+
+// Font size options
+type FontSize = 'small' | 'medium' | 'large';
+const FONT_SIZE_OPTIONS: { value: FontSize; label: string; description: string }[] = [
+  { value: 'small', label: 'Small', description: '87.5% - Compact text' },
+  { value: 'medium', label: 'Medium', description: '100% - Default size' },
+  { value: 'large', label: 'Large', description: '112.5% - Easier to read' },
+];
+
+// Auto-lock timer options (in minutes)
+const AUTO_LOCK_OPTIONS: { value: number; label: string }[] = [
+  { value: 1, label: '1 minute' },
+  { value: 5, label: '5 minutes' },
+  { value: 15, label: '15 minutes' },
+  { value: 30, label: '30 minutes' },
+  { value: 60, label: '1 hour' },
+];
+
+// --- COMPONENTS (Internal for simplicity) ---
+
+const SectionHeader = ({ title }: { title: string }) => {
+  const { colors } = useTheme();
+  return (
+    <View style={styles.sectionHeader}>
+      <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>{title}</Text>
+    </View>
+  );
+};
+
+const SettingItem = ({
+  icon,
+  title,
+  subtitle,
+  onPress,
+  showArrow = true,
+  textColor,
+  testID
+}: {
+  icon: string;
+  title: string;
+  subtitle?: string;
+  onPress: () => void;
+  showArrow?: boolean;
+  textColor?: string;
+  testID?: string;
+}) => {
+  const { colors } = useTheme();
+  return (
+    <TouchableOpacity
+      style={[styles.settingItem, { borderBottomColor: colors.border }]}
+      onPress={onPress}
+      testID={testID}
+    >
+      <View style={[styles.settingIcon, { backgroundColor: colors.background }]}>
+        <Text style={styles.settingIconText}>{icon}</Text>
+      </View>
+      <View style={styles.settingContent}>
+        <Text style={[styles.settingTitle, { color: textColor || colors.text }]}>{title}</Text>
+        {subtitle && <Text style={[styles.settingSubtitle, { color: colors.textSecondary }]}>{subtitle}</Text>}
+      </View>
+      {showArrow && <Text style={[styles.arrow, { color: colors.textSecondary }]}>→</Text>}
+    </TouchableOpacity>
+  );
+};
+
+const SettingToggle = ({
+  icon,
+  title,
+  subtitle,
+  value,
+  onToggle,
+  loading = false,
+  testID
+}: {
+  icon: string;
+  title: string;
+  subtitle?: string;
+  value: boolean;
+  onToggle: (value: boolean) => void;
+  loading?: boolean;
+  testID?: string;
+}) => {
+  const { colors } = useTheme();
+  return (
+    <View style={[styles.settingItem, { borderBottomColor: colors.border }]} testID={testID}>
+      <View style={[styles.settingIcon, { backgroundColor: colors.background }]}>
+        <Text style={styles.settingIconText}>{icon}</Text>
+      </View>
+      <View style={styles.settingContent}>
+        <Text style={[styles.settingTitle, { color: colors.text }]}>{title}</Text>
+        {subtitle && <Text style={[styles.settingSubtitle, { color: colors.textSecondary }]}>{subtitle}</Text>}
+      </View>
+      {loading ? (
+        <ActivityIndicator size="small" color={KurdistanColors.kesk} />
+      ) : (
+        <Switch
+          value={value}
+          onValueChange={onToggle}
+          trackColor={{ false: '#E0E0E0', true: KurdistanColors.kesk }}
+          thumbColor={value ? KurdistanColors.spi : '#f4f3f4'}
+          testID={testID ? `${testID}-switch` : undefined}
+        />
+      )}
+    </View>
+  );
+};
+
+// --- MAIN SCREEN ---
+
+const SettingsScreen: React.FC = () => {
+  const navigation = useNavigation();
+  const { isDarkMode, toggleDarkMode, colors, fontSize, setFontSize } = useTheme();
+  const { isBiometricEnabled, enableBiometric, disableBiometric, biometricType, autoLockTimer, setAutoLockTimer } = useBiometricAuth();
+  const { signOut, user } = useAuth();
+  const { currentNetwork, switchNetwork } = usePezkuwi();
+
+  // Profile State (Supabase)
+  const [profile, setProfile] = useState<any>({
+    full_name: '',
+    username: '',
+    notifications_push: false,
+    notifications_email: true,
+  });
+  const [loadingProfile, setLoadingProfile] = useState(false);
+  const [savingSettings, setSavingSettings] = useState(false);
+
+  // Modals
+  const [showNetworkModal, setShowNetworkModal] = useState(false);
+  const [showProfileEdit, setShowProfileEdit] = useState(false);
+  const [showFontSizeModal, setShowFontSizeModal] = useState(false);
+  const [showAutoLockModal, setShowAutoLockModal] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [editBio, setEditBio] = useState('');
+
+  // 1. Fetch Profile from Supabase
+  const fetchProfile = useCallback(async () => {
+    if (!user) return;
+    setLoadingProfile(true);
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (error) throw error;
+      if (data) {
+        setProfile(data);
+        setEditName(data.full_name || '');
+        setEditBio(data.bio || '');
+      }
+    } catch (err) {
+      console.log('Error fetching profile:', err);
+    } finally {
+      setLoadingProfile(false);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
+
+  // 2. Update Settings in Supabase
+  const updateSetting = async (key: string, value: boolean) => {
+    if (!user) return;
+    setSavingSettings(true);
+    
+    // Optimistic update
+    setProfile((prev: any) => ({ ...prev, [key]: value }));
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ [key]: value, updated_at: new Date().toISOString() })
+        .eq('id', user.id);
+
+      if (error) throw error;
+    } catch (err) {
+      console.error('Failed to update setting:', err);
+      // Revert on error
+      setProfile((prev: any) => ({ ...prev, [key]: !value }));
+      showAlert('Error', 'Failed to save setting. Please check your connection.');
+    } finally {
+      setSavingSettings(false);
     }
   };
 
-  const SettingItem = ({
-    icon,
-    title,
-    subtitle,
-    onPress,
-    showArrow = true,
-  }: {
-    icon: string;
-    title: string;
-    subtitle?: string;
-    onPress: () => void;
-    showArrow?: boolean;
-  }) => (
-    <TouchableOpacity
-      style={styles.settingItem}
-      onPress={() => {
-        console.log(`[Settings] Button pressed: ${title}`);
-        onPress();
-      }}
-    >
-      <View style={styles.settingIcon}>
-        <Text style={styles.settingIconText}>{icon}</Text>
-      </View>
-      <View style={styles.settingContent}>
-        <Text style={styles.settingTitle}>{title}</Text>
-        {subtitle && <Text style={styles.settingSubtitle}>{subtitle}</Text>}
-      </View>
-      {showArrow && <Text style={styles.arrow}>→</Text>}
-    </TouchableOpacity>
-  );
+  // 3. Save Profile Info
+  const saveProfileInfo = async () => {
+    if (!user) return;
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ 
+          full_name: editName,
+          bio: editBio,
+          updated_at: new Date().toISOString() 
+        })
+        .eq('id', user.id);
 
-  const SettingToggle = ({
-    icon,
-    title,
-    subtitle,
-    value,
-    onToggle,
-    testID,
-  }: {
-    icon: string;
-    title: string;
-    subtitle?: string;
-    value: boolean;
-    onToggle: (value: boolean) => void;
-    testID?: string;
-  }) => (
-    <View style={styles.settingItem}>
-      <View style={styles.settingIcon}>
-        <Text style={styles.settingIconText}>{icon}</Text>
-      </View>
-      <View style={styles.settingContent}>
-        <Text style={styles.settingTitle}>{title}</Text>
-        {subtitle && <Text style={styles.settingSubtitle}>{subtitle}</Text>}
-      </View>
-      <Switch
-        testID={testID}
-        value={value}
-        onValueChange={onToggle}
-        trackColor={{ false: '#E0E0E0', true: KurdistanColors.kesk }}
-        thumbColor={value ? KurdistanColors.spi : '#f4f3f4'}
-      />
-    </View>
-  );
+      if (error) throw error;
+      
+      setProfile((prev: any) => ({ ...prev, full_name: editName, bio: editBio }));
+      setShowProfileEdit(false);
+      showAlert('Success', 'Profile updated successfully');
+    } catch (err) {
+      showAlert('Error', 'Failed to update profile');
+    }
+  };
+
+  // 4. Biometric Handler
+  const handleBiometryToggle = async (value: boolean) => {
+    // Biometric not available on web
+    if (Platform.OS === 'web') {
+      showAlert(
+        'Not Available',
+        'Biometric authentication is only available on mobile devices.'
+      );
+      return;
+    }
+
+    if (value) {
+      const success = await enableBiometric();
+      if (success) {
+        showAlert('Success', 'Biometric authentication enabled');
+      }
+    } else {
+      await disableBiometric();
+    }
+  };
+
+  // 5. Network Switcher
+  const handleNetworkChange = async (network: 'pezkuwi' | 'bizinikiwi') => {
+    await switchNetwork(network);
+    setShowNetworkModal(false);
+
+    showAlert(
+      'Network Changed',
+      `Switched to ${NETWORKS[network].displayName}. The app will reconnect automatically.`,
+      [{ text: 'OK' }]
+    );
+  };
+
+  // 6. Font Size Handler
+  const handleFontSizeChange = async (size: FontSize) => {
+    await setFontSize(size);
+    setShowFontSizeModal(false);
+  };
+
+  // 7. Auto-Lock Timer Handler
+  const handleAutoLockChange = async (minutes: number) => {
+    await setAutoLockTimer(minutes);
+    setShowAutoLockModal(false);
+  };
+
+  // Get display text for current font size
+  const getFontSizeLabel = () => {
+    const option = FONT_SIZE_OPTIONS.find(opt => opt.value === fontSize);
+    return option ? option.label : 'Medium';
+  };
+
+  // Get display text for current auto-lock timer
+  const getAutoLockLabel = () => {
+    const option = AUTO_LOCK_OPTIONS.find(opt => opt.value === autoLockTimer);
+    return option ? option.label : '5 minutes';
+  };
 
   return (
-    <SafeAreaView style={styles.container} testID="settings-screen">
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} testID="settings-screen">
       <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} />
 
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t('settings')}</Text>
-        <View style={styles.placeholder} />
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Settings</Text>
+        <View style={{ width: 40 }} />
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Appearance Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>APPEARANCE</Text>
+        
+        {/* ACCOUNT SECTION */}
+        <SectionHeader title="ACCOUNT" />
+        <View style={[styles.section, { backgroundColor: colors.surface }]}>
+          <SettingItem
+            icon="👤"
+            title="Edit Profile"
+            subtitle={profile.full_name || user?.email || 'Set your name'}
+            onPress={() => setShowProfileEdit(true)}
+            testID="edit-profile-button"
+          />
+          <SettingItem
+            icon="💳"
+            title="Wallet Management"
+            subtitle="Manage your connected keys"
+            onPress={() => navigation.navigate('Wallet')}
+            testID="wallet-management-button"
+          />
+        </View>
 
+        {/* APP SETTINGS */}
+        <SectionHeader title="APP SETTINGS" />
+        <View style={[styles.section, { backgroundColor: colors.surface }]}>
           <SettingToggle
             icon="🌙"
-            title={t('darkMode')}
-            subtitle={isDarkMode ? t('settingsScreen.subtitles.darkThemeEnabled') : t('settingsScreen.subtitles.lightThemeEnabled')}
+            title="Dark Mode"
+            subtitle={isDarkMode ? "Dark theme enabled" : "Light theme enabled"}
             value={isDarkMode}
-            onToggle={async () => {
-              await toggleDarkMode();
-            }}
-            testID="dark-mode-switch"
+            onToggle={toggleDarkMode}
+            testID="dark-mode"
           />
 
           <SettingItem
-            icon="📏"
+            icon="🔤"
             title="Font Size"
-            subtitle={`Current: ${fontSize.charAt(0).toUpperCase() + fontSize.slice(1)}`}
-            onPress={() => setShowFontSize(true)}
+            subtitle={getFontSizeLabel()}
+            onPress={() => setShowFontSizeModal(true)}
+            testID="font-size-button"
           />
-        </View>
-
-        {/* Security Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t('security').toUpperCase()}</Text>
-
-          <SettingToggle
-            icon="🔐"
-            title={t('biometricAuth')}
-            subtitle={isBiometricEnabled ? `Enabled (${biometricType})` : t('settingsScreen.subtitles.biometric')}
-            value={isBiometricEnabled}
-            onToggle={handleBiometryToggle}
-          />
-
-          <SettingItem
-            icon="🔑"
-            title={t('changePassword')}
-            subtitle={t('settingsScreen.subtitles.changePassword')}
-            onPress={() => setShowChangePassword(true)}
-          />
-        </View>
-
-        {/* Notifications Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t('notifications').toUpperCase()}</Text>
 
           <SettingToggle
             icon="🔔"
-            title={t('pushNotifications')}
-            subtitle={t('settingsScreen.subtitles.notifications')}
-            value={notificationsEnabled}
-            onToggle={setNotificationsEnabled}
+            title="Push Notifications"
+            subtitle="Receive alerts about transactions"
+            value={profile.notifications_push}
+            onToggle={(val) => updateSetting('notifications_push', val)}
+            loading={savingSettings}
+            testID="push-notifications"
           />
 
-          <SettingItem
+          <SettingToggle
             icon="📧"
-            title="Email Notifications"
-            subtitle="Configure email notification preferences"
-            onPress={() => setShowEmailPrefs(true)}
+            title="Email Updates"
+            subtitle="Receive newsletters & reports"
+            value={profile.notifications_email}
+            onToggle={(val) => updateSetting('notifications_email', val)}
+            loading={savingSettings}
+            testID="email-updates"
           />
         </View>
 
-        {/* About Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t('about').toUpperCase()}</Text>
-
+        {/* NETWORK & SECURITY */}
+        <SectionHeader title="NETWORK & SECURITY" />
+        <View style={[styles.section, { backgroundColor: colors.surface }]}>
           <SettingItem
-            icon="ℹ️"
-            title={t('about')}
-            subtitle={t('appName')}
-            onPress={() => Alert.alert(
-              t('about'),
-              t('appName') + '\n\n' + t('version') + ': 1.0.0',
-              [{ text: t('common.confirm') }]
-            )}
+            icon="📡"
+            title="Network Node"
+            subtitle={NETWORKS[currentNetwork]?.displayName || 'Unknown'}
+            onPress={() => setShowNetworkModal(true)}
+            testID="network-node-button"
           />
 
+          <SettingToggle
+            icon="🔐"
+            title="Biometric Security"
+            subtitle={isBiometricEnabled ? `Enabled (${biometricType})` : "FaceID / Fingerprint"}
+            value={isBiometricEnabled}
+            onToggle={handleBiometryToggle}
+            testID="biometric-security"
+          />
+
+          <SettingItem
+            icon="⏱️"
+            title="Auto-Lock Timer"
+            subtitle={getAutoLockLabel()}
+            onPress={() => setShowAutoLockModal(true)}
+            testID="auto-lock-button"
+          />
+        </View>
+
+        {/* SUPPORT */}
+        <SectionHeader title="SUPPORT" />
+        <View style={[styles.section, { backgroundColor: colors.surface }]}>
           <SettingItem
             icon="📄"
-            title={t('terms')}
-            onPress={() => setShowTerms(true)}
+            title="Terms of Service"
+            onPress={() => showAlert('Terms', 'Terms of service content...')}
+            testID="terms-of-service-button"
           />
-
           <SettingItem
             icon="🔒"
-            title={t('privacy')}
-            onPress={() => setShowPrivacy(true)}
+            title="Privacy Policy"
+            onPress={() => showAlert('Privacy', 'Privacy policy content...')}
+            testID="privacy-policy-button"
           />
-
           <SettingItem
-            icon="📮"
-            title={t('help')}
-            subtitle="support@pezkuwichain.io"
-            onPress={() => Alert.alert(t('help'), 'support@pezkuwichain.io')}
+            icon="❓"
+            title="Help Center"
+            onPress={() => Linking.openURL('mailto:support@pezkuwichain.io')}
+            testID="help-center-button"
           />
         </View>
 
-        <View style={styles.versionContainer}>
-          <Text style={styles.versionText}>{t('appName')}</Text>
-          <Text style={styles.versionNumber}>{t('version')} 1.0.0</Text>
-          <Text style={styles.copyright}>© 2026 Digital Kurdistan</Text>
+        {/* DEVELOPER OPTIONS (only in DEV) */}
+        {__DEV__ && (
+          <View style={[styles.section, { backgroundColor: colors.surface, marginTop: 20 }]}>
+            <Text style={[styles.sectionHeader, { color: colors.textSecondary }]}>DEVELOPER</Text>
+            <SettingItem
+              icon="🗑️"
+              title="Reset Wallet"
+              subtitle="Clear all wallet data"
+              textColor="#FF9500"
+              showArrow={false}
+              onPress={() => {
+                showAlert(
+                  'Reset Wallet',
+                  'This will delete all wallet data including saved accounts and keys. Are you sure?',
+                  [
+                    { text: 'Cancel', style: 'cancel' },
+                    {
+                      text: 'Reset',
+                      style: 'destructive',
+                      onPress: async () => {
+                        try {
+                          await AsyncStorage.multiRemove([
+                            '@pezkuwi_wallets',
+                            '@pezkuwi_selected_account',
+                            '@pezkuwi_selected_network'
+                          ]);
+                          showAlert('Success', 'Wallet data cleared. Restart the app to see changes.');
+                        } catch (error) {
+                          showAlert('Error', 'Failed to clear wallet data');
+                        }
+                      }
+                    }
+                  ]
+                );
+              }}
+              testID="reset-wallet-button"
+            />
+          </View>
+        )}
+
+        {/* LOGOUT */}
+        <View style={[styles.section, { backgroundColor: colors.surface, marginTop: 20 }]}>
+          <SettingItem
+            icon="🚪"
+            title="Sign Out"
+            textColor="#FF3B30"
+            showArrow={false}
+            onPress={() => {
+              showAlert(
+                'Sign Out',
+                'Are you sure you want to sign out?',
+                [
+                  { text: 'Cancel', style: 'cancel' },
+                  { text: 'Sign Out', style: 'destructive', onPress: signOut }
+                ]
+              );
+            }}
+            testID="sign-out-button"
+          />
         </View>
 
+        <View style={styles.footer}>
+          <Text style={[styles.versionText, { color: colors.textSecondary }]}>Pezkuwi Super App v1.0.0</Text>
+          <Text style={[styles.copyright, { color: colors.textSecondary }]}>© 2026 Digital Kurdistan</Text>
+        </View>
         <View style={{ height: 40 }} />
       </ScrollView>
 
-      {/* Modals */}
-      <TermsOfServiceModal
-        visible={showTerms}
-        onClose={() => setShowTerms(false)}
-      />
+      {/* NETWORK MODAL */}
+      <Modal visible={showNetworkModal} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: colors.surface }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>Select Network</Text>
 
-      <PrivacyPolicyModal
-        visible={showPrivacy}
-        onClose={() => setShowPrivacy(false)}
-      />
+            <TouchableOpacity
+              style={[styles.networkOption, currentNetwork === 'pezkuwi' && styles.selectedNetwork]}
+              onPress={() => handleNetworkChange('pezkuwi')}
+              testID="network-option-mainnet"
+            >
+              <Text style={styles.networkName}>{NETWORKS.pezkuwi.displayName}</Text>
+              <Text style={styles.networkUrl}>{NETWORKS.pezkuwi.rpcEndpoint}</Text>
+            </TouchableOpacity>
 
-      <EmailNotificationsModal
-        visible={showEmailPrefs}
-        onClose={() => setShowEmailPrefs(false)}
-      />
+            <TouchableOpacity
+              style={[styles.networkOption, currentNetwork === 'bizinikiwi' && styles.selectedNetwork]}
+              onPress={() => handleNetworkChange('bizinikiwi')}
+              testID="network-option-testnet"
+            >
+              <Text style={styles.networkName}>{NETWORKS.bizinikiwi.displayName}</Text>
+              <Text style={styles.networkUrl}>{NETWORKS.bizinikiwi.rpcEndpoint}</Text>
+            </TouchableOpacity>
 
-      <ChangePasswordModal
-        visible={showChangePassword}
-        onClose={() => setShowChangePassword(false)}
-      />
+            <TouchableOpacity
+              style={[styles.networkOption, currentNetwork === 'zombienet' && styles.selectedNetwork]}
+              onPress={() => handleNetworkChange('zombienet')}
+              testID="network-option-zombienet"
+            >
+              <Text style={styles.networkName}>{NETWORKS.zombienet.displayName}</Text>
+              <Text style={styles.networkUrl}>{NETWORKS.zombienet.rpcEndpoint}</Text>
+            </TouchableOpacity>
 
-      <FontSizeModal
-        visible={showFontSize}
-        onClose={() => setShowFontSize(false)}
-      />
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={() => setShowNetworkModal(false)}
+              testID="network-modal-cancel"
+            >
+              <Text style={styles.cancelText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* PROFILE EDIT MODAL */}
+      <Modal visible={showProfileEdit} animationType="slide">
+        <SafeAreaView style={[styles.fullModal, { backgroundColor: colors.background }]}>
+          <View style={[styles.header, { backgroundColor: colors.surface }]}>
+            <TouchableOpacity onPress={() => setShowProfileEdit(false)}>
+              <Text style={{ fontSize: 16, color: colors.text }}>Cancel</Text>
+            </TouchableOpacity>
+            <Text style={[styles.headerTitle, { color: colors.text }]}>Edit Profile</Text>
+            <TouchableOpacity onPress={saveProfileInfo}>
+              <Text style={{ fontSize: 16, color: KurdistanColors.kesk, fontWeight: 'bold' }}>Save</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={{ padding: 20 }}>
+            <Text style={[styles.label, { color: colors.textSecondary }]}>Full Name</Text>
+            <TextInput
+              style={[styles.input, { backgroundColor: colors.surface, color: colors.text, borderColor: colors.border }]}
+              value={editName}
+              onChangeText={setEditName}
+              placeholder="Enter your name"
+              placeholderTextColor="#999"
+            />
+
+            <Text style={[styles.label, { color: colors.textSecondary, marginTop: 20 }]}>Bio</Text>
+            <TextInput
+              style={[styles.input, { backgroundColor: colors.surface, color: colors.text, borderColor: colors.border, height: 100 }]}
+              value={editBio}
+              onChangeText={setEditBio}
+              placeholder="Tell us about yourself"
+              placeholderTextColor="#999"
+              multiline
+            />
+          </View>
+        </SafeAreaView>
+      </Modal>
+
+      {/* FONT SIZE MODAL */}
+      <Modal visible={showFontSizeModal} transparent animationType="fade" testID="font-size-modal">
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: colors.surface }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>Select Font Size</Text>
+
+            {FONT_SIZE_OPTIONS.map((option) => (
+              <TouchableOpacity
+                key={option.value}
+                style={[styles.networkOption, fontSize === option.value && styles.selectedNetwork]}
+                onPress={() => handleFontSizeChange(option.value)}
+                testID={`font-size-option-${option.value}`}
+              >
+                <Text style={styles.networkName}>{option.label}</Text>
+                <Text style={styles.networkUrl}>{option.description}</Text>
+              </TouchableOpacity>
+            ))}
+
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={() => setShowFontSizeModal(false)}
+              testID="font-size-modal-cancel"
+            >
+              <Text style={styles.cancelText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* AUTO-LOCK TIMER MODAL */}
+      <Modal visible={showAutoLockModal} transparent animationType="fade" testID="auto-lock-modal">
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: colors.surface }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>Auto-Lock Timer</Text>
+            <Text style={[styles.modalSubtitle, { color: colors.textSecondary }]}>
+              Lock app after inactivity
+            </Text>
+
+            {AUTO_LOCK_OPTIONS.map((option) => (
+              <TouchableOpacity
+                key={option.value}
+                style={[styles.networkOption, autoLockTimer === option.value && styles.selectedNetwork]}
+                onPress={() => handleAutoLockChange(option.value)}
+                testID={`auto-lock-option-${option.value}`}
+              >
+                <Text style={styles.networkName}>{option.label}</Text>
+              </TouchableOpacity>
+            ))}
+
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={() => setShowAutoLockModal(false)}
+              testID="auto-lock-modal-cancel"
+            >
+              <Text style={styles.cancelText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
     </SafeAreaView>
   );
 };
 
-const createStyles = (colors: any) => StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
   },
   header: {
     flexDirection: 'row',
@@ -299,9 +656,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
   },
   backButton: {
     width: 40,
@@ -316,81 +671,133 @@ const createStyles = (colors: any) => StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: colors.text,
   },
-  placeholder: {
-    width: 40,
-  },
-  section: {
+  sectionHeader: {
     marginTop: 24,
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    marginHorizontal: 16,
-    padding: 16,
-    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
-    elevation: 2,
+    marginBottom: 8,
+    paddingHorizontal: 16,
   },
   sectionTitle: {
     fontSize: 12,
     fontWeight: '700',
-    color: colors.textSecondary,
-    marginBottom: 12,
     letterSpacing: 0.5,
+  },
+  section: {
+    marginHorizontal: 16,
+    borderRadius: 12,
+    overflow: 'hidden',
   },
   settingItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
+    padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
   },
   settingIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.background,
+    width: 32,
+    height: 32,
+    borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
   },
   settingIconText: {
-    fontSize: 20,
+    fontSize: 18,
   },
   settingContent: {
     flex: 1,
   },
   settingTitle: {
     fontSize: 16,
-    fontWeight: '600',
-    color: colors.text,
-    marginBottom: 2,
+    fontWeight: '500',
   },
   settingSubtitle: {
     fontSize: 13,
-    color: colors.textSecondary,
+    marginTop: 2,
   },
   arrow: {
     fontSize: 18,
-    color: colors.textSecondary,
   },
-  versionContainer: {
+  footer: {
     alignItems: 'center',
-    paddingVertical: 24,
+    marginTop: 32,
   },
   versionText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
-    color: colors.textSecondary,
-  },
-  versionNumber: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    marginTop: 4,
   },
   copyright: {
     fontSize: 11,
-    color: colors.textSecondary,
     marginTop: 4,
+  },
+  // Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    borderRadius: 16,
+    padding: 20,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  modalSubtitle: {
+    fontSize: 13,
+    textAlign: 'center',
+    marginTop: -12,
+    marginBottom: 16,
+  },
+  networkOption: {
+    padding: 16,
+    borderRadius: 12,
+    backgroundColor: '#f5f5f5',
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#eee',
+  },
+  selectedNetwork: {
+    borderColor: KurdistanColors.kesk,
+    backgroundColor: '#e8f5e9',
+  },
+  networkName: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    color: '#333',
+  },
+  networkUrl: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 2,
+  },
+  cancelButton: {
+    marginTop: 10,
+    padding: 16,
+    alignItems: 'center',
+  },
+  cancelText: {
+    color: '#FF3B30',
+    fontWeight: '600',
+    fontSize: 16,
+  },
+  fullModal: {
+    flex: 1,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  input: {
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
   },
 });
 

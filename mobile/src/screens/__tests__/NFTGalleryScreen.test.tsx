@@ -1,6 +1,5 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import { LanguageProvider } from '../../contexts/LanguageContext';
 import { PezkuwiProvider } from '../contexts/PezkuwiContext';
 import NFTGalleryScreen from '../NFTGalleryScreen';
 
@@ -10,11 +9,9 @@ jest.mock('@react-navigation/native', () => ({
 }));
 
 const NFTGalleryScreenWrapper = () => (
-  <LanguageProvider>
-    <PezkuwiProvider>
-      <NFTGalleryScreen />
-    </PezkuwiProvider>
-  </LanguageProvider>
+  <PezkuwiProvider>
+    <NFTGalleryScreen />
+  </PezkuwiProvider>
 );
 
 describe('NFTGalleryScreen', () => {

@@ -4,7 +4,6 @@ import { render, RenderOptions } from '@testing-library/react-native';
 // Mock all contexts with simple implementations
 const MockAuthProvider = ({ children }: { children: React.ReactNode }) => <>{children}</>;
 const MockPezkuwiProvider = ({ children }: { children: React.ReactNode }) => <>{children}</>;
-const MockLanguageProvider = ({ children }: { children: React.ReactNode }) => <>{children}</>;
 const MockBiometricAuthProvider = ({ children }: { children: React.ReactNode }) => <>{children}</>;
 
 // Wrapper component with all providers
@@ -12,11 +11,9 @@ const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
   return (
     <MockAuthProvider>
       <MockPezkuwiProvider>
-        <MockLanguageProvider>
-          <MockBiometricAuthProvider>
-            {children}
-          </MockBiometricAuthProvider>
-        </MockLanguageProvider>
+        <MockBiometricAuthProvider>
+          {children}
+        </MockBiometricAuthProvider>
       </MockPezkuwiProvider>
     </MockAuthProvider>
   );

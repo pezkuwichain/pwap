@@ -13,7 +13,6 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useTranslation } from 'react-i18next';
 import { usePezkuwi } from '../contexts/PezkuwiContext';
 import { KurdistanColors } from '../theme/colors';
 import {
@@ -41,7 +40,6 @@ interface Referral {
 }
 
 const ReferralScreen: React.FC = () => {
-  const { t: _t } = useTranslation();
   const { selectedAccount, api, connectWallet, isApiReady } = usePezkuwi();
   const isConnected = !!selectedAccount;
 

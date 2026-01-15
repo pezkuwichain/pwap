@@ -18,12 +18,44 @@ import {
   Share,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import QRCode from 'react-native-qrcode-svg';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import { KurdistanColors } from '../theme/colors';
 import { usePezkuwi, NetworkType, NETWORKS } from '../contexts/PezkuwiContext';
 import { AddTokenModal } from '../components/wallet/AddTokenModal';
+import { HezTokenLogo, PezTokenLogo } from '../components/icons';
+
+// Secure storage helper - same as in PezkuwiContext
+const secureStorage = {
+  getItem: async (key: string): Promise<string | null> => {
+    if (Platform.OS === 'web') {
+      return await AsyncStorage.getItem(key);
+    } else {
+      return await SecureStore.getItemAsync(key);
+    }
+  },
+};
+
+// Cross-platform alert helper
+const showAlert = (title: string, message: string, buttons?: Array<{text: string; onPress?: () => void; style?: string}>) => {
+  if (Platform.OS === 'web') {
+    if (buttons && buttons.length > 1) {
+      const result = window.confirm(`${title}\n\n${message}`);
+      if (result && buttons[1]?.onPress) {
+        buttons[1].onPress();
+      } else if (!result && buttons[0]?.onPress) {
+        buttons[0].onPress();
+      }
+    } else {
+      window.alert(`${title}\n\n${message}`);
+      if (buttons?.[0]?.onPress) buttons[0].onPress();
+    }
+  } else {
+    showAlert(title, message, buttons as any);
+  }
+};
 
 // Token Images - From shared/images
 const hezLogo = require('../../../shared/images/hez_logo.png');
@@ -59,16 +91,17 @@ interface Transaction {
 }
 
 const WalletScreen: React.FC = () => {
-  const { t } = useTranslation();
   const navigation = useNavigation<any>();
   const {
     api,
     isApiReady,
     accounts,
     selectedAccount,
+    setSelectedAccount,
     connectWallet,
     disconnectWallet,
     createWallet,
+    deleteWallet,
     getKeyPair,
     currentNetwork,
     switchNetwork,
@@ -82,6 +115,7 @@ const WalletScreen: React.FC = () => {
   const [importWalletModalVisible, setImportWalletModalVisible] = useState(false);
   const [backupModalVisible, setBackupModalVisible] = useState(false);
   const [networkSelectorVisible, setNetworkSelectorVisible] = useState(false);
+  const [walletSelectorVisible, setWalletSelectorVisible] = useState(false);
   const [addTokenModalVisible, setAddTokenModalVisible] = useState(false);
   const [recipientAddress, setRecipientAddress] = useState('');
   const [sendAmount, setSendAmount] = useState('');
@@ -225,7 +259,7 @@ const WalletScreen: React.FC = () => {
 
   const handleConfirmSend = async () => {
     if (!recipientAddress || !sendAmount || !selectedToken || !selectedAccount || !api) {
-      Alert.alert('Error', 'Please enter recipient address and amount');
+      showAlert('Error', 'Please enter recipient address and amount');
       return;
     }
     
@@ -251,13 +285,13 @@ const WalletScreen: React.FC = () => {
             if (status.isFinalized) {
                 setSendModalVisible(false);
                 setIsSending(false);
-                Alert.alert('Success', 'Transaction Sent!');
+                showAlert('Success', 'Transaction Sent!');
                 fetchData(); 
             }
         });
     } catch (e: any) {
         setIsSending(false);
-        Alert.alert('Error', e.message);
+        showAlert('Error', e.message);
     }
   };
 
@@ -272,21 +306,21 @@ const WalletScreen: React.FC = () => {
         const { address, mnemonic } = await createWallet(walletName);
         setUserMnemonic(mnemonic); // Save for backup
         setCreateWalletModalVisible(false);
-        Alert.alert('Wallet Created', `Save this mnemonic:\n${mnemonic}`, [{ text: 'OK', onPress: () => connectWallet() }]);
-      } catch (e) { Alert.alert('Error', 'Failed'); }
+        showAlert('Wallet Created', `Save this mnemonic:\n${mnemonic}`, [{ text: 'OK', onPress: () => connectWallet() }]);
+      } catch (e) { showAlert('Error', 'Failed'); }
   };
 
   // Copy Address Handler
   const handleCopyAddress = () => {
     if (!selectedAccount) return;
     Clipboard.setString(selectedAccount.address);
-    Alert.alert('Copied!', 'Address copied to clipboard');
+    showAlert('Copied!', 'Address copied to clipboard');
   };
 
   // Import Wallet Handler
   const handleImportWallet = async () => {
     if (!importMnemonic.trim()) {
-      Alert.alert('Error', 'Please enter a valid mnemonic');
+      showAlert('Error', 'Please enter a valid mnemonic');
       return;
     }
     try {
@@ -297,23 +331,36 @@ const WalletScreen: React.FC = () => {
       const pair = keyring.addFromMnemonic(importMnemonic.trim());
 
       // Store in AsyncStorage (via context method ideally)
-      Alert.alert('Success', `Wallet imported: ${pair.address.slice(0,8)}...`);
+      showAlert('Success', `Wallet imported: ${pair.address.slice(0,8)}...`);
       setImportWalletModalVisible(false);
       setImportMnemonic('');
       connectWallet();
     } catch (e: any) {
-      Alert.alert('Error', e.message || 'Invalid mnemonic');
+      showAlert('Error', e.message || 'Invalid mnemonic');
     }
   };
 
   // Backup Mnemonic Handler
   const handleBackupMnemonic = async () => {
-    // Retrieve mnemonic from secure storage
-    // For demo, we show the saved one or prompt user
-    if (userMnemonic) {
-      setBackupModalVisible(true);
-    } else {
-      Alert.alert('No Backup', 'Mnemonic not available. Create a new wallet or import existing one.');
+    if (!selectedAccount) {
+      showAlert('No Wallet', 'Please create or import a wallet first.');
+      return;
+    }
+
+    try {
+      // Retrieve mnemonic from secure storage
+      const seedKey = `pezkuwi_seed_${selectedAccount.address}`;
+      const storedMnemonic = await secureStorage.getItem(seedKey);
+
+      if (storedMnemonic) {
+        setUserMnemonic(storedMnemonic);
+        setBackupModalVisible(true);
+      } else {
+        showAlert('No Backup', 'Mnemonic not found in secure storage. It may have been imported from another device.');
+      }
+    } catch (error) {
+      console.error('Error retrieving mnemonic:', error);
+      showAlert('Error', 'Failed to retrieve mnemonic from secure storage.');
     }
   };
 
@@ -334,156 +381,110 @@ const WalletScreen: React.FC = () => {
     try {
       await switchNetwork(network);
       setNetworkSelectorVisible(false);
-      Alert.alert('Success', `Switched to ${NETWORKS[network].displayName}`);
+      showAlert('Success', `Switched to ${NETWORKS[network].displayName}`);
     } catch (e: any) {
-      Alert.alert('Error', e.message || 'Failed to switch network');
+      showAlert('Error', e.message || 'Failed to switch network');
     }
   };
 
-  if (!selectedAccount) {
-      return (
-        <SafeAreaView style={styles.container}>
-            <LinearGradient
-              colors={['#00693E', '#008f43', '#00A651']}
-              style={styles.welcomeGradient}
-            >
-              <View style={styles.welcomeContent}>
-                <Text style={styles.welcomeEmoji}>🔐</Text>
-                <Text style={styles.welcomeTitle}>Welcome to</Text>
-                <Text style={styles.welcomeBrand}>Pezkuwichain Wallet</Text>
-                <Text style={styles.welcomeSubtitle}>
-                  Secure, Fast & Decentralized
-                </Text>
-              </View>
-            </LinearGradient>
+  // Redirect to WalletSetupScreen if no wallet exists
+  useEffect(() => {
+    if (!selectedAccount && accounts.length === 0) {
+      navigation.replace('WalletSetup');
+    }
+  }, [selectedAccount, accounts, navigation]);
 
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={styles.primaryWalletButton}
-                onPress={handleConnectWallet}
-                activeOpacity={0.8}
-              >
-                <LinearGradient
-                  colors={[KurdistanColors.kesk, '#00A651']}
-                  style={styles.buttonGradient}
-                  start={{x: 0, y: 0}}
-                  end={{x: 1, y: 0}}
-                >
-                  <View style={styles.buttonIcon}>
-                    <Text style={styles.buttonIconText}>➕</Text>
-                  </View>
-                  <View style={styles.buttonTextContainer}>
-                    <Text style={styles.primaryButtonText}>Create New Wallet</Text>
-                    <Text style={styles.primaryButtonSubtext}>
-                      Get started in seconds
-                    </Text>
-                  </View>
-                </LinearGradient>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.secondaryWalletButton}
-                onPress={() => setImportWalletModalVisible(true)}
-                activeOpacity={0.8}
-              >
-                <View style={styles.secondaryButtonContent}>
-                  <View style={[styles.buttonIcon, {backgroundColor: 'rgba(0,105,62,0.1)'}]}>
-                    <Text style={[styles.buttonIconText, {color: KurdistanColors.kesk}]}>📥</Text>
-                  </View>
-                  <View style={styles.buttonTextContainer}>
-                    <Text style={styles.secondaryButtonText}>Import Existing Wallet</Text>
-                    <Text style={styles.secondaryButtonSubtext}>
-                      Use your seed phrase
-                    </Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
-
-              <View style={styles.securityNotice}>
-                <Text style={styles.securityIcon}>🛡️</Text>
-                <Text style={styles.securityText}>
-                  Your keys are encrypted and stored locally on your device
-                </Text>
-              </View>
-            </View>
-
-             {/* Create Wallet Modal */}
-             <Modal visible={createWalletModalVisible} transparent animationType="slide" onRequestClose={() => setCreateWalletModalVisible(false)}>
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalCard}>
-                        <Text style={styles.modalHeader}>Create New Wallet</Text>
-                        <TextInput style={styles.inputField} placeholder="Wallet Name" value={walletName} onChangeText={setWalletName} />
-                        <View style={styles.modalActions}>
-                            <TouchableOpacity style={styles.btnCancel} onPress={() => setCreateWalletModalVisible(false)}><Text>Cancel</Text></TouchableOpacity>
-                            <TouchableOpacity style={styles.btnConfirm} onPress={handleCreateWallet}><Text style={{color:'white'}}>Create</Text></TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
-            </Modal>
-
-            {/* Import Wallet Modal */}
-            <Modal visible={importWalletModalVisible} transparent animationType="slide" onRequestClose={() => setImportWalletModalVisible(false)}>
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalCard}>
-                        <Text style={styles.modalHeader}>Import Wallet</Text>
-                        <Text style={{color: '#666', fontSize: 12, marginBottom: 12}}>Enter your 12 or 24 word mnemonic phrase</Text>
-                        <TextInput
-                          style={[styles.inputField, {height: 100, textAlignVertical: 'top'}]}
-                          placeholder="word1 word2 word3..."
-                          multiline
-                          value={importMnemonic}
-                          onChangeText={setImportMnemonic}
-                        />
-                        <View style={styles.modalActions}>
-                            <TouchableOpacity style={styles.btnCancel} onPress={() => setImportWalletModalVisible(false)}><Text>Cancel</Text></TouchableOpacity>
-                            <TouchableOpacity style={styles.btnConfirm} onPress={handleImportWallet}><Text style={{color:'white'}}>Import</Text></TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
-            </Modal>
-        </SafeAreaView>
-      );
+  // Show loading while checking wallet state or redirecting
+  if (!selectedAccount && accounts.length === 0) {
+    return (
+      <SafeAreaView style={styles.container} testID="wallet-redirecting">
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={KurdistanColors.kesk} />
+          <Text style={styles.loadingText}>Loading wallet...</Text>
+        </View>
+      </SafeAreaView>
+    );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} testID="wallet-screen">
       <StatusBar barStyle="dark-content" />
+
+      {/* Top Header with Back Button */}
+      <View style={styles.topHeader} testID="wallet-top-header">
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton} testID="wallet-back-button">
+          <Text style={styles.backButtonText}>← Back</Text>
+        </TouchableOpacity>
+        <Text style={styles.topHeaderTitle}>Wallet</Text>
+        <TouchableOpacity onPress={() => setNetworkSelectorVisible(true)} testID="wallet-network-button">
+          <Text style={styles.networkBadge}>🌐 {NETWORKS[currentNetwork].displayName}</Text>
+        </TouchableOpacity>
+      </View>
 
       <ScrollView
         style={styles.scrollContent}
         refreshControl={<RefreshControl refreshing={isLoadingBalances} onRefresh={fetchData} />}
         showsVerticalScrollIndicator={false}
+        testID="wallet-scroll-view"
       >
-        {/* Header */}
-        <View style={styles.headerContainer}>
-          <Text style={styles.walletTitle}>pezkuwi wallet</Text>
-          <TouchableOpacity onPress={() => setNetworkSelectorVisible(true)}>
-            <Text style={styles.networkBadge}>🌐 {NETWORKS[currentNetwork].displayName}</Text>
+        {/* Wallet Selector Row */}
+        <View style={styles.walletSelectorRow}>
+          <TouchableOpacity
+            style={styles.walletSelector}
+            onPress={() => setWalletSelectorVisible(true)}
+            testID="wallet-selector-button"
+          >
+            <View style={styles.walletSelectorInfo}>
+              <Text style={styles.walletSelectorName}>{selectedAccount?.name || 'Wallet'}</Text>
+              <Text style={styles.walletSelectorAddress} numberOfLines={1}>
+                {selectedAccount?.address ? `${selectedAccount.address.slice(0, 8)}...${selectedAccount.address.slice(-6)}` : ''}
+              </Text>
+            </View>
+            <Text style={styles.walletSelectorArrow}>▼</Text>
           </TouchableOpacity>
+          <View style={styles.walletHeaderButtons}>
+            <TouchableOpacity
+              style={styles.addWalletButton}
+              onPress={() => navigation.navigate('WalletSetup')}
+              testID="add-wallet-button"
+            >
+              <Text style={styles.addWalletIcon}>+</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.scanButton}
+              onPress={() => showAlert('Scan', 'QR Scanner coming soon')}
+              testID="wallet-scan-button"
+            >
+              <Text style={styles.scanIcon}>⊡</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Main Token Cards - HEZ and PEZ side by side */}
         <View style={styles.mainTokensRow}>
           {/* HEZ Card */}
           <TouchableOpacity style={styles.mainTokenCard} onPress={() => handleTokenPress(tokens[0])}>
-            <Image source={hezLogo} style={styles.mainTokenLogo} resizeMode="contain" />
+            <View style={styles.mainTokenLogoContainer}>
+              <HezTokenLogo size={56} />
+            </View>
             <Text style={styles.mainTokenSymbol}>HEZ</Text>
             <Text style={styles.mainTokenBalance}>{balances.HEZ}</Text>
-            <Text style={styles.mainTokenSubtitle}>Hemuwelet Token</Text>
+            <Text style={styles.mainTokenSubtitle}>Welati Coin</Text>
           </TouchableOpacity>
 
           {/* PEZ Card */}
           <TouchableOpacity style={styles.mainTokenCard} onPress={() => handleTokenPress(tokens[1])}>
-            <Image source={pezLogo} style={styles.mainTokenLogo} resizeMode="contain" />
+            <View style={styles.mainTokenLogoContainer}>
+              <PezTokenLogo size={56} />
+            </View>
             <Text style={styles.mainTokenSymbol}>PEZ</Text>
             <Text style={styles.mainTokenBalance}>{balances.PEZ}</Text>
-            <Text style={styles.mainTokenSubtitle}>Pezkunel Token</Text>
+            <Text style={styles.mainTokenSubtitle}>Pezkuwichain Token</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Action Buttons Grid - 2x4 */}
+        {/* Action Buttons Grid - 1x4 */}
         <View style={styles.actionsGrid}>
-          {/* Row 1 */}
           <TouchableOpacity style={[styles.actionButton, {backgroundColor: '#22C55E'}]} onPress={handleSend}>
             <Text style={styles.actionIcon}>↑</Text>
             <Text style={styles.actionLabel}>Send</Text>
@@ -494,35 +495,14 @@ const WalletScreen: React.FC = () => {
             <Text style={styles.actionLabel}>Receive</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={[styles.actionButton, {backgroundColor: '#A855F7'}]} onPress={() => Alert.alert('Scan', 'QR Scanner coming soon')}>
-            <Text style={styles.actionIcon}>⊡</Text>
-            <Text style={styles.actionLabel}>Scan</Text>
+          <TouchableOpacity style={[styles.actionButton, {backgroundColor: '#6B7280'}]} onPress={() => navigation.navigate('Swap')}>
+            <Text style={styles.actionIcon}>🔄</Text>
+            <Text style={styles.actionLabel}>Swap</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={[styles.actionButton, {backgroundColor: '#6B7280'}]} onPress={() => Alert.alert('P2P', 'Navigate to P2P Platform')}>
-            <Text style={styles.actionIcon}>👥</Text>
-            <Text style={styles.actionLabel}>P2P</Text>
-          </TouchableOpacity>
-
-          {/* Row 2 */}
-          <TouchableOpacity style={[styles.actionButton, {backgroundColor: '#EF4444'}]} onPress={() => Alert.alert('Vote', 'Navigate to Governance')}>
-            <Text style={styles.actionIcon}>🗳️</Text>
-            <Text style={styles.actionLabel}>Vote</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={[styles.actionButton, {backgroundColor: '#F59E0B'}]} onPress={() => Alert.alert('Dapps', 'Navigate to Apps')}>
-            <Text style={styles.actionIcon}>⊞</Text>
-            <Text style={styles.actionLabel}>Dapps</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={[styles.actionButton, {backgroundColor: '#10B981'}]} onPress={() => Alert.alert('Staking', 'Navigate to Staking')}>
+          <TouchableOpacity style={[styles.actionButton, {backgroundColor: '#10B981'}]} onPress={() => showAlert('Staking', 'Navigate to Staking')}>
             <Text style={styles.actionIcon}>🥩</Text>
             <Text style={styles.actionLabel}>Staking</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={[styles.actionButton, {backgroundColor: '#8B5CF6'}]} onPress={() => setNetworkSelectorVisible(true)}>
-            <Text style={styles.actionIcon}>🔗</Text>
-            <Text style={styles.actionLabel}>Connect</Text>
           </TouchableOpacity>
         </View>
 
@@ -630,7 +610,7 @@ const WalletScreen: React.FC = () => {
                 <View style={styles.modalActions}>
                   <TouchableOpacity style={styles.btnCancel} onPress={() => {
                     Clipboard.setString(userMnemonic);
-                    Alert.alert('Copied', 'Mnemonic copied to clipboard');
+                    showAlert('Copied', 'Mnemonic copied to clipboard');
                   }}>
                       <Text>📋 Copy</Text>
                   </TouchableOpacity>
@@ -639,6 +619,103 @@ const WalletScreen: React.FC = () => {
                   </TouchableOpacity>
                 </View>
             </View>
+        </View>
+      </Modal>
+
+      {/* Wallet Selector Modal */}
+      <Modal visible={walletSelectorVisible} transparent animationType="slide" onRequestClose={() => setWalletSelectorVisible(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalHeader}>👛 My Wallets</Text>
+            <Text style={{color: '#666', fontSize: 12, marginBottom: 16, textAlign: 'center'}}>
+              Select a wallet or create a new one
+            </Text>
+
+            {/* Wallet List */}
+            {accounts.map((account) => {
+              const isSelected = account.address === selectedAccount?.address;
+              return (
+                <View key={account.address} style={styles.walletOptionRow}>
+                  <TouchableOpacity
+                    style={[
+                      styles.walletOption,
+                      isSelected && styles.walletOptionSelected,
+                      {flex: 1, marginBottom: 0}
+                    ]}
+                    onPress={() => {
+                      setSelectedAccount(account);
+                      setWalletSelectorVisible(false);
+                    }}
+                  >
+                    <View style={styles.walletOptionIcon}>
+                      <Text style={{fontSize: 24}}>👛</Text>
+                    </View>
+                    <View style={{flex: 1}}>
+                      <Text style={[styles.walletOptionName, isSelected && {color: KurdistanColors.kesk}]}>
+                        {account.name}
+                      </Text>
+                      <Text style={styles.walletOptionAddress} numberOfLines={1}>
+                        {account.address.slice(0, 12)}...{account.address.slice(-8)}
+                      </Text>
+                    </View>
+                    {isSelected && <Text style={{fontSize: 20, color: KurdistanColors.kesk}}>✓</Text>}
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.deleteWalletButton}
+                    onPress={async () => {
+                      const confirmDelete = Platform.OS === 'web'
+                        ? window.confirm(`Delete "${account.name}"?\n\nThis action cannot be undone. Make sure you have backed up your recovery phrase.`)
+                        : await new Promise<boolean>((resolve) => {
+                            Alert.alert(
+                              'Delete Wallet',
+                              `Are you sure you want to delete "${account.name}"?\n\nThis action cannot be undone. Make sure you have backed up your recovery phrase.`,
+                              [
+                                { text: 'Cancel', style: 'cancel', onPress: () => resolve(false) },
+                                { text: 'Delete', style: 'destructive', onPress: () => resolve(true) }
+                              ]
+                            );
+                          });
+
+                      if (confirmDelete) {
+                        try {
+                          await deleteWallet(account.address);
+                          if (accounts.length <= 1) {
+                            setWalletSelectorVisible(false);
+                          }
+                        } catch (err) {
+                          if (Platform.OS === 'web') {
+                            window.alert('Failed to delete wallet');
+                          } else {
+                            Alert.alert('Error', 'Failed to delete wallet');
+                          }
+                        }
+                      }
+                    }}
+                  >
+                    <Text style={styles.deleteWalletIcon}>🗑️</Text>
+                  </TouchableOpacity>
+                </View>
+              );
+            })}
+
+            {/* Add New Wallet Button */}
+            <TouchableOpacity
+              style={styles.addNewWalletOption}
+              onPress={() => {
+                setWalletSelectorVisible(false);
+                navigation.navigate('WalletSetup');
+              }}
+            >
+              <View style={styles.addNewWalletIcon}>
+                <Text style={{fontSize: 24, color: KurdistanColors.kesk}}>+</Text>
+              </View>
+              <Text style={styles.addNewWalletText}>Add New Wallet</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.btnConfirm} onPress={() => setWalletSelectorVisible(false)}>
+              <Text style={{color:'white'}}>Close</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </Modal>
 
@@ -700,6 +777,42 @@ const styles = StyleSheet.create({
   scrollContent: {
     flex: 1,
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#666',
+  },
+
+  // Top Header with Back Button
+  topHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E5E5',
+  },
+  backButton: {
+    paddingVertical: 4,
+    paddingRight: 8,
+  },
+  backButtonText: {
+    fontSize: 16,
+    color: KurdistanColors.kesk,
+    fontWeight: '500',
+  },
+  topHeaderTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+  },
 
   // Header Styles (New Design)
   headerContainer: {
@@ -725,6 +838,18 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: 'hidden',
   },
+  scanButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#F5F5F5',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  scanIcon: {
+    fontSize: 20,
+    color: '#333',
+  },
 
   // Main Token Cards (HEZ & PEZ) - New Design
   mainTokensRow: {
@@ -746,6 +871,13 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     marginBottom: 12,
+  },
+  mainTokenLogoContainer: {
+    width: 56,
+    height: 56,
+    marginBottom: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   mainTokenSymbol: {
     fontSize: 18,
@@ -1070,6 +1202,140 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#666',
     lineHeight: 18,
+  },
+  // Wallet Selector Row
+  walletSelectorRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginBottom: 8,
+  },
+  walletSelector: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 12,
+    marginRight: 12,
+    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.05)',
+    elevation: 2,
+  },
+  walletSelectorInfo: {
+    flex: 1,
+  },
+  walletSelectorName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: KurdistanColors.reş,
+  },
+  walletSelectorAddress: {
+    fontSize: 12,
+    color: '#999',
+    marginTop: 2,
+  },
+  walletSelectorArrow: {
+    fontSize: 12,
+    color: '#666',
+    marginLeft: 8,
+  },
+  walletHeaderButtons: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  addWalletButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.05)',
+    elevation: 2,
+  },
+  addWalletIcon: {
+    fontSize: 24,
+    color: KurdistanColors.kesk,
+    fontWeight: '300',
+  },
+  // Wallet Selector Modal
+  walletOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: '#F8F9FA',
+    borderRadius: 12,
+    marginBottom: 8,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  walletOptionSelected: {
+    borderColor: KurdistanColors.kesk,
+    backgroundColor: 'rgba(0, 143, 67, 0.05)',
+  },
+  walletOptionIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  walletOptionName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: KurdistanColors.reş,
+  },
+  walletOptionAddress: {
+    fontSize: 12,
+    color: '#999',
+    marginTop: 2,
+  },
+  addNewWalletOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: 'rgba(0, 143, 67, 0.05)',
+    borderRadius: 12,
+    marginBottom: 16,
+    borderWidth: 2,
+    borderColor: KurdistanColors.kesk,
+    borderStyle: 'dashed',
+  },
+  addNewWalletIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  addNewWalletText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: KurdistanColors.kesk,
+  },
+  // Delete wallet
+  walletOptionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+    gap: 8,
+  },
+  deleteWalletButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  deleteWalletIcon: {
+    fontSize: 18,
   },
 });
 
