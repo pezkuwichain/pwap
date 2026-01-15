@@ -10,7 +10,6 @@ import {
   Image,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useTranslation } from 'react-i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { KurdistanColors } from '../theme/colors';
 import PrivacyPolicyModal from '../components/PrivacyPolicyModal';
@@ -21,7 +20,6 @@ interface WelcomeScreenProps {
 }
 
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onContinue }) => {
-  const { t } = useTranslation();
   const [agreed, setAgreed] = useState(false);
   const [privacyModalVisible, setPrivacyModalVisible] = useState(false);
   const [termsModalVisible, setTermsModalVisible] = useState(false);

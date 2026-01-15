@@ -1,6 +1,5 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import { LanguageProvider } from '../../contexts/LanguageContext';
 import WelcomeScreen from '../WelcomeScreen';
 
 // Mock navigation
@@ -13,9 +12,7 @@ jest.mock('@react-navigation/native', () => ({
 
 // Wrapper with required providers
 const WelcomeScreenWrapper = () => (
-  <LanguageProvider>
-    <WelcomeScreen />
-  </LanguageProvider>
+  <WelcomeScreen />
 );
 
 describe('WelcomeScreen', () => {

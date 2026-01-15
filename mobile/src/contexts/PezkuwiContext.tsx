@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { Platform } from 'react-native';
 import { Keyring } from '@pezkuwi/keyring';
 import { KeyringPair } from '@pezkuwi/keyring/types';
 import { ApiPromise, WsProvider } from '@pezkuwi/api';
@@ -6,6 +7,34 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 import { cryptoWaitReady, mnemonicGenerate } from '@pezkuwi/util-crypto';
 import { ENV } from '../config/environment';
+
+// Secure storage helper - uses SecureStore on native, AsyncStorage on web (with warning)
+const secureStorage = {
+  setItem: async (key: string, value: string): Promise<void> => {
+    if (Platform.OS === 'web') {
+      // WARNING: AsyncStorage is NOT secure for storing seeds on web
+      // In production, consider using Web Crypto API or server-side storage
+      if (__DEV__) console.warn('[SecureStorage] Using AsyncStorage on web - NOT SECURE for production');
+      await AsyncStorage.setItem(key, value);
+    } else {
+      await SecureStore.setItemAsync(key, value);
+    }
+  },
+  getItem: async (key: string): Promise<string | null> => {
+    if (Platform.OS === 'web') {
+      return await AsyncStorage.getItem(key);
+    } else {
+      return await SecureStore.getItemAsync(key);
+    }
+  },
+  removeItem: async (key: string): Promise<void> => {
+    if (Platform.OS === 'web') {
+      await AsyncStorage.removeItem(key);
+    } else {
+      await SecureStore.deleteItemAsync(key);
+    }
+  },
+};
 
 interface Account {
   address: string;
@@ -15,14 +44,14 @@ interface Account {
   };
 }
 
-export type NetworkType = 'pezkuwi' | 'dicle' | 'zagros' | 'bizinikiwi';
+export type NetworkType = 'pezkuwi' | 'dicle' | 'zagros' | 'bizinikiwi' | 'zombienet';
 
 export interface NetworkConfig {
   name: string;
   displayName: string;
   rpcEndpoint: string;
   ss58Format: number;
-  type: 'mainnet' | 'testnet' | 'canary';
+  type: 'mainnet' | 'testnet' | 'canary' | 'dev';
 }
 
 export const NETWORKS: Record<NetworkType, NetworkConfig> = {
@@ -54,6 +83,13 @@ export const NETWORKS: Record<NetworkType, NetworkConfig> = {
     ss58Format: 42,
     type: 'testnet',
   },
+  zombienet: {
+    name: 'zombienet',
+    displayName: 'Zombienet Dev (Alice/Bob)',
+    rpcEndpoint: 'wss://zombienet-rpc.pezkuwichain.io',
+    ss58Format: 42,
+    type: 'dev',
+  },
 };
 
 interface PezkuwiContextType {
@@ -73,6 +109,7 @@ interface PezkuwiContextType {
   disconnectWallet: () => void;
   createWallet: (name: string, mnemonic?: string) => Promise<{ address: string; mnemonic: string }>;
   importWallet: (name: string, mnemonic: string) => Promise<{ address: string }>;
+  deleteWallet: (address: string) => Promise<void>;
   getKeyPair: (address: string) => Promise<KeyringPair | null>;
   signMessage: (address: string, message: string) => Promise<string | null>;
   error: string | null;
@@ -131,7 +168,14 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({ children }) =>
         const provider = new WsProvider(networkConfig.rpcEndpoint);
         console.log('📡 [Pezkuwi] WsProvider created, creating API...');
         const newApi = await ApiPromise.create({ provider });
-        console.log('✅ [Pezkuwi] API created successfully');
+
+        // Set SS58 format for address encoding/decoding
+        newApi.registry.setChainProperties(
+          newApi.registry.createType('ChainProperties', {
+            ss58Format: networkConfig.ss58Format,
+          })
+        );
+        console.log(`✅ [Pezkuwi] API created with SS58 format: ${networkConfig.ss58Format}`);
 
         if (isSubscribed) {
           setApi(newApi);
@@ -256,9 +300,9 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({ children }) =>
       setAccounts(updatedAccounts);
       await AsyncStorage.setItem(WALLET_STORAGE_KEY, JSON.stringify(updatedAccounts));
 
-      // SECURITY: Store encrypted seed in SecureStore (hardware-backed storage)
+      // SECURITY: Store encrypted seed in secure storage (hardware-backed on native)
       const seedKey = `pezkuwi_seed_${pair.address}`;
-      await SecureStore.setItemAsync(seedKey, mnemonicPhrase);
+      await secureStorage.setItem(seedKey, mnemonicPhrase);
 
       if (__DEV__) console.log('[Pezkuwi] Wallet created:', pair.address);
 
@@ -266,24 +310,33 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({ children }) =>
         address: pair.address,
         mnemonic: mnemonicPhrase,
       };
-    } catch (err) {
-      if (__DEV__) console.error('[Pezkuwi] Failed to create wallet:', err);
-      throw new Error('Failed to create wallet');
+    } catch (err: any) {
+      if (__DEV__) {
+        console.error('[Pezkuwi] Failed to create wallet:', err);
+        console.error('[Pezkuwi] Error message:', err?.message);
+        console.error('[Pezkuwi] Error stack:', err?.stack);
+      }
+      throw new Error(err?.message || 'Failed to create wallet');
     }
   };
 
-  // Import existing wallet from mnemonic
+  // Import existing wallet from mnemonic or dev URI (like //Alice)
   const importWallet = async (
     name: string,
-    mnemonic: string
+    seedOrUri: string
   ): Promise<{ address: string }> => {
     if (!keyring) {
       throw new Error('Keyring not initialized');
     }
 
     try {
-      // Create account from mnemonic
-      const pair = keyring.addFromMnemonic(mnemonic.trim(), { name });
+      const trimmedInput = seedOrUri.trim();
+      const isDevUri = trimmedInput.startsWith('//');
+
+      // Create account from URI or mnemonic
+      const pair = isDevUri
+        ? keyring.addFromUri(trimmedInput, { name })
+        : keyring.addFromMnemonic(trimmedInput, { name });
 
       // Check if account already exists
       if (accounts.some(a => a.address === pair.address)) {
@@ -301,16 +354,49 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({ children }) =>
       setAccounts(updatedAccounts);
       await AsyncStorage.setItem(WALLET_STORAGE_KEY, JSON.stringify(updatedAccounts));
 
-      // Store seed securely
+      // Store seed/URI securely
       const seedKey = `pezkuwi_seed_${pair.address}`;
-      await SecureStore.setItemAsync(seedKey, mnemonic.trim());
+      await secureStorage.setItem(seedKey, trimmedInput);
 
-      if (__DEV__) console.log('[Pezkuwi] Wallet imported:', pair.address);
+      if (__DEV__) console.log('[Pezkuwi] Wallet imported:', pair.address, isDevUri ? '(dev URI)' : '(mnemonic)');
 
       return { address: pair.address };
-    } catch (err) {
-      if (__DEV__) console.error('[Pezkuwi] Failed to import wallet:', err);
-      throw err;
+    } catch (err: any) {
+      if (__DEV__) {
+        console.error('[Pezkuwi] Failed to import wallet:', err);
+        console.error('[Pezkuwi] Error message:', err?.message);
+      }
+      throw new Error(err?.message || 'Failed to import wallet');
+    }
+  };
+
+  // Delete a wallet
+  const deleteWallet = async (address: string): Promise<void> => {
+    try {
+      // Remove from accounts list
+      const updatedAccounts = accounts.filter(a => a.address !== address);
+      setAccounts(updatedAccounts);
+      await AsyncStorage.setItem(WALLET_STORAGE_KEY, JSON.stringify(updatedAccounts));
+
+      // Remove seed from secure storage
+      const seedKey = `pezkuwi_seed_${address}`;
+      await secureStorage.removeItem(seedKey);
+
+      // If deleted account was selected, select another one
+      if (selectedAccount?.address === address) {
+        if (updatedAccounts.length > 0) {
+          setSelectedAccount(updatedAccounts[0]);
+          await AsyncStorage.setItem(SELECTED_ACCOUNT_KEY, updatedAccounts[0].address);
+        } else {
+          setSelectedAccount(null);
+          await AsyncStorage.removeItem(SELECTED_ACCOUNT_KEY);
+        }
+      }
+
+      if (__DEV__) console.log('[Pezkuwi] Wallet deleted:', address);
+    } catch (err: any) {
+      if (__DEV__) console.error('[Pezkuwi] Failed to delete wallet:', err);
+      throw new Error(err?.message || 'Failed to delete wallet');
     }
   };
 
@@ -321,17 +407,21 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({ children }) =>
     }
 
     try {
-      // SECURITY: Load seed from SecureStore (encrypted storage)
+      // SECURITY: Load seed/URI from secure storage (encrypted on native)
       const seedKey = `pezkuwi_seed_${address}`;
-      const mnemonic = await SecureStore.getItemAsync(seedKey);
+      const seedOrUri = await secureStorage.getItem(seedKey);
 
-      if (!mnemonic) {
+      if (!seedOrUri) {
         if (__DEV__) console.error('[Pezkuwi] No seed found for address:', address);
         return null;
       }
 
-      // Recreate keypair from mnemonic
-      const pair = keyring.addFromMnemonic(mnemonic);
+      // Recreate keypair from URI or mnemonic
+      const isDevUri = seedOrUri.startsWith('//');
+      const pair = isDevUri
+        ? keyring.addFromUri(seedOrUri)
+        : keyring.addFromMnemonic(seedOrUri);
+
       return pair;
     } catch (err) {
       if (__DEV__) console.error('[Pezkuwi] Failed to get keypair:', err);
@@ -431,6 +521,7 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({ children }) =>
     disconnectWallet,
     createWallet,
     importWallet,
+    deleteWallet,
     getKeyPair,
     signMessage,
     error,

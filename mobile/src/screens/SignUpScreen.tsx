@@ -14,7 +14,6 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { KurdistanColors } from '../theme/colors';
 
@@ -24,7 +23,6 @@ interface SignUpScreenProps {
 }
 
 const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSignUp, onNavigateToSignIn }) => {
-  const { t } = useTranslation();
   const { signUp } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -85,17 +83,17 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSignUp, onNavigateToSignI
               <View style={styles.logoContainer}>
                 <Text style={styles.logoText}>PZK</Text>
               </View>
-              <Text style={styles.title}>{t('auth.getStarted')}</Text>
-              <Text style={styles.subtitle}>{t('auth.createAccount')}</Text>
+              <Text style={styles.title}>Get Started</Text>
+              <Text style={styles.subtitle}>Create Account</Text>
             </View>
 
             {/* Form */}
             <View style={styles.form}>
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>{t('auth.email')}</Text>
+                <Text style={styles.label}>Email</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder={t('auth.email')}
+                  placeholder="Email"
                   value={email}
                   onChangeText={setEmail}
                   keyboardType="email-address"
@@ -105,10 +103,10 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSignUp, onNavigateToSignI
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>{t('auth.username')}</Text>
+                <Text style={styles.label}>Username</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder={t('auth.username')}
+                  placeholder="Username"
                   value={username}
                   onChangeText={setUsername}
                   autoCapitalize="none"
@@ -117,10 +115,10 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSignUp, onNavigateToSignI
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>{t('auth.password')}</Text>
+                <Text style={styles.label}>Password</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder={t('auth.password')}
+                  placeholder="Password"
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry
@@ -129,10 +127,10 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSignUp, onNavigateToSignI
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>{t('auth.confirmPassword')}</Text>
+                <Text style={styles.label}>Confirm Password</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder={t('auth.confirmPassword')}
+                  placeholder="Confirm Password"
                   value={confirmPassword}
                   onChangeText={setConfirmPassword}
                   secureTextEntry
@@ -149,7 +147,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSignUp, onNavigateToSignI
                 {isLoading ? (
                   <ActivityIndicator color={KurdistanColors.spi} />
                 ) : (
-                  <Text style={styles.signUpButtonText}>{t('auth.signUp')}</Text>
+                  <Text style={styles.signUpButtonText}>Sign Up</Text>
                 )}
               </TouchableOpacity>
 
@@ -164,8 +162,8 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSignUp, onNavigateToSignI
                 onPress={onNavigateToSignIn}
               >
                 <Text style={styles.signInPromptText}>
-                  {t('auth.haveAccount')}{' '}
-                  <Text style={styles.signInLink}>{t('auth.signIn')}</Text>
+                  Already have an account?{' '}
+                  <Text style={styles.signInLink}>Sign In</Text>
                 </Text>
               </TouchableOpacity>
             </View>

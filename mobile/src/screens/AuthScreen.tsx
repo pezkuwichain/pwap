@@ -14,12 +14,10 @@ import {
   Image,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { KurdistanColors } from '../theme/colors';
 
 const AuthScreen: React.FC = () => {
-  const { t } = useTranslation();
   const { signIn, signUp } = useAuth();
 
   // Tab state
@@ -47,7 +45,7 @@ const AuthScreen: React.FC = () => {
     setError('');
 
     if (!loginEmail || !loginPassword) {
-      setError(t('auth.fillAllFields', 'Please fill in all fields'));
+      setError('Please fill in all fields');
       return;
     }
 
@@ -58,13 +56,13 @@ const AuthScreen: React.FC = () => {
 
       if (signInError) {
         if (signInError.message?.includes('Invalid login credentials')) {
-          setError(t('auth.invalidCredentials', 'Email or password is incorrect'));
+          setError('Email or password is incorrect');
         } else {
-          setError(signInError.message || t('auth.loginFailed', 'Login failed'));
+          setError(signInError.message || 'Login failed');
         }
       }
     } catch (err) {
-      setError(t('auth.loginFailed', 'Login failed. Please try again.'));
+      setError('Login failed. Please try again.');
       if (__DEV__) console.error('Sign in error:', err);
     } finally {
       setLoading(false);
@@ -75,17 +73,17 @@ const AuthScreen: React.FC = () => {
     setError('');
 
     if (!signupName || !signupEmail || !signupPassword || !signupConfirmPassword) {
-      setError(t('auth.fillAllFields', 'Please fill in all required fields'));
+      setError('Please fill in all required fields');
       return;
     }
 
     if (signupPassword !== signupConfirmPassword) {
-      setError(t('auth.passwordsDoNotMatch', 'Passwords do not match'));
+      setError('Passwords do not match');
       return;
     }
 
     if (signupPassword.length < 8) {
-      setError(t('auth.passwordTooShort', 'Password must be at least 8 characters'));
+      setError('Password must be at least 8 characters');
       return;
     }
 
@@ -100,10 +98,10 @@ const AuthScreen: React.FC = () => {
       );
 
       if (signUpError) {
-        setError(signUpError.message || t('auth.signupFailed', 'Sign up failed'));
+        setError(signUpError.message || 'Sign up failed');
       }
     } catch (err) {
-      setError(t('auth.signupFailed', 'Sign up failed. Please try again.'));
+      setError('Sign up failed. Please try again.');
       if (__DEV__) console.error('Sign up error:', err);
     } finally {
       setLoading(false);
@@ -144,7 +142,7 @@ const AuthScreen: React.FC = () => {
                 </View>
                 <Text style={styles.brandTitle}>PezkuwiChain</Text>
                 <Text style={styles.subtitle}>
-                  {t('login.subtitle', 'Access your governance account')}
+                  Access your governance account
                 </Text>
               </View>
 
@@ -158,7 +156,7 @@ const AuthScreen: React.FC = () => {
                   }}
                 >
                   <Text style={[styles.tabText, activeTab === 'signin' && styles.tabTextActive]}>
-                    {t('login.signin', 'Sign In')}
+                    Sign In
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -169,7 +167,7 @@ const AuthScreen: React.FC = () => {
                   }}
                 >
                   <Text style={[styles.tabText, activeTab === 'signup' && styles.tabTextActive]}>
-                    {t('login.signup', 'Sign Up')}
+                    Sign Up
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -178,7 +176,7 @@ const AuthScreen: React.FC = () => {
               {activeTab === 'signin' && (
                 <View style={styles.form}>
                   <View style={styles.inputGroup}>
-                    <Text style={styles.label}>{t('login.email', 'Email')}</Text>
+                    <Text style={styles.label}>Email</Text>
                     <View style={styles.inputContainer}>
                       <Text style={styles.inputIcon}>✉️</Text>
                       <TextInput
@@ -195,7 +193,7 @@ const AuthScreen: React.FC = () => {
                   </View>
 
                   <View style={styles.inputGroup}>
-                    <Text style={styles.label}>{t('login.password', 'Password')}</Text>
+                    <Text style={styles.label}>Password</Text>
                     <View style={styles.inputContainer}>
                       <Text style={styles.inputIcon}>🔒</Text>
                       <TextInput
@@ -225,12 +223,12 @@ const AuthScreen: React.FC = () => {
                         {rememberMe && <Text style={styles.checkmark}>✓</Text>}
                       </View>
                       <Text style={styles.checkboxLabel}>
-                        {t('login.rememberMe', 'Remember me')}
+                        Remember me
                       </Text>
                     </TouchableOpacity>
                     <TouchableOpacity>
                       <Text style={styles.linkText}>
-                        {t('login.forgotPassword', 'Forgot password?')}
+                        Forgot password?
                       </Text>
                     </TouchableOpacity>
                   </View>
@@ -251,7 +249,7 @@ const AuthScreen: React.FC = () => {
                       <ActivityIndicator color="#FFFFFF" />
                     ) : (
                       <Text style={styles.primaryButtonText}>
-                        {t('login.signin', 'Sign In')}
+                        Sign In
                       </Text>
                     )}
                   </TouchableOpacity>
@@ -262,7 +260,7 @@ const AuthScreen: React.FC = () => {
               {activeTab === 'signup' && (
                 <View style={styles.form}>
                   <View style={styles.inputGroup}>
-                    <Text style={styles.label}>{t('login.fullName', 'Full Name')}</Text>
+                    <Text style={styles.label}>Full Name</Text>
                     <View style={styles.inputContainer}>
                       <Text style={styles.inputIcon}>👤</Text>
                       <TextInput
@@ -277,7 +275,7 @@ const AuthScreen: React.FC = () => {
                   </View>
 
                   <View style={styles.inputGroup}>
-                    <Text style={styles.label}>{t('login.email', 'Email')}</Text>
+                    <Text style={styles.label}>Email</Text>
                     <View style={styles.inputContainer}>
                       <Text style={styles.inputIcon}>✉️</Text>
                       <TextInput
@@ -294,7 +292,7 @@ const AuthScreen: React.FC = () => {
                   </View>
 
                   <View style={styles.inputGroup}>
-                    <Text style={styles.label}>{t('login.password', 'Password')}</Text>
+                    <Text style={styles.label}>Password</Text>
                     <View style={styles.inputContainer}>
                       <Text style={styles.inputIcon}>🔒</Text>
                       <TextInput
@@ -316,7 +314,7 @@ const AuthScreen: React.FC = () => {
                   </View>
 
                   <View style={styles.inputGroup}>
-                    <Text style={styles.label}>{t('login.confirmPassword', 'Confirm Password')}</Text>
+                    <Text style={styles.label}>Confirm Password</Text>
                     <View style={styles.inputContainer}>
                       <Text style={styles.inputIcon}>🔒</Text>
                       <TextInput
@@ -333,16 +331,16 @@ const AuthScreen: React.FC = () => {
 
                   <View style={styles.inputGroup}>
                     <Text style={styles.label}>
-                      {t('login.referralCode', 'Referral Code')}{' '}
+                      Referral Code{' '}
                       <Text style={styles.optionalText}>
-                        ({t('login.optional', 'Optional')})
+                        (Optional)
                       </Text>
                     </Text>
                     <View style={styles.inputContainer}>
                       <Text style={styles.inputIcon}>👥</Text>
                       <TextInput
                         style={styles.input}
-                        placeholder={t('login.enterReferralCode', 'Referral code (optional)')}
+                        placeholder="Referral code (optional)"
                         placeholderTextColor="#9CA3AF"
                         value={signupReferralCode}
                         onChangeText={setSignupReferralCode}
@@ -350,7 +348,7 @@ const AuthScreen: React.FC = () => {
                       />
                     </View>
                     <Text style={styles.hintText}>
-                      {t('login.referralDescription', 'If someone referred you, enter their code here')}
+                      If someone referred you, enter their code here
                     </Text>
                   </View>
 
@@ -370,7 +368,7 @@ const AuthScreen: React.FC = () => {
                       <ActivityIndicator color="#FFFFFF" />
                     ) : (
                       <Text style={styles.primaryButtonText}>
-                        {t('login.createAccount', 'Create Account')}
+                        Create Account
                       </Text>
                     )}
                   </TouchableOpacity>
@@ -380,15 +378,15 @@ const AuthScreen: React.FC = () => {
               {/* Footer */}
               <View style={styles.footer}>
                 <Text style={styles.footerText}>
-                  {t('login.terms', 'By continuing, you agree to our')}{' '}
+                  By continuing, you agree to our{' '}
                 </Text>
                 <View style={styles.footerLinks}>
                   <Text style={styles.footerLink}>
-                    {t('login.termsOfService', 'Terms of Service')}
+                    Terms of Service
                   </Text>
-                  <Text style={styles.footerText}> {t('login.and', 'and')} </Text>
+                  <Text style={styles.footerText}> and </Text>
                   <Text style={styles.footerLink}>
-                    {t('login.privacyPolicy', 'Privacy Policy')}
+                    Privacy Policy
                   </Text>
                 </View>
               </View>

@@ -1,6 +1,5 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import { LanguageProvider } from '../../contexts/LanguageContext';
 import ProfileScreen from '../ProfileScreen';
 
 jest.mock('@react-navigation/native', () => ({
@@ -9,9 +8,7 @@ jest.mock('@react-navigation/native', () => ({
 }));
 
 const ProfileScreenWrapper = () => (
-  <LanguageProvider>
-    <ProfileScreen />
-  </LanguageProvider>
+  <ProfileScreen />
 );
 
 describe('ProfileScreen', () => {

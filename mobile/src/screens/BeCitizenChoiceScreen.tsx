@@ -9,7 +9,6 @@ import {
   StatusBar,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import { KurdistanColors } from '../theme/colors';
 import type { NavigationProp } from '@react-navigation/native';
@@ -21,7 +20,6 @@ type RootStackParamList = {
 };
 
 const BeCitizenChoiceScreen: React.FC = () => {
-  const { t } = useTranslation();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   return (

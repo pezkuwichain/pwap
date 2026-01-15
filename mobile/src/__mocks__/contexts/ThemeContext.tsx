@@ -19,7 +19,7 @@ interface ThemeContextType {
   fontScale: number;
 }
 
-const mockThemeContext: ThemeContextType = {
+export const mockThemeContext: ThemeContextType = {
   isDarkMode: false,
   toggleDarkMode: jest.fn().mockResolvedValue(undefined),
   colors: LightColors,

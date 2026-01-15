@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -10,14 +10,32 @@ import {
   Image,
   ActivityIndicator,
   Alert,
+  Platform,
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { KurdistanColors } from '../theme/colors';
 import { supabase } from '../lib/supabase';
 import AvatarPickerModal from '../components/AvatarPickerModal';
+
+// Cross-platform alert helper
+const showAlert = (title: string, message: string, buttons?: Array<{text: string; onPress?: () => void; style?: string}>) => {
+  if (Platform.OS === 'web') {
+    if (buttons && buttons.length > 1) {
+      const result = window.confirm(`${title}\n\n${message}`);
+      if (result && buttons[1]?.onPress) {
+        buttons[1].onPress();
+      }
+    } else {
+      window.alert(`${title}\n\n${message}`);
+    }
+  } else {
+    Alert.alert(title, message, buttons as any);
+  }
+};
 
 // Avatar pool matching AvatarPickerModal
 const AVATAR_POOL = [
@@ -65,16 +83,19 @@ interface ProfileData {
 }
 
 const ProfileScreen: React.FC = () => {
-  const { t } = useTranslation();
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
   const { user, signOut } = useAuth();
+  const { isDarkMode, colors, fontScale } = useTheme();
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [avatarModalVisible, setAvatarModalVisible] = useState(false);
 
-  useEffect(() => {
-    fetchProfileData();
-  }, [user]);
+  // Refresh profile data when screen is focused (e.g., after EditProfile)
+  useFocusEffect(
+    useCallback(() => {
+      fetchProfileData();
+    }, [user])
+  );
 
   const fetchProfileData = async () => {
     if (!user) {
@@ -100,7 +121,7 @@ const ProfileScreen: React.FC = () => {
   };
 
   const handleLogout = () => {
-    Alert.alert(
+    showAlert(
       'Logout',
       'Are you sure you want to logout?',
       [
@@ -120,12 +141,22 @@ const ProfileScreen: React.FC = () => {
     setProfileData(prev => prev ? { ...prev, avatar_url: avatarUrl } : null);
   };
 
-  const ProfileCard = ({ icon, title, value, onPress }: { icon: string; title: string; value: string; onPress?: () => void }) => (
-    <TouchableOpacity style={styles.profileCard} onPress={onPress} disabled={!onPress} activeOpacity={onPress ? 0.7 : 1}>
+  const handleEditProfile = () => {
+    navigation.navigate('EditProfile');
+  };
+
+  const ProfileCard = ({ icon, title, value, onPress, testID }: { icon: string; title: string; value: string; onPress?: () => void; testID?: string }) => (
+    <TouchableOpacity
+      style={[styles.profileCard, { backgroundColor: colors.surface }]}
+      onPress={onPress}
+      disabled={!onPress}
+      activeOpacity={onPress ? 0.7 : 1}
+      testID={testID}
+    >
       <Text style={styles.cardIcon}>{icon}</Text>
       <View style={styles.cardContent}>
-        <Text style={styles.cardTitle}>{title}</Text>
-        <Text style={styles.cardValue} numberOfLines={1}>{value}</Text>
+        <Text style={[styles.cardTitle, { fontSize: 12 * fontScale }]}>{title}</Text>
+        <Text style={[styles.cardValue, { color: colors.text, fontSize: 16 * fontScale }]} numberOfLines={1}>{value}</Text>
       </View>
       {onPress && <Text style={styles.cardArrow}>→</Text>}
     </TouchableOpacity>
@@ -133,41 +164,42 @@ const ProfileScreen: React.FC = () => {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} testID="profile-loading-container">
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={KurdistanColors.kesk} />
+          <ActivityIndicator size="large" color={KurdistanColors.kesk} testID="profile-loading-indicator" />
         </View>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" />
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} testID="profile-screen">
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false} testID="profile-scroll-view">
         {/* Header with Gradient */}
         <LinearGradient
           colors={[KurdistanColors.kesk, '#008f43']}
           style={styles.header}
+          testID="profile-header-gradient"
         >
           <View style={styles.avatarContainer}>
-            <TouchableOpacity onPress={() => setAvatarModalVisible(true)} style={styles.avatarWrapper}>
+            <TouchableOpacity onPress={() => setAvatarModalVisible(true)} style={styles.avatarWrapper} testID="profile-avatar-button">
               {profileData?.avatar_url ? (
                 // Check if avatar_url is a URL (starts with http) or an emoji ID
                 profileData.avatar_url.startsWith('http') ? (
-                  <Image source={{ uri: profileData.avatar_url }} style={styles.avatar} />
+                  <Image source={{ uri: profileData.avatar_url }} style={styles.avatar} testID="profile-avatar-image" />
                 ) : (
                   // It's an emoji ID, render as emoji text
-                  <View style={styles.avatarPlaceholder}>
-                    <Text style={styles.avatarEmojiLarge}>
+                  <View style={styles.avatarPlaceholder} testID="profile-avatar-emoji-container">
+                    <Text style={styles.avatarEmojiLarge} testID="profile-avatar-emoji">
                       {getEmojiFromAvatarId(profileData.avatar_url)}
                     </Text>
                   </View>
                 )
               ) : (
-                <View style={styles.avatarPlaceholder}>
-                  <Text style={styles.avatarText}>
+                <View style={styles.avatarPlaceholder} testID="profile-avatar-placeholder">
+                  <Text style={styles.avatarText} testID="profile-avatar-initial">
                     {profileData?.full_name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || '?'}
                   </Text>
                 </View>
@@ -176,25 +208,27 @@ const ProfileScreen: React.FC = () => {
                 <Text style={styles.editAvatarIcon}>📷</Text>
               </View>
             </TouchableOpacity>
-            <Text style={styles.name}>
+            <Text style={[styles.name, { fontSize: 24 * fontScale }]} testID="profile-name">
               {profileData?.full_name || user?.email?.split('@')[0] || 'User'}
             </Text>
-            <Text style={styles.email}>{user?.email}</Text>
+            <Text style={[styles.email, { fontSize: 14 * fontScale }]} testID="profile-email">{user?.email}</Text>
           </View>
         </LinearGradient>
 
         {/* Profile Info Cards */}
-        <View style={styles.cardsContainer}>
+        <View style={styles.cardsContainer} testID="profile-cards-container">
           <ProfileCard
             icon="📧"
             title="Email"
             value={user?.email || 'N/A'}
+            testID="profile-card-email"
           />
 
           <ProfileCard
             icon="📅"
             title="Member Since"
             value={profileData?.created_at ? new Date(profileData.created_at).toLocaleDateString() : 'N/A'}
+            testID="profile-card-member-since"
           />
 
           <ProfileCard
@@ -202,6 +236,7 @@ const ProfileScreen: React.FC = () => {
             title="Referrals"
             value={`${profileData?.referral_count || 0} people`}
             onPress={() => (navigation as any).navigate('Referral')}
+            testID="profile-card-referrals"
           />
 
           {profileData?.referral_code && (
@@ -209,6 +244,7 @@ const ProfileScreen: React.FC = () => {
               icon="🎁"
               title="Your Referral Code"
               value={profileData.referral_code}
+              testID="profile-card-referral-code"
             />
           )}
 
@@ -217,31 +253,34 @@ const ProfileScreen: React.FC = () => {
               icon="👛"
               title="Wallet Address"
               value={`${profileData.wallet_address.slice(0, 10)}...${profileData.wallet_address.slice(-8)}`}
+              testID="profile-card-wallet"
             />
           )}
         </View>
 
         {/* Action Buttons */}
-        <View style={styles.actionsContainer}>
+        <View style={styles.actionsContainer} testID="profile-actions-container">
           <TouchableOpacity
-            style={styles.actionButton}
-            onPress={() => Alert.alert('Coming Soon', 'Edit profile feature will be available soon')}
+            style={[styles.actionButton, { backgroundColor: colors.surface }]}
+            onPress={handleEditProfile}
+            testID="profile-edit-button"
           >
             <Text style={styles.actionIcon}>✏️</Text>
-            <Text style={styles.actionText}>Edit Profile</Text>
+            <Text style={[styles.actionText, { color: colors.text, fontSize: 16 * fontScale }]}>Edit Profile</Text>
             <Text style={styles.actionArrow}>→</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.actionButton}
-            onPress={() => Alert.alert(
+            style={[styles.actionButton, { backgroundColor: colors.surface }]}
+            onPress={() => showAlert(
               'About Pezkuwi',
               'Pezkuwi is a decentralized blockchain platform for Digital Kurdistan.\n\nVersion: 1.0.0\n\n© 2026 Digital Kurdistan',
               [{ text: 'OK' }]
             )}
+            testID="profile-about-button"
           >
             <Text style={styles.actionIcon}>ℹ️</Text>
-            <Text style={styles.actionText}>About Pezkuwi</Text>
+            <Text style={[styles.actionText, { color: colors.text, fontSize: 16 * fontScale }]}>About Pezkuwi</Text>
             <Text style={styles.actionArrow}>→</Text>
           </TouchableOpacity>
         </View>
@@ -251,15 +290,16 @@ const ProfileScreen: React.FC = () => {
           style={styles.logoutButton}
           onPress={handleLogout}
           activeOpacity={0.8}
+          testID="profile-logout-button"
         >
-          <Text style={styles.logoutButtonText}>Logout</Text>
+          <Text style={[styles.logoutButtonText, { fontSize: 16 * fontScale }]}>Logout</Text>
         </TouchableOpacity>
 
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>
+        <View style={styles.footer} testID="profile-footer">
+          <Text style={[styles.footerText, { color: colors.textSecondary, fontSize: 12 * fontScale }]}>
             Pezkuwi Blockchain • {new Date().getFullYear()}
           </Text>
-          <Text style={styles.footerVersion}>Version 1.0.0</Text>
+          <Text style={[styles.footerVersion, { fontSize: 10 * fontScale }]}>Version 1.0.0</Text>
         </View>
       </ScrollView>
 

@@ -1,6 +1,5 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import { LanguageProvider } from '../../contexts/LanguageContext';
 import { PezkuwiProvider } from '../contexts/PezkuwiContext';
 import BeCitizenScreen from '../BeCitizenScreen';
 
@@ -10,11 +9,9 @@ jest.mock('@react-navigation/native', () => ({
 }));
 
 const BeCitizenScreenWrapper = () => (
-  <LanguageProvider>
-    <PezkuwiProvider>
-      <BeCitizenScreen />
-    </PezkuwiProvider>
-  </LanguageProvider>
+  <PezkuwiProvider>
+    <BeCitizenScreen />
+  </PezkuwiProvider>
 );
 
 describe('BeCitizenScreen', () => {

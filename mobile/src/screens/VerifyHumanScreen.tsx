@@ -9,7 +9,6 @@ import {
   Animated,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useTranslation } from 'react-i18next';
 import { KurdistanColors } from '../theme/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -20,7 +19,6 @@ interface VerifyHumanScreenProps {
 }
 
 const VerifyHumanScreen: React.FC<VerifyHumanScreenProps> = ({ onVerified }) => {
-  const { t } = useTranslation();
   const [isChecked, setIsChecked] = useState(false);
   const [scaleValue] = useState(new Animated.Value(1));
 
@@ -71,9 +69,9 @@ const VerifyHumanScreen: React.FC<VerifyHumanScreenProps> = ({ onVerified }) => 
           </View>
 
           {/* Title */}
-          <Text style={styles.title}>{t('verify.title', 'Security Verification')}</Text>
+          <Text style={styles.title}>Security Verification</Text>
           <Text style={styles.subtitle}>
-            {t('verify.subtitle', 'Please confirm you are human to continue')}
+            Please confirm you are human to continue
           </Text>
 
           {/* Verification Box */}
@@ -86,13 +84,13 @@ const VerifyHumanScreen: React.FC<VerifyHumanScreenProps> = ({ onVerified }) => 
               {isChecked && <Text style={styles.checkmark}>✓</Text>}
             </View>
             <Text style={styles.verificationText}>
-              {t('verify.checkbox', "I'm not a robot")}
+              I'm not a robot
             </Text>
           </TouchableOpacity>
 
           {/* Info Text */}
           <Text style={styles.infoText}>
-            {t('verify.info', 'This helps protect the Pezkuwi network from automated attacks')}
+            This helps protect the Pezkuwi network from automated attacks
           </Text>
 
           {/* Continue Button */}
@@ -109,7 +107,7 @@ const VerifyHumanScreen: React.FC<VerifyHumanScreenProps> = ({ onVerified }) => 
                   !isChecked && styles.continueButtonTextDisabled,
                 ]}
               >
-                {t('verify.continue', 'Continue')}
+                Continue
               </Text>
             </Animated.View>
           </TouchableOpacity>
@@ -117,7 +115,7 @@ const VerifyHumanScreen: React.FC<VerifyHumanScreenProps> = ({ onVerified }) => 
           {/* Footer */}
           <View style={styles.footer}>
             <Text style={styles.footerText}>
-              🔒 {t('verify.secure', 'Secure & Private')}
+              Secure & Private
             </Text>
           </View>
         </View>

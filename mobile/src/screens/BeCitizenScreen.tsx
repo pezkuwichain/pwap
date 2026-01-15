@@ -12,7 +12,6 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useTranslation } from 'react-i18next';
 import { usePezkuwi } from '../contexts/PezkuwiContext';
 import {
   submitKycApplication,
@@ -22,7 +21,6 @@ import {
 import { KurdistanColors } from '../theme/colors';
 
 const BeCitizenScreen: React.FC = () => {
-  const { t: _t } = useTranslation();
   const { api, selectedAccount } = usePezkuwi();
   const [_isExistingCitizen, _setIsExistingCitizen] = useState(false);
   const [currentStep, setCurrentStep] = useState<'choice' | 'new' | 'existing'>('choice');

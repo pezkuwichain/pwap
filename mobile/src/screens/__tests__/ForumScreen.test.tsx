@@ -1,6 +1,5 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import { LanguageProvider } from '../../contexts/LanguageContext';
 import { AuthProvider } from '../../contexts/AuthContext';
 import ForumScreen from '../ForumScreen';
 
@@ -10,11 +9,9 @@ jest.mock('@react-navigation/native', () => ({
 }));
 
 const ForumScreenWrapper = () => (
-  <LanguageProvider>
-    <AuthProvider>
-      <ForumScreen />
-    </AuthProvider>
-  </LanguageProvider>
+  <AuthProvider>
+    <ForumScreen />
+  </AuthProvider>
 );
 
 describe('ForumScreen', () => {

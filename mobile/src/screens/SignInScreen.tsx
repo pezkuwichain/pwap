@@ -14,7 +14,6 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { KurdistanColors } from '../theme/colors';
 
@@ -24,7 +23,6 @@ interface SignInScreenProps {
 }
 
 const SignInScreen: React.FC<SignInScreenProps> = ({ onSignIn, onNavigateToSignUp }) => {
-  const { t } = useTranslation();
   const { signIn } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -78,17 +76,17 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ onSignIn, onNavigateToSignU
               <View style={styles.logoContainer}>
                 <Text style={styles.logoText}>PZK</Text>
               </View>
-              <Text style={styles.title}>{t('auth.welcomeBack')}</Text>
-              <Text style={styles.subtitle}>{t('auth.signIn')}</Text>
+              <Text style={styles.title}>Welcome Back!</Text>
+              <Text style={styles.subtitle}>Sign In</Text>
             </View>
 
             {/* Form */}
             <View style={styles.form}>
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>{t('auth.email')}</Text>
+                <Text style={styles.label}>Email</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder={t('auth.email')}
+                  placeholder="Email"
                   value={email}
                   onChangeText={setEmail}
                   keyboardType="email-address"
@@ -98,10 +96,10 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ onSignIn, onNavigateToSignU
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>{t('auth.password')}</Text>
+                <Text style={styles.label}>Password</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder={t('auth.password')}
+                  placeholder="Password"
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry
@@ -111,7 +109,7 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ onSignIn, onNavigateToSignU
 
               <TouchableOpacity style={styles.forgotPassword}>
                 <Text style={styles.forgotPasswordText}>
-                  {t('auth.forgotPassword')}
+                  Forgot Password?
                 </Text>
               </TouchableOpacity>
 
@@ -124,7 +122,7 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ onSignIn, onNavigateToSignU
                 {isLoading ? (
                   <ActivityIndicator color={KurdistanColors.spi} />
                 ) : (
-                  <Text style={styles.signInButtonText}>{t('auth.signIn')}</Text>
+                  <Text style={styles.signInButtonText}>Sign In</Text>
                 )}
               </TouchableOpacity>
 
@@ -139,8 +137,8 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ onSignIn, onNavigateToSignU
                 onPress={onNavigateToSignUp}
               >
                 <Text style={styles.signUpPromptText}>
-                  {t('auth.noAccount')}{' '}
-                  <Text style={styles.signUpLink}>{t('auth.signUp')}</Text>
+                  Don't have an account?{' '}
+                  <Text style={styles.signUpLink}>Sign Up</Text>
                 </Text>
               </TouchableOpacity>
             </View>

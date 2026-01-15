@@ -16,6 +16,16 @@ import { KurdistanColors } from '../theme/colors';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 
+// Cross-platform alert helper
+const showAlert = (title: string, message: string, buttons?: Array<{text: string; onPress?: () => void}>) => {
+  if (Platform.OS === 'web') {
+    window.alert(`${title}\n\n${message}`);
+    if (buttons?.[0]?.onPress) buttons[0].onPress();
+  } else {
+    showAlert(title, message, buttons);
+  }
+};
+
 // Avatar pool - Kurdish/Middle Eastern themed avatars
 const AVATAR_POOL = [
   { id: 'avatar1', emoji: '👨🏻', label: 'Man 1' },
@@ -74,7 +84,7 @@ const AvatarPickerModal: React.FC<AvatarPickerModalProps> = ({
     if (Platform.OS !== 'web') {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert(
+        showAlert(
           'Permission Required',
           'Sorry, we need camera roll permissions to upload your photo!'
         );
@@ -111,63 +121,88 @@ const AvatarPickerModal: React.FC<AvatarPickerModalProps> = ({
           if (__DEV__) console.log('[AvatarPicker] Upload successful:', uploadedUrl);
           setUploadedImageUri(uploadedUrl);
           setSelectedAvatar(null); // Clear emoji selection
-          Alert.alert('Success', 'Photo uploaded successfully!');
+          showAlert('Success', 'Photo uploaded successfully!');
         } else {
           if (__DEV__) console.error('[AvatarPicker] Upload failed: no URL returned');
-          Alert.alert('Upload Failed', 'Could not upload your photo. Please check your internet connection and try again.');
+          showAlert('Upload Failed', 'Could not upload your photo. Please check your internet connection and try again.');
         }
       }
     } catch (error) {
       setIsUploading(false);
       if (__DEV__) console.error('[AvatarPicker] Error picking image:', error);
-      Alert.alert('Error', 'Failed to pick image. Please try again.');
+      showAlert('Error', 'Failed to pick image. Please try again.');
     }
   };
 
   const uploadImageToSupabase = async (imageUri: string): Promise<string | null> => {
     if (!user) {
-      if (__DEV__) console.error('[AvatarPicker] No user found');
+      console.error('[AvatarPicker] No user found');
       return null;
     }
 
     try {
-      if (__DEV__) console.log('[AvatarPicker] Fetching image blob...');
-      // Convert image URI to blob for web, or use file for native
+      console.log('[AvatarPicker] Starting upload for URI:', imageUri.substring(0, 50) + '...');
+
+      // Convert image URI to blob
       const response = await fetch(imageUri);
       const blob = await response.blob();
-      if (__DEV__) console.log('[AvatarPicker] Blob size:', blob.size, 'bytes');
+      console.log('[AvatarPicker] Blob created - size:', blob.size, 'bytes, type:', blob.type);
 
-      // Generate unique filename
-      const fileExt = imageUri.split('.').pop()?.toLowerCase() || 'jpg';
-      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
-      const filePath = `avatars/${fileName}`;
-      if (__DEV__) console.log('[AvatarPicker] Uploading to:', filePath);
-
-      // Upload to Supabase Storage
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('profiles')
-        .upload(filePath, blob, {
-          contentType: `image/${fileExt}`,
-          upsert: false,
-        });
-
-      if (uploadError) {
-        if (__DEV__) console.error('[AvatarPicker] Upload error:', uploadError);
+      if (blob.size === 0) {
+        console.error('[AvatarPicker] Blob is empty!');
         return null;
       }
 
-      if (__DEV__) console.log('[AvatarPicker] Upload successful:', uploadData);
+      // Get file extension from blob type or URI
+      let fileExt = 'jpg';
+      if (blob.type) {
+        // Extract extension from MIME type (e.g., 'image/jpeg' -> 'jpeg')
+        const mimeExt = blob.type.split('/')[1];
+        if (mimeExt && mimeExt !== 'octet-stream') {
+          fileExt = mimeExt === 'jpeg' ? 'jpg' : mimeExt;
+        }
+      } else if (!imageUri.startsWith('blob:') && !imageUri.startsWith('data:')) {
+        // Try to get extension from URI for non-blob URIs
+        const uriExt = imageUri.split('.').pop()?.toLowerCase();
+        if (uriExt && ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(uriExt)) {
+          fileExt = uriExt;
+        }
+      }
+
+      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+      const filePath = `avatars/${fileName}`;
+      const contentType = blob.type || `image/${fileExt}`;
+
+      console.log('[AvatarPicker] Uploading to path:', filePath, 'contentType:', contentType);
+
+      // Upload to Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, blob, {
+          contentType: contentType,
+          upsert: true, // Allow overwriting if file exists
+        });
+
+      if (uploadError) {
+        console.error('[AvatarPicker] Supabase upload error:', uploadError.message, uploadError);
+        // Show more specific error to user
+        showAlert('Upload Error', `Storage error: ${uploadError.message}`);
+        return null;
+      }
+
+      console.log('[AvatarPicker] Upload successful:', uploadData);
 
       // Get public URL
       const { data } = supabase.storage
-        .from('profiles')
+        .from('avatars')
         .getPublicUrl(filePath);
 
-      if (__DEV__) console.log('[AvatarPicker] Public URL:', data.publicUrl);
+      console.log('[AvatarPicker] Public URL:', data.publicUrl);
 
       return data.publicUrl;
-    } catch (error) {
-      if (__DEV__) console.error('[AvatarPicker] Error uploading to Supabase:', error);
+    } catch (error: any) {
+      console.error('[AvatarPicker] Error uploading to Supabase:', error?.message || error);
+      showAlert('Upload Error', `Failed to upload: ${error?.message || 'Unknown error'}`);
       return null;
     }
   };
@@ -176,7 +211,7 @@ const AvatarPickerModal: React.FC<AvatarPickerModalProps> = ({
     const avatarToSave = uploadedImageUri || selectedAvatar;
 
     if (!avatarToSave || !user) {
-      Alert.alert('Error', 'Please select an avatar or upload a photo');
+      showAlert('Error', 'Please select an avatar or upload a photo');
       return;
     }
 
@@ -199,7 +234,7 @@ const AvatarPickerModal: React.FC<AvatarPickerModalProps> = ({
 
       if (__DEV__) console.log('[AvatarPicker] Avatar saved successfully:', data);
 
-      Alert.alert('Success', 'Avatar updated successfully!');
+      showAlert('Success', 'Avatar updated successfully!');
 
       if (onAvatarSelected) {
         onAvatarSelected(avatarToSave);
@@ -208,7 +243,7 @@ const AvatarPickerModal: React.FC<AvatarPickerModalProps> = ({
       onClose();
     } catch (error) {
       if (__DEV__) console.error('[AvatarPicker] Error updating avatar:', error);
-      Alert.alert('Error', 'Failed to update avatar. Please try again.');
+      showAlert('Error', 'Failed to update avatar. Please try again.');
     } finally {
       setIsSaving(false);
     }

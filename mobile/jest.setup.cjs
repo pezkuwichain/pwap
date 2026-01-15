@@ -194,29 +194,6 @@ jest.mock('../shared/lib/p2p-fiat', () => ({
   acceptOffer: jest.fn(() => Promise.resolve(true)),
 }));
 
-// Mock shared i18n module
-jest.mock('../shared/i18n', () => ({
-  translations: {
-    en: { welcome: 'Welcome' },
-    tr: { welcome: 'Hoş geldiniz' },
-    kmr: { welcome: 'Bi xêr hatî' },
-    ckb: { welcome: 'بەخێربێن' },
-    ar: { welcome: 'مرحبا' },
-    fa: { welcome: 'خوش آمدید' },
-  },
-  LANGUAGES: [
-    { code: 'en', name: 'English', nativeName: 'English', rtl: false },
-    { code: 'tr', name: 'Turkish', nativeName: 'Türkçe', rtl: false },
-    { code: 'kmr', name: 'Kurdish Kurmanji', nativeName: 'Kurmancî', rtl: false },
-    { code: 'ckb', name: 'Kurdish Sorani', nativeName: 'سۆرانی', rtl: true },
-    { code: 'ar', name: 'Arabic', nativeName: 'العربية', rtl: true },
-    { code: 'fa', name: 'Persian', nativeName: 'فارسی', rtl: true },
-  ],
-  DEFAULT_LANGUAGE: 'en',
-  LANGUAGE_STORAGE_KEY: '@language',
-  isRTL: jest.fn((code) => ['ckb', 'ar', 'fa'].includes(code)),
-}));
-
 // Mock shared wallet utilities (handles import.meta)
 jest.mock('../shared/lib/wallet', () => ({
   formatBalance: jest.fn((amount, decimals) => '0.00'),
@@ -239,33 +216,6 @@ jest.mock('../shared/lib/staking', () => ({
 // Mock shared citizenship workflow (handles polkadot/extension-dapp)
 jest.mock('../shared/lib/citizenship-workflow', () => ({
   createCitizenshipRequest: jest.fn(() => Promise.resolve({ id: '123' })),
-}));
-
-// Mock react-i18next for i18n initialization
-jest.mock('react-i18next', () => ({
-  ...jest.requireActual('react-i18next'),
-  useTranslation: () => ({
-    t: (key) => key,
-    i18n: {
-      language: 'en',
-      changeLanguage: jest.fn(() => Promise.resolve()),
-      isInitialized: true,
-    },
-  }),
-  initReactI18next: {
-    type: '3rdParty',
-    init: jest.fn(),
-  },
-}));
-
-// Mock i18next
-jest.mock('i18next', () => ({
-  ...jest.requireActual('i18next'),
-  init: jest.fn(() => Promise.resolve()),
-  changeLanguage: jest.fn(() => Promise.resolve()),
-  use: jest.fn(function () { return this; }),
-  language: 'en',
-  isInitialized: true,
 }));
 
 // Note: Alert is mocked in individual test files where needed

@@ -14,7 +14,6 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import type { NavigationProp } from '@react-navigation/native';
 import type { BottomTabParamList } from '../navigation/BottomTabNavigator';
@@ -82,7 +81,6 @@ const getEmojiFromAvatarId = (avatarId: string): string => {
 interface DashboardScreenProps {}
 
 const DashboardScreen: React.FC<DashboardScreenProps> = () => {
-  const { t } = useTranslation();
   const navigation = useNavigation<NavigationProp<BottomTabParamList & RootStackParamList>>();
   const { user } = useAuth();
   const { api, isApiReady, selectedAccount } = usePezkuwi();
@@ -171,8 +169,8 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
 
   const showComingSoon = (featureName: string) => {
     Alert.alert(
-      t('settingsScreen.comingSoon'),
-      `${featureName} ${t('settingsScreen.comingSoonMessage')}`,
+      'Coming Soon',
+      `${featureName} will be available soon!`,
       [{ text: 'OK' }]
     );
   };
@@ -431,21 +429,8 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
             </TouchableOpacity>
           </View>
           <View style={styles.appsGrid}>
-            {/* Wallet Visitors - Everyone can use */}
-            {renderAppIcon('Wallet Visitors', '👁️', () => showComingSoon('Wallet Visitors'), true)}
-
-            {/* Wallet Welati - Only Citizens can use */}
-            {renderAppIcon('Wallet Welati', '🏛️', () => {
-              if (tikis.includes('Citizen') || tikis.includes('Welati')) {
-                showComingSoon('Wallet Welati');
-              } else {
-                Alert.alert(
-                  'Citizens Only',
-                  'Wallet Welati is only available to Pezkuwi citizens. Please apply for citizenship first.',
-                  [{ text: 'OK' }]
-                );
-              }
-            }, true, !tikis.includes('Citizen') && !tikis.includes('Welati'))}
+            {/* Wallet - Navigate to WalletScreen */}
+            {renderAppIcon('Wallet', '👛', () => navigation.navigate('Wallet'), true)}
 
             {renderAppIcon('Bank', qaBank, () => showComingSoon('Bank'), false, true)}
             {renderAppIcon('Exchange', qaExchange, () => showComingSoon('Swap'), false)}

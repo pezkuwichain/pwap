@@ -1,6 +1,5 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import { LanguageProvider } from '../../contexts/LanguageContext';
 import { BiometricAuthProvider } from '../../contexts/BiometricAuthContext';
 import LockScreen from '../LockScreen';
 
@@ -10,11 +9,9 @@ jest.mock('@react-navigation/native', () => ({
 }));
 
 const LockScreenWrapper = () => (
-  <LanguageProvider>
-    <BiometricAuthProvider>
-      <LockScreen />
-    </BiometricAuthProvider>
-  </LanguageProvider>
+  <BiometricAuthProvider>
+    <LockScreen />
+  </BiometricAuthProvider>
 );
 
 describe('LockScreen', () => {

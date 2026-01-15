@@ -10,14 +10,12 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import { usePezkuwi } from '../contexts/PezkuwiContext';
 import { getCitizenshipStatus } from '@pezkuwi/lib/citizenship-workflow';
 import { KurdistanColors } from '../theme/colors';
 
 const BeCitizenClaimScreen: React.FC = () => {
-  const { t } = useTranslation();
   const navigation = useNavigation();
   const { api, selectedAccount } = usePezkuwi();
   const [isSubmitting, setIsSubmitting] = useState(false);
