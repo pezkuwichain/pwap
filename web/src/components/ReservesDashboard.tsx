@@ -245,7 +245,7 @@ export const ReservesDashboard: React.FC<ReservesDashboardProps> = ({
                 <AlertDescription>
                   <p className="font-semibold mb-2">How to Verify Reserves:</p>
                   <ol className="list-decimal list-inside space-y-1 text-sm">
-                    <li>Check on-chain wUSDT supply via Polkadot.js Apps</li>
+                    <li>Check on-chain wUSDT supply via Pezkuwi Explorer</li>
                     <li>Verify multisig account balance (if reserves on-chain)</li>
                     <li>Compare with off-chain treasury (bank/exchange account)</li>
                     <li>Ensure ratio ≥ 100%</li>
@@ -257,16 +257,16 @@ export const ReservesDashboard: React.FC<ReservesDashboardProps> = ({
                 <p className="text-sm text-gray-400 mb-3">Quick Links:</p>
                 <div className="space-y-2">
                   <a
-                    href="https://polkadot.js.org/apps/?rpc=ws://127.0.0.1:9944#/assets"
+                    href="https://pezkuwichain.io/explorer/assets"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 text-blue-400 hover:text-blue-300 text-sm"
                   >
                     <ExternalLink className="h-4 w-4" />
-                    View wUSDT Asset on Polkadot.js
+                    View wUSDT Asset on Explorer
                   </a>
                   <a
-                    href="https://polkadot.js.org/apps/?rpc=ws://127.0.0.1:9944#/accounts"
+                    href="https://pezkuwichain.io/explorer/accounts"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 text-blue-400 hover:text-blue-300 text-sm"

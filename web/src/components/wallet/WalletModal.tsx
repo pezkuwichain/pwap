@@ -105,9 +105,9 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
             {selectedAccount ? 'Wallet Connected' : 'Connect Wallet'}
           </DialogTitle>
           <DialogDescription>
-            {selectedAccount 
-              ? 'Manage your Polkadot account' 
-              : 'Connect your Polkadot.js extension to interact with PezkuwiChain'}
+            {selectedAccount
+              ? 'Manage your Pezkuwi account'
+              : 'Connect your Pezkuwi Wallet extension to interact with PezkuwiChain'}
           </DialogDescription>
         </DialogHeader>
 
@@ -116,20 +116,20 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
           <div className="space-y-4">
             <div className="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
               <p className="text-sm text-yellow-300">
-                Polkadot.js extension not detected. Please install it to continue.
+                Pezkuwi Wallet extension not detected. Please install it to continue.
               </p>
             </div>
 
             <div className="flex gap-3">
               <a
-                href="https://polkadot.js.org/extension/"
+                href="https://js.pezkuwichain.io"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex-1"
               >
-                <Button className="w-full bg-orange-600 hover:bg-orange-700">
+                <Button className="w-full bg-green-600 hover:bg-green-700">
                   <Chrome className="mr-2 h-4 w-4" />
-                  Install Extension
+                  Install Pezkuwi Wallet
                 </Button>
               </a>
             </div>
@@ -220,7 +220,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
               <div>
                 <div className="text-xs text-gray-400 mb-1">Source</div>
                 <div className="text-sm text-gray-300">
-                  {selectedAccount.meta.source || 'polkadot-js'}
+                  {selectedAccount.meta.source || 'pezkuwi'}
                 </div>
               </div>
             </div>
@@ -230,7 +230,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
               <Button
                 variant="outline"
                 className="flex-1"
-                onClick={() => window.open(`https://polkadot.js.org/apps/?rpc=ws://127.0.0.1:9944#/explorer`, '_blank')}
+                onClick={() => window.open(`https://pezkuwichain.io/explorer`, '_blank')}
               >
                 <ExternalLink className="mr-2 h-4 w-4" />
                 View on Explorer
@@ -306,13 +306,13 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                   className="w-full bg-gradient-to-r from-purple-600 to-cyan-400 hover:from-purple-700 hover:to-cyan-500"
                 >
                   <Wallet className="mr-2 h-4 w-4" />
-                  Connect Polkadot.js
+                  Connect Pezkuwi Wallet
                 </Button>
-                
+
                 <div className="text-sm text-gray-400 text-center">
-                  Don&apos;t have Polkadot.js?{' '}
+                  Don&apos;t have Pezkuwi Wallet?{' '}
                   <a
-                    href="https://polkadot.js.org/extension/"
+                    href="https://js.pezkuwichain.io"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-purple-400 hover:underline"

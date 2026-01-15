@@ -167,12 +167,12 @@ export const MultisigMembers: React.FC<MultisigMembersProps> = ({
       {multisigAddress && (
         <div className="mt-4 text-center">
           <a
-            href={`https://polkadot.js.org/apps/?rpc=ws://127.0.0.1:9944#/accounts/${multisigAddress}`}
+            href={`https://pezkuwichain.io/explorer/accounts/${multisigAddress}`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300"
           >
-            View on Polkadot.js
+            View on Explorer
             <ExternalLink className="h-4 w-4" />
           </a>
         </div>

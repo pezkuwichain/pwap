@@ -124,7 +124,7 @@ export function ReferralProvider({ children }: { children: ReactNode }) {
         description: 'Please sign the transaction...',
       });
 
-      await initiateReferral(api, { address: account, meta: { source: 'polkadot-js' } } as Record<string, unknown>, referredAddress);
+      await initiateReferral(api, { address: account, meta: { source: 'pezkuwi' } } as Record<string, unknown>, referredAddress);
 
       toast({
         title: 'Success!',
