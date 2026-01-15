@@ -38,7 +38,7 @@
     "@pezkuwi/util": "14.0.11",
     "@pezkuwi/util-crypto": "14.0.11",
     "@react-native-async-storage/async-storage": "^2.2.0",
-    "@react-native-picker/picker": "^2.9.2",
+    "@react-native-picker/picker": "2.11.1",
     "@react-navigation/bottom-tabs": "^7.8.5",
     "@react-navigation/native": "^7.1.20",
     "@react-navigation/stack": "^7.6.4",
@@ -88,9 +88,9 @@
     "@pezkuwi/util-crypto": "14.0.11"
   },
   "devDependencies": {
+    "@expo/ngrok": "^4.1.0",
     "@pezkuwi/extension-dapp": "0.62.14",
     "@pezkuwi/extension-inject": "0.62.14",
-    "@expo/ngrok": "^4.1.0",
     "@testing-library/jest-native": "^5.4.3",
     "@testing-library/react-native": "^13.3.3",
     "@types/invariant": "^2",
@@ -110,5 +110,10 @@
     "typescript": "~5.9.2",
     "typescript-eslint": "^8.47.0"
   },
-  "private": true
+  "private": true,
+  "expo": {
+    "install": {
+      "exclude": ["@types/react"]
+    }
+  }
 }

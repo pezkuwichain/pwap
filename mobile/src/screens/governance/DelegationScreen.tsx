@@ -114,7 +114,7 @@ const DelegationScreen: React.FC = () => {
 
         // Fetch user's delegations
         if (selectedAccount) {
-          const userVoting = await api.query.democracy.voting(selectedAccount.address);
+          const userVoting = await api.query.democracy.voting(selectedAccount.address) as any;
           if (userVoting.isDelegating) {
             const delegating = userVoting.asDelegating;
             setUserDelegations([{

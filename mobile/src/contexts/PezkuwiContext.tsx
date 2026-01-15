@@ -173,7 +173,7 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({ children }) =>
         newApi.registry.setChainProperties(
           newApi.registry.createType('ChainProperties', {
             ss58Format: networkConfig.ss58Format,
-          })
+          }) as any
         );
         console.log(`✅ [Pezkuwi] API created with SS58 format: ${networkConfig.ss58Format}`);
 

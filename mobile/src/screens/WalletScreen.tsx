@@ -205,13 +205,13 @@ const WalletScreen: React.FC = () => {
         accountId = selectedAccount.address as any;
       }
 
-      const accountInfo = await api.query.system.account(accountId);
+      const accountInfo = await api.query.system.account(accountId) as any;
       const hezBalance = (Number(accountInfo.data.free.toString()) / 1e12).toFixed(2);
 
       let pezBalance = '0.00';
       try {
         if (api.query.assets?.account) {
-          const pezAsset = await api.query.assets.account(1, accountId);
+          const pezAsset = await api.query.assets.account(1, accountId) as any;
           if (pezAsset.isSome) pezBalance = (Number(pezAsset.unwrap().balance.toString()) / 1e12).toFixed(2);
         }
       } catch (e) {
@@ -222,9 +222,9 @@ const WalletScreen: React.FC = () => {
       try {
         if (api.query.assets?.account) {
           // Check ID 1000 first (as per constants), fallback to 2 just in case
-          let usdtAsset = await api.query.assets.account(1000, accountId);
+          let usdtAsset = await api.query.assets.account(1000, accountId) as any;
           if (usdtAsset.isNone) {
-             usdtAsset = await api.query.assets.account(2, accountId);
+             usdtAsset = await api.query.assets.account(2, accountId) as any;
           }
 
           if (usdtAsset.isSome) {

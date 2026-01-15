@@ -47,12 +47,12 @@ const ElectionsScreen: React.FC = () => {
 
       // Fetch commission proposals (acting as elections)
       if (api.query.dynamicCommissionCollective?.proposals) {
-        const proposalHashes = await api.query.dynamicCommissionCollective.proposals();
+        const proposalHashes = await api.query.dynamicCommissionCollective.proposals() as any;
 
         const electionsData: ElectionInfo[] = [];
 
-        for (const hash of proposalHashes) {
-          const voting = await api.query.dynamicCommissionCollective.voting(hash);
+        for (const hash of (proposalHashes || [])) {
+          const voting = await api.query.dynamicCommissionCollective.voting(hash) as any;
           if (voting.isSome) {
             const voteData = voting.unwrap();
             electionsData.push({

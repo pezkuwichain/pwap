@@ -289,7 +289,7 @@ export async function checkStakingScoreTracking(
       return false;
     }
 
-    const startBlock = await api.query.stakingScore.stakingStartBlock(address);
+    const startBlock = await api.query.stakingScore.stakingStartBlock(address) as any;
     return !startBlock.isNone;
   } catch (error) {
     console.error('Error checking staking score tracking:', error);

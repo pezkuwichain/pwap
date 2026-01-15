@@ -91,18 +91,18 @@ const PoolBrowserScreen: React.FC = () => {
         try {
           if (asset1 === 0) {
             // Native token (wHEZ)
-            const balance1 = await api.query.system.account(poolAccount);
+            const balance1 = await api.query.system.account(poolAccount) as any;
             reserve1 = balance1.data.free.toString();
           } else {
-            const balance1 = await api.query.assets.account(asset1, poolAccount);
+            const balance1 = await api.query.assets.account(asset1, poolAccount) as any;
             reserve1 = balance1.isSome ? balance1.unwrap().balance.toString() : '0';
           }
 
           if (asset2 === 0) {
-            const balance2 = await api.query.system.account(poolAccount);
+            const balance2 = await api.query.system.account(poolAccount) as any;
             reserve2 = balance2.data.free.toString();
           } else {
-            const balance2 = await api.query.assets.account(asset2, poolAccount);
+            const balance2 = await api.query.assets.account(asset2, poolAccount) as any;
             reserve2 = balance2.isSome ? balance2.unwrap().balance.toString() : '0';
           }
         } catch (error) {

@@ -90,7 +90,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
         {
           text: 'Send Reset Link',
           onPress: async () => {
-            const { error } = await resetPassword(user.email);
+            const { error } = await resetPassword(user.email!);
             if (error) {
               Alert.alert('Error', error.message || 'Failed to send reset email');
             } else {

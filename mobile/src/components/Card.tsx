@@ -47,7 +47,12 @@ export const Card: React.FC<CardProps> = ({
         testID={testID}
         onPress={onPress}
         style={({ pressed }) => [
-          ...cardStyle,
+          styles.card,
+          variant === 'elevated' && styles.elevated,
+          variant === 'outlined' && styles.outlined,
+          variant === 'filled' && styles.filled,
+          elevation ? { elevation } : null,
+          style,
           pressed && styles.pressed,
         ]}
       >
@@ -56,7 +61,7 @@ export const Card: React.FC<CardProps> = ({
     );
   }
 
-  return <View testID={testID} style={cardStyle}>{content}</View>;
+  return <View testID={testID} style={cardStyle as any}>{content}</View>;
 };
 
 const styles = StyleSheet.create({

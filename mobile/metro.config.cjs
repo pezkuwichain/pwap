@@ -23,21 +23,22 @@ const projectRoot = __dirname;
 // FILE EXTENSIONS
 // ============================================
 
+// Extend default extensions instead of replacing them
 config.resolver.sourceExts = [
+  ...config.resolver.sourceExts,
   'expo.ts',
   'expo.tsx',
   'expo.js',
   'expo.jsx',
-  'ts',
-  'tsx',
-  'js',
-  'jsx',
-  'json',
   'wasm',
-  'svg',
-  'cjs',
-  'mjs',
 ];
+
+// SVG should be handled as source file for react-native-svg transformer
+// Remove svg from assetExts if present, add to sourceExts
+config.resolver.assetExts = config.resolver.assetExts.filter(ext => ext !== 'svg');
+if (!config.resolver.sourceExts.includes('svg')) {
+  config.resolver.sourceExts.push('svg');
+}
 
 // ============================================
 // NODE POLYFILLS

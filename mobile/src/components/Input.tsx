@@ -16,6 +16,7 @@ interface InputProps extends TextInputProps {
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
   onRightIconPress?: () => void;
+  disabled?: boolean;
 }
 
 /**
@@ -30,6 +31,7 @@ export const Input: React.FC<InputProps> = ({
   rightIcon,
   onRightIconPress,
   style,
+  disabled,
   ...props
 }) => {
   const [isFocused, setIsFocused] = useState(false);
@@ -58,8 +60,8 @@ export const Input: React.FC<InputProps> = ({
         {leftIcon && <View style={styles.leftIcon}>{leftIcon}</View>}
         <TextInput
           {...props}
-          editable={props.editable !== undefined ? props.editable : !props.disabled}
-          style={[styles.input, leftIcon && styles.inputWithLeftIcon, style]}
+          editable={props.editable !== undefined ? props.editable : !disabled}
+          style={[styles.input, leftIcon && styles.inputWithLeftIcon, style] as any}
           onFocus={(e) => {
             setIsFocused(true);
             props.onFocus?.(e);
@@ -94,7 +96,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: AppColors.textSecondary,
     marginBottom: 8,
-    transition: 'all 0.2s',
   },
   labelFocused: {
     color: KurdistanColors.kesk,
@@ -115,7 +116,6 @@ const styles = StyleSheet.create({
   inputContainerFocused: {
     borderColor: KurdistanColors.kesk,
     borderWidth: 2,
-    boxShadow: '0px 2px 4px rgba(0, 128, 0, 0.1)',
     elevation: 2,
   },
   inputContainerError: {
