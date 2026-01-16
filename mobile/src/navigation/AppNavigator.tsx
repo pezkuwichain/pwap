@@ -5,6 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../contexts/AuthContext'; // Import useAuth
 import { KurdistanColors } from '../theme/colors';
+import { SimpleHeader } from '../components/navigation/SharedHeader';
 
 // Screens
 import WelcomeScreen from '../screens/WelcomeScreen';
@@ -147,14 +148,18 @@ const AppNavigator: React.FC = () => {
               component={SettingsScreen}
               options={{
                 presentation: 'modal',
-                headerShown: false,
+                headerShown: true,
+                headerTitle: 'Settings',
+                header: (props) => <SimpleHeader {...props} />,
               }}
             />
             <Stack.Screen
               name="BeCitizenChoice"
               component={BeCitizenChoiceScreen}
               options={{
-                headerShown: false,
+                headerShown: true,
+                headerTitle: 'Citizenship',
+                header: (props) => <SimpleHeader {...props} />,
               }}
             />
             <Stack.Screen
@@ -179,149 +184,253 @@ const AppNavigator: React.FC = () => {
               name="EditProfile"
               component={EditProfileScreen}
               options={{
-                headerShown: false,
+                headerShown: true,
+                headerTitle: 'Edit Profile',
+                header: (props) => <SimpleHeader {...props} />,
               }}
             />
             <Stack.Screen
               name="Wallet"
               component={WalletScreen}
               options={{
-                headerShown: false,
+                headerShown: true,
+                headerTitle: 'Wallet',
+                header: (props) => <SimpleHeader {...props} />,
               }}
             />
             <Stack.Screen
               name="WalletSetup"
               component={WalletSetupScreen}
               options={{
-                headerShown: false,
+                headerShown: true,
+                headerTitle: 'Wallet Setup',
+                header: (props) => <SimpleHeader {...props} />,
               }}
             />
             <Stack.Screen
               name="Swap"
               component={SwapScreen}
               options={{
-                headerShown: false,
+                headerShown: true,
+                headerTitle: 'Swap',
+                header: (props) => <SimpleHeader {...props} />,
               }}
             />
             <Stack.Screen
               name="P2P"
               component={P2PScreen}
-              options={{ headerShown: false }}
+              options={{
+                headerShown: true,
+                headerTitle: 'P2P Market',
+                header: (props) => <SimpleHeader {...props} />,
+              }}
             />
             <Stack.Screen
               name="Forum"
               component={ForumScreen}
-              options={{ headerShown: false }}
+              options={{
+                headerShown: true,
+                headerTitle: 'Forum',
+                header: (props) => <SimpleHeader {...props} />,
+              }}
             />
             <Stack.Screen
               name="TaxZekat"
               component={TaxZekatScreen}
-              options={{ headerShown: false }}
+              options={{
+                headerShown: true,
+                headerTitle: 'Tax & Zekat',
+                header: (props) => <SimpleHeader {...props} />,
+              }}
             />
             <Stack.Screen
               name="Launchpad"
               component={LaunchpadScreen}
-              options={{ headerShown: false }}
+              options={{
+                headerShown: true,
+                headerTitle: 'Launchpad',
+                header: (props) => <SimpleHeader {...props} />,
+              }}
             />
             <Stack.Screen
               name="President"
               component={PresidentScreen}
-              options={{ headerShown: false }}
+              options={{
+                headerShown: true,
+                headerTitle: 'Serok',
+                header: (props) => <SimpleHeader {...props} />,
+              }}
             />
             <Stack.Screen
               name="Vote"
               component={VoteScreen}
-              options={{ headerShown: false }}
+              options={{
+                headerShown: true,
+                headerTitle: 'Vote',
+                header: (props) => <SimpleHeader {...props} />,
+              }}
             />
             <Stack.Screen
               name="Validators"
               component={ValidatorsScreen}
-              options={{ headerShown: false }}
+              options={{
+                headerShown: true,
+                headerTitle: 'Validators',
+                header: (props) => <SimpleHeader {...props} />,
+              }}
             />
             <Stack.Screen
               name="Proposals"
               component={ProposalsScreen}
-              options={{ headerShown: false }}
+              options={{
+                headerShown: true,
+                headerTitle: 'Proposals',
+                header: (props) => <SimpleHeader {...props} />,
+              }}
             />
             <Stack.Screen
               name="Identity"
               component={IdentityScreen}
-              options={{ headerShown: false }}
+              options={{
+                headerShown: true,
+                headerTitle: 'Identity',
+                header: (props) => <SimpleHeader {...props} />,
+              }}
             />
             <Stack.Screen
               name="KurdMedia"
               component={KurdMediaScreen}
-              options={{ headerShown: false }}
+              options={{
+                headerShown: true,
+                headerTitle: 'KurdMedia',
+                header: (props) => <SimpleHeader {...props} />,
+              }}
             />
             <Stack.Screen
               name="Perwerde"
               component={PerwerdeScreen}
-              options={{ headerShown: false }}
+              options={{
+                headerShown: true,
+                headerTitle: 'Perwerde',
+                header: (props) => <SimpleHeader {...props} />,
+              }}
             />
             <Stack.Screen
               name="B2B"
               component={B2BScreen}
-              options={{ headerShown: false }}
+              options={{
+                headerShown: true,
+                headerTitle: 'B2B Marketplace',
+                header: (props) => <SimpleHeader {...props} />,
+              }}
             />
             <Stack.Screen
               name="Bank"
               component={BankScreen}
-              options={{ headerShown: false }}
+              options={{
+                headerShown: true,
+                headerTitle: 'Bank',
+                header: (props) => <SimpleHeader {...props} />,
+              }}
             />
             <Stack.Screen
               name="Assembly"
               component={AssemblyScreen}
-              options={{ headerShown: false }}
+              options={{
+                headerShown: true,
+                headerTitle: 'Assembly',
+                header: (props) => <SimpleHeader {...props} />,
+              }}
             />
             <Stack.Screen
               name="Justice"
               component={JusticeScreen}
-              options={{ headerShown: false }}
+              options={{
+                headerShown: true,
+                headerTitle: 'Justice',
+                header: (props) => <SimpleHeader {...props} />,
+              }}
             />
             <Stack.Screen
               name="Polls"
               component={PollsScreen}
-              options={{ headerShown: false }}
+              options={{
+                headerShown: true,
+                headerTitle: 'Polls',
+                header: (props) => <SimpleHeader {...props} />,
+              }}
             />
             <Stack.Screen
               name="WhatsKURD"
               component={WhatsKURDScreen}
-              options={{ headerShown: false }}
+              options={{
+                headerShown: true,
+                headerTitle: 'whatsKURD',
+                header: (props) => <SimpleHeader {...props} />,
+              }}
             />
             <Stack.Screen
               name="Events"
               component={EventsScreen}
-              options={{ headerShown: false }}
+              options={{
+                headerShown: true,
+                headerTitle: 'Events',
+                header: (props) => <SimpleHeader {...props} />,
+              }}
             />
             <Stack.Screen
               name="Help"
               component={HelpScreen}
-              options={{ headerShown: false }}
+              options={{
+                headerShown: true,
+                headerTitle: 'Help',
+                header: (props) => <SimpleHeader {...props} />,
+              }}
             />
             <Stack.Screen
               name="Music"
               component={MusicScreen}
-              options={{ headerShown: false }}
+              options={{
+                headerShown: true,
+                headerTitle: 'Music',
+                header: (props) => <SimpleHeader {...props} />,
+              }}
             />
             <Stack.Screen
               name="VPN"
               component={VPNScreen}
-              options={{ headerShown: false }}
+              options={{
+                headerShown: true,
+                headerTitle: 'VPN',
+                header: (props) => <SimpleHeader {...props} />,
+              }}
             />
             <Stack.Screen
               name="University"
               component={UniversityScreen}
-              options={{ headerShown: false }}
+              options={{
+                headerShown: true,
+                headerTitle: 'University',
+                header: (props) => <SimpleHeader {...props} />,
+              }}
             />
             <Stack.Screen
               name="Certificates"
               component={CertificatesScreen}
-              options={{ headerShown: false }}
+              options={{
+                headerShown: true,
+                headerTitle: 'Certificates',
+                header: (props) => <SimpleHeader {...props} />,
+              }}
             />
             <Stack.Screen
               name="Research"
               component={ResearchScreen}
-              options={{ headerShown: false }}
+              options={{
+                headerShown: true,
+                headerTitle: 'Research',
+                header: (props) => <SimpleHeader {...props} />,
+              }}
             />
           </>
         )}

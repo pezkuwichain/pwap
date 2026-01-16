@@ -84,7 +84,7 @@ interface DashboardScreenProps {}
 const DashboardScreen: React.FC<DashboardScreenProps> = () => {
   const navigation = useNavigation<NavigationProp<BottomTabParamList & RootStackParamList>>();
   const { user } = useAuth();
-  const { api, isApiReady, selectedAccount } = usePezkuwi();
+  const { api, isApiReady, selectedAccount, accounts, connectWallet } = usePezkuwi();
   const [profileData, setProfileData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [avatarModalVisible, setAvatarModalVisible] = useState(false);
@@ -167,6 +167,21 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
 
   // Check if user is a visitor (default when no blockchain wallet or no tikis)
   const isVisitor = !selectedAccount || tikis.length === 0;
+
+  // Handle wallet connection
+  const handleConnectWallet = async () => {
+    if (accounts.length === 0) {
+      navigation.navigate('WalletSetup');
+      return;
+    }
+    try {
+      await connectWallet();
+      Alert.alert('Girêdayî / Connected', 'Cîzdanê te bi serkeftî girêdayî bû!\nYour wallet has been connected successfully!');
+    } catch (error) {
+      if (__DEV__) console.error('Wallet connection error:', error);
+      Alert.alert('Çewtî / Error', 'Cîzdan nehat girêdan.\nFailed to connect wallet.');
+    }
+  };
   const primaryRole = tikis.length > 0 ? getPrimaryRole(tikis) : 'Visitor';
 
   const showComingSoon = (featureName: string) => {
@@ -463,10 +478,10 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
               {!selectedAccount && (
                 <TouchableOpacity
                   style={styles.connectWalletBadge}
-                  onPress={() => navigation.navigate('Wallet')}
+                  onPress={handleConnectWallet}
                 >
                   <Text style={styles.connectWalletIcon}>👛</Text>
-                  <Text style={styles.connectWalletText}>Connect</Text>
+                  <Text style={styles.connectWalletText}>Girêde</Text>
                 </TouchableOpacity>
               )}
             </View>
