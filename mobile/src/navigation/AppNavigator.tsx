@@ -31,6 +31,18 @@ import IdentityScreen from '../screens/IdentityScreen';
 import KurdMediaScreen from '../screens/KurdMediaScreen';
 import PerwerdeScreen from '../screens/PerwerdeScreen';
 import B2BScreen from '../screens/B2BScreen';
+import BankScreen from '../screens/BankScreen';
+import AssemblyScreen from '../screens/AssemblyScreen';
+import JusticeScreen from '../screens/JusticeScreen';
+import PollsScreen from '../screens/PollsScreen';
+import WhatsKURDScreen from '../screens/WhatsKURDScreen';
+import EventsScreen from '../screens/EventsScreen';
+import HelpScreen from '../screens/HelpScreen';
+import MusicScreen from '../screens/MusicScreen';
+import VPNScreen from '../screens/VPNScreen';
+import UniversityScreen from '../screens/UniversityScreen';
+import CertificatesScreen from '../screens/CertificatesScreen';
+import ResearchScreen from '../screens/ResearchScreen';
 
 export type RootStackParamList = {
   Welcome: undefined;
@@ -57,6 +69,18 @@ export type RootStackParamList = {
   KurdMedia: undefined;
   Perwerde: undefined;
   B2B: undefined;
+  Bank: undefined;
+  Assembly: undefined;
+  Justice: undefined;
+  Polls: undefined;
+  WhatsKURD: undefined;
+  Events: undefined;
+  Help: undefined;
+  Music: undefined;
+  VPN: undefined;
+  University: undefined;
+  Certificates: undefined;
+  Research: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -237,6 +261,66 @@ const AppNavigator: React.FC = () => {
             <Stack.Screen
               name="B2B"
               component={B2BScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Bank"
+              component={BankScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Assembly"
+              component={AssemblyScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Justice"
+              component={JusticeScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Polls"
+              component={PollsScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="WhatsKURD"
+              component={WhatsKURDScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Events"
+              component={EventsScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Help"
+              component={HelpScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Music"
+              component={MusicScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="VPN"
+              component={VPNScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="University"
+              component={UniversityScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Certificates"
+              component={CertificatesScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Research"
+              component={ResearchScreen}
               options={{ headerShown: false }}
             />
           </>
