@@ -7,10 +7,12 @@ import { KurdistanColors } from '../theme/colors';
 import { GradientHeader, SimpleHeader } from '../components/navigation/SharedHeader';
 
 // Screens
-import DashboardScreen from '../screens/DashboardScreen';
 import AppsScreen from '../screens/AppsScreen';
 import ReferralScreen from '../screens/ReferralScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+
+// Nested Stack Navigator for Home tab
+import HomeStackNavigator from './HomeStackNavigator';
 
 // Removed screens from tabs (accessible via Dashboard/Apps):
 // WalletScreen, SwapScreen, P2PScreen, EducationScreen, ForumScreen
@@ -63,7 +65,7 @@ const BottomTabNavigator: React.FC = () => {
     >
       <Tab.Screen
         name="Home"
-        component={DashboardScreen}
+        component={HomeStackNavigator}
         options={{
           headerShown: false,
           tabBarLabel: 'Home',
