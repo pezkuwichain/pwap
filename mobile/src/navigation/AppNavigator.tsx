@@ -19,6 +19,18 @@ import EditProfileScreen from '../screens/EditProfileScreen';
 import WalletScreen from '../screens/WalletScreen';
 import WalletSetupScreen from '../screens/WalletSetupScreen';
 import SwapScreen from '../screens/SwapScreen';
+import P2PScreen from '../screens/P2PScreen';
+import ForumScreen from '../screens/ForumScreen';
+import TaxZekatScreen from '../screens/TaxZekatScreen';
+import LaunchpadScreen from '../screens/LaunchpadScreen';
+import PresidentScreen from '../screens/PresidentScreen';
+import VoteScreen from '../screens/VoteScreen';
+import ValidatorsScreen from '../screens/ValidatorsScreen';
+import ProposalsScreen from '../screens/ProposalsScreen';
+import IdentityScreen from '../screens/IdentityScreen';
+import KurdMediaScreen from '../screens/KurdMediaScreen';
+import PerwerdeScreen from '../screens/PerwerdeScreen';
+import B2BScreen from '../screens/B2BScreen';
 
 export type RootStackParamList = {
   Welcome: undefined;
@@ -33,6 +45,18 @@ export type RootStackParamList = {
   BeCitizenChoice: undefined;
   BeCitizenApply: undefined;
   BeCitizenClaim: undefined;
+  P2P: undefined;
+  Forum: undefined;
+  TaxZekat: undefined;
+  Launchpad: undefined;
+  President: undefined;
+  Vote: undefined;
+  Validators: undefined;
+  Proposals: undefined;
+  Identity: undefined;
+  KurdMedia: undefined;
+  Perwerde: undefined;
+  B2B: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -154,6 +178,66 @@ const AppNavigator: React.FC = () => {
               options={{
                 headerShown: false,
               }}
+            />
+            <Stack.Screen
+              name="P2P"
+              component={P2PScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Forum"
+              component={ForumScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="TaxZekat"
+              component={TaxZekatScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Launchpad"
+              component={LaunchpadScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="President"
+              component={PresidentScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Vote"
+              component={VoteScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Validators"
+              component={ValidatorsScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Proposals"
+              component={ProposalsScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Identity"
+              component={IdentityScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="KurdMedia"
+              component={KurdMediaScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Perwerde"
+              component={PerwerdeScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="B2B"
+              component={B2BScreen}
+              options={{ headerShown: false }}
             />
           </>
         )}

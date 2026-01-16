@@ -1531,10 +1531,7 @@ exports[`DashboardScreen should match snapshot 1`] = `
                     "marginBottom": 6,
                     "width": 56,
                   },
-                  {
-                    "backgroundColor": "#F0F0F0",
-                    "opacity": 0.5,
-                  },
+                  false,
                 ]
               }
             >
@@ -1547,26 +1544,6 @@ exports[`DashboardScreen should match snapshot 1`] = `
               >
                 📊
               </Text>
-              <View
-                style={
-                  {
-                    "backgroundColor": "transparent",
-                    "position": "absolute",
-                    "right": -4,
-                    "top": -4,
-                  }
-                }
-              >
-                <Text
-                  style={
-                    {
-                      "fontSize": 12,
-                    }
-                  }
-                >
-                  🔒
-                </Text>
-              </View>
             </View>
             <Text
               numberOfLines={1}
@@ -1580,7 +1557,7 @@ exports[`DashboardScreen should match snapshot 1`] = `
                 }
               }
             >
-              Tax
+              Bac/Zekat
             </Text>
           </View>
           <View
@@ -1791,10 +1768,7 @@ exports[`DashboardScreen should match snapshot 1`] = `
                     "marginBottom": 6,
                     "width": 56,
                   },
-                  {
-                    "backgroundColor": "#F0F0F0",
-                    "opacity": 0.5,
-                  },
+                  false,
                 ]
               }
             >
@@ -1807,26 +1781,6 @@ exports[`DashboardScreen should match snapshot 1`] = `
               >
                 👑
               </Text>
-              <View
-                style={
-                  {
-                    "backgroundColor": "transparent",
-                    "position": "absolute",
-                    "right": -4,
-                    "top": -4,
-                  }
-                }
-              >
-                <Text
-                  style={
-                    {
-                      "fontSize": 12,
-                    }
-                  }
-                >
-                  🔒
-                </Text>
-              </View>
             </View>
             <Text
               numberOfLines={1}
@@ -2003,10 +1957,7 @@ exports[`DashboardScreen should match snapshot 1`] = `
                     "marginBottom": 6,
                     "width": 56,
                   },
-                  {
-                    "backgroundColor": "#F0F0F0",
-                    "opacity": 0.5,
-                  },
+                  false,
                 ]
               }
             >
@@ -2019,26 +1970,6 @@ exports[`DashboardScreen should match snapshot 1`] = `
               >
                 🗳️
               </Text>
-              <View
-                style={
-                  {
-                    "backgroundColor": "transparent",
-                    "position": "absolute",
-                    "right": -4,
-                    "top": -4,
-                  }
-                }
-              >
-                <Text
-                  style={
-                    {
-                      "fontSize": 12,
-                    }
-                  }
-                >
-                  🔒
-                </Text>
-              </View>
             </View>
             <Text
               numberOfLines={1}
@@ -2106,10 +2037,7 @@ exports[`DashboardScreen should match snapshot 1`] = `
                     "marginBottom": 6,
                     "width": 56,
                   },
-                  {
-                    "backgroundColor": "#F0F0F0",
-                    "opacity": 0.5,
-                  },
+                  false,
                 ]
               }
             >
@@ -2122,26 +2050,6 @@ exports[`DashboardScreen should match snapshot 1`] = `
               >
                 🛡️
               </Text>
-              <View
-                style={
-                  {
-                    "backgroundColor": "transparent",
-                    "position": "absolute",
-                    "right": -4,
-                    "top": -4,
-                  }
-                }
-              >
-                <Text
-                  style={
-                    {
-                      "fontSize": 12,
-                    }
-                  }
-                >
-                  🔒
-                </Text>
-              </View>
             </View>
             <Text
               numberOfLines={1}
@@ -2312,10 +2220,7 @@ exports[`DashboardScreen should match snapshot 1`] = `
                     "marginBottom": 6,
                     "width": 56,
                   },
-                  {
-                    "backgroundColor": "#F0F0F0",
-                    "opacity": 0.5,
-                  },
+                  false,
                 ]
               }
             >
@@ -2328,26 +2233,6 @@ exports[`DashboardScreen should match snapshot 1`] = `
               >
                 📜
               </Text>
-              <View
-                style={
-                  {
-                    "backgroundColor": "transparent",
-                    "position": "absolute",
-                    "right": -4,
-                    "top": -4,
-                  }
-                }
-              >
-                <Text
-                  style={
-                    {
-                      "fontSize": 12,
-                    }
-                  }
-                >
-                  🔒
-                </Text>
-              </View>
             </View>
             <Text
               numberOfLines={1}
@@ -2841,10 +2726,7 @@ exports[`DashboardScreen should match snapshot 1`] = `
                     "marginBottom": 6,
                     "width": 56,
                   },
-                  {
-                    "backgroundColor": "#F0F0F0",
-                    "opacity": 0.5,
-                  },
+                  false,
                 ]
               }
             >
@@ -2863,26 +2745,6 @@ exports[`DashboardScreen should match snapshot 1`] = `
                   }
                 }
               />
-              <View
-                style={
-                  {
-                    "backgroundColor": "transparent",
-                    "position": "absolute",
-                    "right": -4,
-                    "top": -4,
-                  }
-                }
-              >
-                <Text
-                  style={
-                    {
-                      "fontSize": 12,
-                    }
-                  }
-                >
-                  🔒
-                </Text>
-              </View>
             </View>
             <Text
               numberOfLines={1}
@@ -3705,315 +3567,6 @@ exports[`DashboardScreen should match snapshot 1`] = `
                   }
                 }
               >
-                📜
-              </Text>
-              <View
-                style={
-                  {
-                    "backgroundColor": "transparent",
-                    "position": "absolute",
-                    "right": -4,
-                    "top": -4,
-                  }
-                }
-              >
-                <Text
-                  style={
-                    {
-                      "fontSize": 12,
-                    }
-                  }
-                >
-                  🔒
-                </Text>
-              </View>
-            </View>
-            <Text
-              numberOfLines={1}
-              style={
-                {
-                  "color": "#333",
-                  "fontSize": 11,
-                  "fontWeight": "500",
-                  "maxWidth": "90%",
-                  "textAlign": "center",
-                }
-              }
-            >
-              Library
-            </Text>
-          </View>
-          <View
-            accessibilityState={
-              {
-                "busy": undefined,
-                "checked": undefined,
-                "disabled": undefined,
-                "expanded": undefined,
-                "selected": undefined,
-              }
-            }
-            accessibilityValue={
-              {
-                "max": undefined,
-                "min": undefined,
-                "now": undefined,
-                "text": undefined,
-              }
-            }
-            accessible={true}
-            collapsable={false}
-            focusable={true}
-            onClick={[Function]}
-            onResponderGrant={[Function]}
-            onResponderMove={[Function]}
-            onResponderRelease={[Function]}
-            onResponderTerminate={[Function]}
-            onResponderTerminationRequest={[Function]}
-            onStartShouldSetResponder={[Function]}
-            style={
-              {
-                "alignItems": "center",
-                "marginBottom": 16,
-                "opacity": 1,
-                "width": "25%",
-              }
-            }
-          >
-            <View
-              style={
-                [
-                  {
-                    "alignItems": "center",
-                    "backgroundColor": "#F8F9FA",
-                    "borderRadius": 16,
-                    "boxShadow": "0px 1px 2px rgba(0, 0, 0, 0.05)",
-                    "elevation": 1,
-                    "height": 56,
-                    "justifyContent": "center",
-                    "marginBottom": 6,
-                    "width": 56,
-                  },
-                  {
-                    "backgroundColor": "#F0F0F0",
-                    "opacity": 0.5,
-                  },
-                ]
-              }
-            >
-              <Text
-                style={
-                  {
-                    "fontSize": 28,
-                  }
-                }
-              >
-                🗣️
-              </Text>
-              <View
-                style={
-                  {
-                    "backgroundColor": "transparent",
-                    "position": "absolute",
-                    "right": -4,
-                    "top": -4,
-                  }
-                }
-              >
-                <Text
-                  style={
-                    {
-                      "fontSize": 12,
-                    }
-                  }
-                >
-                  🔒
-                </Text>
-              </View>
-            </View>
-            <Text
-              numberOfLines={1}
-              style={
-                {
-                  "color": "#333",
-                  "fontSize": 11,
-                  "fontWeight": "500",
-                  "maxWidth": "90%",
-                  "textAlign": "center",
-                }
-              }
-            >
-              Language
-            </Text>
-          </View>
-          <View
-            accessibilityState={
-              {
-                "busy": undefined,
-                "checked": undefined,
-                "disabled": undefined,
-                "expanded": undefined,
-                "selected": undefined,
-              }
-            }
-            accessibilityValue={
-              {
-                "max": undefined,
-                "min": undefined,
-                "now": undefined,
-                "text": undefined,
-              }
-            }
-            accessible={true}
-            collapsable={false}
-            focusable={true}
-            onClick={[Function]}
-            onResponderGrant={[Function]}
-            onResponderMove={[Function]}
-            onResponderRelease={[Function]}
-            onResponderTerminate={[Function]}
-            onResponderTerminationRequest={[Function]}
-            onStartShouldSetResponder={[Function]}
-            style={
-              {
-                "alignItems": "center",
-                "marginBottom": 16,
-                "opacity": 1,
-                "width": "25%",
-              }
-            }
-          >
-            <View
-              style={
-                [
-                  {
-                    "alignItems": "center",
-                    "backgroundColor": "#F8F9FA",
-                    "borderRadius": 16,
-                    "boxShadow": "0px 1px 2px rgba(0, 0, 0, 0.05)",
-                    "elevation": 1,
-                    "height": 56,
-                    "justifyContent": "center",
-                    "marginBottom": 6,
-                    "width": 56,
-                  },
-                  {
-                    "backgroundColor": "#F0F0F0",
-                    "opacity": 0.5,
-                  },
-                ]
-              }
-            >
-              <Text
-                style={
-                  {
-                    "fontSize": 28,
-                  }
-                }
-              >
-                🧸
-              </Text>
-              <View
-                style={
-                  {
-                    "backgroundColor": "transparent",
-                    "position": "absolute",
-                    "right": -4,
-                    "top": -4,
-                  }
-                }
-              >
-                <Text
-                  style={
-                    {
-                      "fontSize": 12,
-                    }
-                  }
-                >
-                  🔒
-                </Text>
-              </View>
-            </View>
-            <Text
-              numberOfLines={1}
-              style={
-                {
-                  "color": "#333",
-                  "fontSize": 11,
-                  "fontWeight": "500",
-                  "maxWidth": "90%",
-                  "textAlign": "center",
-                }
-              }
-            >
-              Kids
-            </Text>
-          </View>
-          <View
-            accessibilityState={
-              {
-                "busy": undefined,
-                "checked": undefined,
-                "disabled": undefined,
-                "expanded": undefined,
-                "selected": undefined,
-              }
-            }
-            accessibilityValue={
-              {
-                "max": undefined,
-                "min": undefined,
-                "now": undefined,
-                "text": undefined,
-              }
-            }
-            accessible={true}
-            collapsable={false}
-            focusable={true}
-            onClick={[Function]}
-            onResponderGrant={[Function]}
-            onResponderMove={[Function]}
-            onResponderRelease={[Function]}
-            onResponderTerminate={[Function]}
-            onResponderTerminationRequest={[Function]}
-            onStartShouldSetResponder={[Function]}
-            style={
-              {
-                "alignItems": "center",
-                "marginBottom": 16,
-                "opacity": 1,
-                "width": "25%",
-              }
-            }
-          >
-            <View
-              style={
-                [
-                  {
-                    "alignItems": "center",
-                    "backgroundColor": "#F8F9FA",
-                    "borderRadius": 16,
-                    "boxShadow": "0px 1px 2px rgba(0, 0, 0, 0.05)",
-                    "elevation": 1,
-                    "height": 56,
-                    "justifyContent": "center",
-                    "marginBottom": 6,
-                    "width": 56,
-                  },
-                  {
-                    "backgroundColor": "#F0F0F0",
-                    "opacity": 0.5,
-                  },
-                ]
-              }
-            >
-              <Text
-                style={
-                  {
-                    "fontSize": 28,
-                  }
-                }
-              >
                 🏆
               </Text>
               <View
@@ -4153,109 +3706,6 @@ exports[`DashboardScreen should match snapshot 1`] = `
               }
             >
               Research
-            </Text>
-          </View>
-          <View
-            accessibilityState={
-              {
-                "busy": undefined,
-                "checked": undefined,
-                "disabled": undefined,
-                "expanded": undefined,
-                "selected": undefined,
-              }
-            }
-            accessibilityValue={
-              {
-                "max": undefined,
-                "min": undefined,
-                "now": undefined,
-                "text": undefined,
-              }
-            }
-            accessible={true}
-            collapsable={false}
-            focusable={true}
-            onClick={[Function]}
-            onResponderGrant={[Function]}
-            onResponderMove={[Function]}
-            onResponderRelease={[Function]}
-            onResponderTerminate={[Function]}
-            onResponderTerminationRequest={[Function]}
-            onStartShouldSetResponder={[Function]}
-            style={
-              {
-                "alignItems": "center",
-                "marginBottom": 16,
-                "opacity": 1,
-                "width": "25%",
-              }
-            }
-          >
-            <View
-              style={
-                [
-                  {
-                    "alignItems": "center",
-                    "backgroundColor": "#F8F9FA",
-                    "borderRadius": 16,
-                    "boxShadow": "0px 1px 2px rgba(0, 0, 0, 0.05)",
-                    "elevation": 1,
-                    "height": 56,
-                    "justifyContent": "center",
-                    "marginBottom": 6,
-                    "width": 56,
-                  },
-                  {
-                    "backgroundColor": "#F0F0F0",
-                    "opacity": 0.5,
-                  },
-                ]
-              }
-            >
-              <Text
-                style={
-                  {
-                    "fontSize": 28,
-                  }
-                }
-              >
-                🏺
-              </Text>
-              <View
-                style={
-                  {
-                    "backgroundColor": "transparent",
-                    "position": "absolute",
-                    "right": -4,
-                    "top": -4,
-                  }
-                }
-              >
-                <Text
-                  style={
-                    {
-                      "fontSize": 12,
-                    }
-                  }
-                >
-                  🔒
-                </Text>
-              </View>
-            </View>
-            <Text
-              numberOfLines={1}
-              style={
-                {
-                  "color": "#333",
-                  "fontSize": 11,
-                  "fontWeight": "500",
-                  "maxWidth": "90%",
-                  "textAlign": "center",
-                }
-              }
-            >
-              History
             </Text>
           </View>
         </View>

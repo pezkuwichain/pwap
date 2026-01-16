@@ -65,7 +65,7 @@ const BottomTabNavigator: React.FC = () => {
         name="Home"
         component={DashboardScreen}
         options={{
-          header: (props) => <GradientHeader {...props} />,
+          headerShown: false,
           tabBarLabel: 'Home',
           tabBarIcon: ({ color, focused }) => (
             <Text style={[styles.icon, { color }]}>

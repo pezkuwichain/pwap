@@ -14,12 +14,9 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { usePezkuwi } from '../contexts/PezkuwiContext';
-import {
-  submitKycApplication,
-  uploadToIPFS,
-  FOUNDER_ADDRESS,
-} from '../../shared/lib/citizenship-workflow';
+import { uploadToIPFS, FOUNDER_ADDRESS } from '../../shared/lib/citizenship-workflow';
 import type { Region, MaritalStatus } from '../../shared/lib/citizenship-workflow';
+import { submitKycApplicationMobile } from '../utils/citizenship';
 import { KurdistanColors } from '../theme/colors';
 
 // Temporary custom picker component (until we fix @react-native-picker/picker installation)
@@ -97,7 +94,7 @@ const CustomPicker: React.FC<{
 
 const BeCitizenApplyScreen: React.FC = () => {
   const navigation = useNavigation();
-  const { api, selectedAccount } = usePezkuwi();
+  const { api, selectedAccount, getKeyPair } = usePezkuwi();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Form State
@@ -181,10 +178,16 @@ const BeCitizenApplyScreen: React.FC = () => {
         throw new Error('Failed to upload data to IPFS');
       }
 
-      // Step 2: Submit KYC application to blockchain
-      const result = await submitKycApplication(
+      // Step 2: Get keyPair for signing
+      const keyPair = await getKeyPair(selectedAccount.address);
+      if (!keyPair) {
+        throw new Error('Could not retrieve key pair for signing');
+      }
+
+      // Step 3: Submit KYC application to blockchain
+      const result = await submitKycApplicationMobile(
         api,
-        selectedAccount,
+        keyPair,
         citizenshipData.fullName,
         citizenshipData.email,
         String(ipfsCid),

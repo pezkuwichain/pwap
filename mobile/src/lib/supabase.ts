@@ -5,21 +5,18 @@
  * Used for: Forum, P2P Platform, Notifications, Referrals
  */
 
-import 'react-native-url-polyfill/auto';
+// Note: react-native-url-polyfill removed - React Native 0.81+ has native URL support
 import { createClient } from '@supabase/supabase-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ENV } from '../config/environment';
 
-// Initialize Supabase client from environment variables
-const supabaseUrl = ENV.supabaseUrl || '';
-const supabaseKey = ENV.supabaseAnonKey || '';
+// Hardcoded fallbacks for production builds where ENV may not be available
+const FALLBACK_SUPABASE_URL = 'https://vsyrpfiwhjvahofxwytr.supabase.co';
+const FALLBACK_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZzeXJwZml3aGp2YWhvZnh3eXRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwMjYxNTgsImV4cCI6MjA3NTYwMjE1OH0.dO2c8YWIph2D95X7jFdlGYJ8MXyuyorkLcjQ6onH-HE';
 
-if (!supabaseUrl || !supabaseKey) {
-  if (__DEV__) {
-    console.warn('⚠️ [Supabase] Credentials not found in environment variables');
-    console.warn('Add EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY to .env');
-  }
-}
+// Initialize Supabase client from environment variables with fallbacks
+const supabaseUrl = ENV.supabaseUrl || FALLBACK_SUPABASE_URL;
+const supabaseKey = ENV.supabaseAnonKey || FALLBACK_SUPABASE_KEY;
 
 // Create Supabase client
 export const supabase = createClient(supabaseUrl, supabaseKey, {

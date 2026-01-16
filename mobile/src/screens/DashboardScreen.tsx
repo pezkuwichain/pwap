@@ -23,6 +23,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { usePezkuwi } from '../contexts/PezkuwiContext';
 import { supabase } from '../lib/supabase';
 import AvatarPickerModal from '../components/AvatarPickerModal';
+import { NotificationCenterModal } from '../components/NotificationCenterModal';
 import { fetchUserTikis, getPrimaryRole, getTikiDisplayName, getTikiEmoji, getTikiColor } from '../../shared/lib/tiki';
 import { getAllScores, type UserScores } from '../../shared/lib/scores';
 import { getKycStatus } from '../../shared/lib/kyc';
@@ -87,6 +88,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
   const [profileData, setProfileData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [avatarModalVisible, setAvatarModalVisible] = useState(false);
+  const [notificationModalVisible, setNotificationModalVisible] = useState(false);
 
   // Blockchain state
   const [tikis, setTikis] = useState<string[]>([]);
@@ -172,6 +174,38 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
       'Coming Soon',
       `${featureName} will be available soon!`,
       [{ text: 'OK' }]
+    );
+  };
+
+  const showAwaitingGovernment = () => {
+    Alert.alert(
+      'Li benda damezrandinê / Awaiting Establishment',
+      'Duaye helbejartina hukumeta Komara Dijitaliya Kurdistanê yên beta damezrandin.\n\nAwaiting the beta elections and establishment of the Digital Kurdistan Republic government.',
+      [{ text: 'Temam / OK' }]
+    );
+  };
+
+  const showUnderMaintenance = () => {
+    Alert.alert(
+      'Di bin çêkirinê de ye / Under Maintenance',
+      'Ev taybetmendî niha di bin çêkirinê de ye. Ji kerema xwe paşê vegerin.\n\nThis feature is currently under maintenance. Please check back later.',
+      [{ text: 'Temam / OK' }]
+    );
+  };
+
+  const showAwaitingSerokElection = () => {
+    Alert.alert(
+      'Li benda hilbijartinên çalak / Awaiting Active Elections',
+      'Duaye hilbijartinên Serokî yên çalak bibin.\n\nAwaiting active Presidential elections to be initiated.',
+      [{ text: 'Temam / OK' }]
+    );
+  };
+
+  const showAwaitingMinistryOfEducation = () => {
+    Alert.alert(
+      'Li benda Wezareta Perwerdê / Awaiting Ministry of Education',
+      'Duaye damezrandina Wezareta Perwerdê yên aktîv bibin.\n\nAwaiting the establishment of an active Ministry of Education.',
+      [{ text: 'Temam / OK' }]
     );
   };
 
@@ -268,7 +302,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
           </View>
 
           <View style={styles.headerActions}>
-            <TouchableOpacity style={styles.iconButton} onPress={() => showComingSoon('Notifications')}>
+            <TouchableOpacity style={styles.iconButton} onPress={() => setNotificationModalVisible(true)}>
               <Text style={styles.headerIcon}>🔔</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.iconButton} onPress={() => navigation.navigate('Settings')}>
@@ -411,7 +445,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
               {kycStatus === 'NotStarted' && (
                 <TouchableOpacity
                   style={styles.kycButton}
-                  onPress={() => navigation.navigate('BeCitizenChoice')}
+                  onPress={() => navigation.navigate('BeCitizen')}
                 >
                   <Text style={styles.kycButtonText}>Apply</Text>
                 </TouchableOpacity>
@@ -432,12 +466,12 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
             {/* Wallet - Navigate to WalletScreen */}
             {renderAppIcon('Wallet', '👛', () => navigation.navigate('Wallet'), true)}
 
-            {renderAppIcon('Bank', qaBank, () => showComingSoon('Bank'), false, true)}
-            {renderAppIcon('Exchange', qaExchange, () => showComingSoon('Swap'), false)}
-            {renderAppIcon('P2P', qaTrading, () => showComingSoon('P2P'), false)}
-            {renderAppIcon('B2B', qaB2B, () => showComingSoon('B2B Trading'), false, true)}
-            {renderAppIcon('Tax', '📊', () => showComingSoon('Tax/Zekat'), true, true)}
-            {renderAppIcon('Launchpad', '🚀', () => showComingSoon('Launchpad'), true, true)}
+            {renderAppIcon('Bank', qaBank, () => showAwaitingGovernment(), false, true)}
+            {renderAppIcon('Exchange', qaExchange, () => navigation.navigate('Swap'), false)}
+            {renderAppIcon('P2P', qaTrading, () => navigation.navigate('P2P'), false)}
+            {renderAppIcon('B2B', qaB2B, () => navigation.navigate('B2B'), false, true)}
+            {renderAppIcon('Bac/Zekat', '📊', () => navigation.navigate('TaxZekat'), true)}
+            {renderAppIcon('Launchpad', '🚀', () => navigation.navigate('Launchpad'), true, true)}
           </View>
         </View>
 
@@ -447,14 +481,14 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
             <Text style={styles.sectionTitle}>GOVERNANCE 🏛️</Text>
           </View>
           <View style={styles.appsGrid}>
-            {renderAppIcon('President', '👑', () => showComingSoon('Presidency'), true, true)}
-            {renderAppIcon('Assembly', qaGovernance, () => showComingSoon('Assembly'), false, true)}
-            {renderAppIcon('Vote', '🗳️', () => showComingSoon('Voting'), true, true)}
-            {renderAppIcon('Validators', '🛡️', () => showComingSoon('Validators'), true, true)}
-            {renderAppIcon('Justice', '⚖️', () => showComingSoon('Dad / Justice'), true, true)}
-            {renderAppIcon('Proposals', '📜', () => showComingSoon('Proposals'), true, true)}
+            {renderAppIcon('President', '👑', () => navigation.navigate('President'), true)}
+            {renderAppIcon('Assembly', qaGovernance, () => showUnderMaintenance(), false, true)}
+            {renderAppIcon('Vote', '🗳️', () => navigation.navigate('Vote'), true)}
+            {renderAppIcon('Validators', '🛡️', () => navigation.navigate('Validators'), true)}
+            {renderAppIcon('Justice', '⚖️', () => showAwaitingSerokElection(), true, true)}
+            {renderAppIcon('Proposals', '📜', () => navigation.navigate('Proposals'), true)}
             {renderAppIcon('Polls', '📊', () => showComingSoon('Public Polls'), true, true)}
-            {renderAppIcon('Identity', '🆔', () => navigation.navigate('BeCitizenChoice'), true)}
+            {renderAppIcon('Identity', '🆔', () => navigation.navigate('Identity'), true)}
           </View>
         </View>
 
@@ -465,8 +499,8 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
           </View>
           <View style={styles.appsGrid}>
             {renderAppIcon('whatsKURD', '💬', () => showComingSoon('whatsKURD'), true, true)}
-            {renderAppIcon('Forum', qaForum, () => showComingSoon('Forum'), false)}
-            {renderAppIcon('KurdMedia', qaKurdMedia, () => showComingSoon('KurdMedia'), false, true)}
+            {renderAppIcon('Forum', qaForum, () => navigation.navigate('Forum'), false)}
+            {renderAppIcon('KurdMedia', qaKurdMedia, () => navigation.navigate('KurdMedia'), false)}
             {renderAppIcon('Events', '🎭', () => showComingSoon('Çalakî / Events'), true, true)}
             {renderAppIcon('Help', '🤝', () => showComingSoon('Harîkarî / Help'), true, true)}
             {renderAppIcon('Music', '🎵', () => showComingSoon('Music Stream'), true, true)}
@@ -481,14 +515,10 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
             <Text style={styles.sectionTitle}>EDUCATION 📚</Text>
           </View>
           <View style={styles.appsGrid}>
-            {renderAppIcon('University', qaUniversity, () => showComingSoon('University'), false, true)}
-            {renderAppIcon('Perwerde', qaEducation, () => showComingSoon('Education'), false)}
-            {renderAppIcon('Library', '📜', () => showComingSoon('Pirtûkxane'), true, true)}
-            {renderAppIcon('Language', '🗣️', () => showComingSoon('Ziman / Language'), true, true)}
-            {renderAppIcon('Kids', '🧸', () => showComingSoon('Zarok / Kids'), true, true)}
-            {renderAppIcon('Certificates', '🏆', () => showComingSoon('Certificates'), true, true)}
-            {renderAppIcon('Research', '🔬', () => showComingSoon('Research'), true, true)}
-            {renderAppIcon('History', '🏺', () => showComingSoon('History'), true, true)}
+            {renderAppIcon('University', qaUniversity, () => showAwaitingMinistryOfEducation(), false, true)}
+            {renderAppIcon('Perwerde', qaEducation, () => navigation.navigate('Perwerde'), false)}
+            {renderAppIcon('Certificates', '🏆', () => showAwaitingMinistryOfEducation(), true, true)}
+            {renderAppIcon('Research', '🔬', () => showAwaitingMinistryOfEducation(), true, true)}
           </View>
         </View>
 
@@ -501,6 +531,12 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
         onClose={() => setAvatarModalVisible(false)}
         currentAvatar={profileData?.avatar_url}
         onAvatarSelected={handleAvatarSelected}
+      />
+
+      {/* Notification Center Modal */}
+      <NotificationCenterModal
+        visible={notificationModalVisible}
+        onClose={() => setNotificationModalVisible(false)}
       />
     </SafeAreaView>
   );

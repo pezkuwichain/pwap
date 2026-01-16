@@ -46,4 +46,12 @@ if (!config.resolver.sourceExts.includes('svg')) {
 
 // Polyfills will be resolved from project's own node_modules
 
+// ============================================
+// PACKAGE EXPORTS RESOLUTION
+// ============================================
+
+// Disable strict package exports checking for packages like @noble/hashes
+// that don't properly export all their submodules
+config.resolver.unstable_enablePackageExports = false;
+
 module.exports = config;

@@ -10,9 +10,15 @@ import {
   Alert,
 } from 'react-native';
 import { WebView, WebViewMessageEvent } from 'react-native-webview';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
 import { KurdistanColors } from '../theme/colors';
 import { usePezkuwi } from '../contexts/PezkuwiContext';
+
+type RootStackParamList = {
+  Wallet: undefined;
+  WalletSetup: undefined;
+};
 
 // Base URL for the web app
 const WEB_BASE_URL = 'https://pezkuwichain.io';
@@ -41,6 +47,7 @@ const PezkuwiWebView: React.FC<PezkuwiWebViewProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [canGoBack, setCanGoBack] = useState(false);
 
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { selectedAccount, getKeyPair, api, isApiReady } = usePezkuwi();
 
   // JavaScript to inject into the WebView
@@ -214,9 +221,40 @@ const PezkuwiWebView: React.FC<PezkuwiWebViewProps> = ({
           break;
 
         case 'CONNECT_WALLET':
-          // Trigger native wallet connection
-          // This would open a modal or navigate to wallet screen
+          // Handle wallet connection request from WebView
           if (__DEV__) console.log('WebView requested wallet connection');
+
+          if (selectedAccount) {
+            // Already connected, notify WebView
+            webViewRef.current?.injectJavaScript(`
+              window.PEZKUWI_ADDRESS = '${selectedAccount.address}';
+              window.PEZKUWI_ACCOUNT_NAME = '${selectedAccount.meta?.name || 'Mobile Wallet'}';
+              window.dispatchEvent(new CustomEvent('pezkuwi-wallet-connected', {
+                detail: {
+                  address: '${selectedAccount.address}',
+                  name: '${selectedAccount.meta?.name || 'Mobile Wallet'}'
+                }
+              }));
+            `);
+          } else {
+            // No wallet connected, show alert and navigate to wallet setup
+            Alert.alert(
+              'Wallet Required',
+              'Please connect or create a wallet to continue.',
+              [
+                {
+                  text: 'Cancel',
+                  style: 'cancel',
+                },
+                {
+                  text: 'Setup Wallet',
+                  onPress: () => {
+                    navigation.navigate('WalletSetup');
+                  },
+                },
+              ]
+            );
+          }
           break;
 
         case 'GO_BACK':
@@ -243,7 +281,7 @@ const PezkuwiWebView: React.FC<PezkuwiWebViewProps> = ({
         console.error('Failed to parse WebView message:', parseError);
       }
     }
-  }, [selectedAccount, getKeyPair, canGoBack]);
+  }, [selectedAccount, getKeyPair, canGoBack, navigation, api, isApiReady]);
 
   // Handle Android back button
   useFocusEffect(
