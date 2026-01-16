@@ -11,8 +11,12 @@ import {
   Alert,
   Clipboard,
   ActivityIndicator,
+  Modal,
+  Linking,
+  Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import QRCode from 'react-native-qrcode-svg';
 import { usePezkuwi } from '../contexts/PezkuwiContext';
 import { KurdistanColors } from '../theme/colors';
 import {
@@ -21,6 +25,16 @@ import {
   calculateReferralScore,
   type ReferralStats as BlockchainReferralStats,
 } from '../../shared/lib/referral';
+
+// Share platform types
+type SharePlatform = 'whatsapp' | 'telegram' | 'viber' | 'email' | 'sms' | 'copy' | 'other';
+
+interface ShareOption {
+  id: SharePlatform;
+  name: string;
+  icon: string;
+  color: string;
+}
 
 interface ReferralStats {
   totalReferrals: number;
@@ -39,6 +53,17 @@ interface Referral {
   earned: string;
 }
 
+// Share platform options
+const SHARE_OPTIONS: ShareOption[] = [
+  { id: 'whatsapp', name: 'WhatsApp', icon: '💬', color: '#25D366' },
+  { id: 'telegram', name: 'Telegram', icon: '✈️', color: '#0088CC' },
+  { id: 'viber', name: 'Viber', icon: '📱', color: '#665CAC' },
+  { id: 'email', name: 'Email', icon: '📧', color: '#EA4335' },
+  { id: 'sms', name: 'SMS', icon: '💬', color: '#34B7F1' },
+  { id: 'copy', name: 'Copy Link', icon: '📋', color: '#6B7280' },
+  { id: 'other', name: 'Other', icon: '📤', color: '#9CA3AF' },
+];
+
 const ReferralScreen: React.FC = () => {
   const { selectedAccount, api, connectWallet, isApiReady } = usePezkuwi();
   const isConnected = !!selectedAccount;
@@ -54,11 +79,26 @@ const ReferralScreen: React.FC = () => {
   });
   const [referrals, setReferrals] = useState<Referral[]>([]);
   const [loading, setLoading] = useState(false);
+  const [showShareSheet, setShowShareSheet] = useState(false);
+  const [showQRModal, setShowQRModal] = useState(false);
 
-  // Generate referral code from wallet address
+  // Generate referral code and link from wallet address
   const referralCode = selectedAccount
     ? `PZK-${selectedAccount.address.slice(0, 8).toUpperCase()}`
     : 'PZK-CONNECT-WALLET';
+
+  // Full referral link for sharing
+  const referralLink = selectedAccount
+    ? `https://pezkuwi.app/join?ref=${selectedAccount.address}`
+    : '';
+
+  // Deep link for app-to-app sharing
+  const deepLink = selectedAccount
+    ? `pezkuwi://join?ref=${selectedAccount.address}`
+    : '';
+
+  // Pre-formatted share message
+  const shareMessage = `🌟 Pezkuwi'ye Katıl! / Join Pezkuwi!\n\nDijital Kurdistan vatandaşı ol ve ödüller kazan!\nBecome a Digital Kurdistan citizen and earn rewards!\n\n🔗 ${referralLink}\n\n#Pezkuwi #Kurdistan #Web3`;
 
   // Fetch referral data from blockchain
   const fetchReferralData = useCallback(async () => {
@@ -131,24 +171,90 @@ const ReferralScreen: React.FC = () => {
     }
   };
 
-  const handleCopyCode = () => {
-    Clipboard.setString(referralCode);
-    Alert.alert('Copied!', 'Referral code copied to clipboard');
+  const handleCopyLink = () => {
+    Clipboard.setString(referralLink);
+    Alert.alert('Kopyalandı! / Copied!', 'Referral linki kopyalandı / Referral link copied to clipboard');
+    setShowShareSheet(false);
   };
 
-  const handleShareCode = async () => {
-    try {
-      const result = await Share.share({
-        message: `Join Pezkuwi using my referral code: ${referralCode}\n\nGet rewards for becoming a citizen!`,
-        title: 'Join Pezkuwi',
-      });
+  const handleShareViaPlatform = async (platform: SharePlatform) => {
+    if (!selectedAccount) return;
 
-      if (result.action === Share.sharedAction) {
-        if (__DEV__) console.warn('Shared successfully');
+    const encodedMessage = encodeURIComponent(shareMessage);
+    const encodedLink = encodeURIComponent(referralLink);
+
+    let url = '';
+
+    switch (platform) {
+      case 'whatsapp':
+        url = `whatsapp://send?text=${encodedMessage}`;
+        break;
+      case 'telegram':
+        url = `tg://msg?text=${encodedMessage}`;
+        break;
+      case 'viber':
+        url = `viber://forward?text=${encodedMessage}`;
+        break;
+      case 'email':
+        url = `mailto:?subject=${encodeURIComponent('Pezkuwi\'ye Katıl! / Join Pezkuwi!')}&body=${encodedMessage}`;
+        break;
+      case 'sms':
+        url = Platform.OS === 'ios'
+          ? `sms:&body=${encodedMessage}`
+          : `sms:?body=${encodedMessage}`;
+        break;
+      case 'copy':
+        handleCopyLink();
+        return;
+      case 'other':
+      default:
+        // Use system share sheet
+        try {
+          await Share.share({
+            message: shareMessage,
+            title: 'Pezkuwi\'ye Katıl! / Join Pezkuwi!',
+          });
+        } catch (error) {
+          if (__DEV__) console.error('Error sharing:', error);
+        }
+        setShowShareSheet(false);
+        return;
+    }
+
+    // Try to open the platform-specific URL
+    try {
+      const canOpen = await Linking.canOpenURL(url);
+      if (canOpen) {
+        await Linking.openURL(url);
+      } else {
+        // Fallback to system share if app not installed
+        Alert.alert(
+          'Uygulama Bulunamadı / App Not Found',
+          `${SHARE_OPTIONS.find(o => o.id === platform)?.name} yüklü değil. Diğer paylaşım yöntemini deneyin.\n\n${SHARE_OPTIONS.find(o => o.id === platform)?.name} is not installed. Try another sharing method.`,
+          [
+            { text: 'Tamam / OK' },
+            {
+              text: 'Diğer / Other',
+              onPress: () => handleShareViaPlatform('other')
+            },
+          ]
+        );
       }
     } catch (error) {
-      if (__DEV__) console.error('Error sharing:', error);
+      if (__DEV__) console.error('Error opening URL:', error);
+      // Fallback to system share
+      handleShareViaPlatform('other');
     }
+
+    setShowShareSheet(false);
+  };
+
+  const openShareSheet = () => {
+    setShowShareSheet(true);
+  };
+
+  const openQRModal = () => {
+    setShowQRModal(true);
   };
 
   if (!isConnected) {
@@ -211,18 +317,18 @@ const ReferralScreen: React.FC = () => {
           </View>
           <View style={styles.codeActions}>
             <TouchableOpacity
-              style={[styles.codeButton, styles.copyButton]}
-              onPress={handleCopyCode}
+              style={[styles.codeButton, styles.qrButton]}
+              onPress={openQRModal}
             >
-              <Text style={styles.codeButtonIcon}>📋</Text>
-              <Text style={styles.codeButtonText}>Copy</Text>
+              <Text style={styles.codeButtonIcon}>📱</Text>
+              <Text style={styles.codeButtonText}>QR Code</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.codeButton, styles.shareButton]}
-              onPress={handleShareCode}
+              onPress={openShareSheet}
             >
               <Text style={styles.codeButtonIcon}>📤</Text>
-              <Text style={styles.codeButtonText}>Share</Text>
+              <Text style={[styles.codeButtonText, { color: KurdistanColors.spi }]}>Paylaş / Share</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -430,6 +536,117 @@ const ReferralScreen: React.FC = () => {
           )}
         </View>
       </ScrollView>
+
+      {/* Share Sheet Modal */}
+      <Modal
+        visible={showShareSheet}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowShareSheet(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowShareSheet(false)}
+        >
+          <View style={styles.shareSheetContainer}>
+            <View style={styles.shareSheetHandle} />
+            <Text style={styles.shareSheetTitle}>Paylaş / Share</Text>
+            <Text style={styles.shareSheetSubtitle}>
+              Arkadaşlarını davet et, ödül kazan!{'\n'}Invite friends, earn rewards!
+            </Text>
+
+            {/* Share Link Preview */}
+            <View style={styles.linkPreview}>
+              <Text style={styles.linkPreviewText} numberOfLines={1}>
+                {referralLink}
+              </Text>
+            </View>
+
+            {/* Platform Grid */}
+            <View style={styles.platformGrid}>
+              {SHARE_OPTIONS.map((option) => (
+                <TouchableOpacity
+                  key={option.id}
+                  style={styles.platformButton}
+                  onPress={() => handleShareViaPlatform(option.id)}
+                  activeOpacity={0.7}
+                >
+                  <View style={[styles.platformIconContainer, { backgroundColor: option.color }]}>
+                    <Text style={styles.platformIcon}>{option.icon}</Text>
+                  </View>
+                  <Text style={styles.platformName}>{option.name}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            {/* Cancel Button */}
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={() => setShowShareSheet(false)}
+            >
+              <Text style={styles.cancelButtonText}>İptal / Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* QR Code Modal */}
+      <Modal
+        visible={showQRModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowQRModal(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowQRModal(false)}
+        >
+          <View style={styles.qrModalContainer}>
+            <View style={styles.qrModalHeader}>
+              <Text style={styles.qrModalTitle}>Referral QR Kodu</Text>
+              <TouchableOpacity onPress={() => setShowQRModal(false)}>
+                <Text style={styles.qrCloseButton}>✕</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.qrCodeWrapper}>
+              {selectedAccount && (
+                <QRCode
+                  value={referralLink}
+                  size={200}
+                  backgroundColor={KurdistanColors.spi}
+                  color={KurdistanColors.reş}
+                />
+              )}
+            </View>
+
+            <Text style={styles.qrInstructions}>
+              Bu QR kodu arkadaşlarınla paylaş.{'\n'}
+              Taratarak Pezkuwi'ye katılabilirler.
+            </Text>
+            <Text style={styles.qrInstructionsEn}>
+              Share this QR code with friends.{'\n'}
+              They can scan to join Pezkuwi.
+            </Text>
+
+            <View style={styles.qrCodeContainer}>
+              <Text style={styles.qrCodeText}>{referralCode}</Text>
+            </View>
+
+            <TouchableOpacity
+              style={styles.qrShareButton}
+              onPress={() => {
+                setShowQRModal(false);
+                openShareSheet();
+              }}
+            >
+              <Text style={styles.qrShareButtonText}>📤 Linki Paylaş / Share Link</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -818,6 +1035,174 @@ const styles = StyleSheet.create({
     fontFamily: 'monospace',
     color: KurdistanColors.kesk,
     fontWeight: '600',
+  },
+  qrButton: {
+    backgroundColor: '#F0F0F0',
+  },
+  // Share Sheet Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  shareSheetContainer: {
+    backgroundColor: KurdistanColors.spi,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 20,
+    paddingBottom: 40,
+  },
+  shareSheetHandle: {
+    width: 40,
+    height: 4,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginBottom: 16,
+  },
+  shareSheetTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: KurdistanColors.reş,
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  shareSheetSubtitle: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 20,
+    lineHeight: 20,
+  },
+  linkPreview: {
+    backgroundColor: '#F5F5F5',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 20,
+  },
+  linkPreviewText: {
+    fontSize: 12,
+    color: '#666',
+    fontFamily: 'monospace',
+    textAlign: 'center',
+  },
+  platformGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  platformButton: {
+    width: '25%',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  platformIconContainer: {
+    width: 56,
+    height: 56,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
+    elevation: 3,
+  },
+  platformIcon: {
+    fontSize: 28,
+  },
+  platformName: {
+    fontSize: 12,
+    color: '#666',
+    fontWeight: '500',
+  },
+  cancelButton: {
+    backgroundColor: '#F0F0F0',
+    borderRadius: 12,
+    padding: 16,
+    alignItems: 'center',
+  },
+  cancelButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#666',
+  },
+  // QR Modal Styles
+  qrModalContainer: {
+    backgroundColor: KurdistanColors.spi,
+    borderRadius: 24,
+    margin: 20,
+    padding: 24,
+    alignItems: 'center',
+    alignSelf: 'center',
+    marginTop: 'auto',
+    marginBottom: 'auto',
+    boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.3)',
+    elevation: 10,
+  },
+  qrModalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    marginBottom: 20,
+  },
+  qrModalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: KurdistanColors.reş,
+  },
+  qrCloseButton: {
+    fontSize: 20,
+    color: '#999',
+    padding: 4,
+  },
+  qrCodeWrapper: {
+    padding: 20,
+    backgroundColor: KurdistanColors.spi,
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: KurdistanColors.sor,
+    marginBottom: 16,
+  },
+  qrInstructions: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: 8,
+  },
+  qrInstructionsEn: {
+    fontSize: 12,
+    color: '#999',
+    textAlign: 'center',
+    lineHeight: 18,
+    marginBottom: 16,
+  },
+  qrCodeContainer: {
+    backgroundColor: '#F5F5F5',
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    marginBottom: 20,
+  },
+  qrCodeText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: KurdistanColors.sor,
+    fontFamily: 'monospace',
+  },
+  qrShareButton: {
+    backgroundColor: KurdistanColors.sor,
+    borderRadius: 12,
+    paddingHorizontal: 24,
+    paddingVertical: 14,
+    width: '100%',
+    alignItems: 'center',
+  },
+  qrShareButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: KurdistanColors.spi,
   },
 });
 

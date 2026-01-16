@@ -173,7 +173,7 @@ exports[`ReferralScreen should match snapshot 1`] = `
                 }
               }
             >
-              📋
+              📱
             </Text>
             <Text
               style={
@@ -184,7 +184,7 @@ exports[`ReferralScreen should match snapshot 1`] = `
                 }
               }
             >
-              Copy
+              QR Code
             </Text>
           </View>
           <View
@@ -240,14 +240,19 @@ exports[`ReferralScreen should match snapshot 1`] = `
             </Text>
             <Text
               style={
-                {
-                  "color": "#000000",
-                  "fontSize": 14,
-                  "fontWeight": "600",
-                }
+                [
+                  {
+                    "color": "#000000",
+                    "fontSize": 14,
+                    "fontWeight": "600",
+                  },
+                  {
+                    "color": "#FFFFFF",
+                  },
+                ]
               }
             >
-              Share
+              Paylaş / Share
             </Text>
           </View>
         </View>
