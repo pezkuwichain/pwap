@@ -457,7 +457,19 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
         {/* 1. FINANCE SECTION */}
         <View style={styles.sectionContainer}>
           <View style={[styles.sectionHeader, { borderLeftColor: KurdistanColors.kesk }]}>
-            <Text style={styles.sectionTitle}>FINANCE 💰</Text>
+            <View style={styles.sectionTitleRow}>
+              <Text style={styles.sectionTitle}>FINANCE 💰</Text>
+              {/* Connect Wallet Button */}
+              {!selectedAccount && (
+                <TouchableOpacity
+                  style={styles.connectWalletBadge}
+                  onPress={() => navigation.navigate('Wallet')}
+                >
+                  <Text style={styles.connectWalletIcon}>👛</Text>
+                  <Text style={styles.connectWalletText}>Connect</Text>
+                </TouchableOpacity>
+              )}
+            </View>
             <TouchableOpacity onPress={() => navigation.navigate('Apps')}>
               <Text style={styles.seeAllText}>Hemû / All</Text>
             </TouchableOpacity>
@@ -466,7 +478,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
             {/* Wallet - Navigate to WalletScreen */}
             {renderAppIcon('Wallet', '👛', () => navigation.navigate('Wallet'), true)}
 
-            {renderAppIcon('Bank', qaBank, () => showAwaitingGovernment(), false, true)}
+            {renderAppIcon('Bank', qaBank, () => navigation.navigate('Bank'), false, true)}
             {renderAppIcon('Exchange', qaExchange, () => navigation.navigate('Swap'), false)}
             {renderAppIcon('P2P', qaTrading, () => navigation.navigate('P2P'), false)}
             {renderAppIcon('B2B', qaB2B, () => navigation.navigate('B2B'), false, true)}
@@ -482,12 +494,12 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
           </View>
           <View style={styles.appsGrid}>
             {renderAppIcon('President', '👑', () => navigation.navigate('President'), true)}
-            {renderAppIcon('Assembly', qaGovernance, () => showUnderMaintenance(), false, true)}
+            {renderAppIcon('Assembly', qaGovernance, () => navigation.navigate('Assembly'), false, true)}
             {renderAppIcon('Vote', '🗳️', () => navigation.navigate('Vote'), true)}
             {renderAppIcon('Validators', '🛡️', () => navigation.navigate('Validators'), true)}
-            {renderAppIcon('Justice', '⚖️', () => showAwaitingSerokElection(), true, true)}
+            {renderAppIcon('Justice', '⚖️', () => navigation.navigate('Justice'), true, true)}
             {renderAppIcon('Proposals', '📜', () => navigation.navigate('Proposals'), true)}
-            {renderAppIcon('Polls', '📊', () => showComingSoon('Public Polls'), true, true)}
+            {renderAppIcon('Polls', '📊', () => navigation.navigate('Polls'), true, true)}
             {renderAppIcon('Identity', '🆔', () => navigation.navigate('Identity'), true)}
           </View>
         </View>
@@ -498,13 +510,13 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
             <Text style={styles.sectionTitle}>SOCIAL 💬</Text>
           </View>
           <View style={styles.appsGrid}>
-            {renderAppIcon('whatsKURD', '💬', () => showComingSoon('whatsKURD'), true, true)}
+            {renderAppIcon('whatsKURD', '💬', () => navigation.navigate('WhatsKURD'), true, true)}
             {renderAppIcon('Forum', qaForum, () => navigation.navigate('Forum'), false)}
             {renderAppIcon('KurdMedia', qaKurdMedia, () => navigation.navigate('KurdMedia'), false)}
-            {renderAppIcon('Events', '🎭', () => showComingSoon('Çalakî / Events'), true, true)}
-            {renderAppIcon('Help', '🤝', () => showComingSoon('Harîkarî / Help'), true, true)}
-            {renderAppIcon('Music', '🎵', () => showComingSoon('Music Stream'), true, true)}
-            {renderAppIcon('VPN', '🛡️', () => showComingSoon('Decentralized VPN'), true, true)}
+            {renderAppIcon('Events', '🎭', () => navigation.navigate('Events'), true, true)}
+            {renderAppIcon('Help', '🤝', () => navigation.navigate('Help'), true, true)}
+            {renderAppIcon('Music', '🎵', () => navigation.navigate('Music'), true, true)}
+            {renderAppIcon('VPN', '🛡️', () => navigation.navigate('VPN'), true, true)}
             {renderAppIcon('Referral', '👥', () => navigation.navigate('Referral'), true)}
           </View>
         </View>
@@ -515,10 +527,10 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
             <Text style={styles.sectionTitle}>EDUCATION 📚</Text>
           </View>
           <View style={styles.appsGrid}>
-            {renderAppIcon('University', qaUniversity, () => showAwaitingMinistryOfEducation(), false, true)}
+            {renderAppIcon('University', qaUniversity, () => navigation.navigate('University'), false, true)}
             {renderAppIcon('Perwerde', qaEducation, () => navigation.navigate('Perwerde'), false)}
-            {renderAppIcon('Certificates', '🏆', () => showAwaitingMinistryOfEducation(), true, true)}
-            {renderAppIcon('Research', '🔬', () => showAwaitingMinistryOfEducation(), true, true)}
+            {renderAppIcon('Certificates', '🏆', () => navigation.navigate('Certificates'), true, true)}
+            {renderAppIcon('Research', '🔬', () => navigation.navigate('Research'), true, true)}
           </View>
         </View>
 
@@ -668,11 +680,33 @@ const styles = StyleSheet.create({
     borderLeftWidth: 4,
     paddingLeft: 10,
   },
+  sectionTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '800',
     color: KurdistanColors.reş,
     letterSpacing: 0.5,
+  },
+  connectWalletBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: KurdistanColors.kesk,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    gap: 4,
+  },
+  connectWalletIcon: {
+    fontSize: 14,
+  },
+  connectWalletText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: KurdistanColors.spi,
   },
   seeAllText: {
     fontSize: 12,

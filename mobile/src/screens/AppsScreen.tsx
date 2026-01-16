@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { KurdistanColors } from '../theme/colors';
+import { usePezkuwi } from '../contexts/PezkuwiContext';
 
 type CategoryType = 'All' | 'Finance' | 'Governance' | 'Social' | 'Education' | 'Health' | 'Entertainment' | 'Tools' | 'Gaming';
 
@@ -71,6 +72,9 @@ const CATEGORIES: { name: CategoryType; icon: string }[] = [
 
 const AppsScreen: React.FC = () => {
   const navigation = useNavigation<any>();
+  const { selectedAccount, connectWallet } = usePezkuwi();
+  const isConnected = !!selectedAccount;
+
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<CategoryType>('All');
   const [showSubmitModal, setShowSubmitModal] = useState(false);
@@ -78,6 +82,9 @@ const AppsScreen: React.FC = () => {
   const [appDescription, setAppDescription] = useState('');
   const [contactEmail, setContactEmail] = useState('');
   const [contactName, setContactName] = useState('');
+  const [contactPhone, setContactPhone] = useState('');
+  const [projectDomain, setProjectDomain] = useState('');
+  const [githubRepo, setGithubRepo] = useState('');
 
   const filteredApps = FEATURED_APPS.filter(app => {
     const matchesSearch = app.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -86,13 +93,19 @@ const AppsScreen: React.FC = () => {
     return matchesSearch && matchesCategory;
   });
 
-  const handleConnectWallet = () => {
-    navigation.navigate('Wallet');
+  const handleConnectWallet = async () => {
+    try {
+      await connectWallet();
+      Alert.alert('Connected', 'Your wallet has been connected successfully!');
+    } catch (error) {
+      if (__DEV__) console.error('Wallet connection error:', error);
+      Alert.alert('Error', 'Failed to connect wallet. Please try again.');
+    }
   };
 
   const handleSubmitApp = () => {
-    if (!appName.trim() || !appDescription.trim() || !contactEmail.trim() || !contactName.trim()) {
-      Alert.alert('Missing Information', 'Please fill in all fields to submit your mini app.');
+    if (!appName.trim() || !appDescription.trim() || !contactEmail.trim() || !contactName.trim() || !contactPhone.trim()) {
+      Alert.alert('Missing Information', 'Please fill in all required fields to submit your mini app.');
       return;
     }
 
@@ -101,6 +114,9 @@ const AppsScreen: React.FC = () => {
     setAppDescription('');
     setContactEmail('');
     setContactName('');
+    setContactPhone('');
+    setProjectDomain('');
+    setGithubRepo('');
 
     Alert.alert(
       'Application Submitted ✅',
@@ -146,9 +162,16 @@ const AppsScreen: React.FC = () => {
               <Text style={styles.headerTitle}>MiniApps Store</Text>
               <Text style={styles.headerSubtitle}>Discover & Build on Pezkuwichain</Text>
             </View>
-            <TouchableOpacity style={styles.connectButton} onPress={handleConnectWallet}>
-              <Text style={styles.connectButtonText}>Connect</Text>
-            </TouchableOpacity>
+            {!isConnected ? (
+              <TouchableOpacity style={styles.connectButton} onPress={handleConnectWallet}>
+                <Text style={styles.connectButtonText}>Connect</Text>
+              </TouchableOpacity>
+            ) : (
+              <View style={styles.connectedBadge}>
+                <Text style={styles.connectedIcon}>✓</Text>
+                <Text style={styles.connectedText}>Connected</Text>
+              </View>
+            )}
           </View>
         </View>
 
@@ -313,6 +336,44 @@ const AppsScreen: React.FC = () => {
                 />
               </View>
 
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Contact Phone Number *</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="+90 5XX XXX XX XX"
+                  value={contactPhone}
+                  onChangeText={setContactPhone}
+                  keyboardType="phone-pad"
+                  placeholderTextColor="#999"
+                />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Project Domain (optional)</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="https://yourproject.com"
+                  value={projectDomain}
+                  onChangeText={setProjectDomain}
+                  keyboardType="url"
+                  autoCapitalize="none"
+                  placeholderTextColor="#999"
+                />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>GitHub Repository (optional)</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="https://github.com/username/repo"
+                  value={githubRepo}
+                  onChangeText={setGithubRepo}
+                  keyboardType="url"
+                  autoCapitalize="none"
+                  placeholderTextColor="#999"
+                />
+              </View>
+
               <View style={styles.infoBox}>
                 <Text style={styles.infoIcon}>📧</Text>
                 <View style={styles.infoTextContainer}>
@@ -381,6 +442,24 @@ const styles = StyleSheet.create({
     color: KurdistanColors.spi,
     fontSize: 13,
     fontWeight: '600',
+  },
+  connectedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E8F5E9',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    gap: 4,
+  },
+  connectedIcon: {
+    fontSize: 12,
+    color: KurdistanColors.kesk,
+  },
+  connectedText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: KurdistanColors.kesk,
   },
   searchContainer: {
     paddingHorizontal: 20,
