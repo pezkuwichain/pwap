@@ -72,7 +72,7 @@ const CATEGORIES: { name: CategoryType; icon: string }[] = [
 
 const AppsScreen: React.FC = () => {
   const navigation = useNavigation<any>();
-  const { selectedAccount, connectWallet } = usePezkuwi();
+  const { selectedAccount, accounts, connectWallet } = usePezkuwi();
   const isConnected = !!selectedAccount;
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -94,12 +94,18 @@ const AppsScreen: React.FC = () => {
   });
 
   const handleConnectWallet = async () => {
+    // If no wallets exist, navigate to wallet setup first
+    if (accounts.length === 0) {
+      navigation.navigate('WalletSetup');
+      return;
+    }
+
     try {
       await connectWallet();
-      Alert.alert('Connected', 'Your wallet has been connected successfully!');
+      Alert.alert('Girêdayî / Connected', 'Cîzdanê te bi serkeftî girêdayî bû!\nYour wallet has been connected successfully!');
     } catch (error) {
       if (__DEV__) console.error('Wallet connection error:', error);
-      Alert.alert('Error', 'Failed to connect wallet. Please try again.');
+      Alert.alert('Çewtî / Error', 'Cîzdan nehat girêdan. Dîsa biceribîne.\nFailed to connect wallet. Please try again.');
     }
   };
 
