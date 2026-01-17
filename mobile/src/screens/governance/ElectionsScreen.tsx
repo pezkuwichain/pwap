@@ -32,7 +32,7 @@ interface Candidate {
 // Mock data removed - using dynamicCommissionCollective pallet for elections
 
 const ElectionsScreen: React.FC = () => {
-  const { api, isApiReady, error: connectionError } = usePezkuwi();
+  const { api, isApiReady } = usePezkuwi();
 
   const [elections, setElections] = useState<ElectionInfo[]>([]);
   const [loading, setLoading] = useState(false);
@@ -47,12 +47,14 @@ const ElectionsScreen: React.FC = () => {
 
       // Fetch commission proposals (acting as elections)
       if (api.query.dynamicCommissionCollective?.proposals) {
-        const proposalHashes = await api.query.dynamicCommissionCollective.proposals() as any;
+        const proposalHashesResult = await api.query.dynamicCommissionCollective.proposals();
+        const proposalHashes = proposalHashesResult as unknown as Array<{ toString: () => string }>;
 
         const electionsData: ElectionInfo[] = [];
 
         for (const hash of (proposalHashes || [])) {
-          const voting = await api.query.dynamicCommissionCollective.voting(hash) as any;
+          const votingResult = await api.query.dynamicCommissionCollective.voting(hash);
+          const voting = votingResult as unknown as { isSome: boolean; unwrap: () => { end?: { toNumber: () => number }; threshold?: { toNumber: () => number }; ayes?: unknown[]; nays?: unknown[] } };
           if (voting.isSome) {
             const voteData = voting.unwrap();
             electionsData.push({
@@ -68,8 +70,8 @@ const ElectionsScreen: React.FC = () => {
 
         setElections(electionsData);
       }
-    } catch (error) {
-      console.error('Failed to load elections:', error);
+    } catch (_error) {
+      if (__DEV__) console.error('Failed to load elections:', _error);
       Alert.alert('Error', 'Failed to load elections data from blockchain');
     } finally {
       setLoading(false);
@@ -81,6 +83,7 @@ const ElectionsScreen: React.FC = () => {
     fetchElections();
     const interval = setInterval(fetchElections, 30000);
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [api, isApiReady]);
 
   const handleRefresh = () => {

@@ -14,7 +14,7 @@ const WhatsKURDScreen: React.FC = () => {
             whatsKURD - Peyamgera nenavendî ya Kurdistanê dê zû were.
           </Text>
           <Text style={styles.messageEn}>
-            whatsKURD - Kurdistan's decentralized messenger coming soon.
+            whatsKURD - Kurdistan&apos;s decentralized messenger coming soon.
           </Text>
         </View>
         <View style={styles.featureList}>
