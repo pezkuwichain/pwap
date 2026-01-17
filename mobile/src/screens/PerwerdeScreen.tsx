@@ -362,18 +362,6 @@ const PerwerdeScreen: React.FC = () => {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
 
-      {/* Header */}
-      <LinearGradient
-        colors={[KurdistanColors.zer, '#F59E0B']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.header}
-      >
-        <View style={styles.headerContent}>
-          <Text style={styles.headerTitle}>Perwerde</Text>
-          <Text style={styles.headerSubtitle}>Platforma Perwerdehiya Dijîtal</Text>
-        </View>
-      </LinearGradient>
 
       {/* Score Card */}
       <View style={styles.scoreCard}>

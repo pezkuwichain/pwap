@@ -1,6 +1,7 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { SimpleHeader } from '../components/navigation/SharedHeader';
+import { SimpleHeader, GradientHeader } from '../components/navigation/SharedHeader';
+import { KurdistanColors } from '../theme/colors';
 
 // Screens
 import DashboardScreen from '../screens/DashboardScreen';
@@ -88,7 +89,14 @@ const HomeStackNavigator: React.FC = () => {
       <Stack.Screen name="Identity" component={IdentityScreen} options={{ headerTitle: 'Nasname' }} />
       <Stack.Screen name="Forum" component={ForumScreen} options={{ headerTitle: 'Forum' }} />
       <Stack.Screen name="KurdMedia" component={KurdMediaScreen} options={{ headerTitle: 'KurdMedia' }} />
-      <Stack.Screen name="Perwerde" component={PerwerdeScreen} options={{ headerTitle: 'Perwerde' }} />
+      <Stack.Screen
+        name="Perwerde"
+        component={PerwerdeScreen}
+        options={{
+          headerTitle: 'Perwerde',
+          header: (props) => <GradientHeader {...props} subtitle="Platforma Perwerdehiya Dijîtal" gradientColors={[KurdistanColors.zer, '#F59E0B']} />
+        }}
+      />
       <Stack.Screen name="Bank" component={BankScreen} options={{ headerTitle: 'Bank' }} />
       <Stack.Screen name="Assembly" component={AssemblyScreen} options={{ headerTitle: 'Meclîs' }} />
       <Stack.Screen name="Justice" component={JusticeScreen} options={{ headerTitle: 'Dadwerî' }} />
