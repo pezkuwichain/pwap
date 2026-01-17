@@ -654,9 +654,8 @@ const WalletScreen: React.FC = () => {
     <SafeAreaView style={styles.container} testID="wallet-screen">
       <StatusBar barStyle="dark-content" />
 
-      {/* Top Header */}
-      <View style={styles.topHeader} testID="wallet-top-header">
-        <Text style={styles.topHeaderTitle}>Cüzdan / Wallet</Text>
+      {/* Network Selector Row */}
+      <View style={styles.networkRow} testID="wallet-top-header">
         <TouchableOpacity onPress={() => setNetworkSelectorVisible(true)} testID="wallet-network-button">
           <Text style={styles.networkBadge}>🌐 {NETWORKS[currentNetwork].displayName}</Text>
         </TouchableOpacity>
@@ -1293,30 +1292,13 @@ const styles = StyleSheet.create({
     color: '#666',
   },
 
-  // Top Header with Back Button
-  topHeader: {
+  // Network Selector Row
+  networkRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E5E5',
-  },
-  backButton: {
-    paddingVertical: 4,
-    paddingRight: 8,
-  },
-  backButtonText: {
-    fontSize: 16,
-    color: KurdistanColors.kesk,
-    fontWeight: '500',
-  },
-  topHeaderTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
+    paddingVertical: 8,
   },
 
   // Header Styles (New Design)
