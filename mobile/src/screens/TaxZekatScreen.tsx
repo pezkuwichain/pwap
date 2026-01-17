@@ -239,7 +239,7 @@ const TaxZekatScreen: React.FC = () => {
               ]}
               onPress={() => setContributionType('zekat')}
             >
-              <Text style={styles.typeIcon}>☪️</Text>
+              <Text style={styles.typeIcon}>🤲</Text>
               <Text style={[
                 styles.typeText,
                 contributionType === 'zekat' && styles.typeTextActive,
@@ -250,7 +250,7 @@ const TaxZekatScreen: React.FC = () => {
                 styles.typeSubtext,
                 contributionType === 'zekat' && styles.typeSubtextActive,
               ]}>
-                İslami Zekat
+                Islamic Zekat
               </Text>
             </TouchableOpacity>
 
@@ -333,26 +333,35 @@ const TaxZekatScreen: React.FC = () => {
             contributionType === 'zekat' ? styles.termsBoxZekat : styles.termsBoxTax,
           ]}>
             <Text style={styles.termsIcon}>
-              {contributionType === 'zekat' ? '☪️' : '📜'}
+              {contributionType === 'zekat' ? '🤲' : '📜'}
             </Text>
             <Text style={styles.termsTitle}>SOZNAME / COMMITMENT</Text>
 
             {contributionType === 'zekat' ? (
               <>
                 <Text style={styles.termsText}>
-                  Komara Dijitaliya Kurdistanê (Dijital Kurdistan Devleti), İslami usul ve kurallara uygun olarak, zekat gönderimlerinizi TAM OLARAK sizin belirlediğiniz oranlara göre sarfedeceğini TAAHHÜT EDER.
+                  Komara Dîjîtal a Kurdistanê SOZ DIDE ku zekata we BI TEMAMÎ li gorî rêjeyên ku we destnîşan kirine dê bê xerckirin, li gorî rêgez û qaîdeyên Îslamî.
                 </Text>
                 <Text style={styles.termsText}>
-                  Zekat fonları yalnızca Kuran'da belirtilen 8 sınıfa (Tevbe 9:60) harcanacaktır: Fakirler, Miskinler, Zekat memurları, Müellefe-i kulub, Köleler, Borçlular, Fi sebilillah, İbn-i sebil.
+                  The Digital Republic of Kurdistan COMMITS to spending your zekat EXACTLY according to the ratios you specify, in accordance with Islamic principles and rules.
+                </Text>
+                <Text style={styles.termsText}>
+                  Fonên zekatê tenê ji bo 8 kategoriyên ku di Quranê de hatine destnîşankirin (Tewbe 9:60) dê bên xerckirin: Feqîr, Miskîn, Karkerên zekatê, Yên ku dilê wan tê qencikirin, Kole, Deyndar, Di riya Xwedê de, û Rêwî.
                 </Text>
               </>
             ) : (
               <>
                 <Text style={styles.termsText}>
-                  Komara Dijitaliya Kurdistanê (Dijital Kurdistan Devleti), vergi katkılarınızı belirlediğiniz oranlara MÜMKÜN OLDUĞU KADAR uygun şekilde kullanacağını taahhüt eder.
+                  Komara Dîjîtal a Kurdistanê SOZ DIDE ku beşdariyên baca we BI QASÎ KU MIMKUN BE li gorî rêjeyên ku we destnîşan kirine dê bê xerckirin.
                 </Text>
                 <Text style={styles.termsText}>
-                  Acil durumlar veya zorunlu hallerde, devlet küçük inisiyatifler kullanabilir. Tüm harcamalar blockchain üzerinde şeffaf olarak kaydedilecektir.
+                  The Digital Republic of Kurdistan COMMITS to using your tax contributions AS CLOSELY AS POSSIBLE according to the ratios you specify.
+                </Text>
+                <Text style={styles.termsText}>
+                  Di rewşên acîl an mecbûrî de, dewlet dikare înîsiyatîvên biçûk bi kar bîne. Hemû lêçûn dê bi şefafî li ser blockchain werin tomar kirin.
+                </Text>
+                <Text style={styles.termsText}>
+                  In emergencies or mandatory situations, the state may use small initiatives. All expenses will be transparently recorded on the blockchain.
                 </Text>
               </>
             )}
@@ -366,7 +375,7 @@ const TaxZekatScreen: React.FC = () => {
               {termsAccepted && <Text style={styles.checkmark}>✓</Text>}
             </View>
             <Text style={styles.checkboxLabel}>
-              Okudum ve kabul ediyorum / I have read and accept
+              Min xwend û qebûl dikim / I have read and accept
             </Text>
           </TouchableOpacity>
         </View>
@@ -385,7 +394,7 @@ const TaxZekatScreen: React.FC = () => {
             <ActivityIndicator color="#FFF" />
           ) : (
             <Text style={styles.submitButtonText}>
-              {contributionType === 'zekat' ? '☪️ ZEKAT BIŞÎNE' : '📤 BAC BIŞÎNE'}
+              {contributionType === 'zekat' ? '🤲 ZEKAT BIŞÎNE' : '📤 BAC BIŞÎNE'}
             </Text>
           )}
         </TouchableOpacity>
