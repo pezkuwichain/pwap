@@ -529,14 +529,10 @@ const LaunchpadScreen: React.FC = () => {
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#F8F9FA" />
 
-      {/* Action Bar */}
-      <View style={styles.header}>
-        <View style={styles.headerContent}>
-          <Text style={styles.headerTitle}>🚀 Launchpad</Text>
-          <Text style={styles.headerSubtitle}>Multi-Presale Platform</Text>
-        </View>
+      {/* Add Button Row */}
+      <View style={styles.actionRow}>
         <TouchableOpacity onPress={handleNewProject} style={styles.addButton}>
-          <Text style={styles.addIcon}>+</Text>
+          <Text style={styles.addIcon}>+ Projeya Nû</Text>
         </TouchableOpacity>
       </View>
 
@@ -762,41 +758,24 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
   },
-  header: {
+  actionRow: {
     flexDirection: 'row',
-    alignItems: 'center',
+    justifyContent: 'flex-end',
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: KurdistanColors.spi,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
-  },
-  headerContent: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: KurdistanColors.reş,
-  },
-  headerSubtitle: {
-    fontSize: 12,
-    color: '#666',
-    marginTop: 2,
+    paddingVertical: 8,
   },
   addButton: {
-    width: 40,
-    height: 40,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
     borderRadius: 20,
     backgroundColor: KurdistanColors.kesk,
     justifyContent: 'center',
     alignItems: 'center',
   },
   addIcon: {
-    fontSize: 24,
+    fontSize: 14,
     color: KurdistanColors.spi,
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
   platformStats: {
     flexDirection: 'row',
