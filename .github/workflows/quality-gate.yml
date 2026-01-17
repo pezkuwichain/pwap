@@ -122,6 +122,7 @@ jobs:
       - name: Install dependencies
         working-directory: ./pezkuwi-sdk-ui
         run: |
+          rm -f ../package.json ../yarn.lock 2>/dev/null || true
           touch ../yarn.lock
           yarn install
 
