@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
