@@ -82,7 +82,14 @@ const HomeStackNavigator: React.FC = () => {
       <Stack.Screen name="B2B" component={B2BScreen} options={{ headerTitle: 'B2B Bazirganî' }} />
       <Stack.Screen name="TaxZekat" component={TaxZekatScreen} options={{ headerTitle: 'Bac & Zekat' }} />
       <Stack.Screen name="Launchpad" component={LaunchpadScreen} options={{ headerTitle: '🚀 Launchpad' }} />
-      <Stack.Screen name="President" component={PresidentScreen} options={{ headerTitle: 'Serok' }} />
+      <Stack.Screen
+        name="President"
+        component={PresidentScreen}
+        options={{
+          headerTitle: '👑 Serokî / President',
+          header: (props) => <GradientHeader {...props} subtitle="Hilbijartina Serokê Komarê" gradientColors={[KurdistanColors.kesk, '#006633']} />
+        }}
+      />
       <Stack.Screen name="Vote" component={VoteScreen} options={{ headerTitle: 'Deng' }} />
       <Stack.Screen name="Validators" component={ValidatorsScreen} options={{ headerTitle: 'Validators' }} />
       <Stack.Screen name="Proposals" component={ProposalsScreen} options={{ headerTitle: 'Pêşniyar' }} />
