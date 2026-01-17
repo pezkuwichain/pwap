@@ -656,7 +656,7 @@ const WalletScreen: React.FC = () => {
 
       {/* Top Header */}
       <View style={styles.topHeader} testID="wallet-top-header">
-        <Text style={styles.topHeaderTitle}>Wallet</Text>
+        <Text style={styles.topHeaderTitle}>Cüzdan / Wallet</Text>
         <TouchableOpacity onPress={() => setNetworkSelectorVisible(true)} testID="wallet-network-button">
           <Text style={styles.networkBadge}>🌐 {NETWORKS[currentNetwork].displayName}</Text>
         </TouchableOpacity>
@@ -742,7 +742,7 @@ const WalletScreen: React.FC = () => {
           </TouchableOpacity>
 
           <TouchableOpacity style={[styles.actionButton, {backgroundColor: '#10B981'}]} onPress={() => showAlert('Staking', 'Navigate to Staking')}>
-            <Text style={styles.actionIcon}>🥩</Text>
+            <Text style={styles.actionIcon}>💰</Text>
             <Text style={styles.actionLabel}>Staking</Text>
           </TouchableOpacity>
         </View>
@@ -1401,16 +1401,15 @@ const styles = StyleSheet.create({
     color: '#888',
   },
 
-  // Action Buttons Grid (2x4) - New Design
+  // Action Buttons Grid (1x4) - Single Row
   actionsGrid: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
+    justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 8,
-    gap: 12,
   },
   actionButton: {
-    width: '23%',
+    width: '22%',
     aspectRatio: 1,
     borderRadius: 16,
     justifyContent: 'center',
