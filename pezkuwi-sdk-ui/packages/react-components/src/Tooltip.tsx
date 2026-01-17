@@ -22,7 +22,7 @@ interface Props {
   trigger: string;
 }
 
-function Tooltip ({ children, className = '', isClickable = false, place, text, trigger }: Props): React.ReactElement<Props> | null {
+function Tooltip ({ children, className = '', isClickable = false, place, text, trigger }: Props): React.ReactPortal {
   const [tooltipContainer] = useState(
     typeof document === 'undefined'
       ? {} as HTMLElement // This hack is required for server side rendering

@@ -10,14 +10,14 @@ import { usePopupWindow } from '@pezkuwi/react-hooks/usePopupWindow';
 
 import { styled } from '../styled.js';
 
-function PopupWindow ({ children, className = '', position, triggerRef, windowRef }: Props): React.ReactElement<Props> {
+function PopupWindow ({ children, className = '', position, triggerRef, windowRef }: Props): React.ReactPortal {
   const { pointerStyle, renderCoords: { x, y } } = usePopupWindow(windowRef, triggerRef, position);
 
   return createPortal(
     <StyledDiv
       className={`${className} ${pointerStyle}Pointer ${position}Position`}
       data-testid='popup-window'
-      ref={windowRef}
+      ref={windowRef as React.RefObject<HTMLDivElement>}
       style={
         (x && y && {
           transform: `translate3d(${x}px, ${y}px, 0)`,

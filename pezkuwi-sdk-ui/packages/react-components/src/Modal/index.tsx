@@ -24,7 +24,7 @@ interface Props {
   testId?: string;
 }
 
-function ModalBase ({ children, className = '', header, onClose, size = 'medium', testId = 'modal' }: Props): React.ReactElement<Props> {
+function ModalBase ({ children, className = '', header, onClose, size = 'medium', testId = 'modal' }: Props): React.ReactPortal {
   const { themeClassName } = useTheme();
 
   const listenKeyboard = useCallback((event: KeyboardEvent) => {

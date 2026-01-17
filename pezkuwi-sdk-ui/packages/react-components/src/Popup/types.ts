@@ -17,8 +17,8 @@ export type VerticalPosition = 'top' | 'bottom'
 export interface PopupWindowProps {
   className?: string;
   children?: React.ReactNode;
-  windowRef: React.RefObject<HTMLDivElement>;
-  triggerRef: React.RefObject<HTMLDivElement>;
+  windowRef: React.RefObject<HTMLDivElement | null>;
+  triggerRef: React.RefObject<HTMLDivElement | null>;
   position: HorizontalPosition;
 }
 

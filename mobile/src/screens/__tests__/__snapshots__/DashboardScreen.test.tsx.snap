@@ -942,18 +942,28 @@ exports[`DashboardScreen should match snapshot 1`] = `
             ]
           }
         >
-          <Text
+          <View
             style={
               {
-                "color": "#000000",
-                "fontSize": 16,
-                "fontWeight": "800",
-                "letterSpacing": 0.5,
+                "alignItems": "center",
+                "flexDirection": "row",
+                "gap": 10,
               }
             }
           >
-            FINANCE 💰
-          </Text>
+            <Text
+              style={
+                {
+                  "color": "#000000",
+                  "fontSize": 16,
+                  "fontWeight": "800",
+                  "letterSpacing": 0.5,
+                }
+              }
+            >
+              FINANCE 💰
+            </Text>
+          </View>
           <View
             accessibilityState={
               {

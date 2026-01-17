@@ -16,7 +16,7 @@ interface Props {
   address: string;
   isBeingEdited: (arg: boolean) => void;
   onUpdateName?: (() => void) | null;
-  sidebarRef: React.RefObject<HTMLDivElement>;
+  sidebarRef: React.RefObject<HTMLDivElement | null>;
 }
 
 function SidebarEditableSection ({ accountIndex, address, isBeingEdited, onUpdateName, sidebarRef }: Props): React.ReactElement<Props> {

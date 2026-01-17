@@ -259,7 +259,6 @@ function ClaimsApp ({ basePath }: Props): React.ReactElement<Props> {
                 />
               )}
               <div>{t('Copy the following string and sign it with the Ethereum account you used during the pre-sale in the wallet of your choice, using the string as the payload, and then paste the transaction signature object below:')}</div>
-              {/* @ts-expect-error React 18 type compatibility */}
               <CopyToClipboard
                 onCopy={onCopy}
                 text={payload}

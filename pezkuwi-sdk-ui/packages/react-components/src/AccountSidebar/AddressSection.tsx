@@ -65,8 +65,7 @@ function AddressSection ({ accountIndex, defaultValue, editingName, flags, onCha
       </div>
       <div className='ui--AddressSection__CopyColumn'>
         <div className='ui--AddressMenu-copyaddr'>
-          {/* @ts-expect-error React 18 type compatibility */}
-          <CopyToClipboard
+            <CopyToClipboard
             text={value}
           >
             <span>
