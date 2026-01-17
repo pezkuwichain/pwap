@@ -207,18 +207,6 @@ const KurdMediaScreen: React.FC = () => {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
 
-      {/* Header */}
-      <LinearGradient
-        colors={[KurdistanColors.sor, '#C62828']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.header}
-      >
-        <View style={styles.headerContent}>
-          <Text style={styles.headerTitle}>KurdMedia</Text>
-          <Text style={styles.headerSubtitle}>Medyaya Kurdî & Piştgirî</Text>
-        </View>
-      </LinearGradient>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Kurdish Media Section */}
