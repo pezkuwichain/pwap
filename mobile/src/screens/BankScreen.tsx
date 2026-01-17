@@ -3,31 +3,13 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
-  StatusBar,
-  TouchableOpacity,
-  Platform,
+  ScrollView,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import { KurdistanColors } from '../theme/colors';
 
 const BankScreen: React.FC = () => {
-  const navigation = useNavigation();
-
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Text style={styles.backButtonText}>← Back</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Bank</Text>
-        <View style={styles.placeholder} />
-      </View>
-
-      {/* Content */}
+    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       <View style={styles.content}>
         <Text style={styles.icon}>🏦</Text>
         <Text style={styles.title}>Li benda damezrandinê</Text>
@@ -41,14 +23,14 @@ const BankScreen: React.FC = () => {
           </Text>
         </View>
         <View style={styles.featureList}>
-          <Text style={styles.featureTitle}>Planned Features:</Text>
-          <Text style={styles.featureItem}>• Digital savings accounts</Text>
-          <Text style={styles.featureItem}>• Decentralized lending</Text>
-          <Text style={styles.featureItem}>• Community treasury</Text>
-          <Text style={styles.featureItem}>• Cross-border payments</Text>
+          <Text style={styles.featureTitle}>Taybetmendiyên Plankirin:</Text>
+          <Text style={styles.featureItem}>• Hesabên teserûfê yên dîjîtal</Text>
+          <Text style={styles.featureItem}>• Deyndana nenavendî</Text>
+          <Text style={styles.featureItem}>• Xezîneya civakê</Text>
+          <Text style={styles.featureItem}>• Dravdanên nav-sînor</Text>
         </View>
       </View>
-    </SafeAreaView>
+    </ScrollView>
   );
 };
 
@@ -56,40 +38,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F5F5F5',
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E5E5',
-  },
-  backButton: {
-    paddingVertical: 4,
-    paddingRight: 8,
-  },
-  backButtonText: {
-    fontSize: 16,
-    color: KurdistanColors.kesk,
-    fontWeight: '500',
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: KurdistanColors.reş,
-  },
-  placeholder: {
-    width: 60,
+  contentContainer: {
+    flexGrow: 1,
   },
   content: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 32,
+    paddingVertical: 40,
   },
   icon: {
     fontSize: 80,

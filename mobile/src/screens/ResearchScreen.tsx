@@ -1,152 +1,47 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  StatusBar,
-  TouchableOpacity,
-  Platform,
-} from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { KurdistanColors } from '../theme/colors';
 
 const ResearchScreen: React.FC = () => {
-  const navigation = useNavigation();
-
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Text style={styles.backButtonText}>← Back</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Research</Text>
-        <View style={styles.placeholder} />
-      </View>
-
-      {/* Content */}
+    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       <View style={styles.content}>
         <Text style={styles.icon}>🔬</Text>
         <Text style={styles.title}>Li benda Wezareta Perwerdê</Text>
         <Text style={styles.titleEn}>Awaiting Ministry of Education</Text>
         <View style={styles.messageBox}>
           <Text style={styles.message}>
-            Duaye damezrandina Wezareta Perwerdê yên aktîv bibin.
+            Navenda lêkolînê piştî damezrandina Wezareta Perwerdê dê were vekirin.
           </Text>
           <Text style={styles.messageEn}>
-            Awaiting the establishment of an active Ministry of Education.
+            Research center will open after the Ministry of Education is established.
           </Text>
         </View>
         <View style={styles.featureList}>
-          <Text style={styles.featureTitle}>Planned Features:</Text>
-          <Text style={styles.featureItem}>• Kurdish research database</Text>
-          <Text style={styles.featureItem}>• Academic paper repository</Text>
-          <Text style={styles.featureItem}>• Research funding via DAO</Text>
-          <Text style={styles.featureItem}>• Collaboration tools</Text>
-          <Text style={styles.featureItem}>• Open access publications</Text>
+          <Text style={styles.featureTitle}>Taybetmendiyên Plankirin:</Text>
+          <Text style={styles.featureItem}>• Databaza lêkolînên Kurdî</Text>
+          <Text style={styles.featureItem}>• Depoya gotarên akademîk</Text>
+          <Text style={styles.featureItem}>• Fînanskirina bi DAO</Text>
+          <Text style={styles.featureItem}>• Weşanên gihîştina vekirî</Text>
         </View>
       </View>
-    </SafeAreaView>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F5F5F5',
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E5E5',
-  },
-  backButton: {
-    paddingVertical: 4,
-    paddingRight: 8,
-  },
-  backButtonText: {
-    fontSize: 16,
-    color: KurdistanColors.kesk,
-    fontWeight: '500',
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: KurdistanColors.reş,
-  },
-  placeholder: {
-    width: 60,
-  },
-  content: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 32,
-  },
-  icon: {
-    fontSize: 80,
-    marginBottom: 24,
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: KurdistanColors.reş,
-    textAlign: 'center',
-    marginBottom: 4,
-  },
-  titleEn: {
-    fontSize: 18,
-    color: '#666',
-    textAlign: 'center',
-    marginBottom: 24,
-  },
-  messageBox: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 24,
-    width: '100%',
-  },
-  message: {
-    fontSize: 15,
-    color: '#444',
-    textAlign: 'center',
-    lineHeight: 24,
-    marginBottom: 12,
-  },
-  messageEn: {
-    fontSize: 14,
-    color: '#888',
-    textAlign: 'center',
-    lineHeight: 22,
-  },
-  featureList: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 20,
-    width: '100%',
-  },
-  featureTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: KurdistanColors.kesk,
-    marginBottom: 12,
-  },
-  featureItem: {
-    fontSize: 14,
-    color: '#555',
-    marginBottom: 8,
-    lineHeight: 20,
-  },
+  container: { flex: 1, backgroundColor: '#F5F5F5' },
+  contentContainer: { flexGrow: 1 },
+  content: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32, paddingVertical: 40 },
+  icon: { fontSize: 80, marginBottom: 24 },
+  title: { fontSize: 22, fontWeight: 'bold', color: KurdistanColors.reş, textAlign: 'center', marginBottom: 4 },
+  titleEn: { fontSize: 18, color: '#666', textAlign: 'center', marginBottom: 24 },
+  messageBox: { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 20, marginBottom: 24, width: '100%' },
+  message: { fontSize: 15, color: '#444', textAlign: 'center', lineHeight: 24, marginBottom: 12 },
+  messageEn: { fontSize: 14, color: '#888', textAlign: 'center', lineHeight: 22 },
+  featureList: { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 20, width: '100%' },
+  featureTitle: { fontSize: 16, fontWeight: 'bold', color: KurdistanColors.kesk, marginBottom: 12 },
+  featureItem: { fontSize: 14, color: '#555', marginBottom: 8, lineHeight: 20 },
 });
 
 export default ResearchScreen;
