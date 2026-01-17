@@ -472,10 +472,10 @@ const SwapScreen: React.FC = () => {
       )}
 
       <ScrollView style={styles.scrollContent} contentContainerStyle={styles.scrollContentContainer}>
-        {/* Settings Button */}
+        {/* Header with Settings */}
         <View style={styles.header}>
           <View style={{width: 40}} />
-          <Text style={styles.headerTitle}>Swap Tokens</Text>
+          <Text style={styles.headerTitle}>Swap</Text>
           <TouchableOpacity onPress={() => setShowSettings(true)} style={styles.settingsButton}>
             <Text style={styles.settingsIcon}>⚙️</Text>
           </TouchableOpacity>
