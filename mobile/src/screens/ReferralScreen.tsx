@@ -87,18 +87,18 @@ const ReferralScreen: React.FC = () => {
     ? `PZK-${selectedAccount.address.slice(0, 8).toUpperCase()}`
     : 'PZK-CONNECT-WALLET';
 
-  // Full referral link for sharing
+  // Full referral link for sharing - pezkuwichain.io redirects to appropriate app store
   const referralLink = selectedAccount
-    ? `https://pezkuwi.app/join?ref=${selectedAccount.address}`
+    ? `https://pezkuwichain.io/app?ref=${selectedAccount.address}`
     : '';
 
   // Deep link for app-to-app sharing
   const deepLink = selectedAccount
-    ? `pezkuwi://join?ref=${selectedAccount.address}`
+    ? `pezkuwichain://join?ref=${selectedAccount.address}`
     : '';
 
   // Pre-formatted share message
-  const shareMessage = `🌟 Pezkuwi'ye Katıl! / Join Pezkuwi!\n\nDijital Kurdistan vatandaşı ol ve ödüller kazan!\nBecome a Digital Kurdistan citizen and earn rewards!\n\n🔗 ${referralLink}\n\n#Pezkuwi #Kurdistan #Web3`;
+  const shareMessage = `🌟 PezkuwiChain'e Katıl! / Join PezkuwiChain!\n\nDijital Kurdistan welatiyê bibe û xelatan bi dest bixe!\nBecome a Digital Kurdistan citizen and earn rewards!\n\n📲 ${referralLink}\n\n#PezkuwiChain #Kurdistan #Web3`;
 
   // Fetch referral data from blockchain
   const fetchReferralData = useCallback(async () => {
