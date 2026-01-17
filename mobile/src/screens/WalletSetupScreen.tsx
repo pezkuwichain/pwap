@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -11,26 +11,33 @@ import {
   Alert,
   Platform,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, NavigationProp, ParamListBase } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { KurdistanColors } from '../theme/colors';
 import { usePezkuwi } from '../contexts/PezkuwiContext';
 import { mnemonicGenerate, mnemonicValidate } from '@pezkuwi/util-crypto';
 
+// Alert button type for cross-platform compatibility
+interface AlertButton {
+  text: string;
+  onPress?: () => void;
+  style?: 'default' | 'cancel' | 'destructive';
+}
+
 // Cross-platform alert helper
-const showAlert = (title: string, message: string, buttons?: Array<{text: string; onPress?: () => void; style?: string}>) => {
+const showAlert = (title: string, message: string, buttons?: AlertButton[]) => {
   if (Platform.OS === 'web') {
     window.alert(`${title}\n\n${message}`);
     if (buttons?.[0]?.onPress) buttons[0].onPress();
   } else {
-    Alert.alert(title, message, buttons as any);
+    Alert.alert(title, message, buttons);
   }
 };
 
 type SetupStep = 'choice' | 'create-show' | 'create-verify' | 'import' | 'wallet-name' | 'success';
 
 const WalletSetupScreen: React.FC = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp<ParamListBase>>();
   const { createWallet, importWallet, connectWallet, isReady } = usePezkuwi();
 
   const [step, setStep] = useState<SetupStep>('choice');
@@ -111,9 +118,9 @@ const WalletSetupScreen: React.FC = () => {
       setCreatedAddress(address);
       await connectWallet();
       setStep('success');
-    } catch (error: any) {
-      console.error('[WalletSetup] Create wallet error:', error);
-      showAlert('Error', error.message || 'Failed to create wallet');
+    } catch (error: unknown) {
+      if (__DEV__) console.error('[WalletSetup] Create wallet error:', error);
+      showAlert('Error', error instanceof Error ? error.message : 'Failed to create wallet');
     } finally {
       setIsLoading(false);
     }
@@ -166,9 +173,9 @@ const WalletSetupScreen: React.FC = () => {
       setCreatedAddress(address);
       await connectWallet();
       setStep('success');
-    } catch (error: any) {
-      console.error('[WalletSetup] Import wallet error:', error);
-      showAlert('Error', error.message || 'Failed to import wallet');
+    } catch (error: unknown) {
+      if (__DEV__) console.error('[WalletSetup] Import wallet error:', error);
+      showAlert('Error', error instanceof Error ? error.message : 'Failed to import wallet');
     } finally {
       setIsLoading(false);
     }
@@ -179,8 +186,8 @@ const WalletSetupScreen: React.FC = () => {
     navigation.replace('Wallet');
   };
 
-  // Go back to previous step
-  const handleBack = () => {
+  // Go back to previous step (TODO: add back button UI)
+  const _handleBack = () => {
     switch (step) {
       case 'create-show':
       case 'import':
@@ -297,7 +304,7 @@ const WalletSetupScreen: React.FC = () => {
         onPress={handleMnemonicConfirmed}
         testID="wallet-setup-continue-button"
       >
-        <Text style={styles.primaryButtonText}>I've Written It Down</Text>
+        <Text style={styles.primaryButtonText}>I&apos;ve Written It Down</Text>
       </TouchableOpacity>
     </View>
   );
@@ -306,7 +313,7 @@ const WalletSetupScreen: React.FC = () => {
     <View style={styles.stepContainer} testID="wallet-setup-verify-seed">
       <Text style={styles.title}>Verify Your Phrase</Text>
       <Text style={styles.subtitle}>
-        Select the correct words to verify you've saved your recovery phrase
+        Select the correct words to verify you&apos;ve saved your recovery phrase
       </Text>
 
       <View style={styles.verificationContainer}>
