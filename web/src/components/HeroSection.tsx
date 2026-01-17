@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChevronRight, Shield, Smartphone } from 'lucide-react';
+import { ChevronRight, Shield } from 'lucide-react';
 import { usePezkuwi } from '../contexts/PezkuwiContext';
 import { useWallet } from '../contexts/WalletContext'; // Import useWallet
 import { formatBalance } from '@pezkuwi/lib/wallet';
