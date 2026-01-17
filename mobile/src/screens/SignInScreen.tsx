@@ -137,7 +137,7 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ onSignIn, onNavigateToSignU
                 onPress={onNavigateToSignUp}
               >
                 <Text style={styles.signUpPromptText}>
-                  Don't have an account?{' '}
+                  Don&apos;t have an account?{' '}
                   <Text style={styles.signUpLink}>Sign Up</Text>
                 </Text>
               </TouchableOpacity>
