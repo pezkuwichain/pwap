@@ -106,7 +106,7 @@ export const CitizenRoute: React.FC<RouteGuardProps> = ({
               <Users className="w-16 h-16 text-yellow-500" />
               <h2 className="text-2xl font-bold text-white">Wallet Not Connected</h2>
               <p className="text-gray-400">
-                Please connect your Polkadot wallet to access this feature.
+                Please connect your Pezkuwi wallet to access this feature.
               </p>
               <Button
                 onClick={() => window.location.href = '/'}

@@ -113,7 +113,7 @@ export function ReferralProvider({ children }: { children: ReactNode }) {
       if (!referredAddress || referredAddress.length < 47) {
         toast({
           title: 'Invalid Address',
-          description: 'Please enter a valid Polkadot address',
+          description: 'Please enter a valid Pezkuwi address',
           variant: 'destructive',
         });
         return false;

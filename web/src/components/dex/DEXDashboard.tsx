@@ -78,7 +78,7 @@ export const DEXDashboard: React.FC = () => {
         {!account ? (
           <div className="text-center py-12">
             <div className="mb-4 text-gray-400 text-lg">
-              Please connect your Polkadot wallet to use the DEX
+              Please connect your Pezkuwi wallet to use the DEX
             </div>
           </div>
         ) : (
