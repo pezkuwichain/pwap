@@ -46,7 +46,6 @@ function CopyButton ({ children, className = '', icon = 'copy', label, type, val
 
   return (
     <StyledDiv className={`${className} ui--CopyButton`}>
-      {/* @ts-expect-error React 18 type compatibility */}
       <CopyToClipboard
         onCopy={_onCopy}
         text={value as string}

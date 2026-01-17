@@ -25,7 +25,7 @@ interface Result {
 
 const COORD_0: Coord = { x: 0, y: 0 };
 
-function usePopupWindowImpl (windowRef: React.RefObject<HTMLDivElement>, triggerRef: React.RefObject<HTMLDivElement>, position: HorizontalPosition): Result {
+function usePopupWindowImpl (windowRef: React.RefObject<HTMLDivElement | null>, triggerRef: React.RefObject<HTMLDivElement | null>, position: HorizontalPosition): Result {
   const [renderCoords, setRenderCoords] = useState<Coord>(COORD_0);
   const [pointerStyle, setPointerStyle] = useState<VerticalPosition>('top');
   const windowCoords = useElementPosition(windowRef);

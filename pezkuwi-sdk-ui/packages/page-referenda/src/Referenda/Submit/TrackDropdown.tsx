@@ -35,7 +35,7 @@ function TrackDropdown ({ className, exclude, include, onChange, palletReferenda
   );
 }
 
-export default React.memo(styled(TrackDropdown)`
+const StyledTrackDropdown: React.FC<Props> = styled(TrackDropdown)`
   .trackOption {
     .faded {
       font-size: var(--font-size-small);
@@ -44,4 +44,6 @@ export default React.memo(styled(TrackDropdown)`
       opacity: 0.6;
     }
   }
-`);
+`;
+
+export default React.memo(StyledTrackDropdown);

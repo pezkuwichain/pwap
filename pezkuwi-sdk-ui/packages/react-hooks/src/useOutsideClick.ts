@@ -7,14 +7,14 @@ import { useCallback, useEffect } from 'react';
 
 import { createNamedHook } from './createNamedHook.js';
 
-function isRefClicked (refs: React.RefObject<HTMLDivElement>[], e: MouseEvent): boolean {
+function isRefClicked (refs: React.RefObject<HTMLDivElement | null>[], e: MouseEvent): boolean {
   return refs.some((r) =>
     r.current &&
     r.current.contains(e.target as HTMLElement)
   );
 }
 
-function useOutsideClickImpl (refs: React.RefObject<HTMLDivElement>[], callback: () => void): void {
+function useOutsideClickImpl (refs: React.RefObject<HTMLDivElement | null>[], callback: () => void): void {
   const handleClick = useCallback(
     (e: MouseEvent): void => {
       if (refs.length && !isRefClicked(refs, e)) {

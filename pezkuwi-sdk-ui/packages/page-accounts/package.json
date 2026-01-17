@@ -21,7 +21,7 @@
     "@pezkuwi/react-components": "^0.168.2-0-x",
     "@pezkuwi/react-hooks": "^0.168.2-0-x",
     "@pezkuwi/util": "^14.0.5",
-    "@pezkuwi/vanitygen": "^1.0.0",
+    "@pezkuwi/vanitygen": "^1.0.1",
     "detect-browser": "^5.3.0",
     "file-saver": "^2.0.5"
   },

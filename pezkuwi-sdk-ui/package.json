@@ -67,6 +67,7 @@
     "test:skipped": "echo 'tests skipped'"
   },
   "dependencies": {
+    "@pezkuwi/extension-dapp": "0.62.19",
     "@pezkuwi/ui-shared": "^3.17.2"
   },
   "devDependencies": {
@@ -99,6 +100,7 @@
     "@pezkuwi/api-base": "^16.5.6",
     "@pezkuwi/api-contract": "^16.5.6",
     "@pezkuwi/api-derive": "^16.5.6",
+    "@pezkuwi/extension-dapp": "0.62.19",
     "@pezkuwi/extension-inject": "^0.62.18",
     "@pezkuwi/hw-ledger": "^14.0.7",
     "@pezkuwi/keyring": "^14.0.7",
@@ -125,6 +127,7 @@
     "@pezkuwi/x-textencoder": "^14.0.7",
     "@pezkuwi/x-ws": "^14.0.7",
     "@zondax/ledger-substrate": "1.1.1",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "webpack/eslint-scope": "5.1.1"
   }
 }

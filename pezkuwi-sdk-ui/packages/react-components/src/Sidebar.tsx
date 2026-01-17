@@ -14,7 +14,7 @@ interface Props {
   offset?: number | string;
   onClose?: () => void;
   position: 'left' | 'right';
-  sidebarRef: React.RefObject<HTMLDivElement>;
+  sidebarRef: React.RefObject<HTMLDivElement | null>;
 }
 
 function Sidebar ({ buttons, children, className = '', dataTestId = '', onClose, position, sidebarRef }: Props): React.ReactElement<Props> {
@@ -22,7 +22,7 @@ function Sidebar ({ buttons, children, className = '', dataTestId = '', onClose,
     <StyledDiv
       className={`${className} ui--Sidebar ${position}Position`}
       data-testid={dataTestId}
-      ref={sidebarRef}
+      ref={sidebarRef as React.RefObject<HTMLDivElement>}
     >
       <Button.Group className='ui--Sidebar-buttons'>
         {buttons}
