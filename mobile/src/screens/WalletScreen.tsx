@@ -16,9 +16,9 @@ import {
   Platform,
   Clipboard,
   Share,
+  ImageSourcePropType,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, NavigationProp, ParamListBase } from '@react-navigation/native';
 import QRCode from 'react-native-qrcode-svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
@@ -27,8 +27,8 @@ import { usePezkuwi, NetworkType, NETWORKS } from '../contexts/PezkuwiContext';
 import { AddTokenModal } from '../components/wallet/AddTokenModal';
 import { QRScannerModal } from '../components/wallet/QRScannerModal';
 // Token logo PNG files are used directly instead of SVG components
-import { decodeAddress, checkAddress, encodeAddress } from '@pezkuwi/util-crypto';
-import { fetchAllTokens, TokenInfo, subscribeToTokenBalances, KNOWN_TOKENS, TOKEN_LOGOS } from '../services/TokenService';
+import { decodeAddress, checkAddress } from '@pezkuwi/util-crypto';
+import { fetchAllTokens, TokenInfo, KNOWN_TOKENS, TOKEN_LOGOS } from '../services/TokenService';
 
 // Secure storage helper - same as in PezkuwiContext
 const secureStorage = {
@@ -41,8 +41,15 @@ const secureStorage = {
   },
 };
 
+// Alert button type for cross-platform compatibility
+interface AlertButton {
+  text: string;
+  onPress?: () => void;
+  style?: 'default' | 'cancel' | 'destructive';
+}
+
 // Cross-platform alert helper
-const showAlert = (title: string, message: string, buttons?: Array<{text: string; onPress?: () => void; style?: string}>) => {
+const showAlert = (title: string, message: string, buttons?: AlertButton[]) => {
   if (Platform.OS === 'web') {
     if (buttons && buttons.length > 1) {
       const result = window.confirm(`${title}\n\n${message}`);
@@ -56,20 +63,15 @@ const showAlert = (title: string, message: string, buttons?: Array<{text: string
       if (buttons?.[0]?.onPress) buttons[0].onPress();
     }
   } else {
-    Alert.alert(title, message, buttons as any);
+    Alert.alert(title, message, buttons);
   }
 };
 
 // Token Images - From shared/images
-// Standardized token logos
-const hezLogo = require('../../../shared/images/hez_token_512.png');
-const pezLogo = require('../../../shared/images/pez_token_512.png');
-const usdtLogo = require('../../../shared/images/USDT(hez)logo.png');
-const dotLogo = require('../../../shared/images/dot.png');
-const btcLogo = require('../../../shared/images/bitcoin.png');
-const ethLogo = require('../../../shared/images/etherium.png');
-const bnbLogo = require('../../../shared/images/BNB_logo.png');
-const adaLogo = require('../../../shared/images/ADAlogo.png');
+// Standardized token logos (only used ones imported)
+import hezLogo from '../../../shared/images/hez_token_512.png';
+import pezLogo from '../../../shared/images/pez_token_512.png';
+import usdtLogo from '../../../shared/images/USDT(hez)logo.png';
 
 interface Token {
   symbol: string;
@@ -77,7 +79,7 @@ interface Token {
   balance: string;
   value: string;
   change: string;
-  logo: any; // Image source
+  logo: ImageSourcePropType;
   assetId?: number;
   isLive: boolean;
 }
@@ -95,28 +97,25 @@ interface Transaction {
 }
 
 const WalletScreen: React.FC = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp<ParamListBase>>();
   const {
     api,
     isApiReady,
     accounts,
     selectedAccount,
     setSelectedAccount,
-    connectWallet,
-    disconnectWallet,
     createWallet,
     deleteWallet,
     getKeyPair,
     currentNetwork,
     switchNetwork,
-    error: pezkuwiError
   } = usePezkuwi();
 
   const [selectedToken, setSelectedToken] = useState<Token | null>(null);
   const [sendModalVisible, setSendModalVisible] = useState(false);
   const [receiveModalVisible, setReceiveModalVisible] = useState(false);
-  const [createWalletModalVisible, setCreateWalletModalVisible] = useState(false);
-  const [importWalletModalVisible, setImportWalletModalVisible] = useState(false);
+  const [_createWalletModalVisible, _setCreateWalletModalVisible] = useState(false);
+  const [_importWalletModalVisible, _setImportWalletModalVisible] = useState(false);
   const [backupModalVisible, setBackupModalVisible] = useState(false);
   const [networkSelectorVisible, setNetworkSelectorVisible] = useState(false);
   const [walletSelectorVisible, setWalletSelectorVisible] = useState(false);
@@ -128,16 +127,16 @@ const WalletScreen: React.FC = () => {
   const [hiddenTokens, setHiddenTokens] = useState<string[]>([]);
   const [recipientAddress, setRecipientAddress] = useState('');
   const [sendAmount, setSendAmount] = useState('');
-  const [walletName, setWalletName] = useState('');
+  const [walletName, _setWalletName] = useState('');
   const [importMnemonic, setImportMnemonic] = useState('');
-  const [importWalletName, setImportWalletName] = useState('');
+  const [_importWalletName, _setImportWalletName] = useState('');
   const [userMnemonic, setUserMnemonic] = useState<string>('');
   const [isSending, setIsSending] = useState(false);
   const [isLoadingBalances, setIsLoadingBalances] = useState(false);
   
-  // Transaction History State
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  // Transaction History State (TODO: implement transaction history display)
+  const [_transactions, _setTransactions] = useState<Transaction[]>([]);
+  const [_isLoadingHistory, _setIsLoadingHistory] = useState(false);
 
   const [balances, setBalances] = useState<{ [key: string]: string }>({
     HEZ: '0.00',
@@ -221,43 +220,48 @@ const WalletScreen: React.FC = () => {
     setIsLoadingBalances(true);
     try {
       // 1. Fetch Balances - decode address to raw bytes to avoid SS58 encoding issues
-      let accountId: Uint8Array;
+      let accountId: Uint8Array | string;
       try {
         accountId = decodeAddress(selectedAccount.address);
-      } catch (e) {
-        console.warn('[Wallet] Failed to decode address, using raw:', e);
-        accountId = selectedAccount.address as any;
+      } catch (_e) {
+        if (__DEV__) console.warn('[Wallet] Failed to decode address, using raw:', _e);
+        accountId = selectedAccount.address;
       }
 
-      const accountInfo = await api.query.system.account(accountId) as any;
-      const hezBalance = (Number(accountInfo.data.free.toString()) / 1e12).toFixed(2);
+      const accountInfo = await api.query.system.account(accountId);
+      const accountData = accountInfo.toJSON() as { data?: { free?: string | number } } | null;
+      const freeBalance = accountData?.data?.free ?? 0;
+      const hezBalance = (Number(freeBalance) / 1e12).toFixed(2);
 
       let pezBalance = '0.00';
       try {
         if (api.query.assets?.account) {
-          const pezAsset = await api.query.assets.account(1, accountId) as any;
-          if (pezAsset.isSome) pezBalance = (Number(pezAsset.unwrap().balance.toString()) / 1e12).toFixed(2);
+          const pezAsset = await api.query.assets.account(1, accountId);
+          const pezData = pezAsset.toJSON() as { balance?: string | number } | null;
+          if (pezData?.balance) pezBalance = (Number(pezData.balance) / 1e12).toFixed(2);
         }
-      } catch (e) {
-        console.warn('[Wallet] PEZ balance fetch failed:', e);
+      } catch (_e) {
+        if (__DEV__) console.warn('[Wallet] PEZ balance fetch failed:', _e);
       }
 
       let usdtBalance = '0.00';
       try {
         if (api.query.assets?.account) {
           // Check ID 1000 first (as per constants), fallback to 2 just in case
-          let usdtAsset = await api.query.assets.account(1000, accountId) as any;
-          if (usdtAsset.isNone) {
-             usdtAsset = await api.query.assets.account(2, accountId) as any;
+          let usdtAsset = await api.query.assets.account(1000, accountId);
+          let usdtData = usdtAsset.toJSON() as { balance?: string | number } | null;
+          if (!usdtData?.balance) {
+             usdtAsset = await api.query.assets.account(2, accountId);
+             usdtData = usdtAsset.toJSON() as { balance?: string | number } | null;
           }
 
-          if (usdtAsset.isSome) {
+          if (usdtData?.balance) {
              // USDT uses 6 decimals usually, checking constants or assuming standard
-             usdtBalance = (Number(usdtAsset.unwrap().balance.toString()) / 1e6).toFixed(2);
+             usdtBalance = (Number(usdtData.balance) / 1e6).toFixed(2);
           }
         }
-      } catch (e) {
-        console.warn('[Wallet] USDT balance fetch failed:', e);
+      } catch (_e) {
+        if (__DEV__) console.warn('[Wallet] USDT balance fetch failed:', _e);
       }
 
       setBalances({ HEZ: hezBalance, PEZ: pezBalance, USDT: usdtBalance });
@@ -270,7 +274,7 @@ const WalletScreen: React.FC = () => {
       setTransactions([]);
 
     } catch (error) {
-      console.error('Fetch error:', error);
+      if (__DEV__) console.error('Fetch error:', error);
     } finally {
       setIsLoadingBalances(false);
       setIsLoadingHistory(false);
@@ -296,10 +300,10 @@ const WalletScreen: React.FC = () => {
         unsubscribe = await api.query.system.account(accountId, (accountInfo: any) => {
           const hezBalance = (Number(accountInfo.data.free.toString()) / 1e12).toFixed(2);
           setBalances(prev => ({ ...prev, HEZ: hezBalance }));
-          console.log('[Wallet] Balance updated via subscription:', hezBalance, 'HEZ');
+          if (__DEV__) console.warn('[Wallet] Balance updated via subscription:', hezBalance, 'HEZ');
         }) as unknown as () => void;
       } catch (e) {
-        console.warn('[Wallet] Subscription failed, falling back to polling:', e);
+        if (__DEV__) console.warn('[Wallet] Subscription failed, falling back to polling:', e);
         // Fallback to polling if subscription fails
         fetchData();
       }
@@ -326,9 +330,9 @@ const WalletScreen: React.FC = () => {
       try {
         const tokens = await fetchAllTokens(api, selectedAccount.address);
         setAllTokens(tokens);
-        console.log('[Wallet] Loaded', tokens.length, 'tokens from blockchain');
+        if (__DEV__) console.warn('[Wallet] Loaded', tokens.length, 'tokens from blockchain');
       } catch (error) {
-        console.error('[Wallet] Failed to load tokens:', error);
+        if (__DEV__) console.error('[Wallet] Failed to load tokens:', error);
       } finally {
         setIsLoadingTokens(false);
       }
@@ -415,7 +419,7 @@ const WalletScreen: React.FC = () => {
           setSavedAddresses(JSON.parse(stored));
         }
       } catch (e) {
-        console.warn('[Wallet] Failed to load address book:', e);
+        if (__DEV__) console.warn('[Wallet] Failed to load address book:', e);
       }
     };
     loadAddressBook();
@@ -434,7 +438,7 @@ const WalletScreen: React.FC = () => {
       await AsyncStorage.setItem('@pezkuwi_address_book', JSON.stringify(updated));
       showAlert('Saved', `Address "${name}" saved to address book`);
     } catch (e) {
-      console.warn('[Wallet] Failed to save address:', e);
+      if (__DEV__) console.warn('[Wallet] Failed to save address:', e);
     }
   };
 
@@ -445,7 +449,7 @@ const WalletScreen: React.FC = () => {
       setSavedAddresses(updated);
       await AsyncStorage.setItem('@pezkuwi_address_book', JSON.stringify(updated));
     } catch (e) {
-      console.warn('[Wallet] Failed to delete address:', e);
+      if (__DEV__) console.warn('[Wallet] Failed to delete address:', e);
     }
   };
 
@@ -502,7 +506,7 @@ const WalletScreen: React.FC = () => {
       const feeInHez = (Number(paymentInfo.partialFee.toString()) / 1e12).toFixed(6);
       setEstimatedFee(feeInHez);
     } catch (e) {
-      console.warn('[Wallet] Fee estimation failed:', e);
+      if (__DEV__) console.warn('[Wallet] Fee estimation failed:', e);
       setEstimatedFee('~0.001'); // Fallback estimate
     } finally {
       setIsEstimatingFee(false);
@@ -568,7 +572,7 @@ const WalletScreen: React.FC = () => {
 
         await tx.signAndSend(keypair, ({ status, events }) => {
             if (status.isInBlock) {
-                console.log('[Wallet] Transaction in block:', status.asInBlock.toHex());
+                if (__DEV__) console.warn('[Wallet] Transaction in block:', status.asInBlock.toHex());
             }
             if (status.isFinalized) {
                 setSendModalVisible(false);
@@ -650,7 +654,7 @@ const WalletScreen: React.FC = () => {
         showAlert('No Backup', 'Mnemonic not found in secure storage. It may have been imported from another device.');
       }
     } catch (error) {
-      console.error('Error retrieving mnemonic:', error);
+      if (__DEV__) console.error('Error retrieving mnemonic:', error);
       showAlert('Error', 'Failed to retrieve mnemonic from secure storage.');
     }
   };
@@ -662,8 +666,8 @@ const WalletScreen: React.FC = () => {
       await Share.share({
         message: `My Pezkuwichain Address:\n${selectedAccount.address}`,
       });
-    } catch (e) {
-      console.error(e);
+    } catch (_e) {
+      if (__DEV__) console.error(_e);
     }
   };
 

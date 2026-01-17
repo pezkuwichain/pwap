@@ -8,27 +8,25 @@ import {
   TouchableOpacity,
   TextInput,
   Modal,
-  ActivityIndicator,
   Alert,
-  Platform,
   Image,
+  ImageSourcePropType,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import { KurdistanColors } from '../theme/colors';
 import { usePezkuwi } from '../contexts/PezkuwiContext';
 import { KurdistanSun } from '../components/KurdistanSun';
 
 // Standardized token logos
-const hezLogo = require('../../../shared/images/hez_token_512.png');
-const pezLogo = require('../../../shared/images/pez_token_512.png');
-const usdtLogo = require('../../../shared/images/USDT(hez)logo.png');
+import hezLogo from '../../../shared/images/hez_token_512.png';
+import pezLogo from '../../../shared/images/pez_token_512.png';
+import usdtLogo from '../../../shared/images/USDT(hez)logo.png';
 
 interface TokenInfo {
   symbol: string;
   name: string;
   assetId: number;
   decimals: number;
-  logo: any;
+  logo: ImageSourcePropType;
 }
 
 const TOKENS: TokenInfo[] = [
@@ -40,7 +38,6 @@ const TOKENS: TokenInfo[] = [
 type TransactionStatus = 'idle' | 'signing' | 'submitting' | 'success' | 'error';
 
 const SwapScreen: React.FC = () => {
-  const navigation = useNavigation<any>();
   const { api, isApiReady, selectedAccount, getKeyPair } = usePezkuwi();
 
   const [fromToken, setFromToken] = useState<TokenInfo>(TOKENS[0]);
@@ -64,7 +61,6 @@ const SwapScreen: React.FC = () => {
   const [isDexAvailable, setIsDexAvailable] = useState(false);
 
   const [txStatus, setTxStatus] = useState<TransactionStatus>('idle');
-  const [errorMessage, setErrorMessage] = useState('');
 
   const [showTokenSelector, setShowTokenSelector] = useState<'from' | 'to' | null>(null);
   const [showSettings, setShowSettings] = useState(false);
@@ -78,28 +74,32 @@ const SwapScreen: React.FC = () => {
       // Fetch From Token Balance
       try {
         if (fromToken.symbol === 'HEZ') {
-          const accountInfo = await api.query.system.account(selectedAccount.address) as any;
-          setFromBalance(accountInfo.data.free.toString());
+          const accountInfo = await api.query.system.account(selectedAccount.address);
+          const accountData = accountInfo.toJSON() as { data?: { free?: string } } | null;
+          setFromBalance(accountData?.data?.free?.toString() || '0');
         } else {
-          const balanceData = await api.query.assets.account(fromToken.assetId, selectedAccount.address) as any;
-          setFromBalance(balanceData.isSome ? balanceData.unwrap().balance.toString() : '0');
+          const balanceData = await api.query.assets.account(fromToken.assetId, selectedAccount.address);
+          const assetBalance = balanceData.toJSON() as { balance?: string } | null;
+          setFromBalance(assetBalance?.balance?.toString() || '0');
         }
-      } catch (error) {
-        console.error('Failed to fetch from balance:', error);
+      } catch (_error) {
+        if (__DEV__) console.error('Failed to fetch from balance:', _error);
         setFromBalance('0');
       }
 
       // Fetch To Token Balance
       try {
         if (toToken.symbol === 'HEZ') {
-          const accountInfo = await api.query.system.account(selectedAccount.address) as any;
-          setToBalance(accountInfo.data.free.toString());
+          const accountInfo = await api.query.system.account(selectedAccount.address);
+          const accountData = accountInfo.toJSON() as { data?: { free?: string } } | null;
+          setToBalance(accountData?.data?.free?.toString() || '0');
         } else {
-          const balanceData = await api.query.assets.account(toToken.assetId, selectedAccount.address) as any;
-          setToBalance(balanceData.isSome ? balanceData.unwrap().balance.toString() : '0');
+          const balanceData = await api.query.assets.account(toToken.assetId, selectedAccount.address);
+          const assetBalance = balanceData.toJSON() as { balance?: string } | null;
+          setToBalance(assetBalance?.balance?.toString() || '0');
         }
-      } catch (error) {
-        console.error('Failed to fetch to balance:', error);
+      } catch (_error) {
+        if (__DEV__) console.error('Failed to fetch to balance:', _error);
         setToBalance('0');
       }
     };
@@ -112,7 +112,7 @@ const SwapScreen: React.FC = () => {
     if (api && isApiReady) {
       const hasAssetConversion = api.tx.assetConversion !== undefined;
       setIsDexAvailable(hasAssetConversion);
-      if (__DEV__ && !hasAssetConversion) {
+      if (!hasAssetConversion && __DEV__) {
         console.warn('AssetConversion pallet not available in runtime');
       }
     }
@@ -192,7 +192,7 @@ const SwapScreen: React.FC = () => {
               const reserve1 = Number(BigInt(balance1Hex)) / (10 ** decimals1);
 
               if (__DEV__) {
-                console.log('Pool reserves found:', { reserve0, reserve1, asset1, asset2 });
+                console.warn('Pool reserves found:', { reserve0, reserve1, asset1, asset2 });
               }
 
               // Store pool reserves for AMM calculation
@@ -274,7 +274,7 @@ const SwapScreen: React.FC = () => {
     const amountOut = numerator / denominator;
 
     if (__DEV__) {
-      console.log('AMM calculation:', {
+      console.warn('AMM calculation:', {
         amountIn,
         reserveIn,
         reserveOut,
@@ -348,7 +348,6 @@ const SwapScreen: React.FC = () => {
 
     setTxStatus('signing');
     setShowConfirm(false);
-    setErrorMessage('');
 
     try {
       const keypair = await getKeyPair(selectedAccount.address);
@@ -426,7 +425,6 @@ const SwapScreen: React.FC = () => {
         if (status.isInBlock) {
           if (dispatchError) {
             const errorMsg = dispatchError.toString();
-            setErrorMessage(errorMsg);
             setTxStatus('error');
             Alert.alert('Transaction Failed', errorMsg);
           } else {
@@ -440,11 +438,11 @@ const SwapScreen: React.FC = () => {
           }
         }
       });
-    } catch (error: any) {
-      console.error('Swap failed:', error);
-      setErrorMessage(error.message || 'Transaction failed');
+    } catch (error: unknown) {
+      if (__DEV__) console.error('Swap failed:', error);
       setTxStatus('error');
-      Alert.alert('Error', error.message || 'Swap transaction failed');
+      const errorMessage = error instanceof Error ? error.message : 'Swap transaction failed';
+      Alert.alert('Error', errorMessage);
     }
   };
 

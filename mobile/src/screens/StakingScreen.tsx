@@ -70,8 +70,10 @@ export default function StakingScreen() {
       const scores = await getAllScores(api, selectedAccount.address);
 
       // 3. Get Current Era
-      const currentEraOpt = await api.query.staking.currentEra() as any;
-      const currentEra = currentEraOpt.unwrapOrDefault().toNumber();
+      const currentEraOpt = await api.query.staking.currentEra();
+      const currentEra = currentEraOpt.isSome
+        ? (currentEraOpt as unknown as { unwrap: () => { toNumber: () => number } }).unwrap().toNumber()
+        : 0;
 
       // Calculations
       const stakedAmount = stakingInfo.bonded;

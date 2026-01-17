@@ -14,15 +14,22 @@ import {
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, NavigationProp, ParamListBase } from '@react-navigation/native';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { KurdistanColors } from '../theme/colors';
 import { supabase } from '../lib/supabase';
 import AvatarPickerModal from '../components/AvatarPickerModal';
 
+// Alert button type for cross-platform compatibility
+interface AlertButton {
+  text: string;
+  onPress?: () => void;
+  style?: 'default' | 'cancel' | 'destructive';
+}
+
 // Cross-platform alert helper
-const showAlert = (title: string, message: string, buttons?: Array<{text: string; onPress?: () => void; style?: string}>) => {
+const showAlert = (title: string, message: string, buttons?: AlertButton[]) => {
   if (Platform.OS === 'web') {
     if (buttons && buttons.length > 1) {
       const result = window.confirm(`${title}\n\n${message}`);
@@ -33,7 +40,7 @@ const showAlert = (title: string, message: string, buttons?: Array<{text: string
       window.alert(`${title}\n\n${message}`);
     }
   } else {
-    Alert.alert(title, message, buttons as any);
+    Alert.alert(title, message, buttons);
   }
 };
 
@@ -83,7 +90,7 @@ interface ProfileData {
 }
 
 const ProfileScreen: React.FC = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp<ParamListBase>>();
   const { user, signOut } = useAuth();
   const { isDarkMode, colors, fontScale } = useTheme();
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
@@ -235,7 +242,7 @@ const ProfileScreen: React.FC = () => {
             icon="👥"
             title="Referrals"
             value={`${profileData?.referral_count || 0} people`}
-            onPress={() => (navigation as any).navigate('Referral')}
+            onPress={() => navigation.navigate('Referral')}
             testID="profile-card-referrals"
           />
 
