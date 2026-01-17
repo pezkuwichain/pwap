@@ -43,9 +43,6 @@ export default defineConfig(() => ({
       "@local/types": path.resolve(__dirname, "../shared/types"),
       "@pezkuwi/components": path.resolve(__dirname, "../shared/components"),
       "@shared": path.resolve(__dirname, "../shared"),
-      // Workspace symlinks point to source dirs - resolve to build/ for proper module resolution
-      "@pezkuwi/extension-dapp": path.resolve(__dirname, "../../pezkuwi-extension/packages/extension-dapp/build"),
-      "@pezkuwi/extension-inject": path.resolve(__dirname, "../../pezkuwi-extension/packages/extension-inject/build"),
     },
     dedupe: ['react', 'lucide-react', 'sonner', '@pezkuwi/util-crypto', '@pezkuwi/util', '@pezkuwi/api', '@pezkuwi/extension-dapp', '@pezkuwi/keyring'],
   },
