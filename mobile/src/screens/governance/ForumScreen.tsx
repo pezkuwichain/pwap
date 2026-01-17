@@ -72,8 +72,8 @@ const ForumScreen: React.FC = () => {
       setCategories([]);
       setDiscussions([]);
 
-    } catch (error) {
-      console.error('Failed to load forum data:', error);
+    } catch (_error) {
+      if (__DEV__) console.error('Failed to load forum data:', _error);
       Alert.alert('Error', 'Failed to load forum data from database');
     } finally {
       setLoading(false);

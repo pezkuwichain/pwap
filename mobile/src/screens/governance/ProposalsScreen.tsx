@@ -78,8 +78,8 @@ const ProposalsScreen: React.FC = () => {
 
         setProposals(parsedProposals);
       }
-    } catch (error) {
-      console.error('Failed to load proposals:', error);
+    } catch (_error) {
+      if (__DEV__) console.error('Failed to load proposals:', _error);
       Alert.alert('Error', 'Failed to load proposals from blockchain');
     } finally {
       setLoading(false);
@@ -91,6 +91,7 @@ const ProposalsScreen: React.FC = () => {
     fetchProposals();
     const interval = setInterval(fetchProposals, 30000);
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [api, isApiReady]);
 
   const handleRefresh = () => {

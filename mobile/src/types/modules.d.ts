@@ -28,9 +28,10 @@ declare module '@pezkuwi/extension-inject/types' {
 
 declare module '@pezkuwi/extension-dapp' {
   import type { InjectedAccountWithMeta } from '@pezkuwi/extension-inject/types';
+  import type { Signer } from '@pezkuwi/api/types';
 
   interface InjectedWeb3 {
-    signer: any;
+    signer: Signer;
     name: string;
     version: string;
   }
@@ -43,7 +44,8 @@ declare module '@pezkuwi/extension-dapp' {
 
 // Path alias for shared lib - used in web context
 declare module '@/lib/supabase' {
-  export const supabase: any;
+  import type { SupabaseClient } from '@supabase/supabase-js';
+  export const supabase: SupabaseClient;
 }
 
 // Import.meta.env for Vite-like environments
