@@ -150,14 +150,6 @@ const HeroSection: React.FC = () => {
             {t('hero.exploreGovernance', 'Explore Governance')}
             <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </button>
-          <a
-            href="/pezkuwi-wallet.apk"
-            download="pezkuwi-wallet.apk"
-            className="px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold rounded-lg hover:shadow-lg hover:shadow-blue-500/50 transition-all transform hover:scale-105 flex items-center justify-center group"
-          >
-            <Smartphone className="mr-2 w-5 h-5" />
-            {t('hero.downloadWallet', 'Download Mobile Wallet')}
-          </a>
           <button
             onClick={() => document.getElementById('governance')?.scrollIntoView({ behavior: 'smooth' })}
             className="px-8 py-4 bg-gray-900/80 backdrop-blur-sm text-white font-semibold rounded-lg border border-gray-700 hover:bg-gray-800 hover:border-gray-600 transition-all"
