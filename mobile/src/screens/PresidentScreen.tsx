@@ -354,31 +354,6 @@ const PresidentScreen: React.FC = () => {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
 
-      {/* Header */}
-      <LinearGradient
-        colors={[KurdistanColors.kesk, '#006633']}
-        style={styles.header}
-      >
-        <View style={styles.headerContent}>
-          <Text style={styles.headerIcon}>👑</Text>
-          <Text style={styles.headerTitle}>Serokî / President</Text>
-          <Text style={styles.headerSubtitle}>Hilbijartina Serokê Komarê</Text>
-        </View>
-
-        {/* Kurdistan Sun decoration */}
-        <View style={styles.sunDecoration}>
-          <View style={styles.sunCenter} />
-          {[...Array(21)].map((_, i) => (
-            <View
-              key={i}
-              style={[
-                styles.sunRay,
-                { transform: [{ rotate: `${i * (360 / 21)}deg` }] }
-              ]}
-            />
-          ))}
-        </View>
-      </LinearGradient>
 
       {/* Tab Navigation */}
       <View style={styles.tabContainer}>
