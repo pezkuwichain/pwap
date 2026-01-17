@@ -22,8 +22,6 @@ import { KurdistanColors } from '../theme/colors';
 import {
   getReferralStats,
   getMyReferrals,
-  calculateReferralScore,
-  type ReferralStats as BlockchainReferralStats,
 } from '../../shared/lib/referral';
 
 // Share platform types
@@ -93,7 +91,7 @@ const ReferralScreen: React.FC = () => {
     : '';
 
   // Deep link for app-to-app sharing
-  const deepLink = selectedAccount
+  const _deepLink = selectedAccount
     ? `pezkuwichain://join?ref=${selectedAccount.address}`
     : '';
 
@@ -181,7 +179,7 @@ const ReferralScreen: React.FC = () => {
     if (!selectedAccount) return;
 
     const encodedMessage = encodeURIComponent(shareMessage);
-    const encodedLink = encodeURIComponent(referralLink);
+    const _encodedLink = encodeURIComponent(referralLink);
 
     let url = '';
 
@@ -624,7 +622,7 @@ const ReferralScreen: React.FC = () => {
 
             <Text style={styles.qrInstructions}>
               Bu QR kodu arkadaşlarınla paylaş.{'\n'}
-              Taratarak Pezkuwi'ye katılabilirler.
+              Taratarak Pezkuwi&apos;ye katılabilirler.
             </Text>
             <Text style={styles.qrInstructionsEn}>
               Share this QR code with friends.{'\n'}

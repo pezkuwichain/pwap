@@ -43,7 +43,7 @@ const DelegationScreen: React.FC = () => {
 
   const [delegates, setDelegates] = useState<Delegate[]>([]);
   const [userDelegations, setUserDelegations] = useState<UserDelegation[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [_loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedView, setSelectedView] = useState<'explore' | 'my-delegations'>('explore');
   const [selectedDelegate, setSelectedDelegate] = useState<Delegate | null>(null);

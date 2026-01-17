@@ -44,6 +44,7 @@
     "@react-navigation/stack": "^7.6.4",
     "@supabase/supabase-js": "^2.90.1",
     "buffer": "^6.0.3",
+    "concat-map": "^0.0.2",
     "expo": "~54.0.23",
     "expo-camera": "~17.0.10",
     "expo-image-picker": "~17.0.10",

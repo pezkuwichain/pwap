@@ -22,7 +22,7 @@ interface ElectionInfo {
   totalVotes: number;
 }
 
-interface Candidate {
+interface _Candidate {
   address: string;
   name: string;
   votes: number;
@@ -32,7 +32,7 @@ interface Candidate {
 // Mock data removed - using dynamicCommissionCollective pallet for elections
 
 const ElectionsScreen: React.FC = () => {
-  const { api, isApiReady } = usePezkuwi();
+  const { api, isApiReady, error: connectionError } = usePezkuwi();
 
   const [elections, setElections] = useState<ElectionInfo[]>([]);
   const [loading, setLoading] = useState(false);

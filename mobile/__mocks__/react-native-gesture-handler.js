@@ -1,35 +1,33 @@
-const View = require('react-native/Libraries/Components/View/View');
+import { View } from 'react-native';
 
-module.exports = {
-  GestureHandlerRootView: View,
-  PanGestureHandler: View,
-  TapGestureHandler: View,
-  PinchGestureHandler: View,
-  RotationGestureHandler: View,
-  LongPressGestureHandler: View,
-  ForceTouchGestureHandler: View,
-  FlingGestureHandler: View,
-  NativeViewGestureHandler: View,
-  createNativeWrapper: (component) => component,
-  State: {},
-  Directions: {},
-  gestureHandlerRootHOC: (component) => component,
-  Swipeable: View,
-  DrawerLayout: View,
-  ScrollView: View,
-  Slider: View,
-  Switch: View,
-  TextInput: View,
-  ToolbarAndroid: View,
-  ViewPagerAndroid: View,
-  DrawerLayoutAndroid: View,
-  WebView: View,
-  RawButton: View,
-  BaseButton: View,
-  RectButton: View,
-  BorderlessButton: View,
-  TouchableHighlight: View,
-  TouchableNativeFeedback: View,
-  TouchableOpacity: View,
-  TouchableWithoutFeedback: View,
-};
+export const GestureHandlerRootView = View;
+export const PanGestureHandler = View;
+export const TapGestureHandler = View;
+export const PinchGestureHandler = View;
+export const RotationGestureHandler = View;
+export const LongPressGestureHandler = View;
+export const ForceTouchGestureHandler = View;
+export const FlingGestureHandler = View;
+export const NativeViewGestureHandler = View;
+export const createNativeWrapper = (component) => component;
+export const State = {};
+export const Directions = {};
+export const gestureHandlerRootHOC = (component) => component;
+export const Swipeable = View;
+export const DrawerLayout = View;
+export const ScrollView = View;
+export const Slider = View;
+export const Switch = View;
+export const TextInput = View;
+export const ToolbarAndroid = View;
+export const ViewPagerAndroid = View;
+export const DrawerLayoutAndroid = View;
+export const WebView = View;
+export const RawButton = View;
+export const BaseButton = View;
+export const RectButton = View;
+export const BorderlessButton = View;
+export const TouchableHighlight = View;
+export const TouchableNativeFeedback = View;
+export const TouchableOpacity = View;
+export const TouchableWithoutFeedback = View;

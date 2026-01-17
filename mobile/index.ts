@@ -1,38 +1,39 @@
 // CRITICAL: Import crypto polyfill FIRST before anything else
-console.log('🚀 [INDEX] Starting app initialization...');
-console.log('📦 [INDEX] Loading react-native-get-random-values...');
+if (__DEV__) console.warn('🚀 [INDEX] Starting app initialization...');
+if (__DEV__) console.warn('📦 [INDEX] Loading react-native-get-random-values...');
 import 'react-native-get-random-values';
-console.log('✅ [INDEX] react-native-get-random-values loaded');
+if (__DEV__) console.warn('✅ [INDEX] react-native-get-random-values loaded');
 
 // React Native polyfills for @pezkuwi packages
-console.log('📦 [INDEX] Loading URL polyfill...');
+if (__DEV__) console.warn('📦 [INDEX] Loading URL polyfill...');
 import 'react-native-url-polyfill/auto';
-console.log('✅ [INDEX] URL polyfill loaded');
+if (__DEV__) console.warn('✅ [INDEX] URL polyfill loaded');
 
-console.log('📦 [INDEX] Setting up Buffer...');
+if (__DEV__) console.warn('📦 [INDEX] Setting up Buffer...');
 import { Buffer } from 'buffer';
 
 // Global polyfills for Polkadot.js
-// @ts-ignore
+// @ts-expect-error Global Buffer assignment for polyfill
 global.Buffer = Buffer;
-console.log('✅ [INDEX] Buffer configured');
+if (__DEV__) console.warn('✅ [INDEX] Buffer configured');
 
 // TextEncoder/TextDecoder polyfill
-console.log('📦 [INDEX] Setting up TextEncoder/TextDecoder...');
+if (__DEV__) console.warn('📦 [INDEX] Setting up TextEncoder/TextDecoder...');
 if (typeof global.TextEncoder === 'undefined') {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { TextEncoder, TextDecoder } = require('text-encoding');
-  // @ts-ignore
+  // @ts-expect-error Global TextEncoder assignment for polyfill
   global.TextEncoder = TextEncoder;
-  // @ts-ignore
+  // @ts-expect-error Global TextDecoder assignment for polyfill
   global.TextDecoder = TextDecoder;
-  console.log('✅ [INDEX] TextEncoder/TextDecoder configured');
+  if (__DEV__) console.warn('✅ [INDEX] TextEncoder/TextDecoder configured');
 } else {
-  console.log('ℹ️ [INDEX] TextEncoder/TextDecoder already available');
+  if (__DEV__) console.warn('ℹ️ [INDEX] TextEncoder/TextDecoder already available');
 }
 
 // Filter out known third-party deprecation warnings
 const originalWarn = console.warn;
-console.warn = (...args: any[]) => {
+console.warn = (...args: unknown[]) => {
   const message = args[0]?.toString() || '';
 
   // Filter react-native-web deprecation warnings
@@ -44,15 +45,15 @@ console.warn = (...args: any[]) => {
   originalWarn.apply(console, args);
 };
 
-console.log('📦 [INDEX] Loading Expo...');
+if (__DEV__) console.warn('📦 [INDEX] Loading Expo...');
 import { registerRootComponent } from 'expo';
-console.log('✅ [INDEX] Expo loaded');
+if (__DEV__) console.warn('✅ [INDEX] Expo loaded');
 
-console.log('📦 [INDEX] Loading App component...');
+if (__DEV__) console.warn('📦 [INDEX] Loading App component...');
 import App from './App';
-console.log('✅ [INDEX] App component loaded');
+if (__DEV__) console.warn('✅ [INDEX] App component loaded');
 
-console.log('🎯 [INDEX] All imports successful, registering root component...');
+if (__DEV__) console.warn('🎯 [INDEX] All imports successful, registering root component...');
 
 // registerRootComponent calls AppRegistry.registerComponent('main', () => App);
 // It also ensures that whether you load the app in Expo Go or in a native build,

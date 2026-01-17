@@ -64,11 +64,40 @@ interface ContributionInfo {
   refunded: boolean;
 }
 
+// Raw presale data from chain toJSON()
+interface PresaleChainData {
+  owner?: string;
+  paymentAsset?: number;
+  rewardAsset?: number;
+  tokensForSale?: string | number;
+  startBlock?: number;
+  duration?: number;
+  status?: PresaleStatus;
+  accessControl?: 'Public' | 'Whitelist';
+  limits?: {
+    minContribution?: string | number;
+    maxContribution?: string | number;
+    softCap?: string | number;
+    hardCap?: string | number;
+  };
+  vesting?: VestingSchedule | null;
+  gracePeriodBlocks?: number;
+  refundFeePercent?: number;
+  graceRefundFeePercent?: number;
+}
+
+// Raw contribution data from chain toJSON()
+interface ContributionChainData {
+  amount?: string | number;
+  contributedAt?: number;
+  refunded?: boolean;
+}
+
 const BLOCK_TIME_SECONDS = 6;
 const PLATFORM_FEE_PERCENT = 2;
 
 const LaunchpadScreen: React.FC = () => {
-  const navigation = useNavigation();
+  const _navigation = useNavigation();
   const { api, selectedAccount, isApiReady, getKeyPair } = usePezkuwi();
 
   const [presales, setPresales] = useState<PresaleConfig[]>([]);
@@ -80,7 +109,7 @@ const LaunchpadScreen: React.FC = () => {
   const [userContributions, setUserContributions] = useState<Record<number, ContributionInfo>>({});
   const [assetBalances, setAssetBalances] = useState<Record<number, string>>({});
   const [showDetailModal, setShowDetailModal] = useState(false);
-  const [currentBlock, setCurrentBlock] = useState(0);
+  const [_currentBlock, setCurrentBlock] = useState(0);
 
   // Fetch all presales from chain
   const fetchPresales = useCallback(async () => {
@@ -113,7 +142,7 @@ const LaunchpadScreen: React.FC = () => {
         const presaleData = await api.query.presale?.presales?.(id);
         if (!presaleData || presaleData.isNone) continue;
 
-        const config = presaleData.toJSON() as any;
+        const config = presaleData.toJSON() as unknown as PresaleChainData;
         if (!config) continue;
 
         // Get total raised and contributors
@@ -124,7 +153,8 @@ const LaunchpadScreen: React.FC = () => {
         const duration = config.duration || 0;
         const endBlock = startBlock + duration;
         const totalRaisedStr = totalRaised?.toString() || '0';
-        const hardCap = config.limits?.hardCap || '0';
+        const hardCapValue = config.limits?.hardCap;
+        const hardCap = hardCapValue !== undefined ? String(hardCapValue) : '0';
 
         // Calculate progress
         const progress = hardCap !== '0'
@@ -177,7 +207,7 @@ const LaunchpadScreen: React.FC = () => {
           // Get user's contribution for this presale
           const contribution = await api.query.presale?.contributions?.(presale.id, selectedAccount.address);
           if (contribution && !contribution.isNone) {
-            const contribData = contribution.toJSON() as any;
+            const contribData = contribution.toJSON() as unknown as ContributionChainData;
             userContribs[presale.id] = {
               amount: contribData?.amount?.toString() || '0',
               contributedAt: contribData?.contributedAt || 0,
@@ -360,8 +390,9 @@ const LaunchpadScreen: React.FC = () => {
               setContributionAmount('');
               setShowDetailModal(false);
               fetchPresales();
-            } catch (error: any) {
-              Alert.alert('Çewtî', error.message || 'Contribution failed.');
+            } catch (error: unknown) {
+              const message = error instanceof Error ? error.message : 'Contribution failed.';
+              Alert.alert('Çewtî', message);
             } finally {
               setContributing(false);
             }
@@ -413,8 +444,9 @@ const LaunchpadScreen: React.FC = () => {
 
               Alert.alert('Serketî!', 'Refund processed successfully!');
               fetchPresales();
-            } catch (error: any) {
-              Alert.alert('Çewtî', error.message || 'Refund failed.');
+            } catch (error: unknown) {
+              const message = error instanceof Error ? error.message : 'Refund failed.';
+              Alert.alert('Çewtî', message);
             }
           },
         },

@@ -34,8 +34,8 @@ const TermsOfServiceModal: React.FC<TermsOfServiceModalProps> = ({ visible, onCl
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
           <Text style={styles.sectionTitle}>1. Acceptance of Terms</Text>
           <Text style={styles.paragraph}>
-            By accessing or using the Pezkuwi mobile application ("App"), you agree to be bound by these
-            Terms of Service ("Terms"). If you do not agree to these Terms, do not use the App.
+            By accessing or using the Pezkuwi mobile application (&quot;App&quot;), you agree to be bound by these
+            Terms of Service (&quot;Terms&quot;). If you do not agree to these Terms, do not use the App.
           </Text>
 
           <Text style={styles.sectionTitle}>2. Description of Service</Text>
@@ -68,7 +68,7 @@ const TermsOfServiceModal: React.FC<TermsOfServiceModalProps> = ({ visible, onCl
           </Text>
           <View style={styles.bulletList}>
             <Text style={styles.bulletItem}>• Use the App for any illegal or unauthorized purpose</Text>
-            <Text style={styles.bulletItem}>• Attempt to gain unauthorized access to other users' accounts</Text>
+            <Text style={styles.bulletItem}>• Attempt to gain unauthorized access to other users&apos; accounts</Text>
             <Text style={styles.bulletItem}>• Interfere with or disrupt the App or servers</Text>
             <Text style={styles.bulletItem}>• Upload malicious code or viruses</Text>
             <Text style={styles.bulletItem}>• Engage in fraudulent transactions or money laundering</Text>
@@ -110,7 +110,7 @@ const TermsOfServiceModal: React.FC<TermsOfServiceModalProps> = ({ visible, onCl
 
           <Text style={styles.sectionTitle}>7. Disclaimer of Warranties</Text>
           <Text style={styles.paragraph}>
-            THE APP IS PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND. WE DO NOT GUARANTEE:
+            THE APP IS PROVIDED &quot;AS IS&quot; WITHOUT WARRANTIES OF ANY KIND. WE DO NOT GUARANTEE:
           </Text>
           <View style={styles.bulletList}>
             <Text style={styles.bulletItem}>• Uninterrupted or error-free service</Text>

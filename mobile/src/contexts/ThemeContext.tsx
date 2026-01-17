@@ -1,11 +1,11 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode, useMemo } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useMemo, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LightColors, DarkColors } from '../../../shared/theme/colors';
 
 const THEME_STORAGE_KEY = '@pezkuwi/theme';
 const FONT_SIZE_STORAGE_KEY = '@pezkuwi/font_size';
 
-type ThemeColors = typeof LightColors;
+export type ThemeColors = typeof LightColors;
 type FontSize = 'small' | 'medium' | 'large';
 
 interface ThemeContextType {
@@ -23,42 +23,45 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [fontSize, setFontSizeState] = useState<FontSize>('medium');
 
-  // Load theme and font size preference on mount
-  useEffect(() => {
-    loadTheme();
-    loadFontSize();
-  }, []);
-
-  const loadTheme = async () => {
+  const loadTheme = useCallback(async () => {
     try {
       const theme = await AsyncStorage.getItem(THEME_STORAGE_KEY);
       if (theme === 'dark') {
         setIsDarkMode(true);
       }
     } catch (error) {
-      console.error('[Theme] Failed to load theme:', error);
+      if (__DEV__) console.warn('[Theme] Failed to load theme:', error);
     }
-  };
+  }, []);
 
-  const loadFontSize = async () => {
+  const loadFontSize = useCallback(async () => {
     try {
       const size = await AsyncStorage.getItem(FONT_SIZE_STORAGE_KEY);
       if (size === 'small' || size === 'medium' || size === 'large') {
         setFontSizeState(size);
       }
     } catch (error) {
-      console.error('[Theme] Failed to load font size:', error);
+      if (__DEV__) console.warn('[Theme] Failed to load font size:', error);
     }
-  };
+  }, []);
+
+  // Load theme and font size preference on mount
+  useEffect(() => {
+    // Load preferences - setState is async inside callbacks
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadTheme();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadFontSize();
+  }, [loadTheme, loadFontSize]);
 
   const toggleDarkMode = async () => {
     try {
       const newMode = !isDarkMode;
       setIsDarkMode(newMode);
       await AsyncStorage.setItem(THEME_STORAGE_KEY, newMode ? 'dark' : 'light');
-      console.log('[Theme] Theme changed to:', newMode ? 'dark' : 'light');
+      if (__DEV__) console.warn('[Theme] Theme changed to:', newMode ? 'dark' : 'light');
     } catch (error) {
-      console.error('[Theme] Failed to save theme:', error);
+      if (__DEV__) console.warn('[Theme] Failed to save theme:', error);
     }
   };
 
@@ -66,9 +69,9 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     try {
       setFontSizeState(size);
       await AsyncStorage.setItem(FONT_SIZE_STORAGE_KEY, size);
-      console.log('[Theme] Font size changed to:', size);
+      if (__DEV__) console.warn('[Theme] Font size changed to:', size);
     } catch (error) {
-      console.error('[Theme] Failed to save font size:', error);
+      if (__DEV__) console.warn('[Theme] Failed to save font size:', error);
     }
   };
 

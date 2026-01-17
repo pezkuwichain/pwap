@@ -9,10 +9,8 @@ import {
   StatusBar,
   TextInput,
   Alert,
-  ActivityIndicator,
   Modal,
   FlatList,
-  Image,
   RefreshControl,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -191,7 +189,7 @@ const MOCK_LISTINGS: Listing[] = [
 ];
 
 const B2BScreen: React.FC = () => {
-  const navigation = useNavigation();
+  const _navigation = useNavigation();
   const { selectedAccount, api, getKeyPair } = usePezkuwi();
 
   // State
@@ -347,7 +345,7 @@ const B2BScreen: React.FC = () => {
                 'Escrow hate damezrandin!\nEscrow has been created!\n\nDrav di ewlehiyê de ye.\nFunds are secured.',
                 [{ text: 'Temam / OK' }]
               );
-            } catch (error) {
+            } catch {
               Alert.alert('Şaşî / Error', 'Escrow nehat damezrandin / Escrow failed');
             }
           },

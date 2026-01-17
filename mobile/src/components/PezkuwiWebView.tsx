@@ -168,7 +168,7 @@ const PezkuwiWebView: React.FC<PezkuwiWebViewProps> = ({
             }
 
             // Get the transaction method from API
-            const txModule = api.tx[section];
+            const txModule = api.tx[section] as Record<string, (...args: unknown[]) => { signAndSend: (...args: unknown[]) => Promise<unknown> }> | undefined;
             if (!txModule) {
               throw new Error(`Unknown section: ${section}`);
             }

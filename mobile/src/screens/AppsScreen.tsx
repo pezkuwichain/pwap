@@ -71,7 +71,7 @@ const CATEGORIES: { name: CategoryType; icon: string }[] = [
 ];
 
 const AppsScreen: React.FC = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<{ navigate: (screen: string) => void }>();
   const { selectedAccount, accounts, connectWallet } = usePezkuwi();
   const isConnected = !!selectedAccount;
 
@@ -385,7 +385,7 @@ const AppsScreen: React.FC = () => {
                 <View style={styles.infoTextContainer}>
                   <Text style={styles.infoTitle}>Review Process</Text>
                   <Text style={styles.infoText}>
-                    Your submission will be reviewed by Dijital Kurdistan Tech Inst. We'll contact you within 5-7 business days.
+                    Your submission will be reviewed by Dijital Kurdistan Tech Inst. We&apos;ll contact you within 5-7 business days.
                   </Text>
                 </View>
               </View>

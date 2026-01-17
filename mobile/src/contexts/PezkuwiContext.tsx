@@ -173,7 +173,7 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({ children }) =>
         newApi.registry.setChainProperties(
           newApi.registry.createType('ChainProperties', {
             ss58Format: networkConfig.ss58Format,
-          }) as any
+          }) as unknown as Parameters<typeof newApi.registry.setChainProperties>[0]
         );
         console.log(`✅ [Pezkuwi] API created with SS58 format: ${networkConfig.ss58Format}`);
 
@@ -310,13 +310,13 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({ children }) =>
         address: pair.address,
         mnemonic: mnemonicPhrase,
       };
-    } catch (err: any) {
+    } catch (err: unknown) {
       if (__DEV__) {
-        console.error('[Pezkuwi] Failed to create wallet:', err);
-        console.error('[Pezkuwi] Error message:', err?.message);
-        console.error('[Pezkuwi] Error stack:', err?.stack);
+        console.warn('[Pezkuwi] Failed to create wallet:', err);
+        console.warn('[Pezkuwi] Error message:', (err as Error)?.message);
+        console.warn('[Pezkuwi] Error stack:', (err as Error)?.stack);
       }
-      throw new Error(err?.message || 'Failed to create wallet');
+      throw new Error((err as Error)?.message || 'Failed to create wallet');
     }
   };
 
@@ -361,12 +361,12 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({ children }) =>
       if (__DEV__) console.log('[Pezkuwi] Wallet imported:', pair.address, isDevUri ? '(dev URI)' : '(mnemonic)');
 
       return { address: pair.address };
-    } catch (err: any) {
+    } catch (err: unknown) {
       if (__DEV__) {
-        console.error('[Pezkuwi] Failed to import wallet:', err);
-        console.error('[Pezkuwi] Error message:', err?.message);
+        console.warn('[Pezkuwi] Failed to import wallet:', err);
+        console.warn('[Pezkuwi] Error message:', (err as Error)?.message);
       }
-      throw new Error(err?.message || 'Failed to import wallet');
+      throw new Error((err as Error)?.message || 'Failed to import wallet');
     }
   };
 
@@ -394,9 +394,9 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({ children }) =>
       }
 
       if (__DEV__) console.log('[Pezkuwi] Wallet deleted:', address);
-    } catch (err: any) {
-      if (__DEV__) console.error('[Pezkuwi] Failed to delete wallet:', err);
-      throw new Error(err?.message || 'Failed to delete wallet');
+    } catch (err: unknown) {
+      if (__DEV__) console.warn('[Pezkuwi] Failed to delete wallet:', err);
+      throw new Error((err as Error)?.message || 'Failed to delete wallet');
     }
   };
 

@@ -25,10 +25,10 @@ export function ValidatorSelectionSheet({
   onClose,
   onConfirmNominations,
 }: ValidatorSelectionSheetProps) {
-  const { api, isApiReady, selectedAccount } = usePezkuwi();
+  const { api, isApiReady, _selectedAccount } = usePezkuwi();
   const [validators, setValidators] = useState<Validator[]>([]);
   const [loading, setLoading] = useState(true);
-  const [processing, setProcessing] = useState(false);
+  const [processing, _setProcessing] = useState(false);
   const [selectedValidators, setSelectedValidators] = useState<string[]>([]);
 
   // Fetch real validators from chain
@@ -44,7 +44,7 @@ export function ValidatorSelectionSheet({
           const rawValidators = await api.query.validatorPool.validators();
           // Assuming rawValidators is a list of validator addresses or objects
           // This parsing logic will need adjustment based on the exact structure returned
-          for (const rawValidator of rawValidators.toHuman() as any[]) { // Adjust 'any' based on actual type
+          for (const rawValidator of rawValidators.toHuman() as unknown[]) {
             // Placeholder: Assume rawValidator is just an address for now
             chainValidators.push({
               address: rawValidator.toString(), // or rawValidator.address if it's an object
@@ -56,11 +56,11 @@ export function ValidatorSelectionSheet({
           }
         } else {
           // Fallback to general staking validators if validatorPool pallet is not found/used
-          const rawStakingValidators = await api.query.staking.validators() as any;
+          const rawStakingValidators = await api.query.staking.validators() as { keys?: { args: unknown[] }[] };
           for (const validatorAddress of (rawStakingValidators.keys || [])) {
             const address = validatorAddress.args[0].toString();
             // Fetch more details about each validator if needed, e.g., commission, total stake
-            const validatorPrefs = await api.query.staking.validators(address) as any;
+            const validatorPrefs = await api.query.staking.validators(address) as { commission: { toNumber: () => number } };
             const commission = validatorPrefs.commission.toNumber() / 10_000_000; // Assuming 10^7 for percentage
 
             // For simplicity, total stake and nominators are placeholders for now

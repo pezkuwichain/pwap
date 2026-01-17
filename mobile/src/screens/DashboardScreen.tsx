@@ -12,6 +12,7 @@ import {
   Dimensions,
   Platform,
   ActivityIndicator,
+  ImageSourcePropType,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
@@ -24,7 +25,7 @@ import { usePezkuwi } from '../contexts/PezkuwiContext';
 import { supabase } from '../lib/supabase';
 import AvatarPickerModal from '../components/AvatarPickerModal';
 import { NotificationCenterModal } from '../components/NotificationCenterModal';
-import { fetchUserTikis, getPrimaryRole, getTikiDisplayName, getTikiEmoji, getTikiColor } from '../../shared/lib/tiki';
+import { fetchUserTikis, getPrimaryRole, getTikiDisplayName, getTikiEmoji } from '../../shared/lib/tiki';
 import { getAllScores, type UserScores } from '../../shared/lib/scores';
 import { getKycStatus } from '../../shared/lib/kyc';
 
@@ -36,12 +37,12 @@ import qaGovernance from '../../../shared/images/quick-actions/qa_governance.jpg
 import qaTrading from '../../../shared/images/quick-actions/qa_trading.jpg';
 import qaB2B from '../../../shared/images/quick-actions/qa_b2b.png';
 import qaBank from '../../../shared/images/quick-actions/qa_bank.png';
-import qaGames from '../../../shared/images/quick-actions/qa_games.png';
+import _qaGames from '../../../shared/images/quick-actions/qa_games.png';
 import qaKurdMedia from '../../../shared/images/quick-actions/qa_kurdmedia.jpg';
 import qaUniversity from '../../../shared/images/quick-actions/qa_university.png';
 import avatarPlaceholder from '../../../shared/images/app-image.png'; // Fallback avatar
 
-const { width } = Dimensions.get('window');
+const { width: _width } = Dimensions.get('window');
 
 // Avatar pool matching AvatarPickerModal
 const AVATAR_POOL = [
@@ -79,14 +80,21 @@ const getEmojiFromAvatarId = (avatarId: string): string => {
   return avatar ? avatar.emoji : '👤'; // Default to person emoji if not found
 };
 
-interface DashboardScreenProps {}
+type DashboardScreenProps = Record<string, never>;
+
+interface ProfileData {
+  id?: string;
+  full_name?: string | null;
+  avatar_url?: string | null;
+  created_at?: string;
+}
 
 const DashboardScreen: React.FC<DashboardScreenProps> = () => {
   const navigation = useNavigation<NavigationProp<BottomTabParamList & RootStackParamList>>();
   const { user } = useAuth();
   const { api, isApiReady, selectedAccount, accounts, connectWallet } = usePezkuwi();
-  const [profileData, setProfileData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const [profileData, setProfileData] = useState<ProfileData | null>(null);
+  const [_loading, setLoading] = useState(true);
   const [avatarModalVisible, setAvatarModalVisible] = useState(false);
   const [notificationModalVisible, setNotificationModalVisible] = useState(false);
 
@@ -166,7 +174,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
   }, [fetchBlockchainData]);
 
   // Check if user is a visitor (default when no blockchain wallet or no tikis)
-  const isVisitor = !selectedAccount || tikis.length === 0;
+  const _isVisitor = !selectedAccount || tikis.length === 0;
 
   // Handle wallet connection
   const handleConnectWallet = async () => {
@@ -184,7 +192,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
   };
   const primaryRole = tikis.length > 0 ? getPrimaryRole(tikis) : 'Visitor';
 
-  const showComingSoon = (featureName: string) => {
+  const _showComingSoon = (featureName: string) => {
     Alert.alert(
       'Coming Soon',
       `${featureName} will be available soon!`,
@@ -192,7 +200,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
     );
   };
 
-  const showAwaitingGovernment = () => {
+  const _showAwaitingGovernment = () => {
     Alert.alert(
       'Li benda damezrandinê / Awaiting Establishment',
       'Duaye helbejartina hukumeta Komara Dijitaliya Kurdistanê yên beta damezrandin.\n\nAwaiting the beta elections and establishment of the Digital Kurdistan Republic government.',
@@ -200,7 +208,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
     );
   };
 
-  const showUnderMaintenance = () => {
+  const _showUnderMaintenance = () => {
     Alert.alert(
       'Di bin çêkirinê de ye / Under Maintenance',
       'Ev taybetmendî niha di bin çêkirinê de ye. Ji kerema xwe paşê vegerin.\n\nThis feature is currently under maintenance. Please check back later.',
@@ -208,7 +216,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
     );
   };
 
-  const showAwaitingSerokElection = () => {
+  const _showAwaitingSerokElection = () => {
     Alert.alert(
       'Li benda hilbijartinên çalak / Awaiting Active Elections',
       'Duaye hilbijartinên Serokî yên çalak bibin.\n\nAwaiting active Presidential elections to be initiated.',
@@ -216,7 +224,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
     );
   };
 
-  const showAwaitingMinistryOfEducation = () => {
+  const _showAwaitingMinistryOfEducation = () => {
     Alert.alert(
       'Li benda Wezareta Perwerdê / Awaiting Ministry of Education',
       'Duaye damezrandina Wezareta Perwerdê yên aktîv bibin.\n\nAwaiting the establishment of an active Ministry of Education.',
@@ -230,13 +238,13 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
 
   const handleAvatarSelected = (avatarUrl: string) => {
     // Refresh profile data to show new avatar
-    setProfileData((prev: any) => ({
+    setProfileData((prev: ProfileData | null) => ({
       ...prev,
       avatar_url: avatarUrl,
     }));
   };
 
-  const renderAppIcon = (title: string, icon: any, onPress: () => void, isEmoji = false, comingSoon = false) => (
+  const renderAppIcon = (title: string, icon: string | ImageSourcePropType, onPress: () => void, isEmoji = false, comingSoon = false) => (
     <TouchableOpacity 
       style={styles.appIconContainer} 
       onPress={onPress}
@@ -556,7 +564,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
       <AvatarPickerModal
         visible={avatarModalVisible}
         onClose={() => setAvatarModalVisible(false)}
-        currentAvatar={profileData?.avatar_url}
+        currentAvatar={profileData?.avatar_url ?? undefined}
         onAvatarSelected={handleAvatarSelected}
       />
 

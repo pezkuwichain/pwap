@@ -117,7 +117,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const adminStatus = data?.is_admin || false;
       setIsAdmin(adminStatus);
       return adminStatus;
-    } catch (error) {
+    } catch {
       setIsAdmin(false);
       return false;
     }

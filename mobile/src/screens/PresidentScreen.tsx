@@ -9,7 +9,6 @@ import {
   StatusBar,
   ActivityIndicator,
   Alert,
-  FlatList,
   Modal,
   RefreshControl,
 } from 'react-native';
@@ -256,9 +255,10 @@ const PresidentScreen: React.FC = () => {
         }
       });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (__DEV__) console.error('[President] Vote error:', error);
-      Alert.alert('Error', error.message || 'Failed to submit vote');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to submit vote';
+      Alert.alert('Error', errorMessage);
       setSubmittingVote(false);
     }
   };
@@ -425,7 +425,7 @@ const PresidentScreen: React.FC = () => {
                     </Text>
                   </View>
                 ) : (
-                  pastElections.map((result, index) => (
+                  pastElections.map((result, _index) => (
                     <View key={result.electionId} style={styles.historyCard}>
                       <View style={styles.historyHeader}>
                         <Text style={styles.historyTitle}>Election #{result.electionId}</Text>

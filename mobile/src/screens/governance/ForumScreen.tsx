@@ -44,7 +44,7 @@ const ForumScreen: React.FC = () => {
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [discussions, setDiscussions] = useState<Discussion[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [_loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');

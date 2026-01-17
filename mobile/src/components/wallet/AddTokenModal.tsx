@@ -54,15 +54,15 @@ export const AddTokenModal: React.FC<AddTokenModalProps> = ({
         Alert.alert('Error', 'Asset not found');
         setTokenMetadata(null);
       } else {
-        const metadata = metadataOption.toJSON() as any;
+        const metadata = metadataOption.toJSON() as { symbol?: string; decimals?: number; name?: string } | null;
         setTokenMetadata({
           symbol: metadata.symbol || 'UNKNOWN',
           decimals: metadata.decimals || 12,
           name: metadata.name || 'Unknown Token',
         });
       }
-    } catch (error: any) {
-      console.error('Failed to fetch token metadata:', error);
+    } catch {
+      console.error('Failed to fetch token metadata');
       Alert.alert('Error', 'Failed to fetch token metadata');
       setTokenMetadata(null);
     } finally {

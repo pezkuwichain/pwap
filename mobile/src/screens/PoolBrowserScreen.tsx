@@ -14,6 +14,28 @@ import {
 import { KurdistanColors } from '../theme/colors';
 import { usePezkuwi } from '../contexts/PezkuwiContext';
 
+// Types for Polkadot API responses
+interface PoolKeyData {
+  0?: string[];
+  [key: number]: string[] | undefined;
+}
+
+interface AssetMetadata {
+  symbol?: string;
+  decimals?: number;
+}
+
+interface AccountInfo {
+  data: {
+    free: { toString(): string };
+  };
+}
+
+interface AssetAccount {
+  isSome: boolean;
+  unwrap(): { balance: { toString(): string } };
+}
+
 interface PoolInfo {
   id: string;
   asset1: number;
@@ -52,7 +74,7 @@ const PoolBrowserScreen: React.FC = () => {
         const poolAccount = value.toString();
 
         // Parse pool assets from key
-        const keyData = key.toHuman() as any;
+        const keyData = key.toHuman() as unknown as PoolKeyData;
         const assets = keyData[0];
 
         if (!assets || assets.length !== 2) continue;
@@ -69,14 +91,14 @@ const PoolBrowserScreen: React.FC = () => {
         try {
           if (asset1 !== 0) {
             const metadata1 = await api.query.assets.metadata(asset1);
-            const meta1 = metadata1.toJSON() as any;
+            const meta1 = metadata1.toJSON() as unknown as AssetMetadata;
             asset1Symbol = meta1.symbol || `Asset ${asset1}`;
             asset1Decimals = meta1.decimals || 12;
           }
 
           if (asset2 !== 0) {
             const metadata2 = await api.query.assets.metadata(asset2);
-            const meta2 = metadata2.toJSON() as any;
+            const meta2 = metadata2.toJSON() as unknown as AssetMetadata;
             asset2Symbol = meta2.symbol || `Asset ${asset2}`;
             asset2Decimals = meta2.decimals || 12;
           }
@@ -91,18 +113,18 @@ const PoolBrowserScreen: React.FC = () => {
         try {
           if (asset1 === 0) {
             // Native token (wHEZ)
-            const balance1 = await api.query.system.account(poolAccount) as any;
+            const balance1 = await api.query.system.account(poolAccount) as unknown as AccountInfo;
             reserve1 = balance1.data.free.toString();
           } else {
-            const balance1 = await api.query.assets.account(asset1, poolAccount) as any;
+            const balance1 = await api.query.assets.account(asset1, poolAccount) as unknown as AssetAccount;
             reserve1 = balance1.isSome ? balance1.unwrap().balance.toString() : '0';
           }
 
           if (asset2 === 0) {
-            const balance2 = await api.query.system.account(poolAccount) as any;
+            const balance2 = await api.query.system.account(poolAccount) as unknown as AccountInfo;
             reserve2 = balance2.data.free.toString();
           } else {
-            const balance2 = await api.query.assets.account(asset2, poolAccount) as any;
+            const balance2 = await api.query.assets.account(asset2, poolAccount) as unknown as AssetAccount;
             reserve2 = balance2.isSome ? balance2.unwrap().balance.toString() : '0';
           }
         } catch (error) {

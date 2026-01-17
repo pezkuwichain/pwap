@@ -9,9 +9,7 @@ import {
   StatusBar,
   Alert,
   Linking,
-  Image,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { KurdistanColors } from '../theme/colors';
 
@@ -140,7 +138,7 @@ const SOCIAL_PLATFORMS: SocialPlatform[] = [
 ];
 
 const KurdMediaScreen: React.FC = () => {
-  const navigation = useNavigation();
+  const _navigation = useNavigation();
 
   const handleMediaPress = (channel: MediaChannel) => {
     Alert.alert(
@@ -162,7 +160,7 @@ const KurdMediaScreen: React.FC = () => {
           [{ text: 'Temam / OK' }]
         );
       }
-    } catch (error) {
+    } catch {
       Alert.alert('Xeletî / Error', 'Tiştek xelet çû.\nSomething went wrong.');
     }
   };
@@ -284,7 +282,7 @@ const KurdMediaScreen: React.FC = () => {
           <Text style={styles.infoBannerIcon}>💡</Text>
           <View style={styles.infoBannerContent}>
             <Text style={styles.infoBannerText}>
-              PezkuwiChain - Blockchain'a yekem a netewî ya Kurdan
+              PezkuwiChain - Blockchain&apos;a yekem a netewî ya Kurdan
             </Text>
             <Text style={styles.infoBannerTextEn}>
               PezkuwiChain - The first national blockchain of the Kurds

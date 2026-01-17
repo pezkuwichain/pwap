@@ -28,14 +28,14 @@ interface Proposal {
 // Mock data removed - using real blockchain queries from democracy pallet
 
 const ProposalsScreen: React.FC = () => {
-  const { api, isApiReady, selectedAccount, error: connectionError } = usePezkuwi();
+  const { api, isApiReady, selectedAccount: _selectedAccount, error: connectionError } = usePezkuwi();
 
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'active' | 'passed' | 'rejected'>('all');
 
-  const formatBalance = (balance: string, decimals: number = 12): string => {
+  const _formatBalance = (balance: string, decimals: number = 12): string => {
     const value = BigInt(balance);
     const divisor = BigInt(10 ** decimals);
     const wholePart = value / divisor;
@@ -51,7 +51,7 @@ const ProposalsScreen: React.FC = () => {
       // Fetch democracy referenda
       if (api.query.democracy?.referendumInfoOf) {
         const referendaData = await api.query.democracy.referendumInfoOf.entries();
-        const parsedProposals: Proposal[] = referendaData.map(([key, value]: any) => {
+        const parsedProposals: Proposal[] = referendaData.map(([key, value]: [{ args: [{ toNumber(): number }] }, { unwrap(): { isOngoing?: boolean; asOngoing?: { tally?: { ayes?: { toString(): string }; nays?: { toString(): string } }; proposalHash?: { toString(): string }; end?: { toNumber(): number } } } }]) => {
           const index = key.args[0].toNumber();
           const info = value.unwrap();
 

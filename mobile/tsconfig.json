@@ -13,5 +13,5 @@
     },
     "typeRoots": ["./src/types", "./node_modules/@types"]
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "shared/**/*.ts"]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "shared/**/*.ts", "App.tsx", "index.ts", "__mocks__/**/*.ts", "__mocks__/**/*.tsx"]
 }
