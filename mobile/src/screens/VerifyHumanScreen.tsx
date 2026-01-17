@@ -28,8 +28,8 @@ const VerifyHumanScreen: React.FC<VerifyHumanScreenProps> = ({ onVerified }) => 
     // Save verification status
     try {
       await AsyncStorage.setItem(HUMAN_VERIFIED_KEY, 'true');
-    } catch (error) {
-      console.error('Failed to save verification:', error);
+    } catch (_error) {
+      if (__DEV__) console.error('Failed to save verification:', _error);
     }
 
     // Animate and navigate
@@ -84,7 +84,7 @@ const VerifyHumanScreen: React.FC<VerifyHumanScreenProps> = ({ onVerified }) => 
               {isChecked && <Text style={styles.checkmark}>✓</Text>}
             </View>
             <Text style={styles.verificationText}>
-              I'm not a robot
+              I&apos;m not a robot
             </Text>
           </TouchableOpacity>
 
@@ -252,8 +252,8 @@ export const checkHumanVerification = async (): Promise<boolean> => {
   try {
     const verified = await AsyncStorage.getItem(HUMAN_VERIFIED_KEY);
     return verified === 'true';
-  } catch (error) {
-    console.error('Failed to check verification:', error);
+  } catch (_error) {
+    if (__DEV__) console.error('Failed to check verification:', _error);
     return false;
   }
 };

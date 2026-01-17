@@ -14,6 +14,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { KurdistanColors } from '../theme/colors';
 import PrivacyPolicyModal from '../components/PrivacyPolicyModal';
 import TermsOfServiceModal from '../components/TermsOfServiceModal';
+import kurdistanMapImage from '../../assets/kurdistan-map.png';
 
 interface WelcomeScreenProps {
   onContinue?: () => void;
@@ -29,9 +30,11 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onContinue }) => {
 
     try {
       await AsyncStorage.setItem('@pezkuwi/privacy_consent_accepted', 'true');
-      onContinue && onContinue();
-    } catch (error) {
-      if (__DEV__) console.error('Error saving privacy consent:', error);
+      if (onContinue) {
+        onContinue();
+      }
+    } catch (_error) {
+      if (__DEV__) console.error('Error saving privacy consent:', _error);
     }
   };
 
@@ -52,7 +55,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onContinue }) => {
           <View style={styles.header}>
             <View style={styles.logoContainer}>
               <Image
-                source={require('../../assets/kurdistan-map.png')}
+                source={kurdistanMapImage}
                 style={styles.logoImage}
                 resizeMode="contain"
               />
@@ -68,7 +71,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onContinue }) => {
             </Text>
 
             <Text style={styles.introText}>
-              Pezkuwi is a pioneering experiment in digital statehood, merging technology with sociology, economy with politics. Starting with the Kurdish digital nation, we are building the world's first territory-independent nation governed by algorithmic sovereignty and social trust rather than borders and bureaucracy.
+              Pezkuwi is a pioneering experiment in digital statehood, merging technology with sociology, economy with politics. Starting with the Kurdish digital nation, we are building the world&apos;s first territory-independent nation governed by algorithmic sovereignty and social trust rather than borders and bureaucracy.
             </Text>
 
             <Text style={styles.introText}>
