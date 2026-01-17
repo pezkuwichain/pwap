@@ -132,12 +132,6 @@ const IdentityScreen: React.FC = () => {
             >
               <Text style={styles.connectButtonText}>Connect Wallet</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.backButton}
-              onPress={() => navigation.goBack()}
-            >
-              <Text style={styles.backButtonText}>← Go Back</Text>
-            </TouchableOpacity>
           </View>
         </LinearGradient>
       </SafeAreaView>
@@ -155,10 +149,6 @@ const IdentityScreen: React.FC = () => {
           end={{ x: 1, y: 1 }}
           style={styles.choiceContainer}
         >
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.choiceBackButton}>
-            <Text style={styles.choiceBackText}>← Back</Text>
-          </TouchableOpacity>
-
           <View style={styles.choiceContent}>
             <Text style={styles.choiceIcon}>🆔</Text>
             <Text style={styles.choiceTitle}>Nasnameya Dîjîtal</Text>
@@ -208,10 +198,6 @@ const IdentityScreen: React.FC = () => {
         colors={[KurdistanColors.kesk, '#006633']}
         style={styles.header}
       >
-        <TouchableOpacity onPress={() => setUserChoice(null)} style={styles.headerBackButton}>
-          <Text style={styles.headerBackText}>←</Text>
-        </TouchableOpacity>
-
         <View style={styles.headerContent}>
           <Text style={styles.headerIcon}>🆔</Text>
           <Text style={styles.headerTitle}>Nasnameya Dîjîtal</Text>

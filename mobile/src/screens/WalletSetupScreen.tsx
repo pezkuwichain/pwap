@@ -484,9 +484,7 @@ const WalletSetupScreen: React.FC = () => {
       {/* Header */}
       {step !== 'choice' && step !== 'success' && (
         <View style={styles.header}>
-          <TouchableOpacity onPress={handleBack} style={styles.backButton} testID="wallet-setup-back">
-            <Text style={styles.backButtonText}>← Back</Text>
-          </TouchableOpacity>
+          <View style={{width: 60}} />
           <View style={styles.progressContainer}>
             {['create-show', 'create-verify', 'wallet-name'].includes(step) && isCreateFlow && (
               <>

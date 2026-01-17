@@ -472,11 +472,9 @@ const SwapScreen: React.FC = () => {
       )}
 
       <ScrollView style={styles.scrollContent} contentContainerStyle={styles.scrollContentContainer}>
-        {/* Header */}
+        {/* Settings Button */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <Text style={styles.backButtonText}>←</Text>
-          </TouchableOpacity>
+          <View style={{width: 40}} />
           <Text style={styles.headerTitle}>Swap Tokens</Text>
           <TouchableOpacity onPress={() => setShowSettings(true)} style={styles.settingsButton}>
             <Text style={styles.settingsIcon}>⚙️</Text>
@@ -716,18 +714,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 20,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#F5F5F5',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  backButtonText: {
-    fontSize: 24,
-    color: '#333',
   },
   headerTitle: {
     fontSize: 20,

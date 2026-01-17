@@ -343,12 +343,6 @@ const PresidentScreen: React.FC = () => {
               <Text style={styles.becomeCitizenButtonText}>Become a Citizen</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.backButton}
-              onPress={() => navigation.goBack()}
-            >
-              <Text style={styles.backButtonText}>← Go Back</Text>
-            </TouchableOpacity>
           </View>
         </LinearGradient>
       </SafeAreaView>
@@ -365,10 +359,6 @@ const PresidentScreen: React.FC = () => {
         colors={[KurdistanColors.kesk, '#006633']}
         style={styles.header}
       >
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerBackButton}>
-          <Text style={styles.headerBackText}>←</Text>
-        </TouchableOpacity>
-
         <View style={styles.headerContent}>
           <Text style={styles.headerIcon}>👑</Text>
           <Text style={styles.headerTitle}>Serokî / President</Text>

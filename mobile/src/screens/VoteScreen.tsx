@@ -93,12 +93,6 @@ const VoteScreen: React.FC = () => {
               <Text style={styles.becomeCitizenButtonText}>Become a Citizen</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.backButton}
-              onPress={() => navigation.goBack()}
-            >
-              <Text style={styles.backButtonText}>← Go Back</Text>
-            </TouchableOpacity>
           </View>
         </LinearGradient>
       </SafeAreaView>
