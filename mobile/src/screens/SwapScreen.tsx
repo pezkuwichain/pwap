@@ -472,10 +472,8 @@ const SwapScreen: React.FC = () => {
       )}
 
       <ScrollView style={styles.scrollContent} contentContainerStyle={styles.scrollContentContainer}>
-        {/* Header with Settings */}
-        <View style={styles.header}>
-          <View style={{width: 40}} />
-          <Text style={styles.headerTitle}>Swap</Text>
+        {/* Settings Button Row */}
+        <View style={styles.settingsRow}>
           <TouchableOpacity onPress={() => setShowSettings(true)} style={styles.settingsButton}>
             <Text style={styles.settingsIcon}>⚙️</Text>
           </TouchableOpacity>
@@ -709,16 +707,10 @@ const styles = StyleSheet.create({
   scrollContentContainer: {
     padding: 16,
   },
-  header: {
+  settingsRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
+    justifyContent: 'flex-end',
+    marginBottom: 12,
   },
   settingsButton: {
     width: 40,
