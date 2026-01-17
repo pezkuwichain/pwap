@@ -95,7 +95,14 @@ const HomeStackNavigator: React.FC = () => {
         }}
       />
       <Stack.Screen name="Forum" component={ForumScreen} options={{ headerTitle: 'Forum' }} />
-      <Stack.Screen name="KurdMedia" component={KurdMediaScreen} options={{ headerTitle: 'KurdMedia' }} />
+      <Stack.Screen
+        name="KurdMedia"
+        component={KurdMediaScreen}
+        options={{
+          headerTitle: 'KurdMedia',
+          header: (props) => <GradientHeader {...props} subtitle="Medyaya Kurdî & Piştgirî" gradientColors={[KurdistanColors.sor, '#C62828']} />
+        }}
+      />
       <Stack.Screen
         name="Perwerde"
         component={PerwerdeScreen}
