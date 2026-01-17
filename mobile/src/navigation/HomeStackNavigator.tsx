@@ -78,7 +78,7 @@ const HomeStackNavigator: React.FC = () => {
       <Stack.Screen name="WalletSetup" component={WalletSetupScreen} options={{ headerTitle: 'Cîzdan Saz Bike' }} />
       <Stack.Screen name="Swap" component={SwapScreen} options={{ headerTitle: 'Swap' }} />
       <Stack.Screen name="P2P" component={P2PScreen} options={{ headerTitle: 'P2P Bazirganî' }} />
-      <Stack.Screen name="B2B" component={B2BScreen} options={{ headerTitle: 'B2B Bazara' }} />
+      <Stack.Screen name="B2B" component={B2BScreen} options={{ headerTitle: 'B2B Bazirganî' }} />
       <Stack.Screen name="TaxZekat" component={TaxZekatScreen} options={{ headerTitle: 'Bac & Zekat' }} />
       <Stack.Screen name="Launchpad" component={LaunchpadScreen} options={{ headerTitle: 'Launchpad' }} />
       <Stack.Screen name="President" component={PresidentScreen} options={{ headerTitle: 'Serok' }} />

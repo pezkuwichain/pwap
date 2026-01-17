@@ -437,27 +437,7 @@ const B2BScreen: React.FC = () => {
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
 
-      {/* Action Bar */}
-      <View style={styles.header}>
-        <View>
-          <Text style={styles.headerTitle}>B2B Bazirganî</Text>
-          <Text style={styles.headerSubtitle}>Kurdish Business Marketplace</Text>
-        </View>
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() => {
-            if (!selectedAccount) {
-              Alert.alert('Şaşî / Error', 'Ji kerema xwe berê wallet ve girêbidin / Please connect wallet first');
-              return;
-            }
-            setShowCreateModal(true);
-          }}
-        >
-          <Text style={styles.addButtonText}>+ Îlan</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Search */}
+      {/* Search + Add Button Row */}
       <View style={styles.searchContainer}>
         <View style={styles.searchBar}>
           <Text style={styles.searchIcon}>🔍</Text>
@@ -474,6 +454,18 @@ const B2BScreen: React.FC = () => {
             </TouchableOpacity>
           )}
         </View>
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => {
+            if (!selectedAccount) {
+              Alert.alert('Şaşî / Error', 'Ji kerema xwe berê wallet ve girêbidin / Please connect wallet first');
+              return;
+            }
+            setShowCreateModal(true);
+          }}
+        >
+          <Text style={styles.addButtonText}>+ Îlan</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Categories */}
@@ -836,31 +828,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F5F5F5',
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: KurdistanColors.spi,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: KurdistanColors.reş,
-  },
-  headerSubtitle: {
-    fontSize: 12,
-    color: '#666',
-    textAlign: 'center',
-  },
   addButton: {
     backgroundColor: KurdistanColors.kesk,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
+    paddingHorizontal: 16,
+    height: 48,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   addButtonText: {
     color: KurdistanColors.spi,
@@ -868,10 +842,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 16,
     backgroundColor: KurdistanColors.spi,
+    gap: 12,
   },
   searchBar: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#F8F9FA',
