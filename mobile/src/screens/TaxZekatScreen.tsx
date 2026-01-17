@@ -4,7 +4,6 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   StatusBar,
   TextInput,
@@ -133,9 +132,9 @@ const TaxZekatScreen: React.FC = () => {
       const treasuryAccount = treasuryAccountOption.toString();
 
       if (__DEV__) {
-        console.log('[TaxZekat] Treasury account:', treasuryAccount.toString());
-        console.log('[TaxZekat] Amount:', amountInUnits.toString());
-        console.log('[TaxZekat] Remark:', remarkMessage);
+        console.warn('[TaxZekat] Treasury account:', treasuryAccount.toString());
+        console.warn('[TaxZekat] Amount:', amountInUnits.toString());
+        console.warn('[TaxZekat] Remark:', remarkMessage);
       }
 
       // Batch: Transfer to treasury + Remark with allocation data

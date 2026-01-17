@@ -75,8 +75,8 @@ const DelegationScreen: React.FC = () => {
         const votingEntries = await api.query.democracy.voting.entries();
         const delegatesMap = new Map<string, { delegated: bigint; count: number }>();
 
-        votingEntries.forEach(([key, value]: any) => {
-          const voter = key.args[0].toString();
+        votingEntries.forEach(([key, value]: [{ args: [{ toString: () => string }] }, { isDelegating: boolean; asDelegating: { target: { toString: () => string }; balance: { toString: () => string } } }]) => {
+          const _voter = key.args[0].toString();
           const voting = value;
 
           if (voting.isDelegating) {
@@ -114,7 +114,8 @@ const DelegationScreen: React.FC = () => {
 
         // Fetch user's delegations
         if (selectedAccount) {
-          const userVoting = await api.query.democracy.voting(selectedAccount.address) as any;
+          const userVotingResult = await api.query.democracy.voting(selectedAccount.address);
+          const userVoting = userVotingResult as unknown as { isDelegating: boolean; asDelegating: { target: { toString: () => string }; balance: { toString: () => string }; conviction: { toNumber: () => number } } };
           if (userVoting.isDelegating) {
             const delegating = userVoting.asDelegating;
             setUserDelegations([{
@@ -130,8 +131,8 @@ const DelegationScreen: React.FC = () => {
           }
         }
       }
-    } catch (error) {
-      console.error('Failed to load delegation data:', error);
+    } catch (_error) {
+      if (__DEV__) console.error('Failed to load delegation data:', _error);
       Alert.alert('Error', 'Failed to load delegation data from blockchain');
     } finally {
       setLoading(false);
@@ -143,6 +144,7 @@ const DelegationScreen: React.FC = () => {
     fetchDelegationData();
     const interval = setInterval(fetchDelegationData, 30000);
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [api, isApiReady]);
 
   const handleRefresh = () => {
