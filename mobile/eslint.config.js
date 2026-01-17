@@ -12,9 +12,13 @@ export default tseslint.config(
       "dist/**",
       "coverage/**",
       "jest.config.js",
+      "jest.config.cjs",
       "jest.setup.js",
+      "jest.setup.cjs",
       "metro.config.js",
       "eslint.config.js",
+      "babel.config.js",
+      "**/*.cjs",
     ],
   },
   // Config for React Native app files
