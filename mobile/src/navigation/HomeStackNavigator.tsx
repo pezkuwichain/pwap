@@ -86,7 +86,14 @@ const HomeStackNavigator: React.FC = () => {
       <Stack.Screen name="Vote" component={VoteScreen} options={{ headerTitle: 'Deng' }} />
       <Stack.Screen name="Validators" component={ValidatorsScreen} options={{ headerTitle: 'Validators' }} />
       <Stack.Screen name="Proposals" component={ProposalsScreen} options={{ headerTitle: 'Pêşniyar' }} />
-      <Stack.Screen name="Identity" component={IdentityScreen} options={{ headerTitle: 'Nasname' }} />
+      <Stack.Screen
+        name="Identity"
+        component={IdentityScreen}
+        options={{
+          headerTitle: '🆔 Nasnameya Dîjîtal',
+          header: (props) => <GradientHeader {...props} subtitle="Digital Identity" gradientColors={[KurdistanColors.kesk, '#006633']} />
+        }}
+      />
       <Stack.Screen name="Forum" component={ForumScreen} options={{ headerTitle: 'Forum' }} />
       <Stack.Screen name="KurdMedia" component={KurdMediaScreen} options={{ headerTitle: 'KurdMedia' }} />
       <Stack.Screen
