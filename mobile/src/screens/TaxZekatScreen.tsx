@@ -125,15 +125,12 @@ const TaxZekatScreen: React.FC = () => {
 
       const amountInUnits = BigInt(Math.floor(parseFloat(amount) * 1e12)); // Convert to smallest unit (12 decimals for HEZ)
 
-      // Get treasury account address
-      // Treasury account is derived from pallet ID "py/trsry" (standard Substrate treasury)
-      const treasuryAccount = api.consts.treasury?.palletId
-        ? api.registry.createType('AccountId', api.consts.treasury.palletId.toU8a())
-        : null;
-
-      if (!treasuryAccount) {
-        throw new Error('Treasury account not found');
+      // Get government pot account from PezTreasury pallet
+      const treasuryAccountOption = await api.query.pezTreasury.governmentPotAccountId();
+      if (!treasuryAccountOption || treasuryAccountOption.isEmpty) {
+        throw new Error('Government treasury account not found');
       }
+      const treasuryAccount = treasuryAccountOption.toString();
 
       if (__DEV__) {
         console.log('[TaxZekat] Treasury account:', treasuryAccount.toString());
