@@ -1,5 +1,16 @@
 import type { ApiPromise } from '@pezkuwi/api';
 import { decodeAddress } from '@pezkuwi/util-crypto';
+import { ImageSourcePropType } from 'react-native';
+
+// Import token logos
+import hezLogo from '../../../shared/images/hez_token_512.png';
+import pezLogo from '../../../shared/images/pez_token_512.png';
+import usdtLogo from '../../../shared/images/USDT(hez)logo.png';
+import dotLogo from '../../../shared/images/dot.png';
+import btcLogo from '../../../shared/images/bitcoin.png';
+import ethLogo from '../../../shared/images/etherium.png';
+import bnbLogo from '../../../shared/images/BNB_logo.png';
+import adaLogo from '../../../shared/images/ADAlogo.png';
 
 /**
  * Token metadata and balance information
@@ -30,15 +41,15 @@ interface PriceData {
 }
 
 // Known token logos mapping
-export const TOKEN_LOGOS: { [symbol: string]: any } = {
-  HEZ: require('../../../shared/images/hez_token_512.png'),
-  PEZ: require('../../../shared/images/pez_token_512.png'),
-  USDT: require('../../../shared/images/USDT(hez)logo.png'),
-  DOT: require('../../../shared/images/dot.png'),
-  BTC: require('../../../shared/images/bitcoin.png'),
-  ETH: require('../../../shared/images/etherium.png'),
-  BNB: require('../../../shared/images/BNB_logo.png'),
-  ADA: require('../../../shared/images/ADAlogo.png'),
+export const TOKEN_LOGOS: { [symbol: string]: ImageSourcePropType } = {
+  HEZ: hezLogo,
+  PEZ: pezLogo,
+  USDT: usdtLogo,
+  DOT: dotLogo,
+  BTC: btcLogo,
+  ETH: ethLogo,
+  BNB: bnbLogo,
+  ADA: adaLogo,
 };
 
 // Predefined known tokens on PezkuwiChain

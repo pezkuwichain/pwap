@@ -11,31 +11,31 @@ declare module '@pezkuwi/types/types/codec' {
     isNone: boolean;
     isSome: boolean;
     isEmpty: boolean;
-    unwrap(): any;
-    unwrapOr<T>(defaultValue: T): any;
-    unwrapOrDefault(): any;
+    unwrap(): unknown;
+    unwrapOr<T>(defaultValue: T): T | unknown;
+    unwrapOrDefault(): unknown;
 
     // Primitive conversions
     toNumber(): number;
     toBigInt(): bigint;
-    toJSON(): any;
+    toJSON(): unknown;
     toString(): string;
     toHex(): string;
 
     // Common properties
-    data?: any;
-    free?: any;
-    balance?: any;
-    commission?: any;
-    keys?: any;
+    data?: { free?: Codec; balance?: Codec };
+    free?: Codec;
+    balance?: Codec;
+    commission?: Codec;
+    keys?: Codec[];
 
     // Delegation checks
     isDelegating?: boolean;
-    asDelegating?: any;
+    asDelegating?: { target: Codec; balance: Codec; conviction: Codec };
 
     // Iterator support
-    [Symbol.iterator]?(): Iterator<any>;
-    map?<T>(fn: (value: any) => T): T[];
+    [Symbol.iterator]?(): Iterator<unknown>;
+    map?<T>(fn: (value: unknown) => T): T[];
   }
 }
 
@@ -44,22 +44,22 @@ declare module '@pezkuwi/types-codec' {
     isNone: boolean;
     isSome: boolean;
     isEmpty: boolean;
-    unwrap(): any;
-    unwrapOr<T>(defaultValue: T): any;
-    unwrapOrDefault(): any;
+    unwrap(): unknown;
+    unwrapOr<T>(defaultValue: T): T | unknown;
+    unwrapOrDefault(): unknown;
     toNumber(): number;
     toBigInt(): bigint;
-    toJSON(): any;
+    toJSON(): unknown;
     toString(): string;
     toHex(): string;
-    data?: any;
-    free?: any;
-    balance?: any;
-    commission?: any;
-    keys?: any;
+    data?: { free?: Codec; balance?: Codec };
+    free?: Codec;
+    balance?: Codec;
+    commission?: Codec;
+    keys?: Codec[];
     isDelegating?: boolean;
-    asDelegating?: any;
-    [Symbol.iterator]?(): Iterator<any>;
-    map?<T>(fn: (value: any) => T): T[];
+    asDelegating?: { target: Codec; balance: Codec; conviction: Codec };
+    [Symbol.iterator]?(): Iterator<unknown>;
+    map?<T>(fn: (value: unknown) => T): T[];
   }
 }

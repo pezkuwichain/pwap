@@ -73,8 +73,8 @@ const TreasuryScreen: React.FC = () => {
         });
         setProposals(parsedProposals);
       }
-    } catch (error) {
-      console.error('Failed to load treasury data:', error);
+    } catch (_error) {
+      if (__DEV__) console.error('Failed to load treasury data:', _error);
       Alert.alert('Error', 'Failed to load treasury data from blockchain');
     } finally {
       setLoading(false);
@@ -86,6 +86,7 @@ const TreasuryScreen: React.FC = () => {
     fetchTreasuryData();
     const interval = setInterval(fetchTreasuryData, 30000);
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [api, isApiReady]);
 
   const handleRefresh = () => {

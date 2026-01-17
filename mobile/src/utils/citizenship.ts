@@ -53,7 +53,7 @@ export async function submitKycApplicationMobile(
     }
 
     if (__DEV__) {
-      console.log('[Citizenship] Submitting for:', address);
+      console.warn('[Citizenship] Submitting for:', address);
     }
 
     // Step 1: Set identity
