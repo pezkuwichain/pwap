@@ -222,7 +222,9 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
   );
 };
 
-const createStyles = (colors: any) => StyleSheet.create({
+import type { ThemeColors } from '../contexts/ThemeContext';
+
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',

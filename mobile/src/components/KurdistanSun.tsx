@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { View, Animated, Easing, StyleSheet } from 'react-native';
 import Svg, { Circle, Line, Defs, RadialGradient, Stop } from 'react-native-svg';
 
@@ -9,12 +9,12 @@ interface KurdistanSunProps {
 const AnimatedView = Animated.View;
 
 export const KurdistanSun: React.FC<KurdistanSunProps> = ({ size = 200 }) => {
-  // Animation values
-  const greenHaloRotation = useRef(new Animated.Value(0)).current;
-  const redHaloRotation = useRef(new Animated.Value(0)).current;
-  const yellowHaloRotation = useRef(new Animated.Value(0)).current;
-  const raysPulse = useRef(new Animated.Value(1)).current;
-  const glowPulse = useRef(new Animated.Value(0.6)).current;
+  // Animation values - use useMemo since these are stable and used during render
+  const greenHaloRotation = useMemo(() => new Animated.Value(0), []);
+  const redHaloRotation = useMemo(() => new Animated.Value(0), []);
+  const yellowHaloRotation = useMemo(() => new Animated.Value(0), []);
+  const raysPulse = useMemo(() => new Animated.Value(1), []);
+  const glowPulse = useMemo(() => new Animated.Value(0.6), []);
 
   useEffect(() => {
     // Green halo rotation (3s, clockwise)
@@ -82,7 +82,7 @@ export const KurdistanSun: React.FC<KurdistanSunProps> = ({ size = 200 }) => {
         }),
       ])
     ).start();
-  }, []);
+  }, [greenHaloRotation, redHaloRotation, yellowHaloRotation, raysPulse, glowPulse]);
 
   const greenSpin = greenHaloRotation.interpolate({
     inputRange: [0, 1],

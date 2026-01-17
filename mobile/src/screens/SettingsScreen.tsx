@@ -19,8 +19,20 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 import { Clipboard } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
+import type { AlertButton } from 'react-native';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { KurdistanColors } from '../theme/colors';
+
+// Profile type for Supabase
+interface UserProfile {
+  id?: string;
+  full_name: string;
+  username: string;
+  bio?: string;
+  notifications_push: boolean;
+  notifications_email: boolean;
+  updated_at?: string;
+}
 import { useTheme } from '../contexts/ThemeContext';
 import { useBiometricAuth } from '../contexts/BiometricAuthContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -28,7 +40,7 @@ import { usePezkuwi, NETWORKS } from '../contexts/PezkuwiContext';
 import { supabase } from '../lib/supabase';
 
 // Cross-platform alert helper
-const showAlert = (title: string, message: string, buttons?: Array<{text: string; onPress?: () => void; style?: string}>) => {
+const showAlert = (title: string, message: string, buttons?: AlertButton[]) => {
   if (Platform.OS === 'web') {
     if (buttons && buttons.length > 1) {
       // For confirm dialogs
@@ -40,7 +52,7 @@ const showAlert = (title: string, message: string, buttons?: Array<{text: string
       window.alert(`${title}\n\n${message}`);
     }
   } else {
-    Alert.alert(title, message, buttons as any);
+    Alert.alert(title, message, buttons);
   }
 };
 
@@ -160,13 +172,13 @@ const SettingsScreen: React.FC = () => {
   const { currentNetwork, switchNetwork, selectedAccount } = usePezkuwi();
 
   // Profile State (Supabase)
-  const [profile, setProfile] = useState<any>({
+  const [profile, setProfile] = useState<UserProfile>({
     full_name: '',
     username: '',
     notifications_push: false,
     notifications_email: true,
   });
-  const [loadingProfile, setLoadingProfile] = useState(false);
+  const [_loadingProfile, setLoadingProfile] = useState(false);
   const [savingSettings, setSavingSettings] = useState(false);
 
   // Modals
@@ -196,8 +208,8 @@ const SettingsScreen: React.FC = () => {
         setEditName(data.full_name || '');
         setEditBio(data.bio || '');
       }
-    } catch (err) {
-      console.log('Error fetching profile:', err);
+    } catch (_err) {
+      console.log('Error fetching profile:', _err);
     } finally {
       setLoadingProfile(false);
     }
@@ -211,9 +223,9 @@ const SettingsScreen: React.FC = () => {
   const updateSetting = async (key: string, value: boolean) => {
     if (!user) return;
     setSavingSettings(true);
-    
+
     // Optimistic update
-    setProfile((prev: any) => ({ ...prev, [key]: value }));
+    setProfile((prev) => ({ ...prev, [key]: value }));
 
     try {
       const { error } = await supabase
@@ -225,7 +237,7 @@ const SettingsScreen: React.FC = () => {
     } catch (err) {
       console.error('Failed to update setting:', err);
       // Revert on error
-      setProfile((prev: any) => ({ ...prev, [key]: !value }));
+      setProfile((prev) => ({ ...prev, [key]: !value }));
       showAlert('Error', 'Failed to save setting. Please check your connection.');
     } finally {
       setSavingSettings(false);
@@ -246,11 +258,11 @@ const SettingsScreen: React.FC = () => {
         .eq('id', user.id);
 
       if (error) throw error;
-      
-      setProfile((prev: any) => ({ ...prev, full_name: editName, bio: editBio }));
+
+      setProfile((prev) => ({ ...prev, full_name: editName, bio: editBio }));
       setShowProfileEdit(false);
       showAlert('Success', 'Profile updated successfully');
-    } catch (err) {
+    } catch {
       showAlert('Error', 'Failed to update profile');
     }
   };
@@ -502,7 +514,7 @@ const SettingsScreen: React.FC = () => {
                             '@pezkuwi_selected_network'
                           ]);
                           showAlert('Success', 'Wallet data cleared. Restart the app to see changes.');
-                        } catch (error) {
+                        } catch {
                           showAlert('Error', 'Failed to clear wallet data');
                         }
                       }

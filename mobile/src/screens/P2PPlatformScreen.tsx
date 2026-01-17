@@ -31,7 +31,7 @@ const P2PPlatformScreen: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState<'buy' | 'sell'>('buy');
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'bank' | 'online'>('all');
   const [ads, setAds] = useState<P2PAd[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [_loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
   const fetchAds = async () => {

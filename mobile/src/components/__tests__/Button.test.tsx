@@ -90,7 +90,7 @@ describe('Button', () => {
   });
 
   it('should render with icon', () => {
-    const { getByText, getByTestId } = render(
+    const { _getByText, getByTestId } = render(
       <Button title="With Icon" icon={<Button title="Icon" onPress={() => {}} />} testID="button" onPress={() => {}} />
     );
     expect(getByTestId('button')).toBeTruthy();

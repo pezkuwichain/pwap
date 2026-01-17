@@ -34,7 +34,7 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
 }) => {
   const { selectedAccount } = usePezkuwi();
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [_loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (visible && selectedAccount) {
@@ -212,7 +212,7 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
               <View style={styles.emptyState}>
                 <Text style={styles.emptyStateIcon}>📬</Text>
                 <Text style={styles.emptyStateText}>No notifications</Text>
-                <Text style={styles.emptyStateSubtext}>You're all caught up!</Text>
+                <Text style={styles.emptyStateSubtext}>You&apos;re all caught up!</Text>
               </View>
             ) : (
               <>

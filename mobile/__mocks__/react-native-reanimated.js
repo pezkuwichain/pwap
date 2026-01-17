@@ -1,5 +1,6 @@
-const React = require('react');
-const { View, Text, Image, Animated } = require('react-native');
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import React from 'react';
+import { View, Text, Image, Animated } from 'react-native';
 
 const Reanimated = {
   default: {
@@ -57,7 +58,7 @@ const Reanimated = {
   withTiming: jest.fn((value) => value),
   withSpring: jest.fn((value) => value),
   withDecay: jest.fn((value) => value),
-  withDelay: jest.fn((delay, value) => value),
+  withDelay: jest.fn((_delay, value) => value),
   withSequence: jest.fn((...args) => args[0]),
   withRepeat: jest.fn((value) => value),
   cancelAnimation: jest.fn(),
@@ -67,4 +68,5 @@ const Reanimated = {
   EasingNode: Animated.Easing,
 };
 
-module.exports = Reanimated;
+export default Reanimated;
+export const { useSharedValue, useAnimatedStyle, useAnimatedGestureHandler, useAnimatedScrollHandler, withTiming, withSpring, withDecay, withDelay, withSequence, withRepeat, cancelAnimation, runOnJS, runOnUI, Easing, EasingNode } = Reanimated;

@@ -1,16 +1,16 @@
 import React, { createContext, useContext, ReactNode } from 'react';
-import { User } from '@supabase/supabase-js';
+import { User, Session, AuthError } from '@supabase/supabase-js';
 
 // Mock Auth Context for testing
 interface AuthContextType {
   user: User | null;
-  session: any | null;
+  session: Session | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: any }>;
+  signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
+  signUp: (email: string, password: string, fullName: string) => Promise<{ error: AuthError | null }>;
   signOut: () => Promise<void>;
-  changePassword: (newPassword: string, currentPassword: string) => Promise<{ error: any }>;
-  resetPassword: (email: string) => Promise<{ error: any }>;
+  changePassword: (newPassword: string, currentPassword: string) => Promise<{ error: AuthError | null }>;
+  resetPassword: (email: string) => Promise<{ error: AuthError | null }>;
 }
 
 const mockUser: User = {

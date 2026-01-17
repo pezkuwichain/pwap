@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../contexts/AuthContext';
-import { KurdistanColors } from '../theme/colors';
+import kurdistanMapImage from '../../assets/kurdistan-map.png';
 
 const AuthScreen: React.FC = () => {
   const { signIn, signUp } = useAuth();
@@ -135,7 +135,7 @@ const AuthScreen: React.FC = () => {
               <View style={styles.header}>
                 <View style={styles.logoContainer}>
                   <Image
-                    source={require('../../assets/kurdistan-map.png')}
+                    source={kurdistanMapImage}
                     style={styles.logoImage}
                     resizeMode="contain"
                   />

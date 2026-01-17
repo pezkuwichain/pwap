@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Modal,
   View,
@@ -11,6 +11,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { KurdistanColors } from '../theme/colors';
 import { useTheme } from '../contexts/ThemeContext';
+import type { ThemeColors } from '../contexts/ThemeContext';
 
 const EMAIL_PREFS_KEY = '@pezkuwi/email_notifications';
 
@@ -39,32 +40,34 @@ const EmailNotificationsModal: React.FC<EmailNotificationsModalProps> = ({
   });
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    loadPreferences();
-  }, [visible]);
-
-  const loadPreferences = async () => {
+  const loadPreferences = useCallback(async () => {
     try {
       const saved = await AsyncStorage.getItem(EMAIL_PREFS_KEY);
       if (saved) {
         setPreferences(JSON.parse(saved));
       }
     } catch (error) {
-      console.error('Failed to load email preferences:', error);
+      if (__DEV__) console.warn('Failed to load email preferences:', error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    // Load preferences when modal becomes visible - setState is async inside loadPreferences
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadPreferences();
+  }, [visible, loadPreferences]);
 
   const savePreferences = async () => {
     setSaving(true);
     try {
       await AsyncStorage.setItem(EMAIL_PREFS_KEY, JSON.stringify(preferences));
-      console.log('[EmailPrefs] Preferences saved:', preferences);
+      if (__DEV__) console.warn('[EmailPrefs] Preferences saved:', preferences);
       setTimeout(() => {
         setSaving(false);
         onClose();
       }, 500);
     } catch (error) {
-      console.error('Failed to save email preferences:', error);
+      if (__DEV__) console.warn('Failed to save email preferences:', error);
       setSaving(false);
     }
   };
@@ -203,7 +206,7 @@ const EmailNotificationsModal: React.FC<EmailNotificationsModalProps> = ({
   );
 };
 
-const createStyles = (colors: any) => StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',

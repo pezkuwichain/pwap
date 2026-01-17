@@ -297,7 +297,7 @@ const WalletScreen: React.FC = () => {
         }
 
         // Subscribe to balance changes
-        unsubscribe = await api.query.system.account(accountId, (accountInfo: any) => {
+        unsubscribe = await api.query.system.account(accountId, (accountInfo: { data: { free: { toString(): string } } }) => {
           const hezBalance = (Number(accountInfo.data.free.toString()) / 1e12).toFixed(2);
           setBalances(prev => ({ ...prev, HEZ: hezBalance }));
           if (__DEV__) console.warn('[Wallet] Balance updated via subscription:', hezBalance, 'HEZ');
@@ -471,7 +471,7 @@ const WalletScreen: React.FC = () => {
       decodeAddress(address);
       setAddressError('');
       return true;
-    } catch (e) {
+    } catch {
       setAddressError('Invalid address format');
       return false;
     }
@@ -570,7 +570,7 @@ const WalletScreen: React.FC = () => {
             throw new Error('Unknown token type');
         }
 
-        await tx.signAndSend(keypair, ({ status, events }) => {
+        await tx.signAndSend(keypair, ({ status, _events }) => {
             if (status.isInBlock) {
                 if (__DEV__) console.warn('[Wallet] Transaction in block:', status.asInBlock.toHex());
             }
@@ -584,25 +584,25 @@ const WalletScreen: React.FC = () => {
                 fetchData();
             }
         });
-    } catch (e: any) {
+    } catch (e: unknown) {
         setIsSending(false);
-        showAlert('Error', e.message);
+        showAlert('Error', (e as Error).message);
     }
   };
 
   // Connect/Create Wallet handlers
-  const handleConnectWallet = async () => {
+  const _handleConnectWallet = async () => {
       if (accounts.length === 0) setCreateWalletModalVisible(true);
       else await connectWallet();
   };
 
-  const handleCreateWallet = async () => {
+  const _handleCreateWallet = async () => {
       try {
-        const { address, mnemonic } = await createWallet(walletName);
+        const { _address, mnemonic } = await createWallet(walletName);
         setUserMnemonic(mnemonic); // Save for backup
         setCreateWalletModalVisible(false);
         showAlert('Wallet Created', `Save this mnemonic:\n${mnemonic}`, [{ text: 'OK', onPress: () => connectWallet() }]);
-      } catch (e) { showAlert('Error', 'Failed'); }
+      } catch { showAlert('Error', 'Failed'); }
   };
 
   // Copy Address Handler
@@ -613,7 +613,7 @@ const WalletScreen: React.FC = () => {
   };
 
   // Import Wallet Handler
-  const handleImportWallet = async () => {
+  const _handleImportWallet = async () => {
     if (!importMnemonic.trim()) {
       showAlert('Error', 'Please enter a valid mnemonic');
       return;
@@ -630,13 +630,13 @@ const WalletScreen: React.FC = () => {
       setImportWalletModalVisible(false);
       setImportMnemonic('');
       connectWallet();
-    } catch (e: any) {
-      showAlert('Error', e.message || 'Invalid mnemonic');
+    } catch (e: unknown) {
+      showAlert('Error', (e as Error).message || 'Invalid mnemonic');
     }
   };
 
   // Backup Mnemonic Handler
-  const handleBackupMnemonic = async () => {
+  const _handleBackupMnemonic = async () => {
     if (!selectedAccount) {
       showAlert('No Wallet', 'Please create or import a wallet first.');
       return;
@@ -677,8 +677,8 @@ const WalletScreen: React.FC = () => {
       await switchNetwork(network);
       setNetworkSelectorVisible(false);
       showAlert('Success', `Switched to ${NETWORKS[network].displayName}`);
-    } catch (e: any) {
-      showAlert('Error', e.message || 'Failed to switch network');
+    } catch (e: unknown) {
+      showAlert('Error', (e as Error).message || 'Failed to switch network');
     }
   };
 
@@ -825,7 +825,7 @@ const WalletScreen: React.FC = () => {
           {/* Dynamic Token List */}
           {allTokens
             .filter(t => !hiddenTokens.includes(t.symbol))
-            .map((token, index) => {
+            .map((token, _index) => {
 
               const changeColor = token.change24h >= 0 ? '#22C55E' : '#EF4444';
               const changePrefix = token.change24h >= 0 ? '+' : '';
@@ -1099,7 +1099,7 @@ const WalletScreen: React.FC = () => {
                           if (accounts.length <= 1) {
                             setWalletSelectorVisible(false);
                           }
-                        } catch (err) {
+                        } catch {
                           if (Platform.OS === 'web') {
                             window.alert('Failed to delete wallet');
                           } else {

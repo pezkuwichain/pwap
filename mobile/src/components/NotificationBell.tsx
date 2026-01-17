@@ -4,9 +4,11 @@ import { usePezkuwi } from '../contexts/PezkuwiContext';
 import { KurdistanColors } from '../theme/colors';
 import { supabaseHelpers } from '../lib/supabase';
 
+import type { ViewStyle } from 'react-native';
+
 interface NotificationBellProps {
   onPress: () => void;
-  style?: any;
+  style?: ViewStyle;
 }
 
 export const NotificationBell: React.FC<NotificationBellProps> = ({ onPress, style }) => {
@@ -15,6 +17,8 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ onPress, sty
 
   useEffect(() => {
     if (!api || !isApiReady || !selectedAccount) {
+      // Reset count when dependencies are not available - valid conditional setState
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setUnreadCount(0);
       return;
     }
@@ -24,8 +28,8 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ onPress, sty
       try {
         const count = await supabaseHelpers.getUnreadNotificationsCount(selectedAccount.address);
         setUnreadCount(count);
-      } catch (error) {
-        console.error('Failed to fetch unread count:', error);
+      } catch {
+        if (__DEV__) console.warn('Failed to fetch unread count');
         // If tables don't exist yet, set to 0
         setUnreadCount(0);
       }

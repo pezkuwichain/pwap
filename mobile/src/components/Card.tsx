@@ -61,7 +61,7 @@ export const Card: React.FC<CardProps> = ({
     );
   }
 
-  return <View testID={testID} style={cardStyle as any}>{content}</View>;
+  return <View testID={testID} style={cardStyle as ViewStyle[]}>{content}</View>;
 };
 
 const styles = StyleSheet.create({

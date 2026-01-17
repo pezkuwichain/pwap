@@ -31,7 +31,7 @@ const Tab = createBottomTabNavigator<BottomTabParamList>();
 const CustomTabBarButton: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<{ navigate: (screen: string) => void }>();
 
   return (
     <TouchableOpacity

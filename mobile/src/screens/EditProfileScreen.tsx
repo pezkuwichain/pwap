@@ -11,6 +11,7 @@ import {
   Alert,
   Platform,
   KeyboardAvoidingView,
+  AlertButton,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../contexts/AuthContext';
@@ -20,7 +21,7 @@ import { supabase } from '../lib/supabase';
 import AvatarPickerModal from '../components/AvatarPickerModal';
 
 // Cross-platform alert helper
-const showAlert = (title: string, message: string, buttons?: Array<{text: string; onPress?: () => void; style?: string}>) => {
+const showAlert = (title: string, message: string, buttons?: AlertButton[]) => {
   if (Platform.OS === 'web') {
     if (buttons && buttons.length > 1) {
       const result = window.confirm(`${title}\n\n${message}`);
@@ -34,7 +35,7 @@ const showAlert = (title: string, message: string, buttons?: Array<{text: string
       if (buttons?.[0]?.onPress) buttons[0].onPress();
     }
   } else {
-    Alert.alert(title, message, buttons as any);
+    Alert.alert(title, message, buttons);
   }
 };
 
@@ -76,7 +77,7 @@ const getEmojiFromAvatarId = (avatarId: string): string => {
 const EditProfileScreen: React.FC = () => {
   const navigation = useNavigation();
   const { user } = useAuth();
-  const { isDarkMode, colors, fontScale } = useTheme();
+  const { isDarkMode: _isDarkMode, colors, fontScale } = useTheme();
 
   const [fullName, setFullName] = useState('');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);

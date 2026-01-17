@@ -35,7 +35,7 @@ const PrivacyPolicyModal: React.FC<PrivacyPolicyModalProps> = ({ visible, onClos
           <Text style={styles.sectionTitle}>Data Minimization Principle</Text>
           <Text style={styles.paragraph}>
             Pezkuwi collects the MINIMUM data necessary to provide blockchain wallet functionality.
-            We operate on a "your keys, your coins, your responsibility" model.
+            We operate on a &quot;your keys, your coins, your responsibility&quot; model.
           </Text>
 
           <Text style={styles.sectionTitle}>What Data We Collect</Text>
@@ -63,10 +63,10 @@ const PrivacyPolicyModal: React.FC<PrivacyPolicyModalProps> = ({ visible, onClos
 
           <Text style={styles.subsectionTitle}>Never Collected:</Text>
           <View style={styles.bulletList}>
-            <Text style={styles.bulletItem}>• <Text style={styles.bold}>Browsing History:</Text> We don't track which screens you visit</Text>
+            <Text style={styles.bulletItem}>• <Text style={styles.bold}>Browsing History:</Text> We don&apos;t track which screens you visit</Text>
             <Text style={styles.bulletItem}>• <Text style={styles.bold}>Device Identifiers:</Text> No IMEI, MAC address, or advertising ID collection</Text>
             <Text style={styles.bulletItem}>• <Text style={styles.bold}>Location Data:</Text> No GPS or location tracking</Text>
-            <Text style={styles.bulletItem}>• <Text style={styles.bold}>Contact Lists:</Text> We don't access your contacts</Text>
+            <Text style={styles.bulletItem}>• <Text style={styles.bold}>Contact Lists:</Text> We don&apos;t access your contacts</Text>
             <Text style={styles.bulletItem}>• <Text style={styles.bold}>Third-party Analytics:</Text> No Google Analytics, Facebook Pixel, or similar trackers</Text>
           </View>
 

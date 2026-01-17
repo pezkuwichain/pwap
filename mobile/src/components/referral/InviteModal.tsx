@@ -117,7 +117,7 @@ export const InviteModal: React.FC<InviteModalProps> = ({ visible, onClose }) =>
 
           <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
             <Text style={styles.modalDescription}>
-              Share your referral link. When your friends complete KYC, you'll earn trust score points!
+              Share your referral link. When your friends complete KYC, you&apos;ll earn trust score points!
             </Text>
 
             {/* Referral Link */}
@@ -190,7 +190,7 @@ export const InviteModal: React.FC<InviteModalProps> = ({ visible, onClose }) =>
             <View style={[styles.section, styles.advancedSection]}>
               <Text style={styles.sectionLabel}>Pre-Register a Friend (Advanced)</Text>
               <Text style={styles.hint}>
-                If you know your friend's wallet address, you can pre-register them on-chain.
+                If you know your friend&apos;s wallet address, you can pre-register them on-chain.
               </Text>
               <TextInput
                 style={styles.addressInput}

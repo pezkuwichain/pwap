@@ -37,10 +37,30 @@ interface Enrollment {
   points_earned: number;
 }
 
+// Raw course data from chain toJSON()
+interface CourseChainData {
+  id: number;
+  owner: string;
+  name: number[] | string;
+  description: number[] | string;
+  contentLink: number[] | string;
+  status: 'Active' | 'Archived';
+  createdAt: number;
+}
+
+// Raw enrollment data from chain toJSON()
+interface EnrollmentChainData {
+  student: string;
+  courseId: number;
+  enrolledAt: number;
+  completedAt: number | null;
+  pointsEarned: number;
+}
+
 type TabType = 'courses' | 'enrolled' | 'completed';
 
 const PerwerdeScreen: React.FC = () => {
-  const navigation = useNavigation();
+  const _navigation = useNavigation();
   const { selectedAccount, api, isApiReady } = usePezkuwi();
   const isConnected = !!selectedAccount;
 
@@ -63,9 +83,9 @@ const PerwerdeScreen: React.FC = () => {
       const entries = await api.query.perwerde.courses.entries();
       const courseList: Course[] = [];
 
-      for (const [key, value] of entries) {
+      for (const [_key, value] of entries) {
         if (!value.isEmpty) {
-          const data = value.toJSON() as any;
+          const data = value.toJSON() as unknown as CourseChainData;
           courseList.push({
             id: data.id,
             owner: data.owner,
@@ -100,7 +120,7 @@ const PerwerdeScreen: React.FC = () => {
       for (const courseId of courseIds) {
         const enrollment = await api.query.perwerde.enrollments([selectedAccount.address, courseId]);
         if (!enrollment.isEmpty) {
-          const data = enrollment.toJSON() as any;
+          const data = enrollment.toJSON() as unknown as EnrollmentChainData;
           enrollmentList.push({
             student: data.student,
             course_id: data.courseId,
@@ -236,7 +256,7 @@ const PerwerdeScreen: React.FC = () => {
       } else {
         Alert.alert('Xeletî / Error', 'Nikarim linkê vebikum.');
       }
-    } catch (error) {
+    } catch {
       Alert.alert('Xeletî / Error', 'Tiştek xelet çû.');
     }
   };

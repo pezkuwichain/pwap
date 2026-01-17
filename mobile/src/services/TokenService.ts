@@ -117,10 +117,10 @@ export async function fetchTokenPrices(symbols: string[]): Promise<PriceData> {
           }
         }
       } else {
-        console.warn('[TokenService] CoinGecko API error:', response.status);
+        if (__DEV__) console.warn('[TokenService] CoinGecko API error:', response.status);
       }
     } catch (error) {
-      console.warn('[TokenService] Failed to fetch prices:', error);
+      if (__DEV__) console.warn('[TokenService] Failed to fetch prices:', error);
     }
   }
 
@@ -131,7 +131,7 @@ export async function fetchTokenPrices(symbols: string[]): Promise<PriceData> {
       usd: hezPrice,
       usd_24h_change: prices['DOT'].usd_24h_change,
     };
-    console.log(`[TokenService] HEZ price calculated from DOT/4: $${hezPrice}`);
+    if (__DEV__) console.warn(`[TokenService] HEZ price calculated from DOT/4: $${hezPrice}`);
   }
 
   // Fallback for PEZ: DOT price / 10
@@ -141,7 +141,7 @@ export async function fetchTokenPrices(symbols: string[]): Promise<PriceData> {
       usd: pezPrice,
       usd_24h_change: prices['DOT'].usd_24h_change,
     };
-    console.log(`[TokenService] PEZ price calculated from DOT/10: $${pezPrice}`);
+    if (__DEV__) console.warn(`[TokenService] PEZ price calculated from DOT/10: $${pezPrice}`);
   }
 
   return prices;
@@ -187,7 +187,7 @@ export async function fetchAllTokens(
     try {
       accountId = decodeAddress(accountAddress);
     } catch (e) {
-      console.warn('[TokenService] Failed to decode address:', e);
+      if (__DEV__) console.warn('[TokenService] Failed to decode address:', e);
       // Return known tokens with zero balances
       return KNOWN_TOKENS.map(kt => ({
         assetId: kt.assetId,
@@ -213,11 +213,11 @@ export async function fetchAllTokens(
       try {
         if (knownToken.isNative) {
           // Native token (HEZ) - query system account
-          const accountInfo = await api.query.system.account(accountId) as any;
+          const accountInfo = await api.query.system.account(accountId) as unknown as { data: { free: { toString(): string } } };
           balanceRaw = BigInt(accountInfo.data.free.toString());
         } else if (api.query.assets?.account && knownToken.assetId !== null) {
           // Asset token - query assets pallet
-          const assetAccount = await api.query.assets.account(knownToken.assetId, accountId) as any;
+          const assetAccount = await api.query.assets.account(knownToken.assetId, accountId) as unknown as { isEmpty?: boolean; isSome?: boolean; unwrap(): { balance: { toString(): string }; status?: { isFrozen?: boolean } } } | null;
           if (assetAccount && !assetAccount.isEmpty && assetAccount.isSome) {
             const accountData = assetAccount.unwrap();
             balanceRaw = BigInt(accountData.balance.toString());
@@ -225,7 +225,7 @@ export async function fetchAllTokens(
           }
         }
       } catch (e) {
-        console.log(`[TokenService] Could not fetch balance for ${knownToken.symbol}:`, e);
+        if (__DEV__) console.warn(`[TokenService] Could not fetch balance for ${knownToken.symbol}:`, e);
       }
 
       tokens.push({
@@ -252,12 +252,13 @@ export async function fetchAllTokens(
         const assetEntries = await api.query.assets.metadata.entries();
 
         for (const [key, value] of assetEntries) {
-          const assetId = (key.args[0] as any).toNumber();
+          const keyArgs = key.args[0] as unknown as { toNumber(): number };
+          const assetId = keyArgs.toNumber();
 
           // Skip if already added from known tokens
           if (addedAssetIds.has(assetId)) continue;
 
-          const metadata = value as any;
+          const metadata = value as unknown as { isEmpty?: boolean; symbol: { toHuman(): string }; name: { toHuman(): string }; decimals: { toNumber(): number } };
           if (metadata.isEmpty) continue;
 
           const symbol = metadata.symbol.toHuman();
@@ -269,14 +270,14 @@ export async function fetchAllTokens(
           let isFrozen = false;
 
           try {
-            const assetAccount = await api.query.assets.account(assetId, accountId) as any;
+            const assetAccount = await api.query.assets.account(assetId, accountId) as unknown as { isEmpty?: boolean; isSome?: boolean; unwrap(): { balance: { toString(): string }; status?: { isFrozen?: boolean } } } | null;
             if (assetAccount && !assetAccount.isEmpty && assetAccount.isSome) {
               const accountData = assetAccount.unwrap();
               balanceRaw = BigInt(accountData.balance.toString());
               isFrozen = accountData.status?.isFrozen || false;
             }
-          } catch (e) {
-            console.log(`[TokenService] Failed to fetch balance for asset ${assetId}`);
+          } catch {
+            if (__DEV__) console.warn(`[TokenService] Failed to fetch balance for asset ${assetId}`);
           }
 
           tokens.push({
@@ -296,8 +297,8 @@ export async function fetchAllTokens(
 
           addedAssetIds.add(assetId);
         }
-      } catch (e) {
-        console.log('[TokenService] Assets pallet query failed, using known tokens only');
+      } catch {
+        if (__DEV__) console.warn('[TokenService] Assets pallet query failed, using known tokens only');
       }
     }
 
@@ -328,7 +329,7 @@ export async function fetchAllTokens(
     });
 
   } catch (error) {
-    console.error('[TokenService] Error fetching tokens:', error);
+    if (__DEV__) console.warn('[TokenService] Error fetching tokens:', error);
     // Return known tokens with zero balances on error
     return KNOWN_TOKENS.map(kt => ({
       assetId: kt.assetId,
@@ -371,7 +372,7 @@ export async function subscribeToTokenBalances(
     unsubscribes.push(unsubNative);
 
   } catch (error) {
-    console.error('[TokenService] Subscription error:', error);
+    if (__DEV__) console.warn('[TokenService] Subscription error:', error);
   }
 
   return () => {
@@ -379,6 +380,6 @@ export async function subscribeToTokenBalances(
   };
 }
 
-export function getTokenLogo(symbol: string): any {
+export function getTokenLogo(symbol: string): ImageSourcePropType | null {
   return TOKEN_LOGOS[symbol] || null;
 }

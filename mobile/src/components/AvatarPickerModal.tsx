@@ -7,7 +7,6 @@ import {
   StyleSheet,
   ScrollView,
   Image,
-  Alert,
   ActivityIndicator,
   Platform,
 } from 'react-native';
@@ -136,20 +135,20 @@ const AvatarPickerModal: React.FC<AvatarPickerModalProps> = ({
 
   const uploadImageToSupabase = async (imageUri: string): Promise<string | null> => {
     if (!user) {
-      console.error('[AvatarPicker] No user found');
+      if (__DEV__) console.warn('[AvatarPicker] No user found');
       return null;
     }
 
     try {
-      console.log('[AvatarPicker] Starting upload for URI:', imageUri.substring(0, 50) + '...');
+      if (__DEV__) console.warn('[AvatarPicker] Starting upload for URI:', imageUri.substring(0, 50) + '...');
 
       // Convert image URI to blob
       const response = await fetch(imageUri);
       const blob = await response.blob();
-      console.log('[AvatarPicker] Blob created - size:', blob.size, 'bytes, type:', blob.type);
+      if (__DEV__) console.warn('[AvatarPicker] Blob created - size:', blob.size, 'bytes, type:', blob.type);
 
       if (blob.size === 0) {
-        console.error('[AvatarPicker] Blob is empty!');
+        if (__DEV__) console.warn('[AvatarPicker] Blob is empty!');
         return null;
       }
 
@@ -173,7 +172,7 @@ const AvatarPickerModal: React.FC<AvatarPickerModalProps> = ({
       const filePath = `avatars/${fileName}`;
       const contentType = blob.type || `image/${fileExt}`;
 
-      console.log('[AvatarPicker] Uploading to path:', filePath, 'contentType:', contentType);
+      if (__DEV__) console.warn('[AvatarPicker] Uploading to path:', filePath, 'contentType:', contentType);
 
       // Upload to Supabase Storage
       const { data: uploadData, error: uploadError } = await supabase.storage
@@ -184,25 +183,26 @@ const AvatarPickerModal: React.FC<AvatarPickerModalProps> = ({
         });
 
       if (uploadError) {
-        console.error('[AvatarPicker] Supabase upload error:', uploadError.message, uploadError);
+        if (__DEV__) console.warn('[AvatarPicker] Supabase upload error:', uploadError.message, uploadError);
         // Show more specific error to user
         showAlert('Upload Error', `Storage error: ${uploadError.message}`);
         return null;
       }
 
-      console.log('[AvatarPicker] Upload successful:', uploadData);
+      if (__DEV__) console.warn('[AvatarPicker] Upload successful:', uploadData);
 
       // Get public URL
       const { data } = supabase.storage
         .from('avatars')
         .getPublicUrl(filePath);
 
-      console.log('[AvatarPicker] Public URL:', data.publicUrl);
+      if (__DEV__) console.warn('[AvatarPicker] Public URL:', data.publicUrl);
 
       return data.publicUrl;
-    } catch (error: any) {
-      console.error('[AvatarPicker] Error uploading to Supabase:', error?.message || error);
-      showAlert('Upload Error', `Failed to upload: ${error?.message || 'Unknown error'}`);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      if (__DEV__) console.warn('[AvatarPicker] Error uploading to Supabase:', errorMessage);
+      showAlert('Upload Error', `Failed to upload: ${errorMessage}`);
       return null;
     }
   };

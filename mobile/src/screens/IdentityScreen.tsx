@@ -17,8 +17,6 @@ import { usePezkuwi } from '../contexts/PezkuwiContext';
 import {
   fetchUserTikiNFTs,
   getCitizenNFTDetails,
-  getTikiDisplayName,
-  getTikiEmoji,
   ROLE_CATEGORIES,
   type TikiNFTDetails,
 } from '../../shared/lib/tiki';
@@ -223,7 +221,7 @@ const IdentityScreen: React.FC = () => {
                     <Text style={styles.notCitizenIcon}>⚠️</Text>
                     <Text style={styles.notCitizenTitle}>Citizenship Not Found</Text>
                     <Text style={styles.notCitizenText}>
-                      We couldn't find a Welati (citizen) NFT for this wallet.
+                      We couldn&apos;t find a Welati (citizen) NFT for this wallet.
                       Please apply for citizenship to get your digital identity.
                     </Text>
                     <TouchableOpacity
