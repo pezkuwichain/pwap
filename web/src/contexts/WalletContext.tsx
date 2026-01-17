@@ -10,7 +10,7 @@ import { WALLET_ERRORS, formatBalance, ASSET_IDS } from '@pezkuwi/lib/wallet';
 import type { InjectedAccountWithMeta } from '@pezkuwi/extension-inject/types';
 import type { Signer } from '@pezkuwi/api/types';
 import { web3FromAddress } from '@pezkuwi/extension-dapp';
-import { isMobileApp, getNativeWalletAddress, signTransactionNative, type TransactionPayload } from '@/lib/mobile-bridge';
+import { isMobileApp, signTransactionNative, type TransactionPayload } from '@/lib/mobile-bridge';
 
 interface TokenBalances {
   HEZ: string;
