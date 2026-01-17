@@ -526,14 +526,11 @@ const LaunchpadScreen: React.FC = () => {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#F8F9FA" />
 
-      {/* Header */}
+      {/* Action Bar */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Text style={styles.backIcon}>←</Text>
-        </TouchableOpacity>
         <View style={styles.headerContent}>
           <Text style={styles.headerTitle}>🚀 Launchpad</Text>
           <Text style={styles.headerSubtitle}>Multi-Presale Platform</Text>
@@ -746,7 +743,7 @@ const LaunchpadScreen: React.FC = () => {
           </SafeAreaView>
         )}
       </Modal>
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -773,18 +770,6 @@ const styles = StyleSheet.create({
     backgroundColor: KurdistanColors.spi,
     borderBottomWidth: 1,
     borderBottomColor: '#E0E0E0',
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#F0F0F0',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  backIcon: {
-    fontSize: 20,
-    color: '#333',
   },
   headerContent: {
     flex: 1,

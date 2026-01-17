@@ -654,11 +654,8 @@ const WalletScreen: React.FC = () => {
     <SafeAreaView style={styles.container} testID="wallet-screen">
       <StatusBar barStyle="dark-content" />
 
-      {/* Top Header with Back Button */}
+      {/* Top Header */}
       <View style={styles.topHeader} testID="wallet-top-header">
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton} testID="wallet-back-button">
-          <Text style={styles.backButtonText}>← Back</Text>
-        </TouchableOpacity>
         <Text style={styles.topHeaderTitle}>Wallet</Text>
         <TouchableOpacity onPress={() => setNetworkSelectorVisible(true)} testID="wallet-network-button">
           <Text style={styles.networkBadge}>🌐 {NETWORKS[currentNetwork].displayName}</Text>

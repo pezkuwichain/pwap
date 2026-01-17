@@ -434,14 +434,11 @@ const B2BScreen: React.FC = () => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
 
-      {/* Header */}
+      {/* Action Bar */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Text style={styles.backButtonText}>← Paş</Text>
-        </TouchableOpacity>
         <View>
           <Text style={styles.headerTitle}>B2B Bazirganî</Text>
           <Text style={styles.headerSubtitle}>Kurdish Business Marketplace</Text>
@@ -830,7 +827,7 @@ const B2BScreen: React.FC = () => {
           </View>
         </View>
       </Modal>
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -848,14 +845,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#E0E0E0',
-  },
-  backButton: {
-    padding: 4,
-  },
-  backButtonText: {
-    fontSize: 16,
-    color: KurdistanColors.kesk,
-    fontWeight: '600',
   },
   headerTitle: {
     fontSize: 20,

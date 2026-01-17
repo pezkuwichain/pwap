@@ -369,12 +369,6 @@ const PerwerdeScreen: React.FC = () => {
         end={{ x: 1, y: 1 }}
         style={styles.header}
       >
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Text style={styles.backButtonText}>←</Text>
-        </TouchableOpacity>
         <View style={styles.headerContent}>
           <Text style={styles.headerTitle}>Perwerde</Text>
           <Text style={styles.headerSubtitle}>Platforma Perwerdehiya Dijîtal</Text>

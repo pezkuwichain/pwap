@@ -214,12 +214,6 @@ const KurdMediaScreen: React.FC = () => {
         end={{ x: 1, y: 1 }}
         style={styles.header}
       >
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Text style={styles.backButtonText}>←</Text>
-        </TouchableOpacity>
         <View style={styles.headerContent}>
           <Text style={styles.headerTitle}>KurdMedia</Text>
           <Text style={styles.headerSubtitle}>Medyaya Kurdî & Piştgirî</Text>
