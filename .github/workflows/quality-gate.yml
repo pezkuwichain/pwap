@@ -121,7 +121,9 @@ jobs:
 
       - name: Install dependencies
         working-directory: ./pezkuwi-sdk-ui
-        run: yarn install
+        run: |
+          touch ../yarn.lock
+          yarn install
 
       - name: Build Project
         working-directory: ./pezkuwi-sdk-ui
