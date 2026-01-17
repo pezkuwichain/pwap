@@ -26,8 +26,9 @@ import { KurdistanColors } from '../theme/colors';
 import { usePezkuwi, NetworkType, NETWORKS } from '../contexts/PezkuwiContext';
 import { AddTokenModal } from '../components/wallet/AddTokenModal';
 import { QRScannerModal } from '../components/wallet/QRScannerModal';
-import { HezTokenLogo, PezTokenLogo } from '../components/icons';
+// Token logo PNG files are used directly instead of SVG components
 import { decodeAddress, checkAddress, encodeAddress } from '@pezkuwi/util-crypto';
+import { fetchAllTokens, TokenInfo, subscribeToTokenBalances, KNOWN_TOKENS, TOKEN_LOGOS } from '../services/TokenService';
 
 // Secure storage helper - same as in PezkuwiContext
 const secureStorage = {
@@ -55,7 +56,7 @@ const showAlert = (title: string, message: string, buttons?: Array<{text: string
       if (buttons?.[0]?.onPress) buttons[0].onPress();
     }
   } else {
-    showAlert(title, message, buttons as any);
+    Alert.alert(title, message, buttons as any);
   }
 };
 
@@ -160,6 +161,27 @@ const WalletScreen: React.FC = () => {
   const [saveAddressModalVisible, setSaveAddressModalVisible] = useState(false);
   const [newAddressName, setNewAddressName] = useState('');
 
+  // All tokens from blockchain (Nova Wallet style)
+  // Initialize with known tokens so list is never empty
+  const [allTokens, setAllTokens] = useState<TokenInfo[]>(() =>
+    KNOWN_TOKENS.map(kt => ({
+      assetId: kt.assetId,
+      symbol: kt.symbol,
+      name: kt.name,
+      decimals: kt.decimals,
+      balance: '0.00',
+      balanceRaw: 0n,
+      usdValue: '$0.00',
+      priceUsd: 0,
+      change24h: 0,
+      logo: TOKEN_LOGOS[kt.symbol] || null,
+      isNative: kt.isNative,
+      isFrozen: false,
+    }))
+  );
+  const [isLoadingTokens, setIsLoadingTokens] = useState(false);
+
+  // Legacy tokens array for backward compatibility
   const tokens: Token[] = [
     {
       symbol: 'HEZ',
@@ -293,6 +315,31 @@ const WalletScreen: React.FC = () => {
         unsubscribe();
       }
     };
+  }, [api, isApiReady, selectedAccount]);
+
+  // Fetch all tokens from blockchain (Nova Wallet style)
+  useEffect(() => {
+    if (!api || !isApiReady || !selectedAccount) return;
+
+    const loadAllTokens = async () => {
+      setIsLoadingTokens(true);
+      try {
+        const tokens = await fetchAllTokens(api, selectedAccount.address);
+        setAllTokens(tokens);
+        console.log('[Wallet] Loaded', tokens.length, 'tokens from blockchain');
+      } catch (error) {
+        console.error('[Wallet] Failed to load tokens:', error);
+      } finally {
+        setIsLoadingTokens(false);
+      }
+    };
+
+    loadAllTokens();
+
+    // Refresh every 30 seconds for price updates
+    const interval = setInterval(loadAllTokens, 30000);
+
+    return () => clearInterval(interval);
   }, [api, isApiReady, selectedAccount]);
 
   const handleTokenPress = (token: Token) => {
@@ -705,7 +752,7 @@ const WalletScreen: React.FC = () => {
           {/* HEZ Card */}
           <TouchableOpacity style={styles.mainTokenCard} onPress={() => handleTokenPress(tokens[0])}>
             <View style={styles.mainTokenLogoContainer}>
-              <HezTokenLogo size={56} />
+              <Image source={hezLogo} style={styles.mainTokenLogo} resizeMode="contain" />
             </View>
             <Text style={styles.mainTokenSymbol}>HEZ</Text>
             <Text style={styles.mainTokenBalance}>{balances.HEZ}</Text>
@@ -715,7 +762,7 @@ const WalletScreen: React.FC = () => {
           {/* PEZ Card */}
           <TouchableOpacity style={styles.mainTokenCard} onPress={() => handleTokenPress(tokens[1])}>
             <View style={styles.mainTokenLogoContainer}>
-              <PezTokenLogo size={56} />
+              <Image source={pezLogo} style={styles.mainTokenLogo} resizeMode="contain" />
             </View>
             <Text style={styles.mainTokenSymbol}>PEZ</Text>
             <Text style={styles.mainTokenBalance}>{balances.PEZ}</Text>
@@ -746,7 +793,7 @@ const WalletScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
 
-        {/* Tokens List */}
+        {/* Tokens List - Nova Wallet Style */}
         <View style={styles.tokensSection}>
           <View style={styles.tokensSectionHeader}>
             <Text style={styles.tokensTitle}>Tokens</Text>
@@ -763,31 +810,85 @@ const WalletScreen: React.FC = () => {
             </View>
           </View>
 
-          {/* USDT */}
-          <TouchableOpacity style={styles.tokenListItem}>
-            <Image source={usdtLogo} style={styles.tokenListLogo} resizeMode="contain" />
-            <View style={styles.tokenListInfo}>
-              <Text style={styles.tokenListSymbol}>USDT</Text>
-              <Text style={styles.tokenListNetwork}>PEZ Network</Text>
+          {/* Loading indicator */}
+          {isLoadingTokens && allTokens.length === 0 && (
+            <View style={styles.loadingTokens}>
+              <ActivityIndicator size="small" color={KurdistanColors.kesk} />
+              <Text style={styles.loadingTokensText}>Loading tokens...</Text>
             </View>
-            <View style={styles.tokenListBalance}>
-              <Text style={styles.tokenListAmount}>{balances.USDT}</Text>
-              <Text style={styles.tokenListUsdValue}>$0.00</Text>
-            </View>
-          </TouchableOpacity>
+          )}
 
-          {/* DOT */}
-          <TouchableOpacity style={styles.tokenListItem}>
-            <Image source={dotLogo} style={styles.tokenListLogo} resizeMode="contain" />
-            <View style={styles.tokenListInfo}>
-              <Text style={styles.tokenListSymbol}>DOT</Text>
-              <Text style={styles.tokenListNetwork}>Polkadot</Text>
+          {/* Dynamic Token List */}
+          {allTokens
+            .filter(t => !hiddenTokens.includes(t.symbol))
+            .map((token, index) => {
+
+              const changeColor = token.change24h >= 0 ? '#22C55E' : '#EF4444';
+              const changePrefix = token.change24h >= 0 ? '+' : '';
+
+              return (
+                <TouchableOpacity
+                  key={token.assetId ?? token.symbol}
+                  style={styles.tokenListItem}
+                  onPress={() => {
+                    // Convert TokenInfo to Token for send modal
+                    setSelectedToken({
+                      symbol: token.symbol,
+                      name: token.name,
+                      balance: token.balance,
+                      value: token.usdValue,
+                      change: `${changePrefix}${token.change24h.toFixed(2)}%`,
+                      logo: token.logo || usdtLogo,
+                      assetId: token.assetId ?? undefined,
+                      isLive: true,
+                    });
+                    setSendModalVisible(true);
+                  }}
+                >
+                  {/* Token Logo */}
+                  {token.logo ? (
+                    <Image source={token.logo} style={styles.tokenListLogo} resizeMode="contain" />
+                  ) : (
+                    <View style={[styles.tokenListLogo, styles.tokenPlaceholderLogo]}>
+                      <Text style={styles.tokenPlaceholderText}>{token.symbol.slice(0, 2)}</Text>
+                    </View>
+                  )}
+
+                  {/* Token Info */}
+                  <View style={styles.tokenListInfo}>
+                    <Text style={styles.tokenListSymbol}>{token.symbol}</Text>
+                    <Text style={styles.tokenListNetwork}>{token.name}</Text>
+                  </View>
+
+                  {/* Balance & Price */}
+                  <View style={styles.tokenListBalance}>
+                    <Text style={styles.tokenListAmount}>{token.balance}</Text>
+                    <View style={styles.tokenPriceRow}>
+                      <Text style={styles.tokenListUsdValue}>{token.usdValue}</Text>
+                      {token.change24h !== 0 && (
+                        <Text style={[styles.tokenChange, { color: changeColor }]}>
+                          {changePrefix}{token.change24h.toFixed(1)}%
+                        </Text>
+                      )}
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+
+          {/* Empty State */}
+          {!isLoadingTokens && allTokens.length === 0 && (
+            <View style={styles.emptyTokens}>
+              <Text style={styles.emptyTokensIcon}>🪙</Text>
+              <Text style={styles.emptyTokensText}>No additional tokens found</Text>
+              <TouchableOpacity
+                style={styles.addTokenButton}
+                onPress={() => setAddTokenModalVisible(true)}
+              >
+                <Text style={styles.addTokenButtonText}>+ Add Token</Text>
+              </TouchableOpacity>
             </View>
-            <View style={styles.tokenListBalance}>
-              <Text style={styles.tokenListAmount}>0.00</Text>
-              <Text style={styles.tokenListUsdValue}>$0.00</Text>
-            </View>
-          </TouchableOpacity>
+          )}
         </View>
 
         <View style={{height: 100}} />
@@ -1173,7 +1274,7 @@ const WalletScreen: React.FC = () => {
               autoFocus
             />
             <ScrollView style={styles.tokenSearchResults}>
-              {tokens
+              {allTokens
                 .filter(t =>
                   !hiddenTokens.includes(t.symbol) &&
                   (t.symbol.toLowerCase().includes(tokenSearchQuery.toLowerCase()) ||
@@ -1181,23 +1282,43 @@ const WalletScreen: React.FC = () => {
                 )
                 .map((token) => (
                   <TouchableOpacity
-                    key={token.symbol}
+                    key={token.assetId ?? token.symbol}
                     style={styles.tokenSearchItem}
                     onPress={() => {
                       setTokenSearchVisible(false);
                       setTokenSearchQuery('');
-                      handleTokenPress(token);
+                      // Convert TokenInfo to Token format for send modal
+                      setSelectedToken({
+                        symbol: token.symbol,
+                        name: token.name,
+                        balance: token.balance,
+                        value: token.usdValue,
+                        change: `${token.change24h >= 0 ? '+' : ''}${token.change24h.toFixed(2)}%`,
+                        logo: token.logo || usdtLogo,
+                        assetId: token.assetId ?? undefined,
+                        isLive: true,
+                      });
+                      setSendModalVisible(true);
                     }}
                   >
-                    <Image source={token.logo} style={styles.tokenSearchLogo} resizeMode="contain" />
+                    {token.logo ? (
+                      <Image source={token.logo} style={styles.tokenSearchLogo} resizeMode="contain" />
+                    ) : (
+                      <View style={[styles.tokenSearchLogo, styles.tokenPlaceholderLogo]}>
+                        <Text style={styles.tokenPlaceholderText}>{token.symbol.slice(0, 2)}</Text>
+                      </View>
+                    )}
                     <View style={{flex: 1}}>
                       <Text style={styles.tokenSearchSymbol}>{token.symbol}</Text>
                       <Text style={styles.tokenSearchName}>{token.name}</Text>
                     </View>
-                    <Text style={styles.tokenSearchBalance}>{balances[token.symbol] || '0.00'}</Text>
+                    <View style={{alignItems: 'flex-end'}}>
+                      <Text style={styles.tokenSearchBalance}>{token.balance}</Text>
+                      <Text style={styles.tokenSearchUsd}>{token.usdValue}</Text>
+                    </View>
                   </TouchableOpacity>
                 ))}
-              {tokens.filter(t =>
+              {allTokens.filter(t =>
                 !hiddenTokens.includes(t.symbol) &&
                 (t.symbol.toLowerCase().includes(tokenSearchQuery.toLowerCase()) ||
                  t.name.toLowerCase().includes(tokenSearchQuery.toLowerCase()))
@@ -1366,6 +1487,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  mainTokenLogo: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+  },
   mainTokenSymbol: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -1479,6 +1605,62 @@ const styles = StyleSheet.create({
   tokenListUsdValue: {
     fontSize: 12,
     color: '#888',
+  },
+  tokenPriceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  tokenChange: {
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  tokenPlaceholderLogo: {
+    backgroundColor: '#E5E7EB',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 22,
+  },
+  tokenPlaceholderText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#6B7280',
+  },
+  loadingTokens: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+    gap: 10,
+  },
+  loadingTokensText: {
+    fontSize: 14,
+    color: '#666',
+  },
+  emptyTokens: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 32,
+  },
+  emptyTokensIcon: {
+    fontSize: 48,
+    marginBottom: 12,
+  },
+  emptyTokensText: {
+    fontSize: 14,
+    color: '#999',
+    marginBottom: 16,
+  },
+  addTokenButton: {
+    backgroundColor: KurdistanColors.kesk,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+  },
+  addTokenButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
   },
 
   // Modal Styles
@@ -1982,6 +2164,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: KurdistanColors.kesk,
+  },
+  tokenSearchUsd: {
+    fontSize: 12,
+    color: '#888',
+    marginTop: 2,
   },
   noTokensFound: {
     textAlign: 'center',
