@@ -104,7 +104,7 @@ jest.mock('@react-native-async-storage/async-storage', () =>
   require('@react-native-async-storage/async-storage/jest/async-storage-mock')
 );
 
-// Mock Polkadot.js
+// Mock Polkadot.js (virtual: true because package may not be installed in CI)
 jest.mock('@polkadot/api', () => ({
   ApiPromise: {
     create: jest.fn(() =>
@@ -118,7 +118,7 @@ jest.mock('@polkadot/api', () => ({
     ),
   },
   WsProvider: jest.fn(),
-}));
+}), { virtual: true });
 
 // Mock @pezkuwi packages (aliases for @polkadot packages)
 jest.mock('@pezkuwi/api', () => ({
@@ -150,7 +150,7 @@ jest.mock('@pezkuwi/api', () => ({
     ),
   },
   WsProvider: jest.fn(),
-}));
+}), { virtual: true });
 
 jest.mock('@pezkuwi/keyring', () => ({
   Keyring: jest.fn().mockImplementation(() => ({
@@ -180,13 +180,13 @@ jest.mock('@pezkuwi/keyring', () => ({
       verify: jest.fn(),
     })),
   })),
-}));
+}), { virtual: true });
 
 jest.mock('@pezkuwi/util-crypto', () => ({
   cryptoWaitReady: jest.fn(() => Promise.resolve(true)),
   mnemonicGenerate: jest.fn(() => 'test test test test test test test test test test test junk'),
   mnemonicValidate: jest.fn(() => true),
-}));
+}), { virtual: true });
 
 // Mock Supabase
 jest.mock('./src/lib/supabase', () => ({
