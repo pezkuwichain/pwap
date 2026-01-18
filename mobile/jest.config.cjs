@@ -12,6 +12,10 @@ module.exports = {
     'react-native-reanimated': '<rootDir>/__mocks__/react-native-reanimated.js',
     '^sonner$': '<rootDir>/__mocks__/sonner.js',
     '@polkadot/extension-dapp': '<rootDir>/__mocks__/polkadot-extension-dapp.js',
+    // Mock shared lib modules that depend on @pezkuwi/api
+    '^.*/shared/lib/tiki$': '<rootDir>/__mocks__/shared-lib-tiki.js',
+    '^.*/shared/lib/referral$': '<rootDir>/__mocks__/shared-lib-referral.js',
+    '^.*/shared/lib/scores$': '<rootDir>/__mocks__/shared-lib-scores.js',
   },
   testMatch: ['**/__tests__/**/*.test.(ts|tsx|js)'],
   collectCoverageFrom: [
