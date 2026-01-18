@@ -138,8 +138,15 @@ function main() {
         
         // 4. Copy main Markdown/RS files from Pezkuwi-SDK/docs to public/docs
         console.log('\n--- Step 4: Copying Main Documentation Files ---');
-        copyRecursive(mainDocsSourcePath, publicDocsPath);
-        console.log('✅ Main documentation files copied successfully.');
+        if (fs.existsSync(mainDocsSourcePath)) {
+            copyRecursive(mainDocsSourcePath, publicDocsPath);
+            console.log('✅ Main documentation files copied successfully.');
+        } else {
+            console.warn(`⚠️ Warning: SDK docs source not found at ${mainDocsSourcePath}. Skipping docs copy.`);
+            console.warn('           This is expected in CI environments without Pezkuwi-SDK.');
+            // Create empty docs directory to prevent build errors
+            fs.mkdirSync(publicDocsPath, { recursive: true });
+        }
 
         // 5. Copy the BUILT and Rebranded Rustdoc site (if built successfully)
         if (rustdocBuiltSuccessfully && fs.existsSync(rustdocBuildOutputPath)) {
@@ -153,7 +160,7 @@ function main() {
 
         // 6. Generate the final navigation structure
         console.log('\n--- Step 6: Generating Navigation Structure ---');
-        const rawStructure = generateRecursiveStructure(mainDocsSourcePath);
+        const rawStructure = fs.existsSync(mainDocsSourcePath) ? generateRecursiveStructure(mainDocsSourcePath) : {};
         
         const finalStructure = {};
         const generalDocs = {};
