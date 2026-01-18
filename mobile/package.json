@@ -73,6 +73,7 @@
     "text-encoding": "^0.7.0"
   },
   "overrides": {
+    "react-test-renderer": "19.1.0",
     "@pezkuwi/api-augment": "16.5.9",
     "@pezkuwi/api-base": "16.5.9",
     "@pezkuwi/api-derive": "16.5.9",
@@ -91,6 +92,7 @@
   },
   "devDependencies": {
     "@expo/ngrok": "^4.1.0",
+    "react-test-renderer": "19.1.0",
     "@pezkuwi/extension-dapp": "^0.62.20",
     "@pezkuwi/extension-inject": "^0.62.20",
     "@testing-library/jest-native": "^5.4.3",
