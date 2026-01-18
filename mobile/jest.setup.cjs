@@ -188,6 +188,63 @@ jest.mock('@pezkuwi/util-crypto', () => ({
   mnemonicValidate: jest.fn(() => true),
 }), { virtual: true });
 
+// Mock shared lib modules (they use @pezkuwi/api which is not available in CI)
+jest.mock('../shared/lib/tiki', () => ({
+  Tiki: {
+    Welati: 'Welati',
+    Parlementer: 'Parlementer',
+    Serok: 'Serok',
+  },
+  RoleAssignmentType: {},
+  TIKI_DISPLAY_NAMES: {},
+  TIKI_SCORES: {},
+  ROLE_CATEGORIES: {},
+  fetchUserTikis: jest.fn(() => Promise.resolve([])),
+  isCitizen: jest.fn(() => Promise.resolve(false)),
+  calculateTikiScore: jest.fn(() => 0),
+  getPrimaryRole: jest.fn(() => 'Welati'),
+  getTikiDisplayName: jest.fn((tiki) => tiki),
+  getUserRoleCategories: jest.fn(() => []),
+  hasTiki: jest.fn(() => false),
+  getTikiColor: jest.fn(() => '#22C55E'),
+  getTikiEmoji: jest.fn(() => '👤'),
+  getTikiBadgeVariant: jest.fn(() => 'default'),
+  fetchUserTikiNFTs: jest.fn(() => Promise.resolve([])),
+  getCitizenNFTDetails: jest.fn(() => Promise.resolve(null)),
+  getAllTikiNFTDetails: jest.fn(() => Promise.resolve([])),
+  generateCitizenNumber: jest.fn(() => 'CIT-001'),
+}), { virtual: true });
+
+jest.mock('../shared/lib/referral', () => ({
+  initiateReferral: jest.fn(() => Promise.resolve()),
+  getPendingReferral: jest.fn(() => Promise.resolve(null)),
+  getReferralCount: jest.fn(() => Promise.resolve(0)),
+  getReferralInfo: jest.fn(() => Promise.resolve(null)),
+  calculateReferralScore: jest.fn(() => 0),
+  getReferralStats: jest.fn(() => Promise.resolve({ totalReferred: 0, pendingCount: 0, confirmedCount: 0 })),
+  getMyReferrals: jest.fn(() => Promise.resolve([])),
+  subscribeToReferralEvents: jest.fn(() => jest.fn()),
+}), { virtual: true });
+
+jest.mock('../shared/lib/scores', () => ({
+  getTrustScore: jest.fn(() => Promise.resolve(0)),
+  getTrustScoreDetails: jest.fn(() => Promise.resolve(null)),
+  getReferralScore: jest.fn(() => Promise.resolve(0)),
+  getReferralCount: jest.fn(() => Promise.resolve(0)),
+  getStakingScoreFromPallet: jest.fn(() => Promise.resolve(0)),
+  getTikiScore: jest.fn(() => Promise.resolve(0)),
+  getAllScores: jest.fn(() => Promise.resolve({
+    trustScore: 0,
+    referralScore: 0,
+    stakingScore: 0,
+    tikiScore: 0,
+    totalScore: 0,
+  })),
+  getScoreColor: jest.fn(() => '#22C55E'),
+  getScoreRating: jest.fn(() => 'Good'),
+  formatScore: jest.fn((score) => String(score)),
+}), { virtual: true });
+
 // Mock Supabase
 jest.mock('./src/lib/supabase', () => ({
   supabase: {
