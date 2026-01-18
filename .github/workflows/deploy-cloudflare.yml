@@ -28,11 +28,13 @@ jobs:
         working-directory: web
         run: npm install
 
+      - name: Create env file
+        working-directory: web
+        run: echo "${{ secrets.ENV_PRODUCTION }}" > .env
+
       - name: Build
         working-directory: web
-        run: |
-          cp .env.production .env
-          npm run build
+        run: npm run build
         env:
           NODE_ENV: production
 
