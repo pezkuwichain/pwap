@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { WebView } from 'react-native-webview';
+import PezkuwiWebView from '../components/PezkuwiWebView';
 
 /**
  * P2P Trading Screen
