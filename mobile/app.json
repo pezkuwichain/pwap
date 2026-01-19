@@ -14,12 +14,15 @@
     },
     "ios": {
       "supportsTablet": true,
+      "bundleIdentifier": "io.pezkuwichain.wallet",
+      "buildNumber": "10000",
       "infoPlist": {
         "NSCameraUsageDescription": "Pezkuwi needs camera access to scan QR codes for wallet addresses and payments."
       }
     },
     "android": {
       "package": "io.pezkuwichain.wallet",
+      "versionCode": 10000,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
