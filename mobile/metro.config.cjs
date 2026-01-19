@@ -10,8 +10,16 @@ const config = getDefaultConfig(__dirname);
 // ============================================
 
 const projectRoot = __dirname;
+const workspaceRoot = path.resolve(projectRoot, '..');
 
-// Use default watchFolders (no custom configuration)
+// Watch folders - include shared directory for cross-project imports
+config.watchFolders = [workspaceRoot];
+
+// Tell Metro where to resolve packages (both project and workspace node_modules)
+config.resolver.nodeModulesPaths = [
+  path.resolve(projectRoot, 'node_modules'),
+  path.resolve(workspaceRoot, 'node_modules'),
+];
 
 // ============================================
 // CUSTOM MODULE RESOLUTION

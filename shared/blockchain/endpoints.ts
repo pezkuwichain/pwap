@@ -122,7 +122,15 @@ export function getAllNetworks(): NetworkConfig[] {
  * @returns {NetworkConfig} The active network configuration.
  */
 export const getCurrentNetworkConfig = (): NetworkConfig => {
-  const networkName = (import.meta.env.VITE_NETWORK || 'local').toUpperCase();
+  let networkName = 'LOCAL';
+
+  // Support both Vite (web) and React Native environments
+  if (typeof process !== 'undefined' && process.env?.EXPO_PUBLIC_NETWORK) {
+    networkName = process.env.EXPO_PUBLIC_NETWORK.toUpperCase();
+  } else if (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_NETWORK) {
+    networkName = ((import.meta as any).env.VITE_NETWORK || 'local').toUpperCase();
+  }
+
   const validNetworkKeys = Object.keys(NETWORK_ENDPOINTS);
 
   if (validNetworkKeys.includes(networkName)) {
