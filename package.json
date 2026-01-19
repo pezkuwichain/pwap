@@ -1,0 +1,31 @@
+{
+  "name": "pwap",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Pezkuwi Web App Projects - Monorepo",
+  "scripts": {
+    "build": "npm run build:web && npm run build:sdk-ui && npm run build:mobile",
+    "build:web": "cd web && npm run build",
+    "build:sdk-ui": "cd /home/mamostehp/pezkuwi-sdk-ui && yarn build",
+    "build:mobile": "cd mobile && npx expo export --platform web",
+    "build:parallel": "concurrently \"npm run build:web\" \"npm run build:sdk-ui\"",
+    "dev": "concurrently \"npm run dev:web\" \"npm run dev:mobile\"",
+    "dev:web": "cd web && npm run dev",
+    "dev:sdk-ui": "cd /home/mamostehp/pezkuwi-sdk-ui && yarn start",
+    "dev:mobile": "cd mobile && npm run dev",
+    "install:all": "npm run install:web && npm run install:sdk-ui && npm run install:mobile && npm run install:backend",
+    "install:web": "cd web && npm install",
+    "install:sdk-ui": "cd /home/mamostehp/pezkuwi-sdk-ui && yarn install",
+    "install:mobile": "cd mobile && npm install",
+    "install:backend": "cd backend && npm install",
+    "lint": "npm run lint:web && npm run lint:mobile",
+    "lint:web": "cd web && npm run lint",
+    "lint:mobile": "cd mobile && npm run lint",
+    "test": "npm run test:web && npm run test:mobile",
+    "test:web": "cd web && npm run test",
+    "test:mobile": "cd mobile && npm run test"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

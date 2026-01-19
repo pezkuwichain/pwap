@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`GovernanceScreen should match snapshot 1`] = `
-<RCTSafeAreaView
+<View
   style={
     {
       "backgroundColor": "#FFFFFF",
@@ -12,94 +12,86 @@ exports[`GovernanceScreen should match snapshot 1`] = `
   <View
     style={
       {
+        "alignItems": "center",
         "backgroundColor": "#FFFFFF",
-        "flex": 1,
+        "borderBottomColor": "#E0E0E0",
+        "borderBottomWidth": 1,
+        "flexDirection": "row",
+        "justifyContent": "space-between",
+        "paddingHorizontal": 16,
+        "paddingVertical": 12,
       }
     }
   >
-    <View
+    <Text
       style={
         {
-          "alignItems": "center",
-          "backgroundColor": "#FFFFFF",
-          "borderBottomColor": "#E0E0E0",
-          "borderBottomWidth": 1,
-          "flexDirection": "row",
-          "justifyContent": "space-between",
-          "paddingHorizontal": 16,
-          "paddingVertical": 12,
+          "color": "#000",
+          "flex": 1,
+          "fontSize": 18,
+          "fontWeight": "700",
+          "textAlign": "center",
+        }
+      }
+    >
+      Governance
+    </Text>
+    <View
+      accessibilityState={
+        {
+          "busy": undefined,
+          "checked": undefined,
+          "disabled": undefined,
+          "expanded": undefined,
+          "selected": undefined,
+        }
+      }
+      accessibilityValue={
+        {
+          "max": undefined,
+          "min": undefined,
+          "now": undefined,
+          "text": undefined,
+        }
+      }
+      accessible={true}
+      collapsable={false}
+      focusable={true}
+      onClick={[Function]}
+      onResponderGrant={[Function]}
+      onResponderMove={[Function]}
+      onResponderRelease={[Function]}
+      onResponderTerminate={[Function]}
+      onResponderTerminationRequest={[Function]}
+      onStartShouldSetResponder={[Function]}
+      style={
+        {
+          "opacity": 1,
+          "padding": 8,
         }
       }
     >
       <Text
         style={
           {
-            "color": "#000",
-            "flex": 1,
-            "fontSize": 18,
-            "fontWeight": "700",
-            "textAlign": "center",
+            "color": "#00A94F",
+            "fontSize": 14,
+            "fontWeight": "600",
           }
         }
       >
-        Governance
+        Reload
       </Text>
-      <View
-        accessibilityState={
-          {
-            "busy": undefined,
-            "checked": undefined,
-            "disabled": undefined,
-            "expanded": undefined,
-            "selected": undefined,
-          }
-        }
-        accessibilityValue={
-          {
-            "max": undefined,
-            "min": undefined,
-            "now": undefined,
-            "text": undefined,
-          }
-        }
-        accessible={true}
-        collapsable={false}
-        focusable={true}
-        onClick={[Function]}
-        onResponderGrant={[Function]}
-        onResponderMove={[Function]}
-        onResponderRelease={[Function]}
-        onResponderTerminate={[Function]}
-        onResponderTerminationRequest={[Function]}
-        onStartShouldSetResponder={[Function]}
-        style={
-          {
-            "opacity": 1,
-            "padding": 8,
-          }
-        }
-      >
-        <Text
-          style={
-            {
-              "color": "#00A94F",
-              "fontSize": 14,
-              "fontWeight": "600",
-            }
-          }
-        >
-          Reload
-        </Text>
-      </View>
     </View>
-    <WebView
-      allowsBackForwardNavigationGestures={true}
-      allowsInlineMediaPlayback={true}
-      bounces={true}
-      cacheEnabled={true}
-      cacheMode="LOAD_DEFAULT"
-      domStorageEnabled={true}
-      injectedJavaScript="
+  </View>
+  <WebView
+    allowsBackForwardNavigationGestures={true}
+    allowsInlineMediaPlayback={true}
+    bounces={true}
+    cacheEnabled={true}
+    cacheMode="LOAD_DEFAULT"
+    domStorageEnabled={true}
+    injectedJavaScript="
     (function() {
       // Mark this as mobile app
       window.PEZKUWI_MOBILE = true;
@@ -108,6 +100,36 @@ exports[`GovernanceScreen should match snapshot 1`] = `
       // Inject wallet address if connected
       window.PEZKUWI_ADDRESS = '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY';
       window.PEZKUWI_ACCOUNT_NAME = 'Mobile Wallet';
+
+      // Inject auth session for automatic login
+      
+      
+      window.PEZKUWI_USER_ID = 'test-user-id';
+      window.PEZKUWI_USER_EMAIL = 'test@pezkuwichain.io';
+
+      // Auto-authenticate with Supabase if session token exists
+      if (window.PEZKUWI_SESSION_TOKEN) {
+        (function autoAuth(attempts = 0) {
+          if (attempts > 50) {
+            console.warn('[Mobile] Auto-auth timed out: window.supabase not found');
+            return;
+          }
+          
+          if (window.supabase && window.supabase.auth) {
+            window.supabase.auth.setSession({
+              access_token: window.PEZKUWI_SESSION_TOKEN,
+              refresh_token: window.PEZKUWI_REFRESH_TOKEN || ''
+            }).then(function(res) {
+              if (res.error) console.warn('[Mobile] Auto-auth error:', res.error);
+              else console.log('[Mobile] Auto-authenticated successfully');
+            }).catch(function(err) {
+              console.warn('[Mobile] Auto-auth promise failed:', err);
+            });
+          } else {
+            setTimeout(function() { autoAuth(attempts + 1); }, 100);
+          }
+        })(0);
+      }
 
       // Override console.log to send to React Native (for debugging)
       const originalConsoleLog = console.log;
@@ -166,66 +188,65 @@ exports[`GovernanceScreen should match snapshot 1`] = `
       true; // Required for injectedJavaScript
     })();
   "
-      javaScriptEnabled={true}
-      mediaPlaybackRequiresUserAction={false}
-      onError={[Function]}
-      onHttpError={[Function]}
-      onLoadEnd={[Function]}
-      onLoadStart={[Function]}
-      onMessage={[Function]}
-      onNavigationStateChange={[Function]}
-      pullToRefreshEnabled={true}
-      ref={
-        {
-          "current": null,
-        }
+    javaScriptEnabled={true}
+    mediaPlaybackRequiresUserAction={false}
+    onError={[Function]}
+    onHttpError={[Function]}
+    onLoadEnd={[Function]}
+    onLoadStart={[Function]}
+    onMessage={[Function]}
+    onNavigationStateChange={[Function]}
+    pullToRefreshEnabled={true}
+    ref={
+      {
+        "current": null,
       }
-      sharedCookiesEnabled={true}
-      showsHorizontalScrollIndicator={false}
-      showsVerticalScrollIndicator={true}
-      source={
-        {
-          "uri": "https://pezkuwichain.io/elections",
-        }
+    }
+    sharedCookiesEnabled={true}
+    showsHorizontalScrollIndicator={false}
+    showsVerticalScrollIndicator={true}
+    source={
+      {
+        "uri": "https://pezkuwichain.io/elections",
       }
-      style={
-        {
-          "flex": 1,
-        }
+    }
+    style={
+      {
+        "flex": 1,
       }
-      thirdPartyCookiesEnabled={true}
-      webviewDebuggingEnabled={true}
+    }
+    thirdPartyCookiesEnabled={true}
+    webviewDebuggingEnabled={true}
+  />
+  <View
+    style={
+      {
+        "alignItems": "center",
+        "backgroundColor": "rgba(255, 255, 255, 0.9)",
+        "bottom": 0,
+        "justifyContent": "center",
+        "left": 0,
+        "position": "absolute",
+        "right": 0,
+        "top": 0,
+      }
+    }
+  >
+    <ActivityIndicator
+      color="#00A94F"
+      size="large"
     />
-    <View
+    <Text
       style={
         {
-          "alignItems": "center",
-          "backgroundColor": "rgba(255, 255, 255, 0.9)",
-          "bottom": 0,
-          "justifyContent": "center",
-          "left": 0,
-          "position": "absolute",
-          "right": 0,
-          "top": 0,
+          "color": "#666",
+          "fontSize": 14,
+          "marginTop": 12,
         }
       }
     >
-      <ActivityIndicator
-        color="#00A94F"
-        size="large"
-      />
-      <Text
-        style={
-          {
-            "color": "#666",
-            "fontSize": 14,
-            "marginTop": 12,
-          }
-        }
-      >
-        Loading...
-      </Text>
-    </View>
+      Loading...
+    </Text>
   </View>
-</RCTSafeAreaView>
+</View>
 `;
