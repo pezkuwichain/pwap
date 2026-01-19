@@ -7,7 +7,6 @@ import {
   SafeAreaView,
   StatusBar,
   Animated,
-  Platform,
   Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -28,18 +27,17 @@ const VerifyHumanScreen: React.FC<VerifyHumanScreenProps> = ({ onVerified }) => 
 
   // Check biometric support on mount
   useEffect(() => {
+    const checkBiometricSupport = async () => {
+      try {
+        const compatible = await LocalAuthentication.hasHardwareAsync();
+        const enrolled = await LocalAuthentication.isEnrolledAsync();
+        setIsBiometricSupported(compatible && enrolled);
+      } catch (error) {
+        console.warn('Biometric check failed:', error);
+      }
+    };
     checkBiometricSupport();
   }, []);
-
-  const checkBiometricSupport = async () => {
-    try {
-      const compatible = await LocalAuthentication.hasHardwareAsync();
-      const enrolled = await LocalAuthentication.isEnrolledAsync();
-      setIsBiometricSupported(compatible && enrolled);
-    } catch (error) {
-      console.warn('Biometric check failed:', error);
-    }
-  };
 
   const handleBiometricAuth = async () => {
     try {

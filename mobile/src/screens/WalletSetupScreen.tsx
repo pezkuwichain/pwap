@@ -184,6 +184,7 @@ const WalletSetupScreen: React.FC = () => {
   const handleSuccess = () => {
     // Navigate to main wallet screen
     // Using replace to prevent going back to setup
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (navigation as any).replace('Wallet');
   };
 

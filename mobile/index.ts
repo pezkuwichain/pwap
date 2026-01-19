@@ -10,10 +10,9 @@ import 'react-native-url-polyfill/auto';
 if (__DEV__) console.warn('✅ [INDEX] URL polyfill loaded');
 
 if (__DEV__) console.warn('📦 [INDEX] Setting up Buffer...');
-import { Buffer } from 'buffer';
-
 // Global polyfills for Polkadot.js
 // Global Buffer assignment for polyfill
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 global.Buffer = global.Buffer || require('buffer').Buffer;
 if (__DEV__) console.warn('✅ [INDEX] Buffer configured');
 
@@ -21,11 +20,11 @@ if (__DEV__) console.warn('✅ [INDEX] Buffer configured');
 if (__DEV__) console.warn('📦 [INDEX] Setting up TextEncoder/TextDecoder...');
 if (typeof global.TextEncoder === 'undefined') {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { TextEncoder, TextDecoder } = require('text-encoding');
+  const encoding = require('text-encoding');
   // Global TextEncoder assignment for polyfill
-  global.TextEncoder = require('text-encoding').TextEncoder;
+  global.TextEncoder = encoding.TextEncoder;
   // Global TextDecoder assignment for polyfill
-  global.TextDecoder = require('text-encoding').TextDecoder;
+  global.TextDecoder = encoding.TextDecoder;
   if (__DEV__) console.warn('✅ [INDEX] TextEncoder/TextDecoder configured');
 } else {
   if (__DEV__) console.warn('ℹ️ [INDEX] TextEncoder/TextDecoder already available');

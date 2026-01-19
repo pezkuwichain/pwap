@@ -51,6 +51,7 @@ const ProposalsScreen: React.FC = () => {
       // Fetch democracy referenda
       if (api.query.democracy?.referendumInfoOf) {
         const referendaData = await api.query.democracy.referendumInfoOf.entries();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const parsedProposals: Proposal[] = referendaData.map(([key, value]: any) => {
           const index = key.args[0].toNumber();
           const info = value.unwrap();

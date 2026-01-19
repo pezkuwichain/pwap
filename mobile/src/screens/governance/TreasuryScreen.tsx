@@ -57,6 +57,7 @@ const TreasuryScreen: React.FC = () => {
       // Fetch treasury proposals
       if (api.query.treasury?.proposals) {
         const proposalsData = await api.query.treasury.proposals.entries();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const parsedProposals: TreasuryProposal[] = proposalsData.map(([key, value]: any) => {
           const proposalIndex = key.args[0].toNumber();
           const proposal = value.unwrap();
