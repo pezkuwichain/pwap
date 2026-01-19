@@ -45,7 +45,9 @@ export async function getWUSDTBalance(api: ApiPromise, address: string): Promise
     const balance = await api.query.assets.account(WUSDT_ASSET_ID, address);
 
     if (balance.isSome) {
-      const balanceData = balance.unwrap().toJSON() as any;
+      const balanceCodec = balance.unwrap() as { toJSON: () => unknown };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const balanceData = balanceCodec.toJSON() as any;
       return Number(balanceData.balance) / Math.pow(10, WUSDT_DECIMALS);
     }
 
@@ -66,7 +68,9 @@ export async function getWUSDTTotalSupply(api: ApiPromise): Promise<number> {
     const assetDetails = await api.query.assets.asset(WUSDT_ASSET_ID);
 
     if (assetDetails.isSome) {
-      const details = assetDetails.unwrap().toJSON() as any;
+      const assetCodec = assetDetails.unwrap() as { toJSON: () => unknown };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const details = assetCodec.toJSON() as any;
       return Number(details.supply) / Math.pow(10, WUSDT_DECIMALS);
     }
 
@@ -242,8 +246,10 @@ export function subscribeToMintEvents(
   api: ApiPromise,
   callback: (beneficiary: string, amount: number, txHash: string) => void
 ) {
-  return api.query.system.events((events) => {
-    events.forEach((record) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return api.query.system.events((events: any[]) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    events.forEach((record: any) => {
       const { event } = record;
 
       if (api.events.assets.Issued.is(event)) {
@@ -267,8 +273,10 @@ export function subscribeToBurnEvents(
   api: ApiPromise,
   callback: (account: string, amount: number, txHash: string) => void
 ) {
-  return api.query.system.events((events) => {
-    events.forEach((record) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return api.query.system.events((events: any[]) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    events.forEach((record: any) => {
       const { event } = record;
 
       if (api.events.assets.Burned.is(event)) {

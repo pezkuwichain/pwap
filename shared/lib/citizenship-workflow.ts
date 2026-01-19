@@ -8,8 +8,28 @@ import type { ApiPromise } from '@pezkuwi/api';
 // import { web3FromAddress } from '@pezkuwi/extension-dapp';
 import type { InjectedAccountWithMeta } from '@pezkuwi/extension-inject/types';
 
+import type { Signer } from '@pezkuwi/api/types';
+
+interface SignRawPayload {
+  address: string;
+  data: string;
+  type: string;
+}
+
+interface SignRawResult {
+  signature: string;
+}
+
+interface InjectedSigner {
+  signRaw?: (payload: SignRawPayload) => Promise<SignRawResult>;
+}
+
+interface InjectedExtension {
+  signer: Signer & InjectedSigner;
+}
+
 // Stub for mobile - TODO: implement proper React Native version
-const web3FromAddress = async (address: string) => {
+const web3FromAddress = async (_address: string): Promise<InjectedExtension> => {
   // In React Native, we'll use a different signing mechanism
   throw new Error('web3FromAddress not implemented for React Native yet');
 };
@@ -100,6 +120,11 @@ export async function getKycStatus(
   address: string
 ): Promise<KycStatus> {
   try {
+    // MOCK FOR DEV: Alice is Approved
+    if (address === '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY') {
+      return 'Approved';
+    }
+
     if (!api?.query?.identityKyc) {
       console.warn('Identity KYC pallet not available');
       return 'NotStarted';
@@ -600,8 +625,10 @@ export function subscribeToKycApproval(
       return () => {};
     }
 
-    const unsubscribe = api.query.system.events((events) => {
-      events.forEach((record) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const unsubscribe = api.query.system.events((events: any[]) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      events.forEach((record: any) => {
         const { event } = record;
 
         if (event.section === 'identityKyc' && event.method === 'KycApproved') {

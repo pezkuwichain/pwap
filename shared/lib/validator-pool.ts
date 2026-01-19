@@ -209,7 +209,7 @@ export async function getPoolMember(
       return null;
     }
 
-    const category = member.unwrap();
+    const category = member.unwrap() as any;
     
     // Parse category enum
     if (category.isStakeValidator) {
@@ -251,7 +251,7 @@ export async function getCurrentValidatorSet(api: ApiPromise): Promise<Validator
       return null;
     }
 
-    const set = validatorSet.unwrap();
+    const set = validatorSet.unwrap() as any;
     
     return {
       stake_validators: set.stakeValidators.map((v: any) => v.toString()),
@@ -286,7 +286,7 @@ export async function getPerformanceMetrics(
   address: string
 ): Promise<PerformanceMetrics> {
   try {
-    const metrics = await api.query.validatorPool.performanceMetrics(address);
+    const metrics = await api.query.validatorPool.performanceMetrics(address) as any;
     
     return {
       blocks_produced: metrics.blocksProduced.toNumber(),
@@ -314,7 +314,7 @@ export async function getAllPoolMembers(api: ApiPromise): Promise<PoolMember[]> 
     
     const members: PoolMember[] = entries.map(([key, value]) => {
       const address = key.args[0].toString();
-      const category = value.unwrap();
+      const category = value.unwrap() as any;
       
       let categoryType: ValidatorPoolCategory;
       if (category.isStakeValidator) {
@@ -362,7 +362,7 @@ export async function checkCategoryRequirements(
       category === ValidatorPoolCategory.MeritValidator
     ) {
       const tikiScore = await api.query.tiki.tikiScores(address);
-      if (tikiScore.isNone || tikiScore.unwrap().toNumber() === 0) {
+      if (tikiScore.isNone || (tikiScore.unwrap() as any).toNumber() === 0) {
         return { eligible: false, reason: 'Tiki citizenship required' };
       }
     }

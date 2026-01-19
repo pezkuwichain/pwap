@@ -358,13 +358,17 @@ export async function createFiatOffer(params: CreateOfferParams): Promise<string
     if (offerError) throw offerError;
 
     // 4. Update the lock with offer reference
-    await supabase.rpc('lock_escrow_internal', {
-      p_user_id: userId,
-      p_token: token,
-      p_amount: 0, // Just updating reference, not locking more
-      p_reference_type: 'offer',
-      p_reference_id: offer.id
-    }).catch(() => {}); // Non-critical, just for tracking
+    try {
+      await supabase.rpc('lock_escrow_internal', {
+        p_user_id: userId,
+        p_token: token,
+        p_amount: 0, // Just updating reference, not locking more
+        p_reference_type: 'offer',
+        p_reference_id: offer.id
+      });
+    } catch {
+      // Non-critical, just for tracking
+    }
 
     // 5. Audit log
     await logAction('offer', offer.id, 'create_offer', {
@@ -394,7 +398,7 @@ export async function createFiatOffer(params: CreateOfferParams): Promise<string
  * Accept a P2P fiat offer (buyer)
  */
 export async function acceptFiatOffer(params: AcceptOfferParams): Promise<string> {
-  const { account, offerId, amount } = params;
+  const { offerId, amount } = params;
 
   try {
     // 1. Get current user
@@ -437,7 +441,7 @@ export async function acceptFiatOffer(params: AcceptOfferParams): Promise<string
     const { data: result, error: rpcError } = await supabase.rpc('accept_p2p_offer', {
       p_offer_id: offerId,
       p_buyer_id: user.user.id,
-      p_buyer_wallet: account.address,
+      p_buyer_wallet: params.buyerWallet,
       p_amount: tradeAmount
     });
 

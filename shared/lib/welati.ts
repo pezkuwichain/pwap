@@ -146,9 +146,9 @@ export async function getCurrentOfficials(api: ApiPromise): Promise<{
   ]);
 
   return {
-    serok: serok.isSome ? serok.unwrap().toString() : undefined,
-    serokWeziran: serokWeziran.isSome ? serokWeziran.unwrap().toString() : undefined,
-    meclisBaskanı: speaker.isSome ? speaker.unwrap().toString() : undefined,
+    serok: serok.isSome ? (serok.unwrap() as any).toString() : undefined,
+    serokWeziran: serokWeziran.isSome ? (serokWeziran.unwrap() as any).toString() : undefined,
+    meclisBaskanı: speaker.isSome ? (speaker.unwrap() as any).toString() : undefined,
   };
 }
 
@@ -172,7 +172,7 @@ export async function getCurrentMinisters(api: ApiPromise): Promise<Record<Minis
 
   const result: Record<string, string | undefined> = {};
   roles.forEach((role, index) => {
-    result[role] = ministers[index].isSome ? ministers[index].unwrap().toString() : undefined;
+    result[role] = ministers[index].isSome ? (ministers[index].unwrap() as any).toString() : undefined;
   });
 
   return result as Record<MinisterRole, string | undefined>;
@@ -235,7 +235,7 @@ export async function getActiveElections(api: ApiPromise): Promise<ElectionInfo[
     const election = await api.query.welati.activeElections(i);
 
     if (election.isSome) {
-      const data = election.unwrap().toJSON() as any;
+      const data = (election.unwrap() as any).toJSON() as any;
 
       elections.push({
         electionId: i,
@@ -266,7 +266,7 @@ export async function getElectionById(api: ApiPromise, electionId: number): Prom
     return null;
   }
 
-  const data = election.unwrap().toJSON() as any;
+  const data = (election.unwrap() as any).toJSON() as any;
 
   return {
     electionId,
@@ -296,7 +296,7 @@ export async function getElectionCandidates(
 
   for (const [key, value] of entries) {
     const data = value.toJSON() as any;
-    const account = (key.args[1] as AccountId).toString();
+    const account = (key.args[1] as unknown as AccountId).toString();
 
     candidates.push({
       account,
@@ -336,7 +336,7 @@ export async function getElectionResults(
     return null;
   }
 
-  const data = result.unwrap().toJSON() as any;
+  const data = (result.unwrap() as any).toJSON() as any;
 
   return {
     electionId,
@@ -362,7 +362,7 @@ export async function getActiveProposals(api: ApiPromise): Promise<CollectivePro
     const proposal = await api.query.welati.activeProposals(i);
 
     if (proposal.isSome) {
-      const data = proposal.unwrap().toJSON() as any;
+      const data = (proposal.unwrap() as any).toJSON() as any;
 
       proposals.push({
         proposalId: i,
@@ -400,7 +400,7 @@ export async function getProposalById(
     return null;
   }
 
-  const data = proposal.unwrap().toJSON() as any;
+  const data = (proposal.unwrap() as any).toJSON() as any;
 
   return {
     proposalId,
@@ -447,7 +447,7 @@ export async function getProposalVote(
     return null;
   }
 
-  const data = vote.unwrap().toJSON() as any;
+  const data = (vote.unwrap() as any).toJSON() as any;
   return data.vote as VoteChoice;
 }
 
@@ -464,7 +464,7 @@ export async function getPendingAppointments(api: ApiPromise): Promise<Appointme
     const appointment = await api.query.welati.appointmentProcesses(i);
 
     if (appointment.isSome) {
-      const data = appointment.unwrap().toJSON() as any;
+      const data = (appointment.unwrap() as any).toJSON() as any;
 
       if (data.status === 'Pending') {
         appointments.push({

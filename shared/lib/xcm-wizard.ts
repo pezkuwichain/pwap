@@ -74,7 +74,7 @@ export async function reserveParaId(
 ): Promise<number> {
   return new Promise(async (resolve, reject) => {
     try {
-      const injector = await window.injectedWeb3[account.meta.source]?.enable?.('PezkuwiChain');
+      const injector = await (window as any).injectedWeb3[account.meta.source]?.enable?.('PezkuwiChain');
       if (!injector) {
         throw new Error('Failed to get injector from wallet extension');
       }
@@ -176,7 +176,7 @@ export async function registerParachain(
 ): Promise<string> {
   return new Promise(async (resolve, reject) => {
     try {
-      const injector = await window.injectedWeb3[account.meta.source]?.enable?.('PezkuwiChain');
+      const injector = await (window as any).injectedWeb3[account.meta.source]?.enable?.('PezkuwiChain');
       if (!injector) {
         throw new Error('Failed to get injector from wallet extension');
       }
@@ -280,7 +280,7 @@ async function openHRMPChannel(
 ): Promise<HRMPChannel> {
   return new Promise(async (resolve, reject) => {
     try {
-      const injector = await window.injectedWeb3[account.meta.source]?.enable?.('PezkuwiChain');
+      const injector = await (window as any).injectedWeb3[account.meta.source]?.enable?.('PezkuwiChain');
       if (!injector) {
         throw new Error('Failed to get injector from wallet extension');
       }
@@ -357,7 +357,7 @@ async function registerSingleAsset(
 ): Promise<RegisteredAsset> {
   return new Promise(async (resolve, reject) => {
     try {
-      const injector = await window.injectedWeb3[account.meta.source]?.enable?.('PezkuwiChain');
+      const injector = await (window as any).injectedWeb3[account.meta.source]?.enable?.('PezkuwiChain');
       if (!injector) {
         throw new Error('Failed to get injector from wallet extension');
       }

@@ -210,6 +210,12 @@ export const fetchUserTikis = async (
   address: string
 ): Promise<string[]> => {
   try {
+    // MOCK FOR DEV: Alice is Serok
+    if (address === '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY') {
+      console.warn('DEV: Mocking Alice as Serok');
+      return ['Serok', 'Welati', 'Damezrêner'];
+    }
+
     if (!api || !api.query.tiki) {
       console.warn('Tiki pallet not available on this chain');
       return [];

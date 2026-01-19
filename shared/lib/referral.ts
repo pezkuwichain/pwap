@@ -1,5 +1,11 @@
 import type { ApiPromise } from '@pezkuwi/api';
 import type { InjectedAccountWithMeta } from '@pezkuwi/extension-inject/types';
+import type { Signer } from '@pezkuwi/api/types';
+
+// Extended account type with signer for transaction signing
+interface AccountWithSigner extends InjectedAccountWithMeta {
+  signer?: Signer;
+}
 
 /**
  * Referral System Integration with pallet_referral
@@ -35,7 +41,7 @@ export interface ReferralStats {
  */
 export async function initiateReferral(
   api: ApiPromise,
-  signer: InjectedAccountWithMeta,
+  signer: AccountWithSigner,
   referredAddress: string
 ): Promise<string> {
   return new Promise(async (resolve, reject) => {
@@ -247,12 +253,15 @@ export async function subscribeToReferralEvents(
   api: ApiPromise,
   callback: (event: { type: 'initiated' | 'confirmed'; referrer: string; referred: string; count?: number }) => void
 ): Promise<() => void> {
-  const unsub = await api.query.system.events((events) => {
-    events.forEach((record) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const unsub = await api.query.system.events((events: any[]) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    events.forEach((record: any) => {
       const { event } = record;
 
       if (event.section === 'referral') {
         if (event.method === 'ReferralInitiated') {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const [referrer, referred] = event.data as any;
           callback({
             type: 'initiated',
@@ -260,6 +269,7 @@ export async function subscribeToReferralEvents(
             referred: referred.toString(),
           });
         } else if (event.method === 'ReferralConfirmed') {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const [referrer, referred, newCount] = event.data as any;
           callback({
             type: 'confirmed',
@@ -272,5 +282,5 @@ export async function subscribeToReferralEvents(
     });
   });
 
-  return unsub;
+  return unsub as unknown as () => void;
 }

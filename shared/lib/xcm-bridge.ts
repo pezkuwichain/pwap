@@ -361,7 +361,7 @@ export async function getWUsdtAssetDetails(api: ApiPromise) {
       return null;
     }
 
-    const assetData = asset.unwrap().toJSON() as any;
+    const assetData = (asset.unwrap() as any).toJSON() as any;
     const metadataData = metadata.toJSON() as any;
 
     return {

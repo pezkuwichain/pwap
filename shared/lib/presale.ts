@@ -6,6 +6,12 @@
 
 import type { ApiPromise } from '@pezkuwi/api';
 import type { InjectedAccountWithMeta } from '@pezkuwi/extension-inject/types';
+import type { Signer } from '@pezkuwi/api/types';
+
+// Extended account type with signer for transaction signing
+interface AccountWithSigner extends InjectedAccountWithMeta {
+  signer?: Signer;
+}
 
 // ========================================
 // Types & Interfaces
@@ -143,7 +149,8 @@ export async function getPresaleConfig(
       return null;
     }
 
-    const presale = presaleData.unwrap();
+    const presale = presaleData.unwrap() as { toJSON: () => unknown };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const config = presale.toJSON() as any;
 
     return {
@@ -286,7 +293,9 @@ export async function getUserContribution(
       return null;
     }
 
-    const data = contribution.unwrap().toJSON() as any;
+    const contribCodec = contribution.unwrap() as { toJSON: () => unknown };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const data = contribCodec.toJSON() as any;
 
     return {
       amount: data.amount?.toString() || '0',
@@ -311,7 +320,8 @@ export async function isUserWhitelisted(
 ): Promise<boolean> {
   try {
     const isWhitelisted = await api.query.presale.whitelistedAccounts(presaleId, address);
-    return isWhitelisted.isTrue;
+    const isWhitelistedBool = isWhitelisted as unknown as { isTrue?: boolean };
+    return isWhitelistedBool.isTrue === true;
   } catch (error) {
     console.error(`Error checking whitelist for ${address}:`, error);
     return false;
@@ -417,7 +427,7 @@ export async function getPlatformStats(api: ApiPromise): Promise<PlatformStats> 
  */
 export async function contribute(
   api: ApiPromise,
-  account: InjectedAccountWithMeta,
+  account: AccountWithSigner,
   presaleId: number,
   amount: string, // in raw units (with decimals)
   onStatus?: (status: string) => void
@@ -462,7 +472,7 @@ export async function contribute(
  */
 export async function refund(
   api: ApiPromise,
-  account: InjectedAccountWithMeta,
+  account: AccountWithSigner,
   presaleId: number,
   onStatus?: (status: string) => void
 ): Promise<{ success: boolean; error?: string; txHash?: string }> {
@@ -506,7 +516,7 @@ export async function refund(
  */
 export async function claimVested(
   api: ApiPromise,
-  account: InjectedAccountWithMeta,
+  account: AccountWithSigner,
   presaleId: number,
   onStatus?: (status: string) => void
 ): Promise<{ success: boolean; error?: string; txHash?: string }> {

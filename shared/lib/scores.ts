@@ -218,11 +218,14 @@ export async function getStakingScoreFromPallet(
       return 0;
     }
 
-    const ledgerData = ledger.unwrap().toJSON() as any;
+    const ledgerCodec = ledger.unwrap() as { toJSON: () => unknown };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const ledgerData = ledgerCodec.toJSON() as any;
     const stakedAmount = Number(ledgerData.total || 0) / 1e12; // Convert to HEZ
 
     // Get duration
-    const startBlock = Number(scoreResult.unwrap().toString());
+    const scoreCodec = scoreResult.unwrap() as { toString: () => string };
+    const startBlock = Number(scoreCodec.toString());
     const currentBlock = Number((await api.query.system.number()).toString());
     const durationInBlocks = currentBlock - startBlock;
 
