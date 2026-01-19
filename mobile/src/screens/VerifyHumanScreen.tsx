@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,10 +7,13 @@ import {
   SafeAreaView,
   StatusBar,
   Animated,
+  Platform,
+  Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { KurdistanColors } from '../theme/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as LocalAuthentication from 'expo-local-authentication';
 
 const HUMAN_VERIFIED_KEY = '@pezkuwi_human_verified';
 
@@ -20,11 +23,53 @@ interface VerifyHumanScreenProps {
 
 const VerifyHumanScreen: React.FC<VerifyHumanScreenProps> = ({ onVerified }) => {
   const [isChecked, setIsChecked] = useState(false);
+  const [isBiometricSupported, setIsBiometricSupported] = useState(false);
   const [scaleValue] = useState(new Animated.Value(1));
 
-  const handleVerify = async () => {
-    if (!isChecked) return;
+  // Check biometric support on mount
+  useEffect(() => {
+    checkBiometricSupport();
+  }, []);
 
+  const checkBiometricSupport = async () => {
+    try {
+      const compatible = await LocalAuthentication.hasHardwareAsync();
+      const enrolled = await LocalAuthentication.isEnrolledAsync();
+      setIsBiometricSupported(compatible && enrolled);
+    } catch (error) {
+      console.warn('Biometric check failed:', error);
+    }
+  };
+
+  const handleBiometricAuth = async () => {
+    try {
+      const result = await LocalAuthentication.authenticateAsync({
+        promptMessage: 'Verify you are human',
+        fallbackLabel: 'Use Passcode',
+        cancelLabel: 'Cancel',
+        disableDeviceFallback: false,
+      });
+
+      if (result.success) {
+        completeVerification();
+      } else {
+        // Only show alert if it wasn't a user cancellation
+        if (result.error !== 'user_cancel') {
+          Alert.alert('Verification Failed', 'Could not verify identity. Please try again.');
+        }
+      }
+    } catch (error) {
+      console.error('Biometric auth error:', error);
+      Alert.alert('Error', 'Biometric authentication unavailable');
+    }
+  };
+
+  const handleManualVerify = () => {
+    if (!isChecked) return;
+    completeVerification();
+  };
+
+  const completeVerification = async () => {
     // Save verification status
     try {
       await AsyncStorage.setItem(HUMAN_VERIFIED_KEY, 'true');
@@ -69,48 +114,65 @@ const VerifyHumanScreen: React.FC<VerifyHumanScreenProps> = ({ onVerified }) => 
           </View>
 
           {/* Title */}
-          <Text style={styles.title}>Security Verification</Text>
+          <Text style={styles.title}>Identity Verification</Text>
           <Text style={styles.subtitle}>
-            Please confirm you are human to continue
+            Please confirm your identity to continue
           </Text>
 
-          {/* Verification Box */}
-          <TouchableOpacity
-            style={styles.verificationBox}
-            onPress={toggleCheck}
-            activeOpacity={0.8}
-          >
-            <View style={[styles.checkbox, isChecked && styles.checkboxChecked]}>
-              {isChecked && <Text style={styles.checkmark}>✓</Text>}
-            </View>
-            <Text style={styles.verificationText}>
-              I&apos;m not a robot
-            </Text>
-          </TouchableOpacity>
+          {/* Biometric Button (Primary) */}
+          {isBiometricSupported ? (
+            <TouchableOpacity
+              style={styles.biometricButton}
+              onPress={handleBiometricAuth}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.biometricIcon}>👆</Text>
+              <Text style={styles.biometricText}>Verify with Biometrics</Text>
+            </TouchableOpacity>
+          ) : (
+            /* Fallback to Manual Checkbox */
+            <TouchableOpacity
+              style={styles.verificationBox}
+              onPress={toggleCheck}
+              activeOpacity={0.8}
+            >
+              <View style={[styles.checkbox, isChecked && styles.checkboxChecked]}>
+                {isChecked && <Text style={styles.checkmark}>✓</Text>}
+              </View>
+              <Text style={styles.verificationText}>
+                I&apos;m not a robot
+              </Text>
+            </TouchableOpacity>
+          )}
 
           {/* Info Text */}
           <Text style={styles.infoText}>
-            This helps protect the Pezkuwi network from automated attacks
+            {isBiometricSupported 
+              ? "Secure hardware-backed verification"
+              : "This helps protect the Pezkuwi network from automated attacks"
+            }
           </Text>
 
-          {/* Continue Button */}
-          <TouchableOpacity
-            style={[styles.continueButton, !isChecked && styles.continueButtonDisabled]}
-            onPress={handleVerify}
-            disabled={!isChecked}
-            activeOpacity={0.8}
-          >
-            <Animated.View style={{ transform: [{ scale: scaleValue }] }}>
-              <Text
-                style={[
-                  styles.continueButtonText,
-                  !isChecked && styles.continueButtonTextDisabled,
-                ]}
-              >
-                Continue
-              </Text>
-            </Animated.View>
-          </TouchableOpacity>
+          {/* Continue Button (Only for manual fallback) */}
+          {!isBiometricSupported && (
+            <TouchableOpacity
+              style={[styles.continueButton, !isChecked && styles.continueButtonDisabled]}
+              onPress={handleManualVerify}
+              disabled={!isChecked}
+              activeOpacity={0.8}
+            >
+              <Animated.View style={{ transform: [{ scale: scaleValue }] }}>
+                <Text
+                  style={[
+                    styles.continueButtonText,
+                    !isChecked && styles.continueButtonTextDisabled,
+                  ]}
+                >
+                  Continue
+                </Text>
+              </Animated.View>
+            </TouchableOpacity>
+          )}
 
           {/* Footer */}
           <View style={styles.footer}>
@@ -165,6 +227,26 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     opacity: 0.9,
     marginBottom: 40,
+  },
+  biometricButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: KurdistanColors.spi,
+    borderRadius: 16,
+    paddingVertical: 20,
+    paddingHorizontal: 32,
+    marginBottom: 20,
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+    elevation: 8,
+  },
+  biometricIcon: {
+    fontSize: 24,
+    marginRight: 12,
+  },
+  biometricText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: KurdistanColors.kesk,
   },
   verificationBox: {
     flexDirection: 'row',
