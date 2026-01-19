@@ -13,8 +13,8 @@ if (__DEV__) console.warn('📦 [INDEX] Setting up Buffer...');
 import { Buffer } from 'buffer';
 
 // Global polyfills for Polkadot.js
-// @ts-expect-error Global Buffer assignment for polyfill
-global.Buffer = Buffer;
+// Global Buffer assignment for polyfill
+global.Buffer = global.Buffer || require('buffer').Buffer;
 if (__DEV__) console.warn('✅ [INDEX] Buffer configured');
 
 // TextEncoder/TextDecoder polyfill
@@ -22,10 +22,10 @@ if (__DEV__) console.warn('📦 [INDEX] Setting up TextEncoder/TextDecoder...');
 if (typeof global.TextEncoder === 'undefined') {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { TextEncoder, TextDecoder } = require('text-encoding');
-  // @ts-expect-error Global TextEncoder assignment for polyfill
-  global.TextEncoder = TextEncoder;
-  // @ts-expect-error Global TextDecoder assignment for polyfill
-  global.TextDecoder = TextDecoder;
+  // Global TextEncoder assignment for polyfill
+  global.TextEncoder = require('text-encoding').TextEncoder;
+  // Global TextDecoder assignment for polyfill
+  global.TextDecoder = require('text-encoding').TextDecoder;
   if (__DEV__) console.warn('✅ [INDEX] TextEncoder/TextDecoder configured');
 } else {
   if (__DEV__) console.warn('ℹ️ [INDEX] TextEncoder/TextDecoder already available');

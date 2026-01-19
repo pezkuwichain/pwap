@@ -104,6 +104,7 @@ const WalletScreen: React.FC = () => {
     accounts,
     selectedAccount,
     setSelectedAccount,
+    connectWallet,
     createWallet,
     deleteWallet,
     getKeyPair,
@@ -114,8 +115,8 @@ const WalletScreen: React.FC = () => {
   const [selectedToken, setSelectedToken] = useState<Token | null>(null);
   const [sendModalVisible, setSendModalVisible] = useState(false);
   const [receiveModalVisible, setReceiveModalVisible] = useState(false);
-  const [_createWalletModalVisible, _setCreateWalletModalVisible] = useState(false);
-  const [_importWalletModalVisible, _setImportWalletModalVisible] = useState(false);
+  const [createWalletModalVisible, setCreateWalletModalVisible] = useState(false);
+  const [importWalletModalVisible, setImportWalletModalVisible] = useState(false);
   const [backupModalVisible, setBackupModalVisible] = useState(false);
   const [networkSelectorVisible, setNetworkSelectorVisible] = useState(false);
   const [walletSelectorVisible, setWalletSelectorVisible] = useState(false);
@@ -127,16 +128,16 @@ const WalletScreen: React.FC = () => {
   const [hiddenTokens, setHiddenTokens] = useState<string[]>([]);
   const [recipientAddress, setRecipientAddress] = useState('');
   const [sendAmount, setSendAmount] = useState('');
-  const [walletName, _setWalletName] = useState('');
+  const [walletName, setWalletName] = useState('');
   const [importMnemonic, setImportMnemonic] = useState('');
-  const [_importWalletName, _setImportWalletName] = useState('');
+  const [importWalletName, setImportWalletName] = useState('');
   const [userMnemonic, setUserMnemonic] = useState<string>('');
   const [isSending, setIsSending] = useState(false);
   const [isLoadingBalances, setIsLoadingBalances] = useState(false);
   
   // Transaction History State (TODO: implement transaction history display)
-  const [_transactions, _setTransactions] = useState<Transaction[]>([]);
-  const [_isLoadingHistory, _setIsLoadingHistory] = useState(false);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
 
   const [balances, setBalances] = useState<{ [key: string]: string }>({
     HEZ: '0.00',
@@ -570,7 +571,7 @@ const WalletScreen: React.FC = () => {
             throw new Error('Unknown token type');
         }
 
-        await tx.signAndSend(keypair, ({ status, _events }) => {
+        await tx.signAndSend(keypair, ({ status, events }) => {
             if (status.isInBlock) {
                 if (__DEV__) console.warn('[Wallet] Transaction in block:', status.asInBlock.toHex());
             }
@@ -598,7 +599,7 @@ const WalletScreen: React.FC = () => {
 
   const _handleCreateWallet = async () => {
       try {
-        const { _address, mnemonic } = await createWallet(walletName);
+        const { address, mnemonic } = await createWallet(walletName);
         setUserMnemonic(mnemonic); // Save for backup
         setCreateWalletModalVisible(false);
         showAlert('Wallet Created', `Save this mnemonic:\n${mnemonic}`, [{ text: 'OK', onPress: () => connectWallet() }]);
@@ -685,7 +686,7 @@ const WalletScreen: React.FC = () => {
   // Redirect to WalletSetupScreen if no wallet exists
   useEffect(() => {
     if (!selectedAccount && accounts.length === 0) {
-      navigation.replace('WalletSetup');
+      (navigation as any).replace('WalletSetup');
     }
   }, [selectedAccount, accounts, navigation]);
 
@@ -1490,11 +1491,6 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  mainTokenLogo: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
   },
   mainTokenSymbol: {
     fontSize: 18,

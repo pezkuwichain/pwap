@@ -25,7 +25,7 @@ export interface TokenInfo {
   usdValue: string;
   priceUsd: number;
   change24h: number;
-  logo: string | null;
+  logo: ImageSourcePropType | null;
   isNative: boolean;
   isFrozen: boolean;
 }

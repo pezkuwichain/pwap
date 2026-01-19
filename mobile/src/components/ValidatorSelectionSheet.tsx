@@ -25,7 +25,7 @@ export function ValidatorSelectionSheet({
   onClose,
   onConfirmNominations,
 }: ValidatorSelectionSheetProps) {
-  const { api, isApiReady, _selectedAccount } = usePezkuwi();
+  const { api, isApiReady } = usePezkuwi();
   const [validators, setValidators] = useState<Validator[]>([]);
   const [loading, setLoading] = useState(true);
   const [processing, _setProcessing] = useState(false);
@@ -42,29 +42,28 @@ export function ValidatorSelectionSheet({
         // Attempt to fetch from pallet-validator-pool first
         if (api.query.validatorPool && api.query.validatorPool.validators) {
           const rawValidators = await api.query.validatorPool.validators();
-          // Assuming rawValidators is a list of validator addresses or objects
-          // This parsing logic will need adjustment based on the exact structure returned
-          for (const rawValidator of rawValidators.toHuman() as unknown[]) {
-            // Placeholder: Assume rawValidator is just an address for now
+          const validatorList = rawValidators.toHuman() as string[];
+          for (const rawValidator of validatorList) {
             chainValidators.push({
-              address: rawValidator.toString(), // or rawValidator.address if it's an object
-              commission: 0.05, // Placeholder: Fetch actual commission
-              totalStake: '0 HEZ', // Placeholder: Fetch actual stake
-              selfStake: '0 HEZ', // Placeholder: Fetch actual self stake
-              nominators: 0, // Placeholder: Fetch actual nominators
+              address: String(rawValidator),
+              commission: 0.05,
+              totalStake: '0 HEZ',
+              selfStake: '0 HEZ',
+              nominators: 0,
             });
           }
         } else {
-          // Fallback to general staking validators if validatorPool pallet is not found/used
-          const rawStakingValidators = await api.query.staking.validators() as { keys?: { args: unknown[] }[] };
-          for (const validatorAddress of (rawStakingValidators.keys || [])) {
-            const address = validatorAddress.args[0].toString();
-            // Fetch more details about each validator if needed, e.g., commission, total stake
-            const validatorPrefs = await api.query.staking.validators(address) as { commission: { toNumber: () => number } };
-            const commission = validatorPrefs.commission.toNumber() / 10_000_000; // Assuming 10^7 for percentage
+          // Fallback to session validators
+          const sessionValidators = await api.query.session.validators();
+          const validatorAddresses = sessionValidators.toJSON() as string[];
 
-            // For simplicity, total stake and nominators are placeholders for now
-            // A more complete implementation would query for detailed exposure
+          for (const address of validatorAddresses) {
+            const validatorPrefs = await api.query.staking.validators(address);
+            const prefsJson = validatorPrefs.toJSON() as { commission?: number } | null;
+            const commission = prefsJson?.commission
+              ? Number(prefsJson.commission) / 1_000_000_000
+              : 0.05;
+
             chainValidators.push({
               address: address,
               commission: commission,

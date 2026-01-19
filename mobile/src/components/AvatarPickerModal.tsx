@@ -9,6 +9,7 @@ import {
   Image,
   ActivityIndicator,
   Platform,
+  Alert,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { KurdistanColors } from '../theme/colors';
@@ -21,7 +22,7 @@ const showAlert = (title: string, message: string, buttons?: Array<{text: string
     window.alert(`${title}\n\n${message}`);
     if (buttons?.[0]?.onPress) buttons[0].onPress();
   } else {
-    showAlert(title, message, buttons);
+    Alert.alert(title, message, buttons);
   }
 };
 
@@ -109,7 +110,7 @@ const AvatarPickerModal: React.FC<AvatarPickerModalProps> = ({
         setIsUploading(true);
         const imageUri = result.assets[0].uri;
 
-        if (__DEV__) console.log('[AvatarPicker] Uploading image:', imageUri);
+        if (__DEV__) console.warn('[AvatarPicker] Uploading image:', imageUri);
 
         // Upload to Supabase Storage
         const uploadedUrl = await uploadImageToSupabase(imageUri);
@@ -117,7 +118,7 @@ const AvatarPickerModal: React.FC<AvatarPickerModalProps> = ({
         setIsUploading(false);
 
         if (uploadedUrl) {
-          if (__DEV__) console.log('[AvatarPicker] Upload successful:', uploadedUrl);
+          if (__DEV__) console.warn('[AvatarPicker] Upload successful:', uploadedUrl);
           setUploadedImageUri(uploadedUrl);
           setSelectedAvatar(null); // Clear emoji selection
           showAlert('Success', 'Photo uploaded successfully!');
@@ -215,7 +216,7 @@ const AvatarPickerModal: React.FC<AvatarPickerModalProps> = ({
       return;
     }
 
-    if (__DEV__) console.log('[AvatarPicker] Saving avatar:', avatarToSave);
+    if (__DEV__) console.warn('[AvatarPicker] Saving avatar:', avatarToSave);
 
     setIsSaving(true);
 
@@ -232,7 +233,7 @@ const AvatarPickerModal: React.FC<AvatarPickerModalProps> = ({
         throw error;
       }
 
-      if (__DEV__) console.log('[AvatarPicker] Avatar saved successfully:', data);
+      if (__DEV__) console.warn('[AvatarPicker] Avatar saved successfully:', data);
 
       showAlert('Success', 'Avatar updated successfully!');
 

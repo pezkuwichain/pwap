@@ -181,9 +181,10 @@ const WalletSetupScreen: React.FC = () => {
     }
   };
 
-  // Finish setup and go to wallet
-  const handleFinish = () => {
-    navigation.replace('Wallet');
+  const handleSuccess = () => {
+    // Navigate to main wallet screen
+    // Using replace to prevent going back to setup
+    (navigation as any).replace('Wallet');
   };
 
   // Go back to previous step (TODO: add back button UI)
@@ -459,7 +460,7 @@ const WalletSetupScreen: React.FC = () => {
 
       <TouchableOpacity
         style={styles.primaryButton}
-        onPress={handleFinish}
+        onPress={handleSuccess}
         testID="wallet-setup-done-button"
       >
         <Text style={styles.primaryButtonText}>Go to Wallet</Text>

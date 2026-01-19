@@ -61,7 +61,7 @@ type TabType = 'courses' | 'enrolled' | 'completed';
 
 const PerwerdeScreen: React.FC = () => {
   const _navigation = useNavigation();
-  const { selectedAccount, api, isApiReady } = usePezkuwi();
+  const { selectedAccount, api, isApiReady, getKeyPair } = usePezkuwi();
   const isConnected = !!selectedAccount;
 
   // State
@@ -199,11 +199,17 @@ const PerwerdeScreen: React.FC = () => {
 
     try {
       const extrinsic = api.tx.perwerde.enroll(courseId);
+      const keypair = await getKeyPair(selectedAccount.address);
+
+      if (!keypair) {
+        Alert.alert('Xeletî / Error', 'Could not get signer');
+        setEnrolling(false);
+        return;
+      }
 
       await new Promise<void>((resolve, reject) => {
         extrinsic.signAndSend(
-          selectedAccount.address,
-          { signer: selectedAccount.signer },
+          keypair,
           ({ status, dispatchError }) => {
             if (dispatchError) {
               if (dispatchError.isModule) {
@@ -767,7 +773,7 @@ const styles = StyleSheet.create({
   statusAvailable: {
     fontSize: 12,
     fontWeight: '600',
-    color: KurdistanColors.yer,
+    color: KurdistanColors.zer,
   },
   statusEnrolled: {
     fontSize: 12,
