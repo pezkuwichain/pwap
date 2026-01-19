@@ -1,5 +1,5 @@
 import { ApiPromise } from '@pezkuwi/api';
-import { KNOWN_TOKENS, PoolInfo, SwapQuote, UserLiquidityPosition } from '@local/types/dex';
+import { KNOWN_TOKENS, PoolInfo, SwapQuote, UserLiquidityPosition } from '../types/dex';
 
 /**
  * Format balance with proper decimals
@@ -165,8 +165,8 @@ export const fetchPools = async (api: ApiPromise): Promise<PoolInfo[]> => {
       const reserve1Data = await api.query.assets.account(asset1, poolAccount.unwrap());
       const reserve2Data = await api.query.assets.account(asset2, poolAccount.unwrap());
 
-      const reserve1 = reserve1Data.isSome ? reserve1Data.unwrap().balance.toString() : '0';
-      const reserve2 = reserve2Data.isSome ? reserve2Data.unwrap().balance.toString() : '0';
+      const reserve1 = reserve1Data.isSome ? (reserve1Data.unwrap() as any).balance.toString() : '0';
+      const reserve2 = reserve2Data.isSome ? (reserve2Data.unwrap() as any).balance.toString() : '0';
 
       // Get LP token supply
       // Substrate's asset-conversion pallet creates LP tokens using poolAssets pallet
@@ -181,7 +181,7 @@ export const fetchPools = async (api: ApiPromise): Promise<PoolInfo[]> => {
           const lpTokenId = (asset1 << 16) | asset2; // Simple bit-shift encoding
           const lpAssetDetails = await api.query.poolAssets.asset(lpTokenId);
           if (lpAssetDetails.isSome) {
-            lpTokenSupply = lpAssetDetails.unwrap().supply.toString();
+            lpTokenSupply = (lpAssetDetails.unwrap() as any).supply.toString();
           }
         }
 
@@ -518,7 +518,7 @@ export const fetchUserLPPositions = async (
           const lpTokenId = (pool.asset1 << 16) | pool.asset2;
           const lpAccount = await api.query.poolAssets.account(lpTokenId, userAddress);
           if (lpAccount.isSome) {
-            lpTokenBalance = lpAccount.unwrap().balance.toString();
+            lpTokenBalance = (lpAccount.unwrap() as any).balance.toString();
           }
         }
 

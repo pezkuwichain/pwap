@@ -68,7 +68,8 @@ export async function getStakingLedger(
     if (ledgerResult.isNone) {
       const bondedController = await api.query.staking.bonded(address);
       if (bondedController.isSome) {
-        const controllerAddress = bondedController.unwrap().toString();
+        const controllerCodec = bondedController.unwrap() as { toString: () => string };
+        const controllerAddress = controllerCodec.toString();
         console.log(`Found controller ${controllerAddress} for stash ${address}`);
         ledgerResult = await api.query.staking.ledger(controllerAddress);
       }
@@ -79,7 +80,8 @@ export async function getStakingLedger(
       return null;
     }
 
-    const ledger = ledgerResult.unwrap();
+    const ledger = ledgerResult.unwrap() as { toJSON: () => unknown };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const ledgerJson = ledger.toJSON() as any;
 
     console.log('Staking ledger:', ledgerJson);
@@ -114,7 +116,8 @@ export async function getNominations(
       return null;
     }
 
-    const nominator = nominatorsOption.unwrap();
+    const nominator = nominatorsOption.unwrap() as { toJSON: () => unknown };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const nominatorJson = nominator.toJSON() as any;
 
     return {
@@ -137,7 +140,7 @@ export async function getCurrentEra(api: ApiPromise): Promise<number> {
     if (activeEraOption.isNone) {
       return 0;
     }
-    const activeEra = activeEraOption.unwrap();
+    const activeEra = activeEraOption.unwrap() as { index: { toString: () => string } };
     return Number(activeEra.index.toString());
   } catch (error) {
     console.error('Error fetching current era:', error);
@@ -163,7 +166,7 @@ export async function getBlocksUntilEra(
       return 0;
     }
 
-    const activeEra = activeEraOption.unwrap();
+    const activeEra = activeEraOption.unwrap() as { start: { unwrapOr: (def: number) => { toString: () => string } } };
     const eraStartBlock = Number(activeEra.start.unwrapOr(0).toString());
 
     // Get session length and sessions per era
@@ -229,8 +232,11 @@ export async function getPezRewards(
             const epochPoolResult = await api.query.pezRewards.epochRewardPools(i);
 
             if (epochPoolResult.isSome) {
-              const epochPool = epochPoolResult.unwrap().toJSON() as any;
-              const userScore = BigInt(userScoreResult.unwrap().toString());
+              const epochPoolCodec = epochPoolResult.unwrap() as { toJSON: () => unknown };
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const epochPool = epochPoolCodec.toJSON() as any;
+              const userScoreCodec = userScoreResult.unwrap() as { toString: () => string };
+              const userScore = BigInt(userScoreCodec.toString());
               const rewardPerPoint = BigInt(epochPool.rewardPerTrustPoint || '0');
 
               const rewardAmount = userScore * rewardPerPoint;
@@ -324,7 +330,8 @@ export async function getStakingInfo(
 
       if (scoreResult.isSome) {
         hasStartedScoreTracking = true;
-        const startBlock = Number(scoreResult.unwrap().toString());
+        const startBlockCodec = scoreResult.unwrap() as { toString: () => string };
+        const startBlock = Number(startBlockCodec.toString());
         const currentBlock = Number((await api.query.system.number()).toString());
         const durationInBlocks = currentBlock - startBlock;
         stakingDuration = durationInBlocks;
@@ -439,7 +446,10 @@ export async function getActiveValidators(api: ApiPromise): Promise<string[]> {
 
     // Method 3: Fallback to session.validators()
     const sessionValidators = await api.query.session.validators();
-    const validators = sessionValidators.map(v => v.toString());
+    const validatorArray = Array.isArray(sessionValidators)
+      ? sessionValidators
+      : (sessionValidators as unknown as { toJSON: () => string[] }).toJSON();
+    const validators = validatorArray.map((v: unknown) => String(v));
     console.log(`Found ${validators.length} validators from session.validators()`);
     return validators;
   } catch (error) {
