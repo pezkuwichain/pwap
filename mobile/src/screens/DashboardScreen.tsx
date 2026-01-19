@@ -252,9 +252,9 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
     >
       <View style={[styles.appIconBox, comingSoon && styles.appIconDisabled]}>
         {isEmoji ? (
-          <Text style={styles.emojiIcon}>{icon}</Text>
+          <Text style={styles.emojiIcon}>{icon as string}</Text>
         ) : (
-          <Image source={icon} style={styles.imageIcon} resizeMode="cover" />
+          <Image source={icon as ImageSourcePropType} style={styles.imageIcon} resizeMode="cover" />
         )}
         {comingSoon && (
           <View style={styles.lockBadge}>
@@ -468,7 +468,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
               {kycStatus === 'NotStarted' && (
                 <TouchableOpacity
                   style={styles.kycButton}
-                  onPress={() => navigation.navigate('BeCitizen')}
+                  onPress={() => navigation.navigate('BeCitizenChoice')}
                 >
                   <Text style={styles.kycButtonText}>Apply</Text>
                 </TouchableOpacity>

@@ -4,7 +4,6 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   StatusBar,
   TextInput,
@@ -12,6 +11,7 @@ import {
   ActivityIndicator,
   Modal,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { usePezkuwi } from '../contexts/PezkuwiContext';
 import { uploadToIPFS, FOUNDER_ADDRESS } from '../../shared/lib/citizenship-workflow';

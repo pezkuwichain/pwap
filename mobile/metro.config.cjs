@@ -16,8 +16,8 @@ const projectRoot = __dirname;
 // ============================================
 // CUSTOM MODULE RESOLUTION
 // ============================================
-// DISABLED: Custom resolver causes empty-module.js resolution issues
-// Using npm packages directly instead
+// Note: @pezkuwi packages have incorrect main field in npm (cjs/cjs/index.js)
+// Fixed via postinstall script or manual patch
 
 // ============================================
 // FILE EXTENSIONS

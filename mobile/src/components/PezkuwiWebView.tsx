@@ -14,6 +14,8 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NavigationProp } from '@react-navigation/native';
 import { KurdistanColors } from '../theme/colors';
 import { usePezkuwi } from '../contexts/PezkuwiContext';
+import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 
 type RootStackParamList = {
   Wallet: undefined;
@@ -49,6 +51,25 @@ const PezkuwiWebView: React.FC<PezkuwiWebViewProps> = ({
 
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { selectedAccount, getKeyPair, api, isApiReady } = usePezkuwi();
+  const { user } = useAuth();
+  const [sessionToken, setSessionToken] = useState<string | null>(null);
+  const [refreshToken, setRefreshToken] = useState<string | null>(null);
+
+  // Get Supabase session token for WebView authentication
+  React.useEffect(() => {
+    const getSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.access_token) {
+          setSessionToken(session.access_token);
+          setRefreshToken(session.refresh_token || null);
+        }
+      } catch (error) {
+        if (__DEV__) console.warn('[WebView] Failed to get session:', error);
+      }
+    };
+    getSession();
+  }, [user]);
 
   // JavaScript to inject into the WebView
   // This creates a bridge between the web app and native app
@@ -61,6 +82,36 @@ const PezkuwiWebView: React.FC<PezkuwiWebViewProps> = ({
       // Inject wallet address if connected
       ${selectedAccount ? `window.PEZKUWI_ADDRESS = '${selectedAccount.address}';` : ''}
       ${selectedAccount ? `window.PEZKUWI_ACCOUNT_NAME = '${selectedAccount.meta?.name || 'Mobile Wallet'}';` : ''}
+
+      // Inject auth session for automatic login
+      ${sessionToken ? `window.PEZKUWI_SESSION_TOKEN = '${sessionToken}';` : ''}
+      ${refreshToken ? `window.PEZKUWI_REFRESH_TOKEN = '${refreshToken}';` : ''}
+      ${user ? `window.PEZKUWI_USER_ID = '${user.id}';` : ''}
+      ${user?.email ? `window.PEZKUWI_USER_EMAIL = '${user.email}';` : ''}
+
+      // Auto-authenticate with Supabase if session token exists
+      if (window.PEZKUWI_SESSION_TOKEN) {
+        (function autoAuth(attempts = 0) {
+          if (attempts > 50) {
+            console.warn('[Mobile] Auto-auth timed out: window.supabase not found');
+            return;
+          }
+          
+          if (window.supabase && window.supabase.auth) {
+            window.supabase.auth.setSession({
+              access_token: window.PEZKUWI_SESSION_TOKEN,
+              refresh_token: window.PEZKUWI_REFRESH_TOKEN || ''
+            }).then(function(res) {
+              if (res.error) console.warn('[Mobile] Auto-auth error:', res.error);
+              else console.log('[Mobile] Auto-authenticated successfully');
+            }).catch(function(err) {
+              console.warn('[Mobile] Auto-auth promise failed:', err);
+            });
+          } else {
+            setTimeout(function() { autoAuth(attempts + 1); }, 100);
+          }
+        })(0);
+      }
 
       // Override console.log to send to React Native (for debugging)
       const originalConsoleLog = console.log;
@@ -164,7 +215,7 @@ const PezkuwiWebView: React.FC<PezkuwiWebViewProps> = ({
             const { section, method, args } = payload;
 
             if (__DEV__) {
-              console.log('[WebView] Building transaction:', { section, method, args });
+              console.warn('[WebView] Building transaction:', { section, method, args });
             }
 
             // Get the transaction method from API
@@ -187,13 +238,13 @@ const PezkuwiWebView: React.FC<PezkuwiWebViewProps> = ({
                 if (result.status.isInBlock) {
                   const hash = result.status.asInBlock?.toString() || '';
                   if (__DEV__) {
-                    console.log('[WebView] Transaction included in block:', hash);
+                    console.warn('[WebView] Transaction included in block:', hash);
                   }
                   resolve(hash);
                 } else if (result.status.isFinalized) {
                   const hash = result.status.asFinalized?.toString() || '';
                   if (__DEV__) {
-                    console.log('[WebView] Transaction finalized:', hash);
+                    console.warn('[WebView] Transaction finalized:', hash);
                   }
                 }
                 if (result.dispatchError) {
@@ -222,7 +273,7 @@ const PezkuwiWebView: React.FC<PezkuwiWebViewProps> = ({
 
         case 'CONNECT_WALLET':
           // Handle wallet connection request from WebView
-          if (__DEV__) console.log('WebView requested wallet connection');
+          if (__DEV__) console.warn('WebView requested wallet connection');
 
           if (selectedAccount) {
             // Already connected, notify WebView
@@ -267,13 +318,13 @@ const PezkuwiWebView: React.FC<PezkuwiWebViewProps> = ({
         case 'CONSOLE_LOG':
           // Forward console logs from WebView (debug only)
           if (__DEV__) {
-            console.log('[WebView]:', message.payload);
+            console.warn('[WebView]:', message.payload);
           }
           break;
 
         default:
           if (__DEV__) {
-            console.log('Unknown message type:', message.type);
+            console.warn('Unknown message type:', message.type);
           }
       }
     } catch (parseError) {

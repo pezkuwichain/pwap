@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { KurdistanColors } from '../theme/colors';
 import { usePezkuwi } from '../contexts/PezkuwiContext';
 import { supabaseHelpers } from '../lib/supabase';
@@ -32,6 +33,7 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
   visible,
   onClose,
 }) => {
+  const insets = useSafeAreaInsets();
   const { selectedAccount } = usePezkuwi();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [_loading, setLoading] = useState(false);
@@ -178,7 +180,7 @@ export const NotificationCenterModal: React.FC<NotificationCenterModalProps> = (
       onRequestClose={onClose}
     >
       <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
+        <View style={[styles.modalContent, { paddingBottom: Math.max(insets.bottom, 20) }]}>
           {/* Header */}
           <View style={styles.header}>
             <View>

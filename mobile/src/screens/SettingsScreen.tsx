@@ -4,7 +4,6 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   StatusBar,
   Alert,
@@ -15,8 +14,10 @@ import {
   TextInput,
   Platform
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
+import * as LocalAuthentication from 'expo-local-authentication';
 import { Clipboard } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import type { AlertButton } from 'react-native';
@@ -76,10 +77,10 @@ const AUTO_LOCK_OPTIONS: { value: number; label: string }[] = [
 // --- COMPONENTS (Internal for simplicity) ---
 
 const SectionHeader = ({ title }: { title: string }) => {
-  const { colors } = useTheme();
+  const { colors, fontScale } = useTheme();
   return (
     <View style={styles.sectionHeader}>
-      <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>{title}</Text>
+      <Text style={[styles.sectionTitle, { color: colors.textSecondary, fontSize: 12 * fontScale }]}>{title}</Text>
     </View>
   );
 };
@@ -101,7 +102,7 @@ const SettingItem = ({
   textColor?: string;
   testID?: string;
 }) => {
-  const { colors } = useTheme();
+  const { colors, fontScale } = useTheme();
   return (
     <TouchableOpacity
       style={[styles.settingItem, { borderBottomColor: colors.border }]}
@@ -112,8 +113,8 @@ const SettingItem = ({
         <Text style={styles.settingIconText}>{icon}</Text>
       </View>
       <View style={styles.settingContent}>
-        <Text style={[styles.settingTitle, { color: textColor || colors.text }]}>{title}</Text>
-        {subtitle && <Text style={[styles.settingSubtitle, { color: colors.textSecondary }]}>{subtitle}</Text>}
+        <Text style={[styles.settingTitle, { color: textColor || colors.text, fontSize: 16 * fontScale }]}>{title}</Text>
+        {subtitle && <Text style={[styles.settingSubtitle, { color: colors.textSecondary, fontSize: 13 * fontScale }]}>{subtitle}</Text>}
       </View>
       {showArrow && <Text style={[styles.arrow, { color: colors.textSecondary }]}>→</Text>}
     </TouchableOpacity>
@@ -137,15 +138,15 @@ const SettingToggle = ({
   loading?: boolean;
   testID?: string;
 }) => {
-  const { colors } = useTheme();
+  const { colors, fontScale } = useTheme();
   return (
     <View style={[styles.settingItem, { borderBottomColor: colors.border }]} testID={testID}>
       <View style={[styles.settingIcon, { backgroundColor: colors.background }]}>
         <Text style={styles.settingIconText}>{icon}</Text>
       </View>
       <View style={styles.settingContent}>
-        <Text style={[styles.settingTitle, { color: colors.text }]}>{title}</Text>
-        {subtitle && <Text style={[styles.settingSubtitle, { color: colors.textSecondary }]}>{subtitle}</Text>}
+        <Text style={[styles.settingTitle, { color: colors.text, fontSize: 16 * fontScale }]}>{title}</Text>
+        {subtitle && <Text style={[styles.settingSubtitle, { color: colors.textSecondary, fontSize: 13 * fontScale }]}>{subtitle}</Text>}
       </View>
       {loading ? (
         <ActivityIndicator size="small" color={KurdistanColors.kesk} />
@@ -187,6 +188,8 @@ const SettingsScreen: React.FC = () => {
   const [showFontSizeModal, setShowFontSizeModal] = useState(false);
   const [showAutoLockModal, setShowAutoLockModal] = useState(false);
   const [showBackupModal, setShowBackupModal] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [backupMnemonic, setBackupMnemonic] = useState('');
   const [editName, setEditName] = useState('');
   const [editBio, setEditBio] = useState('');
@@ -209,7 +212,7 @@ const SettingsScreen: React.FC = () => {
         setEditBio(data.bio || '');
       }
     } catch (_err) {
-      console.log('Error fetching profile:', _err);
+      if (__DEV__) console.warn('Error fetching profile:', _err);
     } finally {
       setLoadingProfile(false);
     }
@@ -324,34 +327,68 @@ const SettingsScreen: React.FC = () => {
     return option ? option.label : '5 minutes';
   };
 
-  // 8. Wallet Backup Handler
+  // 8. Wallet Backup Handler - with security confirmation
   const handleWalletBackup = async () => {
     if (!selectedAccount) {
       showAlert('No Wallet', 'Please create or import a wallet first.');
       return;
     }
 
-    try {
-      // Retrieve mnemonic from secure storage
-      const seedKey = `pezkuwi_seed_${selectedAccount.address}`;
-      let storedMnemonic: string | null = null;
+    // Security warning before showing recovery phrase
+    showAlert(
+      '⚠️ Security Warning',
+      'Your recovery phrase is the only way to restore your wallet. NEVER share it with anyone.\n\n• Anyone with this phrase can steal your funds\n• Pezkuwi will NEVER ask for your phrase\n• Write it down and store it safely\n\nDo you want to continue?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'I Understand',
+          style: 'destructive',
+          onPress: async () => {
+            // If biometric is enabled, require authentication
+            if (isBiometricEnabled && Platform.OS !== 'web') {
+              try {
+                const result = await LocalAuthentication.authenticateAsync({
+                  promptMessage: 'Authenticate to view recovery phrase',
+                  cancelLabel: 'Cancel',
+                  disableDeviceFallback: false,
+                });
 
-      if (Platform.OS === 'web') {
-        storedMnemonic = await AsyncStorage.getItem(seedKey);
-      } else {
-        storedMnemonic = await SecureStore.getItemAsync(seedKey);
-      }
+                if (!result.success) {
+                  showAlert('Authentication Failed', 'Could not verify your identity.');
+                  return;
+                }
+              } catch (error) {
+                console.error('Biometric auth error:', error);
+                showAlert('Error', 'Authentication failed.');
+                return;
+              }
+            }
 
-      if (storedMnemonic) {
-        setBackupMnemonic(storedMnemonic);
-        setShowBackupModal(true);
-      } else {
-        showAlert('No Backup', 'Recovery phrase not found. It may have been imported from another device.');
-      }
-    } catch (error) {
-      console.error('Error retrieving mnemonic:', error);
-      showAlert('Error', 'Failed to retrieve recovery phrase.');
-    }
+            // Retrieve mnemonic from secure storage
+            try {
+              const seedKey = `pezkuwi_seed_${selectedAccount.address}`;
+              let storedMnemonic: string | null = null;
+
+              if (Platform.OS === 'web') {
+                storedMnemonic = await AsyncStorage.getItem(seedKey);
+              } else {
+                storedMnemonic = await SecureStore.getItemAsync(seedKey);
+              }
+
+              if (storedMnemonic) {
+                setBackupMnemonic(storedMnemonic);
+                setShowBackupModal(true);
+              } else {
+                showAlert('No Backup', 'Recovery phrase not found. It may have been imported from another device.');
+              }
+            } catch (error) {
+              console.error('Error retrieving mnemonic:', error);
+              showAlert('Error', 'Failed to retrieve recovery phrase.');
+            }
+          }
+        }
+      ]
+    );
   };
 
   return (
@@ -378,10 +415,10 @@ const SettingsScreen: React.FC = () => {
             testID="edit-profile-button"
           />
           <SettingItem
-            icon="💳"
-            title="Wallet Management"
-            subtitle="Manage your connected keys"
-            onPress={() => navigation.navigate('Wallet')}
+            icon="👛"
+            title="My Wallet"
+            subtitle={selectedAccount ? `View balance & transactions` : 'Set up your wallet'}
+            onPress={() => selectedAccount ? navigation.navigate('Wallet') : navigation.navigate('WalletSetup')}
             testID="wallet-management-button"
           />
         </View>
@@ -470,13 +507,13 @@ const SettingsScreen: React.FC = () => {
           <SettingItem
             icon="📄"
             title="Terms of Service"
-            onPress={() => showAlert('Terms', 'Terms of service content...')}
+            onPress={() => setShowTermsModal(true)}
             testID="terms-of-service-button"
           />
           <SettingItem
             icon="🔒"
             title="Privacy Policy"
-            onPress={() => showAlert('Privacy', 'Privacy policy content...')}
+            onPress={() => setShowPrivacyModal(true)}
             testID="privacy-policy-button"
           />
           <SettingItem
@@ -733,6 +770,161 @@ const SettingsScreen: React.FC = () => {
         </View>
       </Modal>
 
+      {/* TERMS OF SERVICE MODAL */}
+      <Modal visible={showTermsModal} animationType="slide" testID="terms-modal">
+        <SafeAreaView style={[styles.fullModal, { backgroundColor: colors.background }]}>
+          <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
+            <View style={{ width: 60 }} />
+            <Text style={[styles.headerTitle, { color: colors.text }]}>Terms of Service</Text>
+            <TouchableOpacity onPress={() => setShowTermsModal(false)}>
+              <Text style={{ fontSize: 16, color: KurdistanColors.kesk, fontWeight: '600' }}>Done</Text>
+            </TouchableOpacity>
+          </View>
+          <ScrollView style={{ flex: 1, padding: 20 }}>
+            <Text style={[styles.legalTitle, { color: colors.text }]}>Pezkuwi Terms of Service</Text>
+            <Text style={[styles.legalDate, { color: colors.textSecondary }]}>Effective Date: {new Date().getFullYear()}</Text>
+
+            <Text style={[styles.legalSectionTitle, { color: colors.text }]}>1. Acceptance of Terms</Text>
+            <Text style={[styles.legalText, { color: colors.textSecondary }]}>
+              By accessing or using the Pezkuwi application (&quot;App&quot;), you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use the App.
+            </Text>
+
+            <Text style={[styles.legalSectionTitle, { color: colors.text }]}>2. Description of Service</Text>
+            <Text style={[styles.legalText, { color: colors.textSecondary }]}>
+              Pezkuwi is a decentralized application that provides access to the Digital Kurdistan blockchain network. The App enables users to:{'\n'}
+              • Create and manage blockchain wallets{'\n'}
+              • Send and receive PEZ and HEZ tokens{'\n'}
+              • Participate in governance and voting{'\n'}
+              • Access decentralized services within the ecosystem
+            </Text>
+
+            <Text style={[styles.legalSectionTitle, { color: colors.text }]}>3. User Responsibilities</Text>
+            <Text style={[styles.legalText, { color: colors.textSecondary }]}>
+              You are solely responsible for:{'\n'}
+              • Maintaining the security of your wallet and recovery phrase{'\n'}
+              • All activities conducted through your account{'\n'}
+              • Ensuring compliance with local laws and regulations{'\n'}
+              • Any transactions you authorize on the blockchain
+            </Text>
+
+            <Text style={[styles.legalSectionTitle, { color: colors.text }]}>4. Wallet Security</Text>
+            <Text style={[styles.legalText, { color: colors.textSecondary }]}>
+              Your wallet is secured by a recovery phrase (seed phrase). This phrase is the ONLY way to restore access to your wallet. Pezkuwi does not store your recovery phrase and cannot recover it if lost. You must:{'\n'}
+              • Never share your recovery phrase with anyone{'\n'}
+              • Store your recovery phrase securely offline{'\n'}
+              • Understand that lost phrases cannot be recovered
+            </Text>
+
+            <Text style={[styles.legalSectionTitle, { color: colors.text }]}>5. Disclaimer of Warranties</Text>
+            <Text style={[styles.legalText, { color: colors.textSecondary }]}>
+              The App is provided &quot;as is&quot; without warranties of any kind. We do not guarantee uninterrupted access, error-free operation, or specific outcomes from using the App.
+            </Text>
+
+            <Text style={[styles.legalSectionTitle, { color: colors.text }]}>6. Limitation of Liability</Text>
+            <Text style={[styles.legalText, { color: colors.textSecondary }]}>
+              Pezkuwi and its affiliates shall not be liable for any direct, indirect, incidental, consequential, or punitive damages arising from your use of the App, including but not limited to loss of funds or data.
+            </Text>
+
+            <Text style={[styles.legalSectionTitle, { color: colors.text }]}>7. Modifications</Text>
+            <Text style={[styles.legalText, { color: colors.textSecondary }]}>
+              We reserve the right to modify these Terms at any time. Continued use of the App after changes constitutes acceptance of the modified Terms.
+            </Text>
+
+            <Text style={[styles.legalSectionTitle, { color: colors.text }]}>8. Contact</Text>
+            <Text style={[styles.legalText, { color: colors.textSecondary }]}>
+              For questions about these Terms, contact us at:{'\n'}
+              support@pezkuwichain.io
+            </Text>
+
+            <View style={{ height: 40 }} />
+          </ScrollView>
+        </SafeAreaView>
+      </Modal>
+
+      {/* PRIVACY POLICY MODAL */}
+      <Modal visible={showPrivacyModal} animationType="slide" testID="privacy-modal">
+        <SafeAreaView style={[styles.fullModal, { backgroundColor: colors.background }]}>
+          <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
+            <View style={{ width: 60 }} />
+            <Text style={[styles.headerTitle, { color: colors.text }]}>Privacy Policy</Text>
+            <TouchableOpacity onPress={() => setShowPrivacyModal(false)}>
+              <Text style={{ fontSize: 16, color: KurdistanColors.kesk, fontWeight: '600' }}>Done</Text>
+            </TouchableOpacity>
+          </View>
+          <ScrollView style={{ flex: 1, padding: 20 }}>
+            <Text style={[styles.legalTitle, { color: colors.text }]}>Pezkuwi Privacy Policy</Text>
+            <Text style={[styles.legalDate, { color: colors.textSecondary }]}>Effective Date: {new Date().getFullYear()}</Text>
+
+            <Text style={[styles.legalSectionTitle, { color: colors.text }]}>1. Introduction</Text>
+            <Text style={[styles.legalText, { color: colors.textSecondary }]}>
+              Pezkuwi (&quot;we&quot;, &quot;our&quot;, &quot;us&quot;) is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard your information when you use our application.
+            </Text>
+
+            <Text style={[styles.legalSectionTitle, { color: colors.text }]}>2. Information We Collect</Text>
+            <Text style={[styles.legalText, { color: colors.textSecondary }]}>
+              <Text style={{ fontWeight: '600' }}>Account Information:</Text> Email address (if provided for authentication), username, and profile information you choose to provide.{'\n\n'}
+              <Text style={{ fontWeight: '600' }}>Blockchain Data:</Text> Your public wallet address and transaction history (which is publicly visible on the blockchain).{'\n\n'}
+              <Text style={{ fontWeight: '600' }}>Device Information:</Text> Device type, operating system, and app version for troubleshooting and improvement purposes.{'\n\n'}
+              <Text style={{ fontWeight: '600' }}>We DO NOT collect:</Text> Your recovery phrase, private keys, or biometric data (stored only on your device).
+            </Text>
+
+            <Text style={[styles.legalSectionTitle, { color: colors.text }]}>3. How We Use Information</Text>
+            <Text style={[styles.legalText, { color: colors.textSecondary }]}>
+              We use collected information to:{'\n'}
+              • Provide and maintain our services{'\n'}
+              • Process your transactions on the blockchain{'\n'}
+              • Send important notifications about your account{'\n'}
+              • Improve our application and user experience{'\n'}
+              • Comply with legal obligations
+            </Text>
+
+            <Text style={[styles.legalSectionTitle, { color: colors.text }]}>4. Data Storage and Security</Text>
+            <Text style={[styles.legalText, { color: colors.textSecondary }]}>
+              • Your recovery phrase and private keys are stored ONLY on your device using secure storage mechanisms{'\n'}
+              • We employ industry-standard security measures to protect your data{'\n'}
+              • Blockchain transactions are permanently recorded on the public ledger
+            </Text>
+
+            <Text style={[styles.legalSectionTitle, { color: colors.text }]}>5. Data Sharing</Text>
+            <Text style={[styles.legalText, { color: colors.textSecondary }]}>
+              We do not sell your personal information. We may share data with:{'\n'}
+              • Service providers who assist in operating our services{'\n'}
+              • Legal authorities when required by law{'\n'}
+              • Blockchain networks for transaction processing (public data)
+            </Text>
+
+            <Text style={[styles.legalSectionTitle, { color: colors.text }]}>6. Your Rights</Text>
+            <Text style={[styles.legalText, { color: colors.textSecondary }]}>
+              You have the right to:{'\n'}
+              • Access your personal data{'\n'}
+              • Request correction of inaccurate data{'\n'}
+              • Request deletion of your account{'\n'}
+              • Opt-out of non-essential communications{'\n\n'}
+              Note: Blockchain data cannot be deleted due to its immutable nature.
+            </Text>
+
+            <Text style={[styles.legalSectionTitle, { color: colors.text }]}>7. Children&apos;s Privacy</Text>
+            <Text style={[styles.legalText, { color: colors.textSecondary }]}>
+              Our services are not intended for users under 18 years of age. We do not knowingly collect information from children.
+            </Text>
+
+            <Text style={[styles.legalSectionTitle, { color: colors.text }]}>8. Updates to Policy</Text>
+            <Text style={[styles.legalText, { color: colors.textSecondary }]}>
+              We may update this Privacy Policy periodically. We will notify you of significant changes through the App or via email.
+            </Text>
+
+            <Text style={[styles.legalSectionTitle, { color: colors.text }]}>9. Contact Us</Text>
+            <Text style={[styles.legalText, { color: colors.textSecondary }]}>
+              For privacy-related inquiries:{'\n'}
+              Email: privacy@pezkuwichain.io{'\n'}
+              Support: support@pezkuwichain.io
+            </Text>
+
+            <View style={{ height: 40 }} />
+          </ScrollView>
+        </SafeAreaView>
+      </Modal>
+
     </SafeAreaView>
   );
 };
@@ -936,6 +1128,26 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
+  },
+  // Legal Modal Styles
+  legalTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  legalDate: {
+    fontSize: 13,
+    marginBottom: 24,
+  },
+  legalSectionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  legalText: {
+    fontSize: 14,
+    lineHeight: 22,
   },
 });
 

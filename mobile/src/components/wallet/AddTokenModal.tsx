@@ -56,9 +56,9 @@ export const AddTokenModal: React.FC<AddTokenModalProps> = ({
       } else {
         const metadata = metadataOption.toJSON() as { symbol?: string; decimals?: number; name?: string } | null;
         setTokenMetadata({
-          symbol: metadata.symbol || 'UNKNOWN',
-          decimals: metadata.decimals || 12,
-          name: metadata.name || 'Unknown Token',
+          symbol: metadata?.symbol || 'UNKNOWN',
+          decimals: metadata?.decimals || 12,
+          name: metadata?.name || 'Unknown Token',
         });
       }
     } catch {
