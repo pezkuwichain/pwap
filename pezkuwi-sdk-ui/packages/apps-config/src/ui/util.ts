@@ -1,6 +1,0 @@
-// Copyright 2017-2026 @pezkuwi/apps-config authors & contributors
-// SPDX-License-Identifier: Apache-2.0
-
-export function sanitize (value?: string): string {
-  return value?.toLowerCase().replace(/-/g, ' ') || '';
-}
