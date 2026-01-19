@@ -1,0 +1,29 @@
+{
+  "types": [
+    { "type": "feat", "section": "Features" },
+    { "type": "fix", "section": "Bug Fixes" },
+    { "type": "chore", "section": "Chores", "hidden": false },
+    { "type": "docs", "section": "Documentation", "hidden": false },
+    { "type": "style", "section": "Styling", "hidden": true },
+    { "type": "refactor", "section": "Code Refactoring", "hidden": false },
+    { "type": "perf", "section": "Performance Improvements" },
+    { "type": "test", "section": "Tests", "hidden": false },
+    { "type": "build", "section": "Build System", "hidden": false },
+    { "type": "ci", "section": "Continuous Integration", "hidden": false }
+  ],
+  "bumpFiles": [
+    {
+      "filename": "package.json",
+      "type": "json"
+    },
+    {
+      "filename": "app.json",
+      "updater": "scripts/version-updater.cjs"
+    }
+  ],
+  "commitUrlFormat": "https://github.com/pezkuwichain/pwap/commit/{{hash}}",
+  "compareUrlFormat": "https://github.com/pezkuwichain/pwap/compare/{{previousTag}}...{{currentTag}}",
+  "issueUrlFormat": "https://github.com/pezkuwichain/pwap/issues/{{id}}",
+  "tagPrefix": "mobile-v",
+  "header": "# Pezkuwi Mobile Changelog\n\nAll notable changes to the Pezkuwi Mobile application will be documented in this file.\n"
+}

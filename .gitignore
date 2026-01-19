@@ -141,12 +141,16 @@ vite.config.ts.timestamp-*
 # Local analysis and documentation
 *.md
 !README.md
+!CHANGELOG.md
+!mobile/CHANGELOG.md
 COMMISSION_SYSTEM_SUMMARY -
      Copy.md:Zone.Identifier
 
 # Local analysis and documentation
 *.md
 !README.md
+!CHANGELOG.md
+!mobile/CHANGELOG.md
 COMMISSION_SYSTEM_SUMMARY - Copy.md:Zone.Identifier
 
 # APK files (too large for GitHub)
