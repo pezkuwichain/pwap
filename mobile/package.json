@@ -4,6 +4,7 @@
   "type": "module",
   "main": "index.ts",
   "scripts": {
+    "postinstall": "node scripts/fix-pezkuwi-packages.cjs",
     "start": "expo start",
     "dev": "cp .env.development .env && expo start --clear",
     "dev:tunnel": "cp .env.development .env && expo start --tunnel --clear",
@@ -33,10 +34,10 @@
   "dependencies": {
     "@babel/runtime": "^7.28.4",
     "@pezkuwi/api": "^16.5.11",
-    "@pezkuwi/keyring": "14.0.11",
+    "@pezkuwi/keyring": "^14.0.11",
     "@pezkuwi/types": "^16.5.11",
-    "@pezkuwi/util": "14.0.11",
-    "@pezkuwi/util-crypto": "14.0.11",
+    "@pezkuwi/util": "^14.0.11",
+    "@pezkuwi/util-crypto": "^14.0.11",
     "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-native-picker/picker": "2.11.1",
     "@react-navigation/bottom-tabs": "^7.8.5",
@@ -85,10 +86,10 @@
     "@pezkuwi/types-codec": "^16.5.11",
     "@pezkuwi/types-create": "^16.5.11",
     "@pezkuwi/types-known": "^16.5.11",
-    "@pezkuwi/networks": "14.0.11",
-    "@pezkuwi/keyring": "14.0.11",
-    "@pezkuwi/util": "14.0.11",
-    "@pezkuwi/util-crypto": "14.0.11"
+    "@pezkuwi/networks": "^16.5.9",
+    "@pezkuwi/keyring": "^14.0.11",
+    "@pezkuwi/util": "^14.0.11",
+    "@pezkuwi/util-crypto": "^14.0.11"
   },
   "devDependencies": {
     "@expo/ngrok": "^4.1.0",

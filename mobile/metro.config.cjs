@@ -16,8 +16,8 @@ const projectRoot = __dirname;
 // ============================================
 // CUSTOM MODULE RESOLUTION
 // ============================================
-// Note: @pezkuwi packages have incorrect main field in npm (cjs/cjs/index.js)
-// Fixed via postinstall script or manual patch
+// Note: @pezkuwi packages have incorrect main field in npm (cjs/build/cjs/index.js)
+// This is automatically fixed by scripts/fix-pezkuwi-packages.cjs via postinstall hook
 
 // ============================================
 // FILE EXTENSIONS
