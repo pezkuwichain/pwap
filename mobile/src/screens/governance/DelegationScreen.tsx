@@ -75,6 +75,7 @@ const DelegationScreen: React.FC = () => {
         const votingEntries = await api.query.democracy.voting.entries();
         const delegatesMap = new Map<string, { delegated: bigint; count: number }>();
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         votingEntries.forEach(([key, value]: any) => {
           const _voter = key.args[0].toString();
           const voting = value;

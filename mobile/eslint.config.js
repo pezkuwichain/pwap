@@ -19,6 +19,8 @@ export default tseslint.config(
       "eslint.config.js",
       "babel.config.js",
       "**/*.cjs",
+      "**/__tests__/**",
+      "**/__mocks__/**",
     ],
   },
   // Config for React Native app files
