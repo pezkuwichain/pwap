@@ -68,6 +68,18 @@ jest.mock('./src/contexts/ThemeContext', () => require('./src/__mocks__/contexts
 // Mock BiometricAuthContext globally
 jest.mock('./src/contexts/BiometricAuthContext', () => require('./src/__mocks__/contexts/BiometricAuthContext'));
 
+// Mock react-native-safe-area-context
+jest.mock('react-native-safe-area-context', () => {
+  const insets = { top: 0, right: 0, bottom: 0, left: 0 };
+  return {
+    SafeAreaProvider: ({ children }) => children,
+    SafeAreaView: ({ children }) => children,
+    useSafeAreaInsets: () => insets,
+    useSafeAreaFrame: () => ({ x: 0, y: 0, width: 390, height: 844 }),
+    initialWindowMetrics: { insets, frame: { x: 0, y: 0, width: 390, height: 844 } },
+  };
+});
+
 // Mock expo modules
 jest.mock('expo-linear-gradient', () => ({
   LinearGradient: 'LinearGradient',
