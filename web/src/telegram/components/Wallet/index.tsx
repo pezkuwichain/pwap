@@ -1,98 +1,45 @@
 import { useState, useEffect } from 'react';
-import { Wallet as WalletIcon, Send, ArrowDownToLine, RefreshCw, Copy, Check, Loader2, TrendingUp, Clock, ExternalLink } from 'lucide-react';
-import { useTelegram } from '../../hooks/useTelegram';
-import { usePezkuwiApi } from '../../hooks/usePezkuwiApi';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
-import { formatBalance, CHAIN_CONFIG, formatAddress } from '@shared/lib/wallet';
+import { useWallet } from '@/contexts/WalletContext';
+import { useTelegram } from '../../hooks/useTelegram';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import { getAllScores, UserScores, getScoreRating } from '@shared/lib/scores';
 import { getStakingInfo, StakingInfo } from '@shared/lib/staking';
+import { formatBalance, formatAddress, CHAIN_CONFIG } from '@shared/lib/wallet';
+import {
+  Wallet, Send, ArrowDownToLine, TrendingUp, Copy, Check, ExternalLink,
+  Loader2, RefreshCw, Trophy, Users, Star, Award, Coins, Clock, Zap
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-interface TokenBalance {
-  symbol: string;
-  name: string;
-  balance: string;
-  balanceUsd?: string;
-  icon?: string;
-  isNative?: boolean;
-}
-
-interface Transaction {
-  id: string;
-  type: 'send' | 'receive' | 'stake' | 'unstake' | 'claim';
-  amount: string;
-  symbol: string;
-  address?: string;
-  timestamp: Date;
-  status: 'pending' | 'confirmed' | 'failed';
-}
-
-// Mock recent transactions - will be replaced with actual data
-const mockTransactions: Transaction[] = [
-  {
-    id: '1',
-    type: 'receive',
-    amount: '100.00',
-    symbol: 'HEZ',
-    address: '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY',
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2),
-    status: 'confirmed',
-  },
-  {
-    id: '2',
-    type: 'stake',
-    amount: '50.00',
-    symbol: 'HEZ',
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24),
-    status: 'confirmed',
-  },
-  {
-    id: '3',
-    type: 'claim',
-    amount: '5.25',
-    symbol: 'PEZ',
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3),
-    status: 'confirmed',
-  },
-];
-
-export function Wallet() {
+export function WalletSection() {
+  const { api, isApiReady, selectedAccount, connectWallet, disconnectWallet, accounts } = usePezkuwi();
+  const { balances, refreshBalances, isConnected } = useWallet();
   const { hapticNotification, hapticImpact, showAlert, openLink } = useTelegram();
-  const { api, isReady: isApiReady } = usePezkuwiApi();
-  const { selectedAccount, connectWallet, disconnectWallet } = usePezkuwi();
 
-  const [balances, setBalances] = useState<TokenBalance[]>([]);
+  const [scores, setScores] = useState<UserScores | null>(null);
   const [stakingInfo, setStakingInfo] = useState<StakingInfo | null>(null);
-  const [transactions, setTransactions] = useState<Transaction[]>(mockTransactions);
   const [isLoading, setIsLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const isConnected = !!selectedAccount;
   const address = selectedAccount?.address;
 
-  // Fetch balances when connected
+  // Fetch data when connected
   useEffect(() => {
     if (!api || !isApiReady || !address) return;
 
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        // Fetch native balance
-        const accountInfo = await api.query.system.account(address);
-        const { data } = accountInfo.toJSON() as { data: { free: string; reserved: string } };
-        const freeBalance = BigInt(data.free || 0);
-
-        const nativeBalance: TokenBalance = {
-          symbol: CHAIN_CONFIG.symbol,
-          name: 'Hezar Token',
-          balance: formatBalance(freeBalance.toString()),
-          isNative: true,
-        };
-
-        setBalances([nativeBalance]);
-
-        // Fetch staking info
-        const staking = await getStakingInfo(api, address);
+        const [userScores, staking] = await Promise.all([
+          getAllScores(api, address),
+          getStakingInfo(api, address),
+        ]);
+        setScores(userScores);
         setStakingInfo(staking);
       } catch (err) {
         console.error('Failed to fetch wallet data:', err);
@@ -106,26 +53,19 @@ export function Wallet() {
 
   const handleRefresh = async () => {
     if (!api || !address || isRefreshing) return;
-
     setIsRefreshing(true);
     hapticNotification('success');
 
     try {
-      const accountInfo = await api.query.system.account(address);
-      const { data } = accountInfo.toJSON() as { data: { free: string } };
-      const freeBalance = BigInt(data.free || 0);
-
-      setBalances([{
-        symbol: CHAIN_CONFIG.symbol,
-        name: 'Hezar Token',
-        balance: formatBalance(freeBalance.toString()),
-        isNative: true,
-      }]);
-
-      const staking = await getStakingInfo(api, address);
+      await refreshBalances();
+      const [userScores, staking] = await Promise.all([
+        getAllScores(api, address),
+        getStakingInfo(api, address),
+      ]);
+      setScores(userScores);
       setStakingInfo(staking);
     } catch (err) {
-      showAlert('Failed to refresh');
+      showAlert('Yenileme başarısız');
     } finally {
       setIsRefreshing(false);
     }
@@ -133,14 +73,13 @@ export function Wallet() {
 
   const handleCopyAddress = async () => {
     if (!address) return;
-
     try {
       await navigator.clipboard.writeText(address);
       setCopied(true);
       hapticNotification('success');
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      showAlert('Failed to copy address');
+      showAlert('Adres kopyalanamadı');
     }
   };
 
@@ -149,273 +88,307 @@ export function Wallet() {
     connectWallet();
   };
 
-  const handleDisconnect = () => {
-    hapticImpact('medium');
-    disconnectWallet();
-  };
-
   const handleOpenExplorer = () => {
     if (!address) return;
     hapticImpact('light');
     openLink(`https://explorer.pezkuwichain.io/account/${address}`);
   };
 
-  const getTransactionIcon = (type: Transaction['type']) => {
-    switch (type) {
-      case 'send':
-        return <Send className="w-4 h-4 text-red-400" />;
-      case 'receive':
-        return <ArrowDownToLine className="w-4 h-4 text-green-400" />;
-      case 'stake':
-        return <TrendingUp className="w-4 h-4 text-blue-400" />;
-      case 'unstake':
-        return <Clock className="w-4 h-4 text-orange-400" />;
-      case 'claim':
-        return <ArrowDownToLine className="w-4 h-4 text-green-400" />;
-      default:
-        return null;
-    }
-  };
-
-  const formatTimestamp = (date: Date) => {
-    const now = new Date();
-    const diff = now.getTime() - date.getTime();
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const days = Math.floor(hours / 24);
-
-    if (hours < 1) return 'Just now';
-    if (hours < 24) return `${hours}h ago`;
-    if (days < 7) return `${days}d ago`;
-    return date.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
-  };
-
-  if (!isConnected) {
+  // Not connected state
+  if (!isConnected || !selectedAccount) {
     return (
-      <div className="flex flex-col h-full">
-        <div className="flex items-center gap-2 p-4 border-b border-gray-800">
-          <WalletIcon className="w-5 h-5 text-green-500" />
-          <h2 className="text-lg font-semibold text-white">Wallet</h2>
-        </div>
+      <div className="flex flex-col h-full overflow-y-auto">
         <div className="flex-1 flex flex-col items-center justify-center p-6">
-          <div className="w-20 h-20 rounded-full bg-gray-800 flex items-center justify-center mb-4">
-            <WalletIcon className="w-10 h-10 text-gray-600" />
+          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-cyan-500/20 to-blue-500/20 flex items-center justify-center mb-6">
+            <Wallet className="w-12 h-12 text-cyan-500" />
           </div>
-          <h3 className="text-white font-medium mb-2">Connect Your Wallet</h3>
-          <p className="text-gray-400 text-sm text-center mb-6">
-            Connect your Pezkuwi wallet to view balances, stake tokens, and manage your assets.
+          <h2 className="text-white font-semibold text-xl mb-2">Cüzdanınızı Bağlayın</h2>
+          <p className="text-gray-400 text-sm text-center mb-8 max-w-xs">
+            Bakiyelerinizi görüntülemek, stake etmek ve işlem yapmak için Pezkuwi cüzdanınızı bağlayın.
           </p>
-          <button
+          <Button
             onClick={handleConnect}
-            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+            className="bg-green-600 hover:bg-green-700 text-white px-8 py-6 text-base"
           >
-            <WalletIcon className="w-5 h-5" />
-            Connect Wallet
-          </button>
+            <Wallet className="w-5 h-5 mr-2" />
+            Cüzdan Bağla
+          </Button>
+
+          <div className="mt-8 grid grid-cols-3 gap-4 w-full max-w-sm">
+            <div className="flex flex-col items-center p-3 bg-gray-900 rounded-lg">
+              <Coins className="w-6 h-6 text-yellow-500 mb-2" />
+              <span className="text-xs text-gray-400">HEZ & PEZ</span>
+            </div>
+            <div className="flex flex-col items-center p-3 bg-gray-900 rounded-lg">
+              <TrendingUp className="w-6 h-6 text-purple-500 mb-2" />
+              <span className="text-xs text-gray-400">Staking</span>
+            </div>
+            <div className="flex flex-col items-center p-3 bg-gray-900 rounded-lg">
+              <Trophy className="w-6 h-6 text-cyan-500 mb-2" />
+              <span className="text-xs text-gray-400">Rewards</span>
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-800">
-        <div className="flex items-center gap-2">
-          <WalletIcon className="w-5 h-5 text-green-500" />
-          <h2 className="text-lg font-semibold text-white">Wallet</h2>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handleRefresh}
-            disabled={isRefreshing}
-            className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 transition-colors disabled:opacity-50"
-          >
-            <RefreshCw className={cn('w-4 h-4 text-gray-400', isRefreshing && 'animate-spin')} />
-          </button>
-          <button
-            onClick={handleDisconnect}
-            className="text-xs text-gray-500 hover:text-gray-400"
-          >
-            Disconnect
-          </button>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="flex-1 overflow-y-auto">
-        {isLoading ? (
-          <div className="flex items-center justify-center h-32">
-            <Loader2 className="w-8 h-8 text-green-500 animate-spin" />
-          </div>
-        ) : (
-          <>
-            {/* Address Card */}
-            <div className="p-4">
-              <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg p-4 border border-gray-700">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-gray-400 text-sm">
-                    {selectedAccount?.meta?.name || 'Account'}
+    <div className="flex flex-col h-full overflow-y-auto bg-gray-950">
+      {/* Account Card */}
+      <div className="p-4">
+        <Card className="bg-gradient-to-br from-gray-900 to-gray-800 border-gray-700">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
+                  <span className="text-white font-bold">
+                    {selectedAccount?.meta?.name?.charAt(0) || 'P'}
                   </span>
-                  <button
-                    onClick={handleOpenExplorer}
-                    className="text-gray-500 hover:text-gray-400"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                  </button>
                 </div>
-                <div className="flex items-center gap-2">
-                  <code className="text-white text-sm flex-1 truncate">
-                    {formatAddress(address || '')}
-                  </code>
-                  <button
-                    onClick={handleCopyAddress}
-                    className="p-2 rounded bg-gray-700 hover:bg-gray-600 transition-colors"
-                  >
-                    {copied ? (
-                      <Check className="w-4 h-4 text-green-500" />
-                    ) : (
-                      <Copy className="w-4 h-4 text-gray-400" />
-                    )}
-                  </button>
+                <div>
+                  <p className="text-white font-medium text-sm">
+                    {selectedAccount?.meta?.name || 'Pezkuwi Hesabı'}
+                  </p>
+                  <div className="flex items-center gap-1">
+                    <code className="text-gray-400 text-xs">
+                      {formatAddress(address || '')}
+                    </code>
+                    <button onClick={handleCopyAddress} className="p-1">
+                      {copied ? (
+                        <Check className="w-3 h-3 text-green-500" />
+                      ) : (
+                        <Copy className="w-3 h-3 text-gray-500" />
+                      )}
+                    </button>
+                  </div>
                 </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleRefresh}
+                  disabled={isRefreshing}
+                  className="h-8 w-8"
+                >
+                  <RefreshCw className={cn("w-4 h-4 text-gray-400", isRefreshing && "animate-spin")} />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleOpenExplorer}
+                  className="h-8 w-8"
+                >
+                  <ExternalLink className="w-4 h-4 text-gray-400" />
+                </Button>
               </div>
             </div>
 
-            {/* Balance Card */}
-            <div className="px-4 pb-4">
-              <div className="bg-gradient-to-br from-green-600 to-emerald-700 rounded-lg p-4">
-                <div className="text-green-100 text-sm mb-1">Total Balance</div>
-                <div className="text-3xl font-bold text-white mb-1">
-                  {balances[0]?.balance || '0.00'} {CHAIN_CONFIG.symbol}
+            {/* Balance Display */}
+            <div className="bg-black/30 rounded-lg p-4 mb-3">
+              <p className="text-gray-400 text-xs mb-1">Toplam Bakiye</p>
+              {isLoading ? (
+                <Skeleton className="h-8 w-32 bg-gray-700" />
+              ) : (
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-bold text-white">
+                    {balances?.HEZ || '0.00'}
+                  </span>
+                  <span className="text-gray-400 text-sm">{CHAIN_CONFIG.symbol}</span>
                 </div>
-                {stakingInfo && parseFloat(stakingInfo.bonded) > 0 && (
-                  <div className="text-green-200 text-sm">
-                    Staked: {stakingInfo.bonded} {CHAIN_CONFIG.symbol}
-                  </div>
-                )}
-              </div>
+              )}
+              {balances?.PEZ && parseFloat(balances.PEZ) > 0 && (
+                <p className="text-green-400 text-sm mt-1">
+                  + {balances.PEZ} PEZ
+                </p>
+              )}
             </div>
 
             {/* Quick Actions */}
-            <div className="px-4 pb-4">
-              <div className="grid grid-cols-3 gap-3">
-                <button
-                  onClick={() => showAlert('Send feature coming soon!')}
-                  className="flex flex-col items-center gap-2 bg-gray-800 hover:bg-gray-700 rounded-lg p-3 transition-colors"
-                >
-                  <div className="w-10 h-10 rounded-full bg-blue-600/20 flex items-center justify-center">
-                    <Send className="w-5 h-5 text-blue-400" />
-                  </div>
-                  <span className="text-xs text-gray-400">Send</span>
-                </button>
-                <button
-                  onClick={() => showAlert('Receive feature coming soon!')}
-                  className="flex flex-col items-center gap-2 bg-gray-800 hover:bg-gray-700 rounded-lg p-3 transition-colors"
-                >
-                  <div className="w-10 h-10 rounded-full bg-green-600/20 flex items-center justify-center">
-                    <ArrowDownToLine className="w-5 h-5 text-green-400" />
-                  </div>
-                  <span className="text-xs text-gray-400">Receive</span>
-                </button>
-                <button
-                  onClick={() => showAlert('Stake feature coming soon!')}
-                  className="flex flex-col items-center gap-2 bg-gray-800 hover:bg-gray-700 rounded-lg p-3 transition-colors"
-                >
-                  <div className="w-10 h-10 rounded-full bg-purple-600/20 flex items-center justify-center">
-                    <TrendingUp className="w-5 h-5 text-purple-400" />
-                  </div>
-                  <span className="text-xs text-gray-400">Stake</span>
-                </button>
-              </div>
+            <div className="grid grid-cols-3 gap-2">
+              <Button
+                variant="outline"
+                className="flex flex-col items-center gap-1 h-auto py-3 bg-gray-800/50 border-gray-700 hover:bg-gray-700"
+                onClick={() => showAlert('Gönder özelliği yakında!')}
+              >
+                <Send className="w-5 h-5 text-blue-400" />
+                <span className="text-xs">Gönder</span>
+              </Button>
+              <Button
+                variant="outline"
+                className="flex flex-col items-center gap-1 h-auto py-3 bg-gray-800/50 border-gray-700 hover:bg-gray-700"
+                onClick={() => showAlert('Al özelliği yakında!')}
+              >
+                <ArrowDownToLine className="w-5 h-5 text-green-400" />
+                <span className="text-xs">Al</span>
+              </Button>
+              <Button
+                variant="outline"
+                className="flex flex-col items-center gap-1 h-auto py-3 bg-gray-800/50 border-gray-700 hover:bg-gray-700"
+                onClick={() => showAlert('Stake özelliği yakında!')}
+              >
+                <TrendingUp className="w-5 h-5 text-purple-400" />
+                <span className="text-xs">Stake</span>
+              </Button>
             </div>
+          </CardContent>
+        </Card>
+      </div>
 
-            {/* Staking Info */}
-            {stakingInfo && parseFloat(stakingInfo.bonded) > 0 && (
-              <div className="px-4 pb-4">
-                <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
-                  <div className="flex items-center gap-2 mb-3">
-                    <TrendingUp className="w-5 h-5 text-purple-500" />
-                    <span className="text-white font-medium">Staking Overview</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-gray-900 rounded-lg p-3">
-                      <div className="text-gray-400 text-xs mb-1">Bonded</div>
-                      <div className="text-white font-medium">{stakingInfo.bonded}</div>
-                    </div>
-                    <div className="bg-gray-900 rounded-lg p-3">
-                      <div className="text-gray-400 text-xs mb-1">Active</div>
-                      <div className="text-white font-medium">{stakingInfo.active}</div>
-                    </div>
-                    {stakingInfo.stakingScore !== null && (
-                      <div className="bg-gray-900 rounded-lg p-3">
-                        <div className="text-gray-400 text-xs mb-1">Staking Score</div>
-                        <div className="text-green-500 font-medium">{stakingInfo.stakingScore}</div>
-                      </div>
-                    )}
-                    <div className="bg-gray-900 rounded-lg p-3">
-                      <div className="text-gray-400 text-xs mb-1">Nominations</div>
-                      <div className="text-white font-medium">{stakingInfo.nominations.length}</div>
-                    </div>
-                  </div>
+      {/* Scores Section */}
+      <div className="px-4 pb-4">
+        <h3 className="text-white font-medium text-sm mb-3 flex items-center gap-2">
+          <Trophy className="w-4 h-4 text-yellow-500" />
+          Puanlarınız
+        </h3>
+
+        {isLoading ? (
+          <div className="grid grid-cols-2 gap-3">
+            {[...Array(4)].map((_, i) => (
+              <Skeleton key={i} className="h-20 bg-gray-800" />
+            ))}
+          </div>
+        ) : scores ? (
+          <>
+            {/* Total Score Banner */}
+            <Card className="bg-gradient-to-r from-purple-600 to-pink-600 border-0 mb-3">
+              <CardContent className="p-4 flex items-center justify-between">
+                <div>
+                  <p className="text-purple-100 text-xs">Toplam Skor</p>
+                  <p className="text-white text-2xl font-bold">{scores.totalScore}</p>
                 </div>
-              </div>
-            )}
+                <Badge className="bg-white/20 text-white border-0">
+                  {getScoreRating(scores.totalScore)}
+                </Badge>
+              </CardContent>
+            </Card>
 
-            {/* Recent Transactions */}
-            <div className="px-4 pb-4">
-              <div className="bg-gray-800 rounded-lg border border-gray-700">
-                <div className="p-4 border-b border-gray-700">
-                  <h3 className="text-white font-medium">Recent Activity</h3>
-                </div>
+            {/* Individual Scores */}
+            <div className="grid grid-cols-2 gap-3">
+              <Card className="bg-gray-900 border-gray-800">
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                      <Award className="w-4 h-4 text-purple-500" />
+                    </div>
+                    <span className="text-gray-400 text-xs">Trust</span>
+                  </div>
+                  <p className="text-white text-xl font-bold">{scores.trustScore}</p>
+                </CardContent>
+              </Card>
 
-                {transactions.length === 0 ? (
-                  <div className="p-6 text-center text-gray-500 text-sm">
-                    No recent transactions
+              <Card className="bg-gray-900 border-gray-800">
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-8 h-8 rounded-lg bg-cyan-500/20 flex items-center justify-center">
+                      <Users className="w-4 h-4 text-cyan-500" />
+                    </div>
+                    <span className="text-gray-400 text-xs">Referral</span>
                   </div>
-                ) : (
-                  <div className="divide-y divide-gray-700">
-                    {transactions.map(tx => (
-                      <div key={tx.id} className="p-4 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center">
-                            {getTransactionIcon(tx.type)}
-                          </div>
-                          <div>
-                            <div className="text-white text-sm font-medium capitalize">
-                              {tx.type}
-                            </div>
-                            <div className="text-gray-500 text-xs">
-                              {formatTimestamp(tx.timestamp)}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className={cn(
-                            'font-medium text-sm',
-                            tx.type === 'send' || tx.type === 'stake' ? 'text-red-400' : 'text-green-400'
-                          )}>
-                            {tx.type === 'send' || tx.type === 'stake' ? '-' : '+'}
-                            {tx.amount} {tx.symbol}
-                          </div>
-                          <div className={cn(
-                            'text-xs',
-                            tx.status === 'confirmed' ? 'text-gray-500' :
-                            tx.status === 'pending' ? 'text-yellow-500' : 'text-red-500'
-                          )}>
-                            {tx.status}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+                  <p className="text-white text-xl font-bold">{scores.referralScore}</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gray-900 border-gray-800">
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-8 h-8 rounded-lg bg-green-500/20 flex items-center justify-center">
+                      <TrendingUp className="w-4 h-4 text-green-500" />
+                    </div>
+                    <span className="text-gray-400 text-xs">Staking</span>
                   </div>
-                )}
-              </div>
+                  <p className="text-white text-xl font-bold">{scores.stakingScore}</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gray-900 border-gray-800">
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-8 h-8 rounded-lg bg-pink-500/20 flex items-center justify-center">
+                      <Star className="w-4 h-4 text-pink-500" />
+                    </div>
+                    <span className="text-gray-400 text-xs">Tiki</span>
+                  </div>
+                  <p className="text-white text-xl font-bold">{scores.tikiScore}</p>
+                </CardContent>
+              </Card>
             </div>
           </>
-        )}
+        ) : null}
+      </div>
+
+      {/* Staking Info */}
+      {stakingInfo && parseFloat(stakingInfo.bonded) > 0 && (
+        <div className="px-4 pb-4">
+          <h3 className="text-white font-medium text-sm mb-3 flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-green-500" />
+            Staking Durumu
+          </h3>
+
+          <Card className="bg-gray-900 border-gray-800">
+            <CardContent className="p-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-gray-400 text-xs mb-1">Stake Edilmiş</p>
+                  <p className="text-white font-bold">{stakingInfo.bonded} HEZ</p>
+                </div>
+                <div>
+                  <p className="text-gray-400 text-xs mb-1">Aktif</p>
+                  <p className="text-green-400 font-bold">{stakingInfo.active} HEZ</p>
+                </div>
+                {stakingInfo.stakingScore !== null && (
+                  <div>
+                    <p className="text-gray-400 text-xs mb-1">Staking Skoru</p>
+                    <p className="text-purple-400 font-bold">{stakingInfo.stakingScore}/100</p>
+                  </div>
+                )}
+                <div>
+                  <p className="text-gray-400 text-xs mb-1">Nominasyonlar</p>
+                  <p className="text-white font-bold">{stakingInfo.nominations.length}</p>
+                </div>
+              </div>
+
+              {/* PEZ Rewards */}
+              {stakingInfo.pezRewards?.hasPendingClaim && (
+                <div className="mt-4 pt-4 border-t border-gray-800">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Zap className="w-4 h-4 text-yellow-500" />
+                      <span className="text-gray-400 text-sm">Bekleyen PEZ</span>
+                    </div>
+                    <span className="text-yellow-400 font-bold">
+                      {stakingInfo.pezRewards.totalClaimable} PEZ
+                    </span>
+                  </div>
+                  <Button
+                    className="w-full mt-3 bg-yellow-600 hover:bg-yellow-700"
+                    onClick={() => showAlert('Claim özelliği yakında!')}
+                  >
+                    Claim Yap
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Disconnect Button */}
+      <div className="px-4 pb-6">
+        <Button
+          variant="outline"
+          className="w-full border-red-500/30 text-red-400 hover:bg-red-500/10"
+          onClick={() => {
+            hapticImpact('medium');
+            disconnectWallet();
+          }}
+        >
+          Bağlantıyı Kes
+        </Button>
       </div>
     </div>
   );
 }
 
-export default Wallet;
+export default WalletSection;
