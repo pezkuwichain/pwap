@@ -169,6 +169,7 @@
 //!    [`crate::pezkuwi_sdk::templates`].
 //!
 //! [`SolochainDefaultConfig`]: struct@pezframe_system::pezpallet::config_preludes::SolochainDefaultConfig
+//! [`frame`]: crate::pezkuwi_sdk::frame_runtime
 
 #[cfg(test)]
 mod tests {

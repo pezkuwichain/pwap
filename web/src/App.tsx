@@ -22,6 +22,7 @@ initSentry();
 // Lazy load pages for code splitting
 const Index = lazy(() => import('@/pages/Index'));
 const Login = lazy(() => import('@/pages/Login'));
+const TelegramConnect = lazy(() => import('@/pages/TelegramConnect'));
 const Dashboard = lazy(() => import('@/pages/Dashboard'));
 const EmailVerification = lazy(() => import('@/pages/EmailVerification'));
 const PasswordReset = lazy(() => import('@/pages/PasswordReset'));
@@ -113,6 +114,7 @@ function App() {
                           <Suspense fallback={<PageLoader />}>
                             <Routes>
                               <Route path="/login" element={<Login />} />
+                              <Route path="/auth/telegram-connect" element={<TelegramConnect />} />
                               <Route path="/email-verification" element={<EmailVerification />} />
                               <Route path="/reset-password" element={<PasswordReset />} />
                               <Route path="/" element={<Index />} />
@@ -177,27 +179,27 @@ function App() {
                                 </ProtectedRoute>
                               } />
                               <Route path="/p2p" element={
-                                <ProtectedRoute>
+                                <ProtectedRoute allowTelegramSession>
                                   <P2PPlatform />
                                 </ProtectedRoute>
                               } />
                               <Route path="/p2p/trade/:tradeId" element={
-                                <ProtectedRoute>
+                                <ProtectedRoute allowTelegramSession>
                                   <P2PTrade />
                                 </ProtectedRoute>
                               } />
                               <Route path="/p2p/orders" element={
-                                <ProtectedRoute>
+                                <ProtectedRoute allowTelegramSession>
                                   <P2POrders />
                                 </ProtectedRoute>
                               } />
                               <Route path="/p2p/dispute/:disputeId" element={
-                                <ProtectedRoute>
+                                <ProtectedRoute allowTelegramSession>
                                   <P2PDispute />
                                 </ProtectedRoute>
                               } />
                               <Route path="/p2p/merchant" element={
-                                <ProtectedRoute>
+                                <ProtectedRoute allowTelegramSession>
                                   <P2PMerchantDashboard />
                                 </ProtectedRoute>
                               } />

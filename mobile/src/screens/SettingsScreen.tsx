@@ -392,15 +392,8 @@ const SettingsScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} testID="settings-screen">
+    <View style={[styles.container, { backgroundColor: colors.background }]} testID="settings-screen">
       <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} />
-
-      {/* Header */}
-      <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
-        <View style={{ width: 40 }} />
-        <Text style={[styles.headerTitle, { color: colors.text }]}>Settings</Text>
-        <View style={{ width: 40 }} />
-      </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
         
@@ -526,42 +519,76 @@ const SettingsScreen: React.FC = () => {
 
         {/* DEVELOPER OPTIONS (only in DEV) */}
         {__DEV__ && (
-          <View style={[styles.section, { backgroundColor: colors.surface, marginTop: 20 }]}>
-            <Text style={[styles.sectionHeader, { color: colors.textSecondary }]}>DEVELOPER</Text>
-            <SettingItem
-              icon="🗑️"
-              title="Reset Wallet"
-              subtitle="Clear all wallet data"
-              textColor="#FF9500"
-              showArrow={false}
-              onPress={() => {
-                showAlert(
-                  'Reset Wallet',
-                  'This will delete all wallet data including saved accounts and keys. Are you sure?',
-                  [
-                    { text: 'Cancel', style: 'cancel' },
-                    {
-                      text: 'Reset',
-                      style: 'destructive',
-                      onPress: async () => {
-                        try {
-                          await AsyncStorage.multiRemove([
-                            '@pezkuwi_wallets',
-                            '@pezkuwi_selected_account',
-                            '@pezkuwi_selected_network'
-                          ]);
-                          showAlert('Success', 'Wallet data cleared. Restart the app to see changes.');
-                        } catch {
-                          showAlert('Error', 'Failed to clear wallet data');
+          <>
+            <SectionHeader title="DEVELOPER" />
+            <View style={[styles.section, { backgroundColor: colors.surface }]}>
+              <SettingItem
+                icon="🔄"
+                title="Reset Onboarding"
+                subtitle="Show Welcome & Verify screens again"
+                textColor="#FF9500"
+                showArrow={false}
+                onPress={() => {
+                  showAlert(
+                    'Reset Onboarding',
+                    'This will reset onboarding state. Restart the app to see the Welcome screen.',
+                    [
+                      { text: 'Cancel', style: 'cancel' },
+                      {
+                        text: 'Reset',
+                        style: 'destructive',
+                        onPress: async () => {
+                          try {
+                            await AsyncStorage.multiRemove([
+                              '@pezkuwi/privacy_consent_accepted',
+                              '@pezkuwi_human_verified'
+                            ]);
+                            showAlert('Success', 'Onboarding reset. Restart the app to see changes.');
+                          } catch {
+                            showAlert('Error', 'Failed to reset onboarding');
+                          }
                         }
                       }
-                    }
-                  ]
-                );
-              }}
-              testID="reset-wallet-button"
-            />
-          </View>
+                    ]
+                  );
+                }}
+                testID="reset-onboarding-button"
+              />
+              <SettingItem
+                icon="🗑️"
+                title="Reset Wallet"
+                subtitle="Clear all wallet data"
+                textColor="#FF9500"
+                showArrow={false}
+                onPress={() => {
+                  showAlert(
+                    'Reset Wallet',
+                    'This will delete all wallet data including saved accounts and keys. Are you sure?',
+                    [
+                      { text: 'Cancel', style: 'cancel' },
+                      {
+                        text: 'Reset',
+                        style: 'destructive',
+                        onPress: async () => {
+                          try {
+                            await AsyncStorage.multiRemove([
+                              '@pezkuwi_wallets',
+                              '@pezkuwi_selected_account',
+                              '@pezkuwi_selected_network'
+                            ]);
+                            showAlert('Success', 'Wallet data cleared. Restart the app to see changes.');
+                          } catch {
+                            showAlert('Error', 'Failed to clear wallet data');
+                          }
+                        }
+                      }
+                    ]
+                  );
+                }}
+                testID="reset-wallet-button"
+              />
+            </View>
+          </>
         )}
 
         {/* LOGOUT */}
@@ -925,7 +952,7 @@ const SettingsScreen: React.FC = () => {
         </SafeAreaView>
       </Modal>
 
-    </SafeAreaView>
+    </View>
   );
 };
 

@@ -111,6 +111,8 @@
 //! - <https://github.com/pezkuwichain/pezkuwi-sdk/issues/326>
 //! - [Bizinikiwi Seminar - Traits and Generic Types](https://www.youtube.com/watch?v=6cp10jVWNl4)
 //! - <https://exchange.pezkuwichain.app/questions/2228/type-casting-to-trait-t-as-config>
+//!
+//! [`frame`]: crate::pezkuwi_sdk::frame_runtime
 #![allow(unused)]
 
 use pezframe::traits::Get;

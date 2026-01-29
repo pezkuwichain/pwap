@@ -54,6 +54,7 @@ const PezkuwiWebView: React.FC<PezkuwiWebViewProps> = ({
   const { user } = useAuth();
   const [sessionToken, setSessionToken] = useState<string | null>(null);
   const [refreshToken, setRefreshToken] = useState<string | null>(null);
+  const [isSessionReady, setIsSessionReady] = useState(false);
 
   // Get Supabase session token for WebView authentication
   React.useEffect(() => {
@@ -63,9 +64,12 @@ const PezkuwiWebView: React.FC<PezkuwiWebViewProps> = ({
         if (session?.access_token) {
           setSessionToken(session.access_token);
           setRefreshToken(session.refresh_token || null);
+          if (__DEV__) console.log('[WebView] Session token retrieved for SSO');
         }
       } catch (error) {
         if (__DEV__) console.warn('[WebView] Failed to get session:', error);
+      } finally {
+        setIsSessionReady(true);
       }
     };
     getSession();
@@ -89,6 +93,31 @@ const PezkuwiWebView: React.FC<PezkuwiWebViewProps> = ({
       ${user ? `window.PEZKUWI_USER_ID = '${user.id}';` : ''}
       ${user?.email ? `window.PEZKUWI_USER_EMAIL = '${user.email}';` : ''}
 
+      // Pre-populate localStorage with session so Supabase client finds it on init
+      ${sessionToken && user ? `
+      try {
+        var supabaseUrl = 'https://sihawipngjtgvfzukfew.supabase.co';
+        var storageKey = 'sb-' + supabaseUrl.replace('https://', '').split('.')[0] + '-auth-token';
+        var sessionData = {
+          access_token: '${sessionToken}',
+          refresh_token: '${refreshToken || ''}',
+          token_type: 'bearer',
+          expires_in: 3600,
+          expires_at: Math.floor(Date.now() / 1000) + 3600,
+          user: {
+            id: '${user.id}',
+            email: '${user.email || ''}',
+            aud: 'authenticated',
+            role: 'authenticated'
+          }
+        };
+        localStorage.setItem(storageKey, JSON.stringify(sessionData));
+        console.log('[Mobile] Pre-populated localStorage with session');
+      } catch(e) {
+        console.warn('[Mobile] Failed to set localStorage:', e);
+      }
+      ` : ''}
+
       // Auto-authenticate with Supabase if session token exists
       if (window.PEZKUWI_SESSION_TOKEN) {
         (function autoAuth(attempts = 0) {
@@ -96,14 +125,25 @@ const PezkuwiWebView: React.FC<PezkuwiWebViewProps> = ({
             console.warn('[Mobile] Auto-auth timed out: window.supabase not found');
             return;
           }
-          
+
           if (window.supabase && window.supabase.auth) {
             window.supabase.auth.setSession({
               access_token: window.PEZKUWI_SESSION_TOKEN,
               refresh_token: window.PEZKUWI_REFRESH_TOKEN || ''
             }).then(function(res) {
-              if (res.error) console.warn('[Mobile] Auto-auth error:', res.error);
-              else console.log('[Mobile] Auto-authenticated successfully');
+              if (res.error) {
+                console.warn('[Mobile] Auto-auth error:', res.error);
+              } else {
+                console.log('[Mobile] Auto-authenticated successfully');
+                // Dispatch event to notify app of successful auth
+                window.dispatchEvent(new CustomEvent('pezkuwi-session-restored', {
+                  detail: { userId: window.PEZKUWI_USER_ID }
+                }));
+                // Force auth state refresh if the app has an auth store
+                if (window.__refreshAuthState) {
+                  window.__refreshAuthState();
+                }
+              }
             }).catch(function(err) {
               console.warn('[Mobile] Auto-auth promise failed:', err);
             });
@@ -366,6 +406,25 @@ const PezkuwiWebView: React.FC<PezkuwiWebViewProps> = ({
 
   // Build the full URL
   const fullUrl = `${WEB_BASE_URL}${path}`;
+
+  // Wait for session to be ready before loading WebView (ensures SSO works)
+  if (!isSessionReady) {
+    return (
+      <View style={styles.container}>
+        {title && (
+          <View style={styles.header}>
+            <View style={{ width: 40 }} />
+            <Text style={styles.headerTitle}>{title}</Text>
+            <View style={{ width: 40 }} />
+          </View>
+        )}
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color={KurdistanColors.kesk} />
+          <Text style={styles.loadingText}>Preparing session...</Text>
+        </View>
+      </View>
+    );
+  }
 
   // Error view
   if (error) {

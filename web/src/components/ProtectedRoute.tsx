@@ -8,16 +8,37 @@ import { Button } from '@/components/ui/button';
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requireAdmin?: boolean;
+  allowTelegramSession?: boolean;
+}
+
+// Check if valid telegram session exists
+function getTelegramSession(): { telegram_id: string; wallet_address: string; username: string } | null {
+  try {
+    const session = localStorage.getItem('telegram_session');
+    if (!session) return null;
+
+    const parsed = JSON.parse(session);
+    // Session expires after 24 hours
+    if (Date.now() - parsed.timestamp > 24 * 60 * 60 * 1000) {
+      localStorage.removeItem('telegram_session');
+      return null;
+    }
+    return parsed;
+  } catch {
+    return null;
+  }
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
-  requireAdmin = false
+  requireAdmin = false,
+  allowTelegramSession = false
 }) => {
   const { user, loading, isAdmin } = useAuth();
   const { selectedAccount, connectWallet } = usePezkuwi();
   const [walletRestoreChecked, setWalletRestoreChecked] = useState(false);
   const [forceUpdate, setForceUpdate] = useState(0);
+  const telegramSession = allowTelegramSession ? getTelegramSession() : null;
 
   // Listen for wallet changes
   useEffect(() => {
@@ -84,7 +105,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     );
   }
 
-  if (!user) {
+  // Allow access if user is logged in OR has valid telegram session
+  if (!user && !telegramSession) {
     return <Navigate to="/login" replace />;
   }
 

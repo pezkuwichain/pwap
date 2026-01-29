@@ -12,6 +12,7 @@ import {
   Platform,
   KeyboardAvoidingView,
   AlertButton,
+  Image,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../contexts/AuthContext';
@@ -72,6 +73,12 @@ const AVATAR_POOL = [
 const getEmojiFromAvatarId = (avatarId: string): string => {
   const avatar = AVATAR_POOL.find(a => a.id === avatarId);
   return avatar ? avatar.emoji : '👤';
+};
+
+// Check if avatar is an uploaded image URL vs emoji avatar ID
+const isUploadedImageUrl = (avatarUrl: string | null): boolean => {
+  if (!avatarUrl) return false;
+  return avatarUrl.startsWith('http://') || avatarUrl.startsWith('https://');
 };
 
 const EditProfileScreen: React.FC = () => {
@@ -242,7 +249,11 @@ const EditProfileScreen: React.FC = () => {
             >
               <View style={[styles.avatarCircle, { backgroundColor: colors.surface }]}>
                 {avatarUrl ? (
-                  <Text style={styles.avatarEmoji}>{getEmojiFromAvatarId(avatarUrl)}</Text>
+                  isUploadedImageUrl(avatarUrl) ? (
+                    <Image source={{ uri: avatarUrl }} style={styles.avatarImage} />
+                  ) : (
+                    <Text style={styles.avatarEmoji}>{getEmojiFromAvatarId(avatarUrl)}</Text>
+                  )
                 ) : (
                   <Text style={[styles.avatarInitial, { color: colors.textSecondary }]}>
                     {fullName?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || '?'}
@@ -381,6 +392,11 @@ const styles = StyleSheet.create({
   },
   avatarEmoji: {
     fontSize: 70,
+  },
+  avatarImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
   },
   avatarInitial: {
     fontSize: 48,
