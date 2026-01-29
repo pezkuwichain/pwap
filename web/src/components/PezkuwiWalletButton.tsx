@@ -174,31 +174,31 @@ export const PezkuwiWalletButton: React.FC = () => {
         Connect Wallet
       </Button>
 
-      {error && error.includes('extension') && (
+      {error && error.includes('not found') && (
         <Dialog open={!!error} onOpenChange={() => {}}>
           <DialogContent className="bg-gray-900 border-gray-800">
             <DialogHeader>
-              <DialogTitle className="text-white">Install Pezkuwi.js Extension</DialogTitle>
+              <DialogTitle className="text-white">Install Pezkuwi Wallet Extension</DialogTitle>
               <DialogDescription className="text-gray-400">
-                You need the Pezkuwi.js browser extension to connect your wallet
+                You need the Pezkuwi Wallet browser extension to connect
               </DialogDescription>
             </DialogHeader>
 
             <div className="space-y-4">
               <p className="text-gray-300">
-                The Pezkuwi.js extension allows you to manage your accounts and sign transactions securely.
+                The Pezkuwi Wallet extension allows you to manage your accounts and sign transactions securely.
               </p>
 
               <div className="flex gap-3">
                 <a
-                  href="https://js.pezkuwichain.io"
+                  href="https://chrome.google.com/webstore/detail/pezkuwi-wallet/fbnboicjjeebjhgnapneaeccpgjcdibn"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex-1"
                 >
                   <Button className="w-full bg-green-600 hover:bg-green-700">
                     <ExternalLink className="w-4 h-4 mr-2" />
-                    Install Extension
+                    Install from Chrome Web Store
                   </Button>
                 </a>
               </div>

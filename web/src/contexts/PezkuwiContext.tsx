@@ -238,12 +238,21 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
         }
       }
 
-      // Desktop: Enable extension
+      // Desktop: Check if extension is installed first
+      const hasExtension = !!(window as unknown as { injectedWeb3?: Record<string, unknown> }).injectedWeb3;
+
+      // Enable extension
       const extensions = await web3Enable('PezkuwiChain');
 
       if (extensions.length === 0) {
-        setError('Please install Pezkuwi.js extension');
-        window.open('https://js.pezkuwichain.io/extension/', '_blank');
+        if (hasExtension) {
+          // Extension is installed but user didn't authorize - don't redirect
+          setError('Please authorize the connection in your Pezkuwi Wallet extension');
+        } else {
+          // Extension not installed - show install link
+          setError('Pezkuwi Wallet extension not found. Please install from Chrome Web Store.');
+          window.open('https://chrome.google.com/webstore/detail/pezkuwi-wallet/fbnboicjjeebjhgnapneaeccpgjcdibn', '_blank');
+        }
         return;
       }
 
