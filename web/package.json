@@ -8,6 +8,7 @@
     "dev": "cp .env.development .env && vite",
     "prebuild": "node generate-docs-structure.cjs",
     "build": "vite build",
+    "build:telegram": "vite build --config vite.config.telegram.ts",
     "build:dev": "cp .env.development .env && vite build",
     "build:alfa": "cp .env.alfa .env && vite build",
     "build:beta": "cp .env.beta .env && vite build",
@@ -139,8 +140,8 @@
     "tailwindcss": "^3.4.11",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.0.1",
-    "vite": "^5.4.1",
-    "vite-plugin-node-polyfills": "^0.24.0",
+    "vite": "^7.3.1",
+    "vite-plugin-node-polyfills": "^0.25.0",
     "vitest": "^4.0.10"
   }
 }
