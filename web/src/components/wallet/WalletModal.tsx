@@ -111,25 +111,44 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
           </DialogDescription>
         </DialogHeader>
 
-        {/* No Extension Error */}
-        {error && error.includes('extension') && (
+        {/* Authorization Error - Extension installed but not authorized */}
+        {error && error.includes('authorize') && (
+          <div className="space-y-4">
+            <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+              <p className="text-sm text-blue-300">
+                {error}
+              </p>
+            </div>
+
+            <Button
+              onClick={handleConnect}
+              className="w-full bg-gradient-to-r from-purple-600 to-cyan-400 hover:from-purple-700 hover:to-cyan-500"
+            >
+              <Wallet className="mr-2 h-4 w-4" />
+              Try Again
+            </Button>
+          </div>
+        )}
+
+        {/* No Extension Error - Extension not installed */}
+        {error && error.includes('not found') && (
           <div className="space-y-4">
             <div className="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
               <p className="text-sm text-yellow-300">
-                Pezkuwi.js extension not detected. Please install it to continue.
+                {error}
               </p>
             </div>
 
             <div className="flex gap-3">
               <a
-                href="https://js.pezkuwichain.io"
+                href="https://chrome.google.com/webstore/detail/pezkuwi-wallet/fbnboicjjeebjhgnapneaeccpgjcdibn"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex-1"
               >
                 <Button className="w-full bg-green-600 hover:bg-green-700">
                   <Chrome className="mr-2 h-4 w-4" />
-                  Install Pezkuwi.js
+                  Install from Chrome Web Store
                 </Button>
               </a>
             </div>
@@ -310,14 +329,14 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                 </Button>
 
                 <div className="text-sm text-gray-400 text-center">
-                  Don&apos;t have Pezkuwi.js?{' '}
+                  Don&apos;t have Pezkuwi Wallet?{' '}
                   <a
-                    href="https://js.pezkuwichain.io"
+                    href="https://chrome.google.com/webstore/detail/pezkuwi-wallet/fbnboicjjeebjhgnapneaeccpgjcdibn"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-purple-400 hover:underline"
                   >
-                    Download here
+                    Get it from Chrome Web Store
                   </a>
                 </div>
               </div>
