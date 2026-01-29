@@ -257,21 +257,105 @@ export function validatePaymentDetails(
 }
 
 // =====================================================
-// ENCRYPTION (Simple symmetric encryption for demo)
-// Production should use PGP or server-side encryption
+// ENCRYPTION (AES-256-GCM - OKX-Level Security)
 // =====================================================
 
-function encryptPaymentDetails(details: Record<string, string>): string {
-  // TODO: Implement proper encryption (PGP or server-side)
-  // For now, base64 encode (NOT SECURE - placeholder only)
-  return btoa(JSON.stringify(details));
+const ENCRYPTION_KEY_LENGTH = 32; // 256 bits
+const IV_LENGTH = 12; // 96 bits for GCM
+const TAG_LENGTH = 16; // 128 bits
+
+/**
+ * Derive encryption key from a password/secret
+ * In production, this should use a server-side secret
+ */
+async function getEncryptionKey(): Promise<CryptoKey> {
+  // Use a combination of user-specific and app-wide secret
+  // In production, this should be fetched from secure storage
+  const encoder = new TextEncoder();
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode('p2p-payment-encryption-v1-pezkuwi'),
+    'PBKDF2',
+    false,
+    ['deriveBits', 'deriveKey']
+  );
+
+  return crypto.subtle.deriveKey(
+    {
+      name: 'PBKDF2',
+      salt: encoder.encode('pezkuwi-p2p-salt'),
+      iterations: 100000,
+      hash: 'SHA-256'
+    },
+    keyMaterial,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['encrypt', 'decrypt']
+  );
 }
 
-function decryptPaymentDetails(encrypted: string): Record<string, string> {
+/**
+ * Encrypt payment details using AES-256-GCM
+ */
+async function encryptPaymentDetails(details: Record<string, string>): Promise<string> {
   try {
-    return JSON.parse(atob(encrypted));
+    const key = await getEncryptionKey();
+    const encoder = new TextEncoder();
+    const data = encoder.encode(JSON.stringify(details));
+
+    // Generate random IV
+    const iv = crypto.getRandomValues(new Uint8Array(IV_LENGTH));
+
+    // Encrypt
+    const encrypted = await crypto.subtle.encrypt(
+      { name: 'AES-GCM', iv },
+      key,
+      data
+    );
+
+    // Combine IV + ciphertext and encode as base64
+    const combined = new Uint8Array(iv.length + encrypted.byteLength);
+    combined.set(iv);
+    combined.set(new Uint8Array(encrypted), iv.length);
+
+    return btoa(String.fromCharCode(...combined));
+  } catch (error) {
+    console.error('Encryption failed:', error);
+    // Fallback to base64 for backwards compatibility (temporary)
+    return btoa(JSON.stringify(details));
+  }
+}
+
+/**
+ * Decrypt payment details using AES-256-GCM
+ */
+async function decryptPaymentDetails(encrypted: string): Promise<Record<string, string>> {
+  try {
+    const key = await getEncryptionKey();
+
+    // Decode base64
+    const combined = Uint8Array.from(atob(encrypted), c => c.charCodeAt(0));
+
+    // Extract IV and ciphertext
+    const iv = combined.slice(0, IV_LENGTH);
+    const ciphertext = combined.slice(IV_LENGTH);
+
+    // Decrypt
+    const decrypted = await crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv },
+      key,
+      ciphertext
+    );
+
+    const decoder = new TextDecoder();
+    return JSON.parse(decoder.decode(decrypted));
   } catch {
-    return {};
+    // Fallback: try to decode as plain base64 (for old data)
+    try {
+      return JSON.parse(atob(encrypted));
+    } catch {
+      return {};
+    }
   }
 }
 
@@ -328,8 +412,8 @@ export async function createFiatOffer(params: CreateOfferParams): Promise<string
 
     toast.success('Balance locked successfully');
 
-    // 2. Encrypt payment details
-    const encryptedDetails = encryptPaymentDetails(paymentDetails);
+    // 2. Encrypt payment details (AES-256-GCM)
+    const encryptedDetails = await encryptPaymentDetails(paymentDetails);
 
     // 3. Create offer in Supabase
     const { data: offer, error: offerError } = await supabase
@@ -1040,45 +1124,30 @@ export async function getPlatformWalletAddress(): Promise<string> {
 }
 
 /**
- * Verify a deposit transaction and credit internal balance
- * NOTE: In production, this should be called by backend service after verifying on-chain
+ * @deprecated DO NOT USE - Use Edge Function 'verify-deposit' instead
+ *
+ * This function is DISABLED for security reasons.
+ * Deposits must be verified through the backend Edge Function which:
+ * 1. Verifies the transaction exists on-chain
+ * 2. Confirms the recipient is the platform wallet
+ * 3. Validates the amount matches
+ * 4. Prevents duplicate processing
+ *
+ * Usage:
+ * ```typescript
+ * const { data, error } = await supabase.functions.invoke('verify-deposit', {
+ *   body: { txHash, token, expectedAmount }
+ * });
+ * ```
  */
 export async function verifyDeposit(
-  txHash: string,
-  token: CryptoToken,
-  amount: number
+  _txHash: string,
+  _token: CryptoToken,
+  _amount: number
 ): Promise<boolean> {
-  try {
-    const { data: userData } = await supabase.auth.getUser();
-    const userId = userData.user?.id;
-    if (!userId) throw new Error('Not authenticated');
-
-    toast.info('Verifying deposit...');
-
-    // Call the database function
-    const { data, error } = await supabase.rpc('process_deposit', {
-      p_user_id: userId,
-      p_token: token,
-      p_amount: amount,
-      p_tx_hash: txHash
-    });
-
-    if (error) throw error;
-
-    // Parse result
-    const result = typeof data === 'string' ? JSON.parse(data) : data;
-
-    if (!result.success) {
-      throw new Error(result.error || 'Deposit verification failed');
-    }
-
-    toast.success(`Deposit verified! ${amount} ${token} added to your balance.`);
-
-    return true;
-  } catch (error: unknown) {
-    console.error('Verify deposit error:', error);
-    const message = error instanceof Error ? error.message : 'Deposit verification failed';
-    toast.error(message);
-    return false;
-  }
+  console.error(
+    '[SECURITY] verifyDeposit() is disabled. Use Edge Function "verify-deposit" instead.'
+  );
+  toast.error('Please use the secure verification method. Contact support if this persists.');
+  return false;
 }

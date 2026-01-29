@@ -31,9 +31,9 @@ import {
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { toast } from 'sonner';
+import { supabase } from '@/lib/supabase';
 import {
   getPlatformWalletAddress,
-  verifyDeposit,
   type CryptoToken
 } from '@shared/lib/p2p-fiat';
 
@@ -165,14 +165,31 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
     setVerifying(true);
 
     try {
-      const success = await verifyDeposit(txHash, token, depositAmount);
+      // Call the Edge Function for secure deposit verification
+      // This verifies the transaction on-chain before crediting balance
+      const { data, error } = await supabase.functions.invoke('verify-deposit', {
+        body: {
+          txHash,
+          token,
+          expectedAmount: depositAmount
+        }
+      });
 
-      if (success) {
+      if (error) {
+        throw new Error(error.message || 'Verification failed');
+      }
+
+      if (data?.success) {
+        toast.success(`Deposit verified! ${data.amount} ${token} added to your balance.`);
         setStep('success');
         onSuccess?.();
+      } else {
+        throw new Error(data?.error || 'Verification failed');
       }
     } catch (error) {
       console.error('Verify deposit error:', error);
+      const message = error instanceof Error ? error.message : 'Verification failed';
+      toast.error(message);
     } finally {
       setVerifying(false);
     }
