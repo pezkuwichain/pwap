@@ -58,9 +58,6 @@ const ForumTopic = lazy(() => import('@/pages/ForumTopic'));
 const Telemetry = lazy(() => import('@/pages/Telemetry'));
 const Subdomains = lazy(() => import('@/pages/Subdomains'));
 
-// Telegram Mini App
-const TelegramApp = lazy(() => import('./telegram/TelegramApp'));
-
 // Network pages
 const Mainnet = lazy(() => import('@/pages/networks/Mainnet'));
 const Staging = lazy(() => import('@/pages/networks/Staging'));
@@ -115,8 +112,6 @@ function App() {
                           <ReferralHandler />
                           <Suspense fallback={<PageLoader />}>
                             <Routes>
-                              {/* Telegram Mini App - standalone route */}
-                              <Route path="/telegram" element={<TelegramApp />} />
                               <Route path="/login" element={<Login />} />
                               <Route path="/email-verification" element={<EmailVerification />} />
                               <Route path="/reset-password" element={<PasswordReset />} />
