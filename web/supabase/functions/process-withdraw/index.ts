@@ -386,7 +386,7 @@ serve(async (req) => {
     }
 
     // Success! Complete the withdrawal using database function
-    const { data: completeResult, error: completeError } = await serviceClient
+    const { error: completeError } = await serviceClient
       .rpc('complete_withdraw', {
         p_user_id: user.id,
         p_token: token,
