@@ -133,6 +133,8 @@
 //!     - [`pezsc_consensus_beefy`] (TODO: @adrian, add some high level docs <https://github.com/pezkuwichain/pezkuwi-sdk/issues/305>)
 //!     - [`pezsc_consensus_manual_seal`]
 //!     - [`pezsc_consensus_pow`]
+//!
+//! [`frame`]: crate::pezkuwi_sdk::frame_runtime
 
 #[doc(hidden)]
 pub use crate::pezkuwi_sdk;

@@ -330,6 +330,7 @@
 //! [`pezpallet::pezpallet`]: pezframe_support::pezpallet
 //! [`pezpallet::config`]: pezframe_support::pezpallet_macros::config
 //! [`pezpallet::generate_deposit`]: pezframe_support::pezpallet_macros::generate_deposit
+//! [`frame`]: crate::pezkuwi_sdk::frame_runtime
 
 #[docify::export]
 #[pezframe::pezpallet(dev_mode)]

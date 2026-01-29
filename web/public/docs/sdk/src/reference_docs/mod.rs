@@ -93,10 +93,10 @@ pub mod cli;
 pub mod frame_runtime_upgrades_and_migrations;
 
 /// Learn about the offchain workers, how they function, and how to use them, as provided by the
-/// [`frame`] APIs.
+/// [`crate::pezkuwi_sdk::frame_runtime`] APIs.
 pub mod frame_offchain_workers;
 
-/// Learn about the different ways through which multiple [`frame`] pallets can be combined to work
+/// Learn about the different ways through which multiple [`crate::pezkuwi_sdk::frame_runtime`] pallets can be combined to work
 /// together.
 pub mod frame_pallet_coupling;
 

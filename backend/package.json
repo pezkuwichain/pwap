@@ -8,6 +8,9 @@
     "start": "node src/index.js",
     "dev": "node --watch src/index.js"
   },
+  "overrides": {
+    "tar": "^7.4.3"
+  },
   "dependencies": {
     "@pezkuwi/api": "^16.5.11",
     "@pezkuwi/util": "^14.0.11",

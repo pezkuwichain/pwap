@@ -19,7 +19,7 @@
 //!
 //! #### Smart Contracts in Bizinikiwi
 //! Smart Contracts are autonomous, programmable constructs deployed on the blockchain.
-//! In [FRAME](frame), Smart Contracts infrastructure is implemented by the
+//! In [FRAME](crate::pezkuwi_sdk::frame_runtime), Smart Contracts infrastructure is implemented by the
 //! [`pezpallet_contracts`] for WASM-based contracts or the
 //! [`pezpallet_evm`](https://github.com/polkadot-evm/frontier/tree/master/frame/evm) for EVM-compatible contracts. These pallets
 //! enable Smart Contract developers to build applications and systems on top of a Bizinikiwi-based
@@ -207,3 +207,4 @@
 //! - **For Smart Contract Developers**: Being mindful of the gas cost associated with contract
 //!   execution is crucial. Efficiently written contracts save costs and are less likely to hit gas
 //!   limits, ensuring smoother execution on the blockchain.
+//!
