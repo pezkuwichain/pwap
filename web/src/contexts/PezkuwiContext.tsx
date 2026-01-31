@@ -69,7 +69,16 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
           }
 
           const provider = new WsProvider(currentEndpoint);
-          const apiInstance = await ApiPromise.create({ provider });
+          // PezkuwiChain custom signed extensions
+          const apiInstance = await ApiPromise.create({
+            provider,
+            signedExtensions: {
+              AuthorizeCall: {
+                extrinsic: {},
+                payload: {},
+              },
+            },
+          });
 
           await apiInstance.isReady;
 

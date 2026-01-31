@@ -94,69 +94,125 @@ export const AccountBalance: React.FC = () => {
     return colors[assetId] || { bg: 'from-cyan-500/20 to-blue-500/20', text: 'text-cyan-400', border: 'border-cyan-500/30' };
   };
 
-  // Fetch token prices from pools using pool account ID
+  // Fetch token prices from CoinGecko with fallback logic
+  // Priority: CoinGecko direct > DOT-based calculation > DEX pool
   const fetchTokenPrices = async () => {
+    try {
+      if (import.meta.env.DEV) console.log('💰 Fetching token prices from CoinGecko...');
+
+      // CoinGecko API - fetch DOT, HEZ, PEZ prices
+      // Note: HEZ and PEZ may not be listed yet, so we use DOT as fallback
+      const coingeckoIds = 'polkadot,pezkuwichain,pez-token'; // DOT is always available
+      const response = await fetch(
+        `https://api.coingecko.com/api/v3/simple/price?ids=${coingeckoIds}&vs_currencies=usd&include_24hr_change=true`
+      );
+
+      let hezPrice = 0;
+      let pezPrice = 0;
+
+      if (response.ok) {
+        const data = await response.json();
+        if (import.meta.env.DEV) console.log('📊 CoinGecko response:', data);
+
+        const dotPrice = data['polkadot']?.usd || 0;
+        const directHezPrice = data['pezkuwichain']?.usd || 0;
+        const directPezPrice = data['pez-token']?.usd || 0;
+
+        // Use direct CoinGecko price if available, otherwise calculate from DOT
+        if (directHezPrice > 0) {
+          hezPrice = directHezPrice;
+          if (import.meta.env.DEV) console.log('✅ HEZ price from CoinGecko:', hezPrice, 'USD');
+        } else if (dotPrice > 0) {
+          // HEZ = DOT / 3
+          hezPrice = dotPrice / 3;
+          if (import.meta.env.DEV) console.log('✅ HEZ price (DOT/3):', hezPrice, 'USD');
+        }
+
+        if (directPezPrice > 0) {
+          pezPrice = directPezPrice;
+          if (import.meta.env.DEV) console.log('✅ PEZ price from CoinGecko:', pezPrice, 'USD');
+        } else if (dotPrice > 0) {
+          // PEZ = DOT / 10
+          pezPrice = dotPrice / 10;
+          if (import.meta.env.DEV) console.log('✅ PEZ price (DOT/10):', pezPrice, 'USD');
+        }
+      }
+
+      // If CoinGecko failed or returned 0, try DEX pool as fallback
+      if ((hezPrice === 0 || pezPrice === 0) && api && isApiReady) {
+        if (import.meta.env.DEV) console.log('⚠️ CoinGecko incomplete, trying DEX pool fallback...');
+        await fetchDexPoolPrices(hezPrice, pezPrice);
+      } else {
+        setHezUsdPrice(hezPrice);
+        setPezUsdPrice(pezPrice);
+      }
+    } catch (error) {
+      if (import.meta.env.DEV) console.error('❌ CoinGecko fetch failed, trying DEX pool:', error);
+      // Fallback to DEX pool prices
+      if (api && isApiReady) {
+        await fetchDexPoolPrices(0, 0);
+      }
+    }
+  };
+
+  // Fallback: Fetch prices from DEX pools
+  const fetchDexPoolPrices = async (existingHezPrice: number, existingPezPrice: number) => {
     if (!api || !isApiReady) return;
 
     try {
-      if (import.meta.env.DEV) console.log('💰 Fetching token prices from pools...');
-
-      // Import utilities for pool account derivation
       const { stringToU8a } = await import('@pezkuwi/util');
       const { blake2AsU8a } = await import('@pezkuwi/util-crypto');
       const PALLET_ID = stringToU8a('py/ascon');
 
-      // Fetch wHEZ/wUSDT pool reserves (Asset 0 / Asset 1000)
-      const whezPoolId = api.createType('(u32, u32)', [0, ASSET_IDS.WUSDT]);
-      const whezPalletIdType = api.createType('[u8; 8]', PALLET_ID);
-      const whezFullTuple = api.createType('([u8; 8], (u32, u32))', [whezPalletIdType, whezPoolId]);
-      const whezAccountHash = blake2AsU8a(whezFullTuple.toU8a(), 256);
-      const whezPoolAccountId = api.createType('AccountId32', whezAccountHash);
+      let hezPrice = existingHezPrice;
+      let pezPrice = existingPezPrice;
 
-      const whezReserve0Query = await api.query.assets.account(0, whezPoolAccountId);
-      const whezReserve1Query = await api.query.assets.account(ASSET_IDS.WUSDT, whezPoolAccountId);
+      // Only fetch HEZ from DEX if not already set
+      if (hezPrice === 0) {
+        const whezPoolId = api.createType('(u32, u32)', [0, ASSET_IDS.WUSDT]);
+        const whezPalletIdType = api.createType('[u8; 8]', PALLET_ID);
+        const whezFullTuple = api.createType('([u8; 8], (u32, u32))', [whezPalletIdType, whezPoolId]);
+        const whezAccountHash = blake2AsU8a(whezFullTuple.toU8a(), 256);
+        const whezPoolAccountId = api.createType('AccountId32', whezAccountHash);
 
-      if (whezReserve0Query.isSome && whezReserve1Query.isSome) {
-        const reserve0Data = whezReserve0Query.unwrap();
-        const reserve1Data = whezReserve1Query.unwrap();
+        const whezReserve0Query = await api.query.assets.account(0, whezPoolAccountId);
+        const whezReserve1Query = await api.query.assets.account(ASSET_IDS.WUSDT, whezPoolAccountId);
 
-        const reserve0 = BigInt(reserve0Data.balance.toString()); // wHEZ (12 decimals)
-        const reserve1 = BigInt(reserve1Data.balance.toString()); // wUSDT (6 decimals)
-
-        // Calculate price: 1 HEZ = ? USD
-        const hezPrice = Number(reserve1 * BigInt(10 ** 12)) / Number(reserve0 * BigInt(10 ** 6));
-        if (import.meta.env.DEV) console.log('✅ HEZ price:', hezPrice, 'USD');
-        setHezUsdPrice(hezPrice);
-      } else {
-        if (import.meta.env.DEV) console.warn('⚠️ wHEZ/wUSDT pool has no reserves');
+        if (whezReserve0Query.isSome && whezReserve1Query.isSome) {
+          const reserve0Data = whezReserve0Query.unwrap();
+          const reserve1Data = whezReserve1Query.unwrap();
+          const reserve0 = BigInt(reserve0Data.balance.toString());
+          const reserve1 = BigInt(reserve1Data.balance.toString());
+          hezPrice = Number(reserve1 * BigInt(10 ** 12)) / Number(reserve0 * BigInt(10 ** 6));
+          if (import.meta.env.DEV) console.log('✅ HEZ price from DEX:', hezPrice, 'USD');
+        }
       }
 
-      // Fetch PEZ/wUSDT pool reserves (Asset 1 / Asset 1000)
-      const pezPoolId = api.createType('(u32, u32)', [1, ASSET_IDS.WUSDT]);
-      const pezPalletIdType = api.createType('[u8; 8]', PALLET_ID);
-      const pezFullTuple = api.createType('([u8; 8], (u32, u32))', [pezPalletIdType, pezPoolId]);
-      const pezAccountHash = blake2AsU8a(pezFullTuple.toU8a(), 256);
-      const pezPoolAccountId = api.createType('AccountId32', pezAccountHash);
+      // Only fetch PEZ from DEX if not already set
+      if (pezPrice === 0) {
+        const pezPoolId = api.createType('(u32, u32)', [1, ASSET_IDS.WUSDT]);
+        const pezPalletIdType = api.createType('[u8; 8]', PALLET_ID);
+        const pezFullTuple = api.createType('([u8; 8], (u32, u32))', [pezPalletIdType, pezPoolId]);
+        const pezAccountHash = blake2AsU8a(pezFullTuple.toU8a(), 256);
+        const pezPoolAccountId = api.createType('AccountId32', pezAccountHash);
 
-      const pezReserve0Query = await api.query.assets.account(1, pezPoolAccountId);
-      const pezReserve1Query = await api.query.assets.account(ASSET_IDS.WUSDT, pezPoolAccountId);
+        const pezReserve0Query = await api.query.assets.account(1, pezPoolAccountId);
+        const pezReserve1Query = await api.query.assets.account(ASSET_IDS.WUSDT, pezPoolAccountId);
 
-      if (pezReserve0Query.isSome && pezReserve1Query.isSome) {
-        const reserve0Data = pezReserve0Query.unwrap();
-        const reserve1Data = pezReserve1Query.unwrap();
-
-        const reserve0 = BigInt(reserve0Data.balance.toString()); // PEZ (12 decimals)
-        const reserve1 = BigInt(reserve1Data.balance.toString()); // wUSDT (6 decimals)
-
-        // Calculate price: 1 PEZ = ? USD
-        const pezPrice = Number(reserve1 * BigInt(10 ** 12)) / Number(reserve0 * BigInt(10 ** 6));
-        if (import.meta.env.DEV) console.log('✅ PEZ price:', pezPrice, 'USD');
-        setPezUsdPrice(pezPrice);
-      } else {
-        if (import.meta.env.DEV) console.warn('⚠️ PEZ/wUSDT pool has no reserves');
+        if (pezReserve0Query.isSome && pezReserve1Query.isSome) {
+          const reserve0Data = pezReserve0Query.unwrap();
+          const reserve1Data = pezReserve1Query.unwrap();
+          const reserve0 = BigInt(reserve0Data.balance.toString());
+          const reserve1 = BigInt(reserve1Data.balance.toString());
+          pezPrice = Number(reserve1 * BigInt(10 ** 12)) / Number(reserve0 * BigInt(10 ** 6));
+          if (import.meta.env.DEV) console.log('✅ PEZ price from DEX:', pezPrice, 'USD');
+        }
       }
+
+      setHezUsdPrice(hezPrice);
+      setPezUsdPrice(pezPrice);
     } catch (error) {
-      if (import.meta.env.DEV) console.error('❌ Failed to fetch token prices:', error);
+      if (import.meta.env.DEV) console.error('❌ DEX pool price fetch failed:', error);
     }
   };
 
