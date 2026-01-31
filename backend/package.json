@@ -12,7 +12,7 @@
     "tar": "^7.4.3"
   },
   "dependencies": {
-    "@pezkuwi/api": "^16.5.18",
+    "@pezkuwi/api": "^16.5.22",
     "@pezkuwi/util": "^14.0.13",
     "@pezkuwi/util-crypto": "^14.0.13",
     "cors": "^2.8.5",

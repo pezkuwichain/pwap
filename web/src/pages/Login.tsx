@@ -79,16 +79,17 @@ const Login: React.FC = () => {
       }
       
       const { error } = await signUp(
-        signupData.email, 
-        signupData.password, 
-        signupData.name, 
+        signupData.email,
+        signupData.password,
+        signupData.name,
         signupData.referralCode
       );
-      
+
       if (error) {
         setError(error.message);
       } else {
-        navigate('/');
+        // Redirect to email verification page
+        navigate('/email-verification', { state: { email: signupData.email } });
       }
     } catch {
       setError('Signup failed. Please try again.');
