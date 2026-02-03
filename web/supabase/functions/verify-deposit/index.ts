@@ -11,8 +11,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// Platform hot wallet address (PRODUCTION)
-const PLATFORM_WALLET = '5HN6sFM7TbPQazmfhJP1kU8itw7Tb2A9UML8TwSYRwiN9q5Z'
+// Platform hot wallet address (PRODUCTION) - Treasury_3
+const PLATFORM_WALLET = '5H18ZZBU4LwPYbeEZ1JBGvibCU2edhhM8HNUtFi7GgC36CgS'
 
 // RPC endpoint for PezkuwiChain
 const RPC_ENDPOINT = 'wss://rpc.pezkuwichain.io'
