@@ -3,8 +3,18 @@ import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { X, Minus, AlertCircle, Loader2, CheckCircle, Info } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PoolInfo } from '@/types/dex';
+import { PoolInfo, NATIVE_TOKEN_ID } from '@/types/dex';
 import { formatTokenBalance } from '@pezkuwi/utils/dex';
+
+// Helper to convert asset ID to XCM Location format for assetConversion pallet
+const formatAssetLocation = (id: number) => {
+  if (id === NATIVE_TOKEN_ID) {
+    // Native token from relay chain
+    return { parents: 1, interior: 'Here' };
+  }
+  // Asset on Asset Hub - XCM location format with PalletInstance 50 (assets pallet)
+  return { parents: 0, interior: { X2: [{ PalletInstance: 50 }, { GeneralIndex: id }] } };
+};
 
 interface RemoveLiquidityModalProps {
   isOpen: boolean;
@@ -47,10 +57,12 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
       if (!assetHubApi || !isAssetHubReady || !account || !pool) return;
 
       try {
-        // Get pool account
+        // Get pool account using XCM Location format
+        const asset1Location = formatAssetLocation(pool.asset1);
+        const asset2Location = formatAssetLocation(pool.asset2);
         const poolAccount = await assetHubApi.query.assetConversion.pools([
-          pool.asset1,
-          pool.asset2,
+          asset1Location,
+          asset2Location,
         ]);
 
         if (poolAccount.isNone) {
@@ -113,16 +125,23 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
     const { amount1, amount2 } = calculateOutputAmounts();
 
     // Calculate minimum amounts with slippage tolerance
-    const minAmount1 = (BigInt(amount1) * BigInt(100 - slippage * 100)) / BigInt(10000);
-    const minAmount2 = (BigInt(amount2) * BigInt(100 - slippage * 100)) / BigInt(10000);
+    // Formula: minAmount = amount * (100 - slippage%) / 100
+    // For 1% slippage: minAmount = amount * 99 / 100
+    const slippageBasisPoints = Math.floor(slippage * 100); // Convert percentage to basis points
+    const minAmount1 = (BigInt(amount1) * BigInt(10000 - slippageBasisPoints)) / BigInt(10000);
+    const minAmount2 = (BigInt(amount2) * BigInt(10000 - slippageBasisPoints)) / BigInt(10000);
 
     try {
       setTxStatus('signing');
       setErrorMessage('');
 
+      // Use XCM Location format for assets (required for native token support)
+      const asset1Location = formatAssetLocation(pool.asset1);
+      const asset2Location = formatAssetLocation(pool.asset2);
+
       const tx = assetHubApi.tx.assetConversion.removeLiquidity(
-        pool.asset1,
-        pool.asset2,
+        asset1Location,
+        asset2Location,
         lpAmount.toString(),
         minAmount1.toString(),
         minAmount2.toString(),

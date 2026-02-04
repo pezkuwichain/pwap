@@ -1,5 +1,21 @@
 import { ApiPromise } from '@pezkuwi/api';
-import { KNOWN_TOKENS, PoolInfo, SwapQuote, UserLiquidityPosition } from '../types/dex';
+import { KNOWN_TOKENS, PoolInfo, SwapQuote, UserLiquidityPosition, NATIVE_TOKEN_ID } from '../types/dex';
+
+// LP tokens typically use 12 decimals on Asset Hub
+const LP_TOKEN_DECIMALS = 12;
+
+/**
+ * Helper to convert asset ID to XCM Location format for assetConversion pallet
+ * @param id - Asset ID (-1 for native token, positive for assets)
+ */
+export const formatAssetLocation = (id: number) => {
+  if (id === NATIVE_TOKEN_ID) {
+    // Native token from relay chain
+    return { parents: 1, interior: 'Here' };
+  }
+  // Asset on Asset Hub - XCM location format with PalletInstance 50 (assets pallet)
+  return { parents: 0, interior: { X2: [{ PalletInstance: 50 }, { GeneralIndex: id }] } };
+};
 
 /**
  * Format balance with proper decimals
@@ -140,6 +156,39 @@ export const quote = (
 };
 
 /**
+ * Parse XCM Location to extract asset ID
+ * @param location - XCM Location object
+ * @returns asset ID (-1 for native, positive for assets)
+ */
+const parseAssetLocation = (location: unknown): number => {
+  try {
+    const loc = location as { parents?: number; interior?: unknown };
+
+    // Native token: { parents: 1, interior: 'Here' }
+    if (loc.parents === 1 && loc.interior === 'Here') {
+      return NATIVE_TOKEN_ID;
+    }
+
+    // Asset on Asset Hub: { parents: 0, interior: { X2: [{ PalletInstance: 50 }, { GeneralIndex: id }] } }
+    const interior = loc.interior as { X2?: Array<{ GeneralIndex?: number }> };
+    if (interior?.X2?.[1]?.GeneralIndex !== undefined) {
+      return interior.X2[1].GeneralIndex;
+    }
+
+    // Try to parse as JSON and extract
+    const locJson = JSON.stringify(location);
+    const match = locJson.match(/generalIndex['":\s]+(\d+)/i);
+    if (match) {
+      return parseInt(match[1], 10);
+    }
+
+    return 0; // Default fallback
+  } catch {
+    return 0;
+  }
+};
+
+/**
  * Fetch all existing pools from chain
  * @param api - Polkadot API instance
  */
@@ -151,63 +200,80 @@ export const fetchPools = async (api: ApiPromise): Promise<PoolInfo[]> => {
     const poolKeys = await api.query.assetConversion.pools.keys();
 
     for (const key of poolKeys) {
-      // Extract asset IDs from storage key
-      const [asset1Raw, asset2Raw] = key.args;
-      const asset1 = Number(asset1Raw.toString());
-      const asset2 = Number(asset2Raw.toString());
+      // Extract asset locations from storage key
+      // The key args are XCM Locations, not simple asset IDs
+      const [asset1Location, asset2Location] = key.args;
 
-      // Get pool account
-      const poolAccount = await api.query.assetConversion.pools([asset1, asset2]);
+      // Parse XCM Locations to get asset IDs
+      const asset1 = parseAssetLocation(asset1Location.toJSON());
+      const asset2 = parseAssetLocation(asset2Location.toJSON());
 
-      if (poolAccount.isNone) continue;
+      // Get pool info (contains lpToken ID)
+      const poolInfo = await api.query.assetConversion.pools([
+        formatAssetLocation(asset1),
+        formatAssetLocation(asset2)
+      ]);
 
-      // Get reserves
-      const reserve1Data = await api.query.assets.account(asset1, poolAccount.unwrap());
-      const reserve2Data = await api.query.assets.account(asset2, poolAccount.unwrap());
+      if ((poolInfo as any).isNone) continue;
 
-      const reserve1 = reserve1Data.isSome ? (reserve1Data.unwrap() as any).balance.toString() : '0';
-      const reserve2 = reserve2Data.isSome ? (reserve2Data.unwrap() as any).balance.toString() : '0';
+      const poolData = (poolInfo as any).unwrap().toJSON();
+      const lpTokenId = poolData.lpToken;
 
-      // Get LP token supply
-      // Substrate's asset-conversion pallet creates LP tokens using poolAssets pallet
-      // The LP token ID can be derived from the pool's asset pair
-      // Try to query using poolAssets first, fallback to calculating total from reserves
+      // Get LP token supply from poolAssets pallet
       let lpTokenSupply = '0';
       try {
-        // First attempt: Use poolAssets if available
-        if (api.query.poolAssets && api.query.poolAssets.asset) {
-          // LP token ID in poolAssets is typically the pool pair encoded
-          // Try a simple encoding: combine asset IDs
-          const lpTokenId = (asset1 << 16) | asset2; // Simple bit-shift encoding
+        if (api.query.poolAssets?.asset) {
           const lpAssetDetails = await api.query.poolAssets.asset(lpTokenId);
-          if (lpAssetDetails.isSome) {
-            lpTokenSupply = (lpAssetDetails.unwrap() as any).supply.toString();
+          if ((lpAssetDetails as any).isSome) {
+            lpTokenSupply = ((lpAssetDetails as any).unwrap() as any).supply.toString();
           }
-        }
-
-        // Second attempt: Calculate from reserves using constant product formula
-        // LP supply ≈ sqrt(reserve1 * reserve2) for initial mint
-        // For existing pools, we'd need historical data
-        if (lpTokenSupply === '0' && BigInt(reserve1) > BigInt(0) && BigInt(reserve2) > BigInt(0)) {
-          // Simplified calculation: geometric mean of reserves
-          // This is an approximation - actual LP supply should be queried from chain
-          const r1 = BigInt(reserve1);
-          const r2 = BigInt(reserve2);
-          const product = r1 * r2;
-
-          // Integer square root approximation
-          let sqrt = BigInt(1);
-          let prev = BigInt(0);
-          while (sqrt !== prev) {
-            prev = sqrt;
-            sqrt = (sqrt + product / sqrt) / BigInt(2);
-          }
-
-          lpTokenSupply = sqrt.toString();
         }
       } catch (error) {
         console.warn('Could not query LP token supply:', error);
-        // Fallback to '0' is already set
+      }
+
+      // Get reserves using runtime API (quotePriceExactTokensForTokens)
+      let reserve1 = '0';
+      let reserve2 = '0';
+
+      try {
+        // Get token decimals first
+        const token1 = KNOWN_TOKENS[asset1] || { decimals: 12 };
+        const token2 = KNOWN_TOKENS[asset2] || { decimals: 12 };
+
+        // Query price to verify pool has liquidity and estimate reserves
+        const oneUnit = BigInt(Math.pow(10, token1.decimals));
+        const quote = await (api.call as any).assetConversionApi.quotePriceExactTokensForTokens(
+          formatAssetLocation(asset1),
+          formatAssetLocation(asset2),
+          oneUnit.toString(),
+          true
+        );
+
+        if (quote && !(quote as any).isNone) {
+          // Pool has liquidity - estimate reserves from LP supply
+          if (lpTokenSupply !== '0') {
+            const lpSupply = BigInt(lpTokenSupply);
+            const price = Number((quote as any).unwrap().toString()) / Math.pow(10, token2.decimals);
+
+            if (price > 0) {
+              // LP supply ≈ sqrt(reserve1 * reserve2)
+              // With price = reserve2/reserve1, solve for reserves
+              const sqrtPrice = Math.sqrt(price);
+              const r1 = Number(lpSupply) / sqrtPrice;
+              const r2 = Number(lpSupply) * sqrtPrice;
+              reserve1 = BigInt(Math.floor(r1)).toString();
+              reserve2 = BigInt(Math.floor(r2)).toString();
+            }
+          }
+        }
+      } catch (error) {
+        console.warn('Could not fetch reserves via runtime API:', error);
+        // Fallback: calculate from LP supply using geometric mean
+        if (lpTokenSupply !== '0') {
+          reserve1 = lpTokenSupply;
+          reserve2 = lpTokenSupply;
+        }
       }
 
       // Get token info
@@ -505,20 +571,33 @@ export const fetchUserLPPositions = async (
   try {
     const positions: UserLiquidityPosition[] = [];
 
-    // First, get all available pools
-    const pools = await fetchPools(api);
+    // Query all pool accounts
+    const poolKeys = await api.query.assetConversion.pools.keys();
 
-    for (const pool of pools) {
+    for (const key of poolKeys) {
       try {
-        // Try to find LP token balance for this pool
-        let lpTokenBalance = '0';
+        // Extract asset locations from storage key
+        const [asset1Location, asset2Location] = key.args;
+        const asset1 = parseAssetLocation(asset1Location.toJSON());
+        const asset2 = parseAssetLocation(asset2Location.toJSON());
 
-        // Method 1: Check poolAssets pallet
-        if (api.query.poolAssets && api.query.poolAssets.account) {
-          const lpTokenId = (pool.asset1 << 16) | pool.asset2;
+        // Get pool info to get LP token ID
+        const poolInfo = await api.query.assetConversion.pools([
+          formatAssetLocation(asset1),
+          formatAssetLocation(asset2)
+        ]);
+
+        if ((poolInfo as any).isNone) continue;
+
+        const poolData = (poolInfo as any).unwrap().toJSON();
+        const lpTokenId = poolData.lpToken;
+
+        // Get user's LP token balance from poolAssets pallet
+        let lpTokenBalance = '0';
+        if (api.query.poolAssets?.account) {
           const lpAccount = await api.query.poolAssets.account(lpTokenId, userAddress);
-          if (lpAccount.isSome) {
-            lpTokenBalance = (lpAccount.unwrap() as any).balance.toString();
+          if ((lpAccount as any).isSome) {
+            lpTokenBalance = ((lpAccount as any).unwrap() as any).balance.toString();
           }
         }
 
@@ -527,40 +606,77 @@ export const fetchUserLPPositions = async (
           continue;
         }
 
-        // Calculate user's share of the pool
-        const lpSupply = BigInt(pool.lpTokenSupply);
-        const userLPBig = BigInt(lpTokenBalance);
+        // Get total LP supply
+        let lpSupply = BigInt(0);
+        if (api.query.poolAssets?.asset) {
+          const lpAssetDetails = await api.query.poolAssets.asset(lpTokenId);
+          if ((lpAssetDetails as any).isSome) {
+            lpSupply = BigInt(((lpAssetDetails as any).unwrap() as any).supply.toString());
+          }
+        }
 
         if (lpSupply === BigInt(0)) {
           continue; // Avoid division by zero
         }
 
+        const userLPBig = BigInt(lpTokenBalance);
+
         // Share percentage: (userLP / totalLP) * 100
-        const sharePercentage = (userLPBig * BigInt(10000)) / lpSupply; // Multiply by 10000 for precision
+        const sharePercentage = (userLPBig * BigInt(10000)) / lpSupply;
         const shareOfPool = (Number(sharePercentage) / 100).toFixed(2);
 
-        // Calculate underlying asset amounts
-        const reserve1Big = BigInt(pool.reserve1);
-        const reserve2Big = BigInt(pool.reserve2);
+        // Estimate reserves and calculate user's share
+        const token1 = KNOWN_TOKENS[asset1] || { decimals: 12, symbol: `Asset ${asset1}` };
+        const token2 = KNOWN_TOKENS[asset2] || { decimals: 12, symbol: `Asset ${asset2}` };
 
-        const asset1Amount = ((reserve1Big * userLPBig) / lpSupply).toString();
-        const asset2Amount = ((reserve2Big * userLPBig) / lpSupply).toString();
+        // Try to get price ratio for reserve estimation
+        let asset1Amount = '0';
+        let asset2Amount = '0';
+
+        try {
+          const oneUnit = BigInt(Math.pow(10, token1.decimals));
+          const quote = await (api.call as any).assetConversionApi.quotePriceExactTokensForTokens(
+            formatAssetLocation(asset1),
+            formatAssetLocation(asset2),
+            oneUnit.toString(),
+            true
+          );
+
+          if (quote && !(quote as any).isNone) {
+            const price = Number((quote as any).unwrap().toString()) / Math.pow(10, token2.decimals);
+
+            if (price > 0) {
+              // Estimate total reserves from LP supply
+              const sqrtPrice = Math.sqrt(price);
+              const totalReserve1 = Number(lpSupply) / sqrtPrice;
+              const totalReserve2 = Number(lpSupply) * sqrtPrice;
+
+              // User's share of reserves
+              const userShare = Number(userLPBig) / Number(lpSupply);
+              asset1Amount = BigInt(Math.floor(totalReserve1 * userShare)).toString();
+              asset2Amount = BigInt(Math.floor(totalReserve2 * userShare)).toString();
+            }
+          }
+        } catch (error) {
+          console.warn('Could not estimate user position amounts:', error);
+          // Fallback: use LP balance as approximation
+          asset1Amount = ((userLPBig * BigInt(50)) / BigInt(100)).toString();
+          asset2Amount = ((userLPBig * BigInt(50)) / BigInt(100)).toString();
+        }
 
         positions.push({
-          poolId: pool.id,
-          asset1: pool.asset1,
-          asset2: pool.asset2,
+          poolId: `${asset1}-${asset2}`,
+          asset1,
+          asset2,
           lpTokenBalance,
           shareOfPool,
           asset1Amount,
           asset2Amount,
-          // These will be calculated separately if needed
           valueUSD: undefined,
           feesEarned: undefined,
         });
       } catch (error) {
-        console.warn(`Error fetching LP position for pool ${pool.id}:`, error);
-        // Continue with next pool
+        console.warn(`Error fetching LP position:`, error);
       }
     }
 

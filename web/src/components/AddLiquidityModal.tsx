@@ -104,7 +104,8 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
           if (assetDetails0.isSome) {
             const details0 = assetDetails0.unwrap().toJSON() as AssetDetails;
             const minBalance0Raw = details0.minBalance || '0';
-            minBalance0 = Number(minBalance0Raw) / Math.pow(10, asset0Decimals);
+            const fetchedMin0 = Number(minBalance0Raw) / Math.pow(10, asset0Decimals);
+            minBalance0 = Math.max(fetchedMin0, 0.01); // Ensure at least 0.01
           }
         }
 
@@ -113,7 +114,8 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
           if (assetDetails1.isSome) {
             const details1 = assetDetails1.unwrap().toJSON() as AssetDetails;
             const minBalance1Raw = details1.minBalance || '0';
-            minBalance1 = Number(minBalance1Raw) / Math.pow(10, asset1Decimals);
+            const fetchedMin1 = Number(minBalance1Raw) / Math.pow(10, asset1Decimals);
+            minBalance1 = Math.max(fetchedMin1, 0.01); // Ensure at least 0.01
           }
         }
 

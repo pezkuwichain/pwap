@@ -3,8 +3,18 @@ import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { X, Plus, AlertCircle, Loader2, CheckCircle, Info } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PoolInfo } from '@/types/dex';
+import { PoolInfo, NATIVE_TOKEN_ID } from '@/types/dex';
 import { parseTokenInput, formatTokenBalance, quote } from '@pezkuwi/utils/dex';
+
+// Helper to convert asset ID to XCM Location format for assetConversion pallet
+const formatAssetLocation = (id: number) => {
+  if (id === NATIVE_TOKEN_ID) {
+    // Native token from relay chain
+    return { parents: 1, interior: 'Here' };
+  }
+  // Asset on Asset Hub - XCM location format with PalletInstance 50 (assets pallet)
+  return { parents: 0, interior: { X2: [{ PalletInstance: 50 }, { GeneralIndex: id }] } };
+};
 
 interface AddLiquidityModalProps {
   isOpen: boolean;
@@ -140,16 +150,23 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
     const amount2Raw = parseTokenInput(amount2Input, pool.asset2Decimals);
 
     // Calculate minimum amounts with slippage tolerance
-    const minAmount1 = (BigInt(amount1Raw) * BigInt(100 - slippage * 100)) / BigInt(10000);
-    const minAmount2 = (BigInt(amount2Raw) * BigInt(100 - slippage * 100)) / BigInt(10000);
+    // Formula: minAmount = amount * (100 - slippage%) / 100
+    // For 1% slippage: minAmount = amount * 99 / 100
+    const slippageBasisPoints = Math.floor(slippage * 100); // Convert percentage to basis points
+    const minAmount1 = (BigInt(amount1Raw) * BigInt(10000 - slippageBasisPoints)) / BigInt(10000);
+    const minAmount2 = (BigInt(amount2Raw) * BigInt(10000 - slippageBasisPoints)) / BigInt(10000);
 
     try {
       setTxStatus('signing');
       setErrorMessage('');
 
+      // Use XCM Location format for assets (required for native token support)
+      const asset1Location = formatAssetLocation(pool.asset1);
+      const asset2Location = formatAssetLocation(pool.asset2);
+
       const tx = assetHubApi.tx.assetConversion.addLiquidity(
-        pool.asset1,
-        pool.asset2,
+        asset1Location,
+        asset2Location,
         amount1Raw,
         amount2Raw,
         minAmount1.toString(),
