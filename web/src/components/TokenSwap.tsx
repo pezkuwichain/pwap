@@ -282,30 +282,32 @@ const TokenSwap = () => {
               }
 
               // Estimate reserves using correct decimals for each asset
-              // For mixed-decimal pools (e.g., HEZ-12 decimals, USDT-6 decimals),
-              // we need to normalize to human-readable units
-              // LP = sqrt(r0 * r1) where r0/r1 are in smallest units
-              // The price from API is already normalized to human units
-
-              // To estimate reserves in human-readable units:
-              // We know: price = reserve1_human / reserve0_human
-              // And: LP = sqrt(reserve0_raw * reserve1_raw)
+              // LP = sqrt(r0_raw * r1_raw) where r0/r1 are in smallest units
               //
-              // For simplicity, we'll estimate reserves based on LP supply and price
-              // reserve0_human = sqrt(LP_raw^2 / price) / 10^decimals0
-              // But this is complex with mixed decimals, so use a simpler approach:
-              // Just use the price for rate calculation, and estimate a reasonable reserve size
+              // Mathematical derivation for mixed-decimal pools:
+              // r0_raw = r0_human * 10^d0, r1_raw = r1_human * 10^d1
+              // LP_raw = sqrt(r0_human * 10^d0 * r1_human * 10^d1)
+              //        = sqrt(r0_human * r1_human) * 10^((d0+d1)/2)
+              //
+              // LP tokens have 12 decimals, so:
+              // LP_human = LP_raw / 10^12 = sqrt(r0_human * r1_human) * 10^((d0+d1)/2 - 12)
+              //
+              // Therefore: sqrt(r0_human * r1_human) = LP_human * 10^(12 - (d0+d1)/2)
+              //
+              // For HEZ-USDT (d0=12, d1=6): factor = 10^(12 - 9) = 1000
+              // For HEZ-PEZ (d0=12, d1=12): factor = 10^(12 - 12) = 1
 
-              // Use LP supply to estimate pool TVL, then derive reserves from price
               const lpHuman = Number(lpSupply) / Math.pow(10, 12); // LP tokens have 12 decimals
+              const decimalCorrectionFactor = Math.pow(10, 12 - (decimals0 + decimals1) / 2);
 
-              // Estimate reserve0 (first asset) in human units
-              // Since LP ≈ sqrt(r0 * r1) and r1/r0 = price
-              // LP^2 ≈ r0 * r1 = r0 * (r0 * price) = r0^2 * price
-              // r0 ≈ LP / sqrt(price)
+              // Now estimate reserves:
+              // sqrt(r0_human * r1_human) = LP_human * decimalCorrectionFactor
+              // price = r1_human / r0_human
+              // r0_human = sqrt(r0_human * r1_human) / sqrt(price) = LP_human * factor / sqrt(price)
+              // r1_human = sqrt(r0_human * r1_human) * sqrt(price) = LP_human * factor * sqrt(price)
               const sqrtPrice = Math.sqrt(price);
-              const reserve0 = lpHuman / sqrtPrice;
-              const reserve1 = lpHuman * sqrtPrice;
+              const reserve0 = lpHuman * decimalCorrectionFactor / sqrtPrice;
+              const reserve1 = lpHuman * decimalCorrectionFactor * sqrtPrice;
 
               if (import.meta.env.DEV) console.log('✅ Estimated reserves (human units):', {
                 reserve0,
