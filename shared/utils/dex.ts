@@ -164,15 +164,27 @@ const parseAssetLocation = (location: unknown): number => {
   try {
     const loc = location as { parents?: number; interior?: unknown };
 
-    // Native token: { parents: 1, interior: 'Here' }
-    if (loc.parents === 1 && loc.interior === 'Here') {
-      return NATIVE_TOKEN_ID;
+    // Native token: { parents: 1, interior: { here: null } } or { parents: 1, interior: 'Here' }
+    if (loc.parents === 1) {
+      const interior = loc.interior as { here?: null } | string;
+      if (interior === 'Here' || (typeof interior === 'object' && 'here' in interior)) {
+        return NATIVE_TOKEN_ID;
+      }
     }
 
-    // Asset on Asset Hub: { parents: 0, interior: { X2: [{ PalletInstance: 50 }, { GeneralIndex: id }] } }
-    const interior = loc.interior as { X2?: Array<{ GeneralIndex?: number }> };
-    if (interior?.X2?.[1]?.GeneralIndex !== undefined) {
-      return interior.X2[1].GeneralIndex;
+    // Asset on Asset Hub: { parents: 0, interior: { x2: [{ palletInstance: 50 }, { generalIndex: id }] } }
+    // Note: Keys might be lowercase (x2, generalIndex) when coming from chain
+    const interior = loc.interior as {
+      X2?: Array<{ GeneralIndex?: number; generalIndex?: number }>;
+      x2?: Array<{ GeneralIndex?: number; generalIndex?: number }>;
+    };
+
+    const x2 = interior?.X2 || interior?.x2;
+    if (x2?.[1]) {
+      const generalIndex = x2[1].GeneralIndex ?? x2[1].generalIndex;
+      if (generalIndex !== undefined) {
+        return generalIndex;
+      }
     }
 
     // Try to parse as JSON and extract
@@ -201,8 +213,10 @@ export const fetchPools = async (api: ApiPromise): Promise<PoolInfo[]> => {
 
     for (const key of poolKeys) {
       // Extract asset locations from storage key
-      // The key args are XCM Locations, not simple asset IDs
-      const [asset1Location, asset2Location] = key.args;
+      // The key args contain a tuple of XCM Locations: [[loc1, loc2]]
+      const poolPair = key.args[0] as unknown as Array<{ toJSON: () => unknown }>;
+      const asset1Location = poolPair[0];
+      const asset2Location = poolPair[1];
 
       // Parse XCM Locations to get asset IDs
       const asset1 = parseAssetLocation(asset1Location.toJSON());
