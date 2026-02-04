@@ -75,8 +75,8 @@ export const XCMTeleportModal: React.FC<XCMTeleportModalProps> = ({ isOpen, onCl
       // Relay chain balance
       if (api && isApiReady) {
         try {
-          const accountInfo = await api.query.system.account(selectedAccount.address);
-          const free = (accountInfo as any).data.free.toString();
+          const accountInfo = await api.query.system.account(selectedAccount.address) as { data: { free: { toString(): string } } };
+          const free = accountInfo.data.free.toString();
           const balanceNum = Number(free) / 1e12;
           setRelayBalance(balanceNum.toFixed(4));
         } catch (err) {
@@ -87,8 +87,8 @@ export const XCMTeleportModal: React.FC<XCMTeleportModalProps> = ({ isOpen, onCl
       // Asset Hub balance
       if (assetHubApi && isAssetHubReady) {
         try {
-          const accountInfo = await assetHubApi.query.system.account(selectedAccount.address);
-          const free = (accountInfo as any).data.free.toString();
+          const accountInfo = await assetHubApi.query.system.account(selectedAccount.address) as { data: { free: { toString(): string } } };
+          const free = accountInfo.data.free.toString();
           const balanceNum = Number(free) / 1e12;
           setAssetHubBalance(balanceNum.toFixed(4));
         } catch (err) {
@@ -99,8 +99,8 @@ export const XCMTeleportModal: React.FC<XCMTeleportModalProps> = ({ isOpen, onCl
       // People chain balance
       if (peopleApi && isPeopleReady) {
         try {
-          const accountInfo = await peopleApi.query.system.account(selectedAccount.address);
-          const free = (accountInfo as any).data.free.toString();
+          const accountInfo = await peopleApi.query.system.account(selectedAccount.address) as { data: { free: { toString(): string } } };
+          const free = accountInfo.data.free.toString();
           const balanceNum = Number(free) / 1e12;
           setPeopleBalance(balanceNum.toFixed(4));
         } catch (err) {
@@ -228,7 +228,7 @@ export const XCMTeleportModal: React.FC<XCMTeleportModalProps> = ({ isOpen, onCl
       const unsub = await tx.signAndSend(
         selectedAccount.address,
         { signer: injector.signer },
-        ({ status, events, dispatchError }) => {
+        ({ status, dispatchError }) => {
           if (status.isInBlock) {
             if (import.meta.env.DEV) console.log(`XCM Teleport in block: ${status.asInBlock}`);
             setTxHash(status.asInBlock.toHex());

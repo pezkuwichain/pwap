@@ -114,9 +114,10 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
             // Debug: Check Junction type definition
             try {
               const junctionType = apiInstance.createType('XcmV3Junction');
-              console.log('🔍 XCM Junction type keys:', (junctionType as any).defKeys || Object.keys(junctionType.toJSON() || {}));
+              const junctionObj = junctionType as unknown as { defKeys?: string[] };
+              console.log('🔍 XCM Junction type keys:', junctionObj.defKeys || Object.keys(junctionType.toJSON() || {}));
               // Expose api for console debugging
-              (window as any).__PEZKUWI_API__ = apiInstance;
+              (window as unknown as { __PEZKUWI_API__: typeof apiInstance }).__PEZKUWI_API__ = apiInstance;
               console.log('💡 API exposed as window.__PEZKUWI_API__ for debugging');
             } catch (e) {
               console.log('⚠️ Could not check Junction type:', e);
