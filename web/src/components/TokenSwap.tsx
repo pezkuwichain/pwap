@@ -105,10 +105,10 @@ const TokenSwap = () => {
     const reserveOut = isAsset0ToAsset1 ? reserve1 : reserve0;
 
     // Uniswap V2 AMM formula (matches Substrate runtime exactly)
-    // Runtime: amount_in_with_fee = amount_in * (1000 - LPFee) = amount_in * 970
-    // LPFee = 30 (3% fee, not 0.3%!)
-    // Formula: amountOut = (amountIn * 970 * reserveOut) / (reserveIn * 1000 + amountIn * 970)
-    const LP_FEE = 30; // 3% fee
+    // Runtime: amount_in_with_fee = amount_in * (1000 - LPFee) = amount_in * 997
+    // LPFee = 3 (0.3% fee - standard DEX fee)
+    // Formula: amountOut = (amountIn * 997 * reserveOut) / (reserveIn * 1000 + amountIn * 997)
+    const LP_FEE = 3; // 0.3% fee
     const amountInWithFee = amountIn * (1000 - LP_FEE); // = amountIn * 970
     const numerator = amountInWithFee * reserveOut;
     const denominator = reserveIn * 1000 + amountInWithFee;

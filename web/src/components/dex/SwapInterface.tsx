@@ -135,7 +135,7 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
       const reserveIn = isForward ? activePool.reserve1 : activePool.reserve2;
       const reserveOut = isForward ? activePool.reserve2 : activePool.reserve1;
 
-      const toAmountRaw = getAmountOut(fromAmountRaw, reserveIn, reserveOut, 30); // 3% fee
+      const toAmountRaw = getAmountOut(fromAmountRaw, reserveIn, reserveOut, 3); // 0.3% fee
       const toAmountDisplay = formatTokenBalance(toAmountRaw, toTokenInfo.decimals, 6);
 
       setToAmount(toAmountDisplay);

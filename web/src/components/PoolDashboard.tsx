@@ -290,7 +290,7 @@ const PoolDashboard = () => {
     // This is a simplified calculation
     // Real APR = (24h fees × 365) / TVL
     const dailyVolumeEstimate = totalLiquidityUSD * 0.1; // Assume 10% daily turnover
-    const dailyFees = dailyVolumeEstimate * 0.03; // 3% fee
+    const dailyFees = dailyVolumeEstimate * 0.003; // 0.3% fee
     const annualFees = dailyFees * 365;
     const apr = (annualFees / totalLiquidityUSD) * 100;
 
