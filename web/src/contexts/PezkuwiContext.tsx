@@ -5,14 +5,17 @@ import type { InjectedAccountWithMeta } from '@pezkuwi/extension-inject/types';
 import { DEFAULT_ENDPOINT } from '../../../shared/blockchain/pezkuwi';
 import { isMobileApp, getNativeWalletAddress, getNativeAccountName } from '@/lib/mobile-bridge';
 
-// Asset Hub endpoint for PEZ token queries
+// Parachain endpoints
 const ASSET_HUB_ENDPOINT = 'wss://asset-hub-rpc.pezkuwichain.io';
+const PEOPLE_CHAIN_ENDPOINT = 'wss://people-rpc.pezkuwichain.io';
 
 interface PezkuwiContextType {
   api: ApiPromise | null;
   assetHubApi: ApiPromise | null;
+  peopleApi: ApiPromise | null;
   isApiReady: boolean;
   isAssetHubReady: boolean;
+  isPeopleReady: boolean;
   isConnected: boolean;
   accounts: InjectedAccountWithMeta[];
   selectedAccount: InjectedAccountWithMeta | null;
@@ -36,8 +39,10 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
 }) => {
   const [api, setApi] = useState<ApiPromise | null>(null);
   const [assetHubApi, setAssetHubApi] = useState<ApiPromise | null>(null);
+  const [peopleApi, setPeopleApi] = useState<ApiPromise | null>(null);
   const [isApiReady, setIsApiReady] = useState(false);
   const [isAssetHubReady, setIsAssetHubReady] = useState(false);
+  const [isPeopleReady, setIsPeopleReady] = useState(false);
   const [accounts, setAccounts] = useState<InjectedAccountWithMeta[]>([]);
   const [selectedAccount, setSelectedAccount] = useState<InjectedAccountWithMeta | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -105,6 +110,17 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
 
             if (import.meta.env.DEV) console.log(`📡 Chain: ${chain}`);
             if (import.meta.env.DEV) console.log(`🖥️  Node: ${nodeName} v${nodeVersion}`);
+
+            // Debug: Check Junction type definition
+            try {
+              const junctionType = apiInstance.createType('XcmV3Junction');
+              console.log('🔍 XCM Junction type keys:', (junctionType as any).defKeys || Object.keys(junctionType.toJSON() || {}));
+              // Expose api for console debugging
+              (window as any).__PEZKUWI_API__ = apiInstance;
+              console.log('💡 API exposed as window.__PEZKUWI_API__ for debugging');
+            } catch (e) {
+              console.log('⚠️ Could not check Junction type:', e);
+            }
           }
 
           // Fetch sudo key from blockchain
@@ -168,8 +184,43 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
       }
     };
 
+    // Initialize People Chain API for identity/citizenship
+    const initPeopleApi = async () => {
+      try {
+        if (import.meta.env.DEV) {
+          console.log('🔗 Connecting to People Chain:', PEOPLE_CHAIN_ENDPOINT);
+        }
+
+        const provider = new WsProvider(PEOPLE_CHAIN_ENDPOINT);
+        const peopleApiInstance = await ApiPromise.create({
+          provider,
+          signedExtensions: {
+            AuthorizeCall: {
+              extrinsic: {},
+              payload: {},
+            },
+          },
+        });
+
+        await peopleApiInstance.isReady;
+
+        setPeopleApi(peopleApiInstance);
+        setIsPeopleReady(true);
+
+        if (import.meta.env.DEV) {
+          console.log('✅ Connected to People Chain for identity');
+        }
+      } catch (err) {
+        if (import.meta.env.DEV) {
+          console.error('❌ Failed to connect to People Chain:', err);
+        }
+        // Don't set error - Identity features just won't work
+      }
+    };
+
     initApi();
     initAssetHubApi();
+    initPeopleApi();
 
     return () => {
       if (api) {
@@ -177,6 +228,9 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
       }
       if (assetHubApi) {
         assetHubApi.disconnect();
+      }
+      if (peopleApi) {
+        peopleApi.disconnect();
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -357,8 +411,10 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
   const value: PezkuwiContextType = {
     api,
     assetHubApi,
+    peopleApi,
     isApiReady,
     isAssetHubReady,
+    isPeopleReady,
     isConnected: isApiReady, // Alias for backward compatibility
     accounts,
     selectedAccount,

@@ -24,7 +24,7 @@ export async function checkCitizenStatus(
   try {
     // Check if Identity KYC pallet exists
     if (!api.query?.identityKyc?.kycStatuses) {
-      console.warn('Identity KYC pallet not available');
+      if (import.meta.env.DEV) console.log('Identity KYC pallet not available on this chain');
       return false;
     }
 
@@ -61,7 +61,7 @@ export async function checkValidatorStatus(
   try {
     // Check if ValidatorPool pallet exists
     if (!api.query?.validatorPool?.poolMembers) {
-      console.warn('ValidatorPool pallet not available');
+      if (import.meta.env.DEV) console.log('ValidatorPool pallet not available on this chain');
       return false;
     }
 
@@ -142,7 +142,7 @@ export async function checkTikiRole(
   try {
     // Check if Tiki pallet exists
     if (!api.query?.tiki?.userTikis) {
-      console.warn('Tiki pallet not available');
+      if (import.meta.env.DEV) console.log('Tiki pallet not available on this chain');
       return false;
     }
 
@@ -285,7 +285,7 @@ export async function checkStakingScoreTracking(
 
   try {
     if (!api.query?.stakingScore?.stakingStartBlock) {
-      console.warn('Staking score pallet not available');
+      if (import.meta.env.DEV) console.log('Staking score pallet not available on this chain');
       return false;
     }
 

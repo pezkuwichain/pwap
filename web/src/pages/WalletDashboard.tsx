@@ -31,7 +31,7 @@ const WalletDashboard: React.FC = () => {
   const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([]);
   const [isLoadingRecent, setIsLoadingRecent] = useState(false);
 
-  // Fetch recent transactions
+  // Fetch recent transactions (limited to last 10 blocks for performance)
   const fetchRecentTransactions = async () => {
     if (!api || !isApiReady || !selectedAccount) return;
 
@@ -41,7 +41,8 @@ const WalletDashboard: React.FC = () => {
       const currentBlockNumber = currentBlock.block.header.number.toNumber();
 
       const txList: Transaction[] = [];
-      const blocksToCheck = Math.min(100, currentBlockNumber);
+      // Only check last 10 blocks for performance (proper indexer needed for full history)
+      const blocksToCheck = Math.min(10, currentBlockNumber);
 
       for (let i = 0; i < blocksToCheck && txList.length < 5; i++) {
         const blockNumber = currentBlockNumber - i;
@@ -303,9 +304,9 @@ const WalletDashboard: React.FC = () => {
               ) : recentTransactions.length === 0 ? (
                 <div className="text-center py-12">
                   <History className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-                  <p className="text-gray-500">No recent transactions</p>
+                  <p className="text-gray-500">No recent transactions found</p>
                   <p className="text-gray-600 text-sm mt-1">
-                    Your transaction history will appear here
+                    Recent activity from last 10 blocks
                   </p>
                 </div>
               ) : (

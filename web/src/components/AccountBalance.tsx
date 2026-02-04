@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Wallet, TrendingUp, ArrowDownRight, RefreshCw, Award, Plus, Coins, Send, Shield, Users } from 'lucide-react';
+import { Wallet, TrendingUp, ArrowDownRight, RefreshCw, Award, Plus, Coins, Send, Shield, Users, Fuel } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ASSET_IDS, getAssetSymbol } from '@pezkuwi/lib/wallet';
 import { AddTokenModal } from './AddTokenModal';
 import { TransferModal } from './TransferModal';
+import { XCMTeleportModal } from './XCMTeleportModal';
 import { getAllScores, type UserScores } from '@pezkuwi/lib/scores';
 
 interface TokenBalance {
@@ -18,7 +19,7 @@ interface TokenBalance {
 }
 
 export const AccountBalance: React.FC = () => {
-  const { api, assetHubApi, isApiReady, isAssetHubReady, selectedAccount } = usePezkuwi();
+  const { api, assetHubApi, peopleApi, isApiReady, isAssetHubReady, isPeopleReady, selectedAccount } = usePezkuwi();
   const [balance, setBalance] = useState<{
     free: string;
     reserved: string;
@@ -28,6 +29,9 @@ export const AccountBalance: React.FC = () => {
     reserved: '0',
     total: '0',
   });
+  // HEZ balances on different chains
+  const [assetHubHezBalance, setAssetHubHezBalance] = useState<string>('0');
+  const [peopleHezBalance, setPeopleHezBalance] = useState<string>('0');
   const [pezBalance, setPezBalance] = useState<string>('0');
   const [usdtBalance, setUsdtBalance] = useState<string>('0');
   const [hezUsdPrice, setHezUsdPrice] = useState<number>(0);
@@ -44,6 +48,7 @@ export const AccountBalance: React.FC = () => {
   const [otherTokens, setOtherTokens] = useState<TokenBalance[]>([]);
   const [isAddTokenModalOpen, setIsAddTokenModalOpen] = useState(false);
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
+  const [isXCMTeleportModalOpen, setIsXCMTeleportModalOpen] = useState(false);
   const [selectedTokenForTransfer, setSelectedTokenForTransfer] = useState<TokenBalance | null>(null);
   const [customTokenIds, setCustomTokenIds] = useState<number[]>(() => {
     const stored = localStorage.getItem('customTokenIds');
@@ -319,6 +324,36 @@ export const AccountBalance: React.FC = () => {
         total: totalTokens,
       });
 
+      // Fetch HEZ balance on Asset Hub (for PEZ transfer fees)
+      try {
+        if (assetHubApi && isAssetHubReady) {
+          const { data: assetHubBalanceData } = await assetHubApi.query.system.account(selectedAccount.address);
+          const assetHubFree = assetHubBalanceData.free.toString();
+          const assetHubHezTokens = (parseInt(assetHubFree) / divisor).toFixed(4);
+          setAssetHubHezBalance(assetHubHezTokens);
+        } else {
+          setAssetHubHezBalance('0.0000');
+        }
+      } catch (error) {
+        if (import.meta.env.DEV) console.error('Failed to fetch Asset Hub HEZ balance:', error);
+        setAssetHubHezBalance('0.0000');
+      }
+
+      // Fetch HEZ balance on People Chain (for identity/KYC fees)
+      try {
+        if (peopleApi && isPeopleReady) {
+          const { data: peopleBalanceData } = await peopleApi.query.system.account(selectedAccount.address);
+          const peopleFree = peopleBalanceData.free.toString();
+          const peopleHezTokens = (parseInt(peopleFree) / divisor).toFixed(4);
+          setPeopleHezBalance(peopleHezTokens);
+        } else {
+          setPeopleHezBalance('0.0000');
+        }
+      } catch (error) {
+        if (import.meta.env.DEV) console.error('Failed to fetch People Chain HEZ balance:', error);
+        setPeopleHezBalance('0.0000');
+      }
+
       // Fetch PEZ balance (Asset ID: 1) from Asset Hub
       try {
         if (assetHubApi && isAssetHubReady) {
@@ -538,59 +573,107 @@ export const AccountBalance: React.FC = () => {
 
   return (
     <div className="space-y-4">
-      {/* HEZ Balance Card */}
+      {/* HEZ Balance Card - Multi-Chain */}
       <Card className="bg-gradient-to-br from-green-900/30 to-yellow-900/30 border-green-500/30">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <img src="/tokens/HEZ.png" alt="HEZ" className="w-10 h-10 rounded-full" />
-              <CardTitle className="text-lg font-medium text-gray-300">
-                HEZ Balance
-              </CardTitle>
+              <div>
+                <CardTitle className="text-lg font-medium text-gray-300">
+                  HEZ Balance
+                </CardTitle>
+                <div className="text-xs text-gray-500">Multi-Chain Overview</div>
+              </div>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={fetchBalance}
-              disabled={isLoading}
-              className="text-gray-400 hover:text-white"
-            >
-              <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setIsXCMTeleportModalOpen(true)}
+                className="border-yellow-500/50 text-yellow-400 hover:bg-yellow-500/10 group relative"
+                title="Send HEZ to teyrcahins for transaction fees"
+              >
+                <Fuel className="w-4 h-4 mr-1" />
+                Fund Fees
+                <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs bg-gray-800 text-gray-200 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
+                  Send HEZ to Asset Hub / People Chain
+                </span>
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={fetchBalance}
+                disabled={isLoading}
+                className="text-gray-400 hover:text-white"
+              >
+                <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
+            {/* Total HEZ */}
             <div>
               <div className="text-4xl font-bold text-white mb-1">
-                {isLoading ? '...' : balance.total}
+                {isLoading ? '...' : (parseFloat(balance.total) + parseFloat(assetHubHezBalance) + parseFloat(peopleHezBalance)).toFixed(4)}
                 <span className="text-2xl text-gray-400 ml-2">HEZ</span>
               </div>
               <div className="text-sm text-gray-400">
                 {hezUsdPrice > 0
-                  ? `≈ $${(parseFloat(balance.total) * hezUsdPrice).toFixed(2)} USD`
+                  ? `≈ $${((parseFloat(balance.total) + parseFloat(assetHubHezBalance) + parseFloat(peopleHezBalance)) * hezUsdPrice).toFixed(2)} USD (Total across all chains)`
                   : 'Price loading...'}
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-gray-800/50 rounded-lg p-3">
-                <div className="flex items-center gap-2 mb-1">
-                  <TrendingUp className="w-4 h-4 text-green-400" />
-                  <span className="text-xs text-gray-400">Transferable</span>
-                </div>
-                <div className="text-lg font-semibold text-white">
-                  {balance.free} HEZ
+            {/* Chain Balances */}
+            <div className="grid grid-cols-1 gap-3">
+              {/* Relay Chain (Main) */}
+              <div className="bg-gray-800/50 rounded-lg p-3 border border-green-500/20">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                    <span className="text-sm text-gray-300">Pezkuwi (Relay Chain)</span>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-lg font-semibold text-white">{balance.free} HEZ</div>
+                    <div className="text-xs text-gray-500">Reserved: {balance.reserved}</div>
+                  </div>
                 </div>
               </div>
 
-              <div className="bg-gray-800/50 rounded-lg p-3">
-                <div className="flex items-center gap-2 mb-1">
-                  <ArrowDownRight className="w-4 h-4 text-yellow-400" />
-                  <span className="text-xs text-gray-400">Reserved</span>
+              {/* Asset Hub */}
+              <div className="bg-gray-800/50 rounded-lg p-3 border border-blue-500/20">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                    <span className="text-sm text-gray-300">Pezkuwi Asset Hub</span>
+                    <span className="text-xs text-gray-500">(PEZ fees)</span>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-lg font-semibold text-white">{assetHubHezBalance} HEZ</div>
+                    {parseFloat(assetHubHezBalance) < 0.1 && (
+                      <div className="text-xs text-yellow-400">⚠️ Low for fees</div>
+                    )}
+                  </div>
                 </div>
-                <div className="text-lg font-semibold text-white">
-                  {balance.reserved} HEZ
+              </div>
+
+              {/* People Chain */}
+              <div className="bg-gray-800/50 rounded-lg p-3 border border-purple-500/20">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                    <span className="text-sm text-gray-300">Pezkuwi People</span>
+                    <span className="text-xs text-gray-500">(Identity fees)</span>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-lg font-semibold text-white">{peopleHezBalance} HEZ</div>
+                    {parseFloat(peopleHezBalance) < 0.1 && (
+                      <div className="text-xs text-yellow-400">⚠️ Low for fees</div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -601,11 +684,26 @@ export const AccountBalance: React.FC = () => {
       {/* PEZ Balance Card */}
       <Card className="bg-gradient-to-br from-blue-900/30 to-purple-900/30 border-blue-500/30">
         <CardHeader className="pb-3">
-          <div className="flex items-center gap-3">
-            <img src="/tokens/PEZ.png" alt="PEZ" className="w-10 h-10 rounded-full" />
-            <CardTitle className="text-lg font-medium text-gray-300">
-              PEZ Token Balance
-            </CardTitle>
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-3 min-w-0">
+              <img src="/tokens/PEZ.png" alt="PEZ" className="w-10 h-10 rounded-full flex-shrink-0" />
+              <CardTitle className="text-lg font-medium text-gray-300 whitespace-nowrap">
+                PEZ Balance
+              </CardTitle>
+            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setIsXCMTeleportModalOpen(true)}
+              className="border-yellow-500/50 text-yellow-400 hover:bg-yellow-500/10 group relative"
+              title="Send HEZ to Asset Hub for transaction fees"
+            >
+              <Fuel className="w-4 h-4 mr-1" />
+              Add Fees
+              <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs bg-gray-800 text-gray-200 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                Send HEZ for PEZ transfer fees
+              </span>
+            </Button>
           </div>
         </CardHeader>
         <CardContent>
@@ -620,7 +718,7 @@ export const AccountBalance: React.FC = () => {
                 : 'Price loading...'}
             </div>
             <div className="text-xs text-gray-500 mt-1">
-              Governance & Rewards Token
+              Governance & Rewards Token (on Asset Hub)
             </div>
           </div>
         </CardContent>
@@ -847,6 +945,12 @@ export const AccountBalance: React.FC = () => {
           setSelectedTokenForTransfer(null);
         }}
         selectedAsset={selectedTokenForTransfer}
+      />
+
+      {/* XCM Teleport Modal */}
+      <XCMTeleportModal
+        isOpen={isXCMTeleportModalOpen}
+        onClose={() => setIsXCMTeleportModalOpen(false)}
       />
     </div>
   );

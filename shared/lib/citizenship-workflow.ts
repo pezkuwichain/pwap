@@ -126,7 +126,7 @@ export async function getKycStatus(
     }
 
     if (!api?.query?.identityKyc) {
-      console.warn('Identity KYC pallet not available');
+      if (import.meta.env.DEV) console.log('Identity KYC pallet not available on this chain');
       return 'NotStarted';
     }
 
@@ -195,7 +195,7 @@ export async function getUserTikis(
 ): Promise<TikiInfo[]> {
   try {
     if (!api?.query?.tiki?.userTikis) {
-      console.warn('Tiki pallet not available');
+      if (import.meta.env.DEV) console.log('Tiki pallet not available on this chain');
       return [];
     }
 
@@ -282,7 +282,7 @@ export async function isStakingScoreTracking(
 ): Promise<boolean> {
   try {
     if (!api?.query?.stakingScore?.stakingStartBlock) {
-      console.warn('Staking score pallet not available');
+      if (import.meta.env.DEV) console.log('Staking score pallet not available on this chain');
       return false;
     }
 

@@ -40,7 +40,7 @@ export async function getTrustScore(
 ): Promise<number> {
   try {
     if (!api?.query?.trust) {
-      console.warn('Trust pallet not available');
+      // Trust pallet not available on this chain - this is expected
       return 0;
     }
 
@@ -200,7 +200,7 @@ export async function getStakingScoreFromPallet(
 ): Promise<number> {
   try {
     if (!api?.query?.stakingScore) {
-      console.warn('Staking score pallet not available');
+      // Staking score pallet not available on this chain - this is expected
       return 0;
     }
 

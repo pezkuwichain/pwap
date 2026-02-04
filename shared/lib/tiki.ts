@@ -217,7 +217,7 @@ export const fetchUserTikis = async (
     }
 
     if (!api || !api.query.tiki) {
-      console.warn('Tiki pallet not available on this chain');
+      // Tiki pallet not available on this chain - this is expected
       return [];
     }
 
@@ -437,7 +437,7 @@ export const fetchUserTikiNFTs = async (
 ): Promise<TikiNFTDetails[]> => {
   try {
     if (!api || !api.query.tiki) {
-      console.warn('Tiki pallet not available on this chain');
+      // Tiki pallet not available on this chain - this is expected
       return [];
     }
 
