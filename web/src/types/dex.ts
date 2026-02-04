@@ -11,4 +11,4 @@ export {
   TransactionStatus,
 } from '../../../shared/types/tokens';
 
-export { KNOWN_TOKENS, TOKEN_DISPLAY_SYMBOLS } from '../../../shared/constants';
+export { KNOWN_TOKENS, TOKEN_DISPLAY_SYMBOLS, NATIVE_TOKEN_ID } from '../../../shared/constants';

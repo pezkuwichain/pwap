@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { X, Plus, AlertCircle, Loader2, CheckCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { KNOWN_TOKENS } from '@/types/dex';
+import { KNOWN_TOKENS, NATIVE_TOKEN_ID } from '@/types/dex';
 import { parseTokenInput, formatTokenBalance } from '@pezkuwi/utils/dex';
 
 interface CreatePoolModalProps {
@@ -50,54 +50,52 @@ export const CreatePoolModal: React.FC<CreatePoolModalProps> = ({
     }
   }, [isOpen]);
 
+  // Helper to fetch balance for an asset (handles Native vs Asset)
+  const fetchAssetBalance = useCallback(async (assetId: number): Promise<string> => {
+    if (!assetHubApi || !isAssetHubReady || !account) return '0';
+
+    try {
+      if (assetId === NATIVE_TOKEN_ID) {
+        // Native token - query system.account
+        const accountData: { data: { free: { toString: () => string } } } =
+          await assetHubApi.query.system.account(account) as never;
+        return accountData.data.free.toString();
+      } else {
+        // Asset - query assets.account
+        const balanceData = await assetHubApi.query.assets.account(assetId, account);
+        if ((balanceData as { isSome: boolean }).isSome) {
+          return ((balanceData as { unwrap: () => { balance: { toString: () => string } } }).unwrap()).balance.toString();
+        }
+        return '0';
+      }
+    } catch (error) {
+      if (import.meta.env.DEV) console.error('❌ Failed to fetch balance for asset', assetId, ':', error);
+      return '0';
+    }
+  }, [assetHubApi, isAssetHubReady, account]);
+
   // Fetch balances from Asset Hub when assets selected
   useEffect(() => {
     const fetchBalances = async () => {
-      if (!assetHubApi || !isAssetHubReady || !account || asset1Id === null) return;
-
-      try {
-        if (import.meta.env.DEV) console.log('🔍 Fetching balance for asset', asset1Id, 'on Asset Hub');
-        const balance1Data = await assetHubApi.query.assets.account(asset1Id, account);
-        if (balance1Data.isSome) {
-          const balance = balance1Data.unwrap().balance.toString();
-          if (import.meta.env.DEV) console.log('✅ Balance found for asset', asset1Id, ':', balance);
-          setBalance1(balance);
-        } else {
-          if (import.meta.env.DEV) console.warn('⚠️ No balance found for asset', asset1Id);
-          setBalance1('0');
-        }
-      } catch (error) {
-        if (import.meta.env.DEV) console.error('❌ Failed to fetch balance 1:', error);
-        setBalance1('0');
-      }
+      if (asset1Id === null) return;
+      if (import.meta.env.DEV) console.log('🔍 Fetching balance for asset', asset1Id, 'on Asset Hub');
+      const balance = await fetchAssetBalance(asset1Id);
+      if (import.meta.env.DEV) console.log('✅ Balance for asset', asset1Id, ':', balance);
+      setBalance1(balance);
     };
-
     fetchBalances();
-  }, [assetHubApi, isAssetHubReady, account, asset1Id]);
+  }, [fetchAssetBalance, asset1Id]);
 
   useEffect(() => {
     const fetchBalances = async () => {
-      if (!assetHubApi || !isAssetHubReady || !account || asset2Id === null) return;
-
-      try {
-        if (import.meta.env.DEV) console.log('🔍 Fetching balance for asset', asset2Id, 'on Asset Hub');
-        const balance2Data = await assetHubApi.query.assets.account(asset2Id, account);
-        if (balance2Data.isSome) {
-          const balance = balance2Data.unwrap().balance.toString();
-          if (import.meta.env.DEV) console.log('✅ Balance found for asset', asset2Id, ':', balance);
-          setBalance2(balance);
-        } else {
-          if (import.meta.env.DEV) console.warn('⚠️ No balance found for asset', asset2Id);
-          setBalance2('0');
-        }
-      } catch (error) {
-        if (import.meta.env.DEV) console.error('❌ Failed to fetch balance 2:', error);
-        setBalance2('0');
-      }
+      if (asset2Id === null) return;
+      if (import.meta.env.DEV) console.log('🔍 Fetching balance for asset', asset2Id, 'on Asset Hub');
+      const balance = await fetchAssetBalance(asset2Id);
+      if (import.meta.env.DEV) console.log('✅ Balance for asset', asset2Id, ':', balance);
+      setBalance2(balance);
     };
-
     fetchBalances();
-  }, [assetHubApi, isAssetHubReady, account, asset2Id]);
+  }, [fetchAssetBalance, asset2Id]);
 
   const validateInputs = (): string | null => {
     if (asset1Id === null || asset2Id === null) {
@@ -178,10 +176,15 @@ export const CreatePoolModal: React.FC<CreatePoolModalProps> = ({
       setErrorMessage('');
 
       // Convert asset IDs to proper format for assetConversion pallet
-      // Native token uses { Native: null }, assets use { Asset: id }
+      // Native token (relay chain HEZ) uses XCM location format
+      // Assets use { Asset: id }
       const formatAssetId = (id: number) => {
-        // For now, all our tokens are assets on Asset Hub
-        return { Asset: id };
+        if (id === NATIVE_TOKEN_ID) {
+          // Native token from relay chain - XCM location format
+          // { parents: 1, interior: Here } represents relay chain native token
+          return { parents: 1, interior: 'Here' };
+        }
+        return { parents: 0, interior: { X2: [{ PalletInstance: 50 }, { GeneralIndex: id }] } };
       };
 
       const asset1 = formatAssetId(asset1Id!);
