@@ -44,7 +44,7 @@ const PoolDashboard = () => {
 
   const [poolData, setPoolData] = useState<PoolData | null>(null);
   const [lpPosition, setLPPosition] = useState<LPPosition | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isAddLiquidityModalOpen, setIsAddLiquidityModalOpen] = useState(false);
   const [isRemoveLiquidityModalOpen, setIsRemoveLiquidityModalOpen] = useState(false);
