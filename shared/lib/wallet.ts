@@ -32,16 +32,17 @@ export const CHAIN_CONFIG = {
 };
 
 // ========================================
-// SUBSTRATE ASSET IDs (Assets Pallet)
+// SUBSTRATE ASSET IDs (Assets Pallet on Asset Hub)
 // ========================================
 // ⚠️ IMPORTANT: HEZ is the native token and does NOT have an Asset ID
 // Only wrapped/asset tokens are listed here
 //
-// Asset ID Allocation:
-// - 0-999: Reserved for protocol tokens (wHEZ, PEZ, etc.)
-// - 1000+: Bridged/wrapped external assets (wUSDT, etc.)
+// Asset ID Allocation on Asset Hub:
+// - Asset 1: PEZ (Pezkuwi Token)
+// - Asset 2: wHEZ (Wrapped HEZ via tokenWrapper pallet)
+// - Asset 1000: wUSDT (Wrapped USDT)
 export const ASSET_IDS = {
-  WHEZ: parseInt(getEnv('VITE_ASSET_WHEZ', '0')),  // Wrapped HEZ
+  WHEZ: parseInt(getEnv('VITE_ASSET_WHEZ', '2')),  // Wrapped HEZ (tokenWrapper creates Asset 2)
   PEZ: parseInt(getEnv('VITE_ASSET_PEZ', '1')),    // PEZ utility token
   WUSDT: parseInt(getEnv('VITE_ASSET_WUSDT', '1000')), // Wrapped USDT (6 decimals, Asset ID 1000)
   USDT: parseInt(getEnv('VITE_ASSET_USDT', '3')),

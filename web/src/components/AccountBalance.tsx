@@ -175,13 +175,13 @@ export const AccountBalance: React.FC = () => {
 
       // Only fetch HEZ from DEX if not already set
       if (hezPrice === 0) {
-        const whezPoolId = api.createType('(u32, u32)', [0, ASSET_IDS.WUSDT]);
+        const whezPoolId = api.createType('(u32, u32)', [ASSET_IDS.WHEZ, ASSET_IDS.WUSDT]);
         const whezPalletIdType = api.createType('[u8; 8]', PALLET_ID);
         const whezFullTuple = api.createType('([u8; 8], (u32, u32))', [whezPalletIdType, whezPoolId]);
         const whezAccountHash = blake2AsU8a(whezFullTuple.toU8a(), 256);
         const whezPoolAccountId = api.createType('AccountId32', whezAccountHash);
 
-        const whezReserve0Query = await api.query.assets.account(0, whezPoolAccountId);
+        const whezReserve0Query = await api.query.assets.account(ASSET_IDS.WHEZ, whezPoolAccountId);
         const whezReserve1Query = await api.query.assets.account(ASSET_IDS.WUSDT, whezPoolAccountId);
 
         if (whezReserve0Query.isSome && whezReserve1Query.isSome) {
