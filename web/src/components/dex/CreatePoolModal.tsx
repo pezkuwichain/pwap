@@ -20,7 +20,8 @@ export const CreatePoolModal: React.FC<CreatePoolModalProps> = ({
   onClose,
   onSuccess,
 }) => {
-  const { api, isApiReady } = usePezkuwi();
+  // Use Asset Hub API for DEX operations (assetConversion pallet is on Asset Hub)
+  const { assetHubApi, isAssetHubReady } = usePezkuwi();
   const { account, signer } = useWallet();
 
   const [asset1Id, setAsset1Id] = useState<number | null>(null);
@@ -49,14 +50,14 @@ export const CreatePoolModal: React.FC<CreatePoolModalProps> = ({
     }
   }, [isOpen]);
 
-  // Fetch balances when assets selected
+  // Fetch balances from Asset Hub when assets selected
   useEffect(() => {
     const fetchBalances = async () => {
-      if (!api || !isApiReady || !account || asset1Id === null) return;
+      if (!assetHubApi || !isAssetHubReady || !account || asset1Id === null) return;
 
       try {
-        if (import.meta.env.DEV) console.log('🔍 Fetching balance for asset', asset1Id, 'account', account);
-        const balance1Data = await api.query.assets.account(asset1Id, account);
+        if (import.meta.env.DEV) console.log('🔍 Fetching balance for asset', asset1Id, 'on Asset Hub');
+        const balance1Data = await assetHubApi.query.assets.account(asset1Id, account);
         if (balance1Data.isSome) {
           const balance = balance1Data.unwrap().balance.toString();
           if (import.meta.env.DEV) console.log('✅ Balance found for asset', asset1Id, ':', balance);
@@ -72,15 +73,15 @@ export const CreatePoolModal: React.FC<CreatePoolModalProps> = ({
     };
 
     fetchBalances();
-  }, [api, isApiReady, account, asset1Id]);
+  }, [assetHubApi, isAssetHubReady, account, asset1Id]);
 
   useEffect(() => {
     const fetchBalances = async () => {
-      if (!api || !isApiReady || !account || asset2Id === null) return;
+      if (!assetHubApi || !isAssetHubReady || !account || asset2Id === null) return;
 
       try {
-        if (import.meta.env.DEV) console.log('🔍 Fetching balance for asset', asset2Id, 'account', account);
-        const balance2Data = await api.query.assets.account(asset2Id, account);
+        if (import.meta.env.DEV) console.log('🔍 Fetching balance for asset', asset2Id, 'on Asset Hub');
+        const balance2Data = await assetHubApi.query.assets.account(asset2Id, account);
         if (balance2Data.isSome) {
           const balance = balance2Data.unwrap().balance.toString();
           if (import.meta.env.DEV) console.log('✅ Balance found for asset', asset2Id, ':', balance);
@@ -96,7 +97,7 @@ export const CreatePoolModal: React.FC<CreatePoolModalProps> = ({
     };
 
     fetchBalances();
-  }, [api, isApiReady, account, asset2Id]);
+  }, [assetHubApi, isAssetHubReady, account, asset2Id]);
 
   const validateInputs = (): string | null => {
     if (asset1Id === null || asset2Id === null) {
@@ -150,8 +151,14 @@ export const CreatePoolModal: React.FC<CreatePoolModalProps> = ({
   };
 
   const handleCreatePool = async () => {
-    if (!api || !isApiReady || !signer || !account) {
-      setErrorMessage('Wallet not connected');
+    if (!assetHubApi || !isAssetHubReady || !signer || !account) {
+      setErrorMessage('Wallet not connected or Asset Hub not ready');
+      return;
+    }
+
+    // Check if assetConversion pallet is available on Asset Hub
+    if (!assetHubApi.tx.assetConversion || !assetHubApi.tx.assetConversion.createPool) {
+      setErrorMessage('AssetConversion pallet is not available on Asset Hub. Pool creation requires this pallet.');
       return;
     }
 
@@ -170,11 +177,11 @@ export const CreatePoolModal: React.FC<CreatePoolModalProps> = ({
       setTxStatus('signing');
       setErrorMessage('');
 
-      // Create pool extrinsic
-      const createPoolTx = api.tx.assetConversion.createPool(asset1Id, asset2Id);
+      // Create pool extrinsic on Asset Hub
+      const createPoolTx = assetHubApi.tx.assetConversion.createPool(asset1Id, asset2Id);
 
-      // Add liquidity extrinsic
-      const addLiquidityTx = api.tx.assetConversion.addLiquidity(
+      // Add liquidity extrinsic on Asset Hub
+      const addLiquidityTx = assetHubApi.tx.assetConversion.addLiquidity(
         asset1Id,
         asset2Id,
         amount1Raw,
@@ -185,7 +192,7 @@ export const CreatePoolModal: React.FC<CreatePoolModalProps> = ({
       );
 
       // Batch transactions
-      const batchTx = api.tx.utility.batchAll([createPoolTx, addLiquidityTx]);
+      const batchTx = assetHubApi.tx.utility.batchAll([createPoolTx, addLiquidityTx]);
 
       setTxStatus('submitting');
 
@@ -196,7 +203,7 @@ export const CreatePoolModal: React.FC<CreatePoolModalProps> = ({
           if (status.isInBlock) {
             if (dispatchError) {
               if (dispatchError.isModule) {
-                const decoded = api.registry.findMetaError(dispatchError.asModule);
+                const decoded = assetHubApi.registry.findMetaError(dispatchError.asModule);
                 setErrorMessage(`${decoded.section}.${decoded.name}: ${decoded.docs}`);
               } else {
                 setErrorMessage(dispatchError.toString());

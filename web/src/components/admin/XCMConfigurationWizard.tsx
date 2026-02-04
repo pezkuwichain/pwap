@@ -65,7 +65,9 @@ export const XCMConfigurationWizard: React.FC<XCMConfigurationWizardProps> = ({
   onClose,
   onSuccess,
 }) => {
-  const { api, isApiReady } = usePezkuwi();
+  // Use Asset Hub API for asset registration (Step 5) and XCM testing (Step 6)
+  // Steps 1-4 connect to relay chain directly via xcm-wizard functions
+  const { assetHubApi, isAssetHubReady } = usePezkuwi();
   const { account, signer } = useWallet();
   const { toast } = useToast();
 
@@ -324,10 +326,17 @@ export const XCMConfigurationWizard: React.FC<XCMConfigurationWizardProps> = ({
   };
 
   // ========================================
-  // STEP 5: REGISTER FOREIGN ASSETS
+  // STEP 5: REGISTER FOREIGN ASSETS (on Asset Hub)
   // ========================================
   const handleRegisterAssets = async () => {
-    if (!api || !isApiReady || !account || !signer) return;
+    if (!assetHubApi || !isAssetHubReady || !account || !signer) {
+      toast({
+        title: 'Not Ready',
+        description: 'Please wait for Asset Hub connection',
+        variant: 'destructive',
+      });
+      return;
+    }
 
     setRegisteringAssets(true);
     try {
@@ -363,7 +372,7 @@ export const XCMConfigurationWizard: React.FC<XCMConfigurationWizardProps> = ({
         },
       ];
 
-      const registered = await registerForeignAssets(api, foreignAssets, account);
+      const registered = await registerForeignAssets(assetHubApi, foreignAssets, account);
       setRegisteredAssets(registered);
 
       setSteps(prev => ({
@@ -394,14 +403,21 @@ export const XCMConfigurationWizard: React.FC<XCMConfigurationWizardProps> = ({
   };
 
   // ========================================
-  // STEP 6: TEST XCM TRANSFER
+  // STEP 6: TEST XCM TRANSFER (on Asset Hub)
   // ========================================
   const handleTestXCMTransfer = async () => {
-    if (!api || !isApiReady || !account || !signer) return;
+    if (!assetHubApi || !isAssetHubReady || !account || !signer) {
+      toast({
+        title: 'Not Ready',
+        description: 'Please wait for Asset Hub connection',
+        variant: 'destructive',
+      });
+      return;
+    }
 
     setTesting(true);
     try {
-      const result = await testXCMTransfer(api, '1000000', account); // 1 USDT (6 decimals)
+      const result = await testXCMTransfer(assetHubApi, '1000000', account); // 1 USDT (6 decimals)
 
       setTestResult(result);
 
