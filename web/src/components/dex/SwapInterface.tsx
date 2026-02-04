@@ -14,6 +14,7 @@ import {
   formatTokenBalance,
   getAmountOut,
   calculatePriceImpact,
+  formatAssetLocation,
 } from '@pezkuwi/utils/dex';
 import { useToast } from '@/hooks/use-toast';
 
@@ -24,9 +25,10 @@ interface SwapInterfaceProps {
 
 type TransactionStatus = 'idle' | 'signing' | 'submitting' | 'success' | 'error';
 
-// User-facing tokens (wHEZ is hidden from users, shown as HEZ)
+// User-facing tokens
+// Native HEZ uses NATIVE_TOKEN_ID (-1) for pool matching
 const USER_TOKENS = [
-  { symbol: 'HEZ', emoji: '🟡', assetId: 0, name: 'HEZ', decimals: 12, displaySymbol: 'HEZ' }, // actually wHEZ (asset 0)
+  { symbol: 'HEZ', emoji: '🟡', assetId: -1, name: 'HEZ', decimals: 12, displaySymbol: 'HEZ' }, // Native HEZ (NATIVE_TOKEN_ID)
   { symbol: 'PEZ', emoji: '🟣', assetId: 1, name: 'PEZ', decimals: 12, displaySymbol: 'PEZ' },
   { symbol: 'USDT', emoji: '💵', assetId: 1000, name: 'USDT', decimals: 6, displaySymbol: 'USDT' },
 ] as const;
@@ -227,58 +229,78 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
 
       let tx;
 
+      // Native HEZ uses NATIVE_TOKEN_ID (-1) for XCM Location
+      // assetConversion pallet expects XCM MultiLocation format for swap paths
+      const nativeLocation = formatAssetLocation(-1); // { parents: 1, interior: 'Here' }
+      const pezLocation = formatAssetLocation(1);     // PEZ asset
+      const usdtLocation = formatAssetLocation(1000); // wUSDT asset
+
       if (fromToken === 'HEZ' && toToken === 'PEZ') {
-        // HEZ → PEZ: wrap(HEZ→wHEZ) then swap(wHEZ→PEZ)
-        const wrapTx = assetHubApi.tx.tokenWrapper.wrap(amountIn.toString());
-        const swapTx = assetHubApi.tx.assetConversion.swapExactTokensForTokens(
-          [0, 1], // wHEZ → PEZ
+        // HEZ → PEZ: Direct swap using native token
+        tx = assetHubApi.tx.assetConversion.swapExactTokensForTokens(
+          [nativeLocation, pezLocation],
           amountIn.toString(),
           minAmountOut.toString(),
           account,
           true
         );
-        tx = assetHubApi.tx.utility.batchAll([wrapTx, swapTx]);
 
       } else if (fromToken === 'PEZ' && toToken === 'HEZ') {
-        // PEZ → HEZ: swap(PEZ→wHEZ) then unwrap(wHEZ→HEZ)
-        const swapTx = assetHubApi.tx.assetConversion.swapExactTokensForTokens(
-          [1, 0], // PEZ → wHEZ
+        // PEZ → HEZ: Direct swap to native token
+        tx = assetHubApi.tx.assetConversion.swapExactTokensForTokens(
+          [pezLocation, nativeLocation],
           amountIn.toString(),
           minAmountOut.toString(),
           account,
           true
         );
-        const unwrapTx = assetHubApi.tx.tokenWrapper.unwrap(minAmountOut.toString());
-        tx = assetHubApi.tx.utility.batchAll([swapTx, unwrapTx]);
 
-      } else if (fromToken === 'HEZ') {
-        // HEZ → Any Asset: wrap(HEZ→wHEZ) then swap(wHEZ→Asset)
-        const wrapTx = assetHubApi.tx.tokenWrapper.wrap(amountIn.toString());
-        const swapTx = assetHubApi.tx.assetConversion.swapExactTokensForTokens(
-          [0, toAssetId!], // wHEZ → target asset
+      } else if (fromToken === 'HEZ' && toToken === 'USDT') {
+        // HEZ → USDT: Direct swap using native token
+        tx = assetHubApi.tx.assetConversion.swapExactTokensForTokens(
+          [nativeLocation, usdtLocation],
           amountIn.toString(),
           minAmountOut.toString(),
           account,
           true
         );
-        tx = assetHubApi.tx.utility.batchAll([wrapTx, swapTx]);
 
-      } else if (toToken === 'HEZ') {
-        // Any Asset → HEZ: swap(Asset→wHEZ) then unwrap(wHEZ→HEZ)
-        const swapTx = assetHubApi.tx.assetConversion.swapExactTokensForTokens(
-          [fromAssetId!, 0], // source asset → wHEZ
+      } else if (fromToken === 'USDT' && toToken === 'HEZ') {
+        // USDT → HEZ: Direct swap to native token
+        tx = assetHubApi.tx.assetConversion.swapExactTokensForTokens(
+          [usdtLocation, nativeLocation],
           amountIn.toString(),
           minAmountOut.toString(),
           account,
           true
         );
-        const unwrapTx = assetHubApi.tx.tokenWrapper.unwrap(minAmountOut.toString());
-        tx = assetHubApi.tx.utility.batchAll([swapTx, unwrapTx]);
+
+      } else if (fromToken === 'PEZ' && toToken === 'USDT') {
+        // PEZ → USDT: Multi-hop through HEZ (PEZ → HEZ → USDT)
+        tx = assetHubApi.tx.assetConversion.swapExactTokensForTokens(
+          [pezLocation, nativeLocation, usdtLocation],
+          amountIn.toString(),
+          minAmountOut.toString(),
+          account,
+          true
+        );
+
+      } else if (fromToken === 'USDT' && toToken === 'PEZ') {
+        // USDT → PEZ: Multi-hop through HEZ (USDT → HEZ → PEZ)
+        tx = assetHubApi.tx.assetConversion.swapExactTokensForTokens(
+          [usdtLocation, nativeLocation, pezLocation],
+          amountIn.toString(),
+          minAmountOut.toString(),
+          account,
+          true
+        );
 
       } else {
-        // Direct swap between assets (PEZ ↔ USDT, etc.)
+        // Generic swap using XCM Locations
+        const fromLocation = formatAssetLocation(fromAssetId!);
+        const toLocation = formatAssetLocation(toAssetId!);
         tx = assetHubApi.tx.assetConversion.swapExactTokensForTokens(
-          [fromAssetId!, toAssetId!],
+          [fromLocation, toLocation],
           amountIn.toString(),
           minAmountOut.toString(),
           account,
