@@ -159,22 +159,57 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
     return { parents: 0, interior: { X2: [{ PalletInstance: 50 }, { GeneralIndex: id }] } };
   };
 
-  // Fetch current pool price
+  // Fetch current pool price and reserves
   useEffect(() => {
     if (!assetHubApi || !isAssetHubReady || !isOpen) return;
 
     const fetchPoolPrice = async () => {
       try {
         // Use XCM Location format for pool queries (required for native token)
-        const poolKey = [formatAssetLocation(asset0), formatAssetLocation(asset1)];
+        const asset0Location = formatAssetLocation(asset0);
+        const asset1Location = formatAssetLocation(asset1);
+        const poolKey = [asset0Location, asset1Location];
         const poolInfo = await assetHubApi.query.assetConversion.pools(poolKey);
 
         if (poolInfo.isSome) {
-          // For simplicity, mark pool as having liquidity if it exists
-          // Real reserve fetching requires complex pool account derivation with XCM locations
-          setIsPoolEmpty(false);
-          setCurrentPrice(1); // Default 1:1 ratio, user can adjust
-          if (import.meta.env.DEV) console.log('Pool exists - using default ratio');
+          // Pool exists - try to get reserves via runtime API
+          try {
+            // Use quotePriceExactTokensForTokens to get the exchange rate
+            // This gives us the output amount for 1 unit of input
+            const oneUnit = BigInt(Math.pow(10, asset0Decimals)); // 1 token in smallest units
+
+            const quote = await assetHubApi.call.assetConversionApi.quotePriceExactTokensForTokens(
+              asset0Location,
+              asset1Location,
+              oneUnit.toString(),
+              true // include fee
+            );
+
+            if (quote && !quote.isNone) {
+              const outputAmount = Number(quote.unwrap().toString()) / Math.pow(10, asset1Decimals);
+              const inputAmount = 1; // We queried for 1 token
+              const price = outputAmount / inputAmount;
+
+              if (price > 0) {
+                setCurrentPrice(price);
+                setIsPoolEmpty(false);
+                if (import.meta.env.DEV) console.log('Pool price from runtime API:', price);
+              } else {
+                setIsPoolEmpty(true);
+                setCurrentPrice(null);
+              }
+            } else {
+              // Quote returned nothing - pool might be empty
+              setIsPoolEmpty(true);
+              setCurrentPrice(null);
+              if (import.meta.env.DEV) console.log('Pool exists but no quote available - may be empty');
+            }
+          } catch (quoteErr) {
+            if (import.meta.env.DEV) console.error('Error getting quote:', quoteErr);
+            // Pool exists but couldn't get quote - allow manual input
+            setIsPoolEmpty(true);
+            setCurrentPrice(null);
+          }
         } else {
           // Pool doesn't exist yet
           setCurrentPrice(null);
@@ -190,7 +225,7 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
     };
 
     fetchPoolPrice();
-  }, [assetHubApi, isAssetHubReady, isOpen, asset0, asset1]);
+  }, [assetHubApi, isAssetHubReady, isOpen, asset0, asset1, asset0Decimals, asset1Decimals]);
 
   // Auto-calculate asset1 amount based on asset0 input (only if pool has liquidity)
   useEffect(() => {
