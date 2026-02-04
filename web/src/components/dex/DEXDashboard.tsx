@@ -12,6 +12,7 @@ import { XCMConfigurationWizard } from '@/components/admin/XCMConfigurationWizar
 import { ArrowRightLeft, Droplet, Settings } from 'lucide-react';
 import { isFounderWallet } from '@pezkuwi/utils/auth';
 
+// DEX Dashboard - Asset Hub API migration complete
 export const DEXDashboard: React.FC = () => {
   const { account } = useWallet();
   const { sudoKey } = usePezkuwi();
