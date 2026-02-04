@@ -32,7 +32,8 @@ const USER_TOKENS = [
 ] as const;
 
 export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
-  const { api, isApiReady } = usePezkuwi();
+  // Use Asset Hub API for DEX operations
+  const { assetHubApi, isAssetHubReady } = usePezkuwi();
   const { account, signer } = useWallet();
   const { toast } = useToast();
 
@@ -73,12 +74,12 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
   // Fetch balances
   useEffect(() => {
     const fetchBalances = async () => {
-      if (!api || !isApiReady || !account) return;
+      if (!assetHubApi || !isAssetHubReady || !account) return;
 
       // For HEZ, fetch native balance (not wHEZ asset balance)
       if (fromToken === 'HEZ') {
         try {
-          const balance = await api.query.system.account(account);
+          const balance = await assetHubApi.query.system.account(account);
           const freeBalance = balance.data.free.toString();
           setFromBalance(freeBalance);
         } catch (error) {
@@ -87,7 +88,7 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
         }
       } else if (fromAssetId !== null) {
         try {
-          const balanceData = await api.query.assets.account(fromAssetId, account);
+          const balanceData = await assetHubApi.query.assets.account(fromAssetId, account);
           setFromBalance(balanceData.isSome ? balanceData.unwrap().balance.toString() : '0');
         } catch (error) {
           if (import.meta.env.DEV) console.error('Failed to fetch from balance:', error);
@@ -98,7 +99,7 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
       // For HEZ, fetch native balance
       if (toToken === 'HEZ') {
         try {
-          const balance = await api.query.system.account(account);
+          const balance = await assetHubApi.query.system.account(account);
           const freeBalance = balance.data.free.toString();
           setToBalance(freeBalance);
         } catch (error) {
@@ -107,7 +108,7 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
         }
       } else if (toAssetId !== null) {
         try {
-          const balanceData = await api.query.assets.account(toAssetId, account);
+          const balanceData = await assetHubApi.query.assets.account(toAssetId, account);
           setToBalance(balanceData.isSome ? balanceData.unwrap().balance.toString() : '0');
         } catch (error) {
           if (import.meta.env.DEV) console.error('Failed to fetch to balance:', error);
@@ -117,7 +118,7 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
     };
 
     fetchBalances();
-  }, [api, isApiReady, account, fromToken, toToken, fromAssetId, toAssetId]);
+  }, [assetHubApi, isAssetHubReady, account, fromToken, toToken, fromAssetId, toAssetId]);
 
   // Calculate output amount when input changes
   useEffect(() => {
@@ -188,7 +189,7 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
   };
 
   const handleConfirmSwap = async () => {
-    if (!api || !signer || !account || !fromTokenInfo || !toTokenInfo) {
+    if (!assetHubApi || !signer || !account || !fromTokenInfo || !toTokenInfo) {
       toast({
         title: 'Error',
         description: 'Please connect your wallet',
@@ -228,55 +229,55 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
 
       if (fromToken === 'HEZ' && toToken === 'PEZ') {
         // HEZ → PEZ: wrap(HEZ→wHEZ) then swap(wHEZ→PEZ)
-        const wrapTx = api.tx.tokenWrapper.wrap(amountIn.toString());
-        const swapTx = api.tx.assetConversion.swapExactTokensForTokens(
+        const wrapTx = assetHubApi.tx.tokenWrapper.wrap(amountIn.toString());
+        const swapTx = assetHubApi.tx.assetConversion.swapExactTokensForTokens(
           [0, 1], // wHEZ → PEZ
           amountIn.toString(),
           minAmountOut.toString(),
           account,
           true
         );
-        tx = api.tx.utility.batchAll([wrapTx, swapTx]);
+        tx = assetHubApi.tx.utility.batchAll([wrapTx, swapTx]);
 
       } else if (fromToken === 'PEZ' && toToken === 'HEZ') {
         // PEZ → HEZ: swap(PEZ→wHEZ) then unwrap(wHEZ→HEZ)
-        const swapTx = api.tx.assetConversion.swapExactTokensForTokens(
+        const swapTx = assetHubApi.tx.assetConversion.swapExactTokensForTokens(
           [1, 0], // PEZ → wHEZ
           amountIn.toString(),
           minAmountOut.toString(),
           account,
           true
         );
-        const unwrapTx = api.tx.tokenWrapper.unwrap(minAmountOut.toString());
-        tx = api.tx.utility.batchAll([swapTx, unwrapTx]);
+        const unwrapTx = assetHubApi.tx.tokenWrapper.unwrap(minAmountOut.toString());
+        tx = assetHubApi.tx.utility.batchAll([swapTx, unwrapTx]);
 
       } else if (fromToken === 'HEZ') {
         // HEZ → Any Asset: wrap(HEZ→wHEZ) then swap(wHEZ→Asset)
-        const wrapTx = api.tx.tokenWrapper.wrap(amountIn.toString());
-        const swapTx = api.tx.assetConversion.swapExactTokensForTokens(
+        const wrapTx = assetHubApi.tx.tokenWrapper.wrap(amountIn.toString());
+        const swapTx = assetHubApi.tx.assetConversion.swapExactTokensForTokens(
           [0, toAssetId!], // wHEZ → target asset
           amountIn.toString(),
           minAmountOut.toString(),
           account,
           true
         );
-        tx = api.tx.utility.batchAll([wrapTx, swapTx]);
+        tx = assetHubApi.tx.utility.batchAll([wrapTx, swapTx]);
 
       } else if (toToken === 'HEZ') {
         // Any Asset → HEZ: swap(Asset→wHEZ) then unwrap(wHEZ→HEZ)
-        const swapTx = api.tx.assetConversion.swapExactTokensForTokens(
+        const swapTx = assetHubApi.tx.assetConversion.swapExactTokensForTokens(
           [fromAssetId!, 0], // source asset → wHEZ
           amountIn.toString(),
           minAmountOut.toString(),
           account,
           true
         );
-        const unwrapTx = api.tx.tokenWrapper.unwrap(minAmountOut.toString());
-        tx = api.tx.utility.batchAll([swapTx, unwrapTx]);
+        const unwrapTx = assetHubApi.tx.tokenWrapper.unwrap(minAmountOut.toString());
+        tx = assetHubApi.tx.utility.batchAll([swapTx, unwrapTx]);
 
       } else {
         // Direct swap between assets (PEZ ↔ USDT, etc.)
-        tx = api.tx.assetConversion.swapExactTokensForTokens(
+        tx = assetHubApi.tx.assetConversion.swapExactTokensForTokens(
           [fromAssetId!, toAssetId!],
           amountIn.toString(),
           minAmountOut.toString(),
@@ -294,7 +295,7 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
           if (status.isInBlock) {
             if (dispatchError) {
               if (dispatchError.isModule) {
-                const decoded = api.registry.findMetaError(dispatchError.asModule);
+                const decoded = assetHubApi.registry.findMetaError(dispatchError.asModule);
                 setErrorMessage(`${decoded.section}.${decoded.name}: ${decoded.docs}`);
               } else {
                 setErrorMessage(dispatchError.toString());

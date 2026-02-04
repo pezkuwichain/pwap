@@ -21,7 +21,8 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
   onClose,
   onSuccess,
 }) => {
-  const { api, isApiReady } = usePezkuwi();
+  // Use Asset Hub API for DEX operations
+  const { assetHubApi, isAssetHubReady } = usePezkuwi();
   const { account, signer } = useWallet();
 
   const [amount1Input, setAmount1Input] = useState('');
@@ -47,11 +48,11 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
   // Fetch balances
   useEffect(() => {
     const fetchBalances = async () => {
-      if (!api || !isApiReady || !account || !pool) return;
+      if (!assetHubApi || !isAssetHubReady || !account || !pool) return;
 
       try {
-        const balance1Data = await api.query.assets.account(pool.asset1, account);
-        const balance2Data = await api.query.assets.account(pool.asset2, account);
+        const balance1Data = await assetHubApi.query.assets.account(pool.asset1, account);
+        const balance2Data = await assetHubApi.query.assets.account(pool.asset2, account);
 
         setBalance1(balance1Data.isSome ? balance1Data.unwrap().balance.toString() : '0');
         setBalance2(balance2Data.isSome ? balance2Data.unwrap().balance.toString() : '0');
@@ -61,7 +62,7 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
     };
 
     fetchBalances();
-  }, [api, isApiReady, account, pool]);
+  }, [assetHubApi, isAssetHubReady, account, pool]);
 
   // Auto-calculate amount2 when amount1 changes
   const handleAmount1Change = (value: string) => {
@@ -124,7 +125,7 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
   };
 
   const handleAddLiquidity = async () => {
-    if (!api || !isApiReady || !signer || !account || !pool) {
+    if (!assetHubApi || !isAssetHubReady || !signer || !account || !pool) {
       setErrorMessage('Wallet not connected');
       return;
     }
@@ -146,7 +147,7 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
       setTxStatus('signing');
       setErrorMessage('');
 
-      const tx = api.tx.assetConversion.addLiquidity(
+      const tx = assetHubApi.tx.assetConversion.addLiquidity(
         pool.asset1,
         pool.asset2,
         amount1Raw,
@@ -165,7 +166,7 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
           if (status.isInBlock) {
             if (dispatchError) {
               if (dispatchError.isModule) {
-                const decoded = api.registry.findMetaError(dispatchError.asModule);
+                const decoded = assetHubApi.registry.findMetaError(dispatchError.asModule);
                 setErrorMessage(`${decoded.section}.${decoded.name}: ${decoded.docs}`);
               } else {
                 setErrorMessage(dispatchError.toString());

@@ -34,7 +34,8 @@ export const XCMBridgeSetupModal: React.FC<XCMBridgeSetupModalProps> = ({
   onClose,
   onSuccess,
 }) => {
-  const { api, isApiReady } = usePezkuwi();
+  // Use Asset Hub API for DEX operations
+  const { assetHubApi, isAssetHubReady } = usePezkuwi();
   const { account, signer } = useWallet();
   const { toast } = useToast();
 
@@ -52,7 +53,7 @@ export const XCMBridgeSetupModal: React.FC<XCMBridgeSetupModalProps> = ({
    * Perform initial status check
    */
   const performInitialCheck = useCallback(async () => {
-    if (!api || !isApiReady) return;
+    if (!assetHubApi || !isAssetHubReady) return;
 
     setStep('checking');
     setStatusMessage('Checking bridge status...');
@@ -75,7 +76,7 @@ export const XCMBridgeSetupModal: React.FC<XCMBridgeSetupModalProps> = ({
       setErrorMessage(error instanceof Error ? error.message : 'Status check failed');
       setStep('error');
     }
-  }, [api, isApiReady]);
+  }, [assetHubApi, isAssetHubReady]);
 
   // Reset when modal opens/closes
   useEffect(() => {
@@ -86,17 +87,17 @@ export const XCMBridgeSetupModal: React.FC<XCMBridgeSetupModalProps> = ({
       setShowPoolCreation(false);
     } else {
       // Auto-check status when opened
-      if (api && isApiReady && account) {
+      if (assetHubApi && isAssetHubReady && account) {
         performInitialCheck();
       }
     }
-  }, [isOpen, api, isApiReady, account, performInitialCheck]);
+  }, [isOpen, assetHubApi, isAssetHubReady, account, performInitialCheck]);
 
   /**
    * Configure XCM bridge
    */
   const handleConfigureBridge = async () => {
-    if (!api || !isApiReady || !signer || !account) {
+    if (!assetHubApi || !isAssetHubReady || !signer || !account) {
       toast({
         title: 'Error',
         description: 'Please connect your wallet',
@@ -142,7 +143,7 @@ export const XCMBridgeSetupModal: React.FC<XCMBridgeSetupModalProps> = ({
    * Create wUSDT/HEZ pool
    */
   const handleCreatePool = async () => {
-    if (!api || !isApiReady || !signer || !account) {
+    if (!assetHubApi || !isAssetHubReady || !signer || !account) {
       toast({
         title: 'Error',
         description: 'Please connect your wallet',

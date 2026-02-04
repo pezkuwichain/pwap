@@ -22,7 +22,8 @@ export const PoolBrowser: React.FC<PoolBrowserProps> = ({
   onSwap,
   onCreatePool,
 }) => {
-  const { api, isApiReady, sudoKey } = usePezkuwi();
+  // Use Asset Hub API for DEX operations
+  const { assetHubApi, isAssetHubReady, sudoKey } = usePezkuwi();
   const { account } = useWallet();
   const [pools, setPools] = useState<PoolInfo[]>([]);
   const [loading, setLoading] = useState(true);
@@ -32,11 +33,11 @@ export const PoolBrowser: React.FC<PoolBrowserProps> = ({
 
   useEffect(() => {
     const loadPools = async () => {
-      if (!api || !isApiReady) return;
+      if (!assetHubApi || !isAssetHubReady) return;
 
       try {
         setLoading(true);
-        const poolsData = await fetchPools(api);
+        const poolsData = await fetchPools(assetHubApi);
         setPools(poolsData);
       } catch (error) {
         if (import.meta.env.DEV) console.error('Failed to load pools:', error);
@@ -50,7 +51,7 @@ export const PoolBrowser: React.FC<PoolBrowserProps> = ({
     // Refresh pools every 10 seconds
     const interval = setInterval(loadPools, 10000);
     return () => clearInterval(interval);
-  }, [api, isApiReady]);
+  }, [assetHubApi, isAssetHubReady]);
 
   const filteredPools = pools.filter((pool) => {
     if (!searchTerm) return true;
