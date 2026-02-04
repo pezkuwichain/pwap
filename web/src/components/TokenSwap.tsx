@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { ASSET_IDS, formatBalance, parseAmount } from '@pezkuwi/lib/wallet';
+import { formatAssetLocation, NATIVE_TOKEN_ID } from '@pezkuwi/utils/dex';
 import { useToast } from '@/hooks/use-toast';
 import { KurdistanSun } from './KurdistanSun';
 import { PriceChart } from './trading/PriceChart';
@@ -98,7 +99,8 @@ const TokenSwap = () => {
     const { reserve0, reserve1, asset0 } = poolReserves;
 
     // Determine which reserve is input and which is output
-    const fromAssetId = fromToken === 'HEZ' ? 0 : ASSET_IDS[fromToken as keyof typeof ASSET_IDS];
+    // Native HEZ uses NATIVE_TOKEN_ID (-1)
+    const fromAssetId = fromToken === 'HEZ' ? NATIVE_TOKEN_ID : ASSET_IDS[fromToken as keyof typeof ASSET_IDS];
     const isAsset0ToAsset1 = fromAssetId === asset0;
 
     const reserveIn = isAsset0ToAsset1 ? reserve0 : reserve1;
@@ -179,9 +181,9 @@ const TokenSwap = () => {
       setIsLoadingRate(true);
       try {
         // Map user-selected tokens to actual pool assets
-        // HEZ → wHEZ (Asset 0) behind the scenes
+        // HEZ → Native token (NATIVE_TOKEN_ID = -1)
         const getPoolAssetId = (token: string) => {
-          if (token === 'HEZ') return 0; // wHEZ
+          if (token === 'HEZ') return NATIVE_TOKEN_ID; // Native HEZ (-1)
           if (token === 'PEZ') return 1;
           if (token === 'USDT') return 1000;
           return ASSET_IDS[token as keyof typeof ASSET_IDS];
@@ -192,20 +194,27 @@ const TokenSwap = () => {
 
         if (import.meta.env.DEV) console.log('🔍 Looking for pool:', { fromToken, toToken, fromAssetId, toAssetId });
 
-        // IMPORTANT: Pool ID must be sorted (smaller asset ID first)
-        const [asset1, asset2] = fromAssetId < toAssetId
+        // IMPORTANT: Pool ID must be sorted (native token first, then by asset ID)
+        // Native token (-1) always comes first
+        const [asset1, asset2] = fromAssetId === NATIVE_TOKEN_ID
           ? [fromAssetId, toAssetId]
-          : [toAssetId, fromAssetId];
+          : toAssetId === NATIVE_TOKEN_ID
+            ? [toAssetId, fromAssetId]
+            : fromAssetId < toAssetId
+              ? [fromAssetId, toAssetId]
+              : [toAssetId, fromAssetId];
 
         if (import.meta.env.DEV) console.log('🔍 Sorted pool assets:', { asset1, asset2 });
 
-        // Create pool asset tuple [asset1, asset2] - must be sorted!
+        // Create pool asset tuple using XCM Location format
+        // Native token: { parents: 1, interior: 'Here' }
+        // Assets: { parents: 0, interior: { X2: [{ PalletInstance: 50 }, { GeneralIndex: id }] } }
         const poolAssets = [
-          { NativeOrAsset: { Asset: asset1 } },
-          { NativeOrAsset: { Asset: asset2 } }
+          formatAssetLocation(asset1),
+          formatAssetLocation(asset2)
         ];
 
-        if (import.meta.env.DEV) console.log('🔍 Pool query with:', poolAssets);
+        if (import.meta.env.DEV) console.log('🔍 Pool query with XCM Locations:', poolAssets);
 
         // Query pool from AssetConversion pallet
         const poolInfo = await assetHubApi.query.assetConversion.pools(poolAssets);
@@ -218,90 +227,68 @@ const TokenSwap = () => {
           if (import.meta.env.DEV) console.log('🔍 Pool data:', pool);
 
           try {
-            // New pallet version: reserves are stored in pool account balances
-            // AccountIdConverter implementation in substrate:
-            // blake2_256(&Encode::encode(&(PalletId, PoolId))[..])
-            if (import.meta.env.DEV) console.log('🔍 Deriving pool account using AccountIdConverter...');
-            const { stringToU8a } = await import('@pezkuwi/util');
-            const { blake2AsU8a } = await import('@pezkuwi/util-crypto');
+            // Use Runtime API to get exchange rate (quotePriceExactTokensForTokens)
+            // This is more reliable than deriving pool account manually
+            const decimals0 = asset1 === 1000 ? 6 : 12; // wUSDT: 6, others: 12
+            const decimals1 = asset2 === 1000 ? 6 : 12;
 
-            // PalletId for AssetConversion: "py/ascon" (8 bytes)
-            const PALLET_ID = stringToU8a('py/ascon');
+            const oneUnit = BigInt(Math.pow(10, decimals0));
 
-            // Create PoolId tuple (u32, u32)
-            const poolId = assetHubApi.createType('(u32, u32)', [asset1, asset2]);
-            if (import.meta.env.DEV) console.log('🔍 Pool ID:', poolId.toHuman());
+            if (import.meta.env.DEV) console.log('🔍 Querying price via runtime API...');
 
-            // Create (PalletId, PoolId) tuple: ([u8; 8], (u32, u32))
-            const palletIdType = assetHubApi.createType('[u8; 8]', PALLET_ID);
-            const fullTuple = assetHubApi.createType('([u8; 8], (u32, u32))', [palletIdType, poolId]);
+            const quote = await (assetHubApi.call as any).assetConversionApi.quotePriceExactTokensForTokens(
+              formatAssetLocation(asset1),
+              formatAssetLocation(asset2),
+              oneUnit.toString(),
+              true
+            );
 
-            if (import.meta.env.DEV) console.log('🔍 Full tuple encoded length:', fullTuple.toU8a().length);
-            if (import.meta.env.DEV) console.log('🔍 Full tuple bytes:', Array.from(fullTuple.toU8a()));
+            if (import.meta.env.DEV) console.log('🔍 Quote result:', quote?.toHuman?.() || quote);
 
-            // Hash the SCALE-encoded tuple
-            const accountHash = blake2AsU8a(fullTuple.toU8a(), 256);
-            if (import.meta.env.DEV) console.log('🔍 Account hash:', Array.from(accountHash).slice(0, 8));
+            if (quote && !(quote as any).isNone) {
+              const priceRaw = (quote as any).unwrap().toString();
+              const price = Number(BigInt(priceRaw)) / Math.pow(10, decimals1);
 
-            const poolAccountId = assetHubApi.createType('AccountId32', accountHash);
-            if (import.meta.env.DEV) console.log('🔍 Pool AccountId (NEW METHOD):', poolAccountId.toString());
+              if (import.meta.env.DEV) console.log('✅ Price from runtime API:', price);
 
-            // Query pool account's asset balances
-            if (import.meta.env.DEV) console.log('🔍 Querying reserves for asset', asset1, 'and', asset2);
-            const reserve0Query = await assetHubApi.query.assets.account(asset1, poolAccountId);
-            const reserve1Query = await assetHubApi.query.assets.account(asset2, poolAccountId);
+              // For AMM calculation, estimate reserves from LP supply
+              const lpTokenId = pool.lpToken;
+              let lpSupply = BigInt(1);
 
-            if (import.meta.env.DEV) console.log('🔍 Reserve0 query result:', reserve0Query.toHuman());
-            if (import.meta.env.DEV) console.log('🔍 Reserve1 query result:', reserve1Query.toHuman());
-            if (import.meta.env.DEV) console.log('🔍 Reserve0 isEmpty?', reserve0Query.isEmpty);
-            if (import.meta.env.DEV) console.log('🔍 Reserve1 isEmpty?', reserve1Query.isEmpty);
+              if (assetHubApi.query.poolAssets?.asset) {
+                const lpAssetDetails = await assetHubApi.query.poolAssets.asset(lpTokenId);
+                if ((lpAssetDetails as any).isSome) {
+                  lpSupply = BigInt(((lpAssetDetails as any).unwrap() as any).supply.toString());
+                }
+              }
 
-            const reserve0Data = reserve0Query.toJSON() as Record<string, unknown>;
-            const reserve1Data = reserve1Query.toJSON() as Record<string, unknown>;
+              // Estimate reserves: LP = sqrt(r0 * r1), price = r1/r0
+              // r0 = LP / sqrt(price), r1 = LP * sqrt(price)
+              const sqrtPrice = Math.sqrt(price);
+              const reserve0 = Number(lpSupply) / sqrtPrice / Math.pow(10, 12);
+              const reserve1 = Number(lpSupply) * sqrtPrice / Math.pow(10, 12);
 
-            if (import.meta.env.DEV) console.log('🔍 Reserve0 JSON:', reserve0Data);
-            if (import.meta.env.DEV) console.log('🔍 Reserve1 JSON:', reserve1Data);
-
-            if (reserve0Data && reserve1Data && reserve0Data.balance && reserve1Data.balance) {
-              // Parse hex string balances to BigInt, then to number
-              const balance0Hex = reserve0Data.balance.toString();
-              const balance1Hex = reserve1Data.balance.toString();
-
-              if (import.meta.env.DEV) console.log('🔍 Raw hex balances:', { balance0Hex, balance1Hex });
-
-              // Use correct decimals for each asset
-              // asset1=0 (wHEZ): 12 decimals
-              // asset1=1 (PEZ): 12 decimals
-              // asset2=1000 (wUSDT): 6 decimals
-              const decimals0 = asset1 === 1000 ? 6 : 12; // asset1 is the smaller ID
-              const decimals1 = asset2 === 1000 ? 6 : 12; // asset2 is the larger ID
-
-              const reserve0 = Number(BigInt(balance0Hex)) / (10 ** decimals0);
-              const reserve1 = Number(BigInt(balance1Hex)) / (10 ** decimals1);
-
-              if (import.meta.env.DEV) console.log('✅ Reserves found:', { reserve0, reserve1, decimals0, decimals1 });
+              if (import.meta.env.DEV) console.log('✅ Estimated reserves:', { reserve0, reserve1, lpSupply: lpSupply.toString() });
 
               // Store pool reserves for AMM calculation
               setPoolReserves({
                 reserve0,
                 reserve1,
-                asset0: asset1,  // Sorted pool always has asset1 < asset2
+                asset0: asset1,
                 asset1: asset2
               });
 
-              // Also calculate simple exchange rate for display
-              const rate = fromAssetId === asset1
-                ? reserve1 / reserve0  // from asset1 to asset2
-                : reserve0 / reserve1; // from asset2 to asset1
+              // Calculate exchange rate based on direction
+              const rate = fromAssetId === asset1 ? price : 1 / price;
 
-              if (import.meta.env.DEV) console.log('✅ Exchange rate:', rate, 'direction:', fromAssetId === asset1 ? 'asset1→asset2' : 'asset2→asset1');
+              if (import.meta.env.DEV) console.log('✅ Exchange rate:', rate);
               setExchangeRate(rate);
             } else {
-              if (import.meta.env.DEV) console.warn('⚠️ Pool has no reserves - reserve0Data:', reserve0Data, 'reserve1Data:', reserve1Data);
+              if (import.meta.env.DEV) console.warn('⚠️ No price quote available');
               setExchangeRate(0);
             }
           } catch (err) {
-            if (import.meta.env.DEV) console.error('❌ Error deriving pool account:', err);
+            if (import.meta.env.DEV) console.error('❌ Error fetching price:', err);
             setExchangeRate(0);
           }
         } else {
@@ -550,73 +537,85 @@ const TokenSwap = () => {
       // Build transaction based on token types
       let tx;
 
+      // Use XCM MultiLocation format for swap paths
+      // Native HEZ: { parents: 1, interior: 'Here' }
+      // Assets: { parents: 0, interior: { X2: [{ PalletInstance: 50 }, { GeneralIndex: id }] } }
+      const nativeLocation = formatAssetLocation(NATIVE_TOKEN_ID);
+      const pezLocation = formatAssetLocation(1);
+      const usdtLocation = formatAssetLocation(1000);
+
       if (fromToken === 'HEZ' && toToken === 'PEZ') {
-        // HEZ → PEZ: wrap(HEZ→wHEZ) then swap(wHEZ→PEZ)
-        const wrapTx = assetHubApi.tx.tokenWrapper.wrap(amountIn.toString());
-        // AssetKind = u32, so swap path is just [0, 1]
-        const swapPath = [0, 1]; // wHEZ → PEZ
-        const swapTx = assetHubApi.tx.assetConversion.swapExactTokensForTokens(
-          swapPath,
+        // HEZ → PEZ: Direct swap using native token pool
+        tx = assetHubApi.tx.assetConversion.swapExactTokensForTokens(
+          [nativeLocation, pezLocation],
           amountIn.toString(),
           minAmountOut.toString(),
           selectedAccount.address,
           true
         );
-        tx = assetHubApi.tx.utility.batchAll([wrapTx, swapTx]);
 
       } else if (fromToken === 'PEZ' && toToken === 'HEZ') {
-        // PEZ → HEZ: swap(PEZ→wHEZ) then unwrap(wHEZ→HEZ)
-        // AssetKind = u32, so swap path is just [1, 0]
-        const swapPath = [1, 0]; // PEZ → wHEZ
-        const swapTx = assetHubApi.tx.assetConversion.swapExactTokensForTokens(
-          swapPath,
+        // PEZ → HEZ: Direct swap to native token
+        tx = assetHubApi.tx.assetConversion.swapExactTokensForTokens(
+          [pezLocation, nativeLocation],
           amountIn.toString(),
           minAmountOut.toString(),
           selectedAccount.address,
           true
         );
-        const unwrapTx = assetHubApi.tx.tokenWrapper.unwrap(minAmountOut.toString());
-        tx = assetHubApi.tx.utility.batchAll([swapTx, unwrapTx]);
 
-      } else if (fromToken === 'HEZ') {
-        // HEZ → Any Asset: wrap(HEZ→wHEZ) then swap(wHEZ→Asset)
-        const wrapTx = assetHubApi.tx.tokenWrapper.wrap(amountIn.toString());
-        // Map token symbol to asset ID
-        const toAssetId = toToken === 'PEZ' ? 1 : toToken === 'USDT' ? 1000 : ASSET_IDS[toToken as keyof typeof ASSET_IDS];
-        const swapPath = [0, toAssetId]; // wHEZ → target asset
-        const swapTx = assetHubApi.tx.assetConversion.swapExactTokensForTokens(
-          swapPath,
+      } else if (fromToken === 'HEZ' && toToken === 'USDT') {
+        // HEZ → USDT: Direct swap using native token pool
+        tx = assetHubApi.tx.assetConversion.swapExactTokensForTokens(
+          [nativeLocation, usdtLocation],
           amountIn.toString(),
           minAmountOut.toString(),
           selectedAccount.address,
           true
         );
-        tx = assetHubApi.tx.utility.batchAll([wrapTx, swapTx]);
 
-      } else if (toToken === 'HEZ') {
-        // Any Asset → HEZ: swap(Asset→wHEZ) then unwrap(wHEZ→HEZ)
-        // Map token symbol to asset ID
-        const fromAssetId = fromToken === 'PEZ' ? 1 : fromToken === 'USDT' ? 1000 : ASSET_IDS[fromToken as keyof typeof ASSET_IDS];
-        const swapPath = [fromAssetId, 0]; // source asset → wHEZ
-        const swapTx = assetHubApi.tx.assetConversion.swapExactTokensForTokens(
-          swapPath,
+      } else if (fromToken === 'USDT' && toToken === 'HEZ') {
+        // USDT → HEZ: Direct swap to native token
+        tx = assetHubApi.tx.assetConversion.swapExactTokensForTokens(
+          [usdtLocation, nativeLocation],
           amountIn.toString(),
           minAmountOut.toString(),
           selectedAccount.address,
           true
         );
-        const unwrapTx = assetHubApi.tx.tokenWrapper.unwrap(minAmountOut.toString());
-        tx = assetHubApi.tx.utility.batchAll([swapTx, unwrapTx]);
+
+      } else if (fromToken === 'PEZ' && toToken === 'USDT') {
+        // PEZ → USDT: Multi-hop through HEZ (PEZ → HEZ → USDT)
+        tx = assetHubApi.tx.assetConversion.swapExactTokensForTokens(
+          [pezLocation, nativeLocation, usdtLocation],
+          amountIn.toString(),
+          minAmountOut.toString(),
+          selectedAccount.address,
+          true
+        );
+
+      } else if (fromToken === 'USDT' && toToken === 'PEZ') {
+        // USDT → PEZ: Multi-hop through HEZ (USDT → HEZ → PEZ)
+        tx = assetHubApi.tx.assetConversion.swapExactTokensForTokens(
+          [usdtLocation, nativeLocation, pezLocation],
+          amountIn.toString(),
+          minAmountOut.toString(),
+          selectedAccount.address,
+          true
+        );
 
       } else {
-        // Direct swap between assets (PEZ ↔ USDT, etc.)
-        // Map token symbols to asset IDs
-        const fromAssetId = fromToken === 'PEZ' ? 1 : fromToken === 'USDT' ? 1000 : ASSET_IDS[fromToken as keyof typeof ASSET_IDS];
-        const toAssetId = toToken === 'PEZ' ? 1 : toToken === 'USDT' ? 1000 : ASSET_IDS[toToken as keyof typeof ASSET_IDS];
-        const swapPath = [fromAssetId, toAssetId];
+        // Generic swap using XCM Locations
+        const getAssetLocation = (token: string) => {
+          if (token === 'HEZ') return nativeLocation;
+          if (token === 'PEZ') return pezLocation;
+          if (token === 'USDT') return usdtLocation;
+          const assetId = ASSET_IDS[token as keyof typeof ASSET_IDS];
+          return formatAssetLocation(assetId);
+        };
 
         tx = assetHubApi.tx.assetConversion.swapExactTokensForTokens(
-          swapPath,
+          [getAssetLocation(fromToken), getAssetLocation(toToken)],
           amountIn.toString(),
           minAmountOut.toString(),
           selectedAccount.address,
