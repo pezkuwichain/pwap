@@ -595,7 +595,7 @@ export const AccountBalance: React.FC = () => {
                 title="Send HEZ to teyrcahins for transaction fees"
               >
                 <Fuel className="w-4 h-4 mr-1" />
-                Fund Fees
+                Add Fee
                 <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs bg-gray-800 text-gray-200 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
                   Send HEZ to Asset Hub / People Chain
                 </span>
@@ -622,7 +622,7 @@ export const AccountBalance: React.FC = () => {
               </div>
               <div className="text-sm text-gray-400">
                 {hezUsdPrice > 0
-                  ? `≈ $${((parseFloat(balance.total) + parseFloat(assetHubHezBalance) + parseFloat(peopleHezBalance)) * hezUsdPrice).toFixed(2)} USD (Total across all chains)`
+                  ? `≈ $${((parseFloat(balance.total) + parseFloat(assetHubHezBalance) + parseFloat(peopleHezBalance)) * hezUsdPrice).toFixed(2)} USD (Toplam)`
                   : 'Price loading...'}
               </div>
             </div>

@@ -68,6 +68,15 @@ export const NETWORK_ENDPOINTS: Record<string, NetworkConfig> = {
     type: 'development',
     description: 'Local development node',
   },
+
+  // Development alias (maps to BETA for live testing)
+  DEVELOPMENT: {
+    name: 'Pezkuwi Beta Testnet',
+    endpoint: 'https://rpc.pezkuwichain.io',
+    wsEndpoint: 'wss://rpc.pezkuwichain.io',
+    type: 'development',
+    description: 'Development mode connecting to Beta testnet for live testing',
+  },
 };
 
 /**
