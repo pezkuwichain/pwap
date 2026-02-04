@@ -16,7 +16,10 @@ interface TokenBalances {
   HEZ: string;
   PEZ: string;
   wHEZ: string;
-  USDT: string;  // User-facing key for wUSDT (backend uses wUSDT asset ID 2)
+  USDT: string;  // User-facing key for wUSDT (asset ID 1000)
+  // LP Tokens (from poolAssets pallet)
+  'HEZ-PEZ-LP': string;
+  'HEZ-USDT-LP': string;
 }
 
 interface WalletContextType {
@@ -48,7 +51,14 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   });
 
   const [balance, setBalance] = useState<string>('0');
-  const [balances, setBalances] = useState<TokenBalances>({ HEZ: '0', PEZ: '0', wHEZ: '0', USDT: '0' });
+  const [balances, setBalances] = useState<TokenBalances>({
+    HEZ: '0',
+    PEZ: '0',
+    wHEZ: '0',
+    USDT: '0',
+    'HEZ-PEZ-LP': '0',
+    'HEZ-USDT-LP': '0',
+  });
   const [error, setError] = useState<string | null>(null);
   const [signer, setSigner] = useState<Signer | null>(null);
 
@@ -132,14 +142,44 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         if (import.meta.env.DEV) console.error('❌ Failed to fetch wUSDT balance:', err);
       }
 
+      // Fetch LP Token balances from poolAssets pallet
+      let hezPezLpBalance = '0';
+      let hezUsdtLpBalance = '0';
+      try {
+        // HEZ-PEZ LP Token (ID: 0)
+        const hezPezLp = await assetApi.query.poolAssets.account(0, address);
+        if (hezPezLp.isSome) {
+          hezPezLpBalance = formatBalance(hezPezLp.unwrap().balance.toString());
+          if (import.meta.env.DEV) console.log('✅ HEZ-PEZ LP balance:', hezPezLpBalance);
+        }
+
+        // HEZ-USDT LP Token (ID: 1)
+        const hezUsdtLp = await assetApi.query.poolAssets.account(1, address);
+        if (hezUsdtLp.isSome) {
+          hezUsdtLpBalance = formatBalance(hezUsdtLp.unwrap().balance.toString());
+          if (import.meta.env.DEV) console.log('✅ HEZ-USDT LP balance:', hezUsdtLpBalance);
+        }
+      } catch (err) {
+        if (import.meta.env.DEV) console.error('❌ Failed to fetch LP balances:', err);
+      }
+
       setBalances({
         HEZ: hezBalance,
         PEZ: pezBalance,
         wHEZ: whezBalance,
         USDT: wusdtBalance,
+        'HEZ-PEZ-LP': hezPezLpBalance,
+        'HEZ-USDT-LP': hezUsdtLpBalance,
       });
 
-      if (import.meta.env.DEV) console.log('✅ Balances updated:', { HEZ: hezBalance, PEZ: pezBalance, wHEZ: whezBalance, wUSDT: wusdtBalance });
+      if (import.meta.env.DEV) console.log('✅ Balances updated:', {
+        HEZ: hezBalance,
+        PEZ: pezBalance,
+        wHEZ: whezBalance,
+        USDT: wusdtBalance,
+        'HEZ-PEZ-LP': hezPezLpBalance,
+        'HEZ-USDT-LP': hezUsdtLpBalance,
+      });
     } catch (err) {
       if (import.meta.env.DEV) console.error('Failed to fetch balances:', err);
       setError('Failed to fetch balances');
