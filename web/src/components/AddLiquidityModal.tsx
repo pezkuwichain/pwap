@@ -25,7 +25,7 @@ interface Balances {
 // Helper to get display name for tokens
 const getDisplayName = (assetId: number): string => {
   if (assetId === -1) return 'HEZ';  // Native HEZ from relay chain
-  if (assetId === ASSET_IDS.WHEZ || assetId === 2) return 'wHEZ';  // Wrapped HEZ
+  if (assetId === ASSET_IDS.WHEZ || assetId === 2 || assetId === 0) return 'wHEZ';  // Wrapped HEZ (asset 0 or 2)
   if (assetId === ASSET_IDS.PEZ || assetId === 1) return 'PEZ';
   if (assetId === ASSET_IDS.WUSDT || assetId === 1000) return 'USDT';
   return getAssetSymbol(assetId);
@@ -34,7 +34,7 @@ const getDisplayName = (assetId: number): string => {
 // Helper to get balance key for the asset
 const getBalanceKey = (assetId: number): string => {
   if (assetId === -1) return 'HEZ';  // Native HEZ
-  if (assetId === ASSET_IDS.WHEZ || assetId === 2) return 'wHEZ';  // Wrapped HEZ
+  if (assetId === ASSET_IDS.WHEZ || assetId === 2 || assetId === 0) return 'wHEZ';  // Wrapped HEZ (asset 0 or 2)
   if (assetId === ASSET_IDS.PEZ || assetId === 1) return 'PEZ';
   if (assetId === ASSET_IDS.WUSDT || assetId === 1000) return 'USDT';
   return getAssetSymbol(assetId);
@@ -409,7 +409,7 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
           <Alert className="mb-4 bg-blue-900/20 border-blue-500">
             <Info className="h-4 w-4" />
             <AlertDescription className="text-sm">
-              Add liquidity to earn 3% fees from all swaps. Amounts are auto-calculated based on current pool ratio.
+              Add liquidity to earn 0.3% fees from all swaps. Amounts are auto-calculated based on current pool ratio.
               <strong> Minimum deposit: {minDeposit0.toFixed(asset0Decimals === 6 ? 2 : 4)} {asset0Name} and {minDeposit1.toFixed(asset1Decimals === 6 ? 2 : 4)} {asset1Name}.</strong>
               {(asset0 === 0 || asset0 === ASSET_IDS.WHEZ) && ' Your HEZ will be automatically wrapped to wHEZ.'}
             </AlertDescription>
