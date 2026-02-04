@@ -80,37 +80,65 @@ export interface PoolCreationParams {
 // Native token ID constant (relay chain HEZ)
 export const NATIVE_TOKEN_ID = -1;
 
-// Known tokens on testnet
+// Known tokens on testnet (assets pallet)
 export const KNOWN_TOKENS: Record<number, TokenInfo> = {
   [-1]: {
     id: -1,
     symbol: 'HEZ',
     name: 'Native HEZ',
     decimals: 12,
-  },
-  0: {
-    id: 0,
-    symbol: 'wHEZ',
-    name: 'Wrapped HEZ',
-    decimals: 12,
+    logo: '/shared/images/hez_token_512.png',
   },
   1: {
     id: 1,
     symbol: 'PEZ',
     name: 'Pezkuwi Token',
     decimals: 12,
+    logo: '/shared/images/pez_token_512.png',
   },
   2: {
     id: 2,
     symbol: 'wHEZ',
-    name: 'Wrapped HEZ (Asset Hub)',
+    name: 'Wrapped HEZ',
     decimals: 12,
+    logo: '/shared/images/hez_token_512.png',
   },
   1000: {
     id: 1000,
     symbol: 'wUSDT',
     name: 'Wrapped USDT',
     decimals: 6,
+    logo: '/shared/images/USDT(hez)logo.png',
+  },
+};
+
+// LP Token info (poolAssets pallet - separate from assets pallet)
+export interface LPTokenInfo {
+  id: number;
+  symbol: string;
+  name: string;
+  decimals: number;
+  logo: string;
+  poolPair: [number, number]; // [asset1, asset2]
+}
+
+// Known LP tokens (from poolAssets pallet)
+export const LP_TOKENS: Record<number, LPTokenInfo> = {
+  0: {
+    id: 0,
+    symbol: 'HEZ-PEZ LP',
+    name: 'HEZ-PEZ Liquidity',
+    decimals: 12,
+    logo: '/shared/images/lp_token_512.png',
+    poolPair: [NATIVE_TOKEN_ID, 1],
+  },
+  1: {
+    id: 1,
+    symbol: 'HEZ-USDT LP',
+    name: 'HEZ-USDT Liquidity',
+    decimals: 12,
+    logo: '/shared/images/lp_token_512.png',
+    poolPair: [NATIVE_TOKEN_ID, 1000],
   },
 };
 
