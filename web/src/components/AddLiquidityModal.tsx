@@ -28,7 +28,7 @@ interface Balances {
 
 // Helper to get display name (users see HEZ not wHEZ, PEZ, USDT not wUSDT)
 const getDisplayName = (assetId: number): string => {
-  if (assetId === ASSET_IDS.WHEZ || assetId === 0) return 'HEZ';
+  if (assetId === -1 || assetId === ASSET_IDS.WHEZ || assetId === 0 || assetId === 2) return 'HEZ';
   if (assetId === ASSET_IDS.PEZ || assetId === 1) return 'PEZ';
   if (assetId === ASSET_IDS.WUSDT || assetId === 1000) return 'USDT';
   return getAssetSymbol(assetId);
@@ -36,7 +36,7 @@ const getDisplayName = (assetId: number): string => {
 
 // Helper to get balance key for the asset
 const getBalanceKey = (assetId: number): string => {
-  if (assetId === ASSET_IDS.WHEZ || assetId === 0) return 'HEZ';
+  if (assetId === -1 || assetId === ASSET_IDS.WHEZ || assetId === 0 || assetId === 2) return 'HEZ';
   if (assetId === ASSET_IDS.PEZ || assetId === 1) return 'PEZ';
   if (assetId === ASSET_IDS.WUSDT || assetId === 1000) return 'USDT';
   return getAssetSymbol(assetId);
