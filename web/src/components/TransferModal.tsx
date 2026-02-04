@@ -97,12 +97,18 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, s
       return;
     }
 
-    // Check if PEZ transfer but Asset Hub not ready
-    const isPezTransfer = currentToken.symbol === 'PEZ' || currentToken.assetId === 1;
-    if (isPezTransfer && (!assetHubApi || !isAssetHubReady)) {
+    // Check if Asset Hub transfer (PEZ, wUSDT, wHEZ are on Asset Hub)
+    const isAssetHubTransfer = currentToken.symbol === 'PEZ' ||
+                               currentToken.symbol === 'USDT' ||
+                               currentToken.symbol === 'wUSDT' ||
+                               currentToken.symbol === 'wHEZ' ||
+                               currentToken.assetId === 1 ||    // PEZ
+                               currentToken.assetId === 2 ||    // wHEZ
+                               currentToken.assetId === 1000;   // wUSDT
+    if (isAssetHubTransfer && (!assetHubApi || !isAssetHubReady)) {
       toast({
         title: "Error",
-        description: "Asset Hub connection not ready. PEZ is on Asset Hub.",
+        description: "Asset Hub connection not ready. This token is on Asset Hub.",
         variant: "destructive",
       });
       return;
@@ -133,12 +139,12 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, s
 
       // Create appropriate transfer transaction based on token type
       // HEZ uses native token transfer (balances pallet on main chain)
-      // PEZ uses assets pallet on Asset Hub (asset ID: 1)
+      // PEZ, wHEZ, wUSDT use assets pallet on Asset Hub
       if (currentToken.assetId === undefined || (selectedToken === 'HEZ' && !selectedAsset)) {
         // Native HEZ token transfer on main chain
         transfer = api.tx.balances.transferKeepAlive(recipient, amountInSmallestUnit.toString());
-      } else if (isPezTransfer) {
-        // PEZ transfer on Asset Hub (asset ID: 1)
+      } else if (isAssetHubTransfer) {
+        // Asset Hub transfer (PEZ, wHEZ, wUSDT)
         targetApi = assetHubApi!;
         transfer = assetHubApi!.tx.assets.transfer(currentToken.assetId, recipient, amountInSmallestUnit.toString());
       } else {
