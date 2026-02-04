@@ -23,6 +23,13 @@ exports[`EducationScreen should match snapshot 1`] = `
       }
     }
   >
+    <View
+      style={
+        {
+          "width": 40,
+        }
+      }
+    />
     <Text
       style={
         {
@@ -37,187 +44,13 @@ exports[`EducationScreen should match snapshot 1`] = `
       Perwerde
     </Text>
     <View
-      accessibilityState={
-        {
-          "busy": undefined,
-          "checked": undefined,
-          "disabled": undefined,
-          "expanded": undefined,
-          "selected": undefined,
-        }
-      }
-      accessibilityValue={
-        {
-          "max": undefined,
-          "min": undefined,
-          "now": undefined,
-          "text": undefined,
-        }
-      }
-      accessible={true}
-      collapsable={false}
-      focusable={true}
-      onClick={[Function]}
-      onResponderGrant={[Function]}
-      onResponderMove={[Function]}
-      onResponderRelease={[Function]}
-      onResponderTerminate={[Function]}
-      onResponderTerminationRequest={[Function]}
-      onStartShouldSetResponder={[Function]}
       style={
         {
-          "opacity": 1,
-          "padding": 8,
+          "width": 40,
         }
       }
-    >
-      <Text
-        style={
-          {
-            "color": "#00A94F",
-            "fontSize": 14,
-            "fontWeight": "600",
-          }
-        }
-      >
-        Reload
-      </Text>
-    </View>
+    />
   </View>
-  <WebView
-    allowsBackForwardNavigationGestures={true}
-    allowsInlineMediaPlayback={true}
-    bounces={true}
-    cacheEnabled={true}
-    cacheMode="LOAD_DEFAULT"
-    domStorageEnabled={true}
-    injectedJavaScript="
-    (function() {
-      // Mark this as mobile app
-      window.PEZKUWI_MOBILE = true;
-      window.PEZKUWI_PLATFORM = 'ios';
-
-      // Inject wallet address if connected
-      window.PEZKUWI_ADDRESS = '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY';
-      window.PEZKUWI_ACCOUNT_NAME = 'Mobile Wallet';
-
-      // Inject auth session for automatic login
-      
-      
-      window.PEZKUWI_USER_ID = 'test-user-id';
-      window.PEZKUWI_USER_EMAIL = 'test@pezkuwichain.io';
-
-      // Auto-authenticate with Supabase if session token exists
-      if (window.PEZKUWI_SESSION_TOKEN) {
-        (function autoAuth(attempts = 0) {
-          if (attempts > 50) {
-            console.warn('[Mobile] Auto-auth timed out: window.supabase not found');
-            return;
-          }
-          
-          if (window.supabase && window.supabase.auth) {
-            window.supabase.auth.setSession({
-              access_token: window.PEZKUWI_SESSION_TOKEN,
-              refresh_token: window.PEZKUWI_REFRESH_TOKEN || ''
-            }).then(function(res) {
-              if (res.error) console.warn('[Mobile] Auto-auth error:', res.error);
-              else console.log('[Mobile] Auto-authenticated successfully');
-            }).catch(function(err) {
-              console.warn('[Mobile] Auto-auth promise failed:', err);
-            });
-          } else {
-            setTimeout(function() { autoAuth(attempts + 1); }, 100);
-          }
-        })(0);
-      }
-
-      // Override console.log to send to React Native (for debugging)
-      const originalConsoleLog = console.log;
-      console.log = function(...args) {
-        originalConsoleLog.apply(console, args);
-        window.ReactNativeWebView?.postMessage(JSON.stringify({
-          type: 'CONSOLE_LOG',
-          payload: args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' ')
-        }));
-      };
-
-      // Create native bridge for wallet operations
-      window.PezkuwiNativeBridge = {
-        // Request transaction signing and submission from native wallet
-        signTransaction: function(payload, callback) {
-          window.__pendingSignCallback = callback;
-          window.ReactNativeWebView?.postMessage(JSON.stringify({
-            type: 'SIGN_TRANSACTION',
-            payload: payload
-          }));
-        },
-
-        // Request wallet connection
-        connectWallet: function() {
-          window.ReactNativeWebView?.postMessage(JSON.stringify({
-            type: 'CONNECT_WALLET'
-          }));
-        },
-
-        // Navigate back in native app
-        goBack: function() {
-          window.ReactNativeWebView?.postMessage(JSON.stringify({
-            type: 'GO_BACK'
-          }));
-        },
-
-        // Check if wallet is connected
-        isWalletConnected: function() {
-          return !!window.PEZKUWI_ADDRESS;
-        },
-
-        // Get connected address
-        getAddress: function() {
-          return window.PEZKUWI_ADDRESS || null;
-        }
-      };
-
-      // Notify web app that native bridge is ready
-      window.dispatchEvent(new CustomEvent('pezkuwi-native-ready', {
-        detail: {
-          address: window.PEZKUWI_ADDRESS,
-          platform: window.PEZKUWI_PLATFORM
-        }
-      }));
-
-      true; // Required for injectedJavaScript
-    })();
-  "
-    javaScriptEnabled={true}
-    mediaPlaybackRequiresUserAction={false}
-    onError={[Function]}
-    onHttpError={[Function]}
-    onLoadEnd={[Function]}
-    onLoadStart={[Function]}
-    onMessage={[Function]}
-    onNavigationStateChange={[Function]}
-    pullToRefreshEnabled={true}
-    ref={
-      {
-        "current": null,
-      }
-    }
-    sharedCookiesEnabled={true}
-    showsHorizontalScrollIndicator={false}
-    showsVerticalScrollIndicator={true}
-    source={
-      {
-        "uri": "https://pezkuwichain.io/education",
-      }
-    }
-    style={
-      {
-        "flex": 1,
-      }
-    }
-    thirdPartyCookiesEnabled={true}
-    webviewDebuggingEnabled={true}
-  />
   <View
     style={
       {
@@ -245,7 +78,7 @@ exports[`EducationScreen should match snapshot 1`] = `
         }
       }
     >
-      Loading...
+      Preparing session...
     </Text>
   </View>
 </View>
