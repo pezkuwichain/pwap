@@ -85,8 +85,8 @@ export const InitializeHezPoolModal: React.FC<InitializeHezPoolModalProps> = ({
         const freeBalance = balance.data.free.toString();
         setHezBalance(freeBalance);
 
-        // wHEZ balance (asset 0 on Asset Hub)
-        const whezData = await assetHubApi.query.assets.account(0, account);
+        // wHEZ balance (asset 2 on Asset Hub - tokenWrapper creates asset 2)
+        const whezData = await assetHubApi.query.assets.account(2, account);
         setWhezBalance(whezData.isSome ? whezData.unwrap().balance.toString() : '0');
       } catch (error) {
         if (import.meta.env.DEV) console.error('Failed to fetch balances from Asset Hub:', error);

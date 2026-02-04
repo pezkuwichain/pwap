@@ -47,11 +47,16 @@ export const KURDISTAN_COLORS = {
 } as const;
 
 /**
- * Known tokens on the Pezkuwi blockchain
+ * Known tokens on the Pezkuwi blockchain (Asset Hub)
+ *
+ * Asset IDs on Asset Hub:
+ * - Asset 1: PEZ (Pezkuwi Token)
+ * - Asset 2: wHEZ (Wrapped HEZ via tokenWrapper)
+ * - Asset 1000: wUSDT (Wrapped USDT)
  */
 export const KNOWN_TOKENS: Record<number, TokenInfo> = {
-  0: {
-    id: 0,
+  2: {
+    id: 2,
     symbol: 'wHEZ',
     name: 'Wrapped HEZ',
     decimals: 12,
