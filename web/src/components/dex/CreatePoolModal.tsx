@@ -177,13 +177,27 @@ export const CreatePoolModal: React.FC<CreatePoolModalProps> = ({
       setTxStatus('signing');
       setErrorMessage('');
 
+      // Convert asset IDs to proper format for assetConversion pallet
+      // Native token uses { Native: null }, assets use { Asset: id }
+      const formatAssetId = (id: number) => {
+        // For now, all our tokens are assets on Asset Hub
+        return { Asset: id };
+      };
+
+      const asset1 = formatAssetId(asset1Id!);
+      const asset2 = formatAssetId(asset2Id!);
+
+      if (import.meta.env.DEV) {
+        console.log('🏊 Creating pool with:', { asset1, asset2, amount1Raw, amount2Raw });
+      }
+
       // Create pool extrinsic on Asset Hub
-      const createPoolTx = assetHubApi.tx.assetConversion.createPool(asset1Id, asset2Id);
+      const createPoolTx = assetHubApi.tx.assetConversion.createPool(asset1, asset2);
 
       // Add liquidity extrinsic on Asset Hub
       const addLiquidityTx = assetHubApi.tx.assetConversion.addLiquidity(
-        asset1Id,
-        asset2Id,
+        asset1,
+        asset2,
         amount1Raw,
         amount2Raw,
         amount1Raw, // min amount1
