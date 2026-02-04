@@ -22,7 +22,8 @@ export const InitializeHezPoolModal: React.FC<InitializeHezPoolModalProps> = ({
   onClose,
   onSuccess,
 }) => {
-  const { api, isApiReady } = usePezkuwi();
+  // Use Asset Hub API for DEX operations (tokenWrapper pallet is on Asset Hub)
+  const { assetHubApi, isAssetHubReady } = usePezkuwi();
   const { account, signer } = useWallet();
   const { toast } = useToast();
 
@@ -30,6 +31,7 @@ export const InitializeHezPoolModal: React.FC<InitializeHezPoolModalProps> = ({
 
   const [hezBalance, setHezBalance] = useState<string>('0');
   const [whezBalance, setWhezBalance] = useState<string>('0');
+  const [palletAvailable, setPalletAvailable] = useState<boolean | null>(null);
 
   const [txStatus, setTxStatus] = useState<TransactionStatus>('idle');
   const [errorMessage, setErrorMessage] = useState<string>('');
@@ -43,33 +45,72 @@ export const InitializeHezPoolModal: React.FC<InitializeHezPoolModalProps> = ({
     }
   }, [isOpen]);
 
-  // Fetch balances
+  // Check if tokenWrapper pallet is available on Asset Hub
   useEffect(() => {
-    const fetchBalances = async () => {
-      if (!api || !isApiReady || !account) return;
+    const checkPallet = async () => {
+      if (!assetHubApi || !isAssetHubReady) {
+        setPalletAvailable(null);
+        return;
+      }
 
       try {
-        // HEZ balance (native)
-        const balance = await api.query.system.account(account);
+        // Check if tokenWrapper pallet exists on Asset Hub
+        const hasTokenWrapper = assetHubApi.tx.tokenWrapper !== undefined &&
+                                assetHubApi.tx.tokenWrapper.wrap !== undefined;
+        setPalletAvailable(hasTokenWrapper);
+
+        if (import.meta.env.DEV) {
+          console.log('🔍 TokenWrapper pallet on Asset Hub:', hasTokenWrapper);
+          if (!hasTokenWrapper) {
+            console.log('Available pallets on Asset Hub:', Object.keys(assetHubApi.tx));
+          }
+        }
+      } catch (error) {
+        if (import.meta.env.DEV) console.error('Failed to check pallet:', error);
+        setPalletAvailable(false);
+      }
+    };
+
+    checkPallet();
+  }, [assetHubApi, isAssetHubReady]);
+
+  // Fetch balances from Asset Hub
+  useEffect(() => {
+    const fetchBalances = async () => {
+      if (!assetHubApi || !isAssetHubReady || !account) return;
+
+      try {
+        // HEZ balance (native on Asset Hub)
+        const balance = await assetHubApi.query.system.account(account);
         const freeBalance = balance.data.free.toString();
         setHezBalance(freeBalance);
 
-        // wHEZ balance (asset 0)
-        const whezData = await api.query.assets.account(0, account);
+        // wHEZ balance (asset 0 on Asset Hub)
+        const whezData = await assetHubApi.query.assets.account(0, account);
         setWhezBalance(whezData.isSome ? whezData.unwrap().balance.toString() : '0');
       } catch (error) {
-        if (import.meta.env.DEV) console.error('Failed to fetch balances:', error);
+        if (import.meta.env.DEV) console.error('Failed to fetch balances from Asset Hub:', error);
       }
     };
 
     fetchBalances();
-  }, [api, isApiReady, account]);
+  }, [assetHubApi, isAssetHubReady, account]);
 
   const handleWrap = async () => {
-    if (!api || !isApiReady || !signer || !account) {
+    if (!assetHubApi || !isAssetHubReady || !signer || !account) {
       toast({
         title: 'Error',
-        description: 'Please connect your wallet',
+        description: 'Please connect your wallet and wait for Asset Hub connection',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!palletAvailable) {
+      setErrorMessage('TokenWrapper pallet is not available on Asset Hub. Please contact the team.');
+      toast({
+        title: 'Pallet Not Available',
+        description: 'The TokenWrapper pallet is not deployed on Asset Hub.',
         variant: 'destructive',
       });
       return;
@@ -83,7 +124,7 @@ export const InitializeHezPoolModal: React.FC<InitializeHezPoolModalProps> = ({
     }
 
     if (hezAmountRaw > BigInt(hezBalance)) {
-      setErrorMessage('Insufficient HEZ balance');
+      setErrorMessage('Insufficient HEZ balance on Asset Hub');
       return;
     }
 
@@ -91,12 +132,12 @@ export const InitializeHezPoolModal: React.FC<InitializeHezPoolModalProps> = ({
     setErrorMessage('');
 
     try {
-      if (import.meta.env.DEV) console.log('🔄 Wrapping HEZ to wHEZ...', {
+      if (import.meta.env.DEV) console.log('🔄 Wrapping HEZ to wHEZ on Asset Hub...', {
         hezAmount,
         hezAmountRaw: hezAmountRaw.toString(),
       });
 
-      const wrapTx = api.tx.tokenWrapper.wrap(hezAmountRaw.toString());
+      const wrapTx = assetHubApi.tx.tokenWrapper.wrap(hezAmountRaw.toString());
 
       setTxStatus('submitting');
 
@@ -113,7 +154,7 @@ export const InitializeHezPoolModal: React.FC<InitializeHezPoolModalProps> = ({
               let errorMsg = '';
 
               if (dispatchError.isModule) {
-                const decoded = api.registry.findMetaError(dispatchError.asModule);
+                const decoded = assetHubApi.registry.findMetaError(dispatchError.asModule);
                 errorMsg = `${decoded.section}.${decoded.name}: ${decoded.docs.join(' ')}`;
                 if (import.meta.env.DEV) console.error('❌ Module error:', errorMsg);
               } else {
@@ -183,6 +224,17 @@ export const InitializeHezPoolModal: React.FC<InitializeHezPoolModalProps> = ({
         </CardHeader>
 
         <CardContent className="space-y-6 pt-6">
+          {/* Pallet Availability Warning */}
+          {palletAvailable === false && (
+            <Alert className="bg-yellow-500/10 border-yellow-500/30">
+              <AlertCircle className="h-4 w-4 text-yellow-400" />
+              <AlertDescription className="text-yellow-300 text-sm">
+                <strong>TokenWrapper pallet not deployed.</strong> This feature requires the TokenWrapper pallet to be deployed on the blockchain runtime.
+                Please contact the development team.
+              </AlertDescription>
+            </Alert>
+          )}
+
           {/* Info Banner */}
           <Alert className="bg-blue-500/10 border-blue-500/30">
             <Info className="h-4 w-4 text-blue-400" />
@@ -266,7 +318,8 @@ export const InitializeHezPoolModal: React.FC<InitializeHezPoolModalProps> = ({
               disabled={
                 txStatus === 'signing' ||
                 txStatus === 'submitting' ||
-                txStatus === 'success'
+                txStatus === 'success' ||
+                palletAvailable === false
               }
             >
               {txStatus === 'signing' && (

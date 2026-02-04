@@ -25,7 +25,8 @@ export const InitializeUsdtModal: React.FC<InitializeUsdtModalProps> = ({
   onClose,
   onSuccess,
 }) => {
-  const { api, isApiReady } = usePezkuwi();
+  // Use Asset Hub API for DEX operations (assets pallet is on Asset Hub)
+  const { assetHubApi, isAssetHubReady } = usePezkuwi();
   const { account, signer } = useWallet();
   const { toast } = useToast();
 
@@ -45,28 +46,39 @@ export const InitializeUsdtModal: React.FC<InitializeUsdtModalProps> = ({
     }
   }, [isOpen]);
 
-  // Fetch wUSDT balance
+  // Fetch wUSDT balance from Asset Hub
   useEffect(() => {
     const fetchBalance = async () => {
-      if (!api || !isApiReady || !account) return;
+      if (!assetHubApi || !isAssetHubReady || !account) return;
 
       try {
-        // wUSDT balance (asset 2)
-        const wusdtData = await api.query.assets.account(USDT_ASSET_ID, account);
+        // wUSDT balance (asset 1000 on Asset Hub)
+        const wusdtData = await assetHubApi.query.assets.account(USDT_ASSET_ID, account);
         setWusdtBalance(wusdtData.isSome ? wusdtData.unwrap().balance.toString() : '0');
       } catch (error) {
-        if (import.meta.env.DEV) console.error('Failed to fetch wUSDT balance:', error);
+        if (import.meta.env.DEV) console.error('Failed to fetch wUSDT balance from Asset Hub:', error);
       }
     };
 
     fetchBalance();
-  }, [api, isApiReady, account]);
+  }, [assetHubApi, isAssetHubReady, account]);
 
   const handleMint = async () => {
-    if (!api || !isApiReady || !signer || !account) {
+    if (!assetHubApi || !isAssetHubReady || !signer || !account) {
       toast({
         title: 'Error',
-        description: 'Please connect your wallet',
+        description: 'Please connect your wallet and wait for Asset Hub connection',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Check if assets pallet is available on Asset Hub
+    if (!assetHubApi.tx.assets || !assetHubApi.tx.assets.mint) {
+      setErrorMessage('Assets pallet is not available on Asset Hub.');
+      toast({
+        title: 'Pallet Not Available',
+        description: 'The Assets pallet is not deployed on Asset Hub.',
         variant: 'destructive',
       });
       return;
@@ -83,13 +95,13 @@ export const InitializeUsdtModal: React.FC<InitializeUsdtModalProps> = ({
     setErrorMessage('');
 
     try {
-      if (import.meta.env.DEV) console.log('💵 Minting wUSDT...', {
+      if (import.meta.env.DEV) console.log('💵 Minting wUSDT on Asset Hub...', {
         usdtAmount,
         usdtAmountRaw: usdtAmountRaw.toString(),
         assetId: USDT_ASSET_ID,
       });
 
-      const mintTx = api.tx.assets.mint(USDT_ASSET_ID, account, usdtAmountRaw.toString());
+      const mintTx = assetHubApi.tx.assets.mint(USDT_ASSET_ID, account, usdtAmountRaw.toString());
 
       setTxStatus('submitting');
 
@@ -106,7 +118,7 @@ export const InitializeUsdtModal: React.FC<InitializeUsdtModalProps> = ({
               let errorMsg = '';
 
               if (dispatchError.isModule) {
-                const decoded = api.registry.findMetaError(dispatchError.asModule);
+                const decoded = assetHubApi.registry.findMetaError(dispatchError.asModule);
                 errorMsg = `${decoded.section}.${decoded.name}: ${decoded.docs.join(' ')}`;
                 if (import.meta.env.DEV) console.error('❌ Module error:', errorMsg);
               } else {
