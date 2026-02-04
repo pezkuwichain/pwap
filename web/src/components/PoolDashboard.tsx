@@ -69,12 +69,17 @@ const PoolDashboard = () => {
 
     const discoverPools = async () => {
       try {
-        // Pools must pair with Native token (relay chain HEZ)
-        // Valid pools: Native HEZ / PEZ, Native HEZ / wUSDT, Native HEZ / wHEZ
+        // All possible pool combinations
         const possiblePools: Array<[number, number]> = [
+          // Native HEZ pools
           [NATIVE_TOKEN_ID, ASSET_IDS.PEZ],     // Native HEZ / PEZ
           [NATIVE_TOKEN_ID, ASSET_IDS.WUSDT],   // Native HEZ / wUSDT
           [NATIVE_TOKEN_ID, ASSET_IDS.WHEZ],    // Native HEZ / wHEZ
+          // wHEZ pools
+          [ASSET_IDS.WHEZ, ASSET_IDS.PEZ],      // wHEZ / PEZ
+          [ASSET_IDS.WHEZ, ASSET_IDS.WUSDT],    // wHEZ / wUSDT
+          // PEZ pools
+          [ASSET_IDS.PEZ, ASSET_IDS.WUSDT],     // PEZ / wUSDT
         ];
 
         const existingPools: Array<[number, number]> = [];
