@@ -103,8 +103,9 @@ export const AccountBalance: React.FC = () => {
       // CoinGecko API - fetch DOT, HEZ, PEZ prices
       // Note: HEZ and PEZ may not be listed yet, so we use DOT as fallback
       const coingeckoIds = 'polkadot,pezkuwichain,pez-token'; // DOT is always available
+      // Use our proxy to avoid CORS and rate limits
       const response = await fetch(
-        `https://api.coingecko.com/api/v3/simple/price?ids=${coingeckoIds}&vs_currencies=usd&include_24hr_change=true`
+        `https://api.pezkuwichain.io/api/prices?ids=${coingeckoIds}&vs_currencies=usd&include_24hr_change=true`
       );
 
       let hezPrice = 0;
