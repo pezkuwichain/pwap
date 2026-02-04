@@ -8,17 +8,31 @@
 export const FOUNDER_ADDRESS_FALLBACK = '5GgTgG9sRmPQAYU1RsTejZYnZRjwzKZKWD3awtuqjHioki45';
 
 /**
- * Check if given address is the sudo account (admin/founder)
- * SECURITY: Only allows admin access when connected to blockchain with valid sudo key
+ * Treasury and admin accounts that have elevated permissions
+ * These accounts can perform admin operations like creating pools, minting tokens, etc.
+ */
+export const TREASURY_ADDRESSES = [
+  '5EhCpn82QtdU53MF6PoNFrKHgSrsfcAxFTMwrn3JYf9dioQw', // Treasury 1 - wUSDT issuer/admin
+] as const;
+
+/**
+ * Check if given address is the sudo account (admin/founder) or a treasury account
+ * SECURITY: Only allows admin access when connected to blockchain with valid sudo key,
+ * or if the address is a known treasury account
  * @param address - Substrate address to check
  * @param sudoKey - Sudo key fetched from blockchain (REQUIRED for admin access)
- * @returns true if address matches sudo key from blockchain
+ * @returns true if address matches sudo key from blockchain or is a treasury account
  */
 export const isFounderWallet = (
   address: string | null | undefined,
   sudoKey?: string | null
 ): boolean => {
   if (!address) return false;
+
+  // Check if address is a known treasury account
+  if (TREASURY_ADDRESSES.includes(address as typeof TREASURY_ADDRESSES[number])) {
+    return true;
+  }
 
   // SECURITY FIX: ONLY use dynamic sudo key from blockchain
   // No fallback to hardcoded address - admin access requires active blockchain connection
@@ -99,6 +113,7 @@ export const getUserRole = (
   sudoKey?: string | null
 ): string => {
   if (!address) return 'Guest';
-  if (isFounderWallet(address, sudoKey)) return 'Sudo (Admin)';
+  if (address === sudoKey) return 'Sudo (Admin)';
+  if (TREASURY_ADDRESSES.includes(address as typeof TREASURY_ADDRESSES[number])) return 'Treasury (Admin)';
   return 'User';
 };
