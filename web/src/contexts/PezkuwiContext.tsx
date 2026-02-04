@@ -5,9 +5,14 @@ import type { InjectedAccountWithMeta } from '@pezkuwi/extension-inject/types';
 import { DEFAULT_ENDPOINT } from '../../../shared/blockchain/pezkuwi';
 import { isMobileApp, getNativeWalletAddress, getNativeAccountName } from '@/lib/mobile-bridge';
 
+// Asset Hub endpoint for PEZ token queries
+const ASSET_HUB_ENDPOINT = 'wss://asset-hub-rpc.pezkuwichain.io';
+
 interface PezkuwiContextType {
   api: ApiPromise | null;
+  assetHubApi: ApiPromise | null;
   isApiReady: boolean;
+  isAssetHubReady: boolean;
   isConnected: boolean;
   accounts: InjectedAccountWithMeta[];
   selectedAccount: InjectedAccountWithMeta | null;
@@ -30,7 +35,9 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
   endpoint = DEFAULT_ENDPOINT // Beta testnet RPC from shared config
 }) => {
   const [api, setApi] = useState<ApiPromise | null>(null);
+  const [assetHubApi, setAssetHubApi] = useState<ApiPromise | null>(null);
   const [isApiReady, setIsApiReady] = useState(false);
+  const [isAssetHubReady, setIsAssetHubReady] = useState(false);
   const [accounts, setAccounts] = useState<InjectedAccountWithMeta[]>([]);
   const [selectedAccount, setSelectedAccount] = useState<InjectedAccountWithMeta | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -127,11 +134,49 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
       setIsApiReady(false);
     };
 
+    // Initialize Asset Hub API for PEZ token
+    const initAssetHubApi = async () => {
+      try {
+        if (import.meta.env.DEV) {
+          console.log('🔗 Connecting to Asset Hub:', ASSET_HUB_ENDPOINT);
+        }
+
+        const provider = new WsProvider(ASSET_HUB_ENDPOINT);
+        const assetHubApiInstance = await ApiPromise.create({
+          provider,
+          signedExtensions: {
+            AuthorizeCall: {
+              extrinsic: {},
+              payload: {},
+            },
+          },
+        });
+
+        await assetHubApiInstance.isReady;
+
+        setAssetHubApi(assetHubApiInstance);
+        setIsAssetHubReady(true);
+
+        if (import.meta.env.DEV) {
+          console.log('✅ Connected to Asset Hub for PEZ token');
+        }
+      } catch (err) {
+        if (import.meta.env.DEV) {
+          console.error('❌ Failed to connect to Asset Hub:', err);
+        }
+        // Don't set error - PEZ features just won't work
+      }
+    };
+
     initApi();
+    initAssetHubApi();
 
     return () => {
       if (api) {
         api.disconnect();
+      }
+      if (assetHubApi) {
+        assetHubApi.disconnect();
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -311,7 +356,9 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
 
   const value: PezkuwiContextType = {
     api,
+    assetHubApi,
     isApiReady,
+    isAssetHubReady,
     isConnected: isApiReady, // Alias for backward compatibility
     accounts,
     selectedAccount,

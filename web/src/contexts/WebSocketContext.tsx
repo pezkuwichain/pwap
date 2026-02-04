@@ -17,12 +17,20 @@ interface WebSocketContextType {
 
 const WebSocketContext = createContext<WebSocketContextType | null>(null);
 
-const ENDPOINTS = [
-  'ws://localhost:8082',                 // Local Vite dev server
-  'ws://127.0.0.1:9944',                // Local development node (primary)
-  'ws://localhost:9944',                 // Local development node (alternative)
-  'wss://ws.pezkuwichain.io',           // Production WebSocket (fallback)
-];
+// Only use localhost endpoints if running locally
+const isLocalhost = typeof window !== 'undefined' &&
+  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
+const ENDPOINTS = isLocalhost
+  ? [
+      'ws://localhost:8082',             // Local Vite dev server
+      'ws://127.0.0.1:9944',             // Local development node (primary)
+      'ws://localhost:9944',             // Local development node (alternative)
+      'wss://ws.pezkuwichain.io',        // Production WebSocket (fallback)
+    ]
+  : [
+      'wss://ws.pezkuwichain.io',        // Production WebSocket only
+    ];
 
 export const useWebSocket = () => {
   const context = useContext(WebSocketContext);

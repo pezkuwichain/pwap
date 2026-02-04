@@ -18,7 +18,7 @@ interface TokenBalance {
 }
 
 export const AccountBalance: React.FC = () => {
-  const { api, isApiReady, selectedAccount } = usePezkuwi();
+  const { api, assetHubApi, isApiReady, isAssetHubReady, selectedAccount } = usePezkuwi();
   const [balance, setBalance] = useState<{
     free: string;
     reserved: string;
@@ -318,21 +318,26 @@ export const AccountBalance: React.FC = () => {
         total: totalTokens,
       });
 
-      // Fetch PEZ balance (Asset ID: 1)
+      // Fetch PEZ balance (Asset ID: 1) from Asset Hub
       try {
-        const pezAssetBalance = await api.query.assets.account(1, selectedAccount.address);
+        if (assetHubApi && isAssetHubReady) {
+          const pezAssetBalance = await assetHubApi.query.assets.account(1, selectedAccount.address);
 
-        if (pezAssetBalance.isSome) {
-          const assetData = pezAssetBalance.unwrap();
-          const pezAmount = assetData.balance.toString();
-          const pezTokens = (parseInt(pezAmount) / divisor).toFixed(4);
-          setPezBalance(pezTokens);
+          if (pezAssetBalance.isSome) {
+            const assetData = pezAssetBalance.unwrap();
+            const pezAmount = assetData.balance.toString();
+            const pezTokens = (parseInt(pezAmount) / divisor).toFixed(4);
+            setPezBalance(pezTokens);
+          } else {
+            setPezBalance('0.0000');
+          }
         } else {
-          setPezBalance('0');
+          if (import.meta.env.DEV) console.log('Asset Hub not ready, PEZ balance pending...');
+          setPezBalance('0.0000');
         }
       } catch (error) {
-        if (import.meta.env.DEV) console.error('Failed to fetch PEZ balance:', error);
-        setPezBalance('0');
+        if (import.meta.env.DEV) console.error('Failed to fetch PEZ balance from Asset Hub:', error);
+        setPezBalance('0.0000');
       }
 
       // Fetch USDT balance (wUSDT - Asset ID: 1000)
@@ -460,26 +465,28 @@ export const AccountBalance: React.FC = () => {
         }
       );
 
-      // Subscribe to PEZ balance (Asset ID: 1)
-      try {
-        unsubscribePez = await api.query.assets.account(
-          1,
-          selectedAccount.address,
-          (assetBalance) => {
-            if (assetBalance.isSome) {
-              const assetData = assetBalance.unwrap();
-              const pezAmount = assetData.balance.toString();
-              const decimals = 12;
-              const divisor = Math.pow(10, decimals);
-              const pezTokens = (parseInt(pezAmount) / divisor).toFixed(4);
-              setPezBalance(pezTokens);
-            } else {
-              setPezBalance('0');
+      // Subscribe to PEZ balance (Asset ID: 1) from Asset Hub
+      if (assetHubApi && isAssetHubReady) {
+        try {
+          unsubscribePez = await assetHubApi.query.assets.account(
+            1,
+            selectedAccount.address,
+            (assetBalance) => {
+              if (assetBalance.isSome) {
+                const assetData = assetBalance.unwrap();
+                const pezAmount = assetData.balance.toString();
+                const decimals = 12;
+                const divisor = Math.pow(10, decimals);
+                const pezTokens = (parseInt(pezAmount) / divisor).toFixed(4);
+                setPezBalance(pezTokens);
+              } else {
+                setPezBalance('0.0000');
+              }
             }
-          }
-        );
-      } catch (error) {
-        if (import.meta.env.DEV) console.error('Failed to subscribe to PEZ balance:', error);
+          );
+        } catch (error) {
+          if (import.meta.env.DEV) console.error('Failed to subscribe to PEZ balance from Asset Hub:', error);
+        }
       }
 
       // Subscribe to USDT balance (wUSDT - Asset ID: 2)
@@ -513,7 +520,7 @@ export const AccountBalance: React.FC = () => {
       if (unsubscribeUsdt) unsubscribeUsdt();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [api, isApiReady, selectedAccount]);
+  }, [api, assetHubApi, isApiReady, isAssetHubReady, selectedAccount]);
 
   if (!selectedAccount) {
     return (
