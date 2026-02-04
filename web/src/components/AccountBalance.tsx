@@ -16,6 +16,7 @@ interface TokenBalance {
   balance: string;
   decimals: number;
   usdValue: number;
+  isLpToken?: boolean;  // LP tokens from poolAssets pallet
 }
 
 export const AccountBalance: React.FC = () => {
@@ -34,6 +35,8 @@ export const AccountBalance: React.FC = () => {
   const [peopleHezBalance, setPeopleHezBalance] = useState<string>('0');
   const [pezBalance, setPezBalance] = useState<string>('0');
   const [usdtBalance, setUsdtBalance] = useState<string>('0');
+  const [whezBalance, setWhezBalance] = useState<string>('0');
+  const [lpTokens, setLpTokens] = useState<TokenBalance[]>([]);
   const [hezUsdPrice, setHezUsdPrice] = useState<number>(0);
   const [pezUsdPrice, setPezUsdPrice] = useState<number>(0);
   const [scores, setScores] = useState<UserScores>({
@@ -79,10 +82,13 @@ export const AccountBalance: React.FC = () => {
     PEZ: '/tokens/PEZ.png',
     USDT: '/tokens/USDT.png',
     wUSDT: '/tokens/USDT.png',
+    wHEZ: '/tokens/HEZ.png',  // wHEZ uses same logo as HEZ
     BNB: '/tokens/BNB.png',
     BTC: '/tokens/BTC.png',
     DOT: '/tokens/DOT.png',
     ETH: '/tokens/ETH.png',
+    'HEZ-PEZ LP': '/tokens/LP.png',
+    'HEZ-USDT LP': '/tokens/LP.png',
   };
 
   // Get token logo URL
@@ -376,23 +382,99 @@ export const AccountBalance: React.FC = () => {
         setPezBalance('0.0000');
       }
 
-      // Fetch USDT balance (wUSDT - Asset ID: 1000)
+      // Fetch USDT balance (wUSDT - Asset ID: 1000) from Asset Hub
       try {
-        const usdtAssetBalance = await api.query.assets.account(ASSET_IDS.WUSDT, selectedAccount.address);
+        if (assetHubApi && isAssetHubReady) {
+          const usdtAssetBalance = await assetHubApi.query.assets.account(ASSET_IDS.WUSDT, selectedAccount.address);
 
-        if (usdtAssetBalance.isSome) {
-          const assetData = usdtAssetBalance.unwrap();
-          const usdtAmount = assetData.balance.toString();
-          const usdtDecimals = 6; // wUSDT has 6 decimals
-          const usdtDivisor = Math.pow(10, usdtDecimals);
-          const usdtTokens = (parseInt(usdtAmount) / usdtDivisor).toFixed(2);
-          setUsdtBalance(usdtTokens);
+          if (usdtAssetBalance.isSome) {
+            const assetData = usdtAssetBalance.unwrap();
+            const usdtAmount = assetData.balance.toString();
+            const usdtDecimals = 6; // wUSDT has 6 decimals
+            const usdtDivisor = Math.pow(10, usdtDecimals);
+            const usdtTokens = (parseInt(usdtAmount) / usdtDivisor).toFixed(2);
+            setUsdtBalance(usdtTokens);
+          } else {
+            setUsdtBalance('0');
+          }
         } else {
+          if (import.meta.env.DEV) console.log('Asset Hub not ready, wUSDT balance pending...');
           setUsdtBalance('0');
         }
       } catch (error) {
         if (import.meta.env.DEV) console.error('Failed to fetch USDT balance:', error);
         setUsdtBalance('0');
+      }
+
+      // Fetch wHEZ balance (Asset ID: 2) from Asset Hub
+      try {
+        if (assetHubApi && isAssetHubReady) {
+          const whezAssetBalance = await assetHubApi.query.assets.account(ASSET_IDS.WHEZ, selectedAccount.address);
+
+          if (whezAssetBalance.isSome) {
+            const assetData = whezAssetBalance.unwrap();
+            const whezAmount = assetData.balance.toString();
+            const whezTokens = (parseInt(whezAmount) / divisor).toFixed(4);
+            setWhezBalance(whezTokens);
+          } else {
+            setWhezBalance('0');
+          }
+        } else {
+          if (import.meta.env.DEV) console.log('Asset Hub not ready, wHEZ balance pending...');
+          setWhezBalance('0');
+        }
+      } catch (error) {
+        if (import.meta.env.DEV) console.error('Failed to fetch wHEZ balance:', error);
+        setWhezBalance('0');
+      }
+
+      // Fetch LP Token balances from poolAssets pallet on Asset Hub
+      try {
+        if (assetHubApi && isAssetHubReady) {
+          const lpTokensData: TokenBalance[] = [];
+
+          // HEZ-PEZ LP Token (ID: 0)
+          const hezPezLp = await assetHubApi.query.poolAssets.account(0, selectedAccount.address);
+          if (hezPezLp.isSome) {
+            const lpBalance = hezPezLp.unwrap().balance.toString();
+            const lpTokens = (parseInt(lpBalance) / divisor).toFixed(4);
+            if (parseFloat(lpTokens) > 0) {
+              lpTokensData.push({
+                assetId: 0,
+                symbol: 'HEZ-PEZ LP',
+                name: 'HEZ-PEZ Liquidity',
+                balance: lpTokens,
+                decimals: 12,
+                usdValue: 0, // TODO: Calculate LP value
+                isLpToken: true,
+              });
+            }
+          }
+
+          // HEZ-USDT LP Token (ID: 1)
+          const hezUsdtLp = await assetHubApi.query.poolAssets.account(1, selectedAccount.address);
+          if (hezUsdtLp.isSome) {
+            const lpBalance = hezUsdtLp.unwrap().balance.toString();
+            const lpTokens = (parseInt(lpBalance) / divisor).toFixed(4);
+            if (parseFloat(lpTokens) > 0) {
+              lpTokensData.push({
+                assetId: 1,
+                symbol: 'HEZ-USDT LP',
+                name: 'HEZ-USDT Liquidity',
+                balance: lpTokens,
+                decimals: 12,
+                usdValue: 0, // TODO: Calculate LP value
+                isLpToken: true,
+              });
+            }
+          }
+
+          setLpTokens(lpTokensData);
+          if (import.meta.env.DEV) console.log('✅ LP tokens fetched:', lpTokensData);
+        }
+      } catch (error) {
+        if (import.meta.env.DEV) console.error('Failed to fetch LP token balances:', error);
+        setLpTokens([]);
       }
 
       // Fetch token prices from pools
@@ -525,26 +607,28 @@ export const AccountBalance: React.FC = () => {
         }
       }
 
-      // Subscribe to USDT balance (wUSDT - Asset ID: 2)
-      try {
-        unsubscribeUsdt = await api.query.assets.account(
-          2,
-          selectedAccount.address,
-          (assetBalance) => {
-            if (assetBalance.isSome) {
-              const assetData = assetBalance.unwrap();
-              const usdtAmount = assetData.balance.toString();
-              const decimals = 6; // wUSDT has 6 decimals
-              const divisor = Math.pow(10, decimals);
-              const usdtTokens = (parseInt(usdtAmount) / divisor).toFixed(2);
-              setUsdtBalance(usdtTokens);
-            } else {
-              setUsdtBalance('0');
+      // Subscribe to USDT balance (wUSDT - Asset ID: 1000) from Asset Hub
+      if (assetHubApi && isAssetHubReady) {
+        try {
+          unsubscribeUsdt = await assetHubApi.query.assets.account(
+            ASSET_IDS.WUSDT,
+            selectedAccount.address,
+            (assetBalance) => {
+              if (assetBalance.isSome) {
+                const assetData = assetBalance.unwrap();
+                const usdtAmount = assetData.balance.toString();
+                const decimals = 6; // wUSDT has 6 decimals
+                const divisor = Math.pow(10, decimals);
+                const usdtTokens = (parseInt(usdtAmount) / divisor).toFixed(2);
+                setUsdtBalance(usdtTokens);
+              } else {
+                setUsdtBalance('0');
+              }
             }
-          }
-        );
-      } catch (error) {
-        if (import.meta.env.DEV) console.error('Failed to subscribe to USDT balance:', error);
+          );
+        } catch (error) {
+          if (import.meta.env.DEV) console.error('Failed to subscribe to USDT balance:', error);
+        }
       }
     };
 
@@ -741,11 +825,71 @@ export const AccountBalance: React.FC = () => {
               <span className="text-2xl text-gray-400 ml-2">USDT</span>
             </div>
             <div className="text-sm text-gray-400">
-              ≈ ${usdtBalance} USD • Stablecoin
+              ≈ ${usdtBalance} USD • Stablecoin (on Asset Hub)
             </div>
           </div>
         </CardContent>
       </Card>
+
+      {/* wHEZ Balance Card */}
+      {parseFloat(whezBalance) > 0 && (
+        <Card className="bg-gradient-to-br from-yellow-900/30 to-orange-900/30 border-yellow-500/30">
+          <CardHeader className="pb-3">
+            <div className="flex items-center gap-3">
+              <img src="/tokens/HEZ.png" alt="wHEZ" className="w-10 h-10 rounded-full" />
+              <CardTitle className="text-lg font-medium text-gray-300">
+                wHEZ Balance
+              </CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div>
+              <div className="text-4xl font-bold text-white mb-1">
+                {isLoading ? '...' : whezBalance}
+                <span className="text-2xl text-gray-400 ml-2">wHEZ</span>
+              </div>
+              <div className="text-sm text-gray-400">
+                {hezUsdPrice > 0
+                  ? `≈ $${(parseFloat(whezBalance) * hezUsdPrice).toFixed(2)} USD`
+                  : 'Price loading...'} • Wrapped HEZ (on Asset Hub)
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* LP Token Cards */}
+      {lpTokens.length > 0 && (
+        <Card className="bg-gradient-to-br from-purple-900/30 to-pink-900/30 border-purple-500/30">
+          <CardHeader className="pb-3">
+            <div className="flex items-center gap-3">
+              <img src="/tokens/LP.png" alt="LP" className="w-10 h-10 rounded-full" />
+              <CardTitle className="text-lg font-medium text-gray-300">
+                LP Token Positions
+              </CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {lpTokens.map((lp) => (
+                <div key={lp.assetId} className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <img src="/tokens/LP.png" alt={lp.symbol} className="w-8 h-8 rounded-full" />
+                    <div>
+                      <div className="text-sm font-medium text-white">{lp.symbol}</div>
+                      <div className="text-xs text-gray-400">{lp.name}</div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-lg font-semibold text-white">{lp.balance}</div>
+                    <div className="text-xs text-gray-500">Pool Share</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Account Info & Scores */}
       <Card className="bg-gray-900 border-gray-800">
