@@ -77,8 +77,17 @@ export interface PoolCreationParams {
   feeRate?: number;
 }
 
+// Native token ID constant (relay chain HEZ)
+export const NATIVE_TOKEN_ID = -1;
+
 // Known tokens on testnet
 export const KNOWN_TOKENS: Record<number, TokenInfo> = {
+  [-1]: {
+    id: -1,
+    symbol: 'HEZ',
+    name: 'Native HEZ',
+    decimals: 12,
+  },
   0: {
     id: 0,
     symbol: 'wHEZ',
@@ -93,6 +102,12 @@ export const KNOWN_TOKENS: Record<number, TokenInfo> = {
   },
   2: {
     id: 2,
+    symbol: 'wHEZ',
+    name: 'Wrapped HEZ (Asset Hub)',
+    decimals: 12,
+  },
+  1000: {
+    id: 1000,
     symbol: 'wUSDT',
     name: 'Wrapped USDT',
     decimals: 6,

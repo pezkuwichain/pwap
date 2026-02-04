@@ -7,6 +7,19 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ASSET_IDS, getAssetSymbol } from '@pezkuwi/lib/wallet';
 
+// Native token ID constant (relay chain HEZ)
+const NATIVE_TOKEN_ID = -1;
+
+// Helper to convert asset ID to XCM Location format for assetConversion pallet
+const formatAssetLocation = (id: number) => {
+  if (id === NATIVE_TOKEN_ID) {
+    // Native token from relay chain
+    return { parents: 1, interior: 'Here' };
+  }
+  // Asset on Asset Hub - XCM location format with PalletInstance 50 (assets pallet)
+  return { parents: 0, interior: { X2: [{ PalletInstance: 50 }, { GeneralIndex: id }] } };
+};
+
 // Helper to get display name for tokens
 const getDisplayTokenName = (assetId: number): string => {
   if (assetId === -1) return 'HEZ';  // Native HEZ from relay chain
@@ -158,10 +171,14 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
       const minAsset0BN = (expectedAsset0BN * BigInt(95)) / BigInt(100);
       const minAsset1BN = (expectedAsset1BN * BigInt(95)) / BigInt(100);
 
+      // Use XCM Location format for assets (required for native token support)
+      const asset0Location = formatAssetLocation(asset0);
+      const asset1Location = formatAssetLocation(asset1);
+
       // Remove liquidity transaction
       const removeLiquidityTx = assetHubApi.tx.assetConversion.removeLiquidity(
-        asset0,
-        asset1,
+        asset0Location,
+        asset1Location,
         lpToRemoveBN.toString(),
         minAsset0BN.toString(),
         minAsset1BN.toString(),
