@@ -47,14 +47,28 @@ export const KURDISTAN_COLORS = {
 } as const;
 
 /**
+ * Special ID for Native token (relay chain HEZ)
+ * Used in pool creation - pools must pair with Native
+ */
+export const NATIVE_TOKEN_ID = -1;
+
+/**
  * Known tokens on the Pezkuwi blockchain (Asset Hub)
  *
  * Asset IDs on Asset Hub:
+ * - Native (-1): HEZ from Relay Chain (for pool pairing)
  * - Asset 1: PEZ (Pezkuwi Token)
  * - Asset 2: wHEZ (Wrapped HEZ via tokenWrapper)
  * - Asset 1000: wUSDT (Wrapped USDT)
  */
 export const KNOWN_TOKENS: Record<number, TokenInfo> = {
+  [NATIVE_TOKEN_ID]: {
+    id: NATIVE_TOKEN_ID,
+    symbol: 'HEZ',
+    name: 'Native HEZ (Relay Chain)',
+    decimals: 12,
+    logo: '/shared/images/hez_token_512.png',
+  },
   2: {
     id: 2,
     symbol: 'wHEZ',
