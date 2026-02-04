@@ -61,7 +61,7 @@ export const XCMBridgeSetupModal: React.FC<XCMBridgeSetupModalProps> = ({
 
     try {
       // Check current bridge status
-      const status = await checkBridgeStatus(api);
+      const status = await checkBridgeStatus(assetHubApi);
       setBridgeStatus(status);
 
       // Fetch Asset Hub USDT info
