@@ -53,6 +53,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [signer, setSigner] = useState<Signer | null>(null);
 
   // Fetch all token balances when account changes
+  // Uses relay chain API for native HEZ, Asset Hub API for PEZ/wHEZ/wUSDT
   const updateBalance = useCallback(async (address: string) => {
     if (!pezkuwi.api || !pezkuwi.isApiReady) {
       if (import.meta.env.DEV) console.warn('API not ready, cannot fetch balance');
@@ -62,15 +63,25 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     try {
       if (import.meta.env.DEV) console.log('💰 Fetching all token balances for:', address);
 
-      // Fetch HEZ (native token)
+      // Fetch HEZ (native token) from relay chain
       const { data: nativeBalance } = await pezkuwi.api.query.system.account(address);
       const hezBalance = formatBalance(nativeBalance.free.toString());
       setBalance(hezBalance); // Legacy support
 
-      // Fetch PEZ (Asset ID: 1)
+      // For assets (PEZ, wHEZ, wUSDT), use Asset Hub API since they're on Asset Hub
+      // Fall back to relay chain API if Asset Hub not ready (some chains have assets on relay)
+      const assetApi = pezkuwi.assetHubApi && pezkuwi.isAssetHubReady
+        ? pezkuwi.assetHubApi
+        : pezkuwi.api;
+
+      if (import.meta.env.DEV) {
+        console.log('📊 Using API for assets:', pezkuwi.assetHubApi && pezkuwi.isAssetHubReady ? 'Asset Hub' : 'Relay Chain');
+      }
+
+      // Fetch PEZ (Asset ID: 1) from Asset Hub
       let pezBalance = '0';
       try {
-        const pezData = await pezkuwi.api.query.assets.account(ASSET_IDS.PEZ, address);
+        const pezData = await assetApi.query.assets.account(ASSET_IDS.PEZ, address);
         if (import.meta.env.DEV) console.log('📊 Raw PEZ data:', pezData.toHuman());
 
         if (pezData.isSome) {
@@ -85,10 +96,10 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         if (import.meta.env.DEV) console.error('❌ Failed to fetch PEZ balance:', err);
       }
 
-      // Fetch wHEZ (Asset ID: 0)
+      // Fetch wHEZ (Asset ID: 2) from Asset Hub
       let whezBalance = '0';
       try {
-        const whezData = await pezkuwi.api.query.assets.account(ASSET_IDS.WHEZ, address);
+        const whezData = await assetApi.query.assets.account(ASSET_IDS.WHEZ, address);
         if (import.meta.env.DEV) console.log('📊 Raw wHEZ data:', whezData.toHuman());
 
         if (whezData.isSome) {
@@ -103,10 +114,10 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         if (import.meta.env.DEV) console.error('❌ Failed to fetch wHEZ balance:', err);
       }
 
-      // Fetch wUSDT (Asset ID: 2) - IMPORTANT: wUSDT has 6 decimals, not 12!
+      // Fetch wUSDT (Asset ID: 1000) from Asset Hub - IMPORTANT: wUSDT has 6 decimals, not 12!
       let wusdtBalance = '0';
       try {
-        const wusdtData = await pezkuwi.api.query.assets.account(ASSET_IDS.WUSDT, address);
+        const wusdtData = await assetApi.query.assets.account(ASSET_IDS.WUSDT, address);
         if (import.meta.env.DEV) console.log('📊 Raw wUSDT data:', wusdtData.toHuman());
 
         if (wusdtData.isSome) {
@@ -133,7 +144,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       if (import.meta.env.DEV) console.error('Failed to fetch balances:', err);
       setError('Failed to fetch balances');
     }
-  }, [pezkuwi.api, pezkuwi.isApiReady]);
+  }, [pezkuwi.api, pezkuwi.isApiReady, pezkuwi.assetHubApi, pezkuwi.isAssetHubReady]);
 
   // Connect wallet (Pezkuwi.js extension)
   const connectWallet = useCallback(async () => {
@@ -268,18 +279,19 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     getSigner();
   }, [pezkuwi.selectedAccount]);
 
-  // Update balance when selected account changes
+  // Update balance when selected account changes or Asset Hub becomes ready
   useEffect(() => {
     if (import.meta.env.DEV) console.log('🔄 WalletContext useEffect triggered!', {
       hasAccount: !!pezkuwi.selectedAccount,
       isApiReady: pezkuwi.isApiReady,
+      isAssetHubReady: pezkuwi.isAssetHubReady,
       address: pezkuwi.selectedAccount?.address
     });
 
     if (pezkuwi.selectedAccount && pezkuwi.isApiReady) {
       updateBalance(pezkuwi.selectedAccount.address);
     }
-  }, [pezkuwi.selectedAccount, pezkuwi.isApiReady, updateBalance]);
+  }, [pezkuwi.selectedAccount, pezkuwi.isApiReady, pezkuwi.isAssetHubReady, updateBalance]);
 
   // Sync error state with PezkuwiContext
   useEffect(() => {

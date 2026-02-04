@@ -61,11 +61,23 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
       if (!assetHubApi || !isAssetHubReady || !account || !pool) return;
 
       try {
-        const balance1Data = await assetHubApi.query.assets.account(pool.asset1, account);
-        const balance2Data = await assetHubApi.query.assets.account(pool.asset2, account);
+        // Fetch balance for asset1 - handle native token differently
+        if (pool.asset1 === NATIVE_TOKEN_ID) {
+          const accountInfo = await assetHubApi.query.system.account(account);
+          setBalance1(accountInfo.data.free.toString());
+        } else {
+          const balance1Data = await assetHubApi.query.assets.account(pool.asset1, account);
+          setBalance1(balance1Data.isSome ? balance1Data.unwrap().balance.toString() : '0');
+        }
 
-        setBalance1(balance1Data.isSome ? balance1Data.unwrap().balance.toString() : '0');
-        setBalance2(balance2Data.isSome ? balance2Data.unwrap().balance.toString() : '0');
+        // Fetch balance for asset2 - handle native token differently
+        if (pool.asset2 === NATIVE_TOKEN_ID) {
+          const accountInfo = await assetHubApi.query.system.account(account);
+          setBalance2(accountInfo.data.free.toString());
+        } else {
+          const balance2Data = await assetHubApi.query.assets.account(pool.asset2, account);
+          setBalance2(balance2Data.isSome ? balance2Data.unwrap().balance.toString() : '0');
+        }
       } catch (error) {
         if (import.meta.env.DEV) console.error('Failed to fetch balances:', error);
       }
