@@ -21,7 +21,8 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
   onClose,
   onSuccess,
 }) => {
-  const { api, isApiReady } = usePezkuwi();
+  // Use Asset Hub API for DEX operations (assetConversion pallet is on Asset Hub)
+  const { assetHubApi, isAssetHubReady } = usePezkuwi();
   const { account, signer } = useWallet();
 
   const [lpTokenBalance, setLpTokenBalance] = useState<string>('0');
@@ -43,11 +44,11 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
   // Fetch LP token balance
   useEffect(() => {
     const fetchLPBalance = async () => {
-      if (!api || !isApiReady || !account || !pool) return;
+      if (!assetHubApi || !isAssetHubReady || !account || !pool) return;
 
       try {
         // Get pool account
-        const poolAccount = await api.query.assetConversion.pools([
+        const poolAccount = await assetHubApi.query.assetConversion.pools([
           pool.asset1,
           pool.asset2,
         ]);
@@ -60,8 +61,8 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
         // LP token ID is derived from pool ID
         // For now, we'll query the pool's LP token supply
         // In a real implementation, you'd need to query the specific LP token for the user
-        if (api.query.assetConversion.nextPoolAssetId) {
-          await api.query.assetConversion.nextPoolAssetId();
+        if (assetHubApi.query.assetConversion.nextPoolAssetId) {
+          await assetHubApi.query.assetConversion.nextPoolAssetId();
         }
 
         // This is a simplified version - you'd need to track LP tokens properly
@@ -73,7 +74,7 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
     };
 
     fetchLPBalance();
-  }, [api, isApiReady, account, pool]);
+  }, [assetHubApi, isAssetHubReady, account, pool]);
 
   const calculateOutputAmounts = () => {
     if (!pool || BigInt(lpTokenBalance) === BigInt(0)) {
@@ -98,7 +99,7 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
   };
 
   const handleRemoveLiquidity = async () => {
-    if (!api || !isApiReady || !signer || !account || !pool) {
+    if (!assetHubApi || !isAssetHubReady || !signer || !account || !pool) {
       setErrorMessage('Wallet not connected');
       return;
     }
@@ -119,7 +120,7 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
       setTxStatus('signing');
       setErrorMessage('');
 
-      const tx = api.tx.assetConversion.removeLiquidity(
+      const tx = assetHubApi.tx.assetConversion.removeLiquidity(
         pool.asset1,
         pool.asset2,
         lpAmount.toString(),
@@ -137,7 +138,7 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
           if (status.isInBlock) {
             if (dispatchError) {
               if (dispatchError.isModule) {
-                const decoded = api.registry.findMetaError(dispatchError.asModule);
+                const decoded = assetHubApi.registry.findMetaError(dispatchError.asModule);
                 setErrorMessage(`${decoded.section}.${decoded.name}: ${decoded.docs}`);
               } else {
                 setErrorMessage(dispatchError.toString());

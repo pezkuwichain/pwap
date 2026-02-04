@@ -22,7 +22,8 @@ const AVAILABLE_TOKENS = [
 ] as const;
 
 const TokenSwap = () => {
-  const { api, isApiReady, selectedAccount } = usePezkuwi();
+  // Use Asset Hub API for DEX operations (assetConversion pallet is on Asset Hub)
+  const { assetHubApi, isAssetHubReady, selectedAccount } = usePezkuwi();
   const { balances, refreshBalances } = useWallet();
   const { toast } = useToast();
 
@@ -149,9 +150,9 @@ const TokenSwap = () => {
 
   // Check if AssetConversion pallet is available
   useEffect(() => {
-    if (import.meta.env.DEV) console.log('🔍 Checking DEX availability...', { api: !!api, isApiReady });
-    if (api && isApiReady) {
-      const hasAssetConversion = api.tx.assetConversion !== undefined;
+    if (import.meta.env.DEV) console.log('🔍 Checking DEX availability...', { assetHubApi: !!assetHubApi, isAssetHubReady });
+    if (api && isAssetHubReady) {
+      const hasAssetConversion = assetHubApi.tx.assetConversion !== undefined;
       if (import.meta.env.DEV) console.log('🔍 AssetConversion pallet check:', hasAssetConversion);
       setIsDexAvailable(hasAssetConversion);
 
@@ -161,16 +162,16 @@ const TokenSwap = () => {
         if (import.meta.env.DEV) console.log('✅ AssetConversion pallet is available!');
       }
     }
-  }, [api, isApiReady]);
+  }, [assetHubApi, isAssetHubReady]);
 
   // Fetch exchange rate from AssetConversion pool
   // Always use wHEZ/PEZ pool (the only valid pool)
   useEffect(() => {
     const fetchExchangeRate = async () => {
-      if (import.meta.env.DEV) console.log('🔍 fetchExchangeRate check:', { api: !!api, isApiReady, isDexAvailable, fromToken, toToken });
+      if (import.meta.env.DEV) console.log('🔍 fetchExchangeRate check:', { assetHubApi: !!assetHubApi, isAssetHubReady, isDexAvailable, fromToken, toToken });
 
-      if (!api || !isApiReady || !isDexAvailable) {
-        if (import.meta.env.DEV) console.log('⚠️ Skipping fetchExchangeRate:', { api: !!api, isApiReady, isDexAvailable });
+      if (!assetHubApi || !isAssetHubReady || !isDexAvailable) {
+        if (import.meta.env.DEV) console.log('⚠️ Skipping fetchExchangeRate:', { assetHubApi: !!assetHubApi, isAssetHubReady, isDexAvailable });
         return;
       }
 
@@ -207,7 +208,7 @@ const TokenSwap = () => {
         if (import.meta.env.DEV) console.log('🔍 Pool query with:', poolAssets);
 
         // Query pool from AssetConversion pallet
-        const poolInfo = await api.query.assetConversion.pools(poolAssets);
+        const poolInfo = await assetHubApi.query.assetConversion.pools(poolAssets);
         if (import.meta.env.DEV) console.log('🔍 Pool query result:', poolInfo.toHuman());
 
         if (import.meta.env.DEV) console.log('🔍 Pool isEmpty?', poolInfo.isEmpty, 'exists?', !poolInfo.isEmpty);
@@ -228,12 +229,12 @@ const TokenSwap = () => {
             const PALLET_ID = stringToU8a('py/ascon');
 
             // Create PoolId tuple (u32, u32)
-            const poolId = api.createType('(u32, u32)', [asset1, asset2]);
+            const poolId = assetHubApi.createType('(u32, u32)', [asset1, asset2]);
             if (import.meta.env.DEV) console.log('🔍 Pool ID:', poolId.toHuman());
 
             // Create (PalletId, PoolId) tuple: ([u8; 8], (u32, u32))
-            const palletIdType = api.createType('[u8; 8]', PALLET_ID);
-            const fullTuple = api.createType('([u8; 8], (u32, u32))', [palletIdType, poolId]);
+            const palletIdType = assetHubApi.createType('[u8; 8]', PALLET_ID);
+            const fullTuple = assetHubApi.createType('([u8; 8], (u32, u32))', [palletIdType, poolId]);
 
             if (import.meta.env.DEV) console.log('🔍 Full tuple encoded length:', fullTuple.toU8a().length);
             if (import.meta.env.DEV) console.log('🔍 Full tuple bytes:', Array.from(fullTuple.toU8a()));
@@ -242,13 +243,13 @@ const TokenSwap = () => {
             const accountHash = blake2AsU8a(fullTuple.toU8a(), 256);
             if (import.meta.env.DEV) console.log('🔍 Account hash:', Array.from(accountHash).slice(0, 8));
 
-            const poolAccountId = api.createType('AccountId32', accountHash);
+            const poolAccountId = assetHubApi.createType('AccountId32', accountHash);
             if (import.meta.env.DEV) console.log('🔍 Pool AccountId (NEW METHOD):', poolAccountId.toString());
 
             // Query pool account's asset balances
             if (import.meta.env.DEV) console.log('🔍 Querying reserves for asset', asset1, 'and', asset2);
-            const reserve0Query = await api.query.assets.account(asset1, poolAccountId);
-            const reserve1Query = await api.query.assets.account(asset2, poolAccountId);
+            const reserve0Query = await assetHubApi.query.assets.account(asset1, poolAccountId);
+            const reserve1Query = await assetHubApi.query.assets.account(asset2, poolAccountId);
 
             if (import.meta.env.DEV) console.log('🔍 Reserve0 query result:', reserve0Query.toHuman());
             if (import.meta.env.DEV) console.log('🔍 Reserve1 query result:', reserve1Query.toHuman());
@@ -316,19 +317,19 @@ const TokenSwap = () => {
     };
 
     fetchExchangeRate();
-  }, [api, isApiReady, isDexAvailable, fromToken, toToken]);
+  }, [assetHubApi, isAssetHubReady, isDexAvailable, fromToken, toToken]);
 
   // Fetch liquidity pools
   useEffect(() => {
     const fetchLiquidityPools = async () => {
-      if (!api || !isApiReady || !isDexAvailable) {
+      if (!assetHubApi || !isAssetHubReady || !isDexAvailable) {
         return;
       }
 
       setIsLoadingPools(true);
       try {
         // Query all pools from AssetConversion pallet
-        const poolsEntries = await api.query.assetConversion.pools.entries();
+        const poolsEntries = await assetHubApi.query.assetConversion.pools.entries();
 
         if (poolsEntries && poolsEntries.length > 0) {
           const pools = poolsEntries.map(([key, value]: [unknown, unknown]) => {
@@ -366,20 +367,20 @@ const TokenSwap = () => {
     };
 
     fetchLiquidityPools();
-  }, [api, isApiReady, isDexAvailable]);
+  }, [assetHubApi, isAssetHubReady, isDexAvailable]);
 
   // Fetch swap transaction history
   useEffect(() => {
     const fetchSwapHistory = async () => {
-      if (!api || !isApiReady || !isDexAvailable || !selectedAccount) {
+      if (!assetHubApi || !isAssetHubReady || !isDexAvailable || !selectedAccount) {
         return;
       }
 
       setIsLoadingHistory(true);
       try {
         // Get recent finalized blocks (last 100 blocks)
-        const finalizedHead = await api.rpc.chain.getFinalizedHead();
-        const finalizedBlock = await api.rpc.chain.getBlock(finalizedHead);
+        const finalizedHead = await assetHubApi.rpc.chain.getFinalizedHead();
+        const finalizedBlock = await assetHubApi.rpc.chain.getBlock(finalizedHead);
         const currentBlockNumber = finalizedBlock.block.header.number.toNumber();
 
         const startBlock = Math.max(0, currentBlockNumber - 100);
@@ -391,17 +392,17 @@ const TokenSwap = () => {
         // Query block by block for SwapExecuted events
         for (let blockNum = currentBlockNumber; blockNum >= startBlock && transactions.length < 10; blockNum--) {
           try {
-            const blockHash = await api.rpc.chain.getBlockHash(blockNum);
-            const apiAt = await api.at(blockHash);
+            const blockHash = await assetHubApi.rpc.chain.getBlockHash(blockNum);
+            const apiAt = await assetHubApi.at(blockHash);
             const events = await apiAt.query.system.events();
-            //const block = await api.rpc.chain.getBlock(blockHash);
+            //const block = await assetHubApi.rpc.chain.getBlock(blockHash);
             const timestamp = Date.now() - ((currentBlockNumber - blockNum) * 6000); // Estimate 6s per block
 
             events.forEach((record: { event: { data: unknown[] } }) => {
               const { event } = record;
 
               // Check for AssetConversion::SwapExecuted event
-              if (api.events.assetConversion?.SwapExecuted?.is(event)) {
+              if (assetHubApi.events.assetConversion?.SwapExecuted?.is(event)) {
                 // SwapExecuted has 5 fields: (who, send_to, amountIn, amountOut, path)
                 const [who, , amountIn, amountOut, path] = event.data;
 
@@ -464,7 +465,7 @@ const TokenSwap = () => {
     };
 
     fetchSwapHistory();
-  }, [api, isApiReady, isDexAvailable, selectedAccount]);
+  }, [assetHubApi, isAssetHubReady, isDexAvailable, selectedAccount]);
 
   const handleSwap = () => {
     setFromToken(toToken);
@@ -473,7 +474,7 @@ const TokenSwap = () => {
   };
 
   const handleConfirmSwap = async () => {
-    if (!api || !selectedAccount) {
+    if (!assetHubApi || !selectedAccount) {
       toast({
         title: 'Error',
         description: 'Please connect your wallet',
@@ -551,61 +552,61 @@ const TokenSwap = () => {
 
       if (fromToken === 'HEZ' && toToken === 'PEZ') {
         // HEZ → PEZ: wrap(HEZ→wHEZ) then swap(wHEZ→PEZ)
-        const wrapTx = api.tx.tokenWrapper.wrap(amountIn.toString());
+        const wrapTx = assetHubApi.tx.tokenWrapper.wrap(amountIn.toString());
         // AssetKind = u32, so swap path is just [0, 1]
         const swapPath = [0, 1]; // wHEZ → PEZ
-        const swapTx = api.tx.assetConversion.swapExactTokensForTokens(
+        const swapTx = assetHubApi.tx.assetConversion.swapExactTokensForTokens(
           swapPath,
           amountIn.toString(),
           minAmountOut.toString(),
           selectedAccount.address,
           true
         );
-        tx = api.tx.utility.batchAll([wrapTx, swapTx]);
+        tx = assetHubApi.tx.utility.batchAll([wrapTx, swapTx]);
 
       } else if (fromToken === 'PEZ' && toToken === 'HEZ') {
         // PEZ → HEZ: swap(PEZ→wHEZ) then unwrap(wHEZ→HEZ)
         // AssetKind = u32, so swap path is just [1, 0]
         const swapPath = [1, 0]; // PEZ → wHEZ
-        const swapTx = api.tx.assetConversion.swapExactTokensForTokens(
+        const swapTx = assetHubApi.tx.assetConversion.swapExactTokensForTokens(
           swapPath,
           amountIn.toString(),
           minAmountOut.toString(),
           selectedAccount.address,
           true
         );
-        const unwrapTx = api.tx.tokenWrapper.unwrap(minAmountOut.toString());
-        tx = api.tx.utility.batchAll([swapTx, unwrapTx]);
+        const unwrapTx = assetHubApi.tx.tokenWrapper.unwrap(minAmountOut.toString());
+        tx = assetHubApi.tx.utility.batchAll([swapTx, unwrapTx]);
 
       } else if (fromToken === 'HEZ') {
         // HEZ → Any Asset: wrap(HEZ→wHEZ) then swap(wHEZ→Asset)
-        const wrapTx = api.tx.tokenWrapper.wrap(amountIn.toString());
+        const wrapTx = assetHubApi.tx.tokenWrapper.wrap(amountIn.toString());
         // Map token symbol to asset ID
         const toAssetId = toToken === 'PEZ' ? 1 : toToken === 'USDT' ? 1000 : ASSET_IDS[toToken as keyof typeof ASSET_IDS];
         const swapPath = [0, toAssetId]; // wHEZ → target asset
-        const swapTx = api.tx.assetConversion.swapExactTokensForTokens(
+        const swapTx = assetHubApi.tx.assetConversion.swapExactTokensForTokens(
           swapPath,
           amountIn.toString(),
           minAmountOut.toString(),
           selectedAccount.address,
           true
         );
-        tx = api.tx.utility.batchAll([wrapTx, swapTx]);
+        tx = assetHubApi.tx.utility.batchAll([wrapTx, swapTx]);
 
       } else if (toToken === 'HEZ') {
         // Any Asset → HEZ: swap(Asset→wHEZ) then unwrap(wHEZ→HEZ)
         // Map token symbol to asset ID
         const fromAssetId = fromToken === 'PEZ' ? 1 : fromToken === 'USDT' ? 1000 : ASSET_IDS[fromToken as keyof typeof ASSET_IDS];
         const swapPath = [fromAssetId, 0]; // source asset → wHEZ
-        const swapTx = api.tx.assetConversion.swapExactTokensForTokens(
+        const swapTx = assetHubApi.tx.assetConversion.swapExactTokensForTokens(
           swapPath,
           amountIn.toString(),
           minAmountOut.toString(),
           selectedAccount.address,
           true
         );
-        const unwrapTx = api.tx.tokenWrapper.unwrap(minAmountOut.toString());
-        tx = api.tx.utility.batchAll([swapTx, unwrapTx]);
+        const unwrapTx = assetHubApi.tx.tokenWrapper.unwrap(minAmountOut.toString());
+        tx = assetHubApi.tx.utility.batchAll([swapTx, unwrapTx]);
 
       } else {
         // Direct swap between assets (PEZ ↔ USDT, etc.)
@@ -614,7 +615,7 @@ const TokenSwap = () => {
         const toAssetId = toToken === 'PEZ' ? 1 : toToken === 'USDT' ? 1000 : ASSET_IDS[toToken as keyof typeof ASSET_IDS];
         const swapPath = [fromAssetId, toAssetId];
 
-        tx = api.tx.assetConversion.swapExactTokensForTokens(
+        tx = assetHubApi.tx.assetConversion.swapExactTokensForTokens(
           swapPath,
           amountIn.toString(),
           minAmountOut.toString(),
@@ -649,7 +650,7 @@ const TokenSwap = () => {
               let errorMessage = 'Transaction failed';
 
               if (dispatchError.isModule) {
-                const decoded = api.registry.findMetaError(dispatchError.asModule);
+                const decoded = assetHubApi.registry.findMetaError(dispatchError.asModule);
                 errorMessage = `${decoded.section}.${decoded.name}: ${decoded.docs}`;
               }
 
@@ -664,7 +665,7 @@ const TokenSwap = () => {
 
             // Success - check for swap event
             const hasSwapEvent = events.some(({ event }) =>
-              api.events.assetConversion?.SwapExecuted?.is(event)
+              assetHubApi.events.assetConversion?.SwapExecuted?.is(event)
             );
 
             if (hasSwapEvent || fromToken === 'HEZ' || toToken === 'HEZ') {
@@ -683,23 +684,23 @@ const TokenSwap = () => {
               setTimeout(async () => {
                 if (import.meta.env.DEV) console.log('🔄 Refreshing swap history...');
                 const fetchSwapHistory = async () => {
-                  if (!api || !isApiReady || !isDexAvailable || !selectedAccount) return;
+                  if (!assetHubApi || !isAssetHubReady || !isDexAvailable || !selectedAccount) return;
                   setIsLoadingHistory(true);
                   try {
-                    const finalizedHead = await api.rpc.chain.getFinalizedHead();
-                    const finalizedBlock = await api.rpc.chain.getBlock(finalizedHead);
+                    const finalizedHead = await assetHubApi.rpc.chain.getFinalizedHead();
+                    const finalizedBlock = await assetHubApi.rpc.chain.getBlock(finalizedHead);
                     const currentBlockNumber = finalizedBlock.block.header.number.toNumber();
                     const startBlock = Math.max(0, currentBlockNumber - 100);
                     const transactions: SwapTransaction[] = [];
                     for (let blockNum = currentBlockNumber; blockNum >= startBlock && transactions.length < 10; blockNum--) {
                       try {
-                        const blockHash = await api.rpc.chain.getBlockHash(blockNum);
-                        const apiAt = await api.at(blockHash);
+                        const blockHash = await assetHubApi.rpc.chain.getBlockHash(blockNum);
+                        const apiAt = await assetHubApi.at(blockHash);
                         const events = await apiAt.query.system.events();
                         const timestamp = Date.now() - ((currentBlockNumber - blockNum) * 6000);
                         events.forEach((record: { event: { data: unknown[] } }) => {
                           const { event } = record;
-                          if (api.events.assetConversion?.SwapExecuted?.is(event)) {
+                          if (assetHubApi.events.assetConversion?.SwapExecuted?.is(event)) {
                             // SwapExecuted has 5 fields: (who, send_to, amountIn, amountOut, path)
                             const [who, , amountIn, amountOut, path] = event.data;
 
@@ -780,7 +781,7 @@ const TokenSwap = () => {
   };
 
   // Show DEX unavailable message
-  if (!isDexAvailable && isApiReady) {
+  if (!isDexAvailable && isAssetHubReady) {
     return (
       <div className="max-w-4xl mx-auto">
         <Card className="p-8">

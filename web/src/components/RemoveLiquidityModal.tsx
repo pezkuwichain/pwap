@@ -42,7 +42,8 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
   asset0,
   asset1,
 }) => {
-  const { api, selectedAccount } = usePezkuwi();
+  // Use Asset Hub API for DEX operations (assetConversion pallet is on Asset Hub)
+  const { assetHubApi, selectedAccount } = usePezkuwi();
   const { refreshBalances } = useWallet();
 
   const [percentage, setPercentage] = useState(100);
@@ -55,7 +56,7 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
 
   // Fetch minimum balances for both assets
   useEffect(() => {
-    if (!api || !isOpen) return;
+    if (!assetHubApi || !isOpen) return;
 
     const fetchMinBalances = async () => {
       try {
@@ -67,7 +68,7 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
 
         if (asset0 === ASSET_IDS.WHEZ || asset0 === 0) {
           // wHEZ is an asset in the assets pallet
-          const assetDetails0 = await api.query.assets.asset(ASSET_IDS.WHEZ);
+          const assetDetails0 = await assetHubApi.query.assets.asset(ASSET_IDS.WHEZ);
           if (assetDetails0.isSome) {
             const details0 = assetDetails0.unwrap().toJSON() as Record<string, unknown>;
             const min0 = Number(details0.minBalance) / Math.pow(10, getAssetDecimals(asset0));
@@ -76,7 +77,7 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
           }
         } else {
           // Other assets (PEZ, wUSDT, etc.)
-          const assetDetails0 = await api.query.assets.asset(asset0);
+          const assetDetails0 = await assetHubApi.query.assets.asset(asset0);
           if (assetDetails0.isSome) {
             const details0 = assetDetails0.unwrap().toJSON() as Record<string, unknown>;
             const min0 = Number(details0.minBalance) / Math.pow(10, getAssetDecimals(asset0));
@@ -87,7 +88,7 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
 
         if (asset1 === ASSET_IDS.WHEZ || asset1 === 0) {
           // wHEZ is an asset in the assets pallet
-          const assetDetails1 = await api.query.assets.asset(ASSET_IDS.WHEZ);
+          const assetDetails1 = await assetHubApi.query.assets.asset(ASSET_IDS.WHEZ);
           if (assetDetails1.isSome) {
             const details1 = assetDetails1.unwrap().toJSON() as Record<string, unknown>;
             const min1 = Number(details1.minBalance) / Math.pow(10, getAssetDecimals(asset1));
@@ -96,7 +97,7 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
           }
         } else {
           // Other assets (PEZ, wUSDT, etc.)
-          const assetDetails1 = await api.query.assets.asset(asset1);
+          const assetDetails1 = await assetHubApi.query.assets.asset(asset1);
           if (assetDetails1.isSome) {
             const details1 = assetDetails1.unwrap().toJSON() as Record<string, unknown>;
             const min1 = Number(details1.minBalance) / Math.pow(10, getAssetDecimals(asset1));
@@ -110,7 +111,7 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
     };
 
     fetchMinBalances();
-  }, [api, isOpen, asset0, asset1]);
+  }, [assetHubApi, isOpen, asset0, asset1]);
 
   // Calculate maximum removable percentage based on minBalance requirements
   useEffect(() => {
@@ -132,7 +133,7 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
   }, [minBalance0, minBalance1, lpPosition.asset0Amount, lpPosition.asset1Amount]);
 
   const handleRemoveLiquidity = async () => {
-    if (!api || !selectedAccount) return;
+    if (!assetHubApi || !selectedAccount) return;
 
     setIsLoading(true);
     setError(null);
@@ -157,7 +158,7 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
       const minAsset1BN = (expectedAsset1BN * BigInt(95)) / BigInt(100);
 
       // Remove liquidity transaction
-      const removeLiquidityTx = api.tx.assetConversion.removeLiquidity(
+      const removeLiquidityTx = assetHubApi.tx.assetConversion.removeLiquidity(
         asset0,
         asset1,
         lpToRemoveBN.toString(),
@@ -173,9 +174,9 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
       if (hasWHEZ) {
         // Unwrap wHEZ back to HEZ
         const whezAmount = asset0 === ASSET_IDS.WHEZ ? minAsset0BN : minAsset1BN;
-        const unwrapTx = api.tx.tokenWrapper.unwrap(whezAmount.toString());
+        const unwrapTx = assetHubApi.tx.tokenWrapper.unwrap(whezAmount.toString());
         // Batch transactions: removeLiquidity + unwrap
-        tx = api.tx.utility.batchAll([removeLiquidityTx, unwrapTx]);
+        tx = assetHubApi.tx.utility.batchAll([removeLiquidityTx, unwrapTx]);
       } else {
         // No unwrap needed for pools without wHEZ
         tx = removeLiquidityTx;
@@ -192,7 +193,7 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
 
             // Check for errors
             const hasError = events.some(({ event }) =>
-              api.events.system.ExtrinsicFailed.is(event)
+              assetHubApi.events.system.ExtrinsicFailed.is(event)
             );
 
             if (hasError) {

@@ -54,7 +54,8 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
   asset0 = 0,  // Default to wHEZ
   asset1 = 1   // Default to PEZ
 }) => {
-  const { api, selectedAccount, isApiReady } = usePezkuwi();
+  // Use Asset Hub API for DEX operations (assetConversion pallet is on Asset Hub)
+  const { assetHubApi, selectedAccount, isAssetHubReady } = usePezkuwi();
   const { balances, refreshBalances } = useWallet();
 
   const [amount0, setAmount0] = useState('');
@@ -87,13 +88,13 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
 
   // Fetch minimum deposit requirements from runtime
   useEffect(() => {
-    if (!api || !isApiReady || !isOpen) return;
+    if (!assetHubApi || !isAssetHubReady || !isOpen) return;
 
     const fetchMinimumBalances = async () => {
       try {
         // Query asset details which contains minBalance
-        const assetDetails0 = await api.query.assets.asset(asset0);
-        const assetDetails1 = await api.query.assets.asset(asset1);
+        const assetDetails0 = await assetHubApi.query.assets.asset(asset0);
+        const assetDetails1 = await assetHubApi.query.assets.asset(asset1);
 
         if (import.meta.env.DEV) console.log('🔍 Querying minimum balances for assets:', { asset0, asset1 });
 
@@ -128,19 +129,19 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
         }
 
         // Also check if there&apos;s a MintMinLiquidity constant in assetConversion pallet
-        if (api.consts.assetConversion) {
-          const mintMinLiq = api.consts.assetConversion.mintMinLiquidity;
+        if (assetHubApi.consts.assetConversion) {
+          const mintMinLiq = assetHubApi.consts.assetConversion.mintMinLiquidity;
           if (mintMinLiq) {
             if (import.meta.env.DEV) console.log('🔧 AssetConversion MintMinLiquidity constant:', mintMinLiq.toString());
           }
 
-          const liquidityWithdrawalFee = api.consts.assetConversion.liquidityWithdrawalFee;
+          const liquidityWithdrawalFee = assetHubApi.consts.assetConversion.liquidityWithdrawalFee;
           if (liquidityWithdrawalFee) {
             if (import.meta.env.DEV) console.log('🔧 AssetConversion LiquidityWithdrawalFee:', liquidityWithdrawalFee.toHuman());
           }
 
           // Log all assetConversion constants
-          if (import.meta.env.DEV) console.log('🔧 All assetConversion constants:', Object.keys(api.consts.assetConversion));
+          if (import.meta.env.DEV) console.log('🔧 All assetConversion constants:', Object.keys(assetHubApi.consts.assetConversion));
         }
       } catch (err) {
         if (import.meta.env.DEV) console.error('❌ Error fetching minimum balances:', err);
@@ -149,16 +150,16 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
     };
 
     fetchMinimumBalances();
-  }, [api, isApiReady, isOpen, asset0, asset1, asset0Decimals, asset1Decimals, asset0Name, asset1Name]);
+  }, [assetHubApi, isAssetHubReady, isOpen, asset0, asset1, asset0Decimals, asset1Decimals, asset0Name, asset1Name]);
 
   // Fetch current pool price
   useEffect(() => {
-    if (!api || !isApiReady || !isOpen) return;
+    if (!assetHubApi || !isAssetHubReady || !isOpen) return;
 
     const fetchPoolPrice = async () => {
       try {
         const poolId = [asset0, asset1];
-        const poolInfo = await api.query.assetConversion.pools(poolId);
+        const poolInfo = await assetHubApi.query.assetConversion.pools(poolId);
 
         if (poolInfo.isSome) {
           // Derive pool account using AccountIdConverter
@@ -166,16 +167,16 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
           const { blake2AsU8a } = await import('@pezkuwi/util-crypto');
 
           const PALLET_ID = stringToU8a('py/ascon');
-          const poolIdType = api.createType('(u32, u32)', [asset0, asset1]);
-          const palletIdType = api.createType('[u8; 8]', PALLET_ID);
-          const fullTuple = api.createType('([u8; 8], (u32, u32))', [palletIdType, poolIdType]);
+          const poolIdType = assetHubApi.createType('(u32, u32)', [asset0, asset1]);
+          const palletIdType = assetHubApi.createType('[u8; 8]', PALLET_ID);
+          const fullTuple = assetHubApi.createType('([u8; 8], (u32, u32))', [palletIdType, poolIdType]);
 
           const accountHash = blake2AsU8a(fullTuple.toU8a(), 256);
-          const poolAccountId = api.createType('AccountId32', accountHash);
+          const poolAccountId = assetHubApi.createType('AccountId32', accountHash);
 
           // Get reserves
-          const balance0Data = await api.query.assets.account(asset0, poolAccountId);
-          const balance1Data = await api.query.assets.account(asset1, poolAccountId);
+          const balance0Data = await assetHubApi.query.assets.account(asset0, poolAccountId);
+          const balance1Data = await assetHubApi.query.assets.account(asset1, poolAccountId);
 
           if (balance0Data.isSome && balance1Data.isSome) {
             const data0 = balance0Data.unwrap().toJSON() as AssetAccountData;
@@ -216,7 +217,7 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
     };
 
     fetchPoolPrice();
-  }, [api, isApiReady, isOpen, asset0, asset1, asset0Decimals, asset1Decimals]);
+  }, [assetHubApi, isAssetHubReady, isOpen, asset0, asset1, asset0Decimals, asset1Decimals]);
 
   // Auto-calculate asset1 amount based on asset0 input (only if pool has liquidity)
   useEffect(() => {
@@ -230,7 +231,7 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
   }, [amount0, currentPrice, asset1Decimals, isPoolEmpty]);
 
   const handleAddLiquidity = async () => {
-    if (!api || !selectedAccount || !amount0 || !amount1) return;
+    if (!assetHubApi || !selectedAccount || !amount0 || !amount1) return;
 
     setIsLoading(true);
     setError(null);
@@ -287,9 +288,9 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
 
       // If asset0 is HEZ (0), need to wrap it first
       if (asset0 === 0 || asset0 === ASSET_IDS.WHEZ) {
-        const wrapTx = api.tx.tokenWrapper.wrap(amount0BN.toString());
+        const wrapTx = assetHubApi.tx.tokenWrapper.wrap(amount0BN.toString());
 
-        const addLiquidityTx = api.tx.assetConversion.addLiquidity(
+        const addLiquidityTx = assetHubApi.tx.assetConversion.addLiquidity(
           asset0,
           asset1,
           amount0BN.toString(),
@@ -300,10 +301,10 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
         );
 
         // Batch wrap + add liquidity
-        tx = api.tx.utility.batchAll([wrapTx, addLiquidityTx]);
+        tx = assetHubApi.tx.utility.batchAll([wrapTx, addLiquidityTx]);
       } else {
         // Direct add liquidity (no wrapping needed)
-        tx = api.tx.assetConversion.addLiquidity(
+        tx = assetHubApi.tx.assetConversion.addLiquidity(
           asset0,
           asset1,
           amount0BN.toString(),
@@ -325,7 +326,7 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
 
             // Check for errors
             const hasError = events.some(({ event }) =>
-              api.events.system.ExtrinsicFailed.is(event)
+              assetHubApi.events.system.ExtrinsicFailed.is(event)
             );
 
             if (hasError || dispatchError) {
@@ -333,7 +334,7 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
 
               if (dispatchError) {
                 if (dispatchError.isModule) {
-                  const decoded = api.registry.findMetaError(dispatchError.asModule);
+                  const decoded = assetHubApi.registry.findMetaError(dispatchError.asModule);
                   const { docs, name, section } = decoded;
                   errorMessage = `${section}.${name}: ${docs.join(' ')}`;
                   if (import.meta.env.DEV) console.error('Dispatch error:', errorMessage);
@@ -344,7 +345,7 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
               }
 
               events.forEach(({ event }) => {
-                if (api.events.system.ExtrinsicFailed.is(event)) {
+                if (assetHubApi.events.system.ExtrinsicFailed.is(event)) {
                   if (import.meta.env.DEV) console.error('ExtrinsicFailed event:', event.toHuman());
                 }
               });

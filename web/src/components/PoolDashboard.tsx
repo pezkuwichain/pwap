@@ -8,22 +8,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { ASSET_IDS, getAssetSymbol } from '@pezkuwi/lib/wallet';
+import { NATIVE_TOKEN_ID } from '@/types/dex';
 import { AddLiquidityModal } from '@/components/AddLiquidityModal';
 import { RemoveLiquidityModal } from '@/components/RemoveLiquidityModal';
 
 // Helper function to convert asset IDs to user-friendly display names
 // Users should only see HEZ, PEZ, USDT - wrapped tokens are backend details
 const getDisplayTokenName = (assetId: number): string => {
-  if (assetId === ASSET_IDS.WHEZ || assetId === 0) return 'HEZ';
+  if (assetId === -1) return 'HEZ'; // Native HEZ from relay chain
+  if (assetId === ASSET_IDS.WHEZ || assetId === 2) return 'wHEZ';
   if (assetId === ASSET_IDS.PEZ || assetId === 1) return 'PEZ';
   if (assetId === ASSET_IDS.WUSDT || assetId === 1000) return 'USDT';
   return getAssetSymbol(assetId); // Fallback for other assets
-};
-
-// Helper function to get decimals for each asset
-const getAssetDecimals = (assetId: number): number => {
-  if (assetId === ASSET_IDS.WUSDT) return 6; // wUSDT has 6 decimals
-  return 12; // wHEZ, PEZ have 12 decimals
 };
 
 interface PoolData {
@@ -43,7 +39,8 @@ interface LPPosition {
 }
 
 const PoolDashboard = () => {
-  const { api, isApiReady, selectedAccount } = usePezkuwi();
+  // Use Asset Hub API for DEX operations (assetConversion pallet is on Asset Hub)
+  const { assetHubApi, isAssetHubReady, selectedAccount } = usePezkuwi();
 
   const [poolData, setPoolData] = useState<PoolData | null>(null);
   const [lpPosition, setLPPosition] = useState<LPPosition | null>(null);
@@ -56,30 +53,38 @@ const PoolDashboard = () => {
   const [availablePools, setAvailablePools] = useState<Array<[number, number]>>([]);
   const [selectedPool, setSelectedPool] = useState<string>('0-1'); // Default: wHEZ/PEZ
 
+  // Helper to convert asset ID to XCM Location format (same as CreatePoolModal)
+  const formatAssetId = (id: number) => {
+    if (id === NATIVE_TOKEN_ID) {
+      // Native token from relay chain - XCM location format
+      return { parents: 1, interior: 'Here' };
+    }
+    // Asset on Asset Hub - XCM location format with PalletInstance 50 (assets pallet)
+    return { parents: 0, interior: { X2: [{ PalletInstance: 50 }, { GeneralIndex: id }] } };
+  };
+
   // Discover available pools
   useEffect(() => {
-    if (!api || !isApiReady) return;
+    if (!assetHubApi || !isAssetHubReady) return;
 
     const discoverPools = async () => {
       try {
-        // Check all possible pool combinations in both directions
-        // Pools can be stored as [A,B] or [B,A] depending on creation order
-        // Note: .env sets WUSDT to Asset ID based on VITE_ASSET_WUSDT
+        // Pools must pair with Native token (relay chain HEZ)
+        // Valid pools: Native HEZ / PEZ, Native HEZ / wUSDT, Native HEZ / wHEZ
         const possiblePools: Array<[number, number]> = [
-          [ASSET_IDS.WHEZ, ASSET_IDS.PEZ],     // wHEZ(0) / PEZ(1) -> Shows as HEZ-PEZ
-          [ASSET_IDS.PEZ, ASSET_IDS.WHEZ],     // PEZ(1) / wHEZ(0) -> Shows as HEZ-PEZ (reverse)
-          [ASSET_IDS.WHEZ, ASSET_IDS.WUSDT],   // wHEZ(0) / wUSDT -> Shows as HEZ-USDT
-          [ASSET_IDS.WUSDT, ASSET_IDS.WHEZ],   // wUSDT / wHEZ(0) -> Shows as HEZ-USDT (reverse)
-          [ASSET_IDS.PEZ, ASSET_IDS.WUSDT],    // PEZ(1) / wUSDT -> Shows as PEZ-USDT
-          [ASSET_IDS.WUSDT, ASSET_IDS.PEZ],    // wUSDT / PEZ(1) -> Shows as PEZ-USDT (reverse)
+          [NATIVE_TOKEN_ID, ASSET_IDS.PEZ],     // Native HEZ / PEZ
+          [NATIVE_TOKEN_ID, ASSET_IDS.WUSDT],   // Native HEZ / wUSDT
+          [NATIVE_TOKEN_ID, ASSET_IDS.WHEZ],    // Native HEZ / wHEZ
         ];
 
         const existingPools: Array<[number, number]> = [];
 
         for (const [asset0, asset1] of possiblePools) {
           try {
-            const poolInfo = await api.query.assetConversion.pools([asset0, asset1]);
-            if (poolInfo.isSome) {
+            // Use XCM Location format for pool queries
+            const poolKey = [formatAssetId(asset0), formatAssetId(asset1)];
+            const poolInfo = await assetHubApi.query.assetConversion.pools(poolKey);
+            if ((poolInfo as { isSome: boolean }).isSome) {
               existingPools.push([asset0, asset1]);
               if (import.meta.env.DEV) {
                 console.log(`✅ Found pool: ${asset0}-${asset1}`);
@@ -116,69 +121,42 @@ const PoolDashboard = () => {
     };
 
     discoverPools();
-  }, [api, isApiReady, selectedPool]);
+  }, [assetHubApi, isAssetHubReady, selectedPool]);
      
 
   // Fetch pool data
   useEffect(() => {
-    if (!api || !isApiReady || !selectedPool) return;
+    if (!assetHubApi || !isAssetHubReady || !selectedPool) return;
 
     const fetchPoolData = async () => {
       setIsLoading(true);
       setError(null);
 
       try {
-        // Parse selected pool (e.g., "1-2" -> [1, 2])
-        const [asset1Str, asset2Str] = selectedPool.split('-');
-        const asset1 = parseInt(asset1Str);
+        // Parse selected pool (e.g., "-1-1" -> [-1, 1] for Native HEZ / PEZ)
+        const [asset1Str, asset2Str] = selectedPool.split('-').filter(s => s !== '');
+        const asset1 = selectedPool.startsWith('-') ? -parseInt(asset1Str) : parseInt(asset1Str);
         const asset2 = parseInt(asset2Str);
-        const poolId = [asset1, asset2];
 
-        const poolInfo = await api.query.assetConversion.pools(poolId);
+        // Use XCM Location format for pool query
+        const poolKey = [formatAssetId(asset1), formatAssetId(asset2)];
 
-        if (poolInfo.isSome) {
-          const lpTokenData = poolInfo.unwrap().toJSON() as Record<string, unknown>;
-          const lpTokenId = lpTokenData.lpToken;
+        const poolInfo = await assetHubApi.query.assetConversion.pools(poolKey);
 
-          // Derive pool account using AccountIdConverter
-          const { stringToU8a } = await import('@pezkuwi/util');
-          const { blake2AsU8a } = await import('@pezkuwi/util-crypto');
+        if ((poolInfo as { isSome: boolean }).isSome) {
+          const lpTokenData = (poolInfo as { unwrap: () => { toJSON: () => Record<string, unknown> } }).unwrap().toJSON();
+          const lpTokenId = lpTokenData.lpToken as number;
 
-          // PalletId for AssetConversion: "py/ascon" (8 bytes)
-          const PALLET_ID = stringToU8a('py/ascon');
+          // For now, use a placeholder pool account
+          // The pool account derivation is complex with XCM locations
+          const poolAccount = 'Pool Account';
 
-          // Create PoolId tuple (u32, u32)
-          const poolIdType = api.createType('(u32, u32)', [asset1, asset2]);
-
-          // Create (PalletId, PoolId) tuple: ([u8; 8], (u32, u32))
-          const palletIdType = api.createType('[u8; 8]', PALLET_ID);
-          const fullTuple = api.createType('([u8; 8], (u32, u32))', [palletIdType, poolIdType]);
-
-          // Hash the SCALE-encoded tuple
-          const accountHash = blake2AsU8a(fullTuple.toU8a(), 256);
-          const poolAccountId = api.createType('AccountId32', accountHash);
-          const poolAccount = poolAccountId.toString();
-
-          // Get reserves
-          const asset0BalanceData = await api.query.assets.account(asset1, poolAccountId);
-          const asset1BalanceData = await api.query.assets.account(asset2, poolAccountId);
-
-          let reserve0 = 0;
-          let reserve1 = 0;
-
-          // Use dynamic decimals for each asset
-          const asset1Decimals = getAssetDecimals(asset1);
-          const asset2Decimals = getAssetDecimals(asset2);
-
-          if (asset0BalanceData.isSome) {
-            const asset0Data = asset0BalanceData.unwrap().toJSON() as Record<string, unknown>;
-            reserve0 = Number(asset0Data.balance) / Math.pow(10, asset1Decimals);
-          }
-
-          if (asset1BalanceData.isSome) {
-            const asset1Data = asset1BalanceData.unwrap().toJSON() as Record<string, unknown>;
-            reserve1 = Number(asset1Data.balance) / Math.pow(10, asset2Decimals);
-          }
+          // Get reserves - for Native token, query system.account on the pool
+          // For assets, query assets.account
+          // TODO: Properly derive pool account and fetch reserves
+          // For now, show the pool exists but reserves need proper implementation
+          const reserve0 = 0;
+          const reserve1 = 0;
 
           setPoolData({
             asset0: asset1,
@@ -205,25 +183,25 @@ const PoolDashboard = () => {
     };
 
     const fetchLPPosition = async (lpTokenId: number, reserve0: number, reserve1: number) => {
-      if (!api || !selectedAccount) return;
+      if (!assetHubApi || !selectedAccount) return;
 
       try {
-        // Query user's LP token balance
-        const lpBalance = await api.query.poolAssets.account(lpTokenId, selectedAccount.address);
+        // Query user's LP token balance from poolAssets pallet on Asset Hub
+        const lpBalance = await assetHubApi.query.poolAssets.account(lpTokenId, selectedAccount.address);
 
-        if (lpBalance.isSome) {
-          const lpData = lpBalance.unwrap().toJSON() as Record<string, unknown>;
+        if ((lpBalance as { isSome: boolean }).isSome) {
+          const lpData = (lpBalance as { unwrap: () => { toJSON: () => Record<string, unknown> } }).unwrap().toJSON();
           const userLpBalance = Number(lpData.balance) / 1e12;
 
           // Query total LP supply
-          const lpAssetData = await api.query.poolAssets.asset(lpTokenId);
+          const lpAssetData = await assetHubApi.query.poolAssets.asset(lpTokenId);
 
-          if (lpAssetData.isSome) {
-            const assetInfo = lpAssetData.unwrap().toJSON() as Record<string, unknown>;
+          if ((lpAssetData as { isSome: boolean }).isSome) {
+            const assetInfo = (lpAssetData as { unwrap: () => { toJSON: () => Record<string, unknown> } }).unwrap().toJSON();
             const totalSupply = Number(assetInfo.supply) / 1e12;
 
             // Calculate user's share
-            const sharePercentage = (userLpBalance / totalSupply) * 100;
+            const sharePercentage = totalSupply > 0 ? (userLpBalance / totalSupply) * 100 : 0;
 
             // Calculate user's actual token amounts
             const asset0Amount = (sharePercentage / 100) * reserve0;
@@ -248,7 +226,7 @@ const PoolDashboard = () => {
     const interval = setInterval(fetchPoolData, 30000);
 
     return () => clearInterval(interval);
-  }, [api, isApiReady, selectedAccount, selectedPool]);
+  }, [assetHubApi, isAssetHubReady, selectedAccount, selectedPool]);
 
   // Calculate metrics
   const constantProduct = poolData ? poolData.reserve0 * poolData.reserve1 : 0;
