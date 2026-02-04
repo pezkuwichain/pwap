@@ -236,6 +236,7 @@ const TokenSwap = () => {
 
             if (import.meta.env.DEV) console.log('🔍 Querying price via runtime API...');
 
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const quote = await (assetHubApi.call as any).assetConversionApi.quotePriceExactTokensForTokens(
               formatAssetLocation(asset1),
               formatAssetLocation(asset2),
@@ -245,7 +246,9 @@ const TokenSwap = () => {
 
             if (import.meta.env.DEV) console.log('🔍 Quote result:', quote?.toHuman?.() || quote);
 
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             if (quote && !(quote as any).isNone) {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const priceRaw = (quote as any).unwrap().toString();
               const price = Number(BigInt(priceRaw)) / Math.pow(10, decimals1);
 
@@ -257,7 +260,9 @@ const TokenSwap = () => {
 
               if (assetHubApi.query.poolAssets?.asset) {
                 const lpAssetDetails = await assetHubApi.query.poolAssets.asset(lpTokenId);
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 if ((lpAssetDetails as any).isSome) {
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   lpSupply = BigInt(((lpAssetDetails as any).unwrap() as any).supply.toString());
                 }
               }
