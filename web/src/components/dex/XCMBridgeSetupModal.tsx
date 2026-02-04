@@ -111,7 +111,7 @@ export const XCMBridgeSetupModal: React.FC<XCMBridgeSetupModalProps> = ({
 
     try {
       await configureXcmBridge(
-        api,
+        assetHubApi,
         signer,
         account,
         (status) => setStatusMessage(status)
@@ -161,7 +161,7 @@ export const XCMBridgeSetupModal: React.FC<XCMBridgeSetupModalProps> = ({
       const hezRaw = BigInt(parseFloat(hezAmount) * 10 ** 12).toString();
 
       await createWUsdtHezPool(
-        api,
+        assetHubApi,
         signer,
         account,
         wusdtRaw,
