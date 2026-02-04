@@ -7,9 +7,10 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ASSET_IDS, getAssetSymbol } from '@pezkuwi/lib/wallet';
 
-// Helper to get display name for tokens (users see HEZ not wHEZ, USDT not wUSDT)
+// Helper to get display name for tokens
 const getDisplayTokenName = (assetId: number): string => {
-  if (assetId === -1 || assetId === ASSET_IDS.WHEZ || assetId === 0 || assetId === 2) return 'HEZ';
+  if (assetId === -1) return 'HEZ';  // Native HEZ from relay chain
+  if (assetId === ASSET_IDS.WHEZ || assetId === 2) return 'wHEZ';  // Wrapped HEZ
   if (assetId === ASSET_IDS.PEZ || assetId === 1) return 'PEZ';
   if (assetId === ASSET_IDS.WUSDT || assetId === 1000) return 'USDT';
   return getAssetSymbol(assetId);
