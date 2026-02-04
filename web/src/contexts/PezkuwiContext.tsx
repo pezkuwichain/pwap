@@ -1,20 +1,26 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { ApiPromise, WsProvider } from '@pezkuwi/api';
-
-// Suppress noisy API warnings in production (RPC methods not decorated, unknown signed extensions)
-if (!import.meta.env.DEV) {
+// Suppress noisy Polkadot.js API warnings in production
+// Must be at the very top before any imports that might trigger warnings
+if (typeof window !== 'undefined' && !import.meta.env.DEV) {
   const originalWarn = console.warn;
+  const suppressedPatterns = [
+    'RPC methods not decorated',
+    'Unknown signed extensions',
+    'API/INIT:',
+    'REGISTRY:',
+    'StorageWeightReclaim',
+  ];
+
   console.warn = (...args: unknown[]) => {
-    const msg = args[0];
-    if (typeof msg === 'string' && (
-      msg.includes('RPC methods not decorated') ||
-      msg.includes('Unknown signed extensions')
-    )) {
+    const msg = String(args[0] || '');
+    if (suppressedPatterns.some(pattern => msg.includes(pattern))) {
       return; // Suppress these specific warnings
     }
     originalWarn.apply(console, args);
   };
 }
+
+import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { ApiPromise, WsProvider } from '@pezkuwi/api';
 import { web3Accounts, web3Enable } from '@pezkuwi/extension-dapp';
 import type { InjectedAccountWithMeta } from '@pezkuwi/extension-inject/types';
 import { DEFAULT_ENDPOINT } from '../../../shared/blockchain/pezkuwi';
