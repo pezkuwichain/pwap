@@ -9,7 +9,7 @@ import { ASSET_IDS, getAssetSymbol } from '@pezkuwi/lib/wallet';
 
 // Helper to get display name for tokens (users see HEZ not wHEZ, USDT not wUSDT)
 const getDisplayTokenName = (assetId: number): string => {
-  if (assetId === ASSET_IDS.WHEZ || assetId === 0) return 'HEZ';
+  if (assetId === -1 || assetId === ASSET_IDS.WHEZ || assetId === 0 || assetId === 2) return 'HEZ';
   if (assetId === ASSET_IDS.PEZ || assetId === 1) return 'PEZ';
   if (assetId === ASSET_IDS.WUSDT || assetId === 1000) return 'USDT';
   return getAssetSymbol(assetId);
