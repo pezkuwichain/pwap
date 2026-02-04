@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useWallet } from '@/contexts/WalletContext';
-import { X, AlertCircle, Loader2, CheckCircle, Info } from 'lucide-react';
+import { X, AlertCircle, Loader2, CheckCircle, Info, ArrowDownUp } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 
 interface InitializeHezPoolModalProps {
@@ -16,6 +17,7 @@ interface InitializeHezPoolModalProps {
 }
 
 type TransactionStatus = 'idle' | 'signing' | 'submitting' | 'success' | 'error';
+type WrapMode = 'wrap' | 'unwrap';
 
 export const InitializeHezPoolModal: React.FC<InitializeHezPoolModalProps> = ({
   isOpen,
@@ -27,7 +29,8 @@ export const InitializeHezPoolModal: React.FC<InitializeHezPoolModalProps> = ({
   const { account, signer } = useWallet();
   const { toast } = useToast();
 
-  const [hezAmount, setHezAmount] = useState('100000');
+  const [mode, setMode] = useState<WrapMode>('wrap');
+  const [amount, setAmount] = useState('10000');
 
   const [hezBalance, setHezBalance] = useState<string>('0');
   const [whezBalance, setWhezBalance] = useState<string>('0');
@@ -36,14 +39,19 @@ export const InitializeHezPoolModal: React.FC<InitializeHezPoolModalProps> = ({
   const [txStatus, setTxStatus] = useState<TransactionStatus>('idle');
   const [errorMessage, setErrorMessage] = useState<string>('');
 
-  // Reset form when modal closes
+  // Reset form when modal closes or mode changes
   useEffect(() => {
     if (!isOpen) {
-      setHezAmount('100000');
+      setAmount('10000');
       setTxStatus('idle');
       setErrorMessage('');
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    setTxStatus('idle');
+    setErrorMessage('');
+  }, [mode]);
 
   // Check if tokenWrapper pallet is available on Asset Hub
   useEffect(() => {
@@ -56,14 +64,12 @@ export const InitializeHezPoolModal: React.FC<InitializeHezPoolModalProps> = ({
       try {
         // Check if tokenWrapper pallet exists on Asset Hub
         const hasTokenWrapper = assetHubApi.tx.tokenWrapper !== undefined &&
-                                assetHubApi.tx.tokenWrapper.wrap !== undefined;
+                                assetHubApi.tx.tokenWrapper.wrap !== undefined &&
+                                assetHubApi.tx.tokenWrapper.unwrap !== undefined;
         setPalletAvailable(hasTokenWrapper);
 
         if (import.meta.env.DEV) {
           console.log('🔍 TokenWrapper pallet on Asset Hub:', hasTokenWrapper);
-          if (!hasTokenWrapper) {
-            console.log('Available pallets on Asset Hub:', Object.keys(assetHubApi.tx));
-          }
         }
       } catch (error) {
         if (import.meta.env.DEV) console.error('Failed to check pallet:', error);
@@ -82,21 +88,28 @@ export const InitializeHezPoolModal: React.FC<InitializeHezPoolModalProps> = ({
       try {
         // HEZ balance (native on Asset Hub)
         const balance = await assetHubApi.query.system.account(account);
-        const freeBalance = balance.data.free.toString();
+        const freeBalance = (balance as { data: { free: { toString: () => string } } }).data.free.toString();
         setHezBalance(freeBalance);
 
         // wHEZ balance (asset 2 on Asset Hub - tokenWrapper creates asset 2)
         const whezData = await assetHubApi.query.assets.account(2, account);
-        setWhezBalance(whezData.isSome ? whezData.unwrap().balance.toString() : '0');
+        const whezTyped = whezData as { isSome: boolean; unwrap: () => { balance: { toString: () => string } } };
+        setWhezBalance(whezTyped.isSome ? whezTyped.unwrap().balance.toString() : '0');
       } catch (error) {
         if (import.meta.env.DEV) console.error('Failed to fetch balances from Asset Hub:', error);
       }
     };
 
     fetchBalances();
-  }, [assetHubApi, isAssetHubReady, account]);
 
-  const handleWrap = async () => {
+    // Refetch after successful transaction
+    if (txStatus === 'success') {
+      const timer = setTimeout(fetchBalances, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [assetHubApi, isAssetHubReady, account, txStatus]);
+
+  const handleTransaction = async () => {
     if (!assetHubApi || !isAssetHubReady || !signer || !account) {
       toast({
         title: 'Error',
@@ -107,7 +120,7 @@ export const InitializeHezPoolModal: React.FC<InitializeHezPoolModalProps> = ({
     }
 
     if (!palletAvailable) {
-      setErrorMessage('TokenWrapper pallet is not available on Asset Hub. Please contact the team.');
+      setErrorMessage('TokenWrapper pallet is not available on Asset Hub.');
       toast({
         title: 'Pallet Not Available',
         description: 'The TokenWrapper pallet is not deployed on Asset Hub.',
@@ -116,15 +129,16 @@ export const InitializeHezPoolModal: React.FC<InitializeHezPoolModalProps> = ({
       return;
     }
 
-    const hezAmountRaw = BigInt(parseFloat(hezAmount) * 10 ** 12);
+    const amountRaw = BigInt(parseFloat(amount) * 10 ** 12);
 
-    if (hezAmountRaw <= BigInt(0)) {
+    if (amountRaw <= BigInt(0)) {
       setErrorMessage('Amount must be greater than zero');
       return;
     }
 
-    if (hezAmountRaw > BigInt(hezBalance)) {
-      setErrorMessage('Insufficient HEZ balance on Asset Hub');
+    const sourceBalance = mode === 'wrap' ? hezBalance : whezBalance;
+    if (amountRaw > BigInt(sourceBalance)) {
+      setErrorMessage(`Insufficient ${mode === 'wrap' ? 'HEZ' : 'wHEZ'} balance`);
       return;
     }
 
@@ -132,16 +146,21 @@ export const InitializeHezPoolModal: React.FC<InitializeHezPoolModalProps> = ({
     setErrorMessage('');
 
     try {
-      if (import.meta.env.DEV) console.log('🔄 Wrapping HEZ to wHEZ on Asset Hub...', {
-        hezAmount,
-        hezAmountRaw: hezAmountRaw.toString(),
-      });
+      const isWrap = mode === 'wrap';
+      if (import.meta.env.DEV) {
+        console.log(`🔄 ${isWrap ? 'Wrapping' : 'Unwrapping'} on Asset Hub...`, {
+          amount,
+          amountRaw: amountRaw.toString(),
+        });
+      }
 
-      const wrapTx = assetHubApi.tx.tokenWrapper.wrap(hezAmountRaw.toString());
+      const tx = isWrap
+        ? assetHubApi.tx.tokenWrapper.wrap(amountRaw.toString())
+        : assetHubApi.tx.tokenWrapper.unwrap(amountRaw.toString());
 
       setTxStatus('submitting');
 
-      await wrapTx.signAndSend(
+      await tx.signAndSend(
         account,
         { signer },
         ({ status, dispatchError, events }) => {
@@ -170,28 +189,27 @@ export const InitializeHezPoolModal: React.FC<InitializeHezPoolModalProps> = ({
                 variant: 'destructive',
               });
             } else {
-              if (import.meta.env.DEV) console.log('✅ Wrap successful!');
+              if (import.meta.env.DEV) console.log(`✅ ${isWrap ? 'Wrap' : 'Unwrap'} successful!`);
               if (import.meta.env.DEV) console.log('📋 Events:', events.map(e => e.event.method).join(', '));
               setTxStatus('success');
               toast({
                 title: 'Success!',
-                description: `Successfully wrapped ${hezAmount} HEZ to wHEZ`,
+                description: isWrap
+                  ? `Successfully wrapped ${amount} HEZ to wHEZ`
+                  : `Successfully unwrapped ${amount} wHEZ to HEZ`,
               });
-              setTimeout(() => {
-                onSuccess?.();
-                onClose();
-              }, 2000);
+              onSuccess?.();
             }
           }
         }
       );
     } catch (error) {
-      if (import.meta.env.DEV) console.error('Wrap failed:', error);
+      if (import.meta.env.DEV) console.error('Transaction failed:', error);
       setErrorMessage(error instanceof Error ? error.message : 'Transaction failed');
       setTxStatus('error');
       toast({
         title: 'Error',
-        description: error instanceof Error ? error.message : 'Wrap failed',
+        description: error instanceof Error ? error.message : 'Transaction failed',
         variant: 'destructive',
       });
     }
@@ -199,16 +217,22 @@ export const InitializeHezPoolModal: React.FC<InitializeHezPoolModalProps> = ({
 
   if (!isOpen) return null;
 
-  const hezBalanceDisplay = (parseFloat(hezBalance) / 10 ** 12).toFixed(4);
-  const whezBalanceDisplay = (parseFloat(whezBalance) / 10 ** 12).toFixed(4);
+  const hezBalanceDisplay = (parseFloat(hezBalance) / 10 ** 12).toLocaleString(undefined, { maximumFractionDigits: 4 });
+  const whezBalanceDisplay = (parseFloat(whezBalance) / 10 ** 12).toLocaleString(undefined, { maximumFractionDigits: 4 });
+
+  const sourceToken = mode === 'wrap' ? 'HEZ' : 'wHEZ';
+  const targetToken = mode === 'wrap' ? 'wHEZ' : 'HEZ';
+  const sourceBalance = mode === 'wrap' ? hezBalanceDisplay : whezBalanceDisplay;
+  const sourceBalanceRaw = mode === 'wrap' ? hezBalance : whezBalance;
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <Card className="bg-gray-900 border-gray-800 max-w-lg w-full max-h-[90vh] overflow-y-auto">
         <CardHeader className="border-b border-gray-800">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-xl font-bold text-white">
-              Wrap HEZ to wHEZ
+            <CardTitle className="text-xl font-bold text-white flex items-center gap-2">
+              <ArrowDownUp className="w-5 h-5" />
+              Token Wrapping
             </CardTitle>
             <button
               onClick={onClose}
@@ -229,40 +253,76 @@ export const InitializeHezPoolModal: React.FC<InitializeHezPoolModalProps> = ({
             <Alert className="bg-yellow-500/10 border-yellow-500/30">
               <AlertCircle className="h-4 w-4 text-yellow-400" />
               <AlertDescription className="text-yellow-300 text-sm">
-                <strong>TokenWrapper pallet not deployed.</strong> This feature requires the TokenWrapper pallet to be deployed on the blockchain runtime.
-                Please contact the development team.
+                <strong>TokenWrapper pallet not deployed.</strong> Please contact the development team.
               </AlertDescription>
             </Alert>
           )}
 
-          {/* Info Banner */}
-          <Alert className="bg-blue-500/10 border-blue-500/30">
-            <Info className="h-4 w-4 text-blue-400" />
-            <AlertDescription className="text-blue-300 text-sm">
-              Convert native HEZ tokens to wHEZ (wrapped HEZ) tokens for use in DEX pools.
-              Ratio is always 1:1.
-            </AlertDescription>
-          </Alert>
+          {/* Tabs for Wrap / Unwrap */}
+          <Tabs value={mode} onValueChange={(v) => setMode(v as WrapMode)} className="w-full">
+            <TabsList className="grid w-full grid-cols-2 bg-gray-800">
+              <TabsTrigger value="wrap" className="data-[state=active]:bg-blue-600">
+                HEZ → wHEZ
+              </TabsTrigger>
+              <TabsTrigger value="unwrap" className="data-[state=active]:bg-green-600">
+                wHEZ → HEZ
+              </TabsTrigger>
+            </TabsList>
 
-          {/* HEZ Amount */}
+            <TabsContent value="wrap" className="mt-4">
+              <Alert className="bg-blue-500/10 border-blue-500/30">
+                <Info className="h-4 w-4 text-blue-400" />
+                <AlertDescription className="text-blue-300 text-sm">
+                  Convert native HEZ to wHEZ (wrapped). Ratio: 1:1
+                </AlertDescription>
+              </Alert>
+            </TabsContent>
+
+            <TabsContent value="unwrap" className="mt-4">
+              <Alert className="bg-green-500/10 border-green-500/30">
+                <Info className="h-4 w-4 text-green-400" />
+                <AlertDescription className="text-green-300 text-sm">
+                  Convert wHEZ back to native HEZ. Ratio: 1:1
+                </AlertDescription>
+              </Alert>
+            </TabsContent>
+          </Tabs>
+
+          {/* Balances Display */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className={`p-4 rounded-lg border ${mode === 'wrap' ? 'bg-blue-500/10 border-blue-500/30' : 'bg-gray-800/50 border-gray-700'}`}>
+              <div className="text-sm text-gray-400 mb-1">Native HEZ</div>
+              <div className="text-xl font-bold text-blue-400 font-mono">
+                {hezBalanceDisplay}
+              </div>
+            </div>
+            <div className={`p-4 rounded-lg border ${mode === 'unwrap' ? 'bg-green-500/10 border-green-500/30' : 'bg-gray-800/50 border-gray-700'}`}>
+              <div className="text-sm text-gray-400 mb-1">Wrapped wHEZ</div>
+              <div className="text-xl font-bold text-cyan-400 font-mono">
+                {whezBalanceDisplay}
+              </div>
+            </div>
+          </div>
+
+          {/* Amount Input */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label className="text-sm text-gray-400">HEZ Amount</label>
+              <label className="text-sm text-gray-400">{sourceToken} Amount</label>
               <span className="text-xs text-gray-500">
-                Balance: {hezBalanceDisplay} HEZ
+                Available: {sourceBalance} {sourceToken}
               </span>
             </div>
             <div className="relative">
               <Input
                 type="number"
-                value={hezAmount}
-                onChange={(e) => setHezAmount(e.target.value)}
-                placeholder="1000"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="10000"
                 className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white text-lg"
                 disabled={txStatus === 'signing' || txStatus === 'submitting'}
               />
               <button
-                onClick={() => setHezAmount((parseFloat(hezBalance) / 10 ** 12).toFixed(4))}
+                onClick={() => setAmount((parseFloat(sourceBalanceRaw) / 10 ** 12).toFixed(4))}
                 className="absolute right-3 top-1/2 -translate-y-1/2 px-3 py-1 bg-green-600/20 hover:bg-green-600/30 text-green-400 text-xs rounded border border-green-600/30 transition-colors"
                 disabled={txStatus === 'signing' || txStatus === 'submitting'}
               >
@@ -270,16 +330,8 @@ export const InitializeHezPoolModal: React.FC<InitializeHezPoolModalProps> = ({
               </button>
             </div>
             <p className="text-xs text-gray-500">
-              💡 You will receive {hezAmount} wHEZ (1:1 ratio)
+              💡 You will receive {amount} {targetToken} (1:1 ratio)
             </p>
-          </div>
-
-          {/* Current wHEZ Balance */}
-          <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-700">
-            <div className="text-sm text-gray-400 mb-1">Current wHEZ Balance</div>
-            <div className="text-2xl font-bold text-cyan-400 font-mono">
-              {whezBalanceDisplay} wHEZ
-            </div>
           </div>
 
           {/* Error Message */}
@@ -297,7 +349,7 @@ export const InitializeHezPoolModal: React.FC<InitializeHezPoolModalProps> = ({
             <Alert className="bg-green-500/10 border-green-500/30">
               <CheckCircle className="h-4 w-4 text-green-400" />
               <AlertDescription className="text-green-300 text-sm">
-                Successfully wrapped {hezAmount} HEZ to wHEZ!
+                Successfully {mode === 'wrap' ? 'wrapped' : 'unwrapped'} {amount} {sourceToken} to {targetToken}!
               </AlertDescription>
             </Alert>
           )}
@@ -313,12 +365,11 @@ export const InitializeHezPoolModal: React.FC<InitializeHezPoolModalProps> = ({
               Cancel
             </Button>
             <Button
-              onClick={handleWrap}
-              className="flex-1 bg-blue-600 hover:bg-blue-700"
+              onClick={handleTransaction}
+              className={`flex-1 ${mode === 'wrap' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-green-600 hover:bg-green-700'}`}
               disabled={
                 txStatus === 'signing' ||
                 txStatus === 'submitting' ||
-                txStatus === 'success' ||
                 palletAvailable === false
               }
             >
@@ -331,10 +382,10 @@ export const InitializeHezPoolModal: React.FC<InitializeHezPoolModalProps> = ({
               {txStatus === 'submitting' && (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  Wrapping...
+                  {mode === 'wrap' ? 'Wrapping...' : 'Unwrapping...'}
                 </>
               )}
-              {txStatus === 'idle' && 'Wrap HEZ'}
+              {txStatus === 'idle' && (mode === 'wrap' ? 'Wrap HEZ → wHEZ' : 'Unwrap wHEZ → HEZ')}
               {txStatus === 'error' && 'Retry'}
               {txStatus === 'success' && (
                 <>
