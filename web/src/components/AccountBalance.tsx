@@ -556,7 +556,7 @@ export const AccountBalance: React.FC = () => {
       if (unsubscribeUsdt) unsubscribeUsdt();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [api, assetHubApi, isApiReady, isAssetHubReady, selectedAccount]);
+  }, [api, assetHubApi, peopleApi, isApiReady, isAssetHubReady, isPeopleReady, selectedAccount]);
 
   if (!selectedAccount) {
     return (
