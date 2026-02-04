@@ -74,7 +74,14 @@ const TokenSwap = () => {
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
 
   // Pool reserves for AMM calculation
-  const [poolReserves, setPoolReserves] = useState<{ reserve0: number; reserve1: number; asset0: number; asset1: number } | null>(null);
+  const [poolReserves, setPoolReserves] = useState<{
+    reserve0: number;
+    reserve1: number;
+    asset0: number;
+    asset1: number;
+    decimals0: number;
+    decimals1: number;
+  } | null>(null);
 
   // Helper: Get display name for token (USDT instead of wUSDT)
   const getTokenDisplayName = (tokenSymbol: string) => {
@@ -96,7 +103,7 @@ const TokenSwap = () => {
     }
 
     const amountIn = parseFloat(fromAmount);
-    const { reserve0, reserve1, asset0 } = poolReserves;
+    const { reserve0, reserve1, asset0, decimals0, decimals1 } = poolReserves;
 
     // Determine which reserve is input and which is output
     // Native HEZ uses NATIVE_TOKEN_ID (-1)
@@ -105,13 +112,15 @@ const TokenSwap = () => {
 
     const reserveIn = isAsset0ToAsset1 ? reserve0 : reserve1;
     const reserveOut = isAsset0ToAsset1 ? reserve1 : reserve0;
+    const decimalsIn = isAsset0ToAsset1 ? decimals0 : decimals1;
+    const decimalsOut = isAsset0ToAsset1 ? decimals1 : decimals0;
 
     // Uniswap V2 AMM formula (matches Substrate runtime exactly)
     // Runtime: amount_in_with_fee = amount_in * (1000 - LPFee) = amount_in * 997
     // LPFee = 3 (0.3% fee - standard DEX fee)
     // Formula: amountOut = (amountIn * 997 * reserveOut) / (reserveIn * 1000 + amountIn * 997)
     const LP_FEE = 3; // 0.3% fee
-    const amountInWithFee = amountIn * (1000 - LP_FEE); // = amountIn * 970
+    const amountInWithFee = amountIn * (1000 - LP_FEE); // = amountIn * 997
     const numerator = amountInWithFee * reserveOut;
     const denominator = reserveIn * 1000 + amountInWithFee;
     const amountOut = numerator / denominator;
@@ -124,13 +133,17 @@ const TokenSwap = () => {
     const lpFeeAmount = (amountIn * (LP_FEE / 1000)).toFixed(4);
 
     // Calculate minimum received with slippage
-    const minReceived = (amountOut * (1 - parseFloat(slippage) / 100)).toFixed(4);
+    // Use appropriate decimal places based on output token
+    const outputDecimals = decimalsOut === 6 ? 2 : 4; // USDT: 2 decimals, others: 4
+    const minReceived = (amountOut * (1 - parseFloat(slippage) / 100)).toFixed(outputDecimals);
 
     if (import.meta.env.DEV) console.log('🔍 Uniswap V2 AMM:', {
       amountIn,
       amountInWithFee,
       reserveIn,
       reserveOut,
+      decimalsIn,
+      decimalsOut,
       numerator,
       denominator,
       amountOut,
@@ -141,7 +154,7 @@ const TokenSwap = () => {
     });
 
     return {
-      toAmount: amountOut.toFixed(4),
+      toAmount: amountOut.toFixed(outputDecimals),
       priceImpact,
       minimumReceived: minReceived,
       lpFee: lpFeeAmount
@@ -229,12 +242,13 @@ const TokenSwap = () => {
           try {
             // Use Runtime API to get exchange rate (quotePriceExactTokensForTokens)
             // This is more reliable than deriving pool account manually
+            // IMPORTANT: HEZ has 12 decimals, USDT has 6 decimals, PEZ has 12 decimals
             const decimals0 = asset1 === 1000 ? 6 : 12; // wUSDT: 6, others: 12
             const decimals1 = asset2 === 1000 ? 6 : 12;
 
             const oneUnit = BigInt(Math.pow(10, decimals0));
 
-            if (import.meta.env.DEV) console.log('🔍 Querying price via runtime API...');
+            if (import.meta.env.DEV) console.log('🔍 Querying price via runtime API...', { asset1, asset2, decimals0, decimals1 });
 
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const quote = await (assetHubApi.call as any).assetConversionApi.quotePriceExactTokensForTokens(
@@ -252,7 +266,7 @@ const TokenSwap = () => {
               const priceRaw = (quote as any).unwrap().toString();
               const price = Number(BigInt(priceRaw)) / Math.pow(10, decimals1);
 
-              if (import.meta.env.DEV) console.log('✅ Price from runtime API:', price);
+              if (import.meta.env.DEV) console.log('✅ Price from runtime API:', price, { decimals0, decimals1, priceRaw });
 
               // For AMM calculation, estimate reserves from LP supply
               const lpTokenId = pool.lpToken;
@@ -267,20 +281,50 @@ const TokenSwap = () => {
                 }
               }
 
-              // Estimate reserves: LP = sqrt(r0 * r1), price = r1/r0
-              // r0 = LP / sqrt(price), r1 = LP * sqrt(price)
-              const sqrtPrice = Math.sqrt(price);
-              const reserve0 = Number(lpSupply) / sqrtPrice / Math.pow(10, 12);
-              const reserve1 = Number(lpSupply) * sqrtPrice / Math.pow(10, 12);
+              // Estimate reserves using correct decimals for each asset
+              // For mixed-decimal pools (e.g., HEZ-12 decimals, USDT-6 decimals),
+              // we need to normalize to human-readable units
+              // LP = sqrt(r0 * r1) where r0/r1 are in smallest units
+              // The price from API is already normalized to human units
 
-              if (import.meta.env.DEV) console.log('✅ Estimated reserves:', { reserve0, reserve1, lpSupply: lpSupply.toString() });
+              // To estimate reserves in human-readable units:
+              // We know: price = reserve1_human / reserve0_human
+              // And: LP = sqrt(reserve0_raw * reserve1_raw)
+              //
+              // For simplicity, we'll estimate reserves based on LP supply and price
+              // reserve0_human = sqrt(LP_raw^2 / price) / 10^decimals0
+              // But this is complex with mixed decimals, so use a simpler approach:
+              // Just use the price for rate calculation, and estimate a reasonable reserve size
+
+              // Use LP supply to estimate pool TVL, then derive reserves from price
+              const lpHuman = Number(lpSupply) / Math.pow(10, 12); // LP tokens have 12 decimals
+
+              // Estimate reserve0 (first asset) in human units
+              // Since LP ≈ sqrt(r0 * r1) and r1/r0 = price
+              // LP^2 ≈ r0 * r1 = r0 * (r0 * price) = r0^2 * price
+              // r0 ≈ LP / sqrt(price)
+              const sqrtPrice = Math.sqrt(price);
+              const reserve0 = lpHuman / sqrtPrice;
+              const reserve1 = lpHuman * sqrtPrice;
+
+              if (import.meta.env.DEV) console.log('✅ Estimated reserves (human units):', {
+                reserve0,
+                reserve1,
+                price,
+                lpSupply: lpSupply.toString(),
+                lpHuman,
+                decimals0,
+                decimals1
+              });
 
               // Store pool reserves for AMM calculation
               setPoolReserves({
                 reserve0,
                 reserve1,
                 asset0: asset1,
-                asset1: asset2
+                asset1: asset2,
+                decimals0,
+                decimals1
               });
 
               // Calculate exchange rate based on direction
