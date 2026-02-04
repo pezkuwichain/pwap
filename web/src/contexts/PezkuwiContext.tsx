@@ -5,9 +5,9 @@ import type { InjectedAccountWithMeta } from '@pezkuwi/extension-inject/types';
 import { DEFAULT_ENDPOINT } from '../../../shared/blockchain/pezkuwi';
 import { isMobileApp, getNativeWalletAddress, getNativeAccountName } from '@/lib/mobile-bridge';
 
-// Parachain endpoints
-const ASSET_HUB_ENDPOINT = 'wss://asset-hub-rpc.pezkuwichain.io';
-const PEOPLE_CHAIN_ENDPOINT = 'wss://people-rpc.pezkuwichain.io';
+// Teyrchain endpoints (from environment or defaults)
+const ASSET_HUB_ENDPOINT = import.meta.env.VITE_ASSET_HUB_ENDPOINT || 'wss://asset-hub-rpc.pezkuwichain.io';
+const PEOPLE_CHAIN_ENDPOINT = import.meta.env.VITE_PEOPLE_CHAIN_ENDPOINT || 'wss://people-rpc.pezkuwichain.io';
 
 interface PezkuwiContextType {
   api: ApiPromise | null;
@@ -65,11 +65,19 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
 
   // Initialize Pezkuwi API with fallback endpoints
   useEffect(() => {
+    // Hardcoded production fallbacks ensure app works even if env vars are missing
+    const PRODUCTION_FALLBACKS = [
+      'wss://rpc.pezkuwichain.io:9944',
+      'wss://mainnet.pezkuwichain.io',
+      'wss://beta.pezkuwichain.io',
+    ];
+
     const FALLBACK_ENDPOINTS = [
       endpoint,
       import.meta.env.VITE_WS_ENDPOINT_FALLBACK_1,
       import.meta.env.VITE_WS_ENDPOINT_FALLBACK_2,
-    ].filter(Boolean);
+      ...PRODUCTION_FALLBACKS,
+    ].filter((ep, index, arr) => ep && arr.indexOf(ep) === index); // Remove duplicates and empty
 
     const initApi = async () => {
       let lastError: unknown = null;

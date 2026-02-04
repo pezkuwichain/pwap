@@ -21,15 +21,16 @@ const WebSocketContext = createContext<WebSocketContextType | null>(null);
 const isLocalhost = typeof window !== 'undefined' &&
   (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
 
+// WebSocket endpoints for real-time updates (separate from blockchain RPC)
+// Note: Real-time WebSocket service is optional - app works without it
 const ENDPOINTS = isLocalhost
   ? [
       'ws://localhost:8082',             // Local Vite dev server
-      'ws://127.0.0.1:9944',             // Local development node (primary)
-      'ws://localhost:9944',             // Local development node (alternative)
-      'wss://ws.pezkuwichain.io',        // Production WebSocket (fallback)
+      'ws://127.0.0.1:8082',             // Alternative local server
     ]
   : [
-      'wss://ws.pezkuwichain.io',        // Production WebSocket only
+      // Production WebSocket service - currently disabled (service not deployed)
+      // Will be re-enabled when wss://ws.pezkuwichain.io is deployed
     ];
 
 export const useWebSocket = () => {
