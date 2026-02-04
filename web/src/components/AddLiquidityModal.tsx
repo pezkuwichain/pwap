@@ -18,10 +18,6 @@ interface AssetDetails {
   minBalance?: string | number;
 }
 
-interface AssetAccountData {
-  balance: string | number;
-}
-
 interface Balances {
   [key: string]: number;
 }
