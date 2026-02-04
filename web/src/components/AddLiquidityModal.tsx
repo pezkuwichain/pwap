@@ -65,6 +65,8 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  // Asset Hub native balance for native token (-1) - needed because DEX is on Asset Hub
+  const [assetHubNativeBalance, setAssetHubNativeBalance] = useState<number>(0);
 
   // Get asset details
   const asset0Name = getDisplayName(asset0);
@@ -83,6 +85,42 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
       setSuccess(false);
     }
   }, [isOpen]);
+
+  // Fetch Asset Hub native balance for native token (-1)
+  // This is needed because the DEX (assetConversion) is on Asset Hub,
+  // but WalletContext fetches HEZ balance from the relay chain
+  useEffect(() => {
+    if (!assetHubApi || !isAssetHubReady || !selectedAccount || !isOpen) return;
+
+    // Only fetch if one of the assets is the native token (-1)
+    if (asset0 !== -1 && asset1 !== -1) {
+      setAssetHubNativeBalance(0);
+      return;
+    }
+
+    const fetchAssetHubNativeBalance = async () => {
+      try {
+        const { data: accountInfo } = await assetHubApi.query.system.account(selectedAccount.address);
+        const freeBalance = accountInfo.free.toString();
+        const humanBalance = Number(freeBalance) / Math.pow(10, 12); // Native token has 12 decimals
+
+        if (import.meta.env.DEV) {
+          console.log('💰 Asset Hub native balance:', {
+            raw: freeBalance,
+            human: humanBalance,
+            address: selectedAccount.address
+          });
+        }
+
+        setAssetHubNativeBalance(humanBalance);
+      } catch (err) {
+        if (import.meta.env.DEV) console.error('❌ Failed to fetch Asset Hub native balance:', err);
+        setAssetHubNativeBalance(0);
+      }
+    };
+
+    fetchAssetHubNativeBalance();
+  }, [assetHubApi, isAssetHubReady, selectedAccount, isOpen, asset0, asset1]);
 
   // Fetch minimum deposit requirements from runtime
   useEffect(() => {
@@ -265,16 +303,25 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
         return;
       }
 
-      const balance0 = (balances as Balances)[asset0BalanceKey] || 0;
-      const balance1 = (balances as Balances)[asset1BalanceKey] || 0;
+      // For native token (-1), use Asset Hub native balance; for others, use WalletContext
+      const getBalanceForValidation = (assetId: number, balanceKey: string): number => {
+        if (assetId === -1) {
+          return assetHubNativeBalance;
+        }
+        const walletBalance = (balances as Balances)[balanceKey];
+        return typeof walletBalance === 'string' ? parseFloat(walletBalance) || 0 : walletBalance || 0;
+      };
 
-      if (parseFloat(amount0) > balance0) {
-        setError(`Insufficient ${asset0Name} balance`);
+      const bal0 = getBalanceForValidation(asset0, asset0BalanceKey);
+      const bal1 = getBalanceForValidation(asset1, asset1BalanceKey);
+
+      if (parseFloat(amount0) > bal0) {
+        setError(`Insufficient ${asset0Name} balance on Asset Hub`);
         setIsLoading(false);
         return;
       }
 
-      if (parseFloat(amount1) > balance1) {
+      if (parseFloat(amount1) > bal1) {
         setError(`Insufficient ${asset1Name} balance`);
         setIsLoading(false);
         return;
@@ -367,8 +414,18 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
 
   if (!isOpen) return null;
 
-  const balance0 = (balances as Balances)[asset0BalanceKey] || 0;
-  const balance1 = (balances as Balances)[asset1BalanceKey] || 0;
+  // For native token (-1), use Asset Hub native balance
+  // For other assets, use WalletContext balances (parse string to number)
+  const getBalance = (assetId: number, balanceKey: string): number => {
+    if (assetId === -1) {
+      return assetHubNativeBalance;
+    }
+    const walletBalance = (balances as Balances)[balanceKey];
+    return typeof walletBalance === 'string' ? parseFloat(walletBalance) || 0 : walletBalance || 0;
+  };
+
+  const balance0 = getBalance(asset0, asset0BalanceKey);
+  const balance1 = getBalance(asset1, asset1BalanceKey);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -393,6 +450,17 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
         {success && (
           <Alert className="mb-4 bg-green-900/20 border-green-500">
             <AlertDescription>Liquidity added successfully!</AlertDescription>
+          </Alert>
+        )}
+
+        {/* Warning when using native HEZ and Asset Hub balance is low */}
+        {asset0 === -1 && assetHubNativeBalance < 0.1 && (
+          <Alert className="mb-4 bg-orange-900/20 border-orange-500">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription className="text-sm">
+              <strong>Low Asset Hub Balance:</strong> You have {assetHubNativeBalance.toFixed(4)} HEZ on Asset Hub.
+              The DEX requires HEZ on Asset Hub. Use XCM transfer from relay chain if needed.
+            </AlertDescription>
           </Alert>
         )}
 
