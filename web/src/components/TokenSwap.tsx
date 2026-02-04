@@ -151,7 +151,7 @@ const TokenSwap = () => {
   // Check if AssetConversion pallet is available
   useEffect(() => {
     if (import.meta.env.DEV) console.log('🔍 Checking DEX availability...', { assetHubApi: !!assetHubApi, isAssetHubReady });
-    if (api && isAssetHubReady) {
+    if (assetHubApi && isAssetHubReady) {
       const hasAssetConversion = assetHubApi.tx.assetConversion !== undefined;
       if (import.meta.env.DEV) console.log('🔍 AssetConversion pallet check:', hasAssetConversion);
       setIsDexAvailable(hasAssetConversion);
