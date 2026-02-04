@@ -62,10 +62,9 @@ jobs:
         working-directory: ./web
         run: npm run build
         env:
-          VITE_NETWORK: BETA
-          VITE_WS_ENDPOINT: wss://rpc.pezkuwichain.io:9944
+          VITE_NETWORK: MAINNET
+          VITE_WS_ENDPOINT: wss://rpc.pezkuwichain.io
           VITE_WS_ENDPOINT_FALLBACK_1: wss://mainnet.pezkuwichain.io
-          VITE_WS_ENDPOINT_FALLBACK_2: wss://beta.pezkuwichain.io
           VITE_ASSET_HUB_ENDPOINT: wss://asset-hub-rpc.pezkuwichain.io
           VITE_PEOPLE_CHAIN_ENDPOINT: wss://people-rpc.pezkuwichain.io
 

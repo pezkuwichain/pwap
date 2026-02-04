@@ -67,9 +67,8 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
   useEffect(() => {
     // Hardcoded production fallbacks ensure app works even if env vars are missing
     const PRODUCTION_FALLBACKS = [
-      'wss://rpc.pezkuwichain.io:9944',
+      'wss://rpc.pezkuwichain.io',
       'wss://mainnet.pezkuwichain.io',
-      'wss://beta.pezkuwichain.io',
     ];
 
     const FALLBACK_ENDPOINTS = [

@@ -28,7 +28,7 @@ export const NETWORK_ENDPOINTS: Record<string, NetworkConfig> = {
   BETA: {
     name: 'Pezkuwi Beta Testnet',
     endpoint: 'https://rpc.pezkuwichain.io',
-    wsEndpoint: 'wss://rpc.pezkuwichain.io:9944',
+    wsEndpoint: 'wss://rpc.pezkuwichain.io',
     type: 'production',
     description: 'Beta testnet - Currently active for testing',
   },
