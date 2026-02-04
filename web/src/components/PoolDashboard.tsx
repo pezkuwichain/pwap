@@ -189,15 +189,19 @@ const PoolDashboard = () => {
                 const assetInfo = (lpAssetData as { unwrap: () => { toJSON: () => Record<string, unknown> } }).unwrap().toJSON();
                 const totalLpSupply = Number(assetInfo.supply) / 1e12;
 
-                // Estimate reserves: LP supply is approximately sqrt(reserve0 * reserve1)
-                // With known price ratio, we can solve for individual reserves
-                // reserve0 * reserve1 = lpSupply^2
-                // reserve1 / reserve0 = price
-                // Therefore: reserve0 = lpSupply / sqrt(price), reserve1 = lpSupply * sqrt(price)
+                // Estimate reserves from LP supply and price
+                // LP = sqrt(r0_raw * r1_raw) where r0_raw = r0_human * 10^d0, r1_raw = r1_human * 10^d1
+                // LP_raw = sqrt(r0_human * r1_human) * 10^((d0+d1)/2)
+                // LP_human = LP_raw / 10^12 = sqrt(r0_human * r1_human) * 10^((d0+d1)/2 - 12)
+                // Therefore: sqrt(r0_human * r1_human) = LP_human * 10^(12 - (d0+d1)/2)
+                //
+                // For HEZ-USDT (d0=12, d1=6): factor = 10^(12 - 9) = 1000
+                // For HEZ-PEZ (d0=12, d1=12): factor = 10^(12 - 12) = 1
                 if (price > 0 && totalLpSupply > 0) {
+                  const decimalCorrectionFactor = Math.pow(10, 12 - (asset1Decimals + asset2Decimals) / 2);
                   const sqrtPrice = Math.sqrt(price);
-                  reserve0 = totalLpSupply / sqrtPrice;
-                  reserve1 = totalLpSupply * sqrtPrice;
+                  reserve0 = totalLpSupply * decimalCorrectionFactor / sqrtPrice;
+                  reserve1 = totalLpSupply * decimalCorrectionFactor * sqrtPrice;
                 }
               }
             }
