@@ -27,7 +27,6 @@ import { useWebSocket } from '@/contexts/WebSocketContext';
 import { StakingDashboard } from './staking/StakingDashboard';
 import { MultiSigWallet } from './wallet/MultiSigWallet';
 import { useWallet } from '@/contexts/WalletContext';
-import { supabase } from '@/lib/supabase';
 import { PezkuwiWalletButton } from './PezkuwiWalletButton';
 import { DEXDashboard } from './dex/DEXDashboard';
 import { P2PDashboard } from './p2p/P2PDashboard';

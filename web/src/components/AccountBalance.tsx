@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Wallet, TrendingUp, ArrowDownRight, RefreshCw, Award, Plus, Coins, Send, Shield, Users, Fuel } from 'lucide-react';
+import { Wallet, TrendingUp, RefreshCw, Award, Plus, Coins, Send, Shield, Users, Fuel } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ASSET_IDS, getAssetSymbol } from '@pezkuwi/lib/wallet';
 import { AddTokenModal } from './AddTokenModal';

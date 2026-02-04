@@ -101,7 +101,7 @@ export default function EmailVerification() {
 
             <div className="bg-gray-800/50 rounded-lg p-4 text-left space-y-2">
               <p className="text-sm text-gray-300">Please check your email and click the verification link to activate your account.</p>
-              <p className="text-xs text-gray-500">If you don't see the email, check your spam folder.</p>
+              <p className="text-xs text-gray-500">If you don&apos;t see the email, check your spam folder.</p>
             </div>
 
             {error && (
