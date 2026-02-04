@@ -1,5 +1,20 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { ApiPromise, WsProvider } from '@pezkuwi/api';
+
+// Suppress noisy API warnings in production (RPC methods not decorated, unknown signed extensions)
+if (!import.meta.env.DEV) {
+  const originalWarn = console.warn;
+  console.warn = (...args: unknown[]) => {
+    const msg = args[0];
+    if (typeof msg === 'string' && (
+      msg.includes('RPC methods not decorated') ||
+      msg.includes('Unknown signed extensions')
+    )) {
+      return; // Suppress these specific warnings
+    }
+    originalWarn.apply(console, args);
+  };
+}
 import { web3Accounts, web3Enable } from '@pezkuwi/extension-dapp';
 import type { InjectedAccountWithMeta } from '@pezkuwi/extension-inject/types';
 import { DEFAULT_ENDPOINT } from '../../../shared/blockchain/pezkuwi';
