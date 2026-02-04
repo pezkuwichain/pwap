@@ -1,6 +1,9 @@
 import { ApiPromise } from '@pezkuwi/api';
 import { KNOWN_TOKENS, PoolInfo, SwapQuote, UserLiquidityPosition, NATIVE_TOKEN_ID } from '../types/dex';
 
+// Re-export NATIVE_TOKEN_ID for convenience
+export { NATIVE_TOKEN_ID };
+
 // LP tokens typically use 12 decimals on Asset Hub
 const LP_TOKEN_DECIMALS = 12;
 
