@@ -76,6 +76,13 @@ export async function initiateReferral(
 }
 
 /**
+ * Check if the referral pallet is available on the chain
+ */
+function isReferralPalletAvailable(api: ApiPromise): boolean {
+  return !!(api.query.referral && api.query.referral.pendingReferrals);
+}
+
+/**
  * Get the pending referral for a user (who invited them, if they haven't completed KYC)
  *
  * @param api Polkadot API instance
@@ -87,6 +94,12 @@ export async function getPendingReferral(
   address: string
 ): Promise<string | null> {
   try {
+    // Check if referral pallet exists
+    if (!isReferralPalletAvailable(api)) {
+      if (import.meta.env.DEV) console.log('Referral pallet not available on this chain');
+      return null;
+    }
+
     const result = await api.query.referral.pendingReferrals(address);
 
     if (result.isEmpty) {
@@ -95,7 +108,7 @@ export async function getPendingReferral(
 
     return result.toString();
   } catch (error) {
-    console.error('Error fetching pending referral:', error);
+    if (import.meta.env.DEV) console.error('Error fetching pending referral:', error);
     return null;
   }
 }
@@ -112,10 +125,15 @@ export async function getReferralCount(
   address: string
 ): Promise<number> {
   try {
+    // Check if referral pallet exists
+    if (!isReferralPalletAvailable(api)) {
+      return 0;
+    }
+
     const count = await api.query.referral.referralCount(address);
     return count.toNumber();
   } catch (error) {
-    console.error('Error fetching referral count:', error);
+    if (import.meta.env.DEV) console.error('Error fetching referral count:', error);
     return 0;
   }
 }
@@ -132,6 +150,11 @@ export async function getReferralInfo(
   address: string
 ): Promise<ReferralInfo | null> {
   try {
+    // Check if referral pallet exists
+    if (!isReferralPalletAvailable(api)) {
+      return null;
+    }
+
     const result = await api.query.referral.referrals(address);
 
     if (result.isEmpty) {
@@ -144,7 +167,7 @@ export async function getReferralInfo(
       createdAt: parseInt(data.createdAt),
     };
   } catch (error) {
-    console.error('Error fetching referral info:', error);
+    if (import.meta.env.DEV) console.error('Error fetching referral info:', error);
     return null;
   }
 }
@@ -182,6 +205,16 @@ export async function getReferralStats(
   api: ApiPromise,
   address: string
 ): Promise<ReferralStats> {
+  // Check if referral pallet exists first
+  if (!isReferralPalletAvailable(api)) {
+    return {
+      referralCount: 0,
+      referralScore: 0,
+      whoInvitedMe: null,
+      pendingReferral: null,
+    };
+  }
+
   try {
     const [referralCount, referralInfo, pendingReferral] = await Promise.all([
       getReferralCount(api, address),
@@ -198,7 +231,7 @@ export async function getReferralStats(
       pendingReferral,
     };
   } catch (error) {
-    console.error('Error fetching referral stats:', error);
+    if (import.meta.env.DEV) console.error('Error fetching referral stats:', error);
     return {
       referralCount: 0,
       referralScore: 0,
@@ -221,6 +254,11 @@ export async function getMyReferrals(
   referrerAddress: string
 ): Promise<string[]> {
   try {
+    // Check if referral pallet exists
+    if (!isReferralPalletAvailable(api)) {
+      return [];
+    }
+
     const entries = await api.query.referral.referrals.entries();
 
     const myReferrals = entries
@@ -237,7 +275,7 @@ export async function getMyReferrals(
 
     return myReferrals;
   } catch (error) {
-    console.error('Error fetching my referrals:', error);
+    if (import.meta.env.DEV) console.error('Error fetching my referrals:', error);
     return [];
   }
 }
@@ -253,6 +291,11 @@ export async function subscribeToReferralEvents(
   api: ApiPromise,
   callback: (event: { type: 'initiated' | 'confirmed'; referrer: string; referred: string; count?: number }) => void
 ): Promise<() => void> {
+  // Check if referral pallet exists - if not, return no-op unsubscribe
+  if (!isReferralPalletAvailable(api)) {
+    return () => {};
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const unsub = await api.query.system.events((events: any[]) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

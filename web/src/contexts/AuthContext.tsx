@@ -134,23 +134,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return true;
       }
 
-      // SECONDARY: Check Supabase admin_roles (if wallet not in whitelist)
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data, error } = await supabase
-          .from('admin_roles')
-          .select('role')
-          .eq('user_id', user.id)
-          .maybeSingle();
+      // SECONDARY: Supabase admin_roles check disabled (table may not exist)
+      // Admin access is primarily wallet-based via the whitelist above
 
-        if (!error && data && ['admin', 'super_admin'].includes(data.role)) {
-          if (import.meta.env.DEV) console.log('✅ Admin access granted (Supabase-based)');
-          setIsAdmin(true);
-          return true;
-        }
-      }
-
-      if (import.meta.env.DEV) console.log('❌ Admin access denied');
+      if (import.meta.env.DEV) console.log('❌ Admin access denied (wallet not in whitelist)');
       setIsAdmin(false);
       return false;
     } catch (err) {

@@ -66,7 +66,7 @@ const TOKENS: Token[] = [
 ];
 
 export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, selectedAsset }) => {
-  const { api, isApiReady, selectedAccount } = usePezkuwi();
+  const { api, assetHubApi, isApiReady, isAssetHubReady, selectedAccount } = usePezkuwi();
   const { toast } = useToast();
 
   const [selectedToken, setSelectedToken] = useState<TokenType>('HEZ');
@@ -97,6 +97,17 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, s
       return;
     }
 
+    // Check if PEZ transfer but Asset Hub not ready
+    const isPezTransfer = currentToken.symbol === 'PEZ' || currentToken.assetId === 1;
+    if (isPezTransfer && (!assetHubApi || !isAssetHubReady)) {
+      toast({
+        title: "Error",
+        description: "Asset Hub connection not ready. PEZ is on Asset Hub.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!recipient || !amount) {
       toast({
         title: "Error",
@@ -118,14 +129,20 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, s
       const amountInSmallestUnit = BigInt(parseFloat(amount) * Math.pow(10, currentToken.decimals));
 
       let transfer;
+      let targetApi = api; // Default to main chain API
 
       // Create appropriate transfer transaction based on token type
-      // wHEZ uses native token transfer (balances pallet), all others use assets pallet
+      // HEZ uses native token transfer (balances pallet on main chain)
+      // PEZ uses assets pallet on Asset Hub (asset ID: 1)
       if (currentToken.assetId === undefined || (selectedToken === 'HEZ' && !selectedAsset)) {
-        // Native HEZ token transfer
+        // Native HEZ token transfer on main chain
         transfer = api.tx.balances.transferKeepAlive(recipient, amountInSmallestUnit.toString());
+      } else if (isPezTransfer) {
+        // PEZ transfer on Asset Hub (asset ID: 1)
+        targetApi = assetHubApi!;
+        transfer = assetHubApi!.tx.assets.transfer(currentToken.assetId, recipient, amountInSmallestUnit.toString());
       } else {
-        // Asset token transfer (wHEZ, PEZ, wUSDT, etc.)
+        // Other asset token transfers on main chain
         transfer = api.tx.assets.transfer(currentToken.assetId, recipient, amountInSmallestUnit.toString());
       }
 
@@ -149,7 +166,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, s
               let errorMessage = 'Transaction failed';
               
               if (dispatchError.isModule) {
-                const decoded = api.registry.findMetaError(dispatchError.asModule);
+                const decoded = targetApi.registry.findMetaError(dispatchError.asModule);
                 errorMessage = `${decoded.section}.${decoded.name}: ${decoded.docs}`;
               }
 

@@ -476,6 +476,224 @@ export async function testXCMTransfer(
 }
 
 // ========================================
+// XCM TELEPORT: RELAY CHAIN → ASSET HUB
+// ========================================
+
+/**
+ * Teleport HEZ from Relay Chain to Asset Hub
+ * This is needed to pay fees on Asset Hub for PEZ transfers
+ *
+ * @param relayApi - Polkadot.js API instance (connected to relay chain)
+ * @param amount - Amount in smallest unit (e.g., 100000000000 for 0.1 HEZ with 12 decimals)
+ * @param account - Account to sign and receive on Asset Hub
+ * @param assetHubParaId - Asset Hub parachain ID (default: 1000)
+ * @returns Transaction hash
+ */
+export async function teleportToAssetHub(
+  relayApi: ApiPromise,
+  amount: string | bigint,
+  account: InjectedAccountWithMeta,
+  assetHubParaId: number = 1000
+): Promise<string> {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const injector = await (window as any).injectedWeb3[account.meta.source]?.enable?.('PezkuwiChain');
+      if (!injector) {
+        throw new Error('Failed to get injector from wallet extension');
+      }
+
+      const signer = injector.signer;
+
+      // Destination: Asset Hub parachain
+      const dest = {
+        V3: {
+          parents: 0,
+          interior: {
+            X1: { Parachain: assetHubParaId }
+          }
+        }
+      };
+
+      // Beneficiary: Same account on Asset Hub
+      const beneficiary = {
+        V3: {
+          parents: 0,
+          interior: {
+            X1: {
+              AccountId32: {
+                network: null,
+                id: relayApi.createType('AccountId32', account.address).toHex()
+              }
+            }
+          }
+        }
+      };
+
+      // Assets: Native token (HEZ)
+      const assets = {
+        V3: [{
+          id: {
+            Concrete: {
+              parents: 0,
+              interior: 'Here'
+            }
+          },
+          fun: {
+            Fungible: amount.toString()
+          }
+        }]
+      };
+
+      // Fee asset item (index 0 = first asset)
+      const feeAssetItem = 0;
+
+      // Weight limit: Unlimited
+      const weightLimit = 'Unlimited';
+
+      // Create teleport transaction
+      const tx = relayApi.tx.xcmPallet.limitedTeleportAssets(
+        dest,
+        beneficiary,
+        assets,
+        feeAssetItem,
+        weightLimit
+      );
+
+      let unsub: () => void;
+
+      await tx.signAndSend(account.address, { signer }, ({ status, events, dispatchError }) => {
+        if (dispatchError) {
+          if (dispatchError.isModule) {
+            const decoded = relayApi.registry.findMetaError(dispatchError.asModule);
+            reject(new Error(`${decoded.section}.${decoded.name}: ${decoded.docs.join(' ')}`));
+          } else {
+            reject(new Error(dispatchError.toString()));
+          }
+          if (unsub) unsub();
+          return;
+        }
+
+        if (status.isInBlock) {
+          console.log(`✅ XCM Teleport included in block: ${status.asInBlock}`);
+
+          // Check for XCM events
+          const xcmSent = events.find(({ event }) =>
+            event.section === 'xcmPallet' && event.method === 'Sent'
+          );
+
+          if (xcmSent) {
+            console.log('✅ XCM message sent successfully');
+          }
+
+          resolve(status.asInBlock.toString());
+          if (unsub) unsub();
+        }
+      }).then(unsubscribe => { unsub = unsubscribe; });
+
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+
+/**
+ * Teleport HEZ from Asset Hub back to Relay Chain
+ *
+ * @param assetHubApi - Polkadot.js API instance (connected to Asset Hub)
+ * @param amount - Amount in smallest unit
+ * @param account - Account to sign and receive on relay chain
+ * @returns Transaction hash
+ */
+export async function teleportToRelayChain(
+  assetHubApi: ApiPromise,
+  amount: string | bigint,
+  account: InjectedAccountWithMeta
+): Promise<string> {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const injector = await (window as any).injectedWeb3[account.meta.source]?.enable?.('PezkuwiChain');
+      if (!injector) {
+        throw new Error('Failed to get injector from wallet extension');
+      }
+
+      const signer = injector.signer;
+
+      // Destination: Relay chain (parent)
+      const dest = {
+        V3: {
+          parents: 1,
+          interior: 'Here'
+        }
+      };
+
+      // Beneficiary: Same account on relay chain
+      const beneficiary = {
+        V3: {
+          parents: 0,
+          interior: {
+            X1: {
+              AccountId32: {
+                network: null,
+                id: assetHubApi.createType('AccountId32', account.address).toHex()
+              }
+            }
+          }
+        }
+      };
+
+      // Assets: Native token
+      const assets = {
+        V3: [{
+          id: {
+            Concrete: {
+              parents: 1,
+              interior: 'Here'
+            }
+          },
+          fun: {
+            Fungible: amount.toString()
+          }
+        }]
+      };
+
+      const feeAssetItem = 0;
+      const weightLimit = 'Unlimited';
+
+      const tx = assetHubApi.tx.polkadotXcm.limitedTeleportAssets(
+        dest,
+        beneficiary,
+        assets,
+        feeAssetItem,
+        weightLimit
+      );
+
+      let unsub: () => void;
+
+      await tx.signAndSend(account.address, { signer }, ({ status, dispatchError }) => {
+        if (dispatchError) {
+          if (dispatchError.isModule) {
+            const decoded = assetHubApi.registry.findMetaError(dispatchError.asModule);
+            reject(new Error(`${decoded.section}.${decoded.name}: ${decoded.docs.join(' ')}`));
+          } else {
+            reject(new Error(dispatchError.toString()));
+          }
+          if (unsub) unsub();
+          return;
+        }
+
+        if (status.isInBlock) {
+          resolve(status.asInBlock.toString());
+          if (unsub) unsub();
+        }
+      }).then(unsubscribe => { unsub = unsubscribe; });
+
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+
+// ========================================
 // UTILITY FUNCTIONS
 // ========================================
 

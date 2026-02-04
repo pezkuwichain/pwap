@@ -53,25 +53,10 @@ const AppLayout: React.FC = () => {
   useWallet();
   const [, _setIsAdmin] = useState(false);
 
-  // Check if user is admin
+  // Admin status is handled by AuthContext via wallet whitelist
+  // Supabase admin_roles is optional (table may not exist)
   React.useEffect(() => {
-    const checkAdminStatus = async () => {
-      if (user) {
-        const { data, error } = await supabase
-          .from('admin_roles')
-          .select('role')
-          .eq('user_id', user.id)
-          .maybeSingle();
-
-        if (error) {
-          if (import.meta.env.DEV) console.warn('Admin check error:', error);
-        }
-        _setIsAdmin(!!data);
-      } else {
-        _setIsAdmin(false);
-      }
-    };
-    checkAdminStatus();
+    _setIsAdmin(false); // Admin status managed by AuthContext
   }, [user]);
   return (
     <div className="min-h-screen bg-gray-950 text-white">

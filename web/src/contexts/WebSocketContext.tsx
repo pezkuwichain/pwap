@@ -53,15 +53,10 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const connectionAttempts = useRef(0);
 
   const connect = useCallback((endpointIndex: number = 0) => {
-    // If we've tried all endpoints, show error once and stop
+    // If we've tried all endpoints, stop silently (WebSocket is optional)
     if (endpointIndex >= ENDPOINTS.length) {
       if (!hasShownFinalError.current) {
-        if (import.meta.env.DEV) console.error('❌ All WebSocket endpoints failed');
-        toast({
-          title: "Real-time Connection Unavailable",
-          description: "Could not connect to WebSocket server. Live updates will be disabled.",
-          variant: "destructive",
-        });
+        // WebSocket service is optional - fail silently
         hasShownFinalError.current = true;
       }
       return;
