@@ -1,6 +1,13 @@
-// Suppress noisy Polkadot.js API warnings in production
+// Suppress console output in production
 // Must be at the very top before any imports
 if (typeof window !== 'undefined' && import.meta.env.PROD) {
+  // Suppress console.log, debug, info in production
+  const noop = () => {};
+  console.log = noop;
+  console.debug = noop;
+  console.info = noop;
+
+  // Filter noisy warnings but keep important ones
   const originalWarn = console.warn;
   const suppressedPatterns = [
     'RPC methods not decorated',
