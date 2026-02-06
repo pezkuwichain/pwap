@@ -7,10 +7,9 @@ const COINGECKO_API = 'https://api.coingecko.com/api/v3';
 
 // CoinGecko ID mappings
 export const COINGECKO_IDS: Record<string, string> = {
-  'wDOT': 'polkadot',
-  'wETH': 'ethereum',
-  'wBTC': 'bitcoin',
-  'wUSDT': 'tether',
+  'DOT': 'polkadot',
+  'ETH': 'ethereum',
+  'BTC': 'bitcoin',
   'USDT': 'tether',
 };
 
