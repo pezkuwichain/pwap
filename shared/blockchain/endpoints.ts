@@ -1,13 +1,15 @@
 /**
  * Blockchain Network Endpoints Configuration
- * Production, Staging, and Development environments
+ * Production, Testnet (Zagros), and Development environments
  */
 
 export interface NetworkConfig {
   name: string;
   endpoint: string;
   wsEndpoint: string;
-  type: 'production' | 'staging' | 'development';
+  assetHubEndpoint?: string;
+  peopleChainEndpoint?: string;
+  type: 'production' | 'testnet' | 'development';
   description: string;
 }
 
@@ -15,49 +17,48 @@ export interface NetworkConfig {
  * Production Network Endpoints
  */
 export const NETWORK_ENDPOINTS: Record<string, NetworkConfig> = {
-  // Production Mainnet
+  // Production Mainnet (Primary)
   MAINNET: {
     name: 'Pezkuwi Mainnet',
     endpoint: 'https://rpc.pezkuwichain.io',
-    wsEndpoint: 'wss://mainnet.pezkuwichain.io',
+    wsEndpoint: 'wss://rpc.pezkuwichain.io',
+    assetHubEndpoint: 'wss://asset-hub-rpc.pezkuwichain.io',
+    peopleChainEndpoint: 'wss://people-rpc.pezkuwichain.io',
     type: 'production',
     description: 'Main production network for Pezkuwi blockchain',
   },
 
-  // Beta Testnet (Current Active)
-  BETA: {
-    name: 'Pezkuwi Beta Testnet',
-    endpoint: 'https://rpc.pezkuwichain.io',
-    wsEndpoint: 'wss://rpc.pezkuwichain.io',
+  // Production alias using mainnet subdomain
+  PRODUCTION: {
+    name: 'Pezkuwi Mainnet',
+    endpoint: 'https://mainnet.pezkuwichain.io',
+    wsEndpoint: 'wss://mainnet.pezkuwichain.io',
+    assetHubEndpoint: 'wss://asset-hub-rpc.pezkuwichain.io',
+    peopleChainEndpoint: 'wss://people-rpc.pezkuwichain.io',
     type: 'production',
-    description: 'Beta testnet - Currently active for testing',
+    description: 'Production mainnet (mainnet subdomain)',
   },
 
-  // Staging Environment
-  STAGING: {
-    name: 'Pezkuwi Staging',
-    endpoint: 'https://staging.pezkuwichain.io',
-    wsEndpoint: 'wss://staging.pezkuwichain.io',
-    type: 'staging',
-    description: 'Staging environment for pre-production testing',
+  // Zagros Testnet
+  ZAGROS: {
+    name: 'Zagros Testnet',
+    endpoint: 'https://zagros-rpc.pezkuwichain.io',
+    wsEndpoint: 'wss://zagros-rpc.pezkuwichain.io',
+    assetHubEndpoint: 'wss://zagros-asset-hub.pezkuwichain.io',
+    peopleChainEndpoint: 'wss://zagros-people.pezkuwichain.io',
+    type: 'testnet',
+    description: 'Zagros testnet for development and testing',
   },
 
-  // Alfa Testnet
-  ALFA: {
-    name: 'Pezkuwi Alfa Testnet',
-    endpoint: 'https://alfa.pezkuwichain.io',
-    wsEndpoint: 'wss://alfa.pezkuwichain.io',
-    type: 'development',
-    description: 'Alfa testnet for early feature testing',
-  },
-
-  // Development Environment
-  DEV: {
-    name: 'Pezkuwi Development',
-    endpoint: 'https://dev.pezkuwichain.io',
-    wsEndpoint: 'wss://dev.pezkuwichain.io',
-    type: 'development',
-    description: 'Development environment for feature testing',
+  // Testnet alias (maps to Zagros)
+  TESTNET: {
+    name: 'Zagros Testnet',
+    endpoint: 'https://zagros-rpc.pezkuwichain.io',
+    wsEndpoint: 'wss://zagros-rpc.pezkuwichain.io',
+    assetHubEndpoint: 'wss://zagros-asset-hub.pezkuwichain.io',
+    peopleChainEndpoint: 'wss://zagros-people.pezkuwichain.io',
+    type: 'testnet',
+    description: 'Testnet environment (Zagros)',
   },
 
   // Local Development
@@ -65,17 +66,32 @@ export const NETWORK_ENDPOINTS: Record<string, NetworkConfig> = {
     name: 'Local Development',
     endpoint: 'http://127.0.0.1:9944',
     wsEndpoint: 'ws://127.0.0.1:9944',
+    assetHubEndpoint: 'ws://127.0.0.1:40944',
+    peopleChainEndpoint: 'ws://127.0.0.1:41944',
     type: 'development',
     description: 'Local development node',
   },
 
-  // Development alias (maps to BETA for live testing)
+  // Development alias (maps to Zagros for live testing)
   DEVELOPMENT: {
-    name: 'Pezkuwi Beta Testnet',
+    name: 'Zagros Testnet',
+    endpoint: 'https://zagros-rpc.pezkuwichain.io',
+    wsEndpoint: 'wss://zagros-rpc.pezkuwichain.io',
+    assetHubEndpoint: 'wss://zagros-asset-hub.pezkuwichain.io',
+    peopleChainEndpoint: 'wss://zagros-people.pezkuwichain.io',
+    type: 'development',
+    description: 'Development mode connecting to Zagros testnet',
+  },
+
+  // Legacy: Beta (deprecated, maps to Mainnet)
+  BETA: {
+    name: 'Pezkuwi Mainnet',
     endpoint: 'https://rpc.pezkuwichain.io',
     wsEndpoint: 'wss://rpc.pezkuwichain.io',
-    type: 'development',
-    description: 'Development mode connecting to Beta testnet for live testing',
+    assetHubEndpoint: 'wss://asset-hub-rpc.pezkuwichain.io',
+    peopleChainEndpoint: 'wss://people-rpc.pezkuwichain.io',
+    type: 'production',
+    description: 'Legacy beta config - now maps to mainnet',
   },
 };
 
@@ -84,31 +100,29 @@ export const NETWORK_ENDPOINTS: Record<string, NetworkConfig> = {
  */
 export const DEFAULT_NETWORK =
   process.env.NODE_ENV === 'production'
-    ? NETWORK_ENDPOINTS.BETA // Currently using Beta for production
-    : NETWORK_ENDPOINTS.DEV;
+    ? NETWORK_ENDPOINTS.MAINNET
+    : NETWORK_ENDPOINTS.ZAGROS;
 
 /**
  * Port Configuration
- * - RPC HTTP: Port 9944 (proxied through HTTPS)
- * - Mainnet Validator: Port 9944
- * - Staging Validator: Port 9945
- * - Testnet Validator: Port 9946
+ * - Relay Chain RPC: Port 9944
+ * - Asset Hub RPC: Port 40944
+ * - People Chain RPC: Port 41944
  */
 export const PORTS = {
-  RPC: 9944,
-  MAINNET_VALIDATOR: 9944,
-  STAGING_VALIDATOR: 9945,
-  TESTNET_VALIDATOR: 9946,
+  RELAY_CHAIN: 9944,
+  ASSET_HUB: 40944,
+  PEOPLE_CHAIN: 41944,
 };
 
 /**
  * Frontend Deployments
  */
 export const FRONTEND_URLS = {
-  PRODUCTION: 'https://pezkuwichain.app',
-  BETA: 'https://beta.pezkuwichain.io',
-  STAGING: 'https://staging.pezkuwichain.io',
-  SDK_UI: 'https://pezkuwichain.app/sdk',
+  PRODUCTION: 'https://app.pezkuwichain.io',
+  TESTNET: 'https://zagros.pezkuwichain.io',
+  EXPLORER: 'https://explorer.pezkuwichain.io',
+  EXTENSION: 'https://js.pezkuwichain.io',
 };
 
 /**
