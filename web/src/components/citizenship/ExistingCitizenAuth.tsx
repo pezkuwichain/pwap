@@ -15,7 +15,7 @@ interface ExistingCitizenAuthProps {
 }
 
 export const ExistingCitizenAuth: React.FC<ExistingCitizenAuthProps> = ({ onClose }) => {
-  const { api, isApiReady, selectedAccount, connectWallet } = usePezkuwi();
+  const { peopleApi, isPeopleReady, selectedAccount, connectWallet } = usePezkuwi();
 
   const [citizenNumber, setCitizenNumber] = useState('');
   const [step, setStep] = useState<'input' | 'verifying' | 'signing' | 'success' | 'error'>('input');
@@ -23,7 +23,7 @@ export const ExistingCitizenAuth: React.FC<ExistingCitizenAuthProps> = ({ onClos
   const [challenge, setChallenge] = useState<AuthChallenge | null>(null);
 
   const handleVerifyNFT = async () => {
-    if (!api || !isApiReady || !selectedAccount) {
+    if (!peopleApi || !isPeopleReady || !selectedAccount) {
       setError('Please connect your wallet first');
       return;
     }
@@ -37,8 +37,8 @@ export const ExistingCitizenAuth: React.FC<ExistingCitizenAuthProps> = ({ onClos
     setStep('verifying');
 
     try {
-      // Verify Citizen Number
-      const isValid = await verifyCitizenNumber(api, citizenNumber, selectedAccount.address);
+      // Verify Citizen Number on People Chain
+      const isValid = await verifyCitizenNumber(peopleApi, citizenNumber, selectedAccount.address);
 
       if (!isValid) {
         setError(`Invalid Citizen Number or it doesn&apos;t match your wallet`);
@@ -131,10 +131,11 @@ export const ExistingCitizenAuth: React.FC<ExistingCitizenAuthProps> = ({ onClos
                 <Label htmlFor="citizenNumber">Citizen Number</Label>
                 <Input
                   id="citizenNumber"
-                  placeholder="e.g., #42-0-123456"
+                  placeholder="#42-0-123456"
                   value={citizenNumber}
                   onChange={(e) => setCitizenNumber(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleVerifyNFT()}
+                  className="bg-gray-100 dark:bg-gray-800 placeholder:text-gray-400 dark:placeholder:text-gray-500 font-mono"
                 />
                 <p className="text-xs text-muted-foreground">
                   Enter your full Citizen Number from your Dashboard (format: #CollectionID-ItemID-6digits)
