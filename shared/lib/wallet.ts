@@ -120,10 +120,39 @@ export const formatAddress = (address: string): string => {
  * @param decimals - Token decimals (default 12 for PEZ)
  * @returns Formatted balance string
  */
-export const formatBalance = (balance: string | number, decimals = 12): string => {
-  if (!balance) return '0';
-  const value = typeof balance === 'string' ? parseFloat(balance) : balance;
-  return (value / Math.pow(10, decimals)).toFixed(4);
+export const formatBalance = (balance: string | number | bigint, decimals = 12): string => {
+  if (!balance && balance !== 0) return '0';
+
+  let value: bigint;
+
+  if (typeof balance === 'bigint') {
+    value = balance;
+  } else if (typeof balance === 'string') {
+    // Handle hex strings (from blockchain) and decimal strings
+    if (balance.startsWith('0x')) {
+      value = BigInt(balance);
+    } else {
+      // Try to parse as BigInt, fall back to float conversion
+      try {
+        value = BigInt(balance);
+      } catch {
+        // If it's a decimal string like "1.5", convert via float
+        value = BigInt(Math.floor(parseFloat(balance)));
+      }
+    }
+  } else {
+    value = BigInt(Math.floor(balance));
+  }
+
+  // Convert to decimal using string manipulation to avoid float precision issues
+  const divisor = BigInt(10 ** decimals);
+  const wholePart = value / divisor;
+  const fractionalPart = value % divisor;
+
+  // Format fractional part with leading zeros
+  const fractionalStr = fractionalPart.toString().padStart(decimals, '0').slice(0, 4);
+
+  return `${wholePart}.${fractionalStr}`;
 };
 
 /**
