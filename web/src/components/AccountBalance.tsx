@@ -249,7 +249,15 @@ export const AccountBalance: React.FC = () => {
 
       for (const assetId of assetIdsToCheck) {
         try {
-          // Use Asset Hub API - assets are on Asset Hub, not relay chain
+          // First check if asset exists on blockchain
+          const assetInfo = await assetHubApi.query.assets.asset(assetId);
+          if (!assetInfo || assetInfo.isNone) {
+            // Asset doesn't exist on blockchain - skip it
+            if (import.meta.env.DEV) console.log(`Asset ${assetId} not found on blockchain, skipping`);
+            continue;
+          }
+
+          // Asset exists - get metadata
           const assetMetadata = await assetHubApi.query.assets.metadata(assetId);
           const metadata = assetMetadata.toJSON() as { symbol?: string; name?: string; decimals?: number };
 
@@ -289,7 +297,7 @@ export const AccountBalance: React.FC = () => {
             usdValue = parseFloat(balanceFormatted); // 1 wUSDT = 1 USD
           }
 
-          // Always show the token (even with 0 balance) since user explicitly added it
+          // Only show tokens that exist on blockchain
           tokens.push({
             assetId,
             symbol: symbol.trim(),
