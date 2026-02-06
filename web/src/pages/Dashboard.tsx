@@ -581,7 +581,7 @@ export default function Dashboard() {
                   <div className="border-t pt-4">
                     <h4 className="font-medium mb-3">All Roles ({tikis.length})</h4>
                     <div className="flex flex-wrap gap-2">
-                      {tikis.map((tiki, /*index*/) => (
+                      {tikis.map((tiki, index) => (
                         <Badge
                           key={index}
                           variant="outline"
