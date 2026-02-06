@@ -21,7 +21,7 @@ interface ReferralContextValue {
 const ReferralContext = createContext<ReferralContextValue | undefined>(undefined);
 
 export function ReferralProvider({ children }: { children: ReactNode }) {
-  const { api, isApiReady } = usePezkuwi();
+  const { peopleApi, isPeopleReady } = usePezkuwi();
   const { account } = useWallet();
   const { toast } = useToast();
 
@@ -29,9 +29,9 @@ export function ReferralProvider({ children }: { children: ReactNode }) {
   const [myReferrals, setMyReferrals] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch referral statistics
+  // Fetch referral statistics from People Chain
   const fetchStats = useCallback(async () => {
-    if (!api || !isApiReady || !account) {
+    if (!peopleApi || !isPeopleReady || !account) {
       setStats(null);
       setMyReferrals([]);
       setLoading(false);
@@ -42,8 +42,8 @@ export function ReferralProvider({ children }: { children: ReactNode }) {
       setLoading(true);
 
       const [fetchedStats, fetchedReferrals] = await Promise.all([
-        getReferralStats(api, account),
-        getMyReferrals(api, account),
+        getReferralStats(peopleApi, account),
+        getMyReferrals(peopleApi, account),
       ]);
 
       setStats(fetchedStats);
@@ -58,20 +58,20 @@ export function ReferralProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  }, [api, isApiReady, account, toast]);
+  }, [peopleApi, isPeopleReady, account, toast]);
 
   // Initial fetch
   useEffect(() => {
     fetchStats();
   }, [fetchStats]);
 
-  // Subscribe to referral events for real-time updates
+  // Subscribe to referral events for real-time updates (People Chain)
   useEffect(() => {
-    if (!api || !isApiReady || !account) return;
+    if (!peopleApi || !isPeopleReady || !account) return;
 
     let unsub: (() => void) | undefined;
 
-    subscribeToReferralEvents(api, (event) => {
+    subscribeToReferralEvents(peopleApi, (event) => {
       // If this user is involved in the event, refresh stats
       if (event.referrer === account || event.referred === account) {
         if (event.type === 'initiated') {
@@ -95,11 +95,11 @@ export function ReferralProvider({ children }: { children: ReactNode }) {
     return () => {
       if (unsub) unsub();
     };
-  }, [api, isApiReady, account, toast, fetchStats]);
+  }, [peopleApi, isPeopleReady, account, toast, fetchStats]);
 
-  // Invite a new user
+  // Invite a new user (via People Chain)
   const inviteUser = async (referredAddress: string): Promise<boolean> => {
-    if (!api || !account) {
+    if (!peopleApi || !account) {
       toast({
         title: 'Error',
         description: 'Wallet not connected',
@@ -124,7 +124,7 @@ export function ReferralProvider({ children }: { children: ReactNode }) {
         description: 'Please sign the transaction...',
       });
 
-      await initiateReferral(api, { address: account, meta: { source: 'pezkuwi' } } as Record<string, unknown>, referredAddress);
+      await initiateReferral(peopleApi, { address: account, meta: { source: 'pezkuwi' } } as Record<string, unknown>, referredAddress);
 
       toast({
         title: 'Success!',
