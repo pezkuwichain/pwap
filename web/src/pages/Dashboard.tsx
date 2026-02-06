@@ -18,7 +18,7 @@ import { ReferralDashboard } from '@/components/referral/ReferralDashboard';
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const { api, isApiReady, selectedAccount } = usePezkuwi();
+  const { api, isApiReady, peopleApi, isPeopleReady, selectedAccount } = usePezkuwi();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [profile, setProfile] = useState<Record<string, unknown> | null>(null);
@@ -101,40 +101,40 @@ export default function Dashboard() {
 
   const fetchScoresAndTikis = useCallback(async () => {
 
-    if (!selectedAccount || !api) return;
+    if (!selectedAccount || !api || !peopleApi) return;
 
     setLoadingScores(true);
     try {
       // Fetch all scores from blockchain (includes trust, referral, staking, tiki)
-      const allScores = await getAllScores(api, selectedAccount.address);
+      // Note: Trust and referral are on People Chain, staking is on Relay Chain
+      // For now, we use peopleApi for scores as most score pallets are on People Chain
+      const allScores = await getAllScores(peopleApi, selectedAccount.address);
       setScores(allScores);
 
-      // Also fetch tikis separately for role display (needed for role details)
-      const userTikis = await fetchUserTikis(api, selectedAccount.address);
+      // Fetch tikis from People Chain (tiki pallet is on People Chain)
+      const userTikis = await fetchUserTikis(peopleApi, selectedAccount.address);
       setTikis(userTikis);
 
-      // Fetch NFT details including collection/item IDs
-      const details = await getAllTikiNFTDetails(api, selectedAccount.address);
+      // Fetch NFT details from People Chain
+      const details = await getAllTikiNFTDetails(peopleApi, selectedAccount.address);
       setNftDetails(details);
 
-      // Fetch KYC status to determine if user is a citizen
-      const status = await getKycStatus(api, selectedAccount.address);
+      // Fetch KYC status from People Chain (identityKyc pallet is on People Chain)
+      const status = await getKycStatus(peopleApi, selectedAccount.address);
       setKycStatus(status);
     } catch (error) {
       if (import.meta.env.DEV) console.error('Error fetching scores and tikis:', error);
     } finally {
       setLoadingScores(false);
     }
-  }, [selectedAccount, api]);
+  }, [selectedAccount, api, peopleApi]);
 
   useEffect(() => {
     fetchProfile();
-    if (selectedAccount && api && isApiReady) {
+    if (selectedAccount && api && isApiReady && peopleApi && isPeopleReady) {
       fetchScoresAndTikis();
-
-
     }
-  }, [user, selectedAccount, api, isApiReady, fetchProfile, fetchScoresAndTikis]);
+  }, [user, selectedAccount, api, isApiReady, peopleApi, isPeopleReady, fetchProfile, fetchScoresAndTikis]);
 
   const sendVerificationEmail = async () => {
     if (!user?.email) {
