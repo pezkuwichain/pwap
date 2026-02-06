@@ -781,7 +781,16 @@ export async function getFrontendTrustScore(
 
   const stakingScore = stakingResult.score;
 
-  // If staking score is 0, trust score is 0 (matches pallet logic)
+  console.log('🔍 getFrontendTrustScore debug:', {
+    address: address.slice(0, 8) + '...',
+    stakingScore,
+    referralScore,
+    perwerdeScore,
+    tikiScore,
+    stakedHez: stakingResult.stakedHez,
+  });
+
+  // Ger staking 0 be, trust jî 0 be (matches pallet logic)
   if (stakingScore === 0) {
     return {
       ...emptyResult,
@@ -802,6 +811,8 @@ export async function getFrontendTrustScore(
   // Calculate final trust score
   // trust_score = (staking * weighted_sum) / 100
   const trustScore = Math.floor((stakingScore * weightedSum) / SCORE_MULTIPLIER_BASE);
+
+  console.log('✅ Trust score calculated:', { weightedSum, trustScore });
 
   return {
     trustScore,
