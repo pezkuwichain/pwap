@@ -7,10 +7,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { supabase } from '@/lib/supabase';
-import { User, Mail, Phone, Globe, MapPin, Calendar, Shield, AlertCircle, ArrowLeft, Award, Users, TrendingUp, UserMinus, Coins } from 'lucide-react';
+import { User, Mail, Phone, Globe, MapPin, Calendar, Shield, AlertCircle, ArrowLeft, Award, Users, TrendingUp, UserMinus, Play, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { fetchUserTikis, getPrimaryRole, getTikiDisplayName, getTikiColor, getTikiEmoji, getUserRoleCategories, getAllTikiNFTDetails, generateCitizenNumber, type TikiNFTDetails } from '@pezkuwi/lib/tiki';
-import { getAllScores, type UserScores } from '@pezkuwi/lib/scores';
+import { getAllScores, getStakingScoreStatus, startScoreTracking, type UserScores, type StakingScoreStatus, formatDuration } from '@pezkuwi/lib/scores';
+import { web3FromAddress } from '@pezkuwi/extension-dapp';
 import { getKycStatus } from '@pezkuwi/lib/kyc';
 import { ReferralDashboard } from '@/components/referral/ReferralDashboard';
 // Commission proposals card removed - no longer using notary system for KYC approval
@@ -18,7 +19,7 @@ import { ReferralDashboard } from '@/components/referral/ReferralDashboard';
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const { api, isApiReady, peopleApi, isPeopleReady, assetHubApi, isAssetHubReady, selectedAccount } = usePezkuwi();
+  const { api, isApiReady, peopleApi, isPeopleReady, selectedAccount } = usePezkuwi();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [profile, setProfile] = useState<Record<string, unknown> | null>(null);
@@ -28,11 +29,12 @@ export default function Dashboard() {
     trustScore: 0,
     referralScore: 0,
     stakingScore: 0,
-    lpStakingScore: 0,
     tikiScore: 0,
     totalScore: 0
   });
   const [loadingScores, setLoadingScores] = useState(false);
+  const [stakingStatus, setStakingStatus] = useState<StakingScoreStatus | null>(null);
+  const [startingScoreTracking, setStartingScoreTracking] = useState(false);
   const [kycStatus, setKycStatus] = useState<string>('NotStarted');
   const [renouncingCitizenship, setRenouncingCitizenship] = useState(false);
   const [nftDetails, setNftDetails] = useState<{ citizenNFT: TikiNFTDetails | null; roleNFTs: TikiNFTDetails[]; totalNFTs: number }>({
@@ -106,12 +108,15 @@ export default function Dashboard() {
 
     setLoadingScores(true);
     try {
-      // Fetch all scores from blockchain (includes trust, referral, staking, lpStaking, tiki)
-      // - Trust, referral, tiki: People Chain
-      // - Staking score: People Chain (stakingScore pallet) + Relay Chain (staking.ledger)
-      // - LP Staking score: Asset Hub (assetRewards pallet)
-      const allScores = await getAllScores(peopleApi, selectedAccount.address, api, assetHubApi || undefined);
+      // Fetch all scores from blockchain (includes trust, referral, staking, tiki)
+      // - Trust, referral, tiki, stakingScore: People Chain
+      // - Staking amount: Relay Chain (staking.ledger)
+      const allScores = await getAllScores(peopleApi, selectedAccount.address, api);
       setScores(allScores);
+
+      // Fetch staking score tracking status
+      const stakingStatusResult = await getStakingScoreStatus(peopleApi, selectedAccount.address);
+      setStakingStatus(stakingStatusResult);
 
       // Fetch tikis from People Chain (tiki pallet is on People Chain)
       const userTikis = await fetchUserTikis(peopleApi, selectedAccount.address);
@@ -122,21 +127,62 @@ export default function Dashboard() {
       setNftDetails(details);
 
       // Fetch KYC status from People Chain (identityKyc pallet is on People Chain)
-      const status = await getKycStatus(peopleApi, selectedAccount.address);
-      setKycStatus(status);
+      const kycStatusResult = await getKycStatus(peopleApi, selectedAccount.address);
+      setKycStatus(kycStatusResult);
     } catch (error) {
       if (import.meta.env.DEV) console.error('Error fetching scores and tikis:', error);
     } finally {
       setLoadingScores(false);
     }
-  }, [selectedAccount, api, peopleApi, assetHubApi]);
+  }, [selectedAccount, api, peopleApi]);
+
+  const handleStartScoreTracking = async () => {
+    if (!peopleApi || !selectedAccount) {
+      toast({
+        title: "Hata",
+        description: "Lütfen önce cüzdanınızı bağlayın",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setStartingScoreTracking(true);
+    try {
+      const injector = await web3FromAddress(selectedAccount.address);
+      const result = await startScoreTracking(peopleApi, selectedAccount.address, injector.signer);
+
+      if (result.success) {
+        toast({
+          title: "Başarılı",
+          description: "Score tracking başlatıldı! Staking score'unuz artık hesaplanacak."
+        });
+        // Refresh scores after starting tracking
+        fetchScoresAndTikis();
+      } else {
+        toast({
+          title: "Hata",
+          description: result.error || "Score tracking başlatılamadı",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      if (import.meta.env.DEV) console.error('Error starting score tracking:', error);
+      toast({
+        title: "Hata",
+        description: error instanceof Error ? error.message : "Score tracking başlatılamadı",
+        variant: "destructive"
+      });
+    } finally {
+      setStartingScoreTracking(false);
+    }
+  };
 
   useEffect(() => {
     fetchProfile();
-    if (selectedAccount && api && isApiReady && peopleApi && isPeopleReady && assetHubApi && isAssetHubReady) {
+    if (selectedAccount && api && isApiReady && peopleApi && isPeopleReady) {
       fetchScoresAndTikis();
     }
-  }, [user, selectedAccount, api, isApiReady, peopleApi, isPeopleReady, assetHubApi, isAssetHubReady, fetchProfile, fetchScoresAndTikis]);
+  }, [user, selectedAccount, api, isApiReady, peopleApi, isPeopleReady, fetchProfile, fetchScoresAndTikis]);
 
   const sendVerificationEmail = async () => {
     if (!user?.email) {
@@ -435,24 +481,35 @@ export default function Dashboard() {
             <div className="text-2xl font-bold text-green-600">
               {loadingScores ? '...' : scores.stakingScore}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Validator staking
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">LP Staking Score</CardTitle>
-            <Coins className="h-4 w-4 text-yellow-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">
-              {loadingScores ? '...' : scores.lpStakingScore}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              LP token staking
-            </p>
+            {stakingStatus?.isTracking ? (
+              <p className="text-xs text-muted-foreground">
+                Tracking: {formatDuration(stakingStatus.durationBlocks)}
+              </p>
+            ) : selectedAccount ? (
+              <Button
+                size="sm"
+                variant="outline"
+                className="mt-2 w-full"
+                onClick={handleStartScoreTracking}
+                disabled={startingScoreTracking || loadingScores}
+              >
+                {startingScoreTracking ? (
+                  <>
+                    <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                    Starting...
+                  </>
+                ) : (
+                  <>
+                    <Play className="h-3 w-3 mr-1" />
+                    Start Tracking
+                  </>
+                )}
+              </Button>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                Connect wallet to track
+              </p>
+            )}
           </CardContent>
         </Card>
 
