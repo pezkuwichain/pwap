@@ -921,12 +921,11 @@ export const AccountBalance: React.FC = () => {
                     </div>
                     <Button
                       size="sm"
-                      variant="outline"
                       onClick={() => {
                         setSelectedLPForStake(lp);
                         setIsLPStakeModalOpen(true);
                       }}
-                      className="border-purple-500/50 text-purple-400 hover:bg-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium hover:from-purple-500 hover:to-pink-500 border-0"
                     >
                       <Lock className="w-3 h-3 mr-1" />
                       Stake
