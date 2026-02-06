@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { supabase } from '@/lib/supabase';
-import { User, Mail, Phone, Globe, MapPin, Calendar, Shield, AlertCircle, ArrowLeft, Award, Users, TrendingUp, UserMinus } from 'lucide-react';
+import { User, Mail, Phone, Globe, MapPin, Calendar, Shield, AlertCircle, ArrowLeft, Award, Users, TrendingUp, UserMinus, Coins } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { fetchUserTikis, getPrimaryRole, getTikiDisplayName, getTikiColor, getTikiEmoji, getUserRoleCategories, getAllTikiNFTDetails, generateCitizenNumber, type TikiNFTDetails } from '@pezkuwi/lib/tiki';
 import { getAllScores, type UserScores } from '@pezkuwi/lib/scores';
@@ -18,7 +18,7 @@ import { ReferralDashboard } from '@/components/referral/ReferralDashboard';
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const { api, isApiReady, peopleApi, isPeopleReady, selectedAccount } = usePezkuwi();
+  const { api, isApiReady, peopleApi, isPeopleReady, assetHubApi, isAssetHubReady, selectedAccount } = usePezkuwi();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [profile, setProfile] = useState<Record<string, unknown> | null>(null);
@@ -28,6 +28,7 @@ export default function Dashboard() {
     trustScore: 0,
     referralScore: 0,
     stakingScore: 0,
+    lpStakingScore: 0,
     tikiScore: 0,
     totalScore: 0
   });
@@ -105,10 +106,11 @@ export default function Dashboard() {
 
     setLoadingScores(true);
     try {
-      // Fetch all scores from blockchain (includes trust, referral, staking, tiki)
+      // Fetch all scores from blockchain (includes trust, referral, staking, lpStaking, tiki)
       // - Trust, referral, tiki: People Chain
       // - Staking score: People Chain (stakingScore pallet) + Relay Chain (staking.ledger)
-      const allScores = await getAllScores(peopleApi, selectedAccount.address, api);
+      // - LP Staking score: Asset Hub (assetRewards pallet)
+      const allScores = await getAllScores(peopleApi, selectedAccount.address, api, assetHubApi || undefined);
       setScores(allScores);
 
       // Fetch tikis from People Chain (tiki pallet is on People Chain)
@@ -127,14 +129,14 @@ export default function Dashboard() {
     } finally {
       setLoadingScores(false);
     }
-  }, [selectedAccount, api, peopleApi]);
+  }, [selectedAccount, api, peopleApi, assetHubApi]);
 
   useEffect(() => {
     fetchProfile();
-    if (selectedAccount && api && isApiReady && peopleApi && isPeopleReady) {
+    if (selectedAccount && api && isApiReady && peopleApi && isPeopleReady && assetHubApi && isAssetHubReady) {
       fetchScoresAndTikis();
     }
-  }, [user, selectedAccount, api, isApiReady, peopleApi, isPeopleReady, fetchProfile, fetchScoresAndTikis]);
+  }, [user, selectedAccount, api, isApiReady, peopleApi, isPeopleReady, assetHubApi, isAssetHubReady, fetchProfile, fetchScoresAndTikis]);
 
   const sendVerificationEmail = async () => {
     if (!user?.email) {
@@ -434,7 +436,22 @@ export default function Dashboard() {
               {loadingScores ? '...' : scores.stakingScore}
             </div>
             <p className="text-xs text-muted-foreground">
-              From pallet_staking_score
+              Validator staking
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">LP Staking Score</CardTitle>
+            <Coins className="h-4 w-4 text-yellow-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-yellow-600">
+              {loadingScores ? '...' : scores.lpStakingScore}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              LP token staking
             </p>
           </CardContent>
         </Card>
