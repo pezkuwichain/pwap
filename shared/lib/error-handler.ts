@@ -336,66 +336,70 @@ export function getUserFriendlyError(
 // TOAST HELPER
 // ========================================
 
+// Support both shadcn/ui toast and sonner toast
 export interface ToastFunction {
   (options: {
     title: string;
     description: string;
     variant?: 'default' | 'destructive';
   }): void;
+  error?: (message: string, options?: { description?: string }) => void;
+  success?: (message: string, options?: { description?: string }) => void;
 }
 
 /**
  * Handle blockchain error with toast notification
  * Automatically extracts user-friendly message
+ * Supports both shadcn/ui toast and sonner toast APIs
  */
 export function handleBlockchainError(
   error: any,
   api: ApiPromise | null,
-  toast: ToastFunction,
+  toast: ToastFunction | any,
   language: 'en' | 'kmr' = 'en'
 ): void {
-  console.error('Blockchain error:', error);
+  let errorMessage = language === 'en'
+    ? 'An unexpected error occurred. Please try again.'
+    : 'Xeletîyek nediyar qewimî. Ji kerema xwe dîsa biceribîne.';
+  let errorTitle = language === 'en' ? 'Error' : 'Xeletî';
 
   // If it's a dispatch error from transaction callback
   if (error?.isModule !== undefined && api) {
-    const userMessage = getUserFriendlyError(api, error, language);
+    try {
+      const errorInfo = extractDispatchError(api, error);
+      console.error('Blockchain module error:', errorInfo);
+      errorMessage = getUserFriendlyError(api, error, language);
+      errorTitle = language === 'en' ? 'Transaction Failed' : 'Transaction Têk Çû';
+    } catch (e) {
+      console.error('Failed to extract error:', e);
+      errorMessage = `Module error: ${error.type || 'Unknown'}`;
+    }
+  } else if (error?.message) {
+    errorMessage = error.message;
+  } else if (typeof error === 'string') {
+    errorMessage = error;
+  }
+
+  console.error('Blockchain error:', errorMessage);
+
+  // Try sonner toast API first (toast.error)
+  if (typeof toast?.error === 'function') {
+    toast.error(errorTitle, { description: errorMessage });
+    return;
+  }
+
+  // Fall back to shadcn/ui toast API
+  if (typeof toast === 'function') {
     toast({
-      title: language === 'en' ? 'Transaction Failed' : 'Transaction Têk Çû',
-      description: userMessage,
+      title: errorTitle,
+      description: errorMessage,
       variant: 'destructive',
     });
     return;
   }
 
-  // If it's a standard error object
-  if (error?.message) {
-    toast({
-      title: language === 'en' ? 'Error' : 'Xeletî',
-      description: error.message,
-      variant: 'destructive',
-    });
-    return;
-  }
-
-  // If it's a string
-  if (typeof error === 'string') {
-    toast({
-      title: language === 'en' ? 'Error' : 'Xeletî',
-      description: error,
-      variant: 'destructive',
-    });
-    return;
-  }
-
-  // Generic fallback
-  toast({
-    title: language === 'en' ? 'Error' : 'Xeletî',
-    description:
-      language === 'en'
-        ? 'An unexpected error occurred. Please try again.'
-        : 'Xeletîyek nediyar qewimî. Ji kerema xwe dîsa biceribîne.',
-    variant: 'destructive',
-  });
+  // Last resort - just log
+  console.error('Toast not available:', errorTitle, errorMessage);
 }
 
 // ========================================
@@ -507,31 +511,39 @@ export const SUCCESS_MESSAGES: Record<string, SuccessMessage> = {
 
 /**
  * Handle successful blockchain transaction
+ * Supports both shadcn/ui toast and sonner toast APIs
  */
 export function handleBlockchainSuccess(
   messageKey: string,
-  toast: ToastFunction,
+  toast: ToastFunction | any,
   params: Record<string, string | number> = {},
   language: 'en' | 'kmr' = 'en'
 ): void {
   const template = SUCCESS_MESSAGES[messageKey];
+  const title = language === 'en' ? 'Success' : 'Serkeft';
 
-  if (!template) {
-    toast({
-      title: language === 'en' ? 'Success' : 'Serkeft',
-      description: language === 'en' ? 'Transaction successful!' : 'Transaction serkeftî!',
+  let message = language === 'en' ? 'Transaction successful!' : 'Transaction serkeftî!';
+
+  if (template) {
+    // Replace template variables like {{amount}}
+    message = template[language];
+    Object.entries(params).forEach(([key, value]) => {
+      message = message.replace(new RegExp(`{{${key}}}`, 'g'), String(value));
     });
+  }
+
+  // Try sonner toast API first (toast.success)
+  if (typeof toast?.success === 'function') {
+    toast.success(title, { description: message });
     return;
   }
 
-  // Replace template variables like {{amount}}
-  let message = template[language];
-  Object.entries(params).forEach(([key, value]) => {
-    message = message.replace(new RegExp(`{{${key}}}`, 'g'), String(value));
-  });
-
-  toast({
-    title: language === 'en' ? 'Success' : 'Serkeft',
-    description: message,
-  });
+  // Fall back to shadcn/ui toast API
+  if (typeof toast === 'function') {
+    toast({
+      title,
+      description: message,
+    });
+    return;
+  }
 }
