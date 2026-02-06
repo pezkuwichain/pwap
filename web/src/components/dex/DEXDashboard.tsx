@@ -8,6 +8,7 @@ import PoolDashboard from '@/components/PoolDashboard';
 import { CreatePoolModal } from './CreatePoolModal';
 import { InitializeHezPoolModal } from './InitializeHezPoolModal';
 import { InitializeUsdtModal } from './InitializeUsdtModal';
+import { MintAssetModal, MINTABLE_ASSETS, type AssetConfig } from './MintAssetModal';
 import { XCMConfigurationWizard } from '@/components/admin/XCMConfigurationWizard';
 import { ArrowRightLeft, Droplet, Settings } from 'lucide-react';
 import { isFounderWallet } from '@pezkuwi/utils/auth';
@@ -24,6 +25,9 @@ export const DEXDashboard: React.FC = () => {
   const [showInitializeUsdtModal, setShowInitializeUsdtModal] = useState(false);
   const [showXcmBridgeModal, setShowXcmBridgeModal] = useState(false);
 
+  // Generic mint modal state
+  const [mintModalAsset, setMintModalAsset] = useState<AssetConfig | null>(null);
+
   const isFounder = account ? isFounderWallet(account, sudoKey) : false;
 
   const handleCreatePool = () => {
@@ -35,6 +39,7 @@ export const DEXDashboard: React.FC = () => {
     setShowInitializeHezPoolModal(false);
     setShowInitializeUsdtModal(false);
     setShowXcmBridgeModal(false);
+    setMintModalAsset(null);
   };
 
   const handleSuccess = async () => {
@@ -125,17 +130,42 @@ export const DEXDashboard: React.FC = () => {
                     </button>
                   </div>
 
-                  <div className="p-6 bg-gray-900 border border-green-900/30 rounded-lg">
-                    <h3 className="text-xl font-bold text-white mb-2">USDT Token Minting</h3>
+                  {/* Token Minting Section */}
+                  <div className="p-6 bg-gray-900 border border-gray-800 rounded-lg">
+                    <h3 className="text-xl font-bold text-white mb-2">Token Minting</h3>
                     <p className="text-gray-400 mb-6">
-                      Mint wUSDT tokens for testing and liquidity provision
+                      Mint wrapped tokens for testing and liquidity provision
                     </p>
-                    <button
-                      onClick={() => setShowInitializeUsdtModal(true)}
-                      className="w-full px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium"
-                    >
-                      Mint wUSDT
-                    </button>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        onClick={() => setShowInitializeUsdtModal(true)}
+                        className="flex items-center justify-center gap-2 px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium"
+                      >
+                        <img src="/shared/images/USDT(hez)logo.png" alt="USDT" className="w-5 h-5 rounded-full" />
+                        Mint wUSDT
+                      </button>
+                      <button
+                        onClick={() => setMintModalAsset(MINTABLE_ASSETS.wDOT)}
+                        className="flex items-center justify-center gap-2 px-4 py-3 bg-pink-600 hover:bg-pink-700 text-white rounded-lg transition-colors font-medium"
+                      >
+                        <img src="/shared/images/dot.png" alt="DOT" className="w-5 h-5 rounded-full" />
+                        Mint wDOT
+                      </button>
+                      <button
+                        onClick={() => setMintModalAsset(MINTABLE_ASSETS.wETH)}
+                        className="flex items-center justify-center gap-2 px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors font-medium"
+                      >
+                        <img src="/shared/images/etherium.png" alt="ETH" className="w-5 h-5 rounded-full" />
+                        Mint wETH
+                      </button>
+                      <button
+                        onClick={() => setMintModalAsset(MINTABLE_ASSETS.wBTC)}
+                        className="flex items-center justify-center gap-2 px-4 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors font-medium"
+                      >
+                        <img src="/shared/images/bitcoin.png" alt="BTC" className="w-5 h-5 rounded-full" />
+                        Mint wBTC
+                      </button>
+                    </div>
                   </div>
 
                   <div className="p-6 bg-gray-900 border border-purple-900/30 rounded-lg">
@@ -201,6 +231,16 @@ export const DEXDashboard: React.FC = () => {
         onClose={handleModalClose}
         onSuccess={handleSuccess}
       />
+
+      {/* Generic Mint Asset Modal */}
+      {mintModalAsset && (
+        <MintAssetModal
+          isOpen={true}
+          onClose={handleModalClose}
+          onSuccess={handleSuccess}
+          asset={mintModalAsset}
+        />
+      )}
     </div>
   );
 };

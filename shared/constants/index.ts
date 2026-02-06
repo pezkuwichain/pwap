@@ -60,6 +60,9 @@ export const NATIVE_TOKEN_ID = -1;
  * - Asset 1: PEZ (Pezkuwi Token)
  * - Asset 2: wHEZ (Wrapped HEZ via tokenWrapper)
  * - Asset 1000: wUSDT (Wrapped USDT)
+ * - Asset 1001: wDOT (Wrapped DOT)
+ * - Asset 1002: wETH (Wrapped ETH)
+ * - Asset 1003: wBTC (Wrapped BTC)
  */
 export const KNOWN_TOKENS: Record<number, TokenInfo> = {
   [NATIVE_TOKEN_ID]: {
@@ -89,6 +92,27 @@ export const KNOWN_TOKENS: Record<number, TokenInfo> = {
     name: 'Wrapped USDT',
     decimals: 6,
     logo: '/shared/images/USDT(hez)logo.png',
+  },
+  1001: {
+    id: 1001,
+    symbol: 'wDOT',
+    name: 'Wrapped DOT',
+    decimals: 10,
+    logo: '/shared/images/dot.png',
+  },
+  1002: {
+    id: 1002,
+    symbol: 'wETH',
+    name: 'Wrapped ETH',
+    decimals: 18,
+    logo: '/shared/images/etherium.png',
+  },
+  1003: {
+    id: 1003,
+    symbol: 'wBTC',
+    name: 'Wrapped BTC',
+    decimals: 8,
+    logo: '/shared/images/bitcoin.png',
   },
 };
 
