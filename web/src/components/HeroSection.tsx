@@ -4,10 +4,11 @@ import { ChevronRight, Shield } from 'lucide-react';
 import { usePezkuwi } from '../contexts/PezkuwiContext';
 import { useWallet } from '../contexts/WalletContext'; // Import useWallet
 import { formatBalance } from '@pezkuwi/lib/wallet';
+import { getTrustScoreWithFallback } from '@pezkuwi/lib/scores';
 
 const HeroSection: React.FC = () => {
   const { t } = useTranslation();
-  const { api, isApiReady } = usePezkuwi();
+  const { api, isApiReady, peopleApi } = usePezkuwi();
   const { selectedAccount } = useWallet(); // Use selectedAccount from WalletContext
   const [stats, setStats] = useState({
     activeProposals: 0,
@@ -23,11 +24,13 @@ const HeroSection: React.FC = () => {
       let currentTrustScore = 0; // Default if not fetched or no account
       if (selectedAccount?.address) {
         try {
-          // Assuming pallet-staking-score has a storage item for trust scores
-          // The exact query might need adjustment based on chain metadata
-          const rawTrustScore = await api.query.stakingScore.trustScore(selectedAccount.address);
-          // Assuming trustScore is a simple number or a wrapper around it
-          currentTrustScore = rawTrustScore.isSome ? rawTrustScore.unwrap().toNumber() : 0;
+          // Use frontend fallback for trust score
+          const trustResult = await getTrustScoreWithFallback(
+            peopleApi || null,
+            api,
+            selectedAccount.address
+          );
+          currentTrustScore = trustResult.trustScore;
         } catch (err) {
           if (import.meta.env.DEV) console.warn('Failed to fetch trust score:', err);
           currentTrustScore = 0;
@@ -91,7 +94,7 @@ const HeroSection: React.FC = () => {
     };
 
     fetchStats();
-  }, [api, isApiReady, selectedAccount]); // Add selectedAccount to dependencies
+  }, [api, isApiReady, peopleApi, selectedAccount]); // Add peopleApi to dependencies
 
   return (
     <section className="relative min-h-screen flex items-center justify-start overflow-hidden bg-gray-950">
