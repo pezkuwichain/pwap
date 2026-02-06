@@ -62,15 +62,27 @@ export const LPStakingModal: React.FC<LPStakingModalProps> = ({ isOpen, onClose 
           const lpTokenId = poolData.stakedAssetId?.interior?.x2?.[1]?.generalIndex ?? poolId;
 
           let userStaked = '0';
-          const pendingRewards = '0';
+          let pendingRewards = '0';
           let lpBalance = '0';
 
           if (selectedAccount) {
             try {
               const stakeInfo = await assetHubApi.query.assetRewards.poolStakers([poolId, selectedAccount.address]);
               if (stakeInfo && (stakeInfo as { isSome: boolean }).isSome) {
-                const stakeData = (stakeInfo as { unwrap: () => { toJSON: () => { amount: string } } }).unwrap().toJSON();
+                const stakeData = (stakeInfo as { unwrap: () => { toJSON: () => { amount: string; rewardPerTokenPaid?: string } } }).unwrap().toJSON();
                 userStaked = stakeData.amount || '0';
+              }
+
+              // Fetch pending rewards from the pallet
+              try {
+                const rewardsResult = await (assetHubApi.call as { assetRewardsApi?: { pendingRewards: (poolId: number, account: string) => Promise<unknown> } })
+                  .assetRewardsApi?.pendingRewards(poolId, selectedAccount.address);
+                if (rewardsResult && typeof rewardsResult === 'object' && 'toString' in rewardsResult) {
+                  pendingRewards = rewardsResult.toString();
+                }
+              } catch {
+                // If runtime API not available, try direct calculation
+                // pendingRewards stays 0
               }
 
               const lpBal = await assetHubApi.query.poolAssets.account(lpTokenId, selectedAccount.address);

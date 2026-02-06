@@ -13,6 +13,7 @@ export interface UserScores {
   trustScore: number;
   referralScore: number;
   stakingScore: number;
+  lpStakingScore: number;
   tikiScore: number;
   totalScore: number;
 }
@@ -275,6 +276,67 @@ export async function getStakingScoreFromPallet(
 }
 
 // ========================================
+// LP STAKING SCORE (Asset Hub assetRewards pallet)
+// ========================================
+
+/**
+ * Get LP staking score from Asset Hub
+ * Based on total LP tokens staked across all pools
+ *
+ * @param assetHubApi - API for Asset Hub (assetRewards pallet)
+ * @param address - User's blockchain address
+ */
+export async function getLpStakingScore(
+  assetHubApi: ApiPromise,
+  address: string
+): Promise<number> {
+  try {
+    if (!assetHubApi?.query?.assetRewards?.poolStakers) {
+      return 0;
+    }
+
+    // Query all staking pool entries
+    const poolEntries = await assetHubApi.query.assetRewards.pools.entries();
+
+    let totalStaked = BigInt(0);
+
+    for (const [key] of poolEntries) {
+      const poolId = parseInt(key.args[0].toString());
+
+      try {
+        const stakeInfo = await assetHubApi.query.assetRewards.poolStakers([poolId, address]);
+        if (stakeInfo && (stakeInfo as { isSome: boolean }).isSome) {
+          const stakeData = (stakeInfo as { unwrap: () => { toJSON: () => { amount: string } } }).unwrap().toJSON();
+          totalStaked += BigInt(stakeData.amount || '0');
+        }
+      } catch {
+        // Skip this pool on error
+      }
+    }
+
+    // Convert to human readable (12 decimals for LP tokens)
+    const stakedAmount = Number(totalStaked) / 1e12;
+
+    // Calculate score based on amount staked
+    // 0-10 LP: 0 points
+    // 10-50 LP: 10 points
+    // 50-100 LP: 20 points
+    // 100-500 LP: 30 points
+    // 500-1000 LP: 40 points
+    // 1000+ LP: 50 points
+    if (stakedAmount < 10) return 0;
+    if (stakedAmount < 50) return 10;
+    if (stakedAmount < 100) return 20;
+    if (stakedAmount < 500) return 30;
+    if (stakedAmount < 1000) return 40;
+    return 50;
+  } catch (error) {
+    console.error('Error fetching LP staking score:', error);
+    return 0;
+  }
+}
+
+// ========================================
 // TIKI SCORE (from lib/tiki.ts)
 // ========================================
 
@@ -306,12 +368,14 @@ export async function getTikiScore(
  *
  * @param peopleApi - API for People Chain (trust, referral, tiki, stakingScore pallets)
  * @param address - User's blockchain address
- * @param relayApi - Optional API for Relay Chain (staking pallet for staking score calculation)
+ * @param relayApi - Optional API for Relay Chain (staking pallet for validator staking score)
+ * @param assetHubApi - Optional API for Asset Hub (assetRewards pallet for LP staking score)
  */
 export async function getAllScores(
   peopleApi: ApiPromise,
   address: string,
-  relayApi?: ApiPromise
+  relayApi?: ApiPromise,
+  assetHubApi?: ApiPromise
 ): Promise<UserScores> {
   try {
     if (!peopleApi || !address) {
@@ -319,6 +383,7 @@ export async function getAllScores(
         trustScore: 0,
         referralScore: 0,
         stakingScore: 0,
+        lpStakingScore: 0,
         tikiScore: 0,
         totalScore: 0
       };
@@ -327,19 +392,22 @@ export async function getAllScores(
     // Fetch all scores in parallel
     // - Trust, referral, tiki scores: People Chain
     // - Staking score: People Chain (stakingScore pallet) + Relay Chain (staking.ledger)
-    const [trustScore, referralScore, stakingScore, tikiScore] = await Promise.all([
+    // - LP Staking score: Asset Hub (assetRewards pallet)
+    const [trustScore, referralScore, stakingScore, lpStakingScore, tikiScore] = await Promise.all([
       getTrustScore(peopleApi, address),
       getReferralScore(peopleApi, address),
       getStakingScoreFromPallet(peopleApi, address, relayApi),
+      assetHubApi ? getLpStakingScore(assetHubApi, address) : Promise.resolve(0),
       getTikiScore(peopleApi, address)
     ]);
 
-    const totalScore = trustScore + referralScore + stakingScore + tikiScore;
+    const totalScore = trustScore + referralScore + stakingScore + lpStakingScore + tikiScore;
 
     return {
       trustScore,
       referralScore,
       stakingScore,
+      lpStakingScore,
       tikiScore,
       totalScore
     };
@@ -349,6 +417,7 @@ export async function getAllScores(
       trustScore: 0,
       referralScore: 0,
       stakingScore: 0,
+      lpStakingScore: 0,
       tikiScore: 0,
       totalScore: 0
     };

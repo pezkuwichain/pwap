@@ -110,6 +110,27 @@ export const KNOWN_TOKENS: Record<number, TokenInfo> = {
     decimals: 6,
     logo: '/shared/images/USDT(hez)logo.png',
   },
+  1001: {
+    id: 1001,
+    symbol: 'DOT',
+    name: 'Wrapped DOT',
+    decimals: 10,
+    logo: '/shared/images/dot.png',
+  },
+  1002: {
+    id: 1002,
+    symbol: 'ETH',
+    name: 'Wrapped ETH',
+    decimals: 18,
+    logo: '/shared/images/etherium.png',
+  },
+  1003: {
+    id: 1003,
+    symbol: 'BTC',
+    name: 'Wrapped BTC',
+    decimals: 8,
+    logo: '/shared/images/bitcoin.png',
+  },
 };
 
 // LP Token info (poolAssets pallet - separate from assets pallet)
