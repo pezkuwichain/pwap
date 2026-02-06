@@ -24,14 +24,30 @@ interface SwapInterfaceProps {
 
 type TransactionStatus = 'idle' | 'signing' | 'submitting' | 'success' | 'error';
 
-// User-facing tokens - All pairs go through USDT
-const USER_TOKENS = [
+// All supported tokens - filtered dynamically based on available pools
+const ALL_TOKENS = [
   { symbol: 'HEZ', emoji: '🟡', assetId: -1, name: 'HEZ', decimals: 12, displaySymbol: 'HEZ', logo: '/shared/images/hez_token_512.png' },
+  { symbol: 'PEZ', emoji: '🔵', assetId: 1, name: 'PEZ', decimals: 12, displaySymbol: 'PEZ', logo: '/shared/images/pez.png' },
   { symbol: 'USDT', emoji: '💵', assetId: 1000, name: 'USDT', decimals: 6, displaySymbol: 'USDT', logo: '/shared/images/USDT(hez)logo.png' },
   { symbol: 'DOT', emoji: '🔴', assetId: 1001, name: 'DOT', decimals: 10, displaySymbol: 'DOT', logo: '/shared/images/dot.png' },
   { symbol: 'ETH', emoji: '💎', assetId: 1002, name: 'ETH', decimals: 18, displaySymbol: 'ETH', logo: '/shared/images/etherium.png' },
   { symbol: 'BTC', emoji: '🟠', assetId: 1003, name: 'BTC', decimals: 8, displaySymbol: 'BTC', logo: '/shared/images/bitcoin.png' },
 ] as const;
+
+// Helper to get tokens that have available pools
+const getAvailableTokens = (pools: PoolInfo[]) => {
+  if (!pools || pools.length === 0) return ALL_TOKENS;
+
+  // Get unique asset IDs from pools
+  const assetIds = new Set<number>();
+  pools.forEach(pool => {
+    assetIds.add(pool.asset1);
+    assetIds.add(pool.asset2);
+  });
+
+  // Filter tokens that exist in pools
+  return ALL_TOKENS.filter(token => assetIds.has(token.assetId));
+};
 
 export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
   // Use Asset Hub API for DEX operations
@@ -39,8 +55,19 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
   const { account, signer } = useWallet();
   const { toast } = useToast();
 
-  const [fromToken, setFromToken] = useState('HEZ');
-  const [toToken, setToToken] = useState('PEZ');
+  // Get tokens that have available pools
+  const availableTokens = React.useMemo(() => getAvailableTokens(pools), [pools]);
+
+  // Set initial tokens based on available pools
+  const [fromToken, setFromToken] = useState(() => {
+    const tokens = getAvailableTokens(pools);
+    return tokens.find(t => t.symbol === 'HEZ')?.symbol || tokens[0]?.symbol || 'HEZ';
+  });
+  const [toToken, setToToken] = useState(() => {
+    const tokens = getAvailableTokens(pools);
+    // Find first token that's different from HEZ
+    return tokens.find(t => t.symbol !== 'HEZ')?.symbol || tokens[1]?.symbol || 'USDT';
+  });
   const [fromAmount, setFromAmount] = useState('');
   const [toAmount, setToAmount] = useState('');
   const [slippage, setSlippage] = useState(0.5); // 0.5% default
@@ -79,7 +106,7 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
 
   // Get asset IDs (for pool lookup)
   const getAssetId = (symbol: string) => {
-    const token = USER_TOKENS.find(t => t.symbol === symbol);
+    const token = ALL_TOKENS.find(t => t.symbol === symbol);
     return token?.assetId ?? null;
   };
 
@@ -94,8 +121,8 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
   );
 
   // Get token info
-  const fromTokenInfo = USER_TOKENS.find(t => t.symbol === fromToken);
-  const toTokenInfo = USER_TOKENS.find(t => t.symbol === toToken);
+  const fromTokenInfo = ALL_TOKENS.find(t => t.symbol === fromToken);
+  const toTokenInfo = ALL_TOKENS.find(t => t.symbol === toToken);
 
   // Fetch balances
   useEffect(() => {
@@ -405,7 +432,7 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
                   onValueChange={(value) => {
                     setFromToken(value);
                     if (value === toToken) {
-                      const otherToken = USER_TOKENS.find(t => t.symbol !== value);
+                      const otherToken = availableTokens.find(t => t.symbol !== value);
                       if (otherToken) setToToken(otherToken.symbol);
                     }
                   }}
@@ -414,13 +441,13 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
                   <SelectTrigger className="min-w-[140px] border-gray-600 bg-gray-900">
                     <SelectValue>
                       {(() => {
-                        const token = USER_TOKENS.find(t => t.symbol === fromToken);
+                        const token = ALL_TOKENS.find(t => t.symbol === fromToken);
                         return <span className="flex items-center gap-2">{token?.emoji} {token?.displaySymbol}</span>;
                       })()}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent className="bg-gray-900 border-gray-700">
-                    {USER_TOKENS.map((token) => (
+                    {availableTokens.map((token) => (
                       <SelectItem key={token.symbol} value={token.symbol}>
                         <span className="flex items-center gap-2">{token.emoji} {token.name}</span>
                       </SelectItem>
@@ -474,7 +501,7 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
                   onValueChange={(value) => {
                     setToToken(value);
                     if (value === fromToken) {
-                      const otherToken = USER_TOKENS.find(t => t.symbol !== value);
+                      const otherToken = availableTokens.find(t => t.symbol !== value);
                       if (otherToken) setFromToken(otherToken.symbol);
                     }
                   }}
@@ -483,13 +510,13 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
                   <SelectTrigger className="min-w-[140px] border-gray-600 bg-gray-900">
                     <SelectValue>
                       {(() => {
-                        const token = USER_TOKENS.find(t => t.symbol === toToken);
+                        const token = ALL_TOKENS.find(t => t.symbol === toToken);
                         return <span className="flex items-center gap-2">{token?.emoji} {token?.displaySymbol}</span>;
                       })()}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent className="bg-gray-900 border-gray-700">
-                    {USER_TOKENS.map((token) => (
+                    {availableTokens.map((token) => (
                       <SelectItem key={token.symbol} value={token.symbol}>
                         <span className="flex items-center gap-2">{token.emoji} {token.name}</span>
                       </SelectItem>
