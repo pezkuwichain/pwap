@@ -32,7 +32,7 @@ import { cryptoWaitReady } from "https://esm.sh/@pezkuwi/util-crypto@14.0.5";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const PLATFORM_WALLET_SEED = Deno.env.get("PLATFORM_WALLET_SEED")!;
-const RPC_ENDPOINT = Deno.env.get("RPC_ENDPOINT") || "wss://rpc.pezkuwichain.io:9944";
+const RPC_ENDPOINT = Deno.env.get("RPC_ENDPOINT") || "wss://rpc.pezkuwichain.io";
 
 // Asset IDs
 const ASSET_IDS: Record<string, number | null> = {

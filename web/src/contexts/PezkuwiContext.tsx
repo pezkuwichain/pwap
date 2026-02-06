@@ -24,11 +24,15 @@ import { ApiPromise, WsProvider } from '@pezkuwi/api';
 import { web3Accounts, web3Enable } from '@pezkuwi/extension-dapp';
 import type { InjectedAccountWithMeta } from '@pezkuwi/extension-inject/types';
 import { DEFAULT_ENDPOINT } from '../../../shared/blockchain/pezkuwi';
+import { getCurrentNetworkConfig } from '../../../shared/blockchain/endpoints';
 import { isMobileApp, getNativeWalletAddress, getNativeAccountName } from '@/lib/mobile-bridge';
 
-// Teyrchain endpoints (from environment or defaults)
-const ASSET_HUB_ENDPOINT = import.meta.env.VITE_ASSET_HUB_ENDPOINT || 'wss://asset-hub-rpc.pezkuwichain.io';
-const PEOPLE_CHAIN_ENDPOINT = import.meta.env.VITE_PEOPLE_CHAIN_ENDPOINT || 'wss://people-rpc.pezkuwichain.io';
+// Get network config from shared endpoints
+const networkConfig = getCurrentNetworkConfig();
+
+// Teyrchain endpoints (from environment or shared config)
+const ASSET_HUB_ENDPOINT = import.meta.env.VITE_ASSET_HUB_ENDPOINT || networkConfig.assetHubEndpoint || 'wss://asset-hub-rpc.pezkuwichain.io';
+const PEOPLE_CHAIN_ENDPOINT = import.meta.env.VITE_PEOPLE_CHAIN_ENDPOINT || networkConfig.peopleChainEndpoint || 'wss://people-rpc.pezkuwichain.io';
 
 interface PezkuwiContextType {
   api: ApiPromise | null;
