@@ -196,8 +196,7 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
 
     const fetchPoolReserves = async () => {
       try {
-        // First, get asset minBalances from chain
-        let asset0MinBalance = 0.1; // default for native
+        // Get asset1 minBalance from chain (e.g., DOT = 0.1)
         let asset1MinBalance = 0.1; // default
 
         if (asset1 >= 0) {
@@ -209,7 +208,7 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
               asset1MinBalance = Math.max(Number(minBalRaw) / Math.pow(10, asset1Decimals), 0.1);
               if (import.meta.env.DEV) console.log(`Asset ${asset1} minBalance:`, asset1MinBalance);
             }
-          } catch (e) {
+          } catch {
             if (import.meta.env.DEV) console.log('Could not fetch asset1 minBalance');
           }
         }
