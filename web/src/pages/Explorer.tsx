@@ -140,12 +140,22 @@ const Explorer: React.FC = () => {
 
       const finalizedHeader = await api.rpc.chain.getHeader(finalizedHash);
 
+      // Safely extract era number
+      let eraNumber = 0;
+      if (currentEra && currentEra.isSome) {
+        try {
+          eraNumber = currentEra.unwrap().toNumber();
+        } catch {
+          eraNumber = Number(currentEra.unwrap().toString()) || 0;
+        }
+      }
+
       setStats(prev => ({
         ...prev,
         bestBlock: header.number.toNumber(),
         finalizedBlock: finalizedHeader.number.toNumber(),
         activeValidators: Array.isArray(validators) ? validators.length : 0,
-        era: currentEra ? currentEra.unwrapOr(0).toNumber() : 0,
+        era: eraNumber,
       }));
     } catch (error) {
       console.error('Error fetching stats:', error);
