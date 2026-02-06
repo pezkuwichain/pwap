@@ -26,12 +26,18 @@ const getDisplayTokenName = (assetId: number): string => {
   if (assetId === ASSET_IDS.WHEZ || assetId === 2) return 'wHEZ';  // Wrapped HEZ
   if (assetId === ASSET_IDS.PEZ || assetId === 1) return 'PEZ';
   if (assetId === ASSET_IDS.WUSDT || assetId === 1000) return 'USDT';
+  if (assetId === 1001) return 'DOT';
+  if (assetId === 1002) return 'ETH';
+  if (assetId === 1003) return 'BTC';
   return getAssetSymbol(assetId);
 };
 
 // Helper to get decimals for each asset
 const getAssetDecimals = (assetId: number): number => {
-  if (assetId === ASSET_IDS.WUSDT) return 6; // wUSDT has 6 decimals
+  if (assetId === ASSET_IDS.WUSDT || assetId === 1000) return 6; // wUSDT has 6 decimals
+  if (assetId === 1001) return 10; // wDOT has 10 decimals
+  if (assetId === 1002) return 18; // wETH has 18 decimals
+  if (assetId === 1003) return 8;  // wBTC has 8 decimals
   return 12; // wHEZ, PEZ have 12 decimals
 };
 
