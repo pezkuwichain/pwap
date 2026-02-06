@@ -242,6 +242,7 @@ export const AccountBalance: React.FC = () => {
       const excludedAssetIds = [
         1,     // PEZ
         2,     // wHEZ
+        3,     // Old USDT (deprecated)
         1000,  // wUSDT (USDT)
       ];
       const assetIdsToCheck = customTokenIds.filter((id) => !excludedAssetIds.includes(id));
