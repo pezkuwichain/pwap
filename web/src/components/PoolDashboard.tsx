@@ -168,52 +168,27 @@ const PoolDashboard = () => {
           const asset1Decimals = getAssetDecimals(asset1);
           const asset2Decimals = getAssetDecimals(asset2);
 
-          // Use runtime API to get reserves via price quote
-          // Query the price for 1 unit to determine if pool has liquidity
+          // Use getReserves runtime API for accurate reserve values
           let reserve0 = 0;
           let reserve1 = 0;
 
           try {
-            // Use quotePriceExactTokensForTokens to check pool liquidity
-            const oneUnit1 = BigInt(Math.pow(10, asset1Decimals));
-            const quote1 = await assetHubApi.call.assetConversionApi.quotePriceExactTokensForTokens(
+            const reserves = await assetHubApi.call.assetConversionApi.getReserves(
               formatAssetId(asset1),
-              formatAssetId(asset2),
-              oneUnit1.toString(),
-              true // include fee
+              formatAssetId(asset2)
             );
 
-            if (quote1 && !(quote1 as { isNone?: boolean }).isNone) {
-              const outputForOneUnit = Number((quote1 as { unwrap: () => { toString: () => string } }).unwrap().toString());
-              // Calculate approximate reserves based on price
-              // This is an approximation - actual reserves would need pool account query
-              // Price = reserve1 / reserve0, so if we have the price ratio, we can estimate
-              const price = outputForOneUnit / Math.pow(10, asset2Decimals);
+            if (reserves && !(reserves as { isNone?: boolean }).isNone) {
+              const [reserve0Raw, reserve1Raw] = (reserves as { unwrap: () => [{ toString: () => string }, { toString: () => string }] }).unwrap();
+              reserve0 = Number(reserve0Raw.toString()) / Math.pow(10, asset1Decimals);
+              reserve1 = Number(reserve1Raw.toString()) / Math.pow(10, asset2Decimals);
 
-              // Try to get LP token total supply to estimate pool size
-              const lpAssetData = await assetHubApi.query.poolAssets.asset(lpTokenId);
-              if ((lpAssetData as { isSome: boolean }).isSome) {
-                const assetInfo = (lpAssetData as { unwrap: () => { toJSON: () => Record<string, unknown> } }).unwrap().toJSON();
-                const totalLpSupply = Number(assetInfo.supply) / 1e12;
-
-                // Estimate reserves from LP supply and price
-                // LP = sqrt(r0_raw * r1_raw) where r0_raw = r0_human * 10^d0, r1_raw = r1_human * 10^d1
-                // LP_raw = sqrt(r0_human * r1_human) * 10^((d0+d1)/2)
-                // LP_human = LP_raw / 10^12 = sqrt(r0_human * r1_human) * 10^((d0+d1)/2 - 12)
-                // Therefore: sqrt(r0_human * r1_human) = LP_human * 10^(12 - (d0+d1)/2)
-                //
-                // For HEZ-USDT (d0=12, d1=6): factor = 10^(12 - 9) = 1000
-                // For HEZ-PEZ (d0=12, d1=12): factor = 10^(12 - 12) = 1
-                if (price > 0 && totalLpSupply > 0) {
-                  const decimalCorrectionFactor = Math.pow(10, 12 - (asset1Decimals + asset2Decimals) / 2);
-                  const sqrtPrice = Math.sqrt(price);
-                  reserve0 = totalLpSupply * decimalCorrectionFactor / sqrtPrice;
-                  reserve1 = totalLpSupply * decimalCorrectionFactor * sqrtPrice;
-                }
+              if (import.meta.env.DEV) {
+                console.log('📊 Pool reserves:', { reserve0, reserve1 });
               }
             }
           } catch (err) {
-            if (import.meta.env.DEV) console.warn('Could not fetch reserves via runtime API:', err);
+            if (import.meta.env.DEV) console.warn('Could not fetch reserves:', err);
           }
 
           const poolAccount = 'Pool Account (derived)';
@@ -246,34 +221,67 @@ const PoolDashboard = () => {
       if (!assetHubApi || !selectedAccount) return;
 
       try {
-        // Query user's LP token balance from poolAssets pallet on Asset Hub
-        const lpBalance = await assetHubApi.query.poolAssets.account(lpTokenId, selectedAccount.address);
+        // LP tokens can be in either poolAssets or assets pallet - check both
+        let userLpBalance = 0;
+        let totalSupply = 0;
 
-        if ((lpBalance as { isSome: boolean }).isSome) {
-          const lpData = (lpBalance as { unwrap: () => { toJSON: () => Record<string, unknown> } }).unwrap().toJSON();
-          const userLpBalance = Number(lpData.balance) / 1e12;
-
-          // Query total LP supply
-          const lpAssetData = await assetHubApi.query.poolAssets.asset(lpTokenId);
-
-          if ((lpAssetData as { isSome: boolean }).isSome) {
-            const assetInfo = (lpAssetData as { unwrap: () => { toJSON: () => Record<string, unknown> } }).unwrap().toJSON();
-            const totalSupply = Number(assetInfo.supply) / 1e12;
-
-            // Calculate user's share
-            const sharePercentage = totalSupply > 0 ? (userLpBalance / totalSupply) * 100 : 0;
-
-            // Calculate user's actual token amounts
-            const asset0Amount = (sharePercentage / 100) * reserve0;
-            const asset1Amount = (sharePercentage / 100) * reserve1;
-
-            setLPPosition({
-              lpTokenBalance: userLpBalance,
-              share: sharePercentage,
-              asset0Amount,
-              asset1Amount,
-            });
+        // Try poolAssets pallet first (newer LP tokens)
+        try {
+          const poolLpBalance = await assetHubApi.query.poolAssets.account(lpTokenId, selectedAccount.address);
+          if ((poolLpBalance as { isSome: boolean }).isSome) {
+            const lpData = (poolLpBalance as { unwrap: () => { toJSON: () => Record<string, unknown> } }).unwrap().toJSON();
+            userLpBalance += Number(lpData.balance) / 1e12;
           }
+
+          const poolLpAsset = await assetHubApi.query.poolAssets.asset(lpTokenId);
+          if ((poolLpAsset as { isSome: boolean }).isSome) {
+            const assetInfo = (poolLpAsset as { unwrap: () => { toJSON: () => Record<string, unknown> } }).unwrap().toJSON();
+            totalSupply += Number(assetInfo.supply) / 1e12;
+          }
+        } catch {
+          if (import.meta.env.DEV) console.log('poolAssets not available for LP token', lpTokenId);
+        }
+
+        // Also check assets pallet (some LP tokens might be there)
+        try {
+          const assetsLpBalance = await assetHubApi.query.assets.account(lpTokenId, selectedAccount.address);
+          if ((assetsLpBalance as { isSome: boolean }).isSome) {
+            const lpData = (assetsLpBalance as { unwrap: () => { toJSON: () => Record<string, unknown> } }).unwrap().toJSON();
+            userLpBalance += Number(lpData.balance) / 1e12;
+          }
+
+          const assetsLpAsset = await assetHubApi.query.assets.asset(lpTokenId);
+          if ((assetsLpAsset as { isSome: boolean }).isSome) {
+            const assetInfo = (assetsLpAsset as { unwrap: () => { toJSON: () => Record<string, unknown> } }).unwrap().toJSON();
+            // Only add if not already counted from poolAssets
+            if (totalSupply === 0) {
+              totalSupply = Number(assetInfo.supply) / 1e12;
+            }
+          }
+        } catch {
+          if (import.meta.env.DEV) console.log('assets pallet LP check failed for', lpTokenId);
+        }
+
+        if (userLpBalance > 0) {
+          // Calculate user's share
+          const sharePercentage = totalSupply > 0 ? (userLpBalance / totalSupply) * 100 : 0;
+
+          // Calculate user's actual token amounts
+          const asset0Amount = (sharePercentage / 100) * reserve0;
+          const asset1Amount = (sharePercentage / 100) * reserve1;
+
+          setLPPosition({
+            lpTokenBalance: userLpBalance,
+            share: sharePercentage,
+            asset0Amount,
+            asset1Amount,
+          });
+
+          if (import.meta.env.DEV) {
+            console.log('📊 LP Position:', { userLpBalance, totalSupply, sharePercentage });
+          }
+        } else {
+          setLPPosition(null);
         }
       } catch (err) {
         if (import.meta.env.DEV) console.error('Error fetching LP position:', err);
