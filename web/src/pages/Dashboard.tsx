@@ -106,9 +106,9 @@ export default function Dashboard() {
     setLoadingScores(true);
     try {
       // Fetch all scores from blockchain (includes trust, referral, staking, tiki)
-      // Note: Trust and referral are on People Chain, staking is on Relay Chain
-      // For now, we use peopleApi for scores as most score pallets are on People Chain
-      const allScores = await getAllScores(peopleApi, selectedAccount.address);
+      // - Trust, referral, tiki: People Chain
+      // - Staking score: People Chain (stakingScore pallet) + Relay Chain (staking.ledger)
+      const allScores = await getAllScores(peopleApi, selectedAccount.address, api);
       setScores(allScores);
 
       // Fetch tikis from People Chain (tiki pallet is on People Chain)
