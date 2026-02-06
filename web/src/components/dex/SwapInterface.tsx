@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useWallet } from '@/contexts/WalletContext';
-import { ArrowDownUp, AlertCircle, Loader2, Info, Settings, AlertTriangle } from 'lucide-react';
+import { ArrowDownUp, AlertCircle, Loader2, Info, Settings, AlertTriangle, RefreshCw } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,10 +12,9 @@ import { PoolInfo } from '@/types/dex';
 import {
   parseTokenInput,
   formatTokenBalance,
-  getAmountOut,
-  calculatePriceImpact,
   formatAssetLocation,
 } from '@pezkuwi/utils/dex';
+import { getAllPrices, calculateOracleSwap, formatUsdPrice } from '@pezkuwi/lib/priceOracle';
 import { useToast } from '@/hooks/use-toast';
 
 interface SwapInterfaceProps {
@@ -25,12 +24,13 @@ interface SwapInterfaceProps {
 
 type TransactionStatus = 'idle' | 'signing' | 'submitting' | 'success' | 'error';
 
-// User-facing tokens
-// Native HEZ uses NATIVE_TOKEN_ID (-1) for pool matching
+// User-facing tokens - All pairs go through USDT
 const USER_TOKENS = [
-  { symbol: 'HEZ', emoji: '🟡', assetId: -1, name: 'HEZ', decimals: 12, displaySymbol: 'HEZ' }, // Native HEZ (NATIVE_TOKEN_ID)
-  { symbol: 'PEZ', emoji: '🟣', assetId: 1, name: 'PEZ', decimals: 12, displaySymbol: 'PEZ' },
-  { symbol: 'USDT', emoji: '💵', assetId: 1000, name: 'USDT', decimals: 6, displaySymbol: 'USDT' },
+  { symbol: 'HEZ', emoji: '🟡', assetId: -1, name: 'HEZ', decimals: 12, displaySymbol: 'HEZ', logo: '/shared/images/hez_token_512.png' },
+  { symbol: 'USDT', emoji: '💵', assetId: 1000, name: 'USDT', decimals: 6, displaySymbol: 'USDT', logo: '/shared/images/USDT(hez)logo.png' },
+  { symbol: 'wDOT', emoji: '🔴', assetId: 1001, name: 'Wrapped DOT', decimals: 10, displaySymbol: 'wDOT', logo: '/shared/images/dot.png' },
+  { symbol: 'wETH', emoji: '💎', assetId: 1002, name: 'Wrapped ETH', decimals: 18, displaySymbol: 'wETH', logo: '/shared/images/etherium.png' },
+  { symbol: 'wBTC', emoji: '🟠', assetId: 1003, name: 'Wrapped BTC', decimals: 8, displaySymbol: 'wBTC', logo: '/shared/images/bitcoin.png' },
 ] as const;
 
 export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
@@ -52,6 +52,30 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
 
   const [txStatus, setTxStatus] = useState<TransactionStatus>('idle');
   const [errorMessage, setErrorMessage] = useState<string>('');
+
+  // Oracle prices state
+  const [prices, setPrices] = useState<Record<string, number>>({});
+  const [pricesLoading, setPricesLoading] = useState(true);
+  const [swapRoute, setSwapRoute] = useState<string[]>([]);
+
+  // Fetch oracle prices
+  const fetchPrices = useCallback(async () => {
+    setPricesLoading(true);
+    try {
+      const fetchedPrices = await getAllPrices();
+      setPrices(fetchedPrices);
+    } catch (error) {
+      console.error('Failed to fetch prices:', error);
+    }
+    setPricesLoading(false);
+  }, []);
+
+  useEffect(() => {
+    fetchPrices();
+    // Refresh prices every 30 seconds
+    const interval = setInterval(fetchPrices, 30000);
+    return () => clearInterval(interval);
+  }, [fetchPrices]);
 
   // Get asset IDs (for pool lookup)
   const getAssetId = (symbol: string) => {
@@ -122,48 +146,51 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
     fetchBalances();
   }, [assetHubApi, isAssetHubReady, account, fromToken, toToken, fromAssetId, toAssetId]);
 
-  // Calculate output amount when input changes
+  // Calculate output amount using Oracle prices
   useEffect(() => {
-    if (!fromAmount || !activePool || !fromTokenInfo || !toTokenInfo) {
-      setToAmount('');
-      return;
-    }
+    const calculateSwap = async () => {
+      if (!fromAmount || !fromTokenInfo || !toTokenInfo || parseFloat(fromAmount) <= 0) {
+        setToAmount('');
+        setSwapRoute([]);
+        return;
+      }
 
-    try {
-      const fromAmountRaw = parseTokenInput(fromAmount, fromTokenInfo.decimals);
+      try {
+        const result = await calculateOracleSwap(
+          fromToken,
+          toToken,
+          parseFloat(fromAmount),
+          0.3 // 0.3% fee per hop
+        );
 
-      // Determine direction and calculate output
-      const isForward = activePool.asset1 === fromAssetId;
-      const reserveIn = isForward ? activePool.reserve1 : activePool.reserve2;
-      const reserveOut = isForward ? activePool.reserve2 : activePool.reserve1;
+        if (result) {
+          // Format output based on decimals
+          const formattedOutput = result.toAmount.toFixed(
+            toTokenInfo.decimals > 6 ? 6 : toTokenInfo.decimals
+          );
+          setToAmount(formattedOutput);
+          setSwapRoute(result.route);
+        } else {
+          setToAmount('');
+          setSwapRoute([]);
+        }
+      } catch (error) {
+        if (import.meta.env.DEV) console.error('Failed to calculate swap:', error);
+        setToAmount('');
+        setSwapRoute([]);
+      }
+    };
 
-      const toAmountRaw = getAmountOut(fromAmountRaw, reserveIn, reserveOut, 3); // 0.3% fee
-      const toAmountDisplay = formatTokenBalance(toAmountRaw, toTokenInfo.decimals, 6);
+    calculateSwap();
+  }, [fromAmount, fromToken, toToken, fromTokenInfo, toTokenInfo, prices]);
 
-      setToAmount(toAmountDisplay);
-    } catch (error) {
-      if (import.meta.env.DEV) console.error('Failed to calculate output:', error);
-      setToAmount('');
-    }
-  }, [fromAmount, activePool, fromTokenInfo, toTokenInfo, fromAssetId, toAssetId]);
-
-  // Calculate price impact
-  const priceImpact = React.useMemo(() => {
-    if (!fromAmount || !activePool || !fromAssetId || !toAssetId || !fromTokenInfo) {
-      return 0;
-    }
-
-    try {
-      const fromAmountRaw = parseTokenInput(fromAmount, fromTokenInfo.decimals);
-      const isForward = activePool.asset1 === fromAssetId;
-      const reserveIn = isForward ? activePool.reserve1 : activePool.reserve2;
-      const reserveOut = isForward ? activePool.reserve2 : activePool.reserve1;
-
-      return parseFloat(calculatePriceImpact(reserveIn, reserveOut, fromAmountRaw));
-    } catch {
-      return 0;
-    }
-  }, [fromAmount, activePool, fromAssetId, toAssetId, fromTokenInfo]);
+  // Get oracle exchange rate
+  const oracleRate = React.useMemo(() => {
+    const fromPrice = prices[fromToken];
+    const toPrice = prices[toToken];
+    if (!fromPrice || !toPrice) return null;
+    return fromPrice / toPrice;
+  }, [prices, fromToken, toToken]);
 
   // Check if user has insufficient balance
   const hasInsufficientBalance = React.useMemo(() => {
@@ -227,86 +254,48 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
         minOut: minAmountOut.toString(),
       });
 
-      let tx;
+      // XCM Locations for all supported tokens
+      const nativeLocation = formatAssetLocation(-1);    // HEZ (native)
+      const usdtLocation = formatAssetLocation(1000);    // wUSDT
+      const wdotLocation = formatAssetLocation(1001);    // wDOT
+      const wethLocation = formatAssetLocation(1002);    // wETH
+      const wbtcLocation = formatAssetLocation(1003);    // wBTC
 
-      // Native HEZ uses NATIVE_TOKEN_ID (-1) for XCM Location
-      // assetConversion pallet expects XCM MultiLocation format for swap paths
-      const nativeLocation = formatAssetLocation(-1); // { parents: 1, interior: 'Here' }
-      const pezLocation = formatAssetLocation(1);     // PEZ asset
-      const usdtLocation = formatAssetLocation(1000); // wUSDT asset
+      // Build swap path - all pairs go through USDT
+      const getLocation = (symbol: string) => {
+        switch (symbol) {
+          case 'HEZ': return nativeLocation;
+          case 'USDT': return usdtLocation;
+          case 'wDOT': return wdotLocation;
+          case 'wETH': return wethLocation;
+          case 'wBTC': return wbtcLocation;
+          default: return formatAssetLocation(fromAssetId!);
+        }
+      };
 
-      if (fromToken === 'HEZ' && toToken === 'PEZ') {
-        // HEZ → PEZ: Direct swap using native token
-        tx = assetHubApi.tx.assetConversion.swapExactTokensForTokens(
-          [nativeLocation, pezLocation],
-          amountIn.toString(),
-          minAmountOut.toString(),
-          account,
-          true
-        );
+      const fromLocation = getLocation(fromToken);
+      const toLocation = getLocation(toToken);
 
-      } else if (fromToken === 'PEZ' && toToken === 'HEZ') {
-        // PEZ → HEZ: Direct swap to native token
-        tx = assetHubApi.tx.assetConversion.swapExactTokensForTokens(
-          [pezLocation, nativeLocation],
-          amountIn.toString(),
-          minAmountOut.toString(),
-          account,
-          true
-        );
+      // Determine swap path based on route
+      let swapPath: unknown[];
 
-      } else if (fromToken === 'HEZ' && toToken === 'USDT') {
-        // HEZ → USDT: Direct swap using native token
-        tx = assetHubApi.tx.assetConversion.swapExactTokensForTokens(
-          [nativeLocation, usdtLocation],
-          amountIn.toString(),
-          minAmountOut.toString(),
-          account,
-          true
-        );
-
-      } else if (fromToken === 'USDT' && toToken === 'HEZ') {
-        // USDT → HEZ: Direct swap to native token
-        tx = assetHubApi.tx.assetConversion.swapExactTokensForTokens(
-          [usdtLocation, nativeLocation],
-          amountIn.toString(),
-          minAmountOut.toString(),
-          account,
-          true
-        );
-
-      } else if (fromToken === 'PEZ' && toToken === 'USDT') {
-        // PEZ → USDT: Multi-hop through HEZ (PEZ → HEZ → USDT)
-        tx = assetHubApi.tx.assetConversion.swapExactTokensForTokens(
-          [pezLocation, nativeLocation, usdtLocation],
-          amountIn.toString(),
-          minAmountOut.toString(),
-          account,
-          true
-        );
-
-      } else if (fromToken === 'USDT' && toToken === 'PEZ') {
-        // USDT → PEZ: Multi-hop through HEZ (USDT → HEZ → PEZ)
-        tx = assetHubApi.tx.assetConversion.swapExactTokensForTokens(
-          [usdtLocation, nativeLocation, pezLocation],
-          amountIn.toString(),
-          minAmountOut.toString(),
-          account,
-          true
-        );
-
+      if (fromToken === 'USDT' || toToken === 'USDT') {
+        // Direct swap with USDT
+        swapPath = [fromLocation, toLocation];
       } else {
-        // Generic swap using XCM Locations
-        const fromLocation = formatAssetLocation(fromAssetId!);
-        const toLocation = formatAssetLocation(toAssetId!);
-        tx = assetHubApi.tx.assetConversion.swapExactTokensForTokens(
-          [fromLocation, toLocation],
-          amountIn.toString(),
-          minAmountOut.toString(),
-          account,
-          true
-        );
+        // Multi-hop through USDT: X → USDT → Y
+        swapPath = [fromLocation, usdtLocation, toLocation];
       }
+
+      if (import.meta.env.DEV) console.log('Swap path:', swapRoute, swapPath);
+
+      const tx = assetHubApi.tx.assetConversion.swapExactTokensForTokens(
+        swapPath,
+        amountIn.toString(),
+        minAmountOut.toString(),
+        account,
+        true
+      );
 
       setTxStatus('submitting');
 
@@ -355,12 +344,8 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
     }
   };
 
-  const exchangeRate = activePool && fromTokenInfo && toTokenInfo
-    ? (
-        parseFloat(formatTokenBalance(activePool.reserve2, toTokenInfo.decimals, 6)) /
-        parseFloat(formatTokenBalance(activePool.reserve1, fromTokenInfo.decimals, 6))
-      ).toFixed(6)
-    : '0';
+  // Exchange rate from oracle
+  const exchangeRate = oracleRate ? oracleRate.toFixed(6) : '0';
 
   return (
     <div className="max-w-lg mx-auto">
@@ -515,37 +500,52 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
             </div>
           </div>
 
-          {/* Swap Details */}
+          {/* Swap Details - Oracle Prices */}
           <div className="p-4 bg-gray-800 border border-gray-700 rounded-lg space-y-2 text-sm">
-            <div className="flex justify-between">
+            <div className="flex justify-between items-center">
               <span className="text-gray-400 flex items-center gap-1">
                 <Info className="w-3 h-3" />
                 Exchange Rate
+                <span className="text-xs text-green-500">(CoinGecko)</span>
               </span>
-              <span className="text-white">
-                {activePool ? `1 ${fromToken} = ${exchangeRate} ${toToken}` : 'No pool available'}
+              <div className="flex items-center gap-2">
+                <span className="text-white">
+                  {oracleRate ? `1 ${fromToken} = ${exchangeRate} ${toToken}` : 'Loading...'}
+                </span>
+                <button onClick={fetchPrices} className="text-gray-400 hover:text-white">
+                  <RefreshCw className={`w-3 h-3 ${pricesLoading ? 'animate-spin' : ''}`} />
+                </button>
+              </div>
+            </div>
+
+            {/* USD Prices */}
+            <div className="flex justify-between text-xs">
+              <span className="text-gray-500">
+                {fromToken}: {prices[fromToken] ? formatUsdPrice(prices[fromToken]) : '...'}
+              </span>
+              <span className="text-gray-500">
+                {toToken}: {prices[toToken] ? formatUsdPrice(prices[toToken]) : '...'}
               </span>
             </div>
 
-            {fromAmount && parseFloat(fromAmount) > 0 && priceImpact > 0 && (
+            {/* Route */}
+            {swapRoute.length > 0 && (
               <div className="flex justify-between">
-                <span className="text-gray-400 flex items-center gap-1">
-                  <AlertTriangle className={`w-3 h-3 ${
-                    priceImpact < 1 ? 'text-green-500' :
-                    priceImpact < 5 ? 'text-yellow-500' :
-                    'text-red-500'
-                  }`} />
-                  Price Impact
-                </span>
-                <span className={`font-semibold ${
-                  priceImpact < 1 ? 'text-green-400' :
-                  priceImpact < 5 ? 'text-yellow-400' :
-                  'text-red-400'
-                }`}>
-                  {priceImpact < 0.01 ? '<0.01%' : `${priceImpact.toFixed(2)}%`}
+                <span className="text-gray-400">Route</span>
+                <span className="text-purple-400 text-xs">
+                  {swapRoute.join(' → ')}
                 </span>
               </div>
             )}
+
+            {/* Fees */}
+            <div className="flex justify-between">
+              <span className="text-gray-400">Swap Fee</span>
+              <span className="text-yellow-400">
+                {swapRoute.length > 2 ? '0.6%' : '0.3%'}
+                {swapRoute.length > 2 && <span className="text-xs text-gray-500 ml-1">(2 hops)</span>}
+              </span>
+            </div>
 
             <div className="flex justify-between pt-2 border-t border-gray-700">
               <span className="text-gray-400">Slippage Tolerance</span>
@@ -563,11 +563,11 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
             </Alert>
           )}
 
-          {priceImpact >= 5 && !hasInsufficientBalance && (
-            <Alert className="bg-red-900/20 border-red-500/30">
-              <AlertTriangle className="h-4 w-4 text-red-500" />
-              <AlertDescription className="text-red-300 text-sm">
-                High price impact! Consider a smaller amount.
+          {swapRoute.length > 2 && !hasInsufficientBalance && (
+            <Alert className="bg-yellow-900/20 border-yellow-500/30">
+              <Info className="h-4 w-4 text-yellow-500" />
+              <AlertDescription className="text-yellow-300 text-sm">
+                This swap uses multi-hop routing ({swapRoute.join(' → ')}). Double fee applies.
               </AlertDescription>
             </Alert>
           )}
@@ -580,7 +580,8 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
               !account ||
               !fromAmount ||
               parseFloat(fromAmount) <= 0 ||
-              !activePool ||
+              !oracleRate ||
+              !toAmount ||
               hasInsufficientBalance ||
               txStatus === 'signing' ||
               txStatus === 'submitting'
@@ -590,8 +591,10 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
               ? 'Connect Wallet'
               : hasInsufficientBalance
               ? `Insufficient ${fromToken} Balance`
-              : !activePool
-              ? 'No Pool Available'
+              : !oracleRate
+              ? 'Price Not Available'
+              : pricesLoading
+              ? 'Loading Prices...'
               : 'Swap Tokens'}
           </Button>
         </CardContent>
