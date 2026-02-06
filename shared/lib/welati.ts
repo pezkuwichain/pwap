@@ -139,6 +139,11 @@ export async function getCurrentOfficials(api: ApiPromise): Promise<{
   serokWeziran?: string;
   meclisBaskanı?: string;
 }> {
+  // Check if welati pallet exists
+  if (!api.query.welati?.currentOfficials) {
+    return {};
+  }
+
   const [serok, serokWeziran, speaker] = await Promise.all([
     api.query.welati.currentOfficials('Serok'),
     api.query.welati.currentOfficials('SerokWeziran'),
@@ -156,6 +161,11 @@ export async function getCurrentOfficials(api: ApiPromise): Promise<{
  * Get current cabinet ministers
  */
 export async function getCurrentMinisters(api: ApiPromise): Promise<Record<MinisterRole, string | undefined>> {
+  // Check if welati pallet exists
+  if (!api.query.welati?.currentMinisters) {
+    return {} as Record<MinisterRole, string | undefined>;
+  }
+
   const roles: MinisterRole[] = [
     'WezireDarayiye',
     'WezireParez',
@@ -182,6 +192,11 @@ export async function getCurrentMinisters(api: ApiPromise): Promise<Record<Minis
  * Get parliament members list
  */
 export async function getParliamentMembers(api: ApiPromise): Promise<ParliamentMember[]> {
+  // Check if welati pallet exists
+  if (!api.query.welati?.parliamentMembers) {
+    return [];
+  }
+
   const members = await api.query.welati.parliamentMembers();
 
   if (!members || members.isEmpty) {
@@ -212,6 +227,11 @@ export async function getParliamentMembers(api: ApiPromise): Promise<ParliamentM
  * Get Diwan (Constitutional Court) members
  */
 export async function getDiwanMembers(api: ApiPromise): Promise<string[]> {
+  // Check if welati pallet exists
+  if (!api.query.welati?.diwanMembers) {
+    return [];
+  }
+
   const members = await api.query.welati.diwanMembers();
 
   if (!members || members.isEmpty) {
@@ -225,6 +245,11 @@ export async function getDiwanMembers(api: ApiPromise): Promise<string[]> {
  * Get active elections
  */
 export async function getActiveElections(api: ApiPromise): Promise<ElectionInfo[]> {
+  // Check if welati pallet exists
+  if (!api.query.welati?.nextElectionId) {
+    return [];
+  }
+
   const nextId = await api.query.welati.nextElectionId();
   const currentId = (nextId.toJSON() as number) || 0;
 
@@ -260,6 +285,11 @@ export async function getActiveElections(api: ApiPromise): Promise<ElectionInfo[
  * Get election by ID
  */
 export async function getElectionById(api: ApiPromise, electionId: number): Promise<ElectionInfo | null> {
+  // Check if welati pallet exists
+  if (!api.query.welati?.activeElections) {
+    return null;
+  }
+
   const election = await api.query.welati.activeElections(electionId);
 
   if (election.isNone) {
@@ -290,6 +320,11 @@ export async function getElectionCandidates(
   api: ApiPromise,
   electionId: number
 ): Promise<CandidateInfo[]> {
+  // Check if welati pallet exists
+  if (!api.query.welati?.electionCandidates) {
+    return [];
+  }
+
   const entries = await api.query.welati.electionCandidates.entries(electionId);
 
   const candidates: CandidateInfo[] = [];
@@ -319,6 +354,11 @@ export async function hasVoted(
   electionId: number,
   voterAddress: string
 ): Promise<boolean> {
+  // Check if welati pallet exists
+  if (!api.query.welati?.electionVotes) {
+    return false;
+  }
+
   const vote = await api.query.welati.electionVotes(electionId, voterAddress);
   return vote.isSome;
 }
@@ -330,6 +370,11 @@ export async function getElectionResults(
   api: ApiPromise,
   electionId: number
 ): Promise<ElectionResult | null> {
+  // Check if welati pallet exists
+  if (!api.query.welati?.electionResults) {
+    return null;
+  }
+
   const result = await api.query.welati.electionResults(electionId);
 
   if (result.isNone) {
@@ -352,6 +397,11 @@ export async function getElectionResults(
  * Get active proposals
  */
 export async function getActiveProposals(api: ApiPromise): Promise<CollectiveProposal[]> {
+  // Check if welati pallet exists
+  if (!api.query.welati?.nextProposalId) {
+    return [];
+  }
+
   const nextId = await api.query.welati.nextProposalId();
   const currentId = (nextId.toJSON() as number) || 0;
 
@@ -394,6 +444,11 @@ export async function getProposalById(
   api: ApiPromise,
   proposalId: number
 ): Promise<CollectiveProposal | null> {
+  // Check if welati pallet exists
+  if (!api.query.welati?.activeProposals) {
+    return null;
+  }
+
   const proposal = await api.query.welati.activeProposals(proposalId);
 
   if (proposal.isNone) {
@@ -429,6 +484,11 @@ export async function hasVotedOnProposal(
   proposalId: number,
   voterAddress: string
 ): Promise<boolean> {
+  // Check if welati pallet exists
+  if (!api.query.welati?.collectiveVotes) {
+    return false;
+  }
+
   const vote = await api.query.welati.collectiveVotes(proposalId, voterAddress);
   return vote.isSome;
 }
@@ -441,6 +501,11 @@ export async function getProposalVote(
   proposalId: number,
   voterAddress: string
 ): Promise<VoteChoice | null> {
+  // Check if welati pallet exists
+  if (!api.query.welati?.collectiveVotes) {
+    return null;
+  }
+
   const vote = await api.query.welati.collectiveVotes(proposalId, voterAddress);
 
   if (vote.isNone) {
@@ -455,6 +520,11 @@ export async function getProposalVote(
  * Get pending appointments
  */
 export async function getPendingAppointments(api: ApiPromise): Promise<AppointmentProcess[]> {
+  // Check if welati pallet exists
+  if (!api.query.welati?.nextAppointmentId) {
+    return [];
+  }
+
   const nextId = await api.query.welati.nextAppointmentId();
   const currentId = (nextId.toJSON() as number) || 0;
 
@@ -488,6 +558,19 @@ export async function getPendingAppointments(api: ApiPromise): Promise<Appointme
  * Get governance statistics
  */
 export async function getGovernanceStats(api: ApiPromise): Promise<GovernanceMetrics> {
+  // Check if welati pallet exists
+  if (!api.query.welati?.governanceStats) {
+    return {
+      totalElectionsHeld: 0,
+      activeElections: 0,
+      parliamentSize: 0,
+      diwanSize: 0,
+      activeProposals: 0,
+      totalProposalsSubmitted: 0,
+      averageTurnout: 0,
+    };
+  }
+
   const stats = await api.query.welati.governanceStats();
 
   if (!stats || stats.isEmpty) {
