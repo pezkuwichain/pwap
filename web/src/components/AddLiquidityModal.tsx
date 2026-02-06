@@ -177,89 +177,8 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
     fetchAssetHubBalances();
   }, [assetHubApi, isAssetHubReady, selectedAccount, isOpen, asset0, asset1]);
 
-  // Fetch minimum deposit requirements from runtime and pool reserves
-  useEffect(() => {
-    if (!assetHubApi || !isAssetHubReady || !isOpen) return;
-
-    const fetchMinimumBalances = async () => {
-      try {
-        // Default minimums
-        let minBalance0 = 0.1;
-        let minBalance1 = 0.1;
-
-        // Query asset minBalance for non-native tokens
-        if (asset0 >= 0) {
-          const assetDetails0 = await assetHubApi.query.assets.asset(asset0);
-          if (assetDetails0.isSome) {
-            const details0 = assetDetails0.unwrap().toJSON() as AssetDetails;
-            const minBalance0Raw = details0.minBalance || '0';
-            const fetchedMin0 = Number(minBalance0Raw) / Math.pow(10, asset0Decimals);
-            minBalance0 = Math.max(fetchedMin0, 0.1);
-          }
-        }
-
-        if (asset1 >= 0) {
-          const assetDetails1 = await assetHubApi.query.assets.asset(asset1);
-          if (assetDetails1.isSome) {
-            const details1 = assetDetails1.unwrap().toJSON() as AssetDetails;
-            const minBalance1Raw = details1.minBalance || '0';
-            const fetchedMin1 = Number(minBalance1Raw) / Math.pow(10, asset1Decimals);
-            minBalance1 = Math.max(fetchedMin1, 0.1);
-          }
-        }
-
-        // Get pool reserves to calculate ratio-based minimums
-        const asset0Location = asset0 === -1
-          ? { parents: 1, interior: 'Here' }
-          : { parents: 0, interior: { X2: [{ PalletInstance: 50 }, { GeneralIndex: asset0 }] } };
-        const asset1Location = asset1 === -1
-          ? { parents: 1, interior: 'Here' }
-          : { parents: 0, interior: { X2: [{ PalletInstance: 50 }, { GeneralIndex: asset1 }] } };
-
-        try {
-          const reserves = await assetHubApi.call.assetConversionApi.getReserves(
-            asset0Location,
-            asset1Location
-          );
-
-          if (reserves && !reserves.isNone) {
-            const [reserve0Raw, reserve1Raw] = reserves.unwrap();
-            const reserve0 = Number(reserve0Raw.toString()) / Math.pow(10, asset0Decimals);
-            const reserve1 = Number(reserve1Raw.toString()) / Math.pow(10, asset1Decimals);
-
-            if (reserve0 > 0 && reserve1 > 0) {
-              // Calculate minimums based on pool ratio
-              // If asset1 min is 0.1 DOT and ratio is 1:3, then asset0 min should be 0.3 HEZ
-              const ratioBasedMin0 = minBalance1 * (reserve0 / reserve1);
-              const ratioBasedMin1 = minBalance0 * (reserve1 / reserve0);
-
-              minBalance0 = Math.max(minBalance0, ratioBasedMin0);
-              minBalance1 = Math.max(minBalance1, ratioBasedMin1);
-
-              if (import.meta.env.DEV) {
-                console.log('📊 Pool reserves:', { reserve0, reserve1 });
-                console.log('📊 Ratio-based minimums:', { ratioBasedMin0, ratioBasedMin1 });
-              }
-            }
-          }
-        } catch (reserveErr) {
-          if (import.meta.env.DEV) console.log('Could not fetch reserves, using default minimums');
-        }
-
-        if (import.meta.env.DEV) console.log('📊 Final minimum deposits:', {
-          asset0: asset0Name, minBalance0,
-          asset1: asset1Name, minBalance1
-        });
-
-        setMinDeposit0(minBalance0);
-        setMinDeposit1(minBalance1);
-      } catch (err) {
-        if (import.meta.env.DEV) console.error('❌ Error fetching minimum balances:', err);
-      }
-    };
-
-    fetchMinimumBalances();
-  }, [assetHubApi, isAssetHubReady, isOpen, asset0, asset1, asset0Decimals, asset1Decimals, asset0Name, asset1Name]);
+  // Note: Minimum deposits are calculated in the fetchPoolReserves effect below
+  // based on the actual pool ratio and asset minBalances
 
   // Helper to convert asset ID to XCM Location format
   const formatAssetLocation = (id: number) => {
@@ -271,73 +190,105 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
     return { parents: 0, interior: { X2: [{ PalletInstance: 50 }, { GeneralIndex: id }] } };
   };
 
-  // Fetch current pool price and reserves
+  // Fetch current pool reserves and calculate ratio + minimums
   useEffect(() => {
     if (!assetHubApi || !isAssetHubReady || !isOpen) return;
 
-    const fetchPoolPrice = async () => {
+    const fetchPoolReserves = async () => {
       try {
-        // Use XCM Location format for pool queries (required for native token)
+        // First, get asset minBalances from chain
+        let asset0MinBalance = 0.1; // default for native
+        let asset1MinBalance = 0.1; // default
+
+        if (asset1 >= 0) {
+          try {
+            const assetDetails = await assetHubApi.query.assets.asset(asset1);
+            if (assetDetails.isSome) {
+              const details = assetDetails.unwrap().toJSON() as AssetDetails;
+              const minBalRaw = details.minBalance || '0';
+              asset1MinBalance = Math.max(Number(minBalRaw) / Math.pow(10, asset1Decimals), 0.1);
+              if (import.meta.env.DEV) console.log(`Asset ${asset1} minBalance:`, asset1MinBalance);
+            }
+          } catch (e) {
+            if (import.meta.env.DEV) console.log('Could not fetch asset1 minBalance');
+          }
+        }
+
         const asset0Location = formatAssetLocation(asset0);
         const asset1Location = formatAssetLocation(asset1);
         const poolKey = [asset0Location, asset1Location];
         const poolInfo = await assetHubApi.query.assetConversion.pools(poolKey);
 
         if (poolInfo.isSome) {
-          // Pool exists - try to get reserves via runtime API
+          // Pool exists - get reserves for exact ratio
           try {
-            // Use quotePriceExactTokensForTokens to get the exchange rate
-            // This gives us the output amount for 1 unit of input
-            const oneUnit = BigInt(Math.pow(10, asset0Decimals)); // 1 token in smallest units
-
-            const quote = await assetHubApi.call.assetConversionApi.quotePriceExactTokensForTokens(
+            const reserves = await assetHubApi.call.assetConversionApi.getReserves(
               asset0Location,
-              asset1Location,
-              oneUnit.toString(),
-              true // include fee
+              asset1Location
             );
 
-            if (quote && !quote.isNone) {
-              const outputAmount = Number(quote.unwrap().toString()) / Math.pow(10, asset1Decimals);
-              const inputAmount = 1; // We queried for 1 token
-              const price = outputAmount / inputAmount;
+            if (reserves && !reserves.isNone) {
+              const [reserve0Raw, reserve1Raw] = reserves.unwrap();
+              const reserve0 = Number(reserve0Raw.toString()) / Math.pow(10, asset0Decimals);
+              const reserve1 = Number(reserve1Raw.toString()) / Math.pow(10, asset1Decimals);
 
-              if (price > 0) {
-                setCurrentPrice(price);
+              if (reserve0 > 0 && reserve1 > 0) {
+                // Use exact reserve ratio for liquidity (no slippage/fees)
+                const ratio = reserve1 / reserve0; // asset1 per asset0
+                setCurrentPrice(ratio);
                 setIsPoolEmpty(false);
-                if (import.meta.env.DEV) console.log('Pool price from runtime API:', price);
+
+                // Calculate minimums based on ratio
+                // Pool ratio: 3 HEZ = 1 DOT, so ratio = 1/3 = 0.333
+                // If DOT min is 0.1, then HEZ min = 0.1 / 0.333 = 0.3 HEZ
+                const requiredAsset0Min = asset1MinBalance / ratio;
+                const finalMin0 = Math.max(0.1, requiredAsset0Min);
+                const finalMin1 = asset1MinBalance;
+
+                setMinDeposit0(finalMin0);
+                setMinDeposit1(finalMin1);
+
+                if (import.meta.env.DEV) {
+                  console.log('📊 Pool reserves:', { reserve0, reserve1 });
+                  console.log('📊 Ratio (asset1/asset0):', ratio, `(1 ${asset0Name} = ${ratio.toFixed(4)} ${asset1Name})`);
+                  console.log('📊 Final minimums:', { [asset0Name]: finalMin0, [asset1Name]: finalMin1 });
+                }
               } else {
                 setIsPoolEmpty(true);
                 setCurrentPrice(null);
+                setMinDeposit0(0.1);
+                setMinDeposit1(asset1MinBalance);
               }
             } else {
-              // Quote returned nothing - pool might be empty
               setIsPoolEmpty(true);
               setCurrentPrice(null);
-              if (import.meta.env.DEV) console.log('Pool exists but no quote available - may be empty');
+              setMinDeposit0(0.1);
+              setMinDeposit1(asset1MinBalance);
+              if (import.meta.env.DEV) console.log('Pool exists but no reserves');
             }
-          } catch (quoteErr) {
-            if (import.meta.env.DEV) console.error('Error getting quote:', quoteErr);
-            // Pool exists but couldn't get quote - allow manual input
+          } catch (reserveErr) {
+            if (import.meta.env.DEV) console.error('Error getting reserves:', reserveErr);
             setIsPoolEmpty(true);
             setCurrentPrice(null);
+            setMinDeposit0(0.1);
+            setMinDeposit1(asset1MinBalance);
           }
         } else {
-          // Pool doesn't exist yet
           setCurrentPrice(null);
           setIsPoolEmpty(true);
-          if (import.meta.env.DEV) console.log('Pool does not exist yet - manual input allowed');
+          setMinDeposit0(0.1);
+          setMinDeposit1(asset1MinBalance);
+          if (import.meta.env.DEV) console.log('Pool does not exist yet');
         }
       } catch (err) {
-        if (import.meta.env.DEV) console.error('Error fetching pool price:', err);
-        // On error, assume pool is empty to allow manual input
+        if (import.meta.env.DEV) console.error('Error fetching pool:', err);
         setCurrentPrice(null);
         setIsPoolEmpty(true);
       }
     };
 
-    fetchPoolPrice();
-  }, [assetHubApi, isAssetHubReady, isOpen, asset0, asset1, asset0Decimals, asset1Decimals]);
+    fetchPoolReserves();
+  }, [assetHubApi, isAssetHubReady, isOpen, asset0, asset1, asset0Decimals, asset1Decimals, asset0Name, asset1Name]);
 
   // Auto-calculate asset1 amount based on asset0 input (only if pool has liquidity)
   useEffect(() => {
