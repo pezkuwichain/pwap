@@ -245,12 +245,86 @@ const WalletDashboard: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column - Balance */}
-          <div className="lg:col-span-1">
-            <AccountBalance />
+          {/* Left Column - Recent Activity & NFTs */}
+          <div className="lg:col-span-1 space-y-6">
+            {/* Recent Activity */}
+            <div className="bg-gray-900 border border-gray-800 rounded-lg p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-white">Recent Activity</h3>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={fetchRecentTransactions}
+                  disabled={isLoadingRecent}
+                  className="text-gray-400 hover:text-white"
+                >
+                  <RefreshCw className={`w-4 h-4 ${isLoadingRecent ? 'animate-spin' : ''}`} />
+                </Button>
+              </div>
+
+              {isLoadingRecent ? (
+                <div className="text-center py-8">
+                  <RefreshCw className="w-10 h-10 text-gray-600 mx-auto mb-3 animate-spin" />
+                  <p className="text-gray-400 text-sm">Loading...</p>
+                </div>
+              ) : recentTransactions.length === 0 ? (
+                <div className="text-center py-8">
+                  <History className="w-10 h-10 text-gray-600 mx-auto mb-3" />
+                  <p className="text-gray-500 text-sm">No recent transactions</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {recentTransactions.slice(0, 5).map((tx) => (
+                    <div
+                      key={`${tx.blockNumber}-${tx.extrinsicIndex}`}
+                      className="bg-gray-800/50 border border-gray-700 rounded-lg p-3 hover:bg-gray-800 transition-colors"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          {isIncoming(tx) ? (
+                            <div className="bg-green-500/20 p-1.5 rounded-lg">
+                              <ArrowDownRight className="w-3 h-3 text-green-400" />
+                            </div>
+                          ) : (
+                            <div className="bg-yellow-500/20 p-1.5 rounded-lg">
+                              <ArrowUpRight className="w-3 h-3 text-yellow-400" />
+                            </div>
+                          )}
+                          <div>
+                            <div className="text-white font-semibold text-xs">
+                              {isIncoming(tx) ? 'Received' : 'Sent'}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              #{tx.blockNumber}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-white font-mono text-xs">
+                            {isIncoming(tx) ? '+' : '-'}{formatAmount(tx.amount || '0')}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <Button
+                onClick={() => setIsHistoryModalOpen(true)}
+                variant="outline"
+                size="sm"
+                className="mt-3 w-full border-gray-700 hover:bg-gray-800 text-xs"
+              >
+                View All
+              </Button>
+            </div>
+
+            {/* NFT Collection */}
+            <NftList />
           </div>
 
-          {/* Right Column - Actions */}
+          {/* Right Column - Actions & Tokens */}
           <div className="lg:col-span-2 space-y-6">
             {/* Quick Actions */}
             <div className="grid grid-cols-3 gap-4">
@@ -281,86 +355,8 @@ const WalletDashboard: React.FC = () => {
               </Button>
             </div>
 
-            {/* Recent Activity */}
-            <div className="bg-gray-900 border border-gray-800 rounded-lg p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-white">Recent Activity</h3>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={fetchRecentTransactions}
-                  disabled={isLoadingRecent}
-                  className="text-gray-400 hover:text-white"
-                >
-                  <RefreshCw className={`w-4 h-4 ${isLoadingRecent ? 'animate-spin' : ''}`} />
-                </Button>
-              </div>
-
-              {isLoadingRecent ? (
-                <div className="text-center py-12">
-                  <RefreshCw className="w-12 h-12 text-gray-600 mx-auto mb-3 animate-spin" />
-                  <p className="text-gray-400">Loading transactions...</p>
-                </div>
-              ) : recentTransactions.length === 0 ? (
-                <div className="text-center py-12">
-                  <History className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-                  <p className="text-gray-500">No recent transactions found</p>
-                  <p className="text-gray-600 text-sm mt-1">
-                    Recent activity from last 10 blocks
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {recentTransactions.map((tx) => (
-                    <div
-                      key={`${tx.blockNumber}-${tx.extrinsicIndex}`}
-                      className="bg-gray-800/50 border border-gray-700 rounded-lg p-3 hover:bg-gray-800 transition-colors"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          {isIncoming(tx) ? (
-                            <div className="bg-green-500/20 p-2 rounded-lg">
-                              <ArrowDownRight className="w-4 h-4 text-green-400" />
-                            </div>
-                          ) : (
-                            <div className="bg-yellow-500/20 p-2 rounded-lg">
-                              <ArrowUpRight className="w-4 h-4 text-yellow-400" />
-                            </div>
-                          )}
-                          <div>
-                            <div className="text-white font-semibold text-sm">
-                              {isIncoming(tx) ? 'Received' : 'Sent'}
-                            </div>
-                            <div className="text-xs text-gray-400">
-                              Block #{tx.blockNumber}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-white font-mono text-sm">
-                            {isIncoming(tx) ? '+' : '-'}{formatAmount(tx.amount || '0')}
-                          </div>
-                          <div className="text-xs text-gray-400">
-                            {tx.section}.{tx.method}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              <Button
-                onClick={() => setIsHistoryModalOpen(true)}
-                variant="outline"
-                className="mt-4 w-full border-gray-700 hover:bg-gray-800"
-              >
-                View All Transactions
-              </Button>
-            </div>
-
-            {/* NFT Collection */}
-            <NftList />
+            {/* Token Balances */}
+            <AccountBalance />
           </div>
         </div>
       </div>
