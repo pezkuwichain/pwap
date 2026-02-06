@@ -123,7 +123,7 @@ export const MintAssetModal: React.FC<MintAssetModalProps> = ({
       await mintTx.signAndSend(
         account,
         { signer },
-        ({ status, dispatchError, events }) => {
+        ({ status, dispatchError }) => {
           if (import.meta.env.DEV) console.log('Transaction status:', status.type);
 
           if (status.isInBlock) {
