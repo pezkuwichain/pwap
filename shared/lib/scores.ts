@@ -817,45 +817,17 @@ export async function getFrontendTrustScore(
 
 /**
  * Get trust score with frontend fallback
- * First tries on-chain, falls back to frontend calculation
+ * NOTE: Until runtime upgrade, always use frontend fallback
+ * On-chain trust pallet exists but doesn't calculate correctly yet
  */
 export async function getTrustScoreWithFallback(
   peopleApi: ApiPromise | null,
   relayApi: ApiPromise,
   address: string
 ): Promise<FrontendTrustScoreResult> {
-  // First try on-chain trust score
-  if (peopleApi) {
-    try {
-      const onChainScore = await getTrustScore(peopleApi, address);
-      if (onChainScore > 0) {
-        // Get component scores for display
-        const [stakingResult, referralScore, perwerdeScore, tikiScore] = await Promise.all([
-          getFrontendStakingScore(relayApi, address),
-          getReferralScore(peopleApi, address),
-          getPerwerdeScore(peopleApi, address),
-          getTikiScore(peopleApi, address)
-        ]);
-
-        const isCitizen = await checkCitizenshipStatus(peopleApi, address);
-
-        return {
-          trustScore: onChainScore,
-          stakingScore: stakingResult.score,
-          referralScore,
-          perwerdeScore,
-          tikiScore,
-          weightedSum: 0, // Not calculated for on-chain
-          isFromFrontend: false,
-          isCitizen
-        };
-      }
-    } catch (err) {
-      console.log('On-chain trust score not available, using frontend fallback');
-    }
-  }
-
-  // Fall back to frontend calculation
+  // Always use frontend calculation until runtime upgrade
+  // The on-chain trust pallet exists but StakingInfoProvider returns None
+  // which causes trust score to be 0 even when user has stake
   return getFrontendTrustScore(peopleApi, relayApi, address);
 }
 
