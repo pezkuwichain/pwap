@@ -191,28 +191,49 @@ export async function getReferralCount(
 
 /**
  * Get staking score from pallet_staking_score
- * This is already implemented in lib/staking.ts
- * Re-exported here for consistency
+ * NOTE: stakingScore pallet is on People Chain, but staking.ledger is on Relay Chain
+ * So this function needs both APIs
+ *
+ * @param peopleApi - API for People Chain (stakingScore pallet)
+ * @param relayApi - API for Relay Chain (staking pallet) - optional, if not provided uses peopleApi
  */
 export async function getStakingScoreFromPallet(
-  api: ApiPromise,
-  address: string
+  peopleApi: ApiPromise,
+  address: string,
+  relayApi?: ApiPromise
 ): Promise<number> {
   try {
-    if (!api?.query?.stakingScore) {
-      // Staking score pallet not available on this chain - this is expected
+    if (!peopleApi?.query?.stakingScore) {
+      // Staking score pallet not available on this chain
       return 0;
     }
 
-    // Check if user has started score tracking
-    const scoreResult = await api.query.stakingScore.stakingStartBlock(address);
+    // Check if user has started score tracking (People Chain)
+    const scoreResult = await peopleApi.query.stakingScore.stakingStartBlock(address);
 
     if (scoreResult.isNone) {
       return 0;
     }
 
-    // Get staking info from staking pallet
-    const ledger = await api.query.staking.ledger(address);
+    // Get staking info from staking pallet (Relay Chain)
+    const stakingApi = relayApi || peopleApi;
+    if (!stakingApi?.query?.staking?.ledger) {
+      // Staking pallet not available - can't calculate full score
+      // Return base score from duration only
+      const scoreCodec = scoreResult.unwrap() as { toString: () => string };
+      const startBlock = Number(scoreCodec.toString());
+      const currentBlock = Number((await peopleApi.query.system.number()).toString());
+      const durationInBlocks = currentBlock - startBlock;
+
+      const MONTH_IN_BLOCKS = 30 * 24 * 60 * 10;
+      if (durationInBlocks >= 12 * MONTH_IN_BLOCKS) return 40;
+      if (durationInBlocks >= 6 * MONTH_IN_BLOCKS) return 34;
+      if (durationInBlocks >= 3 * MONTH_IN_BLOCKS) return 28;
+      if (durationInBlocks >= MONTH_IN_BLOCKS) return 24;
+      return 20;
+    }
+
+    const ledger = await stakingApi.query.staking.ledger(address);
 
     if (ledger.isNone) {
       return 0;
@@ -223,10 +244,10 @@ export async function getStakingScoreFromPallet(
     const ledgerData = ledgerCodec.toJSON() as any;
     const stakedAmount = Number(ledgerData.total || 0) / 1e12; // Convert to HEZ
 
-    // Get duration
+    // Get duration from People Chain
     const scoreCodec = scoreResult.unwrap() as { toString: () => string };
     const startBlock = Number(scoreCodec.toString());
-    const currentBlock = Number((await api.query.system.number()).toString());
+    const currentBlock = Number((await peopleApi.query.system.number()).toString());
     const durationInBlocks = currentBlock - startBlock;
 
     // Calculate score based on amount and duration
@@ -282,13 +303,18 @@ export async function getTikiScore(
 
 /**
  * Fetch all scores for a user in one call
+ *
+ * @param peopleApi - API for People Chain (trust, referral, tiki, stakingScore pallets)
+ * @param address - User's blockchain address
+ * @param relayApi - Optional API for Relay Chain (staking pallet for staking score calculation)
  */
 export async function getAllScores(
-  api: ApiPromise,
-  address: string
+  peopleApi: ApiPromise,
+  address: string,
+  relayApi?: ApiPromise
 ): Promise<UserScores> {
   try {
-    if (!api || !address) {
+    if (!peopleApi || !address) {
       return {
         trustScore: 0,
         referralScore: 0,
@@ -299,11 +325,13 @@ export async function getAllScores(
     }
 
     // Fetch all scores in parallel
+    // - Trust, referral, tiki scores: People Chain
+    // - Staking score: People Chain (stakingScore pallet) + Relay Chain (staking.ledger)
     const [trustScore, referralScore, stakingScore, tikiScore] = await Promise.all([
-      getTrustScore(api, address),
-      getReferralScore(api, address),
-      getStakingScoreFromPallet(api, address),
-      getTikiScore(api, address)
+      getTrustScore(peopleApi, address),
+      getReferralScore(peopleApi, address),
+      getStakingScoreFromPallet(peopleApi, address, relayApi),
+      getTikiScore(peopleApi, address)
     ]);
 
     const totalScore = trustScore + referralScore + stakingScore + tikiScore;
