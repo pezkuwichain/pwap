@@ -28,9 +28,9 @@ type TransactionStatus = 'idle' | 'signing' | 'submitting' | 'success' | 'error'
 const USER_TOKENS = [
   { symbol: 'HEZ', emoji: '🟡', assetId: -1, name: 'HEZ', decimals: 12, displaySymbol: 'HEZ', logo: '/shared/images/hez_token_512.png' },
   { symbol: 'USDT', emoji: '💵', assetId: 1000, name: 'USDT', decimals: 6, displaySymbol: 'USDT', logo: '/shared/images/USDT(hez)logo.png' },
-  { symbol: 'wDOT', emoji: '🔴', assetId: 1001, name: 'Wrapped DOT', decimals: 10, displaySymbol: 'wDOT', logo: '/shared/images/dot.png' },
-  { symbol: 'wETH', emoji: '💎', assetId: 1002, name: 'Wrapped ETH', decimals: 18, displaySymbol: 'wETH', logo: '/shared/images/etherium.png' },
-  { symbol: 'wBTC', emoji: '🟠', assetId: 1003, name: 'Wrapped BTC', decimals: 8, displaySymbol: 'wBTC', logo: '/shared/images/bitcoin.png' },
+  { symbol: 'DOT', emoji: '🔴', assetId: 1001, name: 'DOT', decimals: 10, displaySymbol: 'DOT', logo: '/shared/images/dot.png' },
+  { symbol: 'ETH', emoji: '💎', assetId: 1002, name: 'ETH', decimals: 18, displaySymbol: 'ETH', logo: '/shared/images/etherium.png' },
+  { symbol: 'BTC', emoji: '🟠', assetId: 1003, name: 'BTC', decimals: 8, displaySymbol: 'BTC', logo: '/shared/images/bitcoin.png' },
 ] as const;
 
 export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
@@ -266,9 +266,9 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
         switch (symbol) {
           case 'HEZ': return nativeLocation;
           case 'USDT': return usdtLocation;
-          case 'wDOT': return wdotLocation;
-          case 'wETH': return wethLocation;
-          case 'wBTC': return wbtcLocation;
+          case 'DOT': return wdotLocation;
+          case 'ETH': return wethLocation;
+          case 'BTC': return wbtcLocation;
           default: return formatAssetLocation(fromAssetId!);
         }
       };

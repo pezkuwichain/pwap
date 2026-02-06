@@ -19,6 +19,9 @@ const getDisplayTokenName = (assetId: number): string => {
   if (assetId === ASSET_IDS.WHEZ || assetId === 2) return 'wHEZ';
   if (assetId === ASSET_IDS.PEZ || assetId === 1) return 'PEZ';
   if (assetId === ASSET_IDS.WUSDT || assetId === 1000) return 'USDT';
+  if (assetId === 1001) return 'DOT';
+  if (assetId === 1002) return 'ETH';
+  if (assetId === 1003) return 'BTC';
   return getAssetSymbol(assetId); // Fallback for other assets
 };
 
@@ -75,6 +78,7 @@ const PoolDashboard = () => {
           [NATIVE_TOKEN_ID, ASSET_IDS.PEZ],     // Native HEZ / PEZ
           [NATIVE_TOKEN_ID, ASSET_IDS.WUSDT],   // Native HEZ / wUSDT
           [NATIVE_TOKEN_ID, ASSET_IDS.WHEZ],    // Native HEZ / wHEZ
+          [NATIVE_TOKEN_ID, 1001],              // Native HEZ / wDOT
           // wHEZ pools
           [ASSET_IDS.WHEZ, ASSET_IDS.PEZ],      // wHEZ / PEZ
           [ASSET_IDS.WHEZ, ASSET_IDS.WUSDT],    // wHEZ / wUSDT
@@ -155,6 +159,9 @@ const PoolDashboard = () => {
           // Get decimals for each asset
           const getAssetDecimals = (assetId: number): number => {
             if (assetId === ASSET_IDS.WUSDT || assetId === 1000) return 6; // wUSDT has 6 decimals
+            if (assetId === 1001) return 10; // wDOT has 10 decimals
+            if (assetId === 1002) return 18; // wETH has 18 decimals
+            if (assetId === 1003) return 8;  // wBTC has 8 decimals
             return 12; // Native, wHEZ, PEZ have 12 decimals
           };
 
