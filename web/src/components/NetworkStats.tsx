@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Activity, Wifi, WifiOff, Users, Box, TrendingUp } from 'lucide-react';
 
 export const NetworkStats: React.FC = () => {
-  const { api, isApiReady, error } = usePezkuwi();
+  const { api, assetHubApi, peopleApi, isApiReady, isAssetHubReady, isPeopleReady, error } = usePezkuwi();
   const [blockNumber, setBlockNumber] = useState<number>(0);
   const [blockHash, setBlockHash] = useState<string>('');
   const [finalizedBlock, setFinalizedBlock] = useState<number>(0);
@@ -52,17 +52,31 @@ export const NetworkStats: React.FC = () => {
               if (import.meta.env.DEV) console.warn('Failed to fetch validators', err);
             }
 
-            // 2. Fetch Collators (Invulnerables)
+            // 2. Fetch Collators from Parachains (Asset Hub + People Chain)
             let cCount = 0;
+
+            // Fetch from Asset Hub
             try {
-              if (api.query.collatorSelection?.invulnerables) {
-                const invulnerables = await api.query.collatorSelection.invulnerables();
-                if (invulnerables) {
-                  cCount = invulnerables.length;
+              if (isAssetHubReady && assetHubApi?.query.collatorSelection?.invulnerables) {
+                const assetHubCollators = await assetHubApi.query.collatorSelection.invulnerables();
+                if (assetHubCollators) {
+                  cCount += assetHubCollators.length;
                 }
               }
             } catch (err) {
-              if (import.meta.env.DEV) console.warn('Failed to fetch collators', err);
+              if (import.meta.env.DEV) console.warn('Failed to fetch Asset Hub collators', err);
+            }
+
+            // Fetch from People Chain
+            try {
+              if (isPeopleReady && peopleApi?.query.collatorSelection?.invulnerables) {
+                const peopleCollators = await peopleApi.query.collatorSelection.invulnerables();
+                if (peopleCollators) {
+                  cCount += peopleCollators.length;
+                }
+              }
+            } catch (err) {
+              if (import.meta.env.DEV) console.warn('Failed to fetch People Chain collators', err);
             }
 
             // 3. Count Nominators
@@ -103,7 +117,7 @@ export const NetworkStats: React.FC = () => {
       if (unsubscribeFinalizedHeads) unsubscribeFinalizedHeads();
       if (intervalId) clearInterval(intervalId);
     };
-  }, [api, isApiReady]);
+  }, [api, assetHubApi, peopleApi, isApiReady, isAssetHubReady, isPeopleReady]);
 
   if (error) {
     return (

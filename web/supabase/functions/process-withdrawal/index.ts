@@ -177,10 +177,20 @@ async function processWithdrawal(
  * Main handler
  */
 serve(async (req: Request) => {
-  // CORS headers
+  // Allowed origins for CORS
+  const ALLOWED_ORIGINS = [
+    'https://app.pezkuwichain.io',
+    'https://www.pezkuwichain.io',
+    'https://pezkuwichain.io',
+  ]
+
+  const requestOrigin = req.headers.get('Origin')
+  const allowedOrigin = requestOrigin && ALLOWED_ORIGINS.includes(requestOrigin) ? requestOrigin : ALLOWED_ORIGINS[0]
+
   const headers = {
-    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Origin": allowedOrigin,
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Credentials": "true",
     "Content-Type": "application/json",
   };
 
