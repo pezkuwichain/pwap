@@ -229,8 +229,9 @@ export const AccountBalance: React.FC = () => {
   };
 
   // Fetch other tokens (only custom tokens - wrapped tokens are backend-only)
+  // IMPORTANT: Assets are on Asset Hub, use assetHubApi (not relay chain api)
   const fetchOtherTokens = async () => {
-    if (!api || !isApiReady || !selectedAccount) return;
+    if (!assetHubApi || !isAssetHubReady || !selectedAccount) return;
 
     try {
       const tokens: TokenBalance[] = [];
@@ -246,54 +247,55 @@ export const AccountBalance: React.FC = () => {
 
       for (const assetId of assetIdsToCheck) {
         try {
-          const assetBalance = await api.query.assets.account(assetId, selectedAccount.address);
-          const assetMetadata = await api.query.assets.metadata(assetId);
+          // Use Asset Hub API - assets are on Asset Hub, not relay chain
+          const assetMetadata = await assetHubApi.query.assets.metadata(assetId);
+          const metadata = assetMetadata.toJSON() as { symbol?: string; name?: string; decimals?: number };
 
+          // Decode hex strings properly
+          let symbol = metadata.symbol || '';
+          let name = metadata.name || '';
+
+          if (typeof symbol === 'string' && symbol.startsWith('0x')) {
+            symbol = hexToString(symbol);
+          }
+          if (typeof name === 'string' && name.startsWith('0x')) {
+            name = hexToString(name);
+          }
+
+          // Fallback to known symbols if metadata is empty
+          if (!symbol || symbol.trim() === '') {
+            symbol = getAssetSymbol(assetId);
+          }
+          if (!name || name.trim() === '') {
+            name = symbol;
+          }
+
+          const decimals = metadata.decimals || getAssetDecimals(assetId);
+
+          // Get balance (may be 0 if user hasn't received any)
+          let balanceFormatted = '0';
+          const assetBalance = await assetHubApi.query.assets.account(assetId, selectedAccount.address);
           if (assetBalance.isSome) {
             const assetData = assetBalance.unwrap();
             const balance = assetData.balance.toString();
-
-            const metadata = assetMetadata.toJSON() as { symbol?: string; name?: string; decimals?: number };
-
-            // Decode hex strings properly
-            let symbol = metadata.symbol || '';
-            let name = metadata.name || '';
-
-            if (typeof symbol === 'string' && symbol.startsWith('0x')) {
-              symbol = hexToString(symbol);
-            }
-            if (typeof name === 'string' && name.startsWith('0x')) {
-              name = hexToString(name);
-            }
-
-            // Fallback to known symbols if metadata is empty
-            if (!symbol || symbol.trim() === '') {
-              symbol = getAssetSymbol(assetId);
-            }
-            if (!name || name.trim() === '') {
-              name = symbol;
-            }
-
-            const decimals = metadata.decimals || getAssetDecimals(assetId);
-            const balanceFormatted = (parseInt(balance) / Math.pow(10, decimals)).toFixed(6);
-
-            // Simple USD calculation (would use real price feed in production)
-            let usdValue = 0;
-            if (assetId === ASSET_IDS.WUSDT) {
-              usdValue = parseFloat(balanceFormatted); // 1 wUSDT = 1 USD
-            } else if (assetId === ASSET_IDS.WHEZ) {
-              usdValue = parseFloat(balanceFormatted) * 0.5; // Placeholder price
-            }
-
-            tokens.push({
-              assetId,
-              symbol: symbol.trim(),
-              name: name.trim(),
-              balance: balanceFormatted,
-              decimals,
-              usdValue
-            });
+            balanceFormatted = (parseInt(balance) / Math.pow(10, decimals)).toFixed(6);
           }
+
+          // Simple USD calculation (would use real price feed in production)
+          let usdValue = 0;
+          if (assetId === ASSET_IDS.WUSDT) {
+            usdValue = parseFloat(balanceFormatted); // 1 wUSDT = 1 USD
+          }
+
+          // Always show the token (even with 0 balance) since user explicitly added it
+          tokens.push({
+            assetId,
+            symbol: symbol.trim(),
+            name: name.trim(),
+            balance: balanceFormatted,
+            decimals,
+            usdValue
+          });
         } catch (error) {
           if (import.meta.env.DEV) console.error(`Failed to fetch token ${assetId}:`, error);
         }
