@@ -4,8 +4,7 @@
 // Handles citizenship verification, status checks, and workflow logic
 
 import type { ApiPromise } from '@pezkuwi/api';
-// Temporarily disabled for React Native compatibility
-// import { web3FromAddress } from '@pezkuwi/extension-dapp';
+import { web3FromAddress as web3FromAddressOriginal } from '@pezkuwi/extension-dapp';
 import type { InjectedAccountWithMeta } from '@pezkuwi/extension-inject/types';
 
 import type { Signer } from '@pezkuwi/api/types';
@@ -28,10 +27,13 @@ interface InjectedExtension {
   signer: Signer & InjectedSigner;
 }
 
-// Stub for mobile - TODO: implement proper React Native version
-const web3FromAddress = async (_address: string): Promise<InjectedExtension> => {
-  // In React Native, we'll use a different signing mechanism
-  throw new Error('web3FromAddress not implemented for React Native yet');
+// Use real extension in browser, throw error in unsupported environments
+const web3FromAddress = async (address: string): Promise<InjectedExtension> => {
+  // Check if we're in a browser environment with extension support
+  if (typeof window !== 'undefined' && (window as any).injectedWeb3) {
+    return web3FromAddressOriginal(address) as Promise<InjectedExtension>;
+  }
+  throw new Error('Pezkuwi Wallet extension not available. Please install the extension.');
 };
 
 // ========================================
