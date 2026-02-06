@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TrendingUp, Droplet, DollarSign, Percent, Info, AlertTriangle, BarChart3, Clock, Lock } from 'lucide-react';
+import {  TrendingUp, Droplet, DollarSign, Percent, Info, AlertTriangle, BarChart3, Clock } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -11,7 +11,6 @@ import { ASSET_IDS, getAssetSymbol } from '@pezkuwi/lib/wallet';
 import { NATIVE_TOKEN_ID } from '@/types/dex';
 import { AddLiquidityModal } from '@/components/AddLiquidityModal';
 import { RemoveLiquidityModal } from '@/components/RemoveLiquidityModal';
-import { LPStakingModal } from '@/components/LPStakingModal';
 
 // Helper function to convert asset IDs to user-friendly display names
 // Users should only see HEZ, PEZ, USDT - wrapped tokens are backend details
@@ -52,7 +51,6 @@ const PoolDashboard = () => {
   const [error, setError] = useState<string | null>(null);
   const [isAddLiquidityModalOpen, setIsAddLiquidityModalOpen] = useState(false);
   const [isRemoveLiquidityModalOpen, setIsRemoveLiquidityModalOpen] = useState(false);
-  const [isStakingModalOpen, setIsStakingModalOpen] = useState(false);
 
   // Pool selection state
   const [availablePools, setAvailablePools] = useState<Array<[number, number]>>([]);
@@ -579,19 +577,12 @@ const PoolDashboard = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-3 pt-2">
+                <div className="grid grid-cols-2 gap-3 pt-2">
                   <Button
                     onClick={() => setIsAddLiquidityModalOpen(true)}
                     className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700"
                   >
                     Add More
-                  </Button>
-                  <Button
-                    onClick={() => setIsStakingModalOpen(true)}
-                    className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-                  >
-                    <Lock className="w-4 h-4 mr-1" />
-                    Stake LP
                   </Button>
                   <Button
                     onClick={() => setIsRemoveLiquidityModalOpen(true)}
@@ -667,11 +658,6 @@ const PoolDashboard = () => {
           asset1={poolData.asset1}
         />
       )}
-
-      <LPStakingModal
-        isOpen={isStakingModalOpen}
-        onClose={() => setIsStakingModalOpen(false)}
-      />
     </div>
   );
 };
