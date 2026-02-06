@@ -25,7 +25,7 @@ import { ValidatorPoolDashboard } from './ValidatorPoolDashboard';
 import { handleBlockchainError, handleBlockchainSuccess } from '@pezkuwi/lib/error-handler';
 
 export const StakingDashboard: React.FC = () => {
-  const { api, selectedAccount, isApiReady } = usePezkuwi();
+  const { api, peopleApi, selectedAccount, isApiReady, isPeopleReady } = usePezkuwi();
   const { balances, refreshBalances } = useWallet();
 
   const [stakingInfo, setStakingInfo] = useState<StakingInfo | null>(null);
@@ -50,7 +50,7 @@ export const StakingDashboard: React.FC = () => {
       setIsLoadingData(true);
       try {
         const [info, activeVals, minBond, duration, era] = await Promise.all([
-          getStakingInfo(api, selectedAccount.address),
+          getStakingInfo(api, selectedAccount.address, peopleApi || undefined),
           getActiveValidators(api),
           getMinNominatorBond(api),
           getBondingDuration(api),
@@ -79,7 +79,7 @@ export const StakingDashboard: React.FC = () => {
     fetchStakingData();
     const interval = setInterval(fetchStakingData, 30000); // Refresh every 30s
     return () => clearInterval(interval);
-  }, [api, isApiReady, selectedAccount]);
+  }, [api, peopleApi, isApiReady, isPeopleReady, selectedAccount]);
 
   const handleBond = async () => {
     if (!api || !selectedAccount || !bondAmount) return;
@@ -125,7 +125,7 @@ export const StakingDashboard: React.FC = () => {
               // Refresh staking data after a delay
               setTimeout(() => {
                 if (api && selectedAccount) {
-                  getStakingInfo(api, selectedAccount.address).then(setStakingInfo);
+                  getStakingInfo(api, selectedAccount.address, peopleApi || undefined).then(setStakingInfo);
                 }
               }, 3000);
               setIsLoading(false);
@@ -167,7 +167,7 @@ export const StakingDashboard: React.FC = () => {
               // Refresh staking data
               setTimeout(() => {
                 if (api && selectedAccount) {
-                  getStakingInfo(api, selectedAccount.address).then(setStakingInfo);
+                  getStakingInfo(api, selectedAccount.address, peopleApi || undefined).then(setStakingInfo);
                 }
               }, 3000);
               setIsLoading(false);
@@ -212,7 +212,7 @@ export const StakingDashboard: React.FC = () => {
               setUnbondAmount('');
               setTimeout(() => {
                 if (api && selectedAccount) {
-                  getStakingInfo(api, selectedAccount.address).then(setStakingInfo);
+                  getStakingInfo(api, selectedAccount.address, peopleApi || undefined).then(setStakingInfo);
                 }
               }, 3000);
               setIsLoading(false);
@@ -260,7 +260,7 @@ export const StakingDashboard: React.FC = () => {
               refreshBalances();
               setTimeout(() => {
                 if (api && selectedAccount) {
-                  getStakingInfo(api, selectedAccount.address).then(setStakingInfo);
+                  getStakingInfo(api, selectedAccount.address, peopleApi || undefined).then(setStakingInfo);
                 }
               }, 3000);
               setIsLoading(false);
@@ -306,7 +306,7 @@ export const StakingDashboard: React.FC = () => {
               // Refresh staking data after a delay
               setTimeout(() => {
                 if (api && selectedAccount) {
-                  getStakingInfo(api, selectedAccount.address).then(setStakingInfo);
+                  getStakingInfo(api, selectedAccount.address, peopleApi || undefined).then(setStakingInfo);
                 }
               }, 3000);
               setIsLoading(false);
