@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Wallet, TrendingUp, RefreshCw, Award, Plus, Coins, Send, Shield, Users, Fuel } from 'lucide-react';
+import { Wallet, TrendingUp, RefreshCw, Award, Plus, Coins, Send, Shield, Users, Fuel, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ASSET_IDS, getAssetSymbol } from '@pezkuwi/lib/wallet';
 import { AddTokenModal } from './AddTokenModal';
 import { TransferModal } from './TransferModal';
 import { XCMTeleportModal } from './XCMTeleportModal';
+import { LPStakeModal } from './LPStakeModal';
 import { getAllScores, type UserScores } from '@pezkuwi/lib/scores';
 
 interface TokenBalance {
@@ -57,6 +58,8 @@ export const AccountBalance: React.FC = () => {
     const stored = localStorage.getItem('customTokenIds');
     return stored ? JSON.parse(stored) : [];
   });
+  const [isLPStakeModalOpen, setIsLPStakeModalOpen] = useState(false);
+  const [selectedLPForStake, setSelectedLPForStake] = useState<TokenBalance | null>(null);
 
   // Helper function to get asset decimals
   const getAssetDecimals = (assetId: number): number => {
@@ -89,6 +92,7 @@ export const AccountBalance: React.FC = () => {
     ETH: '/tokens/ETH.png',
     'HEZ-PEZ LP': '/tokens/LP.png',
     'HEZ-USDT LP': '/tokens/LP.png',
+    'HEZ-DOT LP': '/tokens/LP.png',
   };
 
   // Get token logo URL
@@ -473,6 +477,24 @@ export const AccountBalance: React.FC = () => {
                 assetId: 1,
                 symbol: 'HEZ-USDT LP',
                 name: 'HEZ-USDT Liquidity',
+                balance: lpTokens,
+                decimals: 12,
+                usdValue: 0, // TODO: Calculate LP value
+                isLpToken: true,
+              });
+            }
+          }
+
+          // HEZ-DOT LP Token (ID: 2)
+          const hezDotLp = await assetHubApi.query.poolAssets.account(2, selectedAccount.address);
+          if (hezDotLp.isSome) {
+            const lpBalance = hezDotLp.unwrap().balance.toString();
+            const lpTokens = (parseInt(lpBalance) / divisor).toFixed(4);
+            if (parseFloat(lpTokens) > 0) {
+              lpTokensData.push({
+                assetId: 2,
+                symbol: 'HEZ-DOT LP',
+                name: 'HEZ-DOT Liquidity',
                 balance: lpTokens,
                 decimals: 12,
                 usdValue: 0, // TODO: Calculate LP value
@@ -884,7 +906,7 @@ export const AccountBalance: React.FC = () => {
           <CardContent>
             <div className="space-y-3">
               {lpTokens.map((lp) => (
-                <div key={lp.assetId} className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
+                <div key={lp.assetId} className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg group">
                   <div className="flex items-center gap-3">
                     <img src="/tokens/LP.png" alt={lp.symbol} className="w-8 h-8 rounded-full" />
                     <div>
@@ -892,9 +914,23 @@ export const AccountBalance: React.FC = () => {
                       <div className="text-xs text-gray-400">{lp.name}</div>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-lg font-semibold text-white">{lp.balance}</div>
-                    <div className="text-xs text-gray-500">Pool Share</div>
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <div className="text-lg font-semibold text-white">{lp.balance}</div>
+                      <div className="text-xs text-gray-500">Pool Share</div>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setSelectedLPForStake(lp);
+                        setIsLPStakeModalOpen(true);
+                      }}
+                      className="border-purple-500/50 text-purple-400 hover:bg-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <Lock className="w-3 h-3 mr-1" />
+                      Stake
+                    </Button>
                   </div>
                 </div>
               ))}
@@ -1107,6 +1143,17 @@ export const AccountBalance: React.FC = () => {
       <XCMTeleportModal
         isOpen={isXCMTeleportModalOpen}
         onClose={() => setIsXCMTeleportModalOpen(false)}
+      />
+
+      {/* LP Stake Modal */}
+      <LPStakeModal
+        isOpen={isLPStakeModalOpen}
+        onClose={() => {
+          setIsLPStakeModalOpen(false);
+          setSelectedLPForStake(null);
+        }}
+        lpToken={selectedLPForStake}
+        onStakeSuccess={() => fetchBalance()}
       />
     </div>
   );
