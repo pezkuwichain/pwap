@@ -237,13 +237,14 @@ export const AccountBalance: React.FC = () => {
       const tokens: TokenBalance[] = [];
 
       // IMPORTANT: Only show custom tokens added by user
-      // Wrapped tokens (wHEZ, wUSDT) are for backend operations only
-      // Core tokens (HEZ, PEZ) are shown in their own dedicated cards
-      const assetIdsToCheck = customTokenIds.filter((id) =>
-        id !== ASSET_IDS.WHEZ &&  // Exclude wrapped tokens
-        id !== ASSET_IDS.WUSDT &&
-        id !== ASSET_IDS.PEZ      // Exclude core tokens
-      );
+      // Core tokens are shown in their own dedicated cards - exclude them here
+      // Using hardcoded IDs to avoid env variable issues
+      const excludedAssetIds = [
+        1,     // PEZ
+        2,     // wHEZ
+        1000,  // wUSDT (USDT)
+      ];
+      const assetIdsToCheck = customTokenIds.filter((id) => !excludedAssetIds.includes(id));
 
       for (const assetId of assetIdsToCheck) {
         try {
