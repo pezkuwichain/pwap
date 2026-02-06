@@ -76,6 +76,8 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
   const [success, setSuccess] = useState(false);
   // Asset Hub native balance for native token (-1) - needed because DEX is on Asset Hub
   const [assetHubNativeBalance, setAssetHubNativeBalance] = useState<number>(0);
+  // Asset Hub asset balances for DOT/ETH/BTC (not tracked in WalletContext)
+  const [assetHubBalances, setAssetHubBalances] = useState<Record<number, number>>({});
 
   // Get asset details
   const asset0Name = getDisplayName(asset0);
@@ -129,6 +131,50 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
     };
 
     fetchAssetHubNativeBalance();
+  }, [assetHubApi, isAssetHubReady, selectedAccount, isOpen, asset0, asset1]);
+
+  // Fetch Asset Hub asset balances for DOT/ETH/BTC (assets not tracked in WalletContext)
+  useEffect(() => {
+    if (!assetHubApi || !isAssetHubReady || !selectedAccount || !isOpen) return;
+
+    const assetHubOnlyAssets = [1001, 1002, 1003]; // DOT, ETH, BTC
+    const assetsToFetch = [asset0, asset1].filter(id => assetHubOnlyAssets.includes(id));
+
+    if (assetsToFetch.length === 0) return;
+
+    const fetchAssetHubBalances = async () => {
+      const newBalances: Record<number, number> = {};
+
+      for (const assetId of assetsToFetch) {
+        try {
+          const accountInfo = await assetHubApi.query.assets.account(assetId, selectedAccount.address);
+          if (accountInfo && accountInfo.isSome) {
+            const data = accountInfo.unwrap();
+            const rawBalance = data.balance.toString();
+            const decimals = getAssetDecimals(assetId);
+            const humanBalance = Number(rawBalance) / Math.pow(10, decimals);
+            newBalances[assetId] = humanBalance;
+
+            if (import.meta.env.DEV) {
+              console.log(`💰 Asset Hub balance for asset ${assetId}:`, {
+                raw: rawBalance,
+                human: humanBalance,
+                decimals
+              });
+            }
+          } else {
+            newBalances[assetId] = 0;
+          }
+        } catch (err) {
+          if (import.meta.env.DEV) console.error(`❌ Failed to fetch Asset Hub balance for asset ${assetId}:`, err);
+          newBalances[assetId] = 0;
+        }
+      }
+
+      setAssetHubBalances(prev => ({ ...prev, ...newBalances }));
+    };
+
+    fetchAssetHubBalances();
   }, [assetHubApi, isAssetHubReady, selectedAccount, isOpen, asset0, asset1]);
 
   // Fetch minimum deposit requirements from runtime
@@ -312,10 +358,16 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
         return;
       }
 
-      // For native token (-1), use Asset Hub native balance; for others, use WalletContext
+      // For native token (-1), use Asset Hub native balance
+      // For DOT/ETH/BTC (1001, 1002, 1003), use Asset Hub asset balances
+      // For others, use WalletContext
       const getBalanceForValidation = (assetId: number, balanceKey: string): number => {
         if (assetId === -1) {
           return assetHubNativeBalance;
+        }
+        // DOT, ETH, BTC are only on Asset Hub
+        if ([1001, 1002, 1003].includes(assetId)) {
+          return assetHubBalances[assetId] || 0;
         }
         const walletBalance = (balances as Balances)[balanceKey];
         return typeof walletBalance === 'string' ? parseFloat(walletBalance) || 0 : walletBalance || 0;
@@ -424,10 +476,15 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
   if (!isOpen) return null;
 
   // For native token (-1), use Asset Hub native balance
+  // For DOT/ETH/BTC (1001, 1002, 1003), use Asset Hub asset balances
   // For other assets, use WalletContext balances (parse string to number)
   const getBalance = (assetId: number, balanceKey: string): number => {
     if (assetId === -1) {
       return assetHubNativeBalance;
+    }
+    // DOT, ETH, BTC are only on Asset Hub - use directly fetched balances
+    if ([1001, 1002, 1003].includes(assetId)) {
+      return assetHubBalances[assetId] || 0;
     }
     const walletBalance = (balances as Balances)[balanceKey];
     return typeof walletBalance === 'string' ? parseFloat(walletBalance) || 0 : walletBalance || 0;
