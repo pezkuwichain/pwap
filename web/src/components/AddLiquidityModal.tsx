@@ -177,24 +177,24 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
     fetchAssetHubBalances();
   }, [assetHubApi, isAssetHubReady, selectedAccount, isOpen, asset0, asset1]);
 
-  // Fetch minimum deposit requirements from runtime
+  // Fetch minimum deposit requirements from runtime and pool reserves
   useEffect(() => {
     if (!assetHubApi || !isAssetHubReady || !isOpen) return;
 
     const fetchMinimumBalances = async () => {
       try {
-        // For native token (-1), use default minimum - can't query assets pallet
-        let minBalance0 = 0.01;
-        let minBalance1 = 0.01;
+        // Default minimums
+        let minBalance0 = 0.1;
+        let minBalance1 = 0.1;
 
-        // Only query assets pallet for non-native tokens (positive IDs)
+        // Query asset minBalance for non-native tokens
         if (asset0 >= 0) {
           const assetDetails0 = await assetHubApi.query.assets.asset(asset0);
           if (assetDetails0.isSome) {
             const details0 = assetDetails0.unwrap().toJSON() as AssetDetails;
             const minBalance0Raw = details0.minBalance || '0';
             const fetchedMin0 = Number(minBalance0Raw) / Math.pow(10, asset0Decimals);
-            minBalance0 = Math.max(fetchedMin0, 0.01); // Ensure at least 0.01
+            minBalance0 = Math.max(fetchedMin0, 0.1);
           }
         }
 
@@ -204,38 +204,57 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
             const details1 = assetDetails1.unwrap().toJSON() as AssetDetails;
             const minBalance1Raw = details1.minBalance || '0';
             const fetchedMin1 = Number(minBalance1Raw) / Math.pow(10, asset1Decimals);
-            minBalance1 = Math.max(fetchedMin1, 0.01); // Ensure at least 0.01
+            minBalance1 = Math.max(fetchedMin1, 0.1);
           }
         }
 
-        if (import.meta.env.DEV) console.log('📊 Minimum deposit requirements:', {
-          asset0: asset0Name,
-          minBalance0,
-          asset1: asset1Name,
-          minBalance1
+        // Get pool reserves to calculate ratio-based minimums
+        const asset0Location = asset0 === -1
+          ? { parents: 1, interior: 'Here' }
+          : { parents: 0, interior: { X2: [{ PalletInstance: 50 }, { GeneralIndex: asset0 }] } };
+        const asset1Location = asset1 === -1
+          ? { parents: 1, interior: 'Here' }
+          : { parents: 0, interior: { X2: [{ PalletInstance: 50 }, { GeneralIndex: asset1 }] } };
+
+        try {
+          const reserves = await assetHubApi.call.assetConversionApi.getReserves(
+            asset0Location,
+            asset1Location
+          );
+
+          if (reserves && !reserves.isNone) {
+            const [reserve0Raw, reserve1Raw] = reserves.unwrap();
+            const reserve0 = Number(reserve0Raw.toString()) / Math.pow(10, asset0Decimals);
+            const reserve1 = Number(reserve1Raw.toString()) / Math.pow(10, asset1Decimals);
+
+            if (reserve0 > 0 && reserve1 > 0) {
+              // Calculate minimums based on pool ratio
+              // If asset1 min is 0.1 DOT and ratio is 1:3, then asset0 min should be 0.3 HEZ
+              const ratioBasedMin0 = minBalance1 * (reserve0 / reserve1);
+              const ratioBasedMin1 = minBalance0 * (reserve1 / reserve0);
+
+              minBalance0 = Math.max(minBalance0, ratioBasedMin0);
+              minBalance1 = Math.max(minBalance1, ratioBasedMin1);
+
+              if (import.meta.env.DEV) {
+                console.log('📊 Pool reserves:', { reserve0, reserve1 });
+                console.log('📊 Ratio-based minimums:', { ratioBasedMin0, ratioBasedMin1 });
+              }
+            }
+          }
+        } catch (reserveErr) {
+          if (import.meta.env.DEV) console.log('Could not fetch reserves, using default minimums');
+        }
+
+        if (import.meta.env.DEV) console.log('📊 Final minimum deposits:', {
+          asset0: asset0Name, minBalance0,
+          asset1: asset1Name, minBalance1
         });
 
         setMinDeposit0(minBalance0);
         setMinDeposit1(minBalance1);
-
-        // Also check if there&apos;s a MintMinLiquidity constant in assetConversion pallet
-        if (assetHubApi.consts.assetConversion) {
-          const mintMinLiq = assetHubApi.consts.assetConversion.mintMinLiquidity;
-          if (mintMinLiq) {
-            if (import.meta.env.DEV) console.log('🔧 AssetConversion MintMinLiquidity constant:', mintMinLiq.toString());
-          }
-
-          const liquidityWithdrawalFee = assetHubApi.consts.assetConversion.liquidityWithdrawalFee;
-          if (liquidityWithdrawalFee) {
-            if (import.meta.env.DEV) console.log('🔧 AssetConversion LiquidityWithdrawalFee:', liquidityWithdrawalFee.toHuman());
-          }
-
-          // Log all assetConversion constants
-          if (import.meta.env.DEV) console.log('🔧 All assetConversion constants:', Object.keys(assetHubApi.consts.assetConversion));
-        }
       } catch (err) {
         if (import.meta.env.DEV) console.error('❌ Error fetching minimum balances:', err);
-        // Keep default 0.01 if query fails
       }
     };
 
