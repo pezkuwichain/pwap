@@ -568,6 +568,81 @@ export default function GovernmentEntrance() {
     );
   }
 
+  // SECURITY: Block access if not verified
+  if (!accessGranted) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-700 via-white to-red-600 flex items-center justify-center">
+        {/* Access Verification Modal */}
+        <Dialog open={showAccessModal} onOpenChange={(open) => {
+          // Don't allow closing without verification - redirect instead
+          if (!open && !accessGranted) {
+            navigate('/citizens');
+          }
+        }}>
+          <DialogContent className="sm:max-w-md bg-gradient-to-br from-green-700 via-white to-red-600">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold text-blue-900">
+                🔒 Kontrola Gihîştinê (Access Verification)
+              </DialogTitle>
+              <DialogDescription className="text-gray-800 font-medium">
+                Ji kerema xwe Citizenship ID-ya xwe binivîse da ku gihîştina xwe bipejirînin
+                (Please enter your Citizenship ID to verify your access)
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-gray-900">
+                  Citizenship ID
+                </label>
+                <Input
+                  type="text"
+                  placeholder="#42-0-123456"
+                  value={inputCitizenId}
+                  onChange={(e) => setInputCitizenId(e.target.value)}
+                  className="bg-white border-2 border-blue-400 text-gray-900 placeholder:text-gray-500"
+                  disabled={isVerifying}
+                />
+              </div>
+              <div className="bg-yellow-100 border-l-4 border-yellow-600 p-3 rounded">
+                <p className="text-sm text-yellow-900 font-medium">
+                  ⚠️ Tenê xwedîyên Tiki-yên hikûmetê dikarin vê rûpelê bigihînin
+                  (Only government Tiki holders can access this page)
+                </p>
+              </div>
+            </div>
+            <div className="flex justify-end gap-3">
+              <Button
+                variant="outline"
+                onClick={() => navigate('/citizens')}
+                disabled={isVerifying}
+                className="border-2 border-gray-400 hover:bg-gray-100"
+              >
+                Betal bike (Cancel)
+              </Button>
+              <Button
+                onClick={handleVerifyAccess}
+                disabled={isVerifying || !inputCitizenId.trim()}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold"
+              >
+                {isVerifying ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                    Kontrolkirin... (Verifying...)
+                  </>
+                ) : (
+                  <>
+                    <Shield className="mr-2 h-4 w-4" />
+                    Bipejirîne (Verify)
+                  </>
+                )}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-700 via-white to-red-600">
       <div className="container mx-auto px-4 py-8">
@@ -798,72 +873,6 @@ export default function GovernmentEntrance() {
             </div>
           </TabsContent>
         </Tabs>
-
-        {/* Access Verification Modal */}
-        <Dialog open={showAccessModal} onOpenChange={setShowAccessModal}>
-          <DialogContent className="sm:max-w-md bg-gradient-to-br from-green-700 via-white to-red-600">
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-bold text-blue-900">
-                🔒 Kontrola Gihîştinê (Access Verification)
-              </DialogTitle>
-              <DialogDescription className="text-gray-800 font-medium">
-                Ji kerema xwe Citizenship ID-ya xwe binivîse da ku gihîştina xwe bipejirînin
-                (Please enter your Citizenship ID to verify your access)
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-gray-900">
-                  Citizenship ID
-                </label>
-                <Input
-                  type="text"
-                  placeholder="Citizenship ID-ya xwe li vir binivîse (Enter your Citizenship ID here)"
-                  value={inputCitizenId}
-                  onChange={(e) => setInputCitizenId(e.target.value)}
-                  className="bg-white border-2 border-blue-400 text-gray-900 placeholder:text-gray-500"
-                  disabled={isVerifying}
-                />
-              </div>
-              <div className="bg-yellow-100 border-l-4 border-yellow-600 p-3 rounded">
-                <p className="text-sm text-yellow-900 font-medium">
-                  ⚠️ Tenê xwedîyên Tiki-yên hikûmetê dikarin vê rûpelê bigihînin
-                  (Only government Tiki holders can access this page)
-                </p>
-              </div>
-            </div>
-            <div className="flex justify-end gap-3">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setShowAccessModal(false);
-                  navigate('/citizens');
-                }}
-                disabled={isVerifying}
-                className="border-2 border-gray-400 hover:bg-gray-100"
-              >
-                Betal bike (Cancel)
-              </Button>
-              <Button
-                onClick={handleVerifyAccess}
-                disabled={isVerifying || !inputCitizenId.trim()}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-bold"
-              >
-                {isVerifying ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                    Kontrolkirin... (Verifying...)
-                  </>
-                ) : (
-                  <>
-                    <Shield className="mr-2 h-4 w-4" />
-                    Doğrula (Verify)
-                  </>
-                )}
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
 
         {/* Propose Legislation Modal */}
         <Dialog open={showProposeModal} onOpenChange={setShowProposeModal}>
