@@ -80,7 +80,7 @@ const GOVERNMENT_AUTHORIZED_TIKIS = [
 
 export default function GovernmentEntrance() {
   const { api, isApiReady, selectedAccount } = usePezkuwi();
-  const { nftDetails, loading: dashboardLoading } = useDashboard();
+  const { nftDetails, citizenNumber, loading: dashboardLoading } = useDashboard();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -172,10 +172,13 @@ export default function GovernmentEntrance() {
 
     try {
       // KONTROL 1: Citizen ID eşleşmesi kontrolü
-      const nftCitizenId = nftDetails.citizenNFT?.citizenship_id;
+      // Format: #collectionId-itemId-citizenNumber (e.g., #42-0-832967)
+      const actualCitizenId = nftDetails.citizenNFT
+        ? `#${nftDetails.citizenNFT.collectionId}-${nftDetails.citizenNFT.itemId}-${citizenNumber}`
+        : '';
       const inputId = inputCitizenId.trim();
 
-      if (nftCitizenId !== inputId) {
+      if (actualCitizenId.toUpperCase() !== inputId.toUpperCase()) {
         toast({
           title: "Gihîştin Nehatin Pejirandin (Access Denied)",
           description: "Citizenship ID-ya we li gel zanyariyên NFT-ya we li hev nayê (Your Citizenship ID does not match your NFT data)",
