@@ -549,14 +549,19 @@ export const getAllTikiNFTDetails = async (
   totalNFTs: number;
 }> => {
   try {
-    // Only fetch citizen NFT because it's the only one with stored item ID
-    // Role assignments in UserTikis don't have associated NFT item IDs
+    // Fetch citizen NFT details (has stored item ID in CitizenNft storage)
     const citizenNFT = await getCitizenNFTDetails(api, address);
+
+    // Fetch all role tikis from UserTikis storage on blockchain
+    const allRoleNFTs = await fetchUserTikiNFTs(api, address);
+
+    // Filter out Welati since it's represented by citizenNFT
+    const roleNFTs = allRoleNFTs.filter(nft => nft.tikiRole !== 'Welati');
 
     return {
       citizenNFT,
-      roleNFTs: [], // Don't show role NFTs because UserTikis doesn't store item IDs
-      totalNFTs: citizenNFT ? 1 : 0
+      roleNFTs,
+      totalNFTs: (citizenNFT ? 1 : 0) + roleNFTs.length
     };
 
   } catch (error) {
