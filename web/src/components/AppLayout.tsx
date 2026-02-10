@@ -19,7 +19,7 @@ import { TreasuryOverview } from './treasury/TreasuryOverview';
 import { FundingProposal } from './treasury/FundingProposal';
 import { SpendingHistory } from './treasury/SpendingHistory';
 import { MultiSigApproval } from './treasury/MultiSigApproval';
-import { ExternalLink, Award, FileEdit, Users2, MessageSquare, ShieldCheck, Wifi, WifiOff, Wallet, DollarSign, PiggyBank, History, Key, TrendingUp, ArrowRightLeft, Lock, LogIn, LayoutDashboard, Settings, Users, Droplet, Mail, Coins } from 'lucide-react';
+import { ExternalLink, Award, FileEdit, Users2, MessageSquare, ShieldCheck, Wifi, WifiOff, Wallet, DollarSign, PiggyBank, History, Key, TrendingUp, ArrowRightLeft, Lock, LogIn, LayoutDashboard, Settings, Users, Droplet, Mail, Coins, Menu, X } from 'lucide-react';
 import GovernanceInterface from './GovernanceInterface';
 import RewardDistribution from './RewardDistribution';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -27,7 +27,7 @@ import { useWebSocket } from '@/contexts/WebSocketContext';
 import { StakingDashboard } from './staking/StakingDashboard';
 import { MultiSigWallet } from './wallet/MultiSigWallet';
 import { useWallet } from '@/contexts/WalletContext';
-import { PezkuwiWalletButton } from './PezkuwiWalletButton';
+import { WalletConnectModal } from './WalletConnectModal';
 import { DEXDashboard } from './dex/DEXDashboard';
 import { P2PDashboard } from './p2p/P2PDashboard';
 import EducationPlatform from '../pages/EducationPlatform';
@@ -47,6 +47,7 @@ const AppLayout: React.FC = () => {
   const [showDEX, setShowDEX] = useState(false);
   const [showEducation, setShowEducation] = useState(false);
   const [showP2P, setShowP2P] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { t } = useTranslation();
   const { isConnected } = useWebSocket();
   useWallet();
@@ -69,8 +70,19 @@ const AppLayout: React.FC = () => {
                 PezkuwiChain
               </span>
             </div>
-            
-            {/* CENTER & RIGHT: Menu + Actions in same row */}
+
+            {/* Mobile: Hamburger + Wallet */}
+            <div className="flex lg:hidden items-center gap-2">
+              <WalletConnectModal />
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
+              >
+                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
+            </div>
+
+            {/* CENTER & RIGHT: Menu + Actions in same row (Desktop only) */}
             <div className="hidden lg:flex items-center space-x-4 flex-1 justify-start ml-8 pr-4">
               {user ? (
                 <>
@@ -270,11 +282,166 @@ const AppLayout: React.FC = () => {
 
               <NotificationBell />
               <LanguageSwitcher />
-              <PezkuwiWalletButton />
+              <WalletConnectModal />
             </div>
           </div>
         </div>
       </nav>
+
+      {/* Mobile Menu Panel */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-30 lg:hidden">
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+
+          {/* Menu Panel */}
+          <div className="fixed top-16 right-0 bottom-0 w-72 bg-gray-900 border-l border-gray-800 overflow-y-auto">
+            <div className="p-4 space-y-2">
+              {user ? (
+                <>
+                  <button
+                    onClick={() => { navigate('/dashboard'); setMobileMenuOpen(false); }}
+                    className="w-full text-left px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-3"
+                  >
+                    <LayoutDashboard className="w-5 h-5" />
+                    Dashboard
+                  </button>
+
+                  <button
+                    onClick={() => { navigate('/wallet'); setMobileMenuOpen(false); }}
+                    className="w-full text-left px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-3"
+                  >
+                    <Wallet className="w-5 h-5" />
+                    Wallet
+                  </button>
+
+                  <button
+                    onClick={() => { navigate('/citizens'); setMobileMenuOpen(false); }}
+                    className="w-full text-left px-4 py-3 rounded-lg text-cyan-400 hover:bg-gray-800 flex items-center gap-3"
+                  >
+                    <Users className="w-5 h-5" />
+                    Citizens Portal
+                  </button>
+
+                  <button
+                    onClick={() => { navigate('/be-citizen'); setMobileMenuOpen(false); }}
+                    className="w-full text-left px-4 py-3 rounded-lg text-cyan-300 hover:bg-gray-800 flex items-center gap-3"
+                  >
+                    <Users className="w-5 h-5" />
+                    Be Citizen
+                  </button>
+
+                  <div className="border-t border-gray-800 my-2" />
+
+                  <div className="px-4 py-2 text-xs text-gray-500 uppercase tracking-wider">Governance</div>
+                  <button
+                    onClick={() => { setShowProposalWizard(true); setMobileMenuOpen(false); }}
+                    className="w-full text-left px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-3"
+                  >
+                    <FileEdit className="w-5 h-5" />
+                    Proposals
+                  </button>
+                  <button
+                    onClick={() => { setShowDelegation(true); setMobileMenuOpen(false); }}
+                    className="w-full text-left px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-3"
+                  >
+                    <Users2 className="w-5 h-5" />
+                    Delegation
+                  </button>
+                  <button
+                    onClick={() => { setShowTreasury(true); setMobileMenuOpen(false); }}
+                    className="w-full text-left px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-3"
+                  >
+                    <PiggyBank className="w-5 h-5" />
+                    Treasury
+                  </button>
+
+                  <div className="border-t border-gray-800 my-2" />
+
+                  <div className="px-4 py-2 text-xs text-gray-500 uppercase tracking-wider">Trading</div>
+                  <button
+                    onClick={() => { setShowDEX(true); setMobileMenuOpen(false); }}
+                    className="w-full text-left px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-3"
+                  >
+                    <Droplet className="w-5 h-5" />
+                    DEX Pools
+                  </button>
+                  <button
+                    onClick={() => { navigate('/p2p'); setMobileMenuOpen(false); }}
+                    className="w-full text-left px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-3"
+                  >
+                    <ArrowRightLeft className="w-5 h-5" />
+                    P2P
+                  </button>
+                  <button
+                    onClick={() => { navigate('/presale'); setMobileMenuOpen(false); }}
+                    className="w-full text-left px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-3"
+                  >
+                    <Coins className="w-5 h-5" />
+                    Presale
+                  </button>
+                  <button
+                    onClick={() => { setShowStaking(true); setMobileMenuOpen(false); }}
+                    className="w-full text-left px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-3"
+                  >
+                    <TrendingUp className="w-5 h-5" />
+                    Staking
+                  </button>
+
+                  <div className="border-t border-gray-800 my-2" />
+
+                  <button
+                    onClick={() => { navigate('/profile/settings'); setMobileMenuOpen(false); }}
+                    className="w-full text-left px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-3"
+                  >
+                    <Settings className="w-5 h-5" />
+                    Settings
+                  </button>
+
+                  <button
+                    onClick={async () => { await signOut(); navigate('/login'); setMobileMenuOpen(false); }}
+                    className="w-full text-left px-4 py-3 rounded-lg text-red-400 hover:bg-gray-800 flex items-center gap-3"
+                  >
+                    <LogIn className="w-5 h-5 rotate-180" />
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => { navigate('/be-citizen'); setMobileMenuOpen(false); }}
+                    className="w-full text-left px-4 py-3 rounded-lg text-cyan-300 hover:bg-gray-800 flex items-center gap-3"
+                  >
+                    <Users className="w-5 h-5" />
+                    Be Citizen
+                  </button>
+                  <button
+                    onClick={() => { navigate('/login'); setMobileMenuOpen(false); }}
+                    className="w-full text-left px-4 py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white flex items-center gap-3"
+                  >
+                    <LogIn className="w-5 h-5" />
+                    Login
+                  </button>
+                </>
+              )}
+
+              <div className="border-t border-gray-800 my-2" />
+
+              <a
+                href="/docs"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full text-left px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-3"
+              >
+                <ExternalLink className="w-5 h-5" />
+                Docs
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <main>
