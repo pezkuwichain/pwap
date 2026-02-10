@@ -470,7 +470,7 @@ export default function Citizens() {
             </div>
 
             {/* Main Content Area */}
-            <div className="absolute top-16 bottom-10 left-0 right-0 px-5 flex">
+            <div className="absolute top-16 bottom-10 left-0 right-0 px-5 flex flex-col sm:flex-row">
 
               {/* Left Section - Photo */}
               <div className="w-1/4 flex flex-col items-center justify-center">
@@ -550,20 +550,20 @@ export default function Citizens() {
               </div>
 
               {/* Right Section - NFT & ID Numbers */}
-              <div className="w-1/4 flex flex-col justify-center items-center space-y-2">
+              <div className="w-full sm:w-1/4 flex flex-row sm:flex-col justify-center items-center gap-2 sm:space-y-2 mt-2 sm:mt-0">
                 {/* NFT Badge */}
-                <div className="bg-gradient-to-br from-green-700 to-green-900 rounded-xl p-3 text-center shadow-lg w-full max-w-[110px]">
-                  <div className="text-[9px] text-green-200 font-medium uppercase tracking-wider">NFT ID</div>
-                  <div className="text-white font-bold text-sm mt-1">
+                <div className="bg-gradient-to-br from-green-700 to-green-900 rounded-xl p-2 sm:p-3 text-center shadow-lg flex-1 sm:w-full sm:max-w-[110px]">
+                  <div className="text-[8px] sm:text-[9px] text-green-200 font-medium uppercase tracking-wider">NFT ID</div>
+                  <div className="text-white font-bold text-xs sm:text-sm mt-1">
                     {nftDetails.citizenNFT ? `#${nftDetails.citizenNFT.collectionId}-${nftDetails.citizenNFT.itemId}` : 'N/A'}
                   </div>
                 </div>
 
                 {/* Citizen Number Badge */}
-                <div className="bg-gradient-to-br from-red-700 to-red-900 rounded-xl p-3 text-center shadow-lg w-full max-w-[110px]">
-                  <div className="text-[9px] text-red-200 font-medium uppercase tracking-wider">Hejmara Welatî</div>
-                  <div className="text-[8px] text-red-300 mb-1">Citizen No</div>
-                  <div className="text-white font-bold text-[11px]">
+                <div className="bg-gradient-to-br from-red-700 to-red-900 rounded-xl p-2 sm:p-3 text-center shadow-lg flex-1 sm:w-full sm:max-w-[110px]">
+                  <div className="text-[8px] sm:text-[9px] text-red-200 font-medium uppercase tracking-wider">Hejmara Welatî</div>
+                  <div className="text-[7px] sm:text-[8px] text-red-300 mb-1">Citizen No</div>
+                  <div className="text-white font-bold text-[10px] sm:text-[11px]">
                     {nftDetails.citizenNFT ? `#${nftDetails.citizenNFT.collectionId}-${nftDetails.citizenNFT.itemId}-${citizenNumber}` : 'N/A'}
                   </div>
                 </div>
@@ -571,7 +571,7 @@ export default function Citizens() {
                 {/* Verified Badge */}
                 <div className="flex items-center gap-1 bg-white/90 rounded-full px-2 py-1 shadow">
                   <ShieldCheck className="h-3 w-3 text-green-600" />
-                  <span className="text-[9px] font-semibold text-green-700">VERIFIED</span>
+                  <span className="text-[8px] sm:text-[9px] font-semibold text-green-700">VERIFIED</span>
                 </div>
               </div>
             </div>

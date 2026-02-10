@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { Wallet, Check, ExternalLink, Copy, LogOut } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export const PezkuwiWalletButton: React.FC = () => {
   const {
@@ -24,6 +25,7 @@ export const PezkuwiWalletButton: React.FC = () => {
 
   const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   const handleConnect = async () => {
     await connectWallet();
@@ -70,12 +72,17 @@ export const PezkuwiWalletButton: React.FC = () => {
           variant="outline"
           className="bg-green-500/20 border-green-500/50 text-green-400 hover:bg-green-500/30"
           onClick={() => setIsOpen(true)}
+          size={isMobile ? "icon" : "default"}
         >
-          <Wallet className="w-4 h-4 mr-2" />
-          {selectedAccount.meta.name || 'Account'}
-          <Badge className="ml-2 bg-green-500/30 text-green-300 border-0">
-            {formatAddress(selectedAccount.address)}
-          </Badge>
+          <Wallet className={isMobile ? "w-4 h-4" : "w-4 h-4 mr-2"} />
+          {!isMobile && (
+            <>
+              {selectedAccount.meta.name || 'Account'}
+              <Badge className="ml-2 bg-green-500/30 text-green-300 border-0">
+                {formatAddress(selectedAccount.address)}
+              </Badge>
+            </>
+          )}
         </Button>
         <Button
           variant="ghost"
@@ -169,9 +176,10 @@ export const PezkuwiWalletButton: React.FC = () => {
       <Button
         onClick={handleConnect}
         className="bg-gradient-to-r from-green-600 to-yellow-400 hover:from-green-700 hover:to-yellow-500 text-white"
+        size={isMobile ? "icon" : "default"}
       >
-        <Wallet className="w-4 h-4 mr-2" />
-        Connect Wallet
+        <Wallet className={isMobile ? "w-4 h-4" : "w-4 h-4 mr-2"} />
+        {!isMobile && "Connect Wallet"}
       </Button>
 
       {error && error.includes('not found') && (

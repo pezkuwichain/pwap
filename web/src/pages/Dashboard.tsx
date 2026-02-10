@@ -530,12 +530,12 @@ export default function Dashboard() {
       </div>
 
       <Tabs defaultValue="profile" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="profile">Profile</TabsTrigger>
-          <TabsTrigger value="roles">Roles & Tikis</TabsTrigger>
-          <TabsTrigger value="referrals">Referrals</TabsTrigger>
-          <TabsTrigger value="security">Security</TabsTrigger>
-          <TabsTrigger value="activity">Activity</TabsTrigger>
+        <TabsList className="flex flex-wrap gap-1">
+          <TabsTrigger value="profile" className="text-xs sm:text-sm px-2 sm:px-3">Profile</TabsTrigger>
+          <TabsTrigger value="roles" className="text-xs sm:text-sm px-2 sm:px-3">Roles & Tikis</TabsTrigger>
+          <TabsTrigger value="referrals" className="text-xs sm:text-sm px-2 sm:px-3">Referrals</TabsTrigger>
+          <TabsTrigger value="security" className="text-xs sm:text-sm px-2 sm:px-3">Security</TabsTrigger>
+          <TabsTrigger value="activity" className="text-xs sm:text-sm px-2 sm:px-3">Activity</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile" className="space-y-4">
