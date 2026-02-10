@@ -27,7 +27,7 @@ import { useWebSocket } from '@/contexts/WebSocketContext';
 import { StakingDashboard } from './staking/StakingDashboard';
 import { MultiSigWallet } from './wallet/MultiSigWallet';
 import { useWallet } from '@/contexts/WalletContext';
-import { WalletConnectModal } from './WalletConnectModal';
+import { PezkuwiWalletButton } from './PezkuwiWalletButton';
 import { DEXDashboard } from './dex/DEXDashboard';
 import { P2PDashboard } from './p2p/P2PDashboard';
 import EducationPlatform from '../pages/EducationPlatform';
@@ -64,16 +64,16 @@ const AppLayout: React.FC = () => {
       <nav className="fixed top-0 w-full z-40 bg-gray-950/90 backdrop-blur-md border-b border-gray-800">
         <div className="w-full px-4">
           <div className="flex items-center justify-between h-16">
-            {/* LEFT: Logo */}
-            <div className="flex-shrink-0">
+            {/* LEFT: Logo - hidden on mobile */}
+            <div className="flex-shrink-0 hidden lg:block">
               <span className="text-lg font-bold bg-gradient-to-r from-green-500 to-yellow-400 bg-clip-text text-transparent whitespace-nowrap">
                 PezkuwiChain
               </span>
             </div>
 
-            {/* Mobile: Hamburger + Wallet */}
-            <div className="flex lg:hidden items-center gap-2">
-              <WalletConnectModal />
+            {/* Mobile: Wallet + Hamburger */}
+            <div className="flex lg:hidden items-center gap-2 w-full justify-end">
+              <PezkuwiWalletButton />
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
@@ -82,7 +82,7 @@ const AppLayout: React.FC = () => {
               </button>
             </div>
 
-            {/* CENTER & RIGHT: Menu + Actions in same row (Desktop only) */}
+            {/* CENTER & RIGHT: Menu + Actions in same row (Desktop) */}
             <div className="hidden lg:flex items-center space-x-4 flex-1 justify-start ml-8 pr-4">
               {user ? (
                 <>
@@ -282,7 +282,7 @@ const AppLayout: React.FC = () => {
 
               <NotificationBell />
               <LanguageSwitcher />
-              <WalletConnectModal />
+              <PezkuwiWalletButton />
             </div>
           </div>
         </div>
@@ -291,13 +291,10 @@ const AppLayout: React.FC = () => {
       {/* Mobile Menu Panel */}
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-30 lg:hidden">
-          {/* Backdrop */}
           <div
             className="fixed inset-0 bg-black/60 backdrop-blur-sm"
             onClick={() => setMobileMenuOpen(false)}
           />
-
-          {/* Menu Panel */}
           <div className="fixed top-16 right-0 bottom-0 w-72 bg-gray-900 border-l border-gray-800 overflow-y-auto">
             <div className="p-4 space-y-2">
               {user ? (
@@ -309,7 +306,6 @@ const AppLayout: React.FC = () => {
                     <LayoutDashboard className="w-5 h-5" />
                     Dashboard
                   </button>
-
                   <button
                     onClick={() => { navigate('/wallet'); setMobileMenuOpen(false); }}
                     className="w-full text-left px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-3"
@@ -317,7 +313,6 @@ const AppLayout: React.FC = () => {
                     <Wallet className="w-5 h-5" />
                     Wallet
                   </button>
-
                   <button
                     onClick={() => { navigate('/citizens'); setMobileMenuOpen(false); }}
                     className="w-full text-left px-4 py-3 rounded-lg text-cyan-400 hover:bg-gray-800 flex items-center gap-3"
@@ -325,7 +320,6 @@ const AppLayout: React.FC = () => {
                     <Users className="w-5 h-5" />
                     Citizens Portal
                   </button>
-
                   <button
                     onClick={() => { navigate('/be-citizen'); setMobileMenuOpen(false); }}
                     className="w-full text-left px-4 py-3 rounded-lg text-cyan-300 hover:bg-gray-800 flex items-center gap-3"
@@ -333,9 +327,7 @@ const AppLayout: React.FC = () => {
                     <Users className="w-5 h-5" />
                     Be Citizen
                   </button>
-
                   <div className="border-t border-gray-800 my-2" />
-
                   <div className="px-4 py-2 text-xs text-gray-500 uppercase tracking-wider">Governance</div>
                   <button
                     onClick={() => { setShowProposalWizard(true); setMobileMenuOpen(false); }}
@@ -358,9 +350,7 @@ const AppLayout: React.FC = () => {
                     <PiggyBank className="w-5 h-5" />
                     Treasury
                   </button>
-
                   <div className="border-t border-gray-800 my-2" />
-
                   <div className="px-4 py-2 text-xs text-gray-500 uppercase tracking-wider">Trading</div>
                   <button
                     onClick={() => { setShowDEX(true); setMobileMenuOpen(false); }}
@@ -390,9 +380,7 @@ const AppLayout: React.FC = () => {
                     <TrendingUp className="w-5 h-5" />
                     Staking
                   </button>
-
                   <div className="border-t border-gray-800 my-2" />
-
                   <button
                     onClick={() => { navigate('/profile/settings'); setMobileMenuOpen(false); }}
                     className="w-full text-left px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-3"
@@ -400,7 +388,6 @@ const AppLayout: React.FC = () => {
                     <Settings className="w-5 h-5" />
                     Settings
                   </button>
-
                   <button
                     onClick={async () => { await signOut(); navigate('/login'); setMobileMenuOpen(false); }}
                     className="w-full text-left px-4 py-3 rounded-lg text-red-400 hover:bg-gray-800 flex items-center gap-3"
@@ -427,9 +414,7 @@ const AppLayout: React.FC = () => {
                   </button>
                 </>
               )}
-
               <div className="border-t border-gray-800 my-2" />
-
               <a
                 href="/docs"
                 onClick={() => setMobileMenuOpen(false)}
