@@ -408,7 +408,7 @@ export default function Citizens() {
                     </div>
                   </div>
                   <div>
-                    <div className="text-white font-bold text-sm tracking-wider">KOMARGEHA KURDISTANÊ</div>
+                    <div className="text-white font-bold text-sm tracking-wider">KOMARÎ KURDISTAN</div>
                     <div className="text-green-200 text-[10px] tracking-wide">REPUBLIC OF KURDISTAN</div>
                   </div>
                 </div>
