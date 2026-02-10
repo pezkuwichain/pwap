@@ -373,76 +373,84 @@ export default function Citizens() {
           </Card>
         </div>
 
-        {/* Digital Citizen ID Card */}
-        <div className="max-w-2xl mx-auto bg-white rounded-2xl p-2 shadow-2xl">
-          <div className="relative">
-            {/* Background card image */}
-            <img
-              src="/shared/digital_citizen_card.png"
-              alt="Digital Citizen Card"
-              className="w-full h-auto rounded-xl"
+        {/* Digital Citizen ID Card - Pure HTML/CSS Design */}
+        <div className="max-w-2xl mx-auto">
+          <div
+            className="relative rounded-2xl overflow-hidden shadow-2xl"
+            style={{
+              background: 'linear-gradient(135deg, #166534 0%, #16a34a 15%, #ffffff 35%, #ffffff 65%, #dc2626 85%, #991b1b 100%)',
+              aspectRatio: '1.586/1'
+            }}
+          >
+            {/* Security Pattern Overlay */}
+            <div
+              className="absolute inset-0 opacity-[0.03]"
+              style={{
+                backgroundImage: `repeating-linear-gradient(
+                  45deg,
+                  transparent,
+                  transparent 10px,
+                  #000 10px,
+                  #000 11px
+                )`
+              }}
             />
 
-            {/* Overlay content on the card */}
-            <div className="absolute inset-0">
-              {/* Left side - NFT ID box (below "NFT" text) */}
-              <div className="absolute" style={{ left: '7%', top: '57%', width: '18%' }}>
-                <div className="bg-white/10 backdrop-blur-sm rounded px-2 py-1 text-center">
-                  <div className="text-[8px] font-semibold text-gray-800">NFT ID</div>
-                  <div className="text-[11px] font-bold text-black">
-                    {nftDetails.citizenNFT ? `#${nftDetails.citizenNFT.collectionId}-${nftDetails.citizenNFT.itemId}` : 'N/A'}
-                  </div>
-                  <div className="border-t border-gray-400 mt-0.5 pt-0.5">
-                    <div className="text-[7px] text-gray-700">Citizen No</div>
-                    <div className="text-[9px] font-semibold text-black">
-                      {nftDetails.citizenNFT ? `#${nftDetails.citizenNFT.collectionId}-${nftDetails.citizenNFT.itemId}-${citizenNumber}` : 'N/A'}
+            {/* Top Header Band */}
+            <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-green-800 via-green-700 to-green-800 py-3 px-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  {/* Sun Symbol */}
+                  <div className="relative">
+                    <Sun className="h-8 w-8 text-yellow-400 drop-shadow-lg" />
+                    <div className="absolute inset-0 animate-pulse">
+                      <Sun className="h-8 w-8 text-yellow-300 opacity-50" />
                     </div>
                   </div>
-                </div>
-              </div>
-
-              {/* Middle - Identity information (3 lines matching the gray bars) */}
-              <div className="absolute" style={{ left: '30%', top: '40%', width: '38%' }}>
-                <div className="flex flex-col">
-                  <div className="px-2 py-0.5">
-                    <div className="text-[7px] text-gray-600 uppercase tracking-wide">Name</div>
-                    <div className="text-[10px] font-bold text-black truncate">{profile?.full_name || 'N/A'}</div>
-                  </div>
-                  <div className="px-2 py-0.5" style={{ marginTop: '30px' }}>
-                    <div className="text-[7px] text-gray-600 uppercase tracking-wide">Father&apos;s Name</div>
-                    <div className="text-[10px] font-bold text-black truncate">{profile?.father_name || 'N/A'}</div>
-                  </div>
-                  <div className="px-2 py-0.5" style={{ marginTop: '27px' }}>
-                    <div className="text-[7px] text-gray-600 uppercase tracking-wide">Location</div>
-                    <div className="text-[10px] font-bold text-black truncate">{profile?.location || 'N/A'}</div>
+                  <div>
+                    <div className="text-white font-bold text-sm tracking-wider">KOMARGEHA KURDISTANÊ</div>
+                    <div className="text-green-200 text-[10px] tracking-wide">REPUBLIC OF KURDISTAN</div>
                   </div>
                 </div>
+                <div className="text-right">
+                  <div className="text-yellow-400 font-bold text-xs">NASNAMEYA DÎJÎTAL</div>
+                  <div className="text-green-200 text-[10px]">DIGITAL IDENTITY CARD</div>
+                </div>
               </div>
+            </div>
 
-              {/* Right side - Photo placeholder */}
-              <div className="absolute" style={{ right: '7%', top: '39%', width: '18%', height: '35%' }}>
-                <div className="relative w-full h-full bg-white/10 backdrop-blur-sm border border-white/30 rounded overflow-hidden group">
-                  {photoUrl ? (
-                    <img src={photoUrl} alt="Citizen Photo" className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <User className="w-8 h-8 text-white/50" />
+            {/* Main Content Area */}
+            <div className="absolute top-16 bottom-10 left-0 right-0 px-5 flex">
+
+              {/* Left Section - Photo */}
+              <div className="w-1/4 flex flex-col items-center justify-center">
+                <div className="relative w-full aspect-[3/4] max-w-[120px] group">
+                  {/* Photo Frame */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-green-600 to-red-600 rounded-lg p-[2px]">
+                    <div className="w-full h-full bg-white rounded-lg overflow-hidden flex items-center justify-center">
+                      {photoUrl ? (
+                        <img src={photoUrl} alt="Citizen Photo" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                          <User className="w-12 h-12 text-gray-300" />
+                        </div>
+                      )}
                     </div>
-                  )}
-                  {/* Upload button overlay */}
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  </div>
+                  {/* Upload Overlay */}
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
                     <Button
                       size="sm"
                       variant="ghost"
                       onClick={() => fileInputRef.current?.click()}
                       disabled={uploadingPhoto}
-                      className="text-white text-[6px] px-1 py-0.5 h-auto"
+                      className="text-white text-xs px-2 py-1 h-auto hover:bg-white/20"
                     >
                       {uploadingPhoto ? (
-                        <div className="animate-spin h-3 w-3 border border-white rounded-full border-t-transparent"></div>
+                        <div className="animate-spin h-4 w-4 border-2 border-white rounded-full border-t-transparent" />
                       ) : (
                         <>
-                          <Upload className="h-3 w-3 mr-0.5" />
+                          <Upload className="h-4 w-4 mr-1" />
                           Upload
                         </>
                       )}
@@ -457,7 +465,75 @@ export default function Citizens() {
                   />
                 </div>
               </div>
+
+              {/* Middle Section - Personal Info */}
+              <div className="flex-1 px-4 flex flex-col justify-center space-y-3">
+                {/* Name */}
+                <div className="bg-white/80 backdrop-blur-sm rounded-lg px-3 py-2 border-l-4 border-green-600 shadow-sm">
+                  <div className="text-[10px] text-gray-500 uppercase tracking-wider font-medium">Nav / Name</div>
+                  <div className="text-sm font-bold text-gray-800 truncate">{profile?.full_name || 'N/A'}</div>
+                </div>
+
+                {/* Father's Name */}
+                <div className="bg-white/80 backdrop-blur-sm rounded-lg px-3 py-2 border-l-4 border-yellow-500 shadow-sm">
+                  <div className="text-[10px] text-gray-500 uppercase tracking-wider font-medium">Navê Bav / Father&apos;s Name</div>
+                  <div className="text-sm font-bold text-gray-800 truncate">{profile?.father_name || 'N/A'}</div>
+                </div>
+
+                {/* Location */}
+                <div className="bg-white/80 backdrop-blur-sm rounded-lg px-3 py-2 border-l-4 border-red-600 shadow-sm">
+                  <div className="text-[10px] text-gray-500 uppercase tracking-wider font-medium">Cih / Location</div>
+                  <div className="text-sm font-bold text-gray-800 truncate">{profile?.location || 'N/A'}</div>
+                </div>
+              </div>
+
+              {/* Right Section - NFT & ID Numbers */}
+              <div className="w-1/4 flex flex-col justify-center items-center space-y-2">
+                {/* NFT Badge */}
+                <div className="bg-gradient-to-br from-green-700 to-green-900 rounded-xl p-3 text-center shadow-lg w-full max-w-[110px]">
+                  <div className="text-[9px] text-green-200 font-medium uppercase tracking-wider">NFT ID</div>
+                  <div className="text-white font-bold text-sm mt-1">
+                    {nftDetails.citizenNFT ? `#${nftDetails.citizenNFT.collectionId}-${nftDetails.citizenNFT.itemId}` : 'N/A'}
+                  </div>
+                </div>
+
+                {/* Citizen Number Badge */}
+                <div className="bg-gradient-to-br from-red-700 to-red-900 rounded-xl p-3 text-center shadow-lg w-full max-w-[110px]">
+                  <div className="text-[9px] text-red-200 font-medium uppercase tracking-wider">Hejmara Welatî</div>
+                  <div className="text-[8px] text-red-300 mb-1">Citizen No</div>
+                  <div className="text-white font-bold text-[11px]">
+                    {nftDetails.citizenNFT ? `#${nftDetails.citizenNFT.collectionId}-${nftDetails.citizenNFT.itemId}-${citizenNumber}` : 'N/A'}
+                  </div>
+                </div>
+
+                {/* Verified Badge */}
+                <div className="flex items-center gap-1 bg-white/90 rounded-full px-2 py-1 shadow">
+                  <ShieldCheck className="h-3 w-3 text-green-600" />
+                  <span className="text-[9px] font-semibold text-green-700">VERIFIED</span>
+                </div>
+              </div>
             </div>
+
+            {/* Bottom Footer Band */}
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-r from-red-800 via-red-700 to-red-800 py-2 px-4">
+              <div className="flex items-center justify-between text-[9px]">
+                <div className="text-red-200">
+                  <span className="font-medium">Blockchain:</span> Pezkuwichain People
+                </div>
+                <div className="text-yellow-400 font-bold tracking-wider">
+                  BIJÎ KURDISTAN
+                </div>
+                <div className="text-red-200">
+                  <span className="font-medium">Type:</span> Welati NFT
+                </div>
+              </div>
+            </div>
+
+            {/* Corner Decorations */}
+            <div className="absolute top-14 left-2 w-6 h-6 border-l-2 border-t-2 border-green-600/30 rounded-tl-lg" />
+            <div className="absolute top-14 right-2 w-6 h-6 border-r-2 border-t-2 border-red-600/30 rounded-tr-lg" />
+            <div className="absolute bottom-8 left-2 w-6 h-6 border-l-2 border-b-2 border-green-600/30 rounded-bl-lg" />
+            <div className="absolute bottom-8 right-2 w-6 h-6 border-r-2 border-b-2 border-red-600/30 rounded-br-lg" />
           </div>
         </div>
 
