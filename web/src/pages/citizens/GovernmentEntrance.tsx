@@ -191,7 +191,7 @@ export default function GovernmentEntrance() {
       // KONTROL 2: Hükümet yetkili Tiki kontrolü
       const userTikis = nftDetails.roleNFTs || [];  // DashboardContext'te roleNFTs olarak geliyor
       const hasAuthorizedTiki = userTikis.some(tiki =>
-        GOVERNMENT_AUTHORIZED_TIKIS.includes(tiki.tiki_type)
+        GOVERNMENT_AUTHORIZED_TIKIS.includes(tiki.tikiRole)
       );
 
       if (!hasAuthorizedTiki) {
