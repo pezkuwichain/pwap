@@ -228,9 +228,8 @@ export default function Citizens() {
       return;
     }
 
-    // Show citizen number verification dialog for Government
-    setDialogType('gov');
-    setShowGovDialog(true);
+    // Navigate directly - GovernmentEntrance will handle verification
+    navigate('/citizens/government');
   };
 
   const handleVerifyCitizenNumber = () => {

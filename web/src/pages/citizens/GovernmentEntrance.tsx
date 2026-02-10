@@ -190,14 +190,25 @@ export default function GovernmentEntrance() {
 
       // KONTROL 2: Hükümet yetkili Tiki kontrolü
       const userTikis = nftDetails.roleNFTs || [];  // DashboardContext'te roleNFTs olarak geliyor
+
+      // Debug logging
+      console.log('=== Government Access Debug ===');
+      console.log('roleNFTs:', userTikis);
+      console.log('roleNFTs count:', userTikis.length);
+      userTikis.forEach((tiki, i) => {
+        console.log(`roleNFT[${i}]:`, tiki.tikiRole, tiki);
+      });
+      console.log('GOVERNMENT_AUTHORIZED_TIKIS:', GOVERNMENT_AUTHORIZED_TIKIS);
+
       const hasAuthorizedTiki = userTikis.some(tiki =>
         GOVERNMENT_AUTHORIZED_TIKIS.includes(tiki.tikiRole)
       );
+      console.log('hasAuthorizedTiki:', hasAuthorizedTiki);
 
       if (!hasAuthorizedTiki) {
         toast({
           title: "Mafê Te Tuneye (No Authorization)",
-          description: "Hûn xwedîyê Tiki-yeke hikûmetê nînin. Tenê xwedîyên Tiki-yên hikûmetê dikarin vê rûpelê bigihînin (You do not own a government Tiki. Only government Tiki holders can access this page)",
+          description: `Hûn xwedîyê Tiki-yeke hikûmetê nînin. Tikiyên we: ${userTikis.map(t => t.tikiRole).join(', ') || 'tune'}`,
           variant: "destructive"
         });
         setIsVerifying(false);
