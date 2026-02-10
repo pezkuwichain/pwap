@@ -151,6 +151,13 @@ export default function Citizens() {
   }
 
   const handleCitizensIssue = () => {
+    // Debug log to understand the issue
+    console.log('handleCitizensIssue called', {
+      nftDetails,
+      citizenNFT: nftDetails.citizenNFT,
+      loading
+    });
+
     // Check if user has Tiki NFT
     if (!nftDetails.citizenNFT) {
       toast({
