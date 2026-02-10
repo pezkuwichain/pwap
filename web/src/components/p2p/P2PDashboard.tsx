@@ -82,7 +82,7 @@ export function P2PDashboard() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
         <Button
           variant="ghost"
           onClick={() => navigate('/')}
@@ -91,7 +91,7 @@ export function P2PDashboard() {
           <Home className="w-4 h-4 mr-2" />
           Back to Home
         </Button>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <NotificationBell />
           <Button
             variant="outline"
@@ -168,12 +168,12 @@ export function P2PDashboard() {
         </div>
       )}
 
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-4xl font-bold text-white">P2P Trading</h1>
-          <p className="text-gray-400">Buy and sell crypto with your local currency.</p>
+          <h1 className="text-3xl sm:text-4xl font-bold text-white">P2P Trading</h1>
+          <p className="text-gray-400 text-sm sm:text-base">Buy and sell crypto with your local currency.</p>
         </div>
-        <Button onClick={() => setShowCreateAd(true)}>
+        <Button onClick={() => setShowCreateAd(true)} className="w-full sm:w-auto">
           <PlusCircle className="w-4 h-4 mr-2" />
           Post a New Ad
         </Button>
@@ -187,17 +187,17 @@ export function P2PDashboard() {
           <QuickFilterBar filters={filters} onFiltersChange={setFilters} />
 
           <Tabs defaultValue="buy">
-            <TabsList className="grid w-full grid-cols-5">
-              <TabsTrigger value="express" className="flex items-center gap-1">
+            <TabsList className="grid w-full grid-cols-5 overflow-x-auto scrollbar-hide">
+              <TabsTrigger value="express" className="flex items-center gap-1 text-xs sm:text-sm px-1 sm:px-3">
                 <Zap className="w-3 h-3" />
-                Express
+                <span className="hidden xs:inline">Express</span>
               </TabsTrigger>
-              <TabsTrigger value="buy">Buy</TabsTrigger>
-              <TabsTrigger value="sell">Sell</TabsTrigger>
-              <TabsTrigger value="my-ads">My Ads</TabsTrigger>
-              <TabsTrigger value="otc" className="flex items-center gap-1">
+              <TabsTrigger value="buy" className="text-xs sm:text-sm px-1 sm:px-3">Buy</TabsTrigger>
+              <TabsTrigger value="sell" className="text-xs sm:text-sm px-1 sm:px-3">Sell</TabsTrigger>
+              <TabsTrigger value="my-ads" className="text-xs sm:text-sm px-1 sm:px-3">My Ads</TabsTrigger>
+              <TabsTrigger value="otc" className="flex items-center gap-1 text-xs sm:text-sm px-1 sm:px-3">
                 <Blocks className="w-3 h-3" />
-                OTC
+                <span className="hidden xs:inline">OTC</span>
               </TabsTrigger>
             </TabsList>
             <TabsContent value="express">

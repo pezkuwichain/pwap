@@ -30,7 +30,14 @@ export default defineConfig(() => ({
   },
   plugins: [
     react(),
-    nodePolyfills(),
+    nodePolyfills({
+      globals: {
+        Buffer: true,
+        global: true,
+        process: true,
+      },
+      protocolImports: true,
+    }),
   ].filter(Boolean),
   resolve: {
     mainFields: ['module', 'main', 'exports'],
@@ -43,10 +50,6 @@ export default defineConfig(() => ({
       "@local/types": path.resolve(__dirname, "../shared/types"),
       "@pezkuwi/components": path.resolve(__dirname, "../shared/components"),
       "@shared": path.resolve(__dirname, "../shared"),
-      // Node polyfill shims for shared folder (outside web workspace)
-      'vite-plugin-node-polyfills/shims/buffer': path.resolve(__dirname, './src/tests/mocks/buffer-shim.ts'),
-      'vite-plugin-node-polyfills/shims/global': path.resolve(__dirname, './src/tests/mocks/global-shim.ts'),
-      'vite-plugin-node-polyfills/shims/process': path.resolve(__dirname, './src/tests/mocks/process-shim.ts'),
     },
     dedupe: ['react', 'lucide-react', 'sonner', '@pezkuwi/util-crypto', '@pezkuwi/util', '@pezkuwi/api', '@pezkuwi/extension-dapp', '@pezkuwi/keyring'],
   },

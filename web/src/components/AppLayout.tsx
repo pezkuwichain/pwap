@@ -72,11 +72,11 @@ const AppLayout: React.FC = () => {
             </div>
 
             {/* Mobile: Wallet + Hamburger */}
-            <div className="flex lg:hidden items-center gap-2 w-full justify-end">
+            <div className="flex lg:hidden items-center gap-2 ml-auto">
               <PezkuwiWalletButton />
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
+                className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors flex-shrink-0"
               >
                 {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </button>

@@ -137,7 +137,7 @@ export const DEXDashboard: React.FC = () => {
                     <p className="text-gray-400 mb-6">
                       Mint wrapped tokens for testing and liquidity provision
                     </p>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                       <button
                         onClick={() => setShowInitializeUsdtModal(true)}
                         className="flex items-center justify-center gap-2 px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium"

@@ -27,11 +27,11 @@ const BeCitizen: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-green-700 via-white to-red-600">
       <div className="container mx-auto px-4 py-16">
         {/* Back to Home Button and Invite Friend */}
-        <div className="mb-8 flex justify-between items-center">
+        <div className="mb-8 flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center">
           <Button
             onClick={() => navigate('/')}
             variant="outline"
-            className="bg-red-600 hover:bg-red-700 border-yellow-400 border-2 text-white font-semibold shadow-lg"
+            className="w-full sm:w-auto bg-red-600 hover:bg-red-700 border-yellow-400 border-2 text-white font-semibold shadow-lg"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Home
@@ -39,7 +39,7 @@ const BeCitizen: React.FC = () => {
 
           <Button
             onClick={() => setIsInviteModalOpen(true)}
-            className="bg-green-600 hover:bg-green-700 border-yellow-400 border-2 text-white font-semibold shadow-lg"
+            className="w-full sm:w-auto bg-green-600 hover:bg-green-700 border-yellow-400 border-2 text-white font-semibold shadow-lg"
           >
             <UserPlus className="mr-2 h-4 w-4" />
             Invite Friend
