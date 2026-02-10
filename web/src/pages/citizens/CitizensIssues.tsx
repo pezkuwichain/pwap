@@ -100,6 +100,8 @@ export default function CitizensIssues() {
   const [filteredIssues, setFilteredIssues] = useState<Issue[]>([]);
   const [userVotes, setUserVotes] = useState<Map<number, boolean>>(new Map());
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [newIssueDescription, setNewIssueDescription] = useState('');
   const [newIssueCategory, setNewIssueCategory] = useState('Governance');
@@ -138,7 +140,7 @@ export default function CitizensIssues() {
   useEffect(() => {
     applyFilters();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [issues, categorystatussearchQuery]);
+  }, [issues, categoryFilter, statusFilter, searchQuery]);
 
   const fetchAllData = async () => {
     setLoading(true);
