@@ -3,15 +3,23 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
-import { useAuth } from '@/contexts/AuthContext';
 import { useDashboard } from '@/contexts/DashboardContext';
-import { FileText, Building2, Home, Bell, ChevronLeft, ChevronRight, Upload, User, Sun, ShieldCheck } from 'lucide-react';
+import { FileText, Building2, Home, Bell, ChevronLeft, ChevronRight, Upload, User, Sun, ShieldCheck, Pencil } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-// import { getCitizenSession } from '@pezkuwi/lib/citizenship-workflow';
 import { getUserRoleCategories } from '@pezkuwi/lib/tiki';
-import { supabase } from '@/lib/supabase';
+
+// LocalStorage key prefix for citizen profile data
+const CITIZEN_PROFILE_KEY = 'citizen_profile_';
+
+interface CitizenProfileData {
+  fullName: string;
+  fatherName: string;
+  location: string;
+  photoUrl: string | null;
+}
 
 // Mock announcements data
 const announcements = [
@@ -37,12 +45,10 @@ const announcements = [
 
 export default function Citizens() {
   const { selectedAccount } = usePezkuwi();
-  const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { profile, nftDetails, citizenNumber, loading } = useDashboard();
+  const { nftDetails, citizenNumber, loading } = useDashboard();
   const [currentAnnouncementIndex, setCurrentAnnouncementIndex] = useState(0);
-  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showGovDialog, setShowGovDialog] = useState(false);
@@ -51,14 +57,67 @@ export default function Citizens() {
   const [isVerifying, setIsVerifying] = useState(false);
   const [dialogType, setDialogType] = useState<'gov' | 'citizens'>('gov');
 
+  // Citizen profile from localStorage
+  const [citizenProfile, setCitizenProfile] = useState<CitizenProfileData>({
+    fullName: '',
+    fatherName: '',
+    location: '',
+    photoUrl: null
+  });
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editForm, setEditForm] = useState<CitizenProfileData>({
+    fullName: '',
+    fatherName: '',
+    location: '',
+    photoUrl: null
+  });
+
+  // Load citizen profile from localStorage on mount
   useEffect(() => {
-    if (profile?.avatar_url) {
-      setPhotoUrl(profile.avatar_url);
+    if (selectedAccount?.address) {
+      const storageKey = CITIZEN_PROFILE_KEY + selectedAccount.address;
+      const savedProfile = localStorage.getItem(storageKey);
+      if (savedProfile) {
+        try {
+          const parsed = JSON.parse(savedProfile) as CitizenProfileData;
+          setCitizenProfile(parsed);
+          setEditForm(parsed);
+        } catch (e) {
+          console.error('Error parsing saved profile:', e);
+        }
+      } else {
+        // No saved profile - prompt user to fill in their info
+        setShowEditModal(true);
+      }
     }
-  }, [profile]);
+  }, [selectedAccount?.address]);
+
+  // Save citizen profile to localStorage
+  const saveCitizenProfile = (data: CitizenProfileData) => {
+    if (selectedAccount?.address) {
+      const storageKey = CITIZEN_PROFILE_KEY + selectedAccount.address;
+      localStorage.setItem(storageKey, JSON.stringify(data));
+      setCitizenProfile(data);
+      toast({
+        title: "Profîl hat tomarkirin (Profile saved)",
+        description: "Zanyariyên we bi serkeftî hatin tomarkirin (Your information has been saved successfully)"
+      });
+    }
+  };
 
   const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (!event.target.files || !event.target.files[0] || !user) return;
+    if (!event.target.files || !event.target.files[0]) {
+      return;
+    }
+
+    if (!selectedAccount?.address) {
+      toast({
+        title: "Cüzdan bağlı değil (Wallet not connected)",
+        description: "Ji kerema xwe wallet-ê xwe girêbide (Please connect your wallet)",
+        variant: "destructive"
+      });
+      return;
+    }
 
     const file = event.target.files[0];
 
@@ -72,11 +131,11 @@ export default function Citizens() {
       return;
     }
 
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
+    // Validate file size (max 2MB for localStorage)
+    if (file.size > 2 * 1024 * 1024) {
       toast({
         title: "Dosya çok büyük (File too large)",
-        description: "Maksimum dosya boyutu 5MB (Maximum file size is 5MB)",
+        description: "Maksimum dosya boyutu 2MB (Maximum file size is 2MB)",
         variant: "destructive"
       });
       return;
@@ -86,44 +145,36 @@ export default function Citizens() {
 
     try {
       // Convert file to base64 data URL
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const dataUrl = reader.result as string;
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          if (reader.result) {
+            resolve(reader.result as string);
+          } else {
+            reject(new Error('Failed to read file'));
+          }
+        };
+        reader.onerror = () => reject(new Error('FileReader error'));
+        reader.readAsDataURL(file);
+      });
 
-        // Update profile with data URL (for now - until storage bucket is created)
-        const { error: updateError } = await supabase
-          .from('profiles')
-          .update({ avatar_url: dataUrl })
-          .eq('id', user.id);
+      // Save to localStorage with profile
+      const updatedProfile = { ...citizenProfile, photoUrl: dataUrl };
+      saveCitizenProfile(updatedProfile);
 
-        if (updateError) throw updateError;
-
-        setPhotoUrl(dataUrl);
-        setUploadingPhoto(false);
-        toast({
-          title: "Fotoğraf yüklendi (Photo uploaded)",
-          description: "Profil fotoğrafınız başarıyla güncellendi (Your profile photo has been updated successfully)"
-        });
-      };
-
-      reader.onerror = () => {
-        setUploadingPhoto(false);
-        toast({
-          title: "Yükleme hatası (Upload error)",
-          description: "Fotoğraf okunamadı (Could not read photo)",
-          variant: "destructive"
-        });
-      };
-
-      reader.readAsDataURL(file);
-    } catch (error) {
-      if (import.meta.env.DEV) console.error('Photo upload error:', error);
-      setUploadingPhoto(false);
       toast({
-        title: "Yükleme hatası (Upload error)",
-        description: error instanceof Error ? error.message : "Fotoğraf yüklenemedi (Could not upload photo)",
+        title: "Wêne hat barkirin (Photo uploaded)",
+        description: "Wêneyê we bi serkeftî hat tomarkirin (Your photo has been saved successfully)"
+      });
+    } catch (error) {
+      console.error('Photo upload error:', error);
+      toast({
+        title: "Xeletiya barkirinê (Upload error)",
+        description: error instanceof Error ? error.message : "Wêne nehat barkirin (Could not upload photo)",
         variant: "destructive"
       });
+    } finally {
+      setUploadingPhoto(false);
     }
   };
 
@@ -428,8 +479,8 @@ export default function Citizens() {
                   {/* Photo Frame */}
                   <div className="absolute inset-0 bg-gradient-to-br from-green-600 to-red-600 rounded-lg p-[2px]">
                     <div className="w-full h-full bg-white rounded-lg overflow-hidden flex items-center justify-center">
-                      {photoUrl ? (
-                        <img src={photoUrl} alt="Citizen Photo" className="w-full h-full object-cover" />
+                      {citizenProfile.photoUrl ? (
+                        <img src={citizenProfile.photoUrl} alt="Citizen Photo" className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full bg-gray-100 flex items-center justify-center">
                           <User className="w-12 h-12 text-gray-300" />
@@ -467,23 +518,35 @@ export default function Citizens() {
               </div>
 
               {/* Middle Section - Personal Info */}
-              <div className="flex-1 px-4 flex flex-col justify-center space-y-3">
+              <div className="flex-1 px-4 flex flex-col justify-center space-y-3 relative">
+                {/* Edit Button */}
+                <button
+                  onClick={() => {
+                    setEditForm(citizenProfile);
+                    setShowEditModal(true);
+                  }}
+                  className="absolute -top-2 right-0 bg-white/90 hover:bg-white rounded-full p-1.5 shadow-md transition-colors"
+                  title="Biguherîne (Edit)"
+                >
+                  <Pencil className="h-3 w-3 text-gray-600" />
+                </button>
+
                 {/* Name */}
                 <div className="bg-white/80 backdrop-blur-sm rounded-lg px-3 py-2 border-l-4 border-green-600 shadow-sm">
                   <div className="text-[10px] text-gray-500 uppercase tracking-wider font-medium">Nav / Name</div>
-                  <div className="text-sm font-bold text-gray-800 truncate">{profile?.full_name || 'N/A'}</div>
+                  <div className="text-sm font-bold text-gray-800 truncate">{citizenProfile.fullName || 'Biguherîne...'}</div>
                 </div>
 
                 {/* Father's Name */}
                 <div className="bg-white/80 backdrop-blur-sm rounded-lg px-3 py-2 border-l-4 border-yellow-500 shadow-sm">
                   <div className="text-[10px] text-gray-500 uppercase tracking-wider font-medium">Navê Bav / Father&apos;s Name</div>
-                  <div className="text-sm font-bold text-gray-800 truncate">{profile?.father_name || 'N/A'}</div>
+                  <div className="text-sm font-bold text-gray-800 truncate">{citizenProfile.fatherName || 'Biguherîne...'}</div>
                 </div>
 
                 {/* Location */}
                 <div className="bg-white/80 backdrop-blur-sm rounded-lg px-3 py-2 border-l-4 border-red-600 shadow-sm">
                   <div className="text-[10px] text-gray-500 uppercase tracking-wider font-medium">Cih / Location</div>
-                  <div className="text-sm font-bold text-gray-800 truncate">{profile?.location || 'N/A'}</div>
+                  <div className="text-sm font-bold text-gray-800 truncate">{citizenProfile.location || 'Biguherîne...'}</div>
                 </div>
               </div>
 
@@ -625,6 +688,82 @@ export default function Citizens() {
               <ShieldCheck className="mr-2 h-5 w-5" />
               {isVerifying ? 'Kontrolkirina... (Verifying...)' : 'Daxelbûn (Enter)'}
             </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Profile Modal */}
+      <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center text-xl font-bold text-gray-800">
+              Zanyariyên Kesane Biguherîne
+            </DialogTitle>
+            <DialogDescription className="text-center text-gray-600">
+              Edit Your Personal Information
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-name" className="text-sm font-medium">
+                Nav / Name
+              </Label>
+              <Input
+                id="edit-name"
+                type="text"
+                placeholder="Navê xwe binivîse..."
+                value={editForm.fullName}
+                onChange={(e) => setEditForm({ ...editForm, fullName: e.target.value })}
+                className="border-2"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-father" className="text-sm font-medium">
+                Navê Bav / Father&apos;s Name
+              </Label>
+              <Input
+                id="edit-father"
+                type="text"
+                placeholder="Navê bavê xwe binivîse..."
+                value={editForm.fatherName}
+                onChange={(e) => setEditForm({ ...editForm, fatherName: e.target.value })}
+                className="border-2"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-location" className="text-sm font-medium">
+                Cih / Location
+              </Label>
+              <Input
+                id="edit-location"
+                type="text"
+                placeholder="Cihê xwe binivîse..."
+                value={editForm.location}
+                onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
+                className="border-2"
+              />
+            </div>
+
+            <div className="flex gap-2 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setShowEditModal(false)}
+                className="flex-1"
+              >
+                Betal (Cancel)
+              </Button>
+              <Button
+                onClick={() => {
+                  saveCitizenProfile(editForm);
+                  setShowEditModal(false);
+                }}
+                className="flex-1 bg-green-600 hover:bg-green-700"
+              >
+                Tomar bike (Save)
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
