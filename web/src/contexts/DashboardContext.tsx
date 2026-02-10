@@ -17,7 +17,7 @@ const DashboardContext = createContext<DashboardData | undefined>(undefined);
 
 export function DashboardProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
-  const { api, isApiReady, selectedAccount } = usePezkuwi();
+  const { peopleApi, isPeopleReady, selectedAccount } = usePezkuwi();
   const [profile, setProfile] = useState<Record<string, unknown> | null>(null);
   const [nftDetails, setNftDetails] = useState<{ citizenNFT: TikiNFTDetails | null; roleNFTs: TikiNFTDetails[]; totalNFTs: number }>({
     citizenNFT: null,
@@ -54,29 +54,29 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   }, [user]);
 
   const fetchScoresAndTikis = useCallback(async () => {
-    if (!selectedAccount || !api) return;
+    // tiki and identityKyc pallets are on People Chain, not Relay Chain
+    if (!selectedAccount || !peopleApi || !isPeopleReady) return;
 
     setLoading(true);
     try {
-      const status = await getKycStatus(api, selectedAccount.address);
+      const status = await getKycStatus(peopleApi, selectedAccount.address);
       setKycStatus(status);
 
-      const details = await getAllTikiNFTDetails(api, selectedAccount.address);
+      const details = await getAllTikiNFTDetails(peopleApi, selectedAccount.address);
       setNftDetails(details);
     } catch (error) {
-      if (import.meta.env.DEV) console.error('Error fetching data:', error);
+      if (import.meta.env.DEV) console.error('Error fetching tiki/kyc data from People Chain:', error);
     } finally {
       setLoading(false);
     }
-  }, [selectedAccount, api]);
+  }, [selectedAccount, peopleApi, isPeopleReady]);
 
   useEffect(() => {
     fetchProfile();
-    if (selectedAccount && api && isApiReady) {
+    if (selectedAccount && peopleApi && isPeopleReady) {
       fetchScoresAndTikis();
-
     }
-  }, [user, selectedAccount, api, isApiReady, fetchProfile, fetchScoresAndTikis]);
+  }, [user, selectedAccount, peopleApi, isPeopleReady, fetchProfile, fetchScoresAndTikis]);
 
   const citizenNumber = nftDetails.citizenNFT
     ? generateCitizenNumber(nftDetails.citizenNFT.owner, nftDetails.citizenNFT.collectionId, nftDetails.citizenNFT.itemId)

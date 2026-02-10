@@ -37,7 +37,8 @@ interface IdentityInfo {
 }
 
 export function KycApprovalTab() {
-  const { api, isApiReady, selectedAccount, connectWallet } = usePezkuwi();
+  // identityKyc pallet is on People Chain, dynamicCommissionCollective is on Relay Chain
+  const { api, isApiReady, peopleApi, isPeopleReady, selectedAccount, connectWallet } = usePezkuwi();
   const { toast } = useToast();
 
   const [loading, setLoading] = useState(true);
@@ -47,27 +48,28 @@ export function KycApprovalTab() {
   const [processing, setProcessing] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
 
-  // Load pending KYC applications
+  // Load pending KYC applications from People Chain
   useEffect(() => {
-    if (!api || !isApiReady) {
+    if (!peopleApi || !isPeopleReady) {
       return;
     }
 
     loadPendingApplications();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [api, isApiReady]);
+  }, [peopleApi, isPeopleReady]);
      
 
   const loadPendingApplications = async () => {
-    if (!api || !isApiReady) {
+    // identityKyc pallet is on People Chain
+    if (!peopleApi || !isPeopleReady) {
       setLoading(false);
       return;
     }
 
     setLoading(true);
     try {
-      // Get all pending applications
-      const entries = await api.query.identityKyc.pendingKycApplications.entries();
+      // Get all pending applications from People Chain
+      const entries = await peopleApi.query.identityKyc.pendingKycApplications.entries();
 
       const apps: PendingApplication[] = [];
       const identityMap = new Map<string, IdentityInfo>();
@@ -76,9 +78,9 @@ export function KycApprovalTab() {
         const address = key.args[0].toString();
         const application = value.toJSON() as Record<string, unknown>;
 
-        // Get identity info for this address
+        // Get identity info for this address from People Chain
         try {
-          const identity = await api.query.identityKyc.identities(address);
+          const identity = await peopleApi.query.identityKyc.identities(address);
           if (!identity.isEmpty) {
             const identityData = identity.toJSON() as Record<string, unknown>;
             identityMap.set(address, {

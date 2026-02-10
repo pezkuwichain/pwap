@@ -22,7 +22,8 @@ interface NewCitizenApplicationProps {
 type FormData = Omit<CitizenshipData, 'walletAddress' | 'timestamp'>;
 
 export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ onClose, referrerAddress }) => {
-  const { api, isApiReady, selectedAccount, connectWallet } = usePezkuwi();
+  // identityKyc pallet is on People Chain
+  const { api, isApiReady, peopleApi, isPeopleReady, selectedAccount, connectWallet } = usePezkuwi();
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<FormData>();
 
   const [submitting, setSubmitting] = useState(false);
@@ -33,13 +34,15 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
   const [agreed, setAgreed] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [applicationHash, setApplicationHash] = useState<string>('');
+  const [checkingStatus, setCheckingStatus] = useState(false);
 
   const maritalStatus = watch('maritalStatus');
   const childrenCount = watch('childrenCount');
 
   const handleApprove = async () => {
-    if (!api || !selectedAccount) {
-      setError('Please connect your wallet first');
+    // identityKyc pallet is on People Chain
+    if (!peopleApi || !isPeopleReady || !selectedAccount) {
+      setError('Please connect your wallet and wait for People Chain connection');
       return;
     }
 
@@ -48,15 +51,15 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
       const { web3FromAddress } = await import('@pezkuwi/extension-dapp');
       const injector = await web3FromAddress(selectedAccount.address);
 
-      if (import.meta.env.DEV) console.log('Confirming citizenship application (self-confirmation)...');
+      if (import.meta.env.DEV) console.log('Confirming citizenship application on People Chain (self-confirmation)...');
 
-      // Call confirm_citizenship() extrinsic - self-confirmation for Welati Tiki
-      const tx = api.tx.identityKyc.confirmCitizenship();
+      // Call confirm_citizenship() extrinsic on People Chain - self-confirmation for Welati Tiki
+      const tx = peopleApi.tx.identityKyc.confirmCitizenship();
 
       await tx.signAndSend(selectedAccount.address, { signer: injector.signer }, ({ status, events, dispatchError }) => {
         if (dispatchError) {
           if (dispatchError.isModule) {
-            const decoded = api.registry.findMetaError(dispatchError.asModule);
+            const decoded = peopleApi.registry.findMetaError(dispatchError.asModule);
             if (import.meta.env.DEV) console.error(`${decoded.section}.${decoded.name}: ${decoded.docs.join(' ')}`);
             setError(`${decoded.section}.${decoded.name}: ${decoded.docs.join(' ')}`);
           } else {
@@ -68,7 +71,7 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
         }
 
         if (status.isInBlock || status.isFinalized) {
-          if (import.meta.env.DEV) console.log('✅ Citizenship confirmed successfully!');
+          if (import.meta.env.DEV) console.log('✅ Citizenship confirmed successfully on People Chain!');
           if (import.meta.env.DEV) console.log('Block hash:', status.asInBlock || status.asFinalized);
 
           // Check for CitizenshipConfirmed event
@@ -105,17 +108,17 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
     window.location.href = '/';
   };
 
-  // Check KYC status on mount
+  // Check KYC status on mount (identityKyc pallet is on People Chain)
   useEffect(() => {
     const checkKycStatus = async () => {
-      if (!api || !isApiReady || !selectedAccount) {
+      if (!peopleApi || !isPeopleReady || !selectedAccount) {
         return;
       }
 
       setCheckingStatus(true);
       try {
-        const status = await getKycStatus(api, selectedAccount.address);
-        if (import.meta.env.DEV) console.log('Current KYC Status:', status);
+        const status = await getKycStatus(peopleApi, selectedAccount.address);
+        if (import.meta.env.DEV) console.log('Current KYC Status from People Chain:', status);
 
         if (status === 'Approved') {
           if (import.meta.env.DEV) console.log('KYC already approved! Redirecting to dashboard...');
@@ -138,21 +141,21 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
     };
 
     checkKycStatus();
-  }, [api, isApiReady, selectedAccount, onClose]);
+  }, [peopleApi, isPeopleReady, selectedAccount, onClose]);
 
-  // Subscribe to KYC approval events
+  // Subscribe to KYC approval events on People Chain
   useEffect(() => {
-    if (!api || !isApiReady || !selectedAccount || !waitingForApproval) {
+    if (!peopleApi || !isPeopleReady || !selectedAccount || !waitingForApproval) {
       return;
     }
 
-    if (import.meta.env.DEV) console.log('Setting up KYC approval listener for:', selectedAccount.address);
+    if (import.meta.env.DEV) console.log('Setting up KYC approval listener on People Chain for:', selectedAccount.address);
 
     const unsubscribe = subscribeToKycApproval(
-      api,
+      peopleApi,
       selectedAccount.address,
       () => {
-        if (import.meta.env.DEV) console.log('KYC Approved! Redirecting to dashboard...');
+        if (import.meta.env.DEV) console.log('KYC Approved on People Chain! Redirecting to dashboard...');
         setKycApproved(true);
         setWaitingForApproval(false);
 
@@ -173,11 +176,12 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
         unsubscribe();
       }
     };
-  }, [api, isApiReady, selectedAccount, waitingForApproval, onClose]);
+  }, [peopleApi, isPeopleReady, selectedAccount, waitingForApproval, onClose]);
 
   const onSubmit = async (data: FormData) => {
-    if (!api || !isApiReady || !selectedAccount) {
-      setError('Please connect your wallet first');
+    // identityKyc pallet is on People Chain
+    if (!peopleApi || !isPeopleReady || !selectedAccount) {
+      setError('Please connect your wallet and wait for People Chain connection');
       return;
     }
 
@@ -190,8 +194,8 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
     setSubmitting(true);
 
     try {
-      // Check KYC status before submitting
-      const currentStatus = await getKycStatus(api, selectedAccount.address);
+      // Check KYC status before submitting (from People Chain)
+      const currentStatus = await getKycStatus(peopleApi, selectedAccount.address);
 
       if (currentStatus === 'Approved') {
         setError('Your KYC has already been approved! Redirecting to dashboard...');
@@ -250,10 +254,10 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
         throw new Error(`Invalid IPFS CID: ${cidString}`);
       }
 
-      // Submit to blockchain
-      if (import.meta.env.DEV) console.log('Submitting KYC application to blockchain...');
+      // Submit to blockchain (identityKyc pallet is on People Chain)
+      if (import.meta.env.DEV) console.log('Submitting KYC application to People Chain...');
       const result = await submitKycApplication(
-        api,
+        peopleApi,
         selectedAccount,
         citizenshipData.fullName,
         citizenshipData.email,
