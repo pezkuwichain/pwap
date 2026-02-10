@@ -23,7 +23,7 @@ type FormData = Omit<CitizenshipData, 'walletAddress' | 'timestamp'>;
 
 export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ onClose, referrerAddress }) => {
   // identityKyc pallet is on People Chain
-  const { api, isApiReady, peopleApi, isPeopleReady, selectedAccount, connectWallet } = usePezkuwi();
+  const { peopleApi, isPeopleReady, selectedAccount, connectWallet } = usePezkuwi();
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<FormData>();
 
   const [submitting, setSubmitting] = useState(false);
@@ -34,7 +34,6 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
   const [agreed, setAgreed] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [applicationHash, setApplicationHash] = useState<string>('');
-  const [checkingStatus, setCheckingStatus] = useState(false);
 
   const maritalStatus = watch('maritalStatus');
   const childrenCount = watch('childrenCount');
@@ -115,7 +114,6 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
         return;
       }
 
-      setCheckingStatus(true);
       try {
         const status = await getKycStatus(peopleApi, selectedAccount.address);
         if (import.meta.env.DEV) console.log('Current KYC Status from People Chain:', status);
@@ -135,8 +133,6 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
         }
       } catch (err) {
         if (import.meta.env.DEV) console.error('Error checking KYC status:', err);
-      } finally {
-        setCheckingStatus(false);
       }
     };
 
