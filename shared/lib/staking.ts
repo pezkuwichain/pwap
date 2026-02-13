@@ -238,16 +238,17 @@ export async function getStakingInfo(
   let hasStartedScoreTracking = false;
 
   try {
-    // stakingScore pallet is on Relay Chain (same as staking pallet, needs staking.ledger access)
-    if (api.query.stakingScore && api.query.stakingScore.stakingStartBlock) {
+    // stakingScore pallet is on People Chain - uses cached staking data from Asset Hub via XCM
+    const scoreApi = peopleApi || api;
+    if (scoreApi.query.stakingScore && scoreApi.query.stakingScore.stakingStartBlock) {
       // Check if user has started score tracking
-      const scoreResult = await api.query.stakingScore.stakingStartBlock(address);
+      const scoreResult = await scoreApi.query.stakingScore.stakingStartBlock(address);
 
       if (scoreResult.isSome) {
         hasStartedScoreTracking = true;
         const startBlockCodec = scoreResult.unwrap() as { toString: () => string };
         const startBlock = Number(startBlockCodec.toString());
-        const currentBlock = Number((await api.query.system.number()).toString());
+        const currentBlock = Number((await scoreApi.query.system.number()).toString());
         const durationInBlocks = currentBlock - startBlock;
         stakingDuration = durationInBlocks;
 

@@ -117,8 +117,8 @@ export default function Dashboard() {
       const allScores = await getAllScores(peopleApi, selectedAccount.address);
       setScores(allScores);
 
-      // Fetch staking score tracking status (from Relay Chain where stakingScore pallet lives)
-      const stakingStatusResult = await getStakingScoreStatus(api, selectedAccount.address);
+      // Fetch staking score tracking status (People Chain - uses cached staking data from Asset Hub)
+      const stakingStatusResult = await getStakingScoreStatus(peopleApi, selectedAccount.address);
       setStakingStatus(stakingStatusResult);
 
       // Fetch tikis from People Chain (tiki pallet is on People Chain)
@@ -144,7 +144,7 @@ export default function Dashboard() {
   }, [selectedAccount, api, peopleApi]);
 
   const handleStartScoreTracking = async () => {
-    if (!api || !selectedAccount) {
+    if (!peopleApi || !selectedAccount) {
       toast({
         title: "Hata",
         description: "Lütfen önce cüzdanınızı bağlayın",
@@ -156,9 +156,8 @@ export default function Dashboard() {
     setStartingScoreTracking(true);
     try {
       const injector = await web3FromAddress(selectedAccount.address);
-      // startScoreTracking must use Relay Chain API (api), not People Chain (peopleApi),
-      // because the stakingScore pallet needs access to staking.ledger on Relay Chain
-      const result = await startScoreTracking(api, selectedAccount.address, injector.signer);
+      // startScoreTracking on People Chain - staking data comes from Asset Hub via XCM
+      const result = await startScoreTracking(peopleApi, selectedAccount.address, injector.signer);
 
       if (result.success) {
         toast({

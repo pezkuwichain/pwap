@@ -1,11 +1,12 @@
 // ========================================
 // Score Systems Integration
 // ========================================
-// Score pallets are distributed across chains:
-// - Trust Score: pezpallet-trust (People Chain)
+// All score pallets live on People Chain:
+// - Trust Score: pezpallet-trust (People Chain) - composite score
 // - Referral Score: pezpallet-referral (People Chain)
-// - Staking Score: pezpallet-staking-score (Relay Chain - needs staking.ledger access)
+// - Staking Score: pezpallet-staking-score (People Chain) - uses cached staking data from Asset Hub via XCM
 // - Tiki Score: pezpallet-tiki (People Chain)
+// - Perwerde Score: pezpallet-perwerde (People Chain)
 
 import type { ApiPromise } from '@pezkuwi/api';
 import { formatBalance } from './wallet';
@@ -84,31 +85,66 @@ export async function getTrustScore(
 // ========================================
 
 /**
- * Fetch user's referral count and calculate score
- * Storage: referral.referralCount(address)
+ * Fetch user's referral score from on-chain stats
+ * Storage: referral.referrerStatsStorage(address) → { totalReferrals, revokedReferrals, penaltyScore }
  *
- * Score calculation:
+ * On-chain tiered scoring (matches pezpallet-referral):
  * - 0 referrals: 0 points
- * - 1-5 referrals: count × 4 points
- * - 6-20 referrals: 20 + (count - 5) × 2 points
- * - 21+ referrals: capped at 50 points
+ * - 1-10 referrals: count × 10 points (max 100)
+ * - 11-50 referrals: 100 + (count - 10) × 5 points (max 300)
+ * - 51-100 referrals: 300 + (count - 50) × 4 points (max 500)
+ * - 101+ referrals: 500 points (maximum)
+ * Then subtract penalty_score from revoked referrals
  */
 export async function getReferralScore(
   peopleApi: ApiPromise,
   address: string
 ): Promise<number> {
   try {
-    if (!peopleApi?.query?.referral?.referralCount) {
-      return 0;
+    // Try reading from referrerStatsStorage for full stats with penalties
+    if (peopleApi?.query?.referral?.referrerStatsStorage) {
+      const stats = await peopleApi.query.referral.referrerStatsStorage(address);
+      if (!stats.isEmpty) {
+        const statsJson = stats.toJSON() as {
+          totalReferrals?: number;
+          total_referrals?: number;
+          revokedReferrals?: number;
+          revoked_referrals?: number;
+          penaltyScore?: number;
+          penalty_score?: number;
+        };
+        const totalReferrals = statsJson.totalReferrals ?? statsJson.total_referrals ?? 0;
+        const revokedReferrals = statsJson.revokedReferrals ?? statsJson.revoked_referrals ?? 0;
+        const penaltyScore = statsJson.penaltyScore ?? statsJson.penalty_score ?? 0;
+
+        // Step 1: Remove revoked referrals from count
+        const goodReferrals = Math.max(0, totalReferrals - revokedReferrals);
+
+        // Step 2: Tiered scoring
+        let baseScore: number;
+        if (goodReferrals === 0) baseScore = 0;
+        else if (goodReferrals <= 10) baseScore = goodReferrals * 10;
+        else if (goodReferrals <= 50) baseScore = 100 + ((goodReferrals - 10) * 5);
+        else if (goodReferrals <= 100) baseScore = 300 + ((goodReferrals - 50) * 4);
+        else baseScore = 500;
+
+        // Step 3: Subtract penalty
+        return Math.max(0, baseScore - penaltyScore);
+      }
     }
 
-    const count = await peopleApi.query.referral.referralCount(address);
-    const referralCount = Number(count.toString());
+    // Fallback: simple count-based scoring
+    if (peopleApi?.query?.referral?.referralCount) {
+      const count = await peopleApi.query.referral.referralCount(address);
+      const referralCount = Number(count.toString());
+      if (referralCount === 0) return 0;
+      if (referralCount <= 10) return referralCount * 10;
+      if (referralCount <= 50) return 100 + ((referralCount - 10) * 5);
+      if (referralCount <= 100) return 300 + ((referralCount - 50) * 4);
+      return 500;
+    }
 
-    if (referralCount === 0) return 0;
-    if (referralCount <= 5) return referralCount * 4;
-    if (referralCount <= 20) return 20 + ((referralCount - 5) * 2);
-    return 50; // Capped at 50 points
+    return 0;
   } catch (error) {
     console.error('Error fetching referral score:', error);
     return 0;
@@ -136,27 +172,27 @@ export async function getReferralCount(
 }
 
 // ========================================
-// STAKING SCORE (pezpallet-staking-score on Relay Chain)
+// STAKING SCORE (pezpallet-staking-score on People Chain)
 // ========================================
 
 /**
  * Check staking score tracking status
  * Storage: stakingScore.stakingStartBlock(address)
  *
- * IMPORTANT: stakingScore pallet is on the Relay Chain (not People Chain),
- * because it needs access to staking.ledger for score calculation.
+ * The stakingScore pallet is on People Chain. It receives staking data
+ * from Asset Hub via XCM (stored in cachedStakingDetails).
  */
 export async function getStakingScoreStatus(
-  relayApi: ApiPromise,
+  peopleApi: ApiPromise,
   address: string
 ): Promise<StakingScoreStatus> {
   try {
-    if (!relayApi?.query?.stakingScore?.stakingStartBlock) {
+    if (!peopleApi?.query?.stakingScore?.stakingStartBlock) {
       return { isTracking: false, startBlock: null, currentBlock: 0, durationBlocks: 0 };
     }
 
-    const startBlockResult = await relayApi.query.stakingScore.stakingStartBlock(address);
-    const currentBlock = Number((await relayApi.query.system.number()).toString());
+    const startBlockResult = await peopleApi.query.stakingScore.stakingStartBlock(address);
+    const currentBlock = Number((await peopleApi.query.system.number()).toString());
 
     if (startBlockResult.isEmpty || startBlockResult.isNone) {
       return { isTracking: false, startBlock: null, currentBlock, durationBlocks: 0 };
@@ -181,28 +217,27 @@ export async function getStakingScoreStatus(
  * Start staking score tracking
  * Calls: stakingScore.startScoreTracking()
  *
- * IMPORTANT: This must be called on the Relay Chain API (not People Chain),
- * because the stakingScore pallet needs access to staking.ledger to verify
- * the user has an active stake. The staking pallet only exists on Relay Chain.
+ * Called on People Chain. Requires staking data to be available via
+ * cachedStakingDetails (pushed from Asset Hub via XCM).
  */
 export async function startScoreTracking(
-  relayApi: ApiPromise,
+  peopleApi: ApiPromise,
   address: string,
   signer: any
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    if (!relayApi?.tx?.stakingScore?.startScoreTracking) {
+    if (!peopleApi?.tx?.stakingScore?.startScoreTracking) {
       return { success: false, error: 'stakingScore pallet not available on this chain' };
     }
 
-    const tx = relayApi.tx.stakingScore.startScoreTracking();
+    const tx = peopleApi.tx.stakingScore.startScoreTracking();
 
     return new Promise((resolve) => {
       tx.signAndSend(address, { signer }, ({ status, dispatchError }) => {
         if (status.isInBlock || status.isFinalized) {
           if (dispatchError) {
             if (dispatchError.isModule) {
-              const decoded = relayApi.registry.findMetaError(dispatchError.asModule);
+              const decoded = peopleApi.registry.findMetaError(dispatchError.asModule);
               resolve({ success: false, error: `${decoded.section}.${decoded.name}: ${decoded.docs.join(' ')}` });
             } else {
               resolve({ success: false, error: dispatchError.toString() });
@@ -351,6 +386,9 @@ export async function checkCitizenshipStatus(
 /**
  * Get Perwerde (education) score
  * This is from pezpallet-perwerde on People Chain
+ *
+ * Queries studentCourses for enrolled course IDs, then checks enrollments
+ * for completed courses and sums their points.
  */
 export async function getPerwerdeScore(
   peopleApi: ApiPromise | null,
@@ -364,25 +402,43 @@ export async function getPerwerdeScore(
       return 0;
     }
 
-    // Try to get user's completed courses/certifications
-    if (peopleApi.query.perwerde.userScores) {
-      const score = await peopleApi.query.perwerde.userScores(address);
-      if (!score.isEmpty) {
-        return Number(score.toString());
+    // Get user's enrolled course IDs
+    if (!peopleApi.query.perwerde.studentCourses) {
+      return 0;
+    }
+
+    const coursesResult = await peopleApi.query.perwerde.studentCourses(address);
+    const courseIds = coursesResult.toJSON() as number[];
+
+    if (!Array.isArray(courseIds) || courseIds.length === 0) {
+      return 0;
+    }
+
+    // Sum points from completed courses
+    let totalPoints = 0;
+    for (const courseId of courseIds) {
+      try {
+        if (!peopleApi.query.perwerde.enrollments) break;
+        const enrollment = await peopleApi.query.perwerde.enrollments([address, courseId]);
+        if (enrollment.isEmpty || enrollment.isNone) continue;
+
+        const enrollmentJson = enrollment.toJSON() as {
+          completedAt?: number | null;
+          completed_at?: number | null;
+          pointsEarned?: number;
+          points_earned?: number;
+        };
+
+        const completedAt = enrollmentJson.completedAt ?? enrollmentJson.completed_at;
+        if (completedAt !== null && completedAt !== undefined) {
+          totalPoints += enrollmentJson.pointsEarned ?? enrollmentJson.points_earned ?? 0;
+        }
+      } catch {
+        // Skip individual enrollment errors
       }
     }
 
-    // Alternative: count completed courses
-    if (peopleApi.query.perwerde.completedCourses) {
-      const courses = await peopleApi.query.perwerde.completedCourses(address);
-      const coursesJson = courses.toJSON() as unknown[];
-      if (Array.isArray(coursesJson)) {
-        // Each completed course = 10 points, max 50
-        return Math.min(coursesJson.length * 10, 50);
-      }
-    }
-
-    return 0;
+    return totalPoints;
   } catch (err) {
     console.error('Error fetching perwerde score:', err);
     return 0;

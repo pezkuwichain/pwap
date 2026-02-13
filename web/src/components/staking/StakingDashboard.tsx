@@ -361,7 +361,7 @@ export const StakingDashboard: React.FC = () => {
   };
 
   const handleStartScoreTracking = async () => {
-    if (!api || !selectedAccount) return;
+    if (!peopleApi || !selectedAccount) return;
 
     if (!stakingInfo || parseFloat(stakingInfo.bonded) === 0) {
       toast.error('You must bond tokens before starting score tracking');
@@ -371,7 +371,8 @@ export const StakingDashboard: React.FC = () => {
     setIsLoading(true);
     try {
       const injector = await web3FromAddress(selectedAccount.address);
-      const tx = api.tx.stakingScore.startScoreTracking();
+      // stakingScore pallet is on People Chain - uses cached staking data from Asset Hub
+      const tx = peopleApi.tx.stakingScore.startScoreTracking();
 
       await tx.signAndSend(
         selectedAccount.address,
@@ -381,7 +382,7 @@ export const StakingDashboard: React.FC = () => {
             if (dispatchError) {
               let errorMessage = 'Failed to start score tracking';
               if (dispatchError.isModule) {
-                const decoded = api.registry.findMetaError(dispatchError.asModule);
+                const decoded = peopleApi.registry.findMetaError(dispatchError.asModule);
                 errorMessage = `${decoded.section}.${decoded.name}: ${decoded.docs.join(' ')}`;
               }
               toast.error(errorMessage);
