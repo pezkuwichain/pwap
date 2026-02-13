@@ -4,7 +4,7 @@ import { ChevronRight, Shield } from 'lucide-react';
 import { usePezkuwi } from '../contexts/PezkuwiContext';
 import { useWallet } from '../contexts/WalletContext'; // Import useWallet
 import { formatBalance } from '@pezkuwi/lib/wallet';
-import { getTrustScoreWithFallback } from '@pezkuwi/lib/scores';
+import { getTrustScore } from '@pezkuwi/lib/scores';
 
 const HeroSection: React.FC = () => {
   const { t } = useTranslation();
@@ -25,12 +25,9 @@ const HeroSection: React.FC = () => {
       if (selectedAccount?.address) {
         try {
           // Use frontend fallback for trust score
-          const trustResult = await getTrustScoreWithFallback(
-            peopleApi || null,
-            api,
-            selectedAccount.address
-          );
-          currentTrustScore = trustResult.trustScore;
+          if (peopleApi) {
+            currentTrustScore = await getTrustScore(peopleApi, selectedAccount.address);
+          }
         } catch (err) {
           if (import.meta.env.DEV) console.warn('Failed to fetch trust score:', err);
           currentTrustScore = 0;

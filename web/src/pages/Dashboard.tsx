@@ -10,7 +10,7 @@ import { supabase } from '@/lib/supabase';
 import { User, Mail, Phone, Globe, MapPin, Calendar, Shield, AlertCircle, ArrowLeft, Award, Users, TrendingUp, UserMinus, Play, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { fetchUserTikis, getPrimaryRole, getTikiDisplayName, getTikiColor, getTikiEmoji, getUserRoleCategories, getAllTikiNFTDetails, generateCitizenNumber, type TikiNFTDetails } from '@pezkuwi/lib/tiki';
-import { getAllScoresWithFallback, getStakingScoreStatus, startScoreTracking, type UserScores, type StakingScoreStatus, formatDuration } from '@pezkuwi/lib/scores';
+import { getAllScores, getStakingScoreStatus, startScoreTracking, type UserScores, type StakingScoreStatus, formatDuration } from '@pezkuwi/lib/scores';
 import { web3FromAddress } from '@pezkuwi/extension-dapp';
 import { getKycStatus } from '@pezkuwi/lib/kyc';
 import { ReferralDashboard } from '@/components/referral/ReferralDashboard';
@@ -111,7 +111,7 @@ export default function Dashboard() {
       // Fetch all scores with frontend fallback (until runtime upgrade)
       // - Trust, referral, tiki: People Chain (on-chain)
       // - Staking: Relay Chain with frontend fallback
-      const allScores = await getAllScoresWithFallback(peopleApi, api, selectedAccount.address);
+      const allScores = await getAllScores(peopleApi, selectedAccount.address);
       setScores(allScores);
 
       // Fetch staking score tracking status

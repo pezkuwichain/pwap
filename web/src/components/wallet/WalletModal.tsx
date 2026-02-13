@@ -26,6 +26,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
     disconnectWallet,
     api,
     isApiReady,
+    peopleApi,
     error
   } = usePezkuwi();
 
@@ -77,7 +78,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
 
       setLoadingScores(true);
       try {
-        const userScores = await getAllScores(api, selectedAccount.address);
+        const userScores = await getAllScores(peopleApi || null, selectedAccount.address);
         setScores(userScores);
       } catch (err) {
         if (import.meta.env.DEV) console.error('Failed to fetch scores:', err);
@@ -94,7 +95,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
     };
 
     fetchAllScores();
-  }, [api, isApiReady, selectedAccount]);
+  }, [api, isApiReady, peopleApi, selectedAccount]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

@@ -8,7 +8,7 @@ import { AddTokenModal } from './AddTokenModal';
 import { TransferModal } from './TransferModal';
 import { XCMTeleportModal } from './XCMTeleportModal';
 import { LPStakeModal } from './LPStakeModal';
-import { getAllScoresWithFallback, type UserScores } from '@pezkuwi/lib/scores';
+import { getAllScores, type UserScores } from '@pezkuwi/lib/scores';
 
 interface TokenBalance {
   assetId: number;
@@ -570,11 +570,7 @@ export const AccountBalance: React.FC = () => {
       setLoadingScores(true);
       try {
         // Use fallback function: peopleApi for on-chain scores, api (Relay) for staking data
-        const userScores = await getAllScoresWithFallback(
-          peopleApi || null,  // People Chain for referral, tiki, perwerde
-          api,                 // Relay Chain for staking data
-          selectedAccount.address
-        );
+        const userScores = await getAllScores(peopleApi || null, selectedAccount.address);
         setScores(userScores);
       } catch (err) {
         if (import.meta.env.DEV) console.error('Failed to fetch scores:', err);
