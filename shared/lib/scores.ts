@@ -451,25 +451,25 @@ export async function getPerwerdeScore(
 
 /**
  * Get PEZ rewards information for an account
- * Uses correct storage query names from pezRewards pallet:
- * - getCurrentEpochInfo() → epoch info
+ * Uses correct storage query names from live People Chain metadata:
+ * - epochInfo() → epoch info (ValueQuery)
  * - epochStatus(epoch) → Open | ClaimPeriod | Closed
- * - getUserTrustScoreForEpoch(epoch, addr) → user's recorded score
- * - getClaimedReward(epoch, addr) → claimed reward amount
- * - getEpochRewardPool(epoch) → reward pool info
+ * - userEpochScores(epoch, addr) → user's recorded score (OptionQuery)
+ * - claimedRewards(epoch, addr) → claimed reward amount (OptionQuery)
+ * - epochRewardPools(epoch) → reward pool info (OptionQuery)
  */
 export async function getPezRewards(
   peopleApi: ApiPromise,
   address: string
 ): Promise<PezRewardInfo | null> {
   try {
-    if (!peopleApi?.query?.pezRewards?.getCurrentEpochInfo) {
+    if (!peopleApi?.query?.pezRewards?.epochInfo) {
       console.warn('PezRewards pallet not available on People Chain');
       return null;
     }
 
     // Get current epoch info
-    const epochInfoResult = await peopleApi.query.pezRewards.getCurrentEpochInfo();
+    const epochInfoResult = await peopleApi.query.pezRewards.epochInfo();
     if (!epochInfoResult) {
       return null;
     }
@@ -494,7 +494,7 @@ export async function getPezRewards(
     let hasRecordedThisEpoch = false;
     let userScoreCurrentEpoch = 0;
     try {
-      const userScoreResult = await peopleApi.query.pezRewards.getUserTrustScoreForEpoch(currentEpoch, address);
+      const userScoreResult = await peopleApi.query.pezRewards.userEpochScores(currentEpoch, address);
       if (userScoreResult.isSome) {
         hasRecordedThisEpoch = true;
         const scoreCodec = userScoreResult.unwrap() as { toString: () => string };
@@ -516,15 +516,15 @@ export async function getPezRewards(
         if (pastStatus !== 'ClaimPeriod') continue;
 
         // Check if user already claimed
-        const claimedResult = await peopleApi.query.pezRewards.getClaimedReward(i, address);
+        const claimedResult = await peopleApi.query.pezRewards.claimedRewards(i, address);
         if (claimedResult.isSome) continue;
 
         // Check if user has a score for this epoch
-        const userScoreResult = await peopleApi.query.pezRewards.getUserTrustScoreForEpoch(i, address);
+        const userScoreResult = await peopleApi.query.pezRewards.userEpochScores(i, address);
         if (!userScoreResult.isSome) continue;
 
         // Get epoch reward pool
-        const epochPoolResult = await peopleApi.query.pezRewards.getEpochRewardPool(i);
+        const epochPoolResult = await peopleApi.query.pezRewards.epochRewardPools(i);
         if (!epochPoolResult.isSome) continue;
 
         const epochPoolCodec = epochPoolResult.unwrap() as { toJSON: () => unknown };
