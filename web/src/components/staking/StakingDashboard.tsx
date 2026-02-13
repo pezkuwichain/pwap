@@ -428,7 +428,7 @@ export const StakingDashboard: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className={`grid grid-cols-1 md:grid-cols-2 ${pezRewards ? 'lg:grid-cols-5' : 'lg:grid-cols-4'} gap-4`}>
         <Card className="bg-gray-900 border-gray-800">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm text-gray-400">Total Bonded</CardTitle>
@@ -508,11 +508,12 @@ export const StakingDashboard: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card className="bg-gray-900 border-gray-800">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-sm text-gray-400">PEZ Rewards</CardTitle>
-              {pezRewards && (
+        {/* PEZ Rewards - only show when pallet is available */}
+        {pezRewards && (
+          <Card className="bg-gray-900 border-gray-800">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm text-gray-400">PEZ Rewards</CardTitle>
                 <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                   pezRewards.epochStatus === 'Open'
                     ? 'bg-green-500/20 text-green-400'
@@ -522,11 +523,9 @@ export const StakingDashboard: React.FC = () => {
                 }`}>
                   {pezRewards.epochStatus === 'Open' ? 'Open' : pezRewards.epochStatus === 'ClaimPeriod' ? 'Claim Period' : 'Closed'}
                 </span>
-              )}
-            </div>
-          </CardHeader>
-          <CardContent>
-            {pezRewards ? (
+              </div>
+            </CardHeader>
+            <CardContent>
               <div className="space-y-2">
                 <p className="text-xs text-gray-500">Epoch {pezRewards.currentEpoch}</p>
 
@@ -552,7 +551,7 @@ export const StakingDashboard: React.FC = () => {
                 )}
 
                 {/* Claimable rewards */}
-                {pezRewards.hasPendingClaim ? (
+                {pezRewards.hasPendingClaim && (
                   <>
                     <div className="text-2xl font-bold text-orange-500">
                       {parseFloat(pezRewards.totalClaimable).toFixed(2)} PEZ
@@ -574,20 +573,11 @@ export const StakingDashboard: React.FC = () => {
                       ))}
                     </div>
                   </>
-                ) : (
-                  !pezRewards.hasRecordedThisEpoch && pezRewards.epochStatus !== 'Open' && (
-                    <div className="text-2xl font-bold text-gray-500">0 PEZ</div>
-                  )
                 )}
               </div>
-            ) : (
-              <>
-                <div className="text-2xl font-bold text-gray-500">0 PEZ</div>
-                <p className="text-xs text-gray-500 mt-1">No rewards available</p>
-              </>
-            )}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* Main Staking Interface */}
