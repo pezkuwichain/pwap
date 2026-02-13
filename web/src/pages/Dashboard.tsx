@@ -581,32 +581,27 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* PEZ Rewards Card */}
-      {selectedAccount && (
+      {/* PEZ Rewards Card - only show when pallet is available */}
+      {selectedAccount && pezRewards && (
         <Card className="mb-6">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">PEZ Rewards</CardTitle>
             <div className="flex items-center gap-2">
-              {pezRewards && (
-                <Badge className={
-                  pezRewards.epochStatus === 'Open'
-                    ? 'bg-green-500'
-                    : pezRewards.epochStatus === 'ClaimPeriod'
-                    ? 'bg-orange-500'
-                    : 'bg-gray-500'
-                }>
-                  {pezRewards.epochStatus === 'Open' ? 'Open' : pezRewards.epochStatus === 'ClaimPeriod' ? 'Claim Period' : 'Closed'}
-                </Badge>
-              )}
+              <Badge className={
+                pezRewards.epochStatus === 'Open'
+                  ? 'bg-green-500'
+                  : pezRewards.epochStatus === 'ClaimPeriod'
+                  ? 'bg-orange-500'
+                  : 'bg-gray-500'
+              }>
+                {pezRewards.epochStatus === 'Open' ? 'Open' : pezRewards.epochStatus === 'ClaimPeriod' ? 'Claim Period' : 'Closed'}
+              </Badge>
               <Coins className="h-4 w-4 text-orange-500" />
             </div>
           </CardHeader>
           <CardContent>
-            {loadingScores ? (
-              <div className="text-2xl font-bold">...</div>
-            ) : pezRewards ? (
-              <div className="space-y-3">
-                <p className="text-xs text-muted-foreground">Epoch {pezRewards.currentEpoch}</p>
+            <div className="space-y-3">
+              <p className="text-xs text-muted-foreground">Epoch {pezRewards.currentEpoch}</p>
 
                 {/* Open epoch: Record score or show recorded score */}
                 {pezRewards.epochStatus === 'Open' && (
@@ -664,12 +659,6 @@ export default function Dashboard() {
                   )
                 )}
               </div>
-            ) : (
-              <div>
-                <div className="text-2xl font-bold text-muted-foreground">0 PEZ</div>
-                <p className="text-xs text-muted-foreground">No rewards available</p>
-              </div>
-            )}
           </CardContent>
         </Card>
       )}

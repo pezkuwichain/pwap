@@ -39,15 +39,13 @@ export const NETWORK_ENDPOINTS: Record<string, NetworkConfig> = {
     description: 'Production mainnet (mainnet subdomain)',
   },
 
-  // Zagros Testnet
+  // Zagros Testnet (Relay Chain only)
   ZAGROS: {
     name: 'Zagros Testnet',
     endpoint: 'https://zagros-rpc.pezkuwichain.io',
     wsEndpoint: 'wss://zagros-rpc.pezkuwichain.io',
-    assetHubEndpoint: 'wss://zagros-asset-hub.pezkuwichain.io',
-    peopleChainEndpoint: 'wss://zagros-people.pezkuwichain.io',
     type: 'testnet',
-    description: 'Zagros testnet for development and testing',
+    description: 'Zagros testnet - relay chain only',
   },
 
   // Testnet alias (maps to Zagros)
@@ -55,10 +53,8 @@ export const NETWORK_ENDPOINTS: Record<string, NetworkConfig> = {
     name: 'Zagros Testnet',
     endpoint: 'https://zagros-rpc.pezkuwichain.io',
     wsEndpoint: 'wss://zagros-rpc.pezkuwichain.io',
-    assetHubEndpoint: 'wss://zagros-asset-hub.pezkuwichain.io',
-    peopleChainEndpoint: 'wss://zagros-people.pezkuwichain.io',
     type: 'testnet',
-    description: 'Testnet environment (Zagros)',
+    description: 'Testnet environment (Zagros) - relay chain only',
   },
 
   // Local Development
@@ -72,15 +68,13 @@ export const NETWORK_ENDPOINTS: Record<string, NetworkConfig> = {
     description: 'Local development node',
   },
 
-  // Development alias (maps to Zagros for live testing)
+  // Development alias (maps to Zagros relay chain only)
   DEVELOPMENT: {
     name: 'Zagros Testnet',
     endpoint: 'https://zagros-rpc.pezkuwichain.io',
     wsEndpoint: 'wss://zagros-rpc.pezkuwichain.io',
-    assetHubEndpoint: 'wss://zagros-asset-hub.pezkuwichain.io',
-    peopleChainEndpoint: 'wss://zagros-people.pezkuwichain.io',
     type: 'development',
-    description: 'Development mode connecting to Zagros testnet',
+    description: 'Development mode connecting to Zagros relay chain',
   },
 
   // Legacy: Beta (deprecated, maps to Mainnet)
@@ -98,10 +92,7 @@ export const NETWORK_ENDPOINTS: Record<string, NetworkConfig> = {
 /**
  * Default network based on environment
  */
-export const DEFAULT_NETWORK =
-  process.env.NODE_ENV === 'production'
-    ? NETWORK_ENDPOINTS.MAINNET
-    : NETWORK_ENDPOINTS.ZAGROS;
+export const DEFAULT_NETWORK = NETWORK_ENDPOINTS.MAINNET;
 
 /**
  * Port Configuration
