@@ -7,10 +7,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { supabase } from '@/lib/supabase';
-import { User, Mail, Phone, Globe, MapPin, Calendar, Shield, AlertCircle, ArrowLeft, Award, Users, TrendingUp, UserMinus, Play, Loader2 } from 'lucide-react';
+import { User, Mail, Phone, Globe, MapPin, Calendar, Shield, AlertCircle, ArrowLeft, Award, Users, TrendingUp, UserMinus, Play, Loader2, Coins } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { fetchUserTikis, getPrimaryRole, getTikiDisplayName, getTikiColor, getTikiEmoji, getUserRoleCategories, getAllTikiNFTDetails, generateCitizenNumber, type TikiNFTDetails } from '@pezkuwi/lib/tiki';
-import { getAllScores, getStakingScoreStatus, startScoreTracking, type UserScores, type StakingScoreStatus, formatDuration } from '@pezkuwi/lib/scores';
+import { getAllScores, getStakingScoreStatus, startScoreTracking, getPezRewards, recordTrustScore, claimPezReward, type UserScores, type StakingScoreStatus, type PezRewardInfo, formatDuration } from '@pezkuwi/lib/scores';
 import { web3FromAddress } from '@pezkuwi/extension-dapp';
 import { getKycStatus } from '@pezkuwi/lib/kyc';
 import { ReferralDashboard } from '@/components/referral/ReferralDashboard';
@@ -37,6 +37,9 @@ export default function Dashboard() {
   const [startingScoreTracking, setStartingScoreTracking] = useState(false);
   const [kycStatus, setKycStatus] = useState<string>('NotStarted');
   const [renouncingCitizenship, setRenouncingCitizenship] = useState(false);
+  const [pezRewards, setPezRewards] = useState<PezRewardInfo | null>(null);
+  const [isRecordingScore, setIsRecordingScore] = useState(false);
+  const [isClaimingReward, setIsClaimingReward] = useState(false);
   const [nftDetails, setNftDetails] = useState<{ citizenNFT: TikiNFTDetails | null; roleNFTs: TikiNFTDetails[]; totalNFTs: number }>({
     citizenNFT: null,
     roleNFTs: [],
@@ -114,8 +117,8 @@ export default function Dashboard() {
       const allScores = await getAllScores(peopleApi, selectedAccount.address);
       setScores(allScores);
 
-      // Fetch staking score tracking status
-      const stakingStatusResult = await getStakingScoreStatus(peopleApi, selectedAccount.address);
+      // Fetch staking score tracking status (from Relay Chain where stakingScore pallet lives)
+      const stakingStatusResult = await getStakingScoreStatus(api, selectedAccount.address);
       setStakingStatus(stakingStatusResult);
 
       // Fetch tikis from People Chain (tiki pallet is on People Chain)
@@ -129,6 +132,10 @@ export default function Dashboard() {
       // Fetch KYC status from People Chain (identityKyc pallet is on People Chain)
       const kycStatusResult = await getKycStatus(peopleApi, selectedAccount.address);
       setKycStatus(kycStatusResult);
+
+      // Fetch PEZ rewards from People Chain
+      const rewards = await getPezRewards(peopleApi, selectedAccount.address);
+      setPezRewards(rewards);
     } catch (error) {
       if (import.meta.env.DEV) console.error('Error fetching scores and tikis:', error);
     } finally {
@@ -137,7 +144,7 @@ export default function Dashboard() {
   }, [selectedAccount, api, peopleApi]);
 
   const handleStartScoreTracking = async () => {
-    if (!peopleApi || !selectedAccount) {
+    if (!api || !selectedAccount) {
       toast({
         title: "Hata",
         description: "Lütfen önce cüzdanınızı bağlayın",
@@ -149,7 +156,9 @@ export default function Dashboard() {
     setStartingScoreTracking(true);
     try {
       const injector = await web3FromAddress(selectedAccount.address);
-      const result = await startScoreTracking(peopleApi, selectedAccount.address, injector.signer);
+      // startScoreTracking must use Relay Chain API (api), not People Chain (peopleApi),
+      // because the stakingScore pallet needs access to staking.ledger on Relay Chain
+      const result = await startScoreTracking(api, selectedAccount.address, injector.signer);
 
       if (result.success) {
         toast({
@@ -174,6 +183,49 @@ export default function Dashboard() {
       });
     } finally {
       setStartingScoreTracking(false);
+    }
+  };
+
+  const handleRecordTrustScore = async () => {
+    if (!peopleApi || !selectedAccount) return;
+
+    setIsRecordingScore(true);
+    try {
+      const injector = await web3FromAddress(selectedAccount.address);
+      const result = await recordTrustScore(peopleApi, selectedAccount.address, injector.signer);
+
+      if (result.success) {
+        toast({ title: "Success", description: "Trust score recorded for this epoch." });
+        fetchScoresAndTikis();
+      } else {
+        toast({ title: "Error", description: result.error || "Failed to record trust score", variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Error", description: error instanceof Error ? error.message : "Failed to record trust score", variant: "destructive" });
+    } finally {
+      setIsRecordingScore(false);
+    }
+  };
+
+  const handleClaimReward = async (epochIndex: number) => {
+    if (!peopleApi || !selectedAccount) return;
+
+    setIsClaimingReward(true);
+    try {
+      const injector = await web3FromAddress(selectedAccount.address);
+      const result = await claimPezReward(peopleApi, selectedAccount.address, epochIndex, injector.signer);
+
+      if (result.success) {
+        const rewardInfo = pezRewards?.claimableRewards.find(r => r.epoch === epochIndex);
+        toast({ title: "Success", description: `${rewardInfo?.amount || '0'} PEZ reward claimed!` });
+        fetchScoresAndTikis();
+      } else {
+        toast({ title: "Error", description: result.error || "Failed to claim reward", variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Error", description: error instanceof Error ? error.message : "Failed to claim reward", variant: "destructive" });
+    } finally {
+      setIsClaimingReward(false);
     }
   };
 
@@ -528,6 +580,99 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
+
+      {/* PEZ Rewards Card */}
+      {selectedAccount && (
+        <Card className="mb-6">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">PEZ Rewards</CardTitle>
+            <div className="flex items-center gap-2">
+              {pezRewards && (
+                <Badge className={
+                  pezRewards.epochStatus === 'Open'
+                    ? 'bg-green-500'
+                    : pezRewards.epochStatus === 'ClaimPeriod'
+                    ? 'bg-orange-500'
+                    : 'bg-gray-500'
+                }>
+                  {pezRewards.epochStatus === 'Open' ? 'Open' : pezRewards.epochStatus === 'ClaimPeriod' ? 'Claim Period' : 'Closed'}
+                </Badge>
+              )}
+              <Coins className="h-4 w-4 text-orange-500" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            {loadingScores ? (
+              <div className="text-2xl font-bold">...</div>
+            ) : pezRewards ? (
+              <div className="space-y-3">
+                <p className="text-xs text-muted-foreground">Epoch {pezRewards.currentEpoch}</p>
+
+                {/* Open epoch: Record score or show recorded score */}
+                {pezRewards.epochStatus === 'Open' && (
+                  pezRewards.hasRecordedThisEpoch ? (
+                    <div className="flex items-center gap-2">
+                      <div className="text-lg font-bold text-green-600">Score: {pezRewards.userScoreCurrentEpoch}</div>
+                      <Badge variant="outline" className="text-green-600 border-green-300">Recorded</Badge>
+                    </div>
+                  ) : (
+                    <Button
+                      size="sm"
+                      className="w-full bg-green-600 hover:bg-green-700"
+                      onClick={handleRecordTrustScore}
+                      disabled={isRecordingScore || loadingScores}
+                    >
+                      {isRecordingScore ? (
+                        <>
+                          <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                          Recording...
+                        </>
+                      ) : (
+                        <>
+                          <Play className="h-3 w-3 mr-1" />
+                          Record Trust Score
+                        </>
+                      )}
+                    </Button>
+                  )
+                )}
+
+                {/* Claimable rewards */}
+                {pezRewards.hasPendingClaim ? (
+                  <div className="space-y-2">
+                    <div className="text-2xl font-bold text-orange-600">
+                      {parseFloat(pezRewards.totalClaimable).toFixed(2)} PEZ
+                    </div>
+                    {pezRewards.claimableRewards.map((reward) => (
+                      <div key={reward.epoch} className="flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">Epoch {reward.epoch}: {reward.amount} PEZ</span>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleClaimReward(reward.epoch)}
+                          disabled={isClaimingReward}
+                          className="h-6 text-xs px-2"
+                        >
+                          {isClaimingReward ? '...' : 'Claim'}
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  !pezRewards.hasRecordedThisEpoch && pezRewards.epochStatus !== 'Open' && (
+                    <div className="text-2xl font-bold text-muted-foreground">0 PEZ</div>
+                  )
+                )}
+              </div>
+            ) : (
+              <div>
+                <div className="text-2xl font-bold text-muted-foreground">0 PEZ</div>
+                <p className="text-xs text-muted-foreground">No rewards available</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       <Tabs defaultValue="profile" className="space-y-4">
         <TabsList className="flex flex-wrap gap-1">

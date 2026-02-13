@@ -20,6 +20,12 @@ import {
   parseAmount,
   type StakingInfo
 } from '@pezkuwi/lib/staking';
+import {
+  recordTrustScore,
+  claimPezReward,
+  getPezRewards,
+  type PezRewardInfo
+} from '@pezkuwi/lib/scores';
 import { LoadingState } from '@pezkuwi/components/AsyncComponent';
 import { ValidatorPoolDashboard } from './ValidatorPoolDashboard';
 import { handleBlockchainError, handleBlockchainSuccess } from '@pezkuwi/lib/error-handler';
@@ -39,6 +45,9 @@ export const StakingDashboard: React.FC = () => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(false);
+  const [pezRewards, setPezRewards] = useState<PezRewardInfo | null>(null);
+  const [isRecordingScore, setIsRecordingScore] = useState(false);
+  const [isClaimingReward, setIsClaimingReward] = useState(false);
 
   // Fetch staking data
   useEffect(() => {
@@ -80,6 +89,82 @@ export const StakingDashboard: React.FC = () => {
     const interval = setInterval(fetchStakingData, 30000); // Refresh every 30s
     return () => clearInterval(interval);
   }, [api, peopleApi, isApiReady, isPeopleReady, selectedAccount]);
+
+  // Fetch PEZ rewards data separately from People Chain
+  useEffect(() => {
+    const fetchPezRewards = async () => {
+      if (!peopleApi || !isPeopleReady || !selectedAccount) return;
+
+      try {
+        const rewards = await getPezRewards(peopleApi, selectedAccount.address);
+        setPezRewards(rewards);
+      } catch (error) {
+        if (import.meta.env.DEV) console.warn('Failed to fetch PEZ rewards:', error);
+      }
+    };
+
+    fetchPezRewards();
+    const interval = setInterval(fetchPezRewards, 30000);
+    return () => clearInterval(interval);
+  }, [peopleApi, isPeopleReady, selectedAccount]);
+
+  const handleRecordTrustScore = async () => {
+    if (!peopleApi || !selectedAccount) return;
+
+    setIsRecordingScore(true);
+    try {
+      const injector = await web3FromAddress(selectedAccount.address);
+      const result = await recordTrustScore(peopleApi, selectedAccount.address, injector.signer);
+
+      if (result.success) {
+        handleBlockchainSuccess('pezRewards.recorded', toast);
+        // Refresh PEZ rewards data
+        setTimeout(async () => {
+          if (peopleApi && selectedAccount) {
+            const rewards = await getPezRewards(peopleApi, selectedAccount.address);
+            setPezRewards(rewards);
+          }
+        }, 3000);
+      } else {
+        toast.error(result.error || 'Failed to record trust score');
+      }
+    } catch (error) {
+      if (import.meta.env.DEV) console.error('Record trust score failed:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to record trust score');
+    } finally {
+      setIsRecordingScore(false);
+    }
+  };
+
+  const handleClaimReward = async (epochIndex: number) => {
+    if (!peopleApi || !selectedAccount) return;
+
+    setIsClaimingReward(true);
+    try {
+      const injector = await web3FromAddress(selectedAccount.address);
+      const result = await claimPezReward(peopleApi, selectedAccount.address, epochIndex, injector.signer);
+
+      if (result.success) {
+        const rewardInfo = pezRewards?.claimableRewards.find(r => r.epoch === epochIndex);
+        handleBlockchainSuccess('pezRewards.claimed', toast, { amount: rewardInfo?.amount || '0' });
+        refreshBalances();
+        // Refresh PEZ rewards data
+        setTimeout(async () => {
+          if (peopleApi && selectedAccount) {
+            const rewards = await getPezRewards(peopleApi, selectedAccount.address);
+            setPezRewards(rewards);
+          }
+        }, 3000);
+      } else {
+        toast.error(result.error || 'Failed to claim reward');
+      }
+    } catch (error) {
+      if (import.meta.env.DEV) console.error('Claim reward failed:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to claim reward');
+    } finally {
+      setIsClaimingReward(false);
+    }
+  };
 
   const handleBond = async () => {
     if (!api || !selectedAccount || !bondAmount) return;
@@ -425,36 +510,80 @@ export const StakingDashboard: React.FC = () => {
 
         <Card className="bg-gray-900 border-gray-800">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm text-gray-400">PEZ Rewards</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm text-gray-400">PEZ Rewards</CardTitle>
+              {pezRewards && (
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                  pezRewards.epochStatus === 'Open'
+                    ? 'bg-green-500/20 text-green-400'
+                    : pezRewards.epochStatus === 'ClaimPeriod'
+                    ? 'bg-orange-500/20 text-orange-400'
+                    : 'bg-gray-500/20 text-gray-400'
+                }`}>
+                  {pezRewards.epochStatus === 'Open' ? 'Open' : pezRewards.epochStatus === 'ClaimPeriod' ? 'Claim Period' : 'Closed'}
+                </span>
+              )}
+            </div>
           </CardHeader>
           <CardContent>
-            {stakingInfo?.pezRewards && stakingInfo.pezRewards.hasPendingClaim ? (
-              <>
-                <div className="text-2xl font-bold text-orange-500">
-                  {parseFloat(stakingInfo.pezRewards.totalClaimable).toFixed(2)} PEZ
-                </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  {stakingInfo.pezRewards.claimableRewards.length} epoch(s) to claim
-                </p>
-                <Button
-                  size="sm"
-                  onClick={() => {
-                    toast.info('Claim PEZ rewards functionality will be available soon');
-                  }}
-                  disabled={isLoading}
-                  className="mt-2 w-full bg-orange-600 hover:bg-orange-700"
-                >
-                  Claim Rewards
-                </Button>
-              </>
+            {pezRewards ? (
+              <div className="space-y-2">
+                <p className="text-xs text-gray-500">Epoch {pezRewards.currentEpoch}</p>
+
+                {/* Open epoch: Record score or show recorded score */}
+                {pezRewards.epochStatus === 'Open' && (
+                  pezRewards.hasRecordedThisEpoch ? (
+                    <div>
+                      <div className="text-lg font-bold text-green-400">
+                        Score: {pezRewards.userScoreCurrentEpoch}
+                      </div>
+                      <p className="text-xs text-gray-500">Recorded for this epoch</p>
+                    </div>
+                  ) : (
+                    <Button
+                      size="sm"
+                      onClick={handleRecordTrustScore}
+                      disabled={isRecordingScore}
+                      className="w-full bg-green-600 hover:bg-green-700"
+                    >
+                      {isRecordingScore ? 'Recording...' : 'Record Trust Score'}
+                    </Button>
+                  )
+                )}
+
+                {/* Claimable rewards */}
+                {pezRewards.hasPendingClaim ? (
+                  <>
+                    <div className="text-2xl font-bold text-orange-500">
+                      {parseFloat(pezRewards.totalClaimable).toFixed(2)} PEZ
+                    </div>
+                    <div className="space-y-1">
+                      {pezRewards.claimableRewards.map((reward) => (
+                        <div key={reward.epoch} className="flex items-center justify-between">
+                          <span className="text-xs text-gray-400">Epoch {reward.epoch}: {reward.amount} PEZ</span>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleClaimReward(reward.epoch)}
+                            disabled={isClaimingReward}
+                            className="h-6 text-xs px-2 border-orange-500 text-orange-400 hover:bg-orange-500/20"
+                          >
+                            {isClaimingReward ? '...' : 'Claim'}
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  !pezRewards.hasRecordedThisEpoch && pezRewards.epochStatus !== 'Open' && (
+                    <div className="text-2xl font-bold text-gray-500">0 PEZ</div>
+                  )
+                )}
+              </div>
             ) : (
               <>
                 <div className="text-2xl font-bold text-gray-500">0 PEZ</div>
-                <p className="text-xs text-gray-500 mt-1">
-                  {stakingInfo?.pezRewards
-                    ? `Epoch ${stakingInfo.pezRewards.currentEpoch}`
-                    : 'No rewards available'}
-                </p>
+                <p className="text-xs text-gray-500 mt-1">No rewards available</p>
               </>
             )}
           </CardContent>

@@ -1,13 +1,14 @@
 // ========================================
 // Score Systems Integration
 // ========================================
-// All scores come from People Chain (people-rpc.pezkuwichain.io)
-// - Trust Score: pezpallet-trust
-// - Referral Score: pezpallet-referral
-// - Staking Score: pezpallet-staking-score
-// - Tiki Score: pezpallet-tiki
+// Score pallets are distributed across chains:
+// - Trust Score: pezpallet-trust (People Chain)
+// - Referral Score: pezpallet-referral (People Chain)
+// - Staking Score: pezpallet-staking-score (Relay Chain - needs staking.ledger access)
+// - Tiki Score: pezpallet-tiki (People Chain)
 
 import type { ApiPromise } from '@pezkuwi/api';
+import { formatBalance } from './wallet';
 
 // ========================================
 // TYPE DEFINITIONS
@@ -26,6 +27,26 @@ export interface StakingScoreStatus {
   startBlock: number | null;
   currentBlock: number;
   durationBlocks: number;
+}
+
+export type EpochStatus = 'Open' | 'ClaimPeriod' | 'Closed';
+
+export interface EpochRewardPool {
+  totalRewardPool: string;
+  totalTrustScore: number;
+  participantsCount: number;
+  rewardPerTrustPoint: string;
+  claimDeadline: number;
+}
+
+export interface PezRewardInfo {
+  currentEpoch: number;
+  epochStatus: EpochStatus;
+  hasRecordedThisEpoch: boolean;
+  userScoreCurrentEpoch: number;
+  claimableRewards: { epoch: number; amount: string }[];
+  totalClaimable: string;
+  hasPendingClaim: boolean;
 }
 
 // ========================================
@@ -115,24 +136,27 @@ export async function getReferralCount(
 }
 
 // ========================================
-// STAKING SCORE (pezpallet-staking-score on People Chain)
+// STAKING SCORE (pezpallet-staking-score on Relay Chain)
 // ========================================
 
 /**
  * Check staking score tracking status
  * Storage: stakingScore.stakingStartBlock(address)
+ *
+ * IMPORTANT: stakingScore pallet is on the Relay Chain (not People Chain),
+ * because it needs access to staking.ledger for score calculation.
  */
 export async function getStakingScoreStatus(
-  peopleApi: ApiPromise,
+  relayApi: ApiPromise,
   address: string
 ): Promise<StakingScoreStatus> {
   try {
-    if (!peopleApi?.query?.stakingScore?.stakingStartBlock) {
+    if (!relayApi?.query?.stakingScore?.stakingStartBlock) {
       return { isTracking: false, startBlock: null, currentBlock: 0, durationBlocks: 0 };
     }
 
-    const startBlockResult = await peopleApi.query.stakingScore.stakingStartBlock(address);
-    const currentBlock = Number((await peopleApi.query.system.number()).toString());
+    const startBlockResult = await relayApi.query.stakingScore.stakingStartBlock(address);
+    const currentBlock = Number((await relayApi.query.system.number()).toString());
 
     if (startBlockResult.isEmpty || startBlockResult.isNone) {
       return { isTracking: false, startBlock: null, currentBlock, durationBlocks: 0 };
@@ -156,25 +180,29 @@ export async function getStakingScoreStatus(
 /**
  * Start staking score tracking
  * Calls: stakingScore.startScoreTracking()
+ *
+ * IMPORTANT: This must be called on the Relay Chain API (not People Chain),
+ * because the stakingScore pallet needs access to staking.ledger to verify
+ * the user has an active stake. The staking pallet only exists on Relay Chain.
  */
 export async function startScoreTracking(
-  peopleApi: ApiPromise,
+  relayApi: ApiPromise,
   address: string,
   signer: any
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    if (!peopleApi?.tx?.stakingScore?.startScoreTracking) {
-      return { success: false, error: 'stakingScore pallet not available' };
+    if (!relayApi?.tx?.stakingScore?.startScoreTracking) {
+      return { success: false, error: 'stakingScore pallet not available on this chain' };
     }
 
-    const tx = peopleApi.tx.stakingScore.startScoreTracking();
+    const tx = relayApi.tx.stakingScore.startScoreTracking();
 
     return new Promise((resolve) => {
       tx.signAndSend(address, { signer }, ({ status, dispatchError }) => {
         if (status.isInBlock || status.isFinalized) {
           if (dispatchError) {
             if (dispatchError.isModule) {
-              const decoded = peopleApi.registry.findMetaError(dispatchError.asModule);
+              const decoded = relayApi.registry.findMetaError(dispatchError.asModule);
               resolve({ success: false, error: `${decoded.section}.${decoded.name}: ${decoded.docs.join(' ')}` });
             } else {
               resolve({ success: false, error: dispatchError.toString() });
@@ -358,5 +386,198 @@ export async function getPerwerdeScore(
   } catch (err) {
     console.error('Error fetching perwerde score:', err);
     return 0;
+  }
+}
+
+// ========================================
+// PEZ REWARDS (pezRewards pallet on People Chain)
+// ========================================
+
+/**
+ * Get PEZ rewards information for an account
+ * Uses correct storage query names from pezRewards pallet:
+ * - getCurrentEpochInfo() → epoch info
+ * - epochStatus(epoch) → Open | ClaimPeriod | Closed
+ * - getUserTrustScoreForEpoch(epoch, addr) → user's recorded score
+ * - getClaimedReward(epoch, addr) → claimed reward amount
+ * - getEpochRewardPool(epoch) → reward pool info
+ */
+export async function getPezRewards(
+  peopleApi: ApiPromise,
+  address: string
+): Promise<PezRewardInfo | null> {
+  try {
+    if (!peopleApi?.query?.pezRewards?.getCurrentEpochInfo) {
+      console.warn('PezRewards pallet not available on People Chain');
+      return null;
+    }
+
+    // Get current epoch info
+    const epochInfoResult = await peopleApi.query.pezRewards.getCurrentEpochInfo();
+    if (!epochInfoResult) {
+      return null;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const epochInfo = epochInfoResult.toJSON() as any;
+    const currentEpoch: number = epochInfo.currentEpoch ?? epochInfo.current_epoch ?? 0;
+
+    // Get current epoch status
+    let epochStatus: EpochStatus = 'Open';
+    try {
+      const statusResult = await peopleApi.query.pezRewards.epochStatus(currentEpoch);
+      const statusStr = statusResult.toString();
+      if (statusStr === 'ClaimPeriod') epochStatus = 'ClaimPeriod';
+      else if (statusStr === 'Closed') epochStatus = 'Closed';
+      else epochStatus = 'Open';
+    } catch {
+      // Default to Open if query fails
+    }
+
+    // Check if user has recorded their score this epoch
+    let hasRecordedThisEpoch = false;
+    let userScoreCurrentEpoch = 0;
+    try {
+      const userScoreResult = await peopleApi.query.pezRewards.getUserTrustScoreForEpoch(currentEpoch, address);
+      if (userScoreResult.isSome) {
+        hasRecordedThisEpoch = true;
+        const scoreCodec = userScoreResult.unwrap() as { toString: () => string };
+        userScoreCurrentEpoch = Number(scoreCodec.toString());
+      }
+    } catch {
+      // User hasn't recorded
+    }
+
+    // Check for claimable rewards from completed epochs
+    const claimableRewards: { epoch: number; amount: string }[] = [];
+    let totalClaimable = BigInt(0);
+
+    for (let i = Math.max(0, currentEpoch - 3); i < currentEpoch; i++) {
+      try {
+        // Check epoch status - only ClaimPeriod epochs are claimable
+        const pastStatusResult = await peopleApi.query.pezRewards.epochStatus(i);
+        const pastStatus = pastStatusResult.toString();
+        if (pastStatus !== 'ClaimPeriod') continue;
+
+        // Check if user already claimed
+        const claimedResult = await peopleApi.query.pezRewards.getClaimedReward(i, address);
+        if (claimedResult.isSome) continue;
+
+        // Check if user has a score for this epoch
+        const userScoreResult = await peopleApi.query.pezRewards.getUserTrustScoreForEpoch(i, address);
+        if (!userScoreResult.isSome) continue;
+
+        // Get epoch reward pool
+        const epochPoolResult = await peopleApi.query.pezRewards.getEpochRewardPool(i);
+        if (!epochPoolResult.isSome) continue;
+
+        const epochPoolCodec = epochPoolResult.unwrap() as { toJSON: () => unknown };
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const epochPool = epochPoolCodec.toJSON() as any;
+        const userScoreCodec = userScoreResult.unwrap() as { toString: () => string };
+        const userScore = BigInt(userScoreCodec.toString());
+        const rewardPerPoint = BigInt(epochPool.rewardPerTrustPoint || epochPool.reward_per_trust_point || '0');
+
+        const rewardAmount = userScore * rewardPerPoint;
+        const rewardFormatted = formatBalance(rewardAmount.toString());
+
+        if (parseFloat(rewardFormatted) > 0) {
+          claimableRewards.push({ epoch: i, amount: rewardFormatted });
+          totalClaimable += rewardAmount;
+        }
+      } catch (err) {
+        console.warn(`Error checking epoch ${i} rewards:`, err);
+      }
+    }
+
+    return {
+      currentEpoch,
+      epochStatus,
+      hasRecordedThisEpoch,
+      userScoreCurrentEpoch,
+      claimableRewards,
+      totalClaimable: formatBalance(totalClaimable.toString()),
+      hasPendingClaim: claimableRewards.length > 0,
+    };
+  } catch (error) {
+    console.warn('PEZ rewards not available:', error);
+    return null;
+  }
+}
+
+/**
+ * Record trust score for the current epoch
+ * Calls: pezRewards.recordTrustScore()
+ */
+export async function recordTrustScore(
+  peopleApi: ApiPromise,
+  address: string,
+  signer: any
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    if (!peopleApi?.tx?.pezRewards?.recordTrustScore) {
+      return { success: false, error: 'pezRewards pallet not available' };
+    }
+
+    const tx = peopleApi.tx.pezRewards.recordTrustScore();
+
+    return new Promise((resolve) => {
+      tx.signAndSend(address, { signer }, ({ status, dispatchError }: any) => {
+        if (status.isInBlock || status.isFinalized) {
+          if (dispatchError) {
+            if (dispatchError.isModule) {
+              const decoded = peopleApi.registry.findMetaError(dispatchError.asModule);
+              resolve({ success: false, error: `${decoded.section}.${decoded.name}` });
+            } else {
+              resolve({ success: false, error: dispatchError.toString() });
+            }
+          } else {
+            resolve({ success: true });
+          }
+        }
+      });
+    });
+  } catch (error) {
+    console.error('Error recording trust score:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+}
+
+/**
+ * Claim PEZ reward for a specific epoch
+ * Calls: pezRewards.claimReward(epochIndex)
+ */
+export async function claimPezReward(
+  peopleApi: ApiPromise,
+  address: string,
+  epochIndex: number,
+  signer: any
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    if (!peopleApi?.tx?.pezRewards?.claimReward) {
+      return { success: false, error: 'pezRewards pallet not available' };
+    }
+
+    const tx = peopleApi.tx.pezRewards.claimReward(epochIndex);
+
+    return new Promise((resolve) => {
+      tx.signAndSend(address, { signer }, ({ status, dispatchError }: any) => {
+        if (status.isInBlock || status.isFinalized) {
+          if (dispatchError) {
+            if (dispatchError.isModule) {
+              const decoded = peopleApi.registry.findMetaError(dispatchError.asModule);
+              resolve({ success: false, error: `${decoded.section}.${decoded.name}` });
+            } else {
+              resolve({ success: false, error: dispatchError.toString() });
+            }
+          } else {
+            resolve({ success: true });
+          }
+        }
+      });
+    });
+  } catch (error) {
+    console.error('Error claiming PEZ reward:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
   }
 }

@@ -38,6 +38,28 @@ const ERROR_MESSAGES: Record<string, ErrorMessage> = {
     kmr: 'Zêde chunk unbonding hene. Ji kerema xwe li çavkaniyên berê bisekine.',
   },
 
+  // PEZ Rewards errors
+  'pezRewards.ClaimPeriodExpired': {
+    en: 'The claim period for this epoch has expired. Rewards can no longer be claimed.',
+    kmr: 'Dema daxwazkirinê ji bo vê epoch-ê qediya. Xelat êdî nayên wergirtin.',
+  },
+  'pezRewards.RewardAlreadyClaimed': {
+    en: 'You have already claimed your reward for this epoch.',
+    kmr: 'We berê xelata xwe ji bo vê epoch-ê wergirtiye.',
+  },
+  'pezRewards.NoTrustScoreForEpoch': {
+    en: 'No trust score recorded for this epoch. You must record your score before claiming.',
+    kmr: 'Ji bo vê epoch-ê skora emîniyê tomar nebûye. Pêşî divê skora xwe tomar bikî.',
+  },
+  'pezRewards.NoRewardToClaim': {
+    en: 'No reward available to claim for this epoch.',
+    kmr: 'Ji bo vê epoch-ê xelateke ku were wergirtin tune ye.',
+  },
+  'pezRewards.EpochAlreadyClosed': {
+    en: 'This epoch is already closed. No further actions can be taken.',
+    kmr: 'Ev epoch berê girtî ye. Tu çalakî êdî nayê kirin.',
+  },
+
   // Identity KYC errors
   'identityKyc.AlreadyApplied': {
     en: 'You already have a pending citizenship application. Please wait for approval.',
@@ -428,6 +450,16 @@ export const SUCCESS_MESSAGES: Record<string, SuccessMessage> = {
   'staking.scoreStarted': {
     en: 'Staking score tracking started! Your score will accumulate over time.',
     kmr: 'Şopa staking dest pê kir! Xala we dê bi demê re kom bibe.',
+  },
+
+  // PEZ Rewards
+  'pezRewards.recorded': {
+    en: 'Trust score recorded for this epoch. Your score will be used for reward calculation.',
+    kmr: 'Skora emîniyê ji bo vê epoch-ê tomar bû. Skora we dê ji bo hesabkirina xelatê were bikaranîn.',
+  },
+  'pezRewards.claimed': {
+    en: '{{amount}} PEZ reward claimed successfully!',
+    kmr: '{{amount}} PEZ xelat bi serkeftî hate wergirtin!',
   },
 
   // Citizenship
