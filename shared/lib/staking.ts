@@ -5,6 +5,7 @@
 
 import { ApiPromise } from '@pezkuwi/api';
 import { formatBalance } from './wallet';
+import { getPezRewards, type PezRewardInfo } from './scores';
 
 export interface StakingLedger {
   stash: string;
@@ -28,14 +29,6 @@ export interface ValidatorPrefs {
 export interface EraRewardPoints {
   total: number;
   individual: Record<string, number>;
-}
-
-export interface PezRewardInfo {
-  currentEpoch: number;
-  epochStartBlock: number;
-  claimableRewards: { epoch: number; amount: string }[]; // Unclaimed rewards from completed epochs
-  totalClaimable: string;
-  hasPendingClaim: boolean;
 }
 
 export interface StakingInfo {
@@ -188,90 +181,6 @@ export async function getBlocksUntilEra(
 }
 
 /**
- * Get PEZ rewards information for an account
- * Note: pezRewards pallet is on People Chain, not Relay Chain
- */
-export async function getPezRewards(
-  peopleApi: ApiPromise,
-  address: string
-): Promise<PezRewardInfo | null> {
-  try {
-    // Check if pezRewards pallet exists on People Chain
-    if (!peopleApi?.query?.pezRewards || !peopleApi.query.pezRewards.epochInfo) {
-      console.warn('PezRewards pallet not available on People Chain');
-      return null;
-    }
-
-    // Get current epoch info
-    const epochInfoResult = await peopleApi.query.pezRewards.epochInfo();
-
-    if (!epochInfoResult) {
-      console.warn('No epoch info found');
-      return null;
-    }
-
-    const epochInfo = epochInfoResult.toJSON() as any;
-    const currentEpoch = epochInfo.currentEpoch || 0;
-    const epochStartBlock = epochInfo.epochStartBlock || 0;
-
-    // Check for claimable rewards from completed epochs
-    const claimableRewards: { epoch: number; amount: string }[] = [];
-    let totalClaimable = BigInt(0);
-
-    // Check last 3 completed epochs for unclaimed rewards
-    for (let i = Math.max(0, currentEpoch - 3); i < currentEpoch; i++) {
-      try {
-        // Check if user has claimed this epoch already
-        const claimedResult = await peopleApi.query.pezRewards.claimedRewards(i, address);
-
-        if (claimedResult.isNone) {
-          // User hasn't claimed - check if they have rewards
-          const userScoreResult = await peopleApi.query.pezRewards.userEpochScores(i, address);
-
-          if (userScoreResult.isSome) {
-            // User has a score for this epoch - calculate their reward
-            const epochPoolResult = await peopleApi.query.pezRewards.epochRewardPools(i);
-
-            if (epochPoolResult.isSome) {
-              const epochPoolCodec = epochPoolResult.unwrap() as { toJSON: () => unknown };
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              const epochPool = epochPoolCodec.toJSON() as any;
-              const userScoreCodec = userScoreResult.unwrap() as { toString: () => string };
-              const userScore = BigInt(userScoreCodec.toString());
-              const rewardPerPoint = BigInt(epochPool.rewardPerTrustPoint || '0');
-
-              const rewardAmount = userScore * rewardPerPoint;
-              const rewardFormatted = formatBalance(rewardAmount.toString());
-
-              if (parseFloat(rewardFormatted) > 0) {
-                claimableRewards.push({
-                  epoch: i,
-                  amount: rewardFormatted
-                });
-                totalClaimable += rewardAmount;
-              }
-            }
-          }
-        }
-      } catch (err) {
-        console.warn(`Error checking epoch ${i} rewards:`, err);
-      }
-    }
-
-    return {
-      currentEpoch,
-      epochStartBlock,
-      claimableRewards,
-      totalClaimable: formatBalance(totalClaimable.toString()),
-      hasPendingClaim: claimableRewards.length > 0
-    };
-  } catch (error) {
-    console.warn('PEZ rewards not available:', error);
-    return null;
-  }
-}
-
-/**
  * Get comprehensive staking info for an account
  * @param api - Relay Chain API (for staking pallet)
  * @param address - User address
@@ -329,17 +238,16 @@ export async function getStakingInfo(
   let hasStartedScoreTracking = false;
 
   try {
-    // stakingScore pallet is on People Chain
-    const scoreApi = peopleApi || api;
-    if (scoreApi.query.stakingScore && scoreApi.query.stakingScore.stakingStartBlock) {
+    // stakingScore pallet is on Relay Chain (same as staking pallet, needs staking.ledger access)
+    if (api.query.stakingScore && api.query.stakingScore.stakingStartBlock) {
       // Check if user has started score tracking
-      const scoreResult = await scoreApi.query.stakingScore.stakingStartBlock(address);
+      const scoreResult = await api.query.stakingScore.stakingStartBlock(address);
 
       if (scoreResult.isSome) {
         hasStartedScoreTracking = true;
         const startBlockCodec = scoreResult.unwrap() as { toString: () => string };
         const startBlock = Number(startBlockCodec.toString());
-        const currentBlock = Number((await scoreApi.query.system.number()).toString());
+        const currentBlock = Number((await api.query.system.number()).toString());
         const durationInBlocks = currentBlock - startBlock;
         stakingDuration = durationInBlocks;
 

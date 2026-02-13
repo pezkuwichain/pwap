@@ -209,7 +209,7 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({ isOpen, 
             }
 
             // Parse pezRewards operations
-            else if (method.section === 'pezRewards' && method.method === 'claimReward') {
+            else if (method.section === 'pezRewards' && (method.method === 'claimReward' || method.method === 'recordTrustScore')) {
               txList.push({
                 blockNumber,
                 extrinsicIndex: index,
