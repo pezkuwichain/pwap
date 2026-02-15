@@ -26,12 +26,12 @@ type TransactionStatus = 'idle' | 'signing' | 'submitting' | 'success' | 'error'
 
 // All supported tokens - filtered dynamically based on available pools
 const ALL_TOKENS = [
-  { symbol: 'HEZ', emoji: '🟡', assetId: -1, name: 'HEZ', decimals: 12, displaySymbol: 'HEZ', logo: '/shared/images/hez_token_512.png' },
-  { symbol: 'PEZ', emoji: '🔵', assetId: 1, name: 'PEZ', decimals: 12, displaySymbol: 'PEZ', logo: '/shared/images/pez.png' },
-  { symbol: 'USDT', emoji: '💵', assetId: 1000, name: 'USDT', decimals: 6, displaySymbol: 'USDT', logo: '/shared/images/USDT(hez)logo.png' },
-  { symbol: 'DOT', emoji: '🔴', assetId: 1001, name: 'DOT', decimals: 10, displaySymbol: 'DOT', logo: '/shared/images/dot.png' },
-  { symbol: 'ETH', emoji: '💎', assetId: 1002, name: 'ETH', decimals: 18, displaySymbol: 'ETH', logo: '/shared/images/etherium.png' },
-  { symbol: 'BTC', emoji: '🟠', assetId: 1003, name: 'BTC', decimals: 8, displaySymbol: 'BTC', logo: '/shared/images/bitcoin.png' },
+  { symbol: 'HEZ', emoji: '🟡', assetId: -1, name: 'HEZ', decimals: 12, displaySymbol: 'HEZ', logo: '/tokens/HEZ.png' },
+  { symbol: 'PEZ', emoji: '🔵', assetId: 1, name: 'PEZ', decimals: 12, displaySymbol: 'PEZ', logo: '/tokens/PEZ.png' },
+  { symbol: 'USDT', emoji: '💵', assetId: 1000, name: 'USDT', decimals: 6, displaySymbol: 'USDT', logo: '/tokens/USDT.png' },
+  { symbol: 'DOT', emoji: '🔴', assetId: 1001, name: 'DOT', decimals: 10, displaySymbol: 'DOT', logo: '/tokens/DOT.png' },
+  { symbol: 'ETH', emoji: '💎', assetId: 1002, name: 'ETH', decimals: 18, displaySymbol: 'ETH', logo: '/tokens/ETH.png' },
+  { symbol: 'BTC', emoji: '🟠', assetId: 1003, name: 'BTC', decimals: 8, displaySymbol: 'BTC', logo: '/tokens/BTC.png' },
 ] as const;
 
 // Helper to get tokens that have available pools

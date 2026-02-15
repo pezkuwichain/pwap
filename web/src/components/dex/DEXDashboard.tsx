@@ -142,28 +142,28 @@ export const DEXDashboard: React.FC = () => {
                         onClick={() => setShowInitializeUsdtModal(true)}
                         className="flex items-center justify-center gap-2 px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium"
                       >
-                        <img src="/shared/images/USDT(hez)logo.png" alt="USDT" className="w-5 h-5 rounded-full" />
+                        <img src="/tokens/USDT.png" alt="USDT" className="w-5 h-5 rounded-full" />
                         Mint wUSDT
                       </button>
                       <button
                         onClick={() => setMintModalAsset(MINTABLE_ASSETS.wDOT)}
                         className="flex items-center justify-center gap-2 px-4 py-3 bg-pink-600 hover:bg-pink-700 text-white rounded-lg transition-colors font-medium"
                       >
-                        <img src="/shared/images/dot.png" alt="DOT" className="w-5 h-5 rounded-full" />
+                        <img src="/tokens/DOT.png" alt="DOT" className="w-5 h-5 rounded-full" />
                         Mint wDOT
                       </button>
                       <button
                         onClick={() => setMintModalAsset(MINTABLE_ASSETS.wETH)}
                         className="flex items-center justify-center gap-2 px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors font-medium"
                       >
-                        <img src="/shared/images/etherium.png" alt="ETH" className="w-5 h-5 rounded-full" />
+                        <img src="/tokens/ETH.png" alt="ETH" className="w-5 h-5 rounded-full" />
                         Mint wETH
                       </button>
                       <button
                         onClick={() => setMintModalAsset(MINTABLE_ASSETS.wBTC)}
                         className="flex items-center justify-center gap-2 px-4 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors font-medium"
                       >
-                        <img src="/shared/images/bitcoin.png" alt="BTC" className="w-5 h-5 rounded-full" />
+                        <img src="/tokens/BTC.png" alt="BTC" className="w-5 h-5 rounded-full" />
                         Mint wBTC
                       </button>
                     </div>

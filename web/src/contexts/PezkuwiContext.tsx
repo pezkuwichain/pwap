@@ -121,6 +121,10 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
                 extrinsic: {},
                 payload: {},
               },
+              StorageWeightReclaim: {
+                extrinsic: {},
+                payload: {},
+              },
             },
           });
 
@@ -198,6 +202,10 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
               extrinsic: {},
               payload: {},
             },
+            StorageWeightReclaim: {
+              extrinsic: {},
+              payload: {},
+            },
           },
         });
 
@@ -229,6 +237,10 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
           provider,
           signedExtensions: {
             AuthorizeCall: {
+              extrinsic: {},
+              payload: {},
+            },
+            StorageWeightReclaim: {
               extrinsic: {},
               payload: {},
             },
