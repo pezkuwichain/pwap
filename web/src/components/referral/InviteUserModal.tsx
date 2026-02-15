@@ -21,7 +21,7 @@ interface InviteUserModalProps {
 }
 
 export const InviteUserModal: React.FC<InviteUserModalProps> = ({ isOpen, onClose }) => {
-  const { api, selectedAccount } = usePezkuwi();
+  const { peopleApi, isPeopleReady, selectedAccount } = usePezkuwi();
   const [copied, setCopied] = useState(false);
   const [inviteeAddress, setInviteeAddress] = useState('');
   const [initiating, setInitiating] = useState(false);
@@ -69,8 +69,8 @@ export const InviteUserModal: React.FC<InviteUserModalProps> = ({ isOpen, onClos
   };
 
   const handleInitiateReferral = async () => {
-    if (!api || !selectedAccount || !inviteeAddress) {
-      setInitiateError('Please enter a valid address');
+    if (!peopleApi || !isPeopleReady || !selectedAccount || !inviteeAddress) {
+      setInitiateError('Please connect wallet and enter a valid address');
       return;
     }
 
@@ -84,13 +84,14 @@ export const InviteUserModal: React.FC<InviteUserModalProps> = ({ isOpen, onClos
 
       if (import.meta.env.DEV) console.log(`Initiating referral from ${selectedAccount.address} to ${inviteeAddress}...`);
 
-      const tx = api.tx.referral.initiateReferral(inviteeAddress);
+      // referral pallet is on People Chain
+      const tx = peopleApi.tx.referral.initiateReferral(inviteeAddress);
 
       await tx.signAndSend(selectedAccount.address, { signer: injector.signer }, ({ status, dispatchError }) => {
         if (dispatchError) {
           let errorMessage = 'Transaction failed';
           if (dispatchError.isModule) {
-            const decoded = api.registry.findMetaError(dispatchError.asModule);
+            const decoded = peopleApi.registry.findMetaError(dispatchError.asModule);
             errorMessage = `${decoded.section}.${decoded.name}: ${decoded.docs.join(' ')}`;
           } else {
             errorMessage = dispatchError.toString();
@@ -110,7 +111,7 @@ export const InviteUserModal: React.FC<InviteUserModalProps> = ({ isOpen, onClos
       });
     } catch (err: unknown) {
       if (import.meta.env.DEV) console.error('Failed to initiate referral:', err);
-      setInitiateError(err.message || 'Failed to initiate referral');
+      setInitiateError(err instanceof Error ? err.message : 'Failed to initiate referral');
       setInitiating(false);
     }
   };
