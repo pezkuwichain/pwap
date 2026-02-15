@@ -10,9 +10,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Checkbox } from '@/components/ui/checkbox';
 import { Loader2, AlertTriangle, CheckCircle, User, Users as UsersIcon, MapPin, Briefcase, Mail, Check, X, AlertCircle } from 'lucide-react';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
-import type { CitizenshipData, Region, MaritalStatus } from '@pezkuwi/lib/citizenship-workflow';
-import { FOUNDER_ADDRESS, submitKycApplication, subscribeToKycApproval, getKycStatus } from '@pezkuwi/lib/citizenship-workflow';
-import { generateCommitmentHash, generateNullifierHash, encryptData, saveLocalCitizenshipData, uploadToIPFS } from '@pezkuwi/lib/citizenship-workflow';
+import { blake2AsHex } from '@pezkuwi/util-crypto';
+import type { CitizenshipData, Region, MaritalStatus, KycStatus } from '@pezkuwi/lib/citizenship-workflow';
+import { FOUNDER_ADDRESS, submitKycApplication, subscribeToKycApproval, getKycStatus, cancelApplication, confirmCitizenship } from '@pezkuwi/lib/citizenship-workflow';
+import { encryptData, saveLocalCitizenshipData, uploadToIPFS } from '@pezkuwi/lib/citizenship-workflow';
 
 interface NewCitizenApplicationProps {
   onClose: () => void;
@@ -28,83 +29,75 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
 
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [waitingForApproval, setWaitingForApproval] = useState(false);
+  const [currentStatus, setCurrentStatus] = useState<KycStatus>('NotStarted');
   const [kycApproved, setKycApproved] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [agreed, setAgreed] = useState(false);
   const [confirming, setConfirming] = useState(false);
+  const [canceling, setCanceling] = useState(false);
   const [applicationHash, setApplicationHash] = useState<string>('');
 
   const maritalStatus = watch('maritalStatus');
   const childrenCount = watch('childrenCount');
 
-  const handleApprove = async () => {
-    // identityKyc pallet is on People Chain
+  const handleConfirmCitizenship = async () => {
     if (!peopleApi || !isPeopleReady || !selectedAccount) {
       setError('Please connect your wallet and wait for People Chain connection');
       return;
     }
 
     setConfirming(true);
+    setError(null);
     try {
-      const { web3FromAddress } = await import('@pezkuwi/extension-dapp');
-      const injector = await web3FromAddress(selectedAccount.address);
+      const result = await confirmCitizenship(peopleApi, selectedAccount);
 
-      if (import.meta.env.DEV) console.log('Confirming citizenship application on People Chain (self-confirmation)...');
+      if (!result.success) {
+        setError(result.error || 'Failed to confirm citizenship');
+        setConfirming(false);
+        return;
+      }
 
-      // Call confirm_citizenship() extrinsic on People Chain - self-confirmation for Welati Tiki
-      const tx = peopleApi.tx.identityKyc.confirmCitizenship();
+      setKycApproved(true);
+      setCurrentStatus('Approved');
 
-      await tx.signAndSend(selectedAccount.address, { signer: injector.signer }, ({ status, events, dispatchError }) => {
-        if (dispatchError) {
-          if (dispatchError.isModule) {
-            const decoded = peopleApi.registry.findMetaError(dispatchError.asModule);
-            if (import.meta.env.DEV) console.error(`${decoded.section}.${decoded.name}: ${decoded.docs.join(' ')}`);
-            setError(`${decoded.section}.${decoded.name}: ${decoded.docs.join(' ')}`);
-          } else {
-            if (import.meta.env.DEV) console.error(dispatchError.toString());
-            setError(dispatchError.toString());
-          }
-          setConfirming(false);
-          return;
-        }
-
-        if (status.isInBlock || status.isFinalized) {
-          if (import.meta.env.DEV) console.log('✅ Citizenship confirmed successfully on People Chain!');
-          if (import.meta.env.DEV) console.log('Block hash:', status.asInBlock || status.asFinalized);
-
-          // Check for CitizenshipConfirmed event
-          events.forEach(({ event }) => {
-            if (event.section === 'identityKyc' && event.method === 'CitizenshipConfirmed') {
-              if (import.meta.env.DEV) console.log('📢 CitizenshipConfirmed event detected');
-              setKycApproved(true);
-              setWaitingForApproval(false);
-
-              // Redirect to citizen dashboard after 2 seconds
-              setTimeout(() => {
-                onClose();
-                window.location.href = '/dashboard';
-              }, 2000);
-            }
-          });
-
-          setConfirming(false);
-        }
-      });
-
+      setTimeout(() => {
+        onClose();
+        window.location.href = '/dashboard';
+      }, 2000);
     } catch (err) {
-      if (import.meta.env.DEV) console.error('Approval error:', err);
-      setError((err as Error).message || 'Failed to approve application');
+      if (import.meta.env.DEV) console.error('Confirmation error:', err);
+      setError((err as Error).message || 'Failed to confirm citizenship');
+    } finally {
       setConfirming(false);
     }
   };
 
-  const handleReject = async () => {
-    // Cancel/withdraw the application - simply close modal and go back
-    // No blockchain interaction needed - application will remain Pending until confirmed or admin-rejected
-    if (import.meta.env.DEV) console.log('Canceling citizenship application (no blockchain interaction)');
-    onClose();
-    window.location.href = '/';
+  const handleCancelApplication = async () => {
+    if (!peopleApi || !isPeopleReady || !selectedAccount) {
+      setError('Please connect your wallet and wait for People Chain connection');
+      return;
+    }
+
+    setCanceling(true);
+    setError(null);
+    try {
+      const result = await cancelApplication(peopleApi, selectedAccount);
+
+      if (!result.success) {
+        setError(result.error || 'Failed to cancel application');
+        setCanceling(false);
+        return;
+      }
+
+      if (import.meta.env.DEV) console.log('Application canceled, deposit returned');
+      onClose();
+      window.location.href = '/';
+    } catch (err) {
+      if (import.meta.env.DEV) console.error('Cancel error:', err);
+      setError((err as Error).message || 'Failed to cancel application');
+    } finally {
+      setCanceling(false);
+    }
   };
 
   // Check KYC status on mount (identityKyc pallet is on People Chain)
@@ -117,19 +110,14 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
       try {
         const status = await getKycStatus(peopleApi, selectedAccount.address);
         if (import.meta.env.DEV) console.log('Current KYC Status from People Chain:', status);
+        setCurrentStatus(status);
 
         if (status === 'Approved') {
-          if (import.meta.env.DEV) console.log('KYC already approved! Redirecting to dashboard...');
           setKycApproved(true);
-
-          // Redirect to dashboard after 2 seconds
           setTimeout(() => {
             onClose();
             window.location.href = '/dashboard';
           }, 2000);
-        } else if (status === 'Pending') {
-          // If pending, show the waiting screen
-          setWaitingForApproval(true);
         }
       } catch (err) {
         if (import.meta.env.DEV) console.error('Error checking KYC status:', err);
@@ -139,31 +127,34 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
     checkKycStatus();
   }, [peopleApi, isPeopleReady, selectedAccount, onClose]);
 
-  // Subscribe to KYC approval events on People Chain
+  // Subscribe to citizenship events on People Chain
   useEffect(() => {
-    if (!peopleApi || !isPeopleReady || !selectedAccount || !waitingForApproval) {
+    const isPending = currentStatus === 'PendingReferral' || currentStatus === 'ReferrerApproved';
+    if (!peopleApi || !isPeopleReady || !selectedAccount || !isPending) {
       return;
     }
 
-    if (import.meta.env.DEV) console.log('Setting up KYC approval listener on People Chain for:', selectedAccount.address);
+    if (import.meta.env.DEV) console.log('Setting up citizenship event listener on People Chain for:', selectedAccount.address);
 
     const unsubscribe = subscribeToKycApproval(
       peopleApi,
       selectedAccount.address,
       () => {
-        if (import.meta.env.DEV) console.log('KYC Approved on People Chain! Redirecting to dashboard...');
+        // CitizenshipConfirmed
         setKycApproved(true);
-        setWaitingForApproval(false);
-
-        // Redirect to citizen dashboard after 2 seconds
+        setCurrentStatus('Approved');
         setTimeout(() => {
           onClose();
           window.location.href = '/dashboard';
         }, 2000);
       },
       (error) => {
-        if (import.meta.env.DEV) console.error('KYC approval subscription error:', error);
-        setError(`Failed to monitor approval status: ${error}`);
+        if (import.meta.env.DEV) console.error('Citizenship event subscription error:', error);
+        setError(`Failed to monitor status: ${error}`);
+      },
+      () => {
+        // ReferralApproved - referrer vouched, now user can confirm
+        setCurrentStatus('ReferrerApproved');
       }
     );
 
@@ -172,7 +163,7 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
         unsubscribe();
       }
     };
-  }, [peopleApi, isPeopleReady, selectedAccount, waitingForApproval, onClose]);
+  }, [peopleApi, isPeopleReady, selectedAccount, currentStatus, onClose]);
 
   const onSubmit = async (data: FormData) => {
     // identityKyc pallet is on People Chain
@@ -191,10 +182,10 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
 
     try {
       // Check KYC status before submitting (from People Chain)
-      const currentStatus = await getKycStatus(peopleApi, selectedAccount.address);
+      const status = await getKycStatus(peopleApi, selectedAccount.address);
 
-      if (currentStatus === 'Approved') {
-        setError('Your KYC has already been approved! Redirecting to dashboard...');
+      if (status === 'Approved') {
+        setError('Your citizenship is already approved! Redirecting to dashboard...');
         setKycApproved(true);
         setTimeout(() => {
           onClose();
@@ -203,17 +194,10 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
         return;
       }
 
-      if (currentStatus === 'Pending') {
-        setError('You already have a pending KYC application. Please wait for admin approval.');
-        setWaitingForApproval(true);
+      if (status === 'PendingReferral' || status === 'ReferrerApproved') {
+        setError('You already have a pending citizenship application.');
+        setCurrentStatus(status);
         return;
-      }
-
-      // Note: Referral initiation must be done by the REFERRER before the referee does KYC
-      // The referrer calls api.tx.referral.initiateReferral(refereeAddress) from InviteUserModal
-      // Here we just use the referrerAddress in the citizenship data if provided
-      if (referrerAddress) {
-        if (import.meta.env.DEV) console.log(`KYC application with referrer: ${referrerAddress}`);
       }
 
       // Prepare complete citizenship data
@@ -221,64 +205,60 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
         ...data,
         walletAddress: selectedAccount.address,
         timestamp: Date.now(),
-        referralCode: data.referralCode || FOUNDER_ADDRESS // Auto-assign to founder if empty
+        referralCode: data.referralCode || referrerAddress || undefined
       };
 
-      // Generate commitment and nullifier hashes
-      const commitmentHash = await generateCommitmentHash(citizenshipData);
-      const nullifierHash = await generateNullifierHash(selectedAccount.address, citizenshipData.timestamp);
+      // Compute identity hash (H256) from citizenship data
+      const identityHash = blake2AsHex(
+        JSON.stringify({
+          fullName: citizenshipData.fullName,
+          fatherName: citizenshipData.fatherName,
+          grandfatherName: citizenshipData.grandfatherName,
+          motherName: citizenshipData.motherName,
+          tribe: citizenshipData.tribe,
+          region: citizenshipData.region,
+          email: citizenshipData.email,
+          profession: citizenshipData.profession,
+          walletAddress: citizenshipData.walletAddress
+        }),
+        256
+      );
 
-      if (import.meta.env.DEV) console.log('Commitment Hash:', commitmentHash);
-      if (import.meta.env.DEV) console.log('Nullifier Hash:', nullifierHash);
+      if (import.meta.env.DEV) console.log('Identity Hash:', identityHash);
 
-      // Encrypt data
-      const encryptedData = await encryptData(citizenshipData, selectedAccount.address);
-
-      // Save to local storage (backup)
-      await saveLocalCitizenshipData(citizenshipData, selectedAccount.address);
-
-      // Upload to IPFS
+      // Encrypt data and upload to IPFS as off-chain backup
+      const encryptedData = encryptData(citizenshipData);
+      saveLocalCitizenshipData(citizenshipData);
       const ipfsCid = await uploadToIPFS(encryptedData);
+      if (import.meta.env.DEV) console.log('IPFS CID (off-chain backup):', ipfsCid);
 
-      if (import.meta.env.DEV) console.log('IPFS CID:', ipfsCid);
-      if (import.meta.env.DEV) console.log('IPFS CID type:', typeof ipfsCid);
-      if (import.meta.env.DEV) console.log('IPFS CID value:', JSON.stringify(ipfsCid));
+      // Determine referrer: explicit referrer address > referral code > default (pallet uses DefaultReferrer)
+      const effectiveReferrer = referrerAddress || data.referralCode || undefined;
 
-      // Ensure ipfsCid is a string
-      const cidString = String(ipfsCid);
-      if (!cidString || cidString === 'undefined' || cidString === '[object Object]') {
-        throw new Error(`Invalid IPFS CID: ${cidString}`);
-      }
-
-      // Submit to blockchain (identityKyc pallet is on People Chain)
-      if (import.meta.env.DEV) console.log('Submitting KYC application to People Chain...');
+      // Submit to blockchain - single call: applyForCitizenship(identity_hash, referrer)
+      if (import.meta.env.DEV) console.log('Submitting citizenship application to People Chain...');
       const result = await submitKycApplication(
         peopleApi,
         selectedAccount,
-        citizenshipData.fullName,
-        citizenshipData.email,
-        cidString,
-        `Citizenship application for ${citizenshipData.fullName}`
+        identityHash,
+        effectiveReferrer
       );
 
       if (!result.success) {
-        setError(result.error || 'Failed to submit KYC application to blockchain');
+        setError(result.error || 'Failed to submit citizenship application');
         setSubmitting(false);
         return;
       }
 
-      if (import.meta.env.DEV) console.log('✅ KYC application submitted to blockchain');
-      if (import.meta.env.DEV) console.log('Block hash:', result.blockHash);
+      if (import.meta.env.DEV) console.log('Citizenship application submitted to blockchain');
 
-      // Save block hash for display
       if (result.blockHash) {
         setApplicationHash(result.blockHash.slice(0, 16) + '...');
       }
 
-      // Move to waiting for approval state
       setSubmitted(true);
       setSubmitting(false);
-      setWaitingForApproval(true);
+      setCurrentStatus('PendingReferral');
 
     } catch (err) {
       if (import.meta.env.DEV) console.error('Submission error:', err);
@@ -320,34 +300,32 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
     );
   }
 
-  // Waiting for self-confirmation
-  if (waitingForApproval) {
+  // PendingReferral - waiting for referrer to approve
+  if (currentStatus === 'PendingReferral') {
     return (
       <Card>
         <CardContent className="pt-6 flex flex-col items-center justify-center py-8 space-y-6">
-          {/* Icon */}
           <div className="relative">
-            <div className="h-24 w-24 rounded-full border-4 border-primary/20 flex items-center justify-center">
-              <CheckCircle className="h-10 w-10 text-primary" />
+            <div className="h-24 w-24 rounded-full border-4 border-yellow-500/20 flex items-center justify-center">
+              <Loader2 className="h-10 w-10 text-yellow-500 animate-spin" />
             </div>
           </div>
 
           <div className="text-center space-y-2">
-            <h3 className="text-lg font-semibold">Confirm Your Citizenship Application</h3>
+            <h3 className="text-lg font-semibold">Waiting for Referrer Approval</h3>
             <p className="text-sm text-muted-foreground max-w-md">
-              Your application has been submitted to the blockchain. Please review and confirm your identity to mint your Citizen NFT (Welati Tiki).
+              Your application has been submitted. Your referrer needs to vouch for your identity before you can proceed.
             </p>
           </div>
 
-          {/* Status steps */}
           <div className="w-full max-w-md space-y-3 pt-4">
             <div className="flex items-center gap-3">
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
                 <Check className="h-5 w-5 text-green-600 dark:text-green-400" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-medium">Data Encrypted</p>
-                <p className="text-xs text-muted-foreground">Your KYC data has been encrypted and stored on IPFS</p>
+                <p className="text-sm font-medium">Application Submitted</p>
+                <p className="text-xs text-muted-foreground">Transaction hash: {applicationHash || 'Confirmed'}</p>
               </div>
             </div>
 
@@ -356,8 +334,92 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
                 <Check className="h-5 w-5 text-green-600 dark:text-green-400" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-medium">Blockchain Submitted</p>
-                <p className="text-xs text-muted-foreground">Transaction hash: {applicationHash || 'Processing...'}</p>
+                <p className="text-sm font-medium">1 HEZ Deposit Reserved</p>
+                <p className="text-xs text-muted-foreground">Deposit will be returned if you cancel</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-yellow-100 dark:bg-yellow-900">
+                <Loader2 className="h-5 w-5 text-yellow-600 dark:text-yellow-400 animate-spin" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium">Waiting for Referrer</p>
+                <p className="text-xs text-muted-foreground">Your referrer must approve your identity</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex gap-3 w-full max-w-md pt-4">
+            <Button
+              onClick={handleCancelApplication}
+              disabled={canceling}
+              variant="destructive"
+              className="flex-1"
+            >
+              {canceling ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Canceling...
+                </>
+              ) : (
+                <>
+                  <X className="h-4 w-4 mr-2" />
+                  Cancel Application
+                </>
+              )}
+            </Button>
+          </div>
+
+          {error && (
+            <Alert variant="destructive" className="w-full max-w-md">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          <Button variant="outline" onClick={onClose} className="mt-2">
+            Close
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // ReferrerApproved - referrer vouched, now user can confirm
+  if (currentStatus === 'ReferrerApproved') {
+    return (
+      <Card>
+        <CardContent className="pt-6 flex flex-col items-center justify-center py-8 space-y-6">
+          <div className="relative">
+            <div className="h-24 w-24 rounded-full border-4 border-green-500/20 flex items-center justify-center">
+              <CheckCircle className="h-10 w-10 text-green-500" />
+            </div>
+          </div>
+
+          <div className="text-center space-y-2">
+            <h3 className="text-lg font-semibold text-green-600">Referrer Approved!</h3>
+            <p className="text-sm text-muted-foreground max-w-md">
+              Your referrer has vouched for you. Confirm your citizenship to mint your Welati Tiki NFT.
+            </p>
+          </div>
+
+          <div className="w-full max-w-md space-y-3 pt-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
+                <Check className="h-5 w-5 text-green-600 dark:text-green-400" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium">Application Submitted</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
+                <Check className="h-5 w-5 text-green-600 dark:text-green-400" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium">Referrer Approved</p>
               </div>
             </div>
 
@@ -366,16 +428,15 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
                 <AlertCircle className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-medium">Awaiting Your Confirmation</p>
-                <p className="text-xs text-muted-foreground">Confirm or reject your application below</p>
+                <p className="text-sm font-medium">Confirm Citizenship</p>
+                <p className="text-xs text-muted-foreground">Click below to mint your Welati Tiki NFT</p>
               </div>
             </div>
           </div>
 
-          {/* Action buttons */}
           <div className="flex gap-3 w-full max-w-md pt-4">
             <Button
-              onClick={handleApprove}
+              onClick={handleConfirmCitizenship}
               disabled={confirming}
               className="flex-1 bg-green-600 hover:bg-green-700"
             >
@@ -387,25 +448,7 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
               ) : (
                 <>
                   <Check className="h-4 w-4 mr-2" />
-                  Approve
-                </>
-              )}
-            </Button>
-            <Button
-              onClick={handleReject}
-              disabled={confirming}
-              variant="destructive"
-              className="flex-1"
-            >
-              {confirming ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Rejecting...
-                </>
-              ) : (
-                <>
-                  <X className="h-4 w-4 mr-2" />
-                  Reject
+                  Confirm Citizenship
                 </>
               )}
             </Button>
@@ -427,7 +470,7 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
   }
 
   // Initial submission success (before blockchain confirmation)
-  if (submitted && !waitingForApproval) {
+  if (submitted && currentStatus === 'NotStarted') {
     return (
       <Card>
         <CardContent className="pt-6 flex flex-col items-center justify-center py-8 space-y-4">
@@ -627,6 +670,21 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
           <p className="text-xs text-muted-foreground mt-2">
             If empty, you will be automatically linked to the Founder (Satoshi Qazi Muhammed)
           </p>
+        </CardContent>
+      </Card>
+
+      {/* Deposit Notice */}
+      <Card className="bg-yellow-500/10 border-yellow-500/30">
+        <CardContent className="pt-6">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="h-5 w-5 text-yellow-500 mt-0.5 flex-shrink-0" />
+            <div className="text-sm">
+              <p className="font-semibold text-yellow-600">1 HEZ Deposit Required</p>
+              <p className="text-muted-foreground mt-1">
+                A deposit of 1 HEZ will be reserved when you submit your application. It will be returned if you cancel your application.
+              </p>
+            </div>
+          </div>
         </CardContent>
       </Card>
 

@@ -176,8 +176,8 @@ const BeCitizen: React.FC = () => {
               <CardContent className="text-gray-700 font-medium space-y-2 text-sm">
                 <p>✓ Fill detailed KYC application</p>
                 <p>✓ Data encrypted with ZK-proofs</p>
-                <p>✓ Submit for admin approval</p>
-                <p>✓ Receive your Welati Tiki NFT</p>
+                <p>✓ Your referrer approves your identity</p>
+                <p>✓ Confirm and receive your Welati Tiki NFT</p>
               </CardContent>
             </Card>
 

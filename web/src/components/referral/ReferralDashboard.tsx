@@ -1,13 +1,72 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useReferral } from '@/contexts/ReferralContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
 import { InviteUserModal } from './InviteUserModal';
-import { Users, UserPlus, Trophy, Award, Loader2 } from 'lucide-react';
+import { Users, UserPlus, Trophy, Award, Loader2, CheckCircle, Clock, User } from 'lucide-react';
+import { getPendingApprovalsForReferrer, approveReferral } from '@pezkuwi/lib/citizenship-workflow';
+import type { PendingApproval } from '@pezkuwi/lib/citizenship-workflow';
 
 export const ReferralDashboard: React.FC = () => {
   const { stats, myReferrals, loading } = useReferral();
+  const { peopleApi, isPeopleReady, selectedAccount } = usePezkuwi();
+  const { toast } = useToast();
   const [showInviteModal, setShowInviteModal] = useState(false);
+  const [pendingApprovals, setPendingApprovals] = useState<PendingApproval[]>([]);
+  const [loadingApprovals, setLoadingApprovals] = useState(false);
+  const [processingAddress, setProcessingAddress] = useState<string | null>(null);
+
+  // Load pending approvals for this referrer
+  useEffect(() => {
+    if (!peopleApi || !isPeopleReady || !selectedAccount) return;
+
+    const loadApprovals = async () => {
+      setLoadingApprovals(true);
+      try {
+        const approvals = await getPendingApprovalsForReferrer(peopleApi, selectedAccount.address);
+        setPendingApprovals(approvals);
+      } catch (err) {
+        if (import.meta.env.DEV) console.error('Error loading pending approvals:', err);
+      } finally {
+        setLoadingApprovals(false);
+      }
+    };
+
+    loadApprovals();
+  }, [peopleApi, isPeopleReady, selectedAccount]);
+
+  const handleApprove = async (applicantAddress: string) => {
+    if (!peopleApi || !selectedAccount) return;
+
+    setProcessingAddress(applicantAddress);
+    try {
+      const result = await approveReferral(peopleApi, selectedAccount, applicantAddress);
+      if (result.success) {
+        toast({
+          title: 'Referral Approved',
+          description: `Vouched for ${applicantAddress.slice(0, 8)}...${applicantAddress.slice(-4)}`,
+        });
+        setPendingApprovals(prev => prev.filter(a => a.applicantAddress !== applicantAddress));
+      } else {
+        toast({
+          title: 'Approval Failed',
+          description: result.error || 'Failed to approve',
+          variant: 'destructive',
+        });
+      }
+    } catch (err) {
+      toast({
+        title: 'Error',
+        description: err instanceof Error ? err.message : 'Failed to approve referral',
+        variant: 'destructive',
+      });
+    } finally {
+      setProcessingAddress(null);
+    }
+  };
 
   if (loading) {
     return (
@@ -134,6 +193,66 @@ export const ReferralDashboard: React.FC = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Pending Approvals */}
+      {(pendingApprovals.length > 0 || loadingApprovals) && (
+        <Card className="bg-yellow-900/20 border-yellow-600/30">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center gap-2">
+              <Clock className="w-5 h-5 text-yellow-500" />
+              Pending Approvals ({pendingApprovals.length})
+            </CardTitle>
+            <CardDescription className="text-gray-400">
+              These users listed you as their referrer and are waiting for your approval
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {loadingApprovals ? (
+              <div className="flex items-center justify-center py-4">
+                <Loader2 className="w-6 h-6 animate-spin text-yellow-500" />
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {pendingApprovals.map((approval) => (
+                  <div
+                    key={approval.applicantAddress}
+                    className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-yellow-600/20 flex items-center justify-center">
+                        <User className="w-4 h-4 text-yellow-400" />
+                      </div>
+                      <div>
+                        <div className="text-sm font-mono text-white">
+                          {approval.applicantAddress.slice(0, 10)}...{approval.applicantAddress.slice(-8)}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30 text-[10px] px-1 py-0">
+                            Pending Referral
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      onClick={() => handleApprove(approval.applicantAddress)}
+                      disabled={processingAddress === approval.applicantAddress}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      {processingAddress === approval.applicantAddress ? (
+                        <Loader2 className="w-4 h-4 animate-spin mr-1" />
+                      ) : (
+                        <CheckCircle className="w-4 h-4 mr-1" />
+                      )}
+                      Approve
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* My Referrals List */}
       <Card className="bg-gray-900 border-gray-800">

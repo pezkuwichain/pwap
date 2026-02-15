@@ -40,7 +40,7 @@ const web3FromAddress = async (address: string): Promise<InjectedExtension> => {
 // TYPE DEFINITIONS
 // ========================================
 
-export type KycStatus = 'NotStarted' | 'Pending' | 'Approved' | 'Rejected';
+export type KycStatus = 'NotStarted' | 'PendingReferral' | 'ReferrerApproved' | 'Approved' | 'Revoked';
 
 export type Region =
   | 'bakur'       // North (Turkey)
@@ -107,7 +107,7 @@ export interface CitizenshipStatus {
   tikiNumber?: string;
   stakingScoreTracking: boolean;
   ipfsCid?: string;
-  nextAction: 'APPLY_KYC' | 'CLAIM_TIKI' | 'START_TRACKING' | 'COMPLETE';
+  nextAction: 'APPLY_KYC' | 'WAIT_REFERRER' | 'CONFIRM' | 'CLAIM_TIKI' | 'START_TRACKING' | 'COMPLETE';
 }
 
 // ========================================
@@ -122,28 +122,37 @@ export async function getKycStatus(
   address: string
 ): Promise<KycStatus> {
   try {
-    // MOCK FOR DEV: Alice is Approved
-    if (address === '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY') {
-      return 'Approved';
-    }
-
     if (!api?.query?.identityKyc) {
       if (import.meta.env.DEV) console.log('Identity KYC pallet not available on this chain');
       return 'NotStarted';
     }
 
-    const status = await api.query.identityKyc.kycStatuses(address);
+    // Check Applications storage (new pallet API)
+    if (api.query.identityKyc.applications) {
+      const application = await api.query.identityKyc.applications(address);
 
-    if (status.isEmpty) {
-      return 'NotStarted';
+      if (!application.isEmpty) {
+        const appData = application.toJSON() as Record<string, unknown>;
+        const status = appData.status as string | undefined;
+
+        if (status === 'PendingReferral') return 'PendingReferral';
+        if (status === 'ReferrerApproved') return 'ReferrerApproved';
+        if (status === 'Approved') return 'Approved';
+        if (status === 'Revoked') return 'Revoked';
+      }
     }
 
-    const statusStr = status.toString();
-
-    // Map on-chain status to our type
-    if (statusStr === 'Approved') return 'Approved';
-    if (statusStr === 'Pending') return 'Pending';
-    if (statusStr === 'Rejected') return 'Rejected';
+    // Fallback: check kycStatuses if applications storage doesn't exist
+    if (api.query.identityKyc.kycStatuses) {
+      const status = await api.query.identityKyc.kycStatuses(address);
+      if (!status.isEmpty) {
+        const statusStr = status.toString();
+        if (statusStr === 'Approved') return 'Approved';
+        if (statusStr === 'PendingReferral') return 'PendingReferral';
+        if (statusStr === 'ReferrerApproved') return 'ReferrerApproved';
+        if (statusStr === 'Revoked') return 'Revoked';
+      }
+    }
 
     return 'NotStarted';
   } catch (error) {
@@ -160,12 +169,15 @@ export async function hasPendingApplication(
   address: string
 ): Promise<boolean> {
   try {
-    if (!api?.query?.identityKyc?.pendingKycApplications) {
-      return false;
+    if (api?.query?.identityKyc?.applications) {
+      const application = await api.query.identityKyc.applications(address);
+      if (!application.isEmpty) {
+        const appData = application.toJSON() as Record<string, unknown>;
+        const status = appData.status as string | undefined;
+        return status === 'PendingReferral' || status === 'ReferrerApproved';
+      }
     }
-
-    const application = await api.query.identityKyc.pendingKycApplications(address);
-    return !application.isEmpty;
+    return false;
   } catch (error) {
     console.error('Error checking pending application:', error);
     return false;
@@ -344,15 +356,18 @@ export async function getCitizenshipStatus(
       isStakingScoreTracking(api, address)
     ]);
 
-    const kycApproved = kycStatus === 'Approved';
     const hasTiki = citizenCheck.hasTiki;
 
-    // Determine next action
+    // Determine next action based on workflow state
     let nextAction: CitizenshipStatus['nextAction'];
 
-    if (!kycApproved) {
+    if (kycStatus === 'NotStarted' || kycStatus === 'Revoked') {
       nextAction = 'APPLY_KYC';
-    } else if (!hasTiki) {
+    } else if (kycStatus === 'PendingReferral') {
+      nextAction = 'WAIT_REFERRER';
+    } else if (kycStatus === 'ReferrerApproved') {
+      nextAction = 'CONFIRM';
+    } else if (kycStatus === 'Approved' && !hasTiki) {
       nextAction = 'CLAIM_TIKI';
     } else if (!stakingTracking) {
       nextAction = 'START_TRACKING';
@@ -453,172 +468,113 @@ export async function validateReferralCode(
 // ========================================
 
 /**
- * Submit KYC application to blockchain
- * This is a two-step process:
- * 1. Set identity (name, email)
- * 2. Apply for KYC (IPFS CID, notes)
+ * Submit citizenship application to blockchain
+ * Single call: applyForCitizenship(identity_hash, referrer)
+ * Requires 1 HEZ deposit (reserved by pallet automatically)
  */
 export async function submitKycApplication(
   api: ApiPromise,
   account: InjectedAccountWithMeta,
-  name: string,
-  email: string,
-  ipfsCid: string,
-  notes: string = 'Citizenship application'
+  identityHash: string,
+  referrerAddress?: string
 ): Promise<{ success: boolean; error?: string; blockHash?: string }> {
   try {
-    if (!api?.tx?.identityKyc?.setIdentity || !api?.tx?.identityKyc?.applyForKyc) {
+    if (!api?.tx?.identityKyc?.applyForCitizenship) {
       return { success: false, error: 'Identity KYC pallet not available' };
     }
 
-    // Check if user already has a pending KYC application
-    const pendingApp = await api.query.identityKyc.pendingKycApplications(account.address);
-    if (!pendingApp.isEmpty) {
-      console.log('⚠️ User already has a pending KYC application');
+    // Check if user already has a pending application
+    const hasPending = await hasPendingApplication(api, account.address);
+    if (hasPending) {
       return {
         success: false,
-        error: 'You already have a pending citizenship application. Please wait for approval.'
+        error: 'You already have a pending citizenship application. Please wait for referrer approval.'
       };
     }
 
     // Check if user is already approved
-    const kycStatus = await api.query.identityKyc.kycStatuses(account.address);
-    if (kycStatus.toString() === 'Approved') {
-      console.log('✅ User KYC is already approved');
+    const currentStatus = await getKycStatus(api, account.address);
+    if (currentStatus === 'Approved') {
       return {
         success: false,
         error: 'Your citizenship application is already approved!'
       };
     }
 
-    // Get the injector for signing
     const injector = await web3FromAddress(account.address);
 
-    // Debug logging
-    console.log('=== submitKycApplication Debug ===');
-    console.log('account.address:', account.address);
-    console.log('name:', name);
-    console.log('email:', email);
-    console.log('ipfsCid:', ipfsCid);
-    console.log('notes:', notes);
-    console.log('===================================');
-
-    // Ensure ipfsCid is a string
-    const cidString = String(ipfsCid);
-    if (!cidString || cidString === 'undefined' || cidString === '[object Object]') {
-      return { success: false, error: `Invalid IPFS CID received: ${cidString}` };
+    if (import.meta.env.DEV) {
+      console.log('=== submitKycApplication Debug ===');
+      console.log('account.address:', account.address);
+      console.log('identityHash:', identityHash);
+      console.log('referrerAddress:', referrerAddress || '(default referrer)');
+      console.log('===================================');
     }
 
-    // Step 1: Set identity first
-    console.log('Step 1: Setting identity...');
-    const identityResult = await new Promise<{ success: boolean; error?: string }>((resolve, reject) => {
-      api.tx.identityKyc
-        .setIdentity(name, email)
-        .signAndSend(account.address, { signer: injector.signer }, ({ status, dispatchError, events }) => {
-          console.log('Identity transaction status:', status.type);
+    // Single call: applyForCitizenship(identity_hash, referrer)
+    // referrer is Option<AccountId> - null means pallet uses DefaultReferrer
+    const referrerParam = referrerAddress || null;
 
-          if (status.isInBlock || status.isFinalized) {
-            if (dispatchError) {
-              let errorMessage = 'Identity transaction failed';
-              if (dispatchError.isModule) {
-                const decoded = api.registry.findMetaError(dispatchError.asModule);
-                errorMessage = `${decoded.section}.${decoded.name}: ${decoded.docs.join(' ')}`;
-              } else {
-                errorMessage = dispatchError.toString();
-              }
-              console.error('Identity transaction error:', errorMessage);
-              resolve({ success: false, error: errorMessage });
-              return;
-            }
-
-            // Check for IdentitySet event
-            const identitySetEvent = events.find(({ event }) =>
-              event.section === 'identityKyc' && event.method === 'IdentitySet'
-            );
-
-            if (identitySetEvent) {
-              console.log('✅ Identity set successfully');
-              resolve({ success: true });
-            } else {
-              resolve({ success: true }); // Still consider it success if in block
-            }
-          }
-        })
-        .catch((error) => {
-          console.error('Failed to sign and send identity transaction:', error);
-          reject(error);
-        });
-    });
-
-    if (!identityResult.success) {
-      return identityResult;
-    }
-
-    // Step 2: Apply for KYC
-    console.log('Step 2: Applying for KYC...');
     const result = await new Promise<{ success: boolean; error?: string; blockHash?: string }>((resolve, reject) => {
       api.tx.identityKyc
-        .applyForKyc([cidString], notes)
+        .applyForCitizenship(identityHash, referrerParam)
         .signAndSend(account.address, { signer: injector.signer }, ({ status, dispatchError, events }) => {
-          console.log('Transaction status:', status.type);
+          if (import.meta.env.DEV) console.log('Transaction status:', status.type);
 
           if (status.isInBlock || status.isFinalized) {
             if (dispatchError) {
               let errorMessage = 'Transaction failed';
-
               if (dispatchError.isModule) {
                 const decoded = api.registry.findMetaError(dispatchError.asModule);
                 errorMessage = `${decoded.section}.${decoded.name}: ${decoded.docs.join(' ')}`;
               } else {
                 errorMessage = dispatchError.toString();
               }
-
-              console.error('Transaction error:', errorMessage);
+              if (import.meta.env.DEV) console.error('Transaction error:', errorMessage);
               resolve({ success: false, error: errorMessage });
               return;
             }
 
-            // Check for KycApplied event
-            const kycAppliedEvent = events.find(({ event }) =>
-              event.section === 'identityKyc' && event.method === 'KycApplied'
+            const appliedEvent = events.find(({ event }: any) =>
+              event.section === 'identityKyc' && event.method === 'CitizenshipApplied'
             );
 
-            if (kycAppliedEvent) {
-              console.log('✅ KYC Application submitted successfully');
-              resolve({
-                success: true,
-                blockHash: status.asInBlock.toString()
-              });
-            } else {
-              console.warn('Transaction included but KycApplied event not found');
-              resolve({ success: true });
+            if (appliedEvent) {
+              if (import.meta.env.DEV) console.log('Citizenship application submitted successfully');
             }
+
+            resolve({
+              success: true,
+              blockHash: status.isInBlock ? status.asInBlock.toString() : undefined
+            });
           }
         })
-        .catch((error) => {
-          console.error('Failed to sign and send transaction:', error);
+        .catch((error: any) => {
+          if (import.meta.env.DEV) console.error('Failed to sign and send transaction:', error);
           reject(error);
         });
     });
 
     return result;
   } catch (error: any) {
-    console.error('Error submitting KYC application:', error);
+    console.error('Error submitting citizenship application:', error);
     return {
       success: false,
-      error: error.message || 'Failed to submit KYC application'
+      error: error.message || 'Failed to submit citizenship application'
     };
   }
 }
 
 /**
- * Subscribe to KYC approval events for an address
+ * Subscribe to citizenship-related events for an address
+ * Listens for ReferralApproved and CitizenshipConfirmed
  */
 export function subscribeToKycApproval(
   api: ApiPromise,
   address: string,
   onApproved: () => void,
-  onError?: (error: string) => void
+  onError?: (error: string) => void,
+  onReferralApproved?: () => void
 ): () => void {
   try {
     if (!api?.query?.system?.events) {
@@ -633,11 +589,20 @@ export function subscribeToKycApproval(
       events.forEach((record: any) => {
         const { event } = record;
 
-        if (event.section === 'identityKyc' && event.method === 'KycApproved') {
-          const [approvedAddress] = event.data;
+        // Referrer approved the application
+        if (event.section === 'identityKyc' && event.method === 'ReferralApproved') {
+          const [applicantAddress] = event.data;
+          if (applicantAddress.toString() === address) {
+            if (import.meta.env.DEV) console.log('Referral approved for:', address);
+            if (onReferralApproved) onReferralApproved();
+          }
+        }
 
-          if (approvedAddress.toString() === address) {
-            console.log('✅ KYC Approved for:', address);
+        // Citizenship fully confirmed (NFT minted)
+        if (event.section === 'identityKyc' && event.method === 'CitizenshipConfirmed') {
+          const [confirmedAddress] = event.data;
+          if (confirmedAddress.toString() === address) {
+            if (import.meta.env.DEV) console.log('Citizenship confirmed for:', address);
             onApproved();
           }
         }
@@ -646,9 +611,198 @@ export function subscribeToKycApproval(
 
     return unsubscribe as unknown as () => void;
   } catch (error: any) {
-    console.error('Error subscribing to KYC approval:', error);
-    if (onError) onError(error.message || 'Failed to subscribe to approval events');
+    console.error('Error subscribing to citizenship events:', error);
+    if (onError) onError(error.message || 'Failed to subscribe to events');
     return () => {};
+  }
+}
+
+// ========================================
+// REFERRER ACTIONS
+// ========================================
+
+/**
+ * Approve a referral as a referrer
+ * Called by the referrer to vouch for an applicant
+ */
+export async function approveReferral(
+  api: ApiPromise,
+  account: InjectedAccountWithMeta,
+  applicantAddress: string
+): Promise<{ success: boolean; error?: string; blockHash?: string }> {
+  try {
+    if (!api?.tx?.identityKyc?.approveReferral) {
+      return { success: false, error: 'Identity KYC pallet not available' };
+    }
+
+    const injector = await web3FromAddress(account.address);
+
+    const result = await new Promise<{ success: boolean; error?: string; blockHash?: string }>((resolve, reject) => {
+      api.tx.identityKyc
+        .approveReferral(applicantAddress)
+        .signAndSend(account.address, { signer: injector.signer }, ({ status, dispatchError, events }) => {
+          if (import.meta.env.DEV) console.log('Approve referral tx status:', status.type);
+
+          if (status.isInBlock || status.isFinalized) {
+            if (dispatchError) {
+              let errorMessage = 'Transaction failed';
+              if (dispatchError.isModule) {
+                const decoded = api.registry.findMetaError(dispatchError.asModule);
+                errorMessage = `${decoded.section}.${decoded.name}: ${decoded.docs.join(' ')}`;
+              } else {
+                errorMessage = dispatchError.toString();
+              }
+              resolve({ success: false, error: errorMessage });
+              return;
+            }
+
+            resolve({
+              success: true,
+              blockHash: status.isInBlock ? status.asInBlock.toString() : undefined
+            });
+          }
+        })
+        .catch((error: any) => reject(error));
+    });
+
+    return result;
+  } catch (error: any) {
+    console.error('Error approving referral:', error);
+    return { success: false, error: error.message || 'Failed to approve referral' };
+  }
+}
+
+/**
+ * Cancel a pending citizenship application
+ * Called by the applicant to withdraw and get deposit back
+ */
+export async function cancelApplication(
+  api: ApiPromise,
+  account: InjectedAccountWithMeta
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    if (!api?.tx?.identityKyc?.cancelApplication) {
+      return { success: false, error: 'Identity KYC pallet not available' };
+    }
+
+    const injector = await web3FromAddress(account.address);
+
+    const result = await new Promise<{ success: boolean; error?: string }>((resolve, reject) => {
+      api.tx.identityKyc
+        .cancelApplication()
+        .signAndSend(account.address, { signer: injector.signer }, ({ status, dispatchError }) => {
+          if (status.isInBlock || status.isFinalized) {
+            if (dispatchError) {
+              let errorMessage = 'Transaction failed';
+              if (dispatchError.isModule) {
+                const decoded = api.registry.findMetaError(dispatchError.asModule);
+                errorMessage = `${decoded.section}.${decoded.name}: ${decoded.docs.join(' ')}`;
+              } else {
+                errorMessage = dispatchError.toString();
+              }
+              resolve({ success: false, error: errorMessage });
+              return;
+            }
+            resolve({ success: true });
+          }
+        })
+        .catch((error: any) => reject(error));
+    });
+
+    return result;
+  } catch (error: any) {
+    console.error('Error canceling application:', error);
+    return { success: false, error: error.message || 'Failed to cancel application' };
+  }
+}
+
+/**
+ * Confirm citizenship after referrer approval
+ * Called by the applicant to mint the Welati Tiki NFT
+ */
+export async function confirmCitizenship(
+  api: ApiPromise,
+  account: InjectedAccountWithMeta
+): Promise<{ success: boolean; error?: string; blockHash?: string }> {
+  try {
+    if (!api?.tx?.identityKyc?.confirmCitizenship) {
+      return { success: false, error: 'Identity KYC pallet not available' };
+    }
+
+    const injector = await web3FromAddress(account.address);
+
+    const result = await new Promise<{ success: boolean; error?: string; blockHash?: string }>((resolve, reject) => {
+      api.tx.identityKyc
+        .confirmCitizenship()
+        .signAndSend(account.address, { signer: injector.signer }, ({ status, dispatchError, events }) => {
+          if (status.isInBlock || status.isFinalized) {
+            if (dispatchError) {
+              let errorMessage = 'Transaction failed';
+              if (dispatchError.isModule) {
+                const decoded = api.registry.findMetaError(dispatchError.asModule);
+                errorMessage = `${decoded.section}.${decoded.name}: ${decoded.docs.join(' ')}`;
+              } else {
+                errorMessage = dispatchError.toString();
+              }
+              resolve({ success: false, error: errorMessage });
+              return;
+            }
+
+            resolve({
+              success: true,
+              blockHash: status.isInBlock ? status.asInBlock.toString() : undefined
+            });
+          }
+        })
+        .catch((error: any) => reject(error));
+    });
+
+    return result;
+  } catch (error: any) {
+    console.error('Error confirming citizenship:', error);
+    return { success: false, error: error.message || 'Failed to confirm citizenship' };
+  }
+}
+
+export interface PendingApproval {
+  applicantAddress: string;
+  identityHash: string;
+}
+
+/**
+ * Get pending approvals where current user is the referrer
+ */
+export async function getPendingApprovalsForReferrer(
+  api: ApiPromise,
+  referrerAddress: string
+): Promise<PendingApproval[]> {
+  try {
+    if (!api?.query?.identityKyc?.applications) {
+      return [];
+    }
+
+    const entries = await api.query.identityKyc.applications.entries();
+    const pending: PendingApproval[] = [];
+
+    for (const [key, value] of entries) {
+      const applicantAddress = key.args[0].toString();
+      const appData = (value as any).toJSON() as Record<string, unknown>;
+
+      if (
+        appData.status === 'PendingReferral' &&
+        appData.referrer?.toString() === referrerAddress
+      ) {
+        pending.push({
+          applicantAddress,
+          identityHash: (appData.identityHash as string) || ''
+        });
+      }
+    }
+
+    return pending;
+  } catch (error) {
+    console.error('Error fetching pending approvals for referrer:', error);
+    return [];
   }
 }
 
@@ -656,7 +810,7 @@ export function subscribeToKycApproval(
 // FOUNDER ADDRESS
 // ========================================
 
-export const FOUNDER_ADDRESS = '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY'; // Satoshi Qazi Muhammed
+export const FOUNDER_ADDRESS = '5CyuFfbF95rzBxru7c9yEsX4XmQXUxpLUcbj9RLg9K1cGiiF'; // Satoshi Qazi Muhammed
 
 export interface AuthChallenge {
   message: string;
