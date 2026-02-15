@@ -10,7 +10,7 @@ import { AlertCircle, CheckCircle2 } from 'lucide-react';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { toast } from 'sonner';
-import { web3FromAddress } from '@pezkuwi/extension-dapp';
+import { web3FromAddress, web3Enable } from '@pezkuwi/extension-dapp';
 import {
   getStakingInfo,
   getActiveValidators,
@@ -29,6 +29,19 @@ import {
 import { LoadingState } from '@pezkuwi/components/AsyncComponent';
 import { ValidatorPoolDashboard } from './ValidatorPoolDashboard';
 import { handleBlockchainError, handleBlockchainSuccess } from '@pezkuwi/lib/error-handler';
+
+// Get signer with auto-reconnect if extension session expired
+async function getInjectorSigner(address: string) {
+  let injector = await web3FromAddress(address);
+  if (!injector?.signer) {
+    await web3Enable('PezkuwiChain');
+    injector = await web3FromAddress(address);
+    if (!injector?.signer) {
+      throw new Error('Wallet signer not available. Please reconnect your wallet.');
+    }
+  }
+  return injector;
+}
 
 export const StakingDashboard: React.FC = () => {
   const { api, peopleApi, selectedAccount, isApiReady, isPeopleReady } = usePezkuwi();
@@ -113,7 +126,7 @@ export const StakingDashboard: React.FC = () => {
 
     setIsRecordingScore(true);
     try {
-      const injector = await web3FromAddress(selectedAccount.address);
+      const injector = await getInjectorSigner(selectedAccount.address);
       const result = await recordTrustScore(peopleApi, selectedAccount.address, injector.signer);
 
       if (result.success) {
@@ -141,7 +154,7 @@ export const StakingDashboard: React.FC = () => {
 
     setIsClaimingReward(true);
     try {
-      const injector = await web3FromAddress(selectedAccount.address);
+      const injector = await getInjectorSigner(selectedAccount.address);
       const result = await claimPezReward(peopleApi, selectedAccount.address, epochIndex, injector.signer);
 
       if (result.success) {
@@ -182,7 +195,7 @@ export const StakingDashboard: React.FC = () => {
         throw new Error('Insufficient HEZ balance');
       }
 
-      const injector = await web3FromAddress(selectedAccount.address);
+      const injector = await getInjectorSigner(selectedAccount.address);
 
       // If already bonded, use bondExtra, otherwise use bond
       let tx;
@@ -235,7 +248,7 @@ export const StakingDashboard: React.FC = () => {
 
     setIsLoading(true);
     try {
-      const injector = await web3FromAddress(selectedAccount.address);
+      const injector = await getInjectorSigner(selectedAccount.address);
 
       const tx = api.tx.staking.nominate(selectedValidators);
 
@@ -278,7 +291,7 @@ export const StakingDashboard: React.FC = () => {
         throw new Error('Insufficient staked amount');
       }
 
-      const injector = await web3FromAddress(selectedAccount.address);
+      const injector = await getInjectorSigner(selectedAccount.address);
       const tx = api.tx.staking.unbond(amount);
 
       await tx.signAndSend(
@@ -322,7 +335,7 @@ export const StakingDashboard: React.FC = () => {
 
     setIsLoading(true);
     try {
-      const injector = await web3FromAddress(selectedAccount.address);
+      const injector = await getInjectorSigner(selectedAccount.address);
 
       // Number of slashing spans (usually 0)
       const tx = api.tx.staking.withdrawUnbonded(0);
@@ -370,7 +383,7 @@ export const StakingDashboard: React.FC = () => {
 
     setIsLoading(true);
     try {
-      const injector = await web3FromAddress(selectedAccount.address);
+      const injector = await getInjectorSigner(selectedAccount.address);
       // stakingScore pallet is on People Chain - uses cached staking data from Asset Hub
       const tx = peopleApi.tx.stakingScore.startScoreTracking();
 
