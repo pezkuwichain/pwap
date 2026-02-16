@@ -5,7 +5,7 @@
 
 // DEPRECATED: Hardcoded founder address (kept for fallback only)
 // Modern approach: Fetch sudo key dynamically from blockchain
-export const FOUNDER_ADDRESS_FALLBACK = '5GgTgG9sRmPQAYU1RsTejZYnZRjwzKZKWD3awtuqjHioki45';
+export const FOUNDER_ADDRESS_FALLBACK = '5CyuFfbF95rzBxru7c9yEsX4XmQXUxpLUcbj9RLg9K1cGiiF';
 
 /**
  * Treasury and admin accounts that have elevated permissions
