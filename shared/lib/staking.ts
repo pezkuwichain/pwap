@@ -40,6 +40,7 @@ export interface StakingInfo {
   stakingScore: number | null;
   stakingDuration: number | null; // Duration in blocks
   hasStartedScoreTracking: boolean;
+  hasCachedStakingData: boolean; // Whether noter has submitted staking data to People Chain
   isValidator: boolean;
   pezRewards: PezRewardInfo | null; // PEZ rewards information
 }
@@ -236,9 +237,10 @@ export async function getStakingInfo(
   let stakingScore: number | null = null;
   let stakingDuration: number | null = null;
   let hasStartedScoreTracking = false;
+  let hasCachedStakingData = false;
 
   try {
-    // stakingScore pallet is on People Chain - uses cached staking data from Asset Hub via XCM
+    // stakingScore pallet is on People Chain - uses cached staking data submitted by noter
     const scoreApi = peopleApi || api;
     if (scoreApi.query.stakingScore && scoreApi.query.stakingScore.stakingStartBlock) {
       // Check if user has started score tracking
@@ -252,47 +254,79 @@ export async function getStakingInfo(
         const durationInBlocks = currentBlock - startBlock;
         stakingDuration = durationInBlocks;
 
-        // Calculate amount-based score (20-50 points)
-        const stakedHEZ = ledger ? parseFloat(formatBalance(ledger.total)) : 0;
-        let amountScore = 20; // Default
+        // Check if noter has submitted cached staking data to People Chain
+        // CachedStakingDetails is a DoubleMap: (AccountId, StakingSource) -> StakingDetails
+        // StakingSource: RelayChain = 0, AssetHub = 1
+        // StakingDetails: { staked_amount, nominations_count, unlocking_chunks_count }
+        let totalCachedStakeWei = BigInt(0);
+        if (scoreApi.query.stakingScore.cachedStakingDetails) {
+          try {
+            const [relayResult, assetHubResult] = await Promise.all([
+              scoreApi.query.stakingScore.cachedStakingDetails(address, 'RelayChain')
+                .catch(() => null),
+              scoreApi.query.stakingScore.cachedStakingDetails(address, 'AssetHub')
+                .catch(() => null),
+            ]);
 
-        if (stakedHEZ <= 100) {
-          amountScore = 20;
-        } else if (stakedHEZ <= 250) {
-          amountScore = 30;
-        } else if (stakedHEZ <= 750) {
-          amountScore = 40;
-        } else {
-          amountScore = 50; // 751+ HEZ
+            if (relayResult && !relayResult.isEmpty && relayResult.isSome) {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const json = (relayResult.unwrap() as any).toJSON() as any;
+              totalCachedStakeWei += BigInt(json.stakedAmount ?? json.staked_amount ?? '0');
+              hasCachedStakingData = true;
+            }
+            if (assetHubResult && !assetHubResult.isEmpty && assetHubResult.isSome) {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const json = (assetHubResult.unwrap() as any).toJSON() as any;
+              totalCachedStakeWei += BigInt(json.stakedAmount ?? json.staked_amount ?? '0');
+              hasCachedStakingData = true;
+            }
+          } catch {
+            hasCachedStakingData = false;
+          }
         }
 
-        // Calculate duration multiplier
-        const MONTH_IN_BLOCKS = 30 * 24 * 60 * 10; // 432,000 blocks (~30 days, 6s per block)
-        let durationMultiplier = 1.0;
+        if (hasCachedStakingData) {
+          // Use cached stake from People Chain (matches on-chain pallet calculation)
+          const stakedHEZ = Number(totalCachedStakeWei / BigInt(10 ** 12));
+          let amountScore = 20; // Default
 
-        if (durationInBlocks >= 12 * MONTH_IN_BLOCKS) {
-          durationMultiplier = 2.0; // 12+ months
-        } else if (durationInBlocks >= 6 * MONTH_IN_BLOCKS) {
-          durationMultiplier = 1.7; // 6-11 months
-        } else if (durationInBlocks >= 3 * MONTH_IN_BLOCKS) {
-          durationMultiplier = 1.4; // 3-5 months
-        } else if (durationInBlocks >= MONTH_IN_BLOCKS) {
-          durationMultiplier = 1.2; // 1-2 months
-        } else {
-          durationMultiplier = 1.0; // < 1 month
+          if (stakedHEZ <= 100) {
+            amountScore = 20;
+          } else if (stakedHEZ <= 250) {
+            amountScore = 30;
+          } else if (stakedHEZ <= 750) {
+            amountScore = 40;
+          } else {
+            amountScore = 50; // 751+ HEZ
+          }
+
+          // Calculate duration multiplier
+          const MONTH_IN_BLOCKS = 30 * 24 * 60 * 10; // 432,000 blocks (~30 days, 6s per block)
+          let durationMultiplier = 1.0;
+
+          if (durationInBlocks >= 12 * MONTH_IN_BLOCKS) {
+            durationMultiplier = 2.0; // 12+ months
+          } else if (durationInBlocks >= 6 * MONTH_IN_BLOCKS) {
+            durationMultiplier = 1.7; // 6-11 months
+          } else if (durationInBlocks >= 3 * MONTH_IN_BLOCKS) {
+            durationMultiplier = 1.4; // 3-5 months
+          } else if (durationInBlocks >= MONTH_IN_BLOCKS) {
+            durationMultiplier = 1.2; // 1-2 months
+          } else {
+            durationMultiplier = 1.0; // < 1 month
+          }
+
+          // Final score calculation (max 100)
+          stakingScore = Math.min(100, Math.floor(amountScore * durationMultiplier));
+
+          console.log('Staking score calculated:', {
+            stakedHEZ,
+            amountScore,
+            durationInBlocks,
+            durationMultiplier,
+            finalScore: stakingScore
+          });
         }
-
-        // Final score calculation (max 100)
-        // This MUST match the pallet's integer math: amount_score * multiplier_numerator / multiplier_denominator
-        stakingScore = Math.min(100, Math.floor(amountScore * durationMultiplier));
-
-        console.log('Staking score calculated:', {
-          stakedHEZ,
-          amountScore,
-          durationInBlocks,
-          durationMultiplier,
-          finalScore: stakingScore
-        });
       }
     }
   } catch (error) {
@@ -315,6 +349,7 @@ export async function getStakingInfo(
     stakingScore,
     stakingDuration,
     hasStartedScoreTracking,
+    hasCachedStakingData,
     isValidator,
     pezRewards
   };
