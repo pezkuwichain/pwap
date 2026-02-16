@@ -118,15 +118,15 @@ export const ReferralDashboard: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* Trust Score */}
+        {/* Referral Score */}
         <Card className="bg-gray-900 border-gray-800">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
               <Trophy className="w-5 h-5 text-yellow-500" />
-              Trust Score
+              Referral Score
             </CardTitle>
             <CardDescription className="text-gray-400">
-              Reputation score from referrals
+              Score earned from referrals
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -139,25 +139,24 @@ export const ReferralDashboard: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* Who Invited Me */}
+        {/* Pending Approvals Count */}
         <Card className="bg-gray-900 border-gray-800">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
-              <Award className="w-5 h-5 text-blue-500" />
-              Invited By
+              <Clock className="w-5 h-5 text-yellow-500" />
+              Pending Approvals
             </CardTitle>
             <CardDescription className="text-gray-400">
-              Your referrer
+              Waiting for your approval
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {stats?.whoInvitedMe ? (
-              <div className="text-sm font-mono text-blue-400 break-all">
-                {stats.whoInvitedMe.slice(0, 8)}...{stats.whoInvitedMe.slice(-6)}
-              </div>
-            ) : (
-              <div className="text-gray-500 text-sm">
-                No referrer
+            <div className="text-4xl font-bold text-yellow-500">
+              {loadingApprovals ? '...' : pendingApprovals.length}
+            </div>
+            {stats?.whoInvitedMe && (
+              <div className="mt-2 text-xs text-gray-500">
+                You were invited by {stats.whoInvitedMe.slice(0, 8)}...{stats.whoInvitedMe.slice(-6)}
               </div>
             )}
           </CardContent>
@@ -194,82 +193,26 @@ export const ReferralDashboard: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Pending Approvals */}
-      {(pendingApprovals.length > 0 || loadingApprovals) && (
-        <Card className="bg-yellow-900/20 border-yellow-600/30">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <Clock className="w-5 h-5 text-yellow-500" />
-              Pending Approvals ({pendingApprovals.length})
-            </CardTitle>
-            <CardDescription className="text-gray-400">
-              These users listed you as their referrer and are waiting for your approval
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {loadingApprovals ? (
-              <div className="flex items-center justify-center py-4">
-                <Loader2 className="w-6 h-6 animate-spin text-yellow-500" />
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {pendingApprovals.map((approval) => (
-                  <div
-                    key={approval.applicantAddress}
-                    className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-yellow-600/20 flex items-center justify-center">
-                        <User className="w-4 h-4 text-yellow-400" />
-                      </div>
-                      <div>
-                        <div className="text-sm font-mono text-white">
-                          {approval.applicantAddress.slice(0, 10)}...{approval.applicantAddress.slice(-8)}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30 text-[10px] px-1 py-0">
-                            Pending Referral
-                          </Badge>
-                        </div>
-                      </div>
-                    </div>
-                    <Button
-                      size="sm"
-                      onClick={() => handleApprove(approval.applicantAddress)}
-                      disabled={processingAddress === approval.applicantAddress}
-                      className="bg-green-600 hover:bg-green-700"
-                    >
-                      {processingAddress === approval.applicantAddress ? (
-                        <Loader2 className="w-4 h-4 animate-spin mr-1" />
-                      ) : (
-                        <CheckCircle className="w-4 h-4 mr-1" />
-                      )}
-                      Approve
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* My Referrals List */}
+      {/* My Invitations - Combined pending + confirmed */}
       <Card className="bg-gray-900 border-gray-800">
         <CardHeader>
           <CardTitle className="text-white flex items-center gap-2">
             <Users className="w-5 h-5 text-green-500" />
-            My Referrals ({myReferrals.length})
+            My Invitations ({pendingApprovals.length + myReferrals.length})
           </CardTitle>
           <CardDescription className="text-gray-400">
-            Users you have successfully referred
+            People you invited — approve pending ones to complete step 2
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {myReferrals.length === 0 ? (
+          {loadingApprovals ? (
+            <div className="flex items-center justify-center py-4">
+              <Loader2 className="w-6 h-6 animate-spin text-yellow-500" />
+            </div>
+          ) : pendingApprovals.length === 0 && myReferrals.length === 0 ? (
             <div className="text-center py-8">
               <Users className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-              <p className="text-gray-500">No referrals yet</p>
+              <p className="text-gray-500">No invitations yet</p>
               <p className="text-gray-600 text-sm mt-1">
                 Invite friends to start building your network
               </p>
@@ -283,6 +226,44 @@ export const ReferralDashboard: React.FC = () => {
             </div>
           ) : (
             <div className="space-y-2">
+              {/* Pending approvals first */}
+              {pendingApprovals.map((approval) => (
+                <div
+                  key={approval.applicantAddress}
+                  className="flex items-center justify-between p-3 bg-yellow-900/10 border border-yellow-600/20 rounded-lg"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-yellow-600/20 flex items-center justify-center">
+                      <User className="w-4 h-4 text-yellow-400" />
+                    </div>
+                    <div>
+                      <div className="text-sm font-mono text-white">
+                        {approval.applicantAddress.slice(0, 10)}...{approval.applicantAddress.slice(-8)}
+                      </div>
+                      <div className="text-xs mt-0.5">
+                        <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30 text-[10px] px-1.5 py-0">
+                          Pending — Waiting Your Approval
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                  <Button
+                    size="sm"
+                    onClick={() => handleApprove(approval.applicantAddress)}
+                    disabled={processingAddress === approval.applicantAddress}
+                    className="bg-green-600 hover:bg-green-700"
+                  >
+                    {processingAddress === approval.applicantAddress ? (
+                      <Loader2 className="w-4 h-4 animate-spin mr-1" />
+                    ) : (
+                      <CheckCircle className="w-4 h-4 mr-1" />
+                    )}
+                    Approve
+                  </Button>
+                </div>
+              ))}
+
+              {/* Confirmed referrals */}
               {myReferrals.map((address, index) => (
                 <div
                   key={address}
@@ -290,21 +271,21 @@ export const ReferralDashboard: React.FC = () => {
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-green-600/20 flex items-center justify-center">
-                      <span className="text-green-400 font-semibold text-sm">
-                        {index + 1}
-                      </span>
+                      <CheckCircle className="w-4 h-4 text-green-400" />
                     </div>
                     <div>
                       <div className="text-sm font-mono text-white">
                         {address.slice(0, 10)}...{address.slice(-8)}
                       </div>
-                      <div className="text-xs text-gray-500">
-                        KYC Completed
+                      <div className="text-xs mt-0.5">
+                        <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-[10px] px-1.5 py-0">
+                          Confirmed
+                        </Badge>
                       </div>
                     </div>
                   </div>
                   <div className="text-green-400 text-sm font-semibold">
-                    +{index < 10 ? 10 : index < 50 ? 5 : index < 100 ? 4 : 0} points
+                    +{index < 10 ? 10 : index < 50 ? 5 : index < 100 ? 4 : 0} pts
                   </div>
                 </div>
               ))}
