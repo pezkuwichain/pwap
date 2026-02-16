@@ -117,9 +117,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const checkAdminStatus = useCallback(async () => {
     // Admin wallet whitelist (blockchain-based auth)
     const ADMIN_WALLETS = [
-      '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY', // Founder (original)
-      '5DFwqK698vL4gXHEcanaewnAqhxJ2rjhAogpSTHw3iwGDwd3', // Founder delegate (initial KYC member)
-      '5GgTgG9sRmPQAYU1RsTejZYnZRjwzKZKWD3awtuqjHioki45', // Founder (current dev wallet)
+      '5CyuFfbF95rzBxru7c9yEsX4XmQXUxpLUcbj9RLg9K1cGiiF', // Founder
+      '5EhCpn82QtdU53MF6PoNFrKHgSrsfcAxFTMwrn3JYf9dioQw', // Treasury admin
+      '5ELgySrX5ZyK7EWXjj6bAedyTCcTNWDANbiiipsT5gnpoCEp', // Admin
     ];
 
     try {
