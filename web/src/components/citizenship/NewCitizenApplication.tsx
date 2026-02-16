@@ -12,7 +12,7 @@ import { Loader2, AlertTriangle, CheckCircle, User, Users as UsersIcon, MapPin, 
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { blake2AsHex } from '@pezkuwi/util-crypto';
 import type { CitizenshipData, Region, MaritalStatus, KycStatus } from '@pezkuwi/lib/citizenship-workflow';
-import { FOUNDER_ADDRESS, submitKycApplication, subscribeToKycApproval, getKycStatus, cancelApplication, confirmCitizenship } from '@pezkuwi/lib/citizenship-workflow';
+import { submitKycApplication, subscribeToKycApproval, getKycStatus, cancelApplication, confirmCitizenship } from '@pezkuwi/lib/citizenship-workflow';
 import { encryptData, saveLocalCitizenshipData, uploadToIPFS } from '@pezkuwi/lib/citizenship-workflow';
 
 interface NewCitizenApplicationProps {
