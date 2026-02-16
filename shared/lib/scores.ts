@@ -25,6 +25,7 @@ export interface UserScores {
 
 export interface StakingScoreStatus {
   isTracking: boolean;
+  hasCachedData: boolean; // Whether noter has submitted staking data
   startBlock: number | null;
   currentBlock: number;
   durationBlocks: number;
@@ -188,28 +189,46 @@ export async function getStakingScoreStatus(
 ): Promise<StakingScoreStatus> {
   try {
     if (!peopleApi?.query?.stakingScore?.stakingStartBlock) {
-      return { isTracking: false, startBlock: null, currentBlock: 0, durationBlocks: 0 };
+      return { isTracking: false, hasCachedData: false, startBlock: null, currentBlock: 0, durationBlocks: 0 };
     }
 
     const startBlockResult = await peopleApi.query.stakingScore.stakingStartBlock(address);
     const currentBlock = Number((await peopleApi.query.system.number()).toString());
 
     if (startBlockResult.isEmpty || startBlockResult.isNone) {
-      return { isTracking: false, startBlock: null, currentBlock, durationBlocks: 0 };
+      return { isTracking: false, hasCachedData: false, startBlock: null, currentBlock, durationBlocks: 0 };
     }
 
     const startBlock = Number(startBlockResult.toString());
     const durationBlocks = currentBlock - startBlock;
 
+    // Check if noter has submitted cached staking data
+    let hasCachedData = false;
+    if (peopleApi.query.stakingScore.cachedStakingDetails) {
+      try {
+        const [relayResult, assetHubResult] = await Promise.all([
+          peopleApi.query.stakingScore.cachedStakingDetails(address, 'RelayChain')
+            .catch(() => ({ isSome: false, isEmpty: true })),
+          peopleApi.query.stakingScore.cachedStakingDetails(address, 'AssetHub')
+            .catch(() => ({ isSome: false, isEmpty: true })),
+        ]);
+        hasCachedData = (relayResult.isSome || !relayResult.isEmpty) ||
+                         (assetHubResult.isSome || !assetHubResult.isEmpty);
+      } catch {
+        hasCachedData = false;
+      }
+    }
+
     return {
       isTracking: true,
+      hasCachedData,
       startBlock,
       currentBlock,
       durationBlocks
     };
   } catch (error) {
     console.error('Error fetching staking score status:', error);
-    return { isTracking: false, startBlock: null, currentBlock: 0, durationBlocks: 0 };
+    return { isTracking: false, hasCachedData: false, startBlock: null, currentBlock: 0, durationBlocks: 0 };
   }
 }
 
@@ -217,8 +236,8 @@ export async function getStakingScoreStatus(
  * Start staking score tracking
  * Calls: stakingScore.startScoreTracking()
  *
- * Called on People Chain. Requires staking data to be available via
- * cachedStakingDetails (pushed from Asset Hub via XCM).
+ * Called on People Chain. No stake requirement - user opts in, then a
+ * noter-authorized account submits staking data via receive_staking_details().
  */
 export async function startScoreTracking(
   peopleApi: ApiPromise,

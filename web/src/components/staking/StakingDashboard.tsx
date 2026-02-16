@@ -376,11 +376,6 @@ export const StakingDashboard: React.FC = () => {
   const handleStartScoreTracking = async () => {
     if (!peopleApi || !selectedAccount) return;
 
-    if (!stakingInfo || parseFloat(stakingInfo.bonded) === 0) {
-      toast.error('You must bond tokens before starting score tracking');
-      return;
-    }
-
     setIsLoading(true);
     try {
       const injector = await getInjectorSigner(selectedAccount.address);
@@ -496,23 +491,32 @@ export const StakingDashboard: React.FC = () => {
           </CardHeader>
           <CardContent>
             {stakingInfo?.hasStartedScoreTracking ? (
-              <>
-                <div className="text-2xl font-bold text-purple-500">
-                  {stakingInfo.stakingScore}/100
-                </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  Duration: {stakingInfo.stakingDuration
-                    ? `${Math.floor(stakingInfo.stakingDuration / (24 * 60 * 10))} days`
-                    : '0 days'}
-                </p>
-              </>
+              stakingInfo.hasCachedStakingData ? (
+                <>
+                  <div className="text-2xl font-bold text-purple-500">
+                    {stakingInfo.stakingScore}/100
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Duration: {stakingInfo.stakingDuration
+                      ? `${Math.floor(stakingInfo.stakingDuration / (24 * 60 * 10))} days`
+                      : '0 days'}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <div className="text-lg font-bold text-yellow-500">Waiting for data...</div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Score tracking started. A noter will submit your staking data soon.
+                  </p>
+                </>
+              )
             ) : (
               <>
                 <div className="text-2xl font-bold text-gray-500">Not Started</div>
                 <Button
                   size="sm"
                   onClick={handleStartScoreTracking}
-                  disabled={!stakingInfo || parseFloat(stakingInfo.bonded) === 0 || isLoading}
+                  disabled={!stakingInfo || isLoading}
                   className="mt-2 w-full bg-purple-600 hover:bg-purple-700"
                 >
                   Start Score Tracking
