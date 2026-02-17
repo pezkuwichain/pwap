@@ -131,19 +131,19 @@ const HeroSection: React.FC = () => {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 mb-12 max-w-5xl mx-auto px-4">
           <div className="bg-gray-900/70 backdrop-blur-md rounded-xl border border-green-500/40 p-4 sm:p-6 hover:border-green-400/60 transition-all">
-            <div className="text-2xl sm:text-4xl font-bold text-green-400 mb-2">{stats.activeProposals}</div>
+            <div className="text-base sm:text-2xl font-bold text-green-400 mb-2">{stats.activeProposals}</div>
             <div className="text-xs sm:text-sm text-gray-300 font-medium">{t('hero.stats.activeProposals', 'Active Proposals')}</div>
           </div>
           <div className="bg-gray-900/70 backdrop-blur-md rounded-xl border border-yellow-400/40 p-4 sm:p-6 hover:border-yellow-400/60 transition-all">
-            <div className="text-2xl sm:text-4xl font-bold text-yellow-400 mb-2">{stats.totalVoters.toLocaleString()}</div>
+            <div className="text-base sm:text-2xl font-bold text-yellow-400 mb-2">{stats.totalVoters.toLocaleString()}</div>
             <div className="text-xs sm:text-sm text-gray-300 font-medium">{t('hero.stats.totalVoters', 'Total Voters')}</div>
           </div>
           <div className="bg-gray-900/70 backdrop-blur-md rounded-xl border border-red-500/40 p-4 sm:p-6 hover:border-red-500/60 transition-all">
-            <div className="text-2xl sm:text-4xl font-bold text-red-400 mb-2 truncate">{stats.tokensStaked}</div>
+            <div className="text-base sm:text-2xl font-bold text-red-400 mb-2 truncate">{stats.tokensStaked}</div>
             <div className="text-xs sm:text-sm text-gray-300 font-medium">{t('hero.stats.tokensStaked', 'Tokens Staked')}</div>
           </div>
           <div className="bg-gray-900/70 backdrop-blur-md rounded-xl border border-green-500/40 p-4 sm:p-6 hover:border-green-500/60 transition-all">
-            <div className="text-2xl sm:text-4xl font-bold text-green-400 mb-2">{stats.trustScore !== null ? stats.trustScore : t('hero.stats.loginToSee', 'Login')}</div>
+            <div className="text-base sm:text-2xl font-bold text-green-400 mb-2">{stats.trustScore !== null ? stats.trustScore : t('hero.stats.loginToSee', 'Login')}</div>
             <div className="text-xs sm:text-sm text-gray-300 font-medium">{t('hero.stats.trustScore', 'Trust Score')}</div>
           </div>
         </div>
