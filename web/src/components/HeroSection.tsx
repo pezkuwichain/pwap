@@ -14,14 +14,14 @@ const HeroSection: React.FC = () => {
     activeProposals: 0,
     totalVoters: 0,
     tokensStaked: '0',
-    trustScore: 0
+    trustScore: null as number | null
   });
 
   useEffect(() => {
     const fetchStats = async () => {
       if (!api || !isApiReady) return;
 
-      let currentTrustScore = 0; // Default if not fetched or no account
+      let currentTrustScore: number | null = null; // null = not logged in
       if (selectedAccount?.address) {
         try {
           // Use frontend fallback for trust score
@@ -35,11 +35,14 @@ const HeroSection: React.FC = () => {
       }
 
       try {
-        // Fetch active referenda
+        // Fetch active (ongoing) referenda only
         let activeProposals = 0;
         try {
-          const referendaCount = await api.query.referenda.referendumCount();
-          activeProposals = referendaCount.toNumber();
+          const entries = await api.query.referenda.referendumInfoFor.entries();
+          activeProposals = entries.filter(([, info]) => {
+            const data = info.toJSON();
+            return data && typeof data === 'object' && 'ongoing' in data;
+          }).length;
         } catch (err) {
           if (import.meta.env.DEV) console.warn('Failed to fetch referenda:', err);
         }
@@ -52,7 +55,10 @@ const HeroSection: React.FC = () => {
             const eraIndex = currentEra.unwrap().toNumber();
             const totalStake = await api.query.staking.erasTotalStake(eraIndex);
             const formatted = formatBalance(totalStake.toString());
-            tokensStaked = `${formatted} HEZ`;
+            const [whole, frac] = formatted.split('.');
+            const formattedWhole = Number(whole).toLocaleString();
+            const formattedFrac = (frac || '00').slice(0, 2);
+            tokensStaked = `${formattedWhole}.${formattedFrac} HEZ`;
           }
         } catch (err) {
           if (import.meta.env.DEV) console.warn('Failed to fetch total stake:', err);
@@ -137,7 +143,7 @@ const HeroSection: React.FC = () => {
             <div className="text-xs sm:text-sm text-gray-300 font-medium">{t('hero.stats.tokensStaked', 'Tokens Staked')}</div>
           </div>
           <div className="bg-gray-900/70 backdrop-blur-md rounded-xl border border-green-500/40 p-4 sm:p-6 hover:border-green-500/60 transition-all">
-            <div className="text-2xl sm:text-4xl font-bold text-green-400 mb-2">{stats.trustScore}%</div>
+            <div className="text-2xl sm:text-4xl font-bold text-green-400 mb-2">{stats.trustScore !== null ? stats.trustScore : t('hero.stats.loginToSee', 'Login')}</div>
             <div className="text-xs sm:text-sm text-gray-300 font-medium">{t('hero.stats.trustScore', 'Trust Score')}</div>
           </div>
         </div>
