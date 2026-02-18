@@ -26,12 +26,13 @@ const TrustScoreCalculator: React.FC = () => {
     return 2.0;
   };
 
-  // Calculate referral score
+  // Calculate referral score (matches pezpallet-referral tiered scoring)
   const getReferralScore = (count: number) => {
     if (count === 0) return 0;
-    if (count <= 5) return count * 4;
-    if (count <= 20) return 20 + ((count - 5) * 2);
-    return 50;
+    if (count <= 10) return count * 10;
+    if (count <= 50) return 100 + ((count - 10) * 5);
+    if (count <= 100) return 300 + ((count - 50) * 4);
+    return 500;
   };
 
   useEffect(() => {
@@ -120,7 +121,7 @@ const TrustScoreCalculator: React.FC = () => {
                 <input
                   type="number"
                   min="0"
-                  max="50"
+                  max="150"
                   value={referralCount}
                   onChange={(e) => setReferralCount(parseInt(e.target.value) || 0)}
                   className="w-full mt-2 px-4 py-2 bg-gray-800 text-white rounded-lg border border-gray-700 focus:border-cyan-500 focus:outline-none"
@@ -157,7 +158,7 @@ const TrustScoreCalculator: React.FC = () => {
                 <input
                   type="range"
                   min="0"
-                  max="100"
+                  max="250"
                   value={tikiScore}
                   onChange={(e) => setTikiScore(parseInt(e.target.value))}
                   className="w-full"
