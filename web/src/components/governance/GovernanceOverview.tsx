@@ -121,8 +121,8 @@ const GovernanceOverview: React.FC = () => {
           if (assetHubApi && isAssetHubReady) {
             const pezBalance = await assetHubApi.query.assets.account(1, PEZ_TREASURY);
             if (pezBalance.isSome) {
-              const balanceData = (pezBalance.unwrap() as any).toJSON();
-              const rawBalance = (balanceData.balance ?? balanceData.free ?? '0').toString();
+              const balanceData = (pezBalance.unwrap() as unknown as { toJSON: () => Record<string, unknown> }).toJSON();
+              const rawBalance = ((balanceData.balance ?? balanceData.free ?? '0') as string | number).toString();
               pezTreasuryBalance = `${formatBalance(rawBalance)} PEZ`;
             }
             if (import.meta.env.DEV) console.log('PEZ treasury balance:', pezTreasuryBalance);
