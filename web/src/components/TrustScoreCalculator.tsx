@@ -47,7 +47,7 @@ const TrustScoreCalculator: React.FC = () => {
       perwerdeScore * 300 +
       tikiScore * 300;
 
-    const score = (adjustedStaking * weightedSum) / 1000;
+    const score = (adjustedStaking * weightedSum) / 10000;
     setFinalScore(Math.round(score));
   }, [stakedAmount, stakingMonths, referralCount, perwerdeScore, tikiScore]);
 
@@ -203,7 +203,7 @@ const TrustScoreCalculator: React.FC = () => {
                   tiki × 300
                 </div>
                 <div className="text-cyan-400">
-                  final_score = staking × weighted_sum / 1000
+                  final_score = staking × weighted_sum / 10000
                 </div>
               </div>
 

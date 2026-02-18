@@ -21,11 +21,16 @@ interface GovernanceStats {
   diwanMax: number;
   pendingVotes: number;
   diwanPendingReviews: number;
-  treasuryBalance: string;
+  relayTreasuryBalance: string;
+  pezTreasuryBalance: string;
 }
 
+// Treasury addresses derived from PalletId
+const RELAY_TREASURY = '5EYCAe5ijiYfyeZ2JJCGq56LmPyNRAKzpG4QkoQkkQNB5e6Z'; // py/trsry
+const PEZ_TREASURY = '5EYCAe5iipewaoUvoNr8ttcKqj5czZPBvVAex6uWbT6HxQNU'; // pez/trea (Asset Hub)
+
 const GovernanceOverview: React.FC = () => {
-  const { api, isApiReady } = usePezkuwi();
+  const { api, isApiReady, assetHubApi, isAssetHubReady } = usePezkuwi();
   const [stats, setStats] = useState<GovernanceStats>({
     activeProposals: 0,
     activeElections: 0,
@@ -37,7 +42,8 @@ const GovernanceOverview: React.FC = () => {
     diwanMax: 9,
     pendingVotes: 0,
     diwanPendingReviews: 0,
-    treasuryBalance: '0 HEZ'
+    relayTreasuryBalance: '0 HEZ',
+    pezTreasuryBalance: '0 PEZ'
   });
   const [loading, setLoading] = useState(true);
 
@@ -98,17 +104,31 @@ const GovernanceOverview: React.FC = () => {
           if (import.meta.env.DEV) console.warn('Failed to fetch diwan members:', err);
         }
 
-        // Fetch treasury balance
-        let treasuryBalance = '0 HEZ';
+        // Fetch Relay Chain treasury balance (native HEZ)
+        let relayTreasuryBalance = '0 HEZ';
         try {
-          const treasuryAccount = await api.query.system.account(
-            '5EYCAe5ijiYfyeZ2JJCGq56LmPyNRAKzpG4QkoQkkQNB5e6Z' // Treasury pallet address
-          );
+          const treasuryAccount = await api.query.system.account(RELAY_TREASURY);
           const balance = treasuryAccount.data.free.toString();
-          treasuryBalance = `${formatBalance(balance)} HEZ`;
-          if (import.meta.env.DEV) console.log('Treasury balance:', treasuryBalance);
+          relayTreasuryBalance = `${formatBalance(balance)} HEZ`;
+          if (import.meta.env.DEV) console.log('Relay treasury balance:', relayTreasuryBalance);
         } catch (err) {
-          if (import.meta.env.DEV) console.warn('Failed to fetch treasury balance:', err);
+          if (import.meta.env.DEV) console.warn('Failed to fetch relay treasury balance:', err);
+        }
+
+        // Fetch PEZ Treasury balance (PEZ token, asset ID 1, on Asset Hub)
+        let pezTreasuryBalance = '0 PEZ';
+        try {
+          if (assetHubApi && isAssetHubReady) {
+            const pezBalance = await assetHubApi.query.assets.account(1, PEZ_TREASURY);
+            if (pezBalance.isSome) {
+              const balanceData = (pezBalance.unwrap() as any).toJSON();
+              const rawBalance = (balanceData.balance ?? balanceData.free ?? '0').toString();
+              pezTreasuryBalance = `${formatBalance(rawBalance)} PEZ`;
+            }
+            if (import.meta.env.DEV) console.log('PEZ treasury balance:', pezTreasuryBalance);
+          }
+        } catch (err) {
+          if (import.meta.env.DEV) console.warn('Failed to fetch PEZ treasury balance:', err);
         }
 
         setStats({
@@ -122,7 +142,8 @@ const GovernanceOverview: React.FC = () => {
           diwanMax: 9,
           pendingVotes,
           diwanPendingReviews,
-          treasuryBalance
+          relayTreasuryBalance,
+          pezTreasuryBalance
         });
 
         if (import.meta.env.DEV) console.log('Governance data updated:', {
@@ -130,7 +151,8 @@ const GovernanceOverview: React.FC = () => {
           activeElections,
           parliamentMembers,
           diwanMembers,
-          treasuryBalance
+          relayTreasuryBalance,
+          pezTreasuryBalance
         });
       } catch (error) {
         if (import.meta.env.DEV) console.error('Failed to fetch governance data:', error);
@@ -140,7 +162,7 @@ const GovernanceOverview: React.FC = () => {
     };
 
     fetchGovernanceData();
-  }, [api, isApiReady]);
+  }, [api, isApiReady, assetHubApi, isAssetHubReady]);
 
   if (loading) {
     return <LoadingState message="Loading governance data..." />;
@@ -196,9 +218,9 @@ const GovernanceOverview: React.FC = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-400 text-sm">Treasury Balance</p>
-                <p className="text-2xl font-bold text-white mt-1">{stats.treasuryBalance}</p>
-                <p className="text-xs text-yellow-400 mt-2">Available for proposals</p>
+                <p className="text-gray-400 text-sm">Treasury</p>
+                <p className="text-lg font-bold text-white mt-1">{stats.pezTreasuryBalance}</p>
+                <p className="text-sm text-gray-400 mt-1">{stats.relayTreasuryBalance}</p>
               </div>
               <div className="p-3 bg-yellow-500/10 rounded-lg">
                 <Shield className="w-6 h-6 text-yellow-400" />
