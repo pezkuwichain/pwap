@@ -788,14 +788,25 @@ export async function getPendingApprovalsForReferrer(
       const applicantAddress = key.args[0].toString();
       const appData = (value as any).toJSON() as Record<string, unknown>;
 
-      if (
-        appData.status === 'PendingReferral' &&
-        appData.referrer?.toString() === referrerAddress
-      ) {
-        pending.push({
-          applicantAddress,
-          identityHash: (appData.identityHash as string) || ''
-        });
+      // Application struct has { identityHash, referrer } - no status field.
+      // An application is "pending" if it exists in applications but is NOT yet
+      // approved in kycStatuses. Check referrer matches current user, or current
+      // user is the founder (can approve any application).
+      const isReferrer = appData.referrer?.toString() === referrerAddress;
+      const isFounder = referrerAddress === FOUNDER_ADDRESS;
+
+      if (isReferrer || isFounder) {
+        // Check if already approved via kycStatuses
+        const kycStatus = await api.query.identityKyc.kycStatuses(applicantAddress);
+        const statusStr = kycStatus.isEmpty ? null : kycStatus.toString();
+
+        // Pending = not yet approved (no status or PendingReferral)
+        if (!statusStr || statusStr === 'PendingReferral') {
+          pending.push({
+            applicantAddress,
+            identityHash: (appData.identityHash as string) || ''
+          });
+        }
       }
     }
 
