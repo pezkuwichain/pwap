@@ -1,7 +1,9 @@
 // ========================================
-// Staking Helper Functions
+// Staking Helper Functions (Asset Hub)
 // ========================================
-// Helper functions for pallet_staking and pallet_staking_score integration
+// Helper functions for pallet_staking_async on Asset Hub and pallet_staking_score on People Chain.
+// Staking was moved from Relay Chain to Asset Hub.
+// The `api` parameter in all functions refers to the Asset Hub API connection.
 
 import { ApiPromise } from '@pezkuwi/api';
 import { formatBalance } from './wallet';
@@ -143,7 +145,9 @@ export async function getCurrentEra(api: ApiPromise): Promise<number> {
 }
 
 /**
- * Get blocks remaining until an era
+ * Get estimated time remaining until an era (in seconds).
+ * Asset Hub uses Aura (no babe.epochDuration), so we estimate based on
+ * activeEra.start timestamp + sessionsPerEra * estimated session duration.
  */
 export async function getBlocksUntilEra(
   api: ApiPromise,
@@ -155,26 +159,33 @@ export async function getBlocksUntilEra(
       return 0;
     }
 
+    const erasRemaining = targetEra - currentEra;
+
+    // Try to get sessionsPerEra from staking constants
+    const sessionsPerEra = api.consts.staking?.sessionsPerEra
+      ? Number(api.consts.staking.sessionsPerEra.toString())
+      : 6; // Default: 6 sessions per era on AH
+
+    // Estimate session duration: ~1 hour (3600 seconds / 6s block time = 600 blocks)
+    const ESTIMATED_SESSION_BLOCKS = 600;
+    const blocksPerEra = sessionsPerEra * ESTIMATED_SESSION_BLOCKS;
+
+    // Try to estimate blocks remaining in current era using activeEra.start
     const activeEraOption = await api.query.staking.activeEra();
-    if (activeEraOption.isNone) {
-      return 0;
+    if (activeEraOption.isSome) {
+      const activeEra = activeEraOption.unwrap() as { start: { unwrapOr: (def: number) => { toString: () => string } } };
+      const eraStartSlot = Number(activeEra.start.unwrapOr(0).toString());
+
+      if (eraStartSlot > 0) {
+        const currentBlock = Number((await api.query.system.number()).toString());
+        const blocksIntoCurrentEra = currentBlock - eraStartSlot;
+        const blocksRemainingInCurrentEra = Math.max(0, blocksPerEra - blocksIntoCurrentEra);
+        return blocksRemainingInCurrentEra + (blocksPerEra * (erasRemaining - 1));
+      }
     }
 
-    const activeEra = activeEraOption.unwrap() as { start: { unwrapOr: (def: number) => { toString: () => string } } };
-    const eraStartBlock = Number(activeEra.start.unwrapOr(0).toString());
-
-    // Get session length and sessions per era
-    const sessionLength = api.consts.babe?.epochDuration || api.consts.timestamp?.minimumPeriod || 600;
-    const sessionsPerEra = api.consts.staking.sessionsPerEra;
-
-    const blocksPerEra = Number(sessionLength.toString()) * Number(sessionsPerEra.toString());
-    const currentBlock = Number((await api.query.system.number()).toString());
-
-    const erasRemaining = targetEra - currentEra;
-    const blocksIntoCurrentEra = currentBlock - eraStartBlock;
-    const blocksRemainingInCurrentEra = blocksPerEra - blocksIntoCurrentEra;
-
-    return blocksRemainingInCurrentEra + (blocksPerEra * (erasRemaining - 1));
+    // Fallback: just multiply eras remaining by estimated blocks per era
+    return blocksPerEra * erasRemaining;
   } catch (error) {
     console.error('Error calculating blocks until era:', error);
     return 0;
@@ -183,7 +194,7 @@ export async function getBlocksUntilEra(
 
 /**
  * Get comprehensive staking info for an account
- * @param api - Relay Chain API (for staking pallet)
+ * @param api - Asset Hub API (staking pallet moved from RC to AH)
  * @param address - User address
  * @param peopleApi - Optional People Chain API (for pezRewards and stakingScore pallets)
  */
@@ -356,34 +367,12 @@ export async function getStakingInfo(
 }
 
 /**
- * Get list of active validators
- * For Pezkuwi, we query staking.validators.entries() to get all registered validators
+ * Get list of active validators from Asset Hub staking pallet.
+ * Note: validatorPool pallet is on Relay Chain, not AH. We only use staking.validators here.
  */
 export async function getActiveValidators(api: ApiPromise): Promise<string[]> {
   try {
-    // Try multiple methods to get validators
-
-    // Method 1: Try validatorPool.currentValidatorSet() if available
-    if (api.query.validatorPool && api.query.validatorPool.currentValidatorSet) {
-      try {
-        const currentSetOption = await api.query.validatorPool.currentValidatorSet();
-        if (currentSetOption.isSome) {
-          const validatorSet = currentSetOption.unwrap() as any;
-          // Extract validators array from the set structure
-          if (validatorSet.validators && Array.isArray(validatorSet.validators)) {
-            const validators = validatorSet.validators.map((v: any) => v.toString());
-            if (validators.length > 0) {
-              console.log(`Found ${validators.length} validators from validatorPool.currentValidatorSet`);
-              return validators;
-            }
-          }
-        }
-      } catch (err) {
-        console.warn('validatorPool.currentValidatorSet query failed:', err);
-      }
-    }
-
-    // Method 2: Query staking.validators.entries() to get all registered validators
+    // Method 1: Query staking.validators.entries() on Asset Hub
     try {
       const validatorEntries = await api.query.staking.validators.entries();
       if (validatorEntries.length > 0) {
@@ -395,14 +384,18 @@ export async function getActiveValidators(api: ApiPromise): Promise<string[]> {
       console.warn('staking.validators.entries() query failed:', err);
     }
 
-    // Method 3: Fallback to session.validators()
-    const sessionValidators = await api.query.session.validators();
-    const validatorArray = Array.isArray(sessionValidators)
-      ? sessionValidators
-      : (sessionValidators as unknown as { toJSON: () => string[] }).toJSON();
-    const validators = validatorArray.map((v: unknown) => String(v));
-    console.log(`Found ${validators.length} validators from session.validators()`);
-    return validators;
+    // Method 2: Fallback to session.validators() if available on AH
+    if (api.query.session?.validators) {
+      const sessionValidators = await api.query.session.validators();
+      const validatorArray = Array.isArray(sessionValidators)
+        ? sessionValidators
+        : (sessionValidators as unknown as { toJSON: () => string[] }).toJSON();
+      const validators = validatorArray.map((v: unknown) => String(v));
+      console.log(`Found ${validators.length} validators from session.validators()`);
+      return validators;
+    }
+
+    return [];
   } catch (error) {
     console.error('Error fetching validators:', error);
     return [];
@@ -431,7 +424,7 @@ export async function getBondingDuration(api: ApiPromise): Promise<number> {
     return Number(duration.toString());
   } catch (error) {
     console.error('Error fetching bonding duration:', error);
-    return 28; // Default 28 eras
+    return 2; // Default 2 eras (AH bonding duration)
   }
 }
 

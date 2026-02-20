@@ -44,7 +44,7 @@ async function getInjectorSigner(address: string) {
 }
 
 export const StakingDashboard: React.FC = () => {
-  const { api, peopleApi, selectedAccount, isApiReady, isPeopleReady } = usePezkuwi();
+  const { assetHubApi, peopleApi, selectedAccount, isAssetHubReady, isPeopleReady } = usePezkuwi();
   const { balances, refreshBalances } = useWallet();
 
   const [stakingInfo, setStakingInfo] = useState<StakingInfo | null>(null);
@@ -62,21 +62,21 @@ export const StakingDashboard: React.FC = () => {
   const [isRecordingScore, setIsRecordingScore] = useState(false);
   const [isClaimingReward, setIsClaimingReward] = useState(false);
 
-  // Fetch staking data
+  // Fetch staking data from Asset Hub
   useEffect(() => {
     const fetchStakingData = async () => {
-      if (!api || !isApiReady || !selectedAccount) {
+      if (!assetHubApi || !isAssetHubReady || !selectedAccount) {
         return;
       }
 
       setIsLoadingData(true);
       try {
         const [info, activeVals, minBond, duration, era] = await Promise.all([
-          getStakingInfo(api, selectedAccount.address, peopleApi || undefined),
-          getActiveValidators(api),
-          getMinNominatorBond(api),
-          getBondingDuration(api),
-          getCurrentEra(api)
+          getStakingInfo(assetHubApi, selectedAccount.address, peopleApi || undefined),
+          getActiveValidators(assetHubApi),
+          getMinNominatorBond(assetHubApi),
+          getBondingDuration(assetHubApi),
+          getCurrentEra(assetHubApi)
         ]);
 
         setStakingInfo(info);
@@ -101,7 +101,7 @@ export const StakingDashboard: React.FC = () => {
     fetchStakingData();
     const interval = setInterval(fetchStakingData, 30000); // Refresh every 30s
     return () => clearInterval(interval);
-  }, [api, peopleApi, isApiReady, isPeopleReady, selectedAccount]);
+  }, [assetHubApi, peopleApi, isAssetHubReady, isPeopleReady, selectedAccount]);
 
   // Fetch PEZ rewards data separately from People Chain
   useEffect(() => {
@@ -180,7 +180,7 @@ export const StakingDashboard: React.FC = () => {
   };
 
   const handleBond = async () => {
-    if (!api || !selectedAccount || !bondAmount) return;
+    if (!assetHubApi || !selectedAccount || !bondAmount) return;
 
     setIsLoading(true);
     try {
@@ -200,10 +200,10 @@ export const StakingDashboard: React.FC = () => {
       // If already bonded, use bondExtra, otherwise use bond
       let tx;
       if (stakingInfo && parseFloat(stakingInfo.bonded) > 0) {
-        tx = api.tx.staking.bondExtra(amount);
+        tx = assetHubApi.tx.staking.bondExtra(amount);
       } else {
         // For new bond, also need to specify reward destination
-        tx = api.tx.staking.bond(amount, 'Staked'); // Auto-compound rewards
+        tx = assetHubApi.tx.staking.bond(amount, 'Staked'); // Auto-compound rewards
       }
 
       await tx.signAndSend(
@@ -214,7 +214,7 @@ export const StakingDashboard: React.FC = () => {
             if (import.meta.env.DEV) console.log('Transaction in block:', status.asInBlock.toHex());
 
             if (dispatchError) {
-              handleBlockchainError(dispatchError, api, toast);
+              handleBlockchainError(dispatchError, assetHubApi, toast);
               setIsLoading(false);
             } else {
               handleBlockchainSuccess('staking.bonded', toast, { amount: bondAmount });
@@ -222,8 +222,8 @@ export const StakingDashboard: React.FC = () => {
               refreshBalances();
               // Refresh staking data after a delay
               setTimeout(() => {
-                if (api && selectedAccount) {
-                  getStakingInfo(api, selectedAccount.address, peopleApi || undefined).then(setStakingInfo);
+                if (assetHubApi && selectedAccount) {
+                  getStakingInfo(assetHubApi, selectedAccount.address, peopleApi || undefined).then(setStakingInfo);
                 }
               }, 3000);
               setIsLoading(false);
@@ -239,7 +239,7 @@ export const StakingDashboard: React.FC = () => {
   };
 
   const handleNominate = async () => {
-    if (!api || !selectedAccount || selectedValidators.length === 0) return;
+    if (!assetHubApi || !selectedAccount || selectedValidators.length === 0) return;
 
     if (!stakingInfo || parseFloat(stakingInfo.bonded) === 0) {
       toast.error('You must bond tokens before nominating validators');
@@ -250,7 +250,7 @@ export const StakingDashboard: React.FC = () => {
     try {
       const injector = await getInjectorSigner(selectedAccount.address);
 
-      const tx = api.tx.staking.nominate(selectedValidators);
+      const tx = assetHubApi.tx.staking.nominate(selectedValidators);
 
       await tx.signAndSend(
         selectedAccount.address,
@@ -258,14 +258,14 @@ export const StakingDashboard: React.FC = () => {
         ({ status, dispatchError }) => {
           if (status.isInBlock) {
             if (dispatchError) {
-              handleBlockchainError(dispatchError, api, toast);
+              handleBlockchainError(dispatchError, assetHubApi, toast);
               setIsLoading(false);
             } else {
               handleBlockchainSuccess('staking.nominated', toast, { count: selectedValidators.length.toString() });
               // Refresh staking data
               setTimeout(() => {
-                if (api && selectedAccount) {
-                  getStakingInfo(api, selectedAccount.address, peopleApi || undefined).then(setStakingInfo);
+                if (assetHubApi && selectedAccount) {
+                  getStakingInfo(assetHubApi, selectedAccount.address, peopleApi || undefined).then(setStakingInfo);
                 }
               }, 3000);
               setIsLoading(false);
@@ -281,7 +281,7 @@ export const StakingDashboard: React.FC = () => {
   };
 
   const handleUnbond = async () => {
-    if (!api || !selectedAccount || !unbondAmount) return;
+    if (!assetHubApi || !selectedAccount || !unbondAmount) return;
 
     setIsLoading(true);
     try {
@@ -292,7 +292,7 @@ export const StakingDashboard: React.FC = () => {
       }
 
       const injector = await getInjectorSigner(selectedAccount.address);
-      const tx = api.tx.staking.unbond(amount);
+      const tx = assetHubApi.tx.staking.unbond(amount);
 
       await tx.signAndSend(
         selectedAccount.address,
@@ -300,7 +300,7 @@ export const StakingDashboard: React.FC = () => {
         ({ status, dispatchError }) => {
           if (status.isInBlock) {
             if (dispatchError) {
-              handleBlockchainError(dispatchError, api, toast);
+              handleBlockchainError(dispatchError, assetHubApi, toast);
               setIsLoading(false);
             } else {
               handleBlockchainSuccess('staking.unbonded', toast, {
@@ -309,8 +309,8 @@ export const StakingDashboard: React.FC = () => {
               });
               setUnbondAmount('');
               setTimeout(() => {
-                if (api && selectedAccount) {
-                  getStakingInfo(api, selectedAccount.address, peopleApi || undefined).then(setStakingInfo);
+                if (assetHubApi && selectedAccount) {
+                  getStakingInfo(assetHubApi, selectedAccount.address, peopleApi || undefined).then(setStakingInfo);
                 }
               }, 3000);
               setIsLoading(false);
@@ -326,7 +326,7 @@ export const StakingDashboard: React.FC = () => {
   };
 
   const handleWithdrawUnbonded = async () => {
-    if (!api || !selectedAccount) return;
+    if (!assetHubApi || !selectedAccount) return;
 
     if (!stakingInfo || parseFloat(stakingInfo.redeemable) === 0) {
       toast.info('No tokens available to withdraw');
@@ -338,7 +338,7 @@ export const StakingDashboard: React.FC = () => {
       const injector = await getInjectorSigner(selectedAccount.address);
 
       // Number of slashing spans (usually 0)
-      const tx = api.tx.staking.withdrawUnbonded(0);
+      const tx = assetHubApi.tx.staking.withdrawUnbonded(0);
 
       await tx.signAndSend(
         selectedAccount.address,
@@ -348,7 +348,7 @@ export const StakingDashboard: React.FC = () => {
             if (dispatchError) {
               let errorMessage = 'Withdrawal failed';
               if (dispatchError.isModule) {
-                const decoded = api.registry.findMetaError(dispatchError.asModule);
+                const decoded = assetHubApi.registry.findMetaError(dispatchError.asModule);
                 errorMessage = `${decoded.section}.${decoded.name}: ${decoded.docs.join(' ')}`;
               }
               toast.error(errorMessage);
@@ -357,8 +357,8 @@ export const StakingDashboard: React.FC = () => {
               toast.success(`Withdrew ${stakingInfo.redeemable} HEZ`);
               refreshBalances();
               setTimeout(() => {
-                if (api && selectedAccount) {
-                  getStakingInfo(api, selectedAccount.address, peopleApi || undefined).then(setStakingInfo);
+                if (assetHubApi && selectedAccount) {
+                  getStakingInfo(assetHubApi, selectedAccount.address, peopleApi || undefined).then(setStakingInfo);
                 }
               }, 3000);
               setIsLoading(false);
@@ -399,8 +399,8 @@ export const StakingDashboard: React.FC = () => {
               toast.success('Score tracking started successfully! Your staking score will now accumulate over time.');
               // Refresh staking data after a delay
               setTimeout(() => {
-                if (api && selectedAccount) {
-                  getStakingInfo(api, selectedAccount.address, peopleApi || undefined).then(setStakingInfo);
+                if (assetHubApi && selectedAccount) {
+                  getStakingInfo(assetHubApi, selectedAccount.address, peopleApi || undefined).then(setStakingInfo);
                 }
               }, 3000);
               setIsLoading(false);
