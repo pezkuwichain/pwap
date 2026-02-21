@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { ChevronRight, Shield } from 'lucide-react';
 import { usePezkuwi } from '../contexts/PezkuwiContext';
 import { formatBalance } from '@pezkuwi/lib/wallet';
-import { getCurrentEra } from '@pezkuwi/lib/staking';
 
 const HeroSection: React.FC = () => {
   const { t } = useTranslation();
@@ -52,15 +51,21 @@ const HeroSection: React.FC = () => {
 
       let tokensStaked = '0';
       try {
-        const eraIndex = await getCurrentEra(assetHubApi);
-        if (eraIndex > 0) {
-          const totalStake = await assetHubApi.query.staking.erasTotalStake(eraIndex);
-          const formatted = formatBalance(totalStake.toString());
-          const [whole, frac] = formatted.split('.');
-          const formattedWhole = Number(whole).toLocaleString();
-          const formattedFrac = (frac || '00').slice(0, 2);
-          tokensStaked = `${formattedWhole}.${formattedFrac} HEZ`;
+        // Sum active stakes from all ledger entries
+        const ledgers = await assetHubApi.query.staking.ledger.entries();
+        let totalActive = BigInt(0);
+        for (const [, ledger] of ledgers) {
+          if (!ledger.isEmpty) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const data = (ledger as any).unwrap?.() ? (ledger as any).unwrap().toJSON() : (ledger as any).toJSON();
+            totalActive += BigInt(data?.active ?? data?.total ?? '0');
+          }
         }
+        const formatted = formatBalance(totalActive.toString());
+        const [whole, frac] = formatted.split('.');
+        const formattedWhole = Number(whole).toLocaleString();
+        const formattedFrac = (frac || '00').slice(0, 2);
+        tokensStaked = `${formattedWhole}.${formattedFrac} HEZ`;
       } catch (err) {
         if (import.meta.env.DEV) console.warn('Failed to fetch total stake from AH:', err);
       }
