@@ -1,23 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ChevronRight, Shield, LogIn } from 'lucide-react';
+import { ChevronRight, Shield } from 'lucide-react';
 import { usePezkuwi } from '../contexts/PezkuwiContext';
-import { useWallet } from '../contexts/WalletContext';
 import { formatBalance } from '@pezkuwi/lib/wallet';
-import { getTrustScore } from '@pezkuwi/lib/scores';
 import { getCurrentEra } from '@pezkuwi/lib/staking';
 
 const HeroSection: React.FC = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  const { api, isApiReady, assetHubApi, isAssetHubReady, peopleApi } = usePezkuwi();
-  const { selectedAccount } = useWallet();
+  const { api, isApiReady, assetHubApi, isAssetHubReady, peopleApi, isPeopleReady } = usePezkuwi();
   const [stats, setStats] = useState({
     activeProposals: 0,
     totalVoters: 0,
     tokensStaked: '0',
-    trustScore: null as number | null
+    citizenCount: null as number | null
   });
 
   // Fetch governance stats from Relay Chain
@@ -75,25 +70,27 @@ const HeroSection: React.FC = () => {
     fetchStakingStats();
   }, [assetHubApi, isAssetHubReady]);
 
-  // Fetch trust score from People Chain
+  // Fetch citizen count from People Chain
   useEffect(() => {
-    const fetchTrustScore = async () => {
-      if (!selectedAccount?.address) {
-        setStats(prev => ({ ...prev, trustScore: null }));
-        return;
-      }
-      if (!peopleApi) return;
+    const fetchCitizenCount = async () => {
+      if (!peopleApi || !isPeopleReady) return;
 
       try {
-        const score = await getTrustScore(peopleApi, selectedAccount.address);
-        setStats(prev => ({ ...prev, trustScore: score }));
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if (!(peopleApi.query as any)?.tiki?.citizenNft) {
+          setStats(prev => ({ ...prev, citizenCount: 0 }));
+          return;
+        }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const entries = await (peopleApi.query as any).tiki.citizenNft.entries();
+        setStats(prev => ({ ...prev, citizenCount: entries.length }));
       } catch (err) {
-        if (import.meta.env.DEV) console.warn('Failed to fetch trust score:', err);
-        setStats(prev => ({ ...prev, trustScore: 0 }));
+        if (import.meta.env.DEV) console.warn('Failed to fetch citizen count:', err);
+        setStats(prev => ({ ...prev, citizenCount: 0 }));
       }
     };
-    fetchTrustScore();
-  }, [peopleApi, selectedAccount]);
+    fetchCitizenCount();
+  }, [peopleApi, isPeopleReady]);
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gray-950">
@@ -139,18 +136,8 @@ const HeroSection: React.FC = () => {
             <div className="text-xs sm:text-sm text-gray-300 font-medium">{t('hero.stats.tokensStaked', 'Tokens Staked')}</div>
           </div>
           <div className="bg-gray-900/70 backdrop-blur-md rounded-xl border border-green-500/40 p-4 sm:p-6 hover:border-green-500/60 transition-all">
-            {stats.trustScore !== null ? (
-              <div className="text-base sm:text-2xl font-bold text-green-400 mb-2">{stats.trustScore}</div>
-            ) : (
-              <button
-                onClick={() => navigate('/login')}
-                className="text-xs sm:text-sm font-medium text-green-400 hover:text-green-300 transition-colors flex items-center gap-1 mx-auto mb-2"
-              >
-                <LogIn className="w-3.5 h-3.5" />
-                {t('hero.stats.loginToSee', 'Görmek için giriş yapın')}
-              </button>
-            )}
-            <div className="text-xs sm:text-sm text-gray-300 font-medium">{t('hero.stats.trustScore', 'Trust Score')}</div>
+            <div className="text-base sm:text-2xl font-bold text-green-400 mb-2">{stats.citizenCount !== null ? stats.citizenCount.toLocaleString() : '...'}</div>
+            <div className="text-xs sm:text-sm text-gray-300 font-medium">Hejmara Kurd Lê Cîhanê</div>
           </div>
         </div>
 
