@@ -8,6 +8,7 @@ import tr from './locales/tr';
 import kmr from './locales/kmr';
 import ar from './locales/ar';
 import fa from './locales/fa';
+import ckb from './locales/ckb';
 
 export const languages = {
   en: { name: 'English', flag: '🇬🇧', dir: 'ltr' },
@@ -22,7 +23,7 @@ const resources = {
   en: { translation: en },
   tr: { translation: tr },
   'ku-kurmanji': { translation: kmr },
-  'ku-sorani': { translation: kmr },
+  'ku-sorani': { translation: ckb },
   ar: { translation: ar },
   fa: { translation: fa }
 };

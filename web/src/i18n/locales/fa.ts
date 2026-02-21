@@ -16,14 +16,14 @@ export default {
   'nav.docs': 'مستندات',
   'nav.login': 'ورود',
   'nav.logout': 'خروج',
-  
+
   // Hero Section
   'hero.title': 'پلتفرم حکمرانی بلاکچین',
   'hero.subtitle': 'حکمرانی دموکراتیک و شفاف با تکنولوژی بلاکچین',
   'hero.cta.primary': 'شروع کنید',
   'hero.cta.secondary': 'اطلاعات بیشتر',
-  
-  // Auth
+
+  // Auth (existing web keys)
   'auth.login': 'ورود',
   'auth.logout': 'خروج',
   'auth.signup': 'ثبت نام',
@@ -32,14 +32,35 @@ export default {
   'auth.confirmPassword': 'تکرار رمز عبور',
   'auth.rememberMe': 'مرا به خاطر بسپار',
   'auth.forgotPassword': 'رمز عبور را فراموش کرده‌اید؟',
-  
-  // Wallet
+
+  // Auth (from shared translations)
+  'auth.signIn': 'ورود',
+  'auth.signUp': 'ثبت نام',
+  'auth.firstName': 'نام',
+  'auth.lastName': 'نام خانوادگی',
+  'auth.phone': 'تلفن',
+  'auth.referralCode': 'کد ارجاع (اختیاری)',
+  'auth.alreadyHaveAccount': 'حساب کاربری دارید؟',
+  'auth.dontHaveAccount': 'حساب کاربری ندارید؟',
+  'auth.welcomeBack': 'خوش آمدید',
+  'auth.createAccount': 'ایجاد حساب کاربری',
+  'auth.errorTitle': 'خطا',
+  'auth.fillFieldsError': 'لطفا تمام فیلدهای الزامی را پر کنید',
+  'auth.authFailedError': 'احراز هویت ناموفق بود',
+  'auth.placeholders.firstName': 'نام',
+  'auth.placeholders.lastName': 'نام خانوادگی',
+  'auth.placeholders.phone': '+۹۸۱۲۳۴۵۶۷۸۹',
+  'auth.placeholders.email': 'your@email.com',
+  'auth.placeholders.password': '••••••••',
+  'auth.placeholders.referralCode': 'کد ارجاع را وارد کنید',
+
+  // Wallet (existing web keys)
   'wallet.connect': 'اتصال کیف پول',
   'wallet.disconnect': 'قطع اتصال',
   'wallet.balance': 'موجودی',
   'wallet.address': 'آدرس',
   'wallet.network': 'شبکه',
-  
+
   // Governance
   'governance.proposals': 'پیشنهادات',
   'governance.activeProposals': 'پیشنهادات فعال',
@@ -47,7 +68,7 @@ export default {
   'governance.delegate': 'نماینده',
   'governance.createProposal': 'ایجاد پیشنهاد',
   'governance.votingPower': 'قدرت رأی',
-  
+
   // Treasury
   'treasury.title': 'خزانه',
   'treasury.subtitle': 'مدیریت منابع جامعه',
@@ -55,15 +76,15 @@ export default {
   'treasury.proposals': 'پیشنهادات',
   'treasury.history': 'تاریخچه',
   'treasury.approvals': 'تأییدیه‌ها',
-  
+
   // Footer
   'footer.description': 'حکمرانی غیرمتمرکز برای کردستان',
   'footer.about': 'درباره',
   'footer.developers': 'توسعه‌دهندگان',
   'footer.community': 'جامعه',
   'footer.rights': 'تمامی حقوق محفوظ است',
-  
-  // Common
+
+  // Common (existing web keys)
   'common.loading': 'در حال بارگذاری...',
   'common.save': 'ذخیره',
   'common.cancel': 'لغو',
@@ -80,7 +101,301 @@ export default {
   'common.yes': 'بله',
   'common.no': 'خیر',
   'common.backToHome': 'بازگشت به صفحه اصلی',
-  
+
   // Role
-  'role': 'نقش'
+  'role': 'نقش',
+
+  // --- Shared translations (flattened) ---
+
+  // App
+  'appName': 'پزکوی‌چین',
+
+  // Language Settings
+  'languageSettings.info': '۶ زبان به طور کامل پشتیبانی می شوند. زبان های دیگر از مترجم گوگل استفاده می کنند.',
+
+  // Navigation (top-level)
+  'welcome': 'خوش آمدید',
+  'home': 'خانه',
+  'wallet': 'کیف پول',
+  'citizens': 'شهروندان',
+  'referral': 'ارجاع',
+  'profile': 'پروفایل',
+
+  // Hero (from shared)
+  'hero.exploreGovernance': 'شروع کنید',
+  'hero.learnMore': 'اطلاعات بیشتر',
+  'hero.stats.activeProposals': 'پیشنهادات فعال',
+  'hero.stats.totalVoters': 'مجموع رأی‌دهندگان',
+  'hero.stats.tokensStaked': 'توکن‌های سهام‌گذاری شده',
+  'hero.stats.trustScore': 'امتیاز اعتماد',
+
+  // Settings
+  'settings': 'تنظیمات',
+  'notifications': 'اطلاعیه‌ها',
+  'editProfile': 'ویرایش پروفایل',
+  'changePassword': 'تغییر رمز عبور',
+  'signOut': 'خروج',
+  'language': 'زبان',
+  'darkMode': 'حالت تاریک',
+  'security': 'امنیت',
+  'preferences': 'ترجیحات',
+  'about': 'درباره',
+  'biometricAuth': 'احراز هویت بیومتریک',
+  'twoFactorAuth': 'احراز هویت دو مرحله‌ای',
+  'pushNotifications': 'اعلان‌های فوری',
+  'version': 'نسخه',
+  'terms': 'شرایط خدمات',
+  'privacy': 'سیاست حریم خصوصی',
+  'help': 'کمک و پشتیبانی',
+  'walletAddress': 'آدرس کیف پول',
+
+  // SettingsScreen
+  'settingsScreen.comingSoon': 'به زودی',
+  'settingsScreen.comingSoonMessage': 'این ویژگی در به‌روزرسانی آینده در دسترس خواهد بود',
+  'settingsScreen.subtitles.editProfile': 'اطلاعات خود را به‌روز کنید',
+  'settingsScreen.subtitles.walletAddress': 'آدرس کیف پول اصلی شما',
+  'settingsScreen.subtitles.biometric': 'از اثر انگشت یا شناسه چهره استفاده کنید',
+  'settingsScreen.subtitles.biometricNotAvailable': 'در این دستگاه موجود نیست',
+  'settingsScreen.subtitles.changePassword': 'رمز عبور خود را به‌روز کنید',
+  'settingsScreen.subtitles.twoFactorAuth': 'امنیت اضافی اضافه کنید',
+  'settingsScreen.subtitles.notifications': 'هشدارها و به‌روزرسانی‌ها را دریافت کنید',
+  'settingsScreen.subtitles.darkThemeEnabled': 'تم تاریک فعال شد',
+  'settingsScreen.subtitles.lightThemeEnabled': 'تم روشن فعال شد',
+  'settingsScreen.biometricAlerts.prompt': 'برای فعال کردن بیومتریک احراز هویت کنید',
+  'settingsScreen.biometricAlerts.successTitle': 'موفق',
+  'settingsScreen.biometricAlerts.enabled': 'احراز هویت بیومتریک فعال شد',
+  'settingsScreen.biometricAlerts.disabled': 'احراز هویت بیومتریک غیرفعال شد',
+  'settingsScreen.biometricAlerts.failedTitle': 'ناموفق',
+  'settingsScreen.biometricAlerts.failedMessage': 'احراز هویت بیومتریک ناموفق بود',
+
+  // EditProfileScreen
+  'editProfileScreen.labels.phone': 'شماره تلفن',
+  'editProfileScreen.placeholders.firstName': 'نام خود را وارد کنید',
+  'editProfileScreen.placeholders.lastName': 'نام خانوادگی خود را وارد کنید',
+  'editProfileScreen.placeholders.email': 'ایمیل خود را وارد کنید',
+  'editProfileScreen.placeholders.phone': 'شماره تلفن خود را وارد کنید',
+  'editProfileScreen.alerts.successTitle': 'موفق',
+  'editProfileScreen.alerts.successMessage': 'پروفایل با موفقیت به‌روزرسانی شد!',
+  'editProfileScreen.alerts.updateFailed': 'به‌روزرسانی پروفایل ناموفق بود',
+  'editProfileScreen.alerts.networkError': 'خطای شبکه رخ داد',
+  'editProfileScreen.saveButton': 'ذخیره تغییرات',
+
+  // ChangePasswordScreen
+  'changePasswordScreen.info': 'رمز عبور باید حداقل ۸ کاراکتر باشد',
+  'changePasswordScreen.labels.current': 'رمز عبور فعلی',
+  'changePasswordScreen.labels.new': 'رمز عبور جدید',
+  'changePasswordScreen.labels.confirm': 'تأیید رمز عبور جدید',
+  'changePasswordScreen.placeholders.current': 'رمز عبور فعلی را وارد کنید',
+  'changePasswordScreen.placeholders.new': 'رمز عبور جدید را وارد کنید',
+  'changePasswordScreen.placeholders.confirm': 'رمز عبور جدید را دوباره وارد کنید',
+  'changePasswordScreen.alerts.fillFields': 'لطفا تمام فیلدها را پر کنید',
+  'changePasswordScreen.alerts.noMatch': 'رمزهای عبور جدید مطابقت ندارند',
+  'changePasswordScreen.alerts.lengthError': 'رمز عبور باید حداقل ۸ کاراکتر باشد',
+  'changePasswordScreen.alerts.successTitle': 'موفق',
+  'changePasswordScreen.alerts.successMessage': 'رمز عبور با موفقیت تغییر کرد!',
+  'changePasswordScreen.alerts.updateFailed': 'تغییر رمز عبور ناموفق بود',
+  'changePasswordScreen.alerts.networkError': 'خطای شبکه رخ داد',
+  'changePasswordScreen.saveButton': 'تغییر رمز عبور',
+
+  // WalletAddressScreen
+  'walletAddressScreen.info': 'آدرس کیف پول شما برای دریافت توکن‌های HEZ و PEZ استفاده می‌شود. مطمئن شوید که صحیح است.',
+  'walletAddressScreen.label': 'آدرس کیف پول',
+  'walletAddressScreen.placeholder': 'آدرس کیف پول را وارد کنید',
+  'walletAddressScreen.noAddress': 'هیچ آدرس کیف پولی تنظیم نشده است',
+  'walletAddressScreen.editButton': 'ویرایش آدرس کیف پول',
+  'walletAddressScreen.alerts.emptyError': 'آدرس کیف پول نمی‌تواند خالی باشد',
+  'walletAddressScreen.alerts.successTitle': 'موفق',
+  'walletAddressScreen.alerts.successMessage': 'آدرس کیف پول با موفقیت به‌روزرسانی شد!',
+  'walletAddressScreen.alerts.updateFailed': 'به‌روزرسانی آدرس کیف پول ناموفق بود',
+  'walletAddressScreen.alerts.networkError': 'خطای شبکه رخ داد',
+  'walletAddressScreen.alerts.copiedTitle': 'کپی شد',
+  'walletAddressScreen.alerts.copiedMessage': 'آدرس کیف پول در کلیپ‌بورد کپی شد',
+
+  // NotificationsScreen
+  'notificationsScreen.title': 'اطلاعیه‌ها',
+  'notificationsScreen.markAllRead': 'علامت زدن همه به عنوان خوانده شده',
+
+  // QRScannerScreen
+  'qrScannerScreen.title': 'اسکن کد QR',
+  'qrScannerScreen.titleNoPermission': 'اسکنر QR',
+  'qrScannerScreen.requesting': 'در حال درخواست مجوز دوربین...',
+  'qrScannerScreen.permissionDenied': 'مجوز دوربین رد شد',
+  'qrScannerScreen.permissionMessage': 'لطفاً برای اسکن کدهای QR، دسترسی به دوربین را در تنظیمات دستگاه خود فعال کنید.',
+  'qrScannerScreen.requestAgain': 'درخواست مجدد مجوز',
+  'qrScannerScreen.instruction': 'کد QR را درون کادر قرار دهید',
+  'qrScannerScreen.scanAgain': 'اسکن مجدد',
+  'qrScannerScreen.alertTitle': 'کد QR اسکن شد',
+  'qrScannerScreen.alertType': 'نوع',
+  'qrScannerScreen.alertData': 'داده',
+  'qrScannerScreen.alertOK': 'باشه',
+
+  // TermsScreen (simple keys only, skipping sections array and bullets)
+  'termsScreen.title': 'شرایط خدمات',
+  'termsScreen.lastUpdated': 'آخرین به‌روزرسانی: ۸ نوامبر ۲۰۲۵',
+
+  // PrivacyScreen (simple keys only, skipping sections array and bullets)
+  'privacyScreen.title': 'سیاست حریم خصوصی',
+  'privacyScreen.lastUpdated': 'آخرین به‌روزرسانی: ۸ نوامبر ۲۰۲۵',
+
+  // HelpScreen (simple keys only, skipping faqs array)
+  'helpScreen.title': 'کمک و پشتیبانی',
+  'helpScreen.contactTitle': 'تماس با پشتیبانی',
+  'helpScreen.supportCenter': 'بازدید از مرکز پشتیبانی',
+  'helpScreen.supportCenterLink': 'pezkuwichain.io/support',
+  'helpScreen.emailSupport': 'پشتیبانی ایمیل',
+  'helpScreen.emailSupportLink': 'support@pezkuwichain.io',
+  'helpScreen.faqTitle': 'سوالات متداول',
+  'helpScreen.appInfo': 'نسخه برنامه ۱.۰.۰\n© ۲۰۲۵ PezkuwiChain. تمام حقوق محفوظ است.',
+
+  // Language Selection
+  'selectYourLanguage': 'زبان خود را انتخاب کنید',
+  'digitalCitizenshipPlatform': 'پلتفرم شهروندی دیجیتال',
+  'continue': 'ادامه',
+
+  // Common (top-level)
+  'loading': 'در حال بارگذاری...',
+  'submit': 'ارسال',
+  'cancel': 'لغو',
+  'save': 'ذخیره',
+  'back': 'بازگشت',
+
+  // HomeTab
+  'homeTab.tikiScore': 'امتیاز تیکی',
+  'homeTab.trustScore': 'امتیاز اعتماد',
+  'homeTab.dynamicWidget': 'ابزارک پویا',
+  'homeTab.quickActions': 'اقدامات سریع',
+  'homeTab.send': 'ارسال',
+  'homeTab.receive': 'دریافت',
+  'homeTab.exchange': 'تبادل',
+  'homeTab.stake': 'سهام',
+  'homeTab.vote': 'رأی',
+  'homeTab.nft': 'NFT',
+  'homeTab.certificates': 'گواهینامه‌ها',
+  'homeTab.refer': 'ارجاع',
+  'homeTab.pay': 'پرداخت',
+  'homeTab.rewards': 'پاداش‌ها',
+  'homeTab.history': 'تاریخچه',
+  'homeTab.assets': 'دارایی‌ها',
+  'homeTab.welcomeTitle': '🎉 به PezkuwiChain خوش آمدید!',
+  'homeTab.welcomeMessage': 'سفر شهروندی خود را امروز آغاز کنید',
+  'homeTab.featureTitle': '📢 ویژگی جدید',
+  'homeTab.featureMessage': 'به پیشنهادات حاکمیتی رأی دهید',
+
+  // Quick Actions (new 13 buttons)
+  'quickActions.home': 'خانه',
+  'quickActions.governance': 'حاکمیت',
+  'quickActions.exchange': 'صرافی',
+  'quickActions.b2b': 'پلتفرم B2B',
+  'quickActions.bank': 'بانک',
+  'quickActions.games': 'بازی‌ها',
+  'quickActions.university': 'دانشگاه',
+  'quickActions.education': 'آموزش',
+  'quickActions.dashboard': 'داشبورد',
+  'quickActions.trading': 'تجارت',
+  'quickActions.kurdmedia': 'کردمدیا',
+  'quickActions.rewards': 'پاداش‌ها',
+  'quickActions.forum': 'انجمن',
+
+  // WalletTab
+  'walletTab.title': 'کیف پول من',
+  'walletTab.balanceLoading': 'در حال بارگذاری...',
+  'walletTab.hezName': 'توکن HÊZ (شهروندی)',
+  'walletTab.pezName': 'توکن PEZ (خدماتی)',
+  'walletTab.swap': 'تبادل',
+  'walletTab.p2p': 'P2P',
+  'walletTab.dapps': 'DApps',
+  'walletTab.staking': 'سپرده‌گذاری',
+  'walletTab.connect': 'اتصال',
+  'walletTab.tokens': 'توکن‌ها',
+  'walletTab.pezNetwork': 'شبکه PEZ',
+  'walletTab.polkadotNetwork': 'پولکادات',
+  'walletTab.bitcoinNetwork': 'بیت‌کوین',
+  'walletTab.ethereumNetwork': 'اتریوم',
+  'walletTab.bscNetwork': 'زنجیره هوشمند بایننس',
+  'walletTab.cardanoNetwork': 'کاردانو',
+  'walletTab.solanaNetwork': 'سولانا',
+
+  // Citizenship Tab
+  'citizenship.title': 'شهروندی دیجیتال',
+  'citizenship.errorNoUser': 'برای مشاهده وضعیت شهروندی باید وارد شوید.',
+  'citizenship.errorFetch': 'وضعیت شهروندی بازیابی نشد. لطفاً برای تازه‌سازی صفحه را به پایین بکشید.',
+  'citizenship.errorUnknown': 'وضعیت ناشناخته‌ای از سرور دریافت شد.',
+  'citizenship.statusLoading': 'در حال بارگذاری وضعیت شهروندی شما...',
+  'citizenship.statusNotApplied': 'شما هنوز برای شهروندی دیجیتال درخواست نداده‌اید. برای عضویت در جامعه PezkuwiChain، درخواست خود را آغاز کنید.',
+  'citizenship.statusPending': 'درخواست شهروندی شما در حال بررسی است. پس از اتمام فرآیند به شما اطلاع خواهیم داد.',
+  'citizenship.statusApproved': 'تبریک! شهروندی دیجیتال شما تأیید شد. اکنون می‌توانید به ویژگی‌های انحصاری شهروندان دسترسی داشته باشید.',
+  'citizenship.statusRejected': 'درخواست شهروندی شما رد شده است. لطفاً اعلان‌ها را بررسی کنید یا برای اطلاعات بیشتر با پشتیبانی تماس بگیرید.',
+
+  // Referral Tab
+  'referralTab.title': 'برنامه ارجاع',
+  'referralTab.subtitle': 'دوستان خود را دعوت کنید و پاداش بگیرید',
+  'referralTab.code': 'کد ارجاع شما',
+  'referralTab.link': 'لینک ارجاع شما',
+  'referralTab.count': 'مجموع دعوت شدگان',
+  'referralTab.people': 'نفر',
+  'referralTab.errorNoUser': 'برای مشاهده اطلاعات ارجاع باید وارد شوید.',
+  'referralTab.errorFetch': 'اطلاعات ارجاع دریافت نشد. لطفاً برای تازه کردن بکشید.',
+  'referralTab.copiedCodeTitle': 'کد کپی شد',
+  'referralTab.copiedCodeMessage': 'کد ارجاع شما در کلیپ بورد کپی شد.',
+  'referralTab.copiedLinkTitle': 'لینک کپی شد',
+  'referralTab.copiedLinkMessage': 'لینک ارجاع شما در کلیپ بورد کپی شد.',
+
+  // Profile Tab
+  'profileTab.notLoggedIn': 'لطفاً برای مشاهده پروفایل خود وارد شوید.',
+  'profileTab.editProfile': 'ویرایش پروفایل',
+  'profileTab.walletAddress': 'آدرس کیف پول',
+  'profileTab.changePassword': 'تغییر رمز عبور',
+  'profileTab.security': 'امنیت و 2FA',
+  'profileTab.signOutAlertTitle': 'خروج از سیستم',
+  'profileTab.signOutAlertMessage': 'آیا مطمئن هستید که می خواهید از سیستم خارج شوید؟',
+
+  // Send Modal
+  'sendModal.title': 'ارسال توکن',
+  'sendModal.toAddress': 'به آدرس',
+  'sendModal.placeholderAddress': 'آدرس کیف پول را وارد کنید یا QR را اسکن کنید',
+  'sendModal.amount': 'مقدار',
+  'sendModal.sendButton': 'ارسال',
+  'sendModal.errorNoUser': 'برای ارسال توکن باید وارد شوید.',
+  'sendModal.errorFillFields': 'لطفاً هم آدرس و هم مقدار را پر کنید.',
+  'sendModal.errorInvalidAmount': 'لطفاً مقداری معتبر و بیشتر از 0 وارد کنید.',
+  'sendModal.errorGeneral': 'خطایی در حین انتقال رخ داد.',
+  'sendModal.successMessage': '{{amount}} {{asset}} با موفقیت ارسال شد! هش تراکنش: {{txHash}}...',
+  'sendModal.qrScanned': 'کد QR اسکن شد',
+
+  // Receive Modal
+  'receiveModal.title': 'دریافت توکن',
+  'receiveModal.subtitle': 'آدرس خود را برای دریافت HEZ & PEZ به اشتراک بگذارید',
+  'receiveModal.addressLabel': 'آدرس کیف پول شما',
+  'receiveModal.copy': 'کپی',
+  'receiveModal.share': 'اشتراک‌گذاری',
+  'receiveModal.copiedTitle': 'در کلیپ‌بورد کپی شد',
+  'receiveModal.copiedMessage': 'آدرس کیف پول شما کپی شد.',
+  'receiveModal.errorNoAddress': 'آدرس موجود نیست. لطفا وارد شوید.',
+
+  // Placeholders
+  'placeholders.citizens': 'صفحه شهروندان',
+  'placeholders.referral': 'صفحه ارجاع',
+  'placeholders.profile': 'صفحه پروفایل',
+
+  // Image Picker
+  'imagePicker.title': 'تغییر عکس پروفایل',
+  'imagePicker.subtitle': 'یک گزینه را انتخاب کنید',
+  'imagePicker.takePhoto': 'گرفتن عکس',
+  'imagePicker.chooseFromGallery': 'انتخاب از گالری',
+
+  // Alerts
+  'alerts.permissionRequired': 'مجوز مورد نیاز است',
+  'alerts.cameraPermission': 'مجوز دوربین مورد نیاز است!',
+  'alerts.galleryPermission': 'مجوز دسترسی به گالری مورد نیاز است!',
+
+  // Verification
+  'verification.title': 'تأیید هویت انسانی',
+  'verification.subtitle': 'لطفا برای ادامه، بررسی امنیتی را کامل کنید',
+  'verification.verifying': 'در حال تأیید...',
+  'verification.loading': 'در حال بارگذاری تأیید...',
+  'verification.failedTitle': 'تأیید ناموفق بود',
+  'verification.failedMessage': 'لطفا دوباره تلاش کنید',
+  'verification.errorTitle': 'خطا',
+  'verification.errorMessage': 'تأیید ناموفق بود. لطفا دوباره تلاش کنید.',
+  'verification.webViewError': 'خطای WebView:',
 }

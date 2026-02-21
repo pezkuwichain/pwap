@@ -16,14 +16,14 @@ export default {
   'nav.docs': 'Belgekirin',
   'nav.login': 'Têketin',
   'nav.logout': 'Derkevtin',
-  
+
   // Hero Section
   'hero.title': 'Platforma Rêveberiya Blockchain',
   'hero.subtitle': 'Rêveberiya demokratîk û zelal bi teknolojiya blockchain',
   'hero.cta.primary': 'Destpêkirin',
   'hero.cta.secondary': 'Zêdetir Zanîn',
-  
-  // Auth
+
+  // Auth (existing web keys)
   'auth.login': 'Têketin',
   'auth.logout': 'Derkevtin',
   'auth.signup': 'Tomar bibe',
@@ -32,14 +32,35 @@ export default {
   'auth.confirmPassword': 'Şîfreya Dubare',
   'auth.rememberMe': 'Min bi bîr bîne',
   'auth.forgotPassword': 'Şîfreya xwe ji bîr kir?',
-  
-  // Wallet
+
+  // Auth (from shared translations)
+  'auth.signIn': 'Têketin',
+  'auth.signUp': 'Tomarbûn',
+  'auth.firstName': 'Nav',
+  'auth.lastName': 'Paşnav',
+  'auth.phone': 'Telefon',
+  'auth.referralCode': 'Koda Referansê (Vebijarkî)',
+  'auth.alreadyHaveAccount': 'Hejmarê te heye?',
+  'auth.dontHaveAccount': 'Hejmarê te tune?',
+  'auth.welcomeBack': 'Bi xêr hatî paş',
+  'auth.createAccount': 'Hesabê Çêke',
+  'auth.errorTitle': 'Çewtî',
+  'auth.fillFieldsError': 'Ji kerema xwe hemî qadên pêwîst dagirin',
+  'auth.authFailedError': 'Têketin bi ser neket',
+  'auth.placeholders.firstName': 'Navê te',
+  'auth.placeholders.lastName': 'Paşnavê te',
+  'auth.placeholders.phone': '+964123456789',
+  'auth.placeholders.email': 'your@email.com',
+  'auth.placeholders.password': '••••••••',
+  'auth.placeholders.referralCode': 'Koda referansê binivîse',
+
+  // Wallet (existing web keys)
   'wallet.connect': 'Berîkê Girêbide',
   'wallet.disconnect': 'Girêdanê Rake',
   'wallet.balance': 'Balans',
   'wallet.address': 'Navnîşan',
   'wallet.network': 'Tor',
-  
+
   // Governance
   'governance.proposals': 'Pêşniyar',
   'governance.activeProposals': 'Pêşniyarên Çalak',
@@ -47,7 +68,7 @@ export default {
   'governance.delegate': 'Nûner',
   'governance.createProposal': 'Pêşniyarek Çêbikin',
   'governance.votingPower': 'Hêza Dengdanê',
-  
+
   // Treasury
   'treasury.title': 'Xezîne',
   'treasury.subtitle': 'Fonên civakê rêve bibin',
@@ -55,15 +76,15 @@ export default {
   'treasury.proposals': 'Pêşniyar',
   'treasury.history': 'Dîrok',
   'treasury.approvals': 'Pejirandin',
-  
+
   // Footer
   'footer.description': 'Rêveberiya merkezî tune ji bo Kurdistan',
   'footer.about': 'Derbarê',
   'footer.developers': 'Pêşvebikar',
   'footer.community': 'Civak',
   'footer.rights': 'Hemû mafên parastin',
-  
-  // Common
+
+  // Common (existing web keys)
   'common.loading': 'Tê barkirin...',
   'common.save': 'Tomar bike',
   'common.cancel': 'Betal bike',
@@ -80,7 +101,289 @@ export default {
   'common.yes': 'Erê',
   'common.no': 'Na',
   'common.backToHome': 'Vegere Malperê',
-  
+
   // Role
-  'role': 'Rol'
+  'role': 'Rol',
+
+  // App Name
+  'appName': 'PezkuwiChain',
+
+  // Language Settings
+  'languageSettings.info': '6 ziman bi tevahî têne piştgirî kirin. Zimanên din Wergera Google bikar tînin.',
+
+  // Top-level navigation/common keys from shared
+  'welcome': 'Bi xêr hatî',
+  'home': 'Malper',
+  'wallet': 'Berîk',
+  'citizens': 'Hemwelatî',
+  'referral': 'Referans',
+  'profile': 'Profîl',
+  'settings': 'Mîhengên',
+  'notifications': 'Agahdarî',
+  'editProfile': 'Profîlê Biguherîne',
+  'changePassword': 'Şîfreyê Biguherîne',
+  'signOut': 'Derkeve',
+  'language': 'Ziman',
+  'darkMode': 'Moda Tarî',
+  'security': 'Ewlehî',
+  'preferences': 'Vebijarkên',
+  'about': 'Derbarê',
+  'biometricAuth': 'Rêpêşandana Bîyometrîk',
+  'twoFactorAuth': 'Rêpêşandana Du-Faktorî',
+  'pushNotifications': 'Agahdariyên Push',
+  'version': 'Guherto',
+  'terms': 'Şertên Karûbarê',
+  'privacy': 'Siyaseta Taybetiyê',
+  'help': 'Alîkarî û Piştgirî',
+  'walletAddress': 'Navnîşana Berîkê',
+
+  // SettingsScreen
+  'settingsScreen.comingSoon': 'Dê Zû Bê',
+  'settingsScreen.comingSoonMessage': 'Ev taybetmendî dê di nûvekirinek pêşerojê de peyda bibe',
+  'settingsScreen.subtitles.editProfile': 'Agahiyên xwe nûve bike',
+  'settingsScreen.subtitles.walletAddress': 'Navnîşana berîka weya bingehîn',
+  'settingsScreen.subtitles.biometric': 'Şopa tilî an Nasnameya Rûyê bikar bînin',
+  'settingsScreen.subtitles.biometricNotAvailable': 'Li ser vê cîhazê peyda nabe',
+  'settingsScreen.subtitles.changePassword': 'Şîfreya xwe nûve bike',
+  'settingsScreen.subtitles.twoFactorAuth': 'Ewlehiya zêde lê zêde bike',
+  'settingsScreen.subtitles.notifications': 'Hişyarî û nûvekirinan bistînin',
+  'settingsScreen.subtitles.darkThemeEnabled': 'Mijara tarî çalak kirin',
+  'settingsScreen.subtitles.lightThemeEnabled': 'Mijara ronahî çalak kirin',
+  'settingsScreen.biometricAlerts.prompt': 'Ji bo çalakkirina biyometrîkê piştrast bikin',
+  'settingsScreen.biometricAlerts.successTitle': 'Serketî',
+  'settingsScreen.biometricAlerts.enabled': 'Ewlehiya biyometrîk çalak kirin',
+  'settingsScreen.biometricAlerts.disabled': 'Ewlehiya biyometrîk neçalak kirin',
+  'settingsScreen.biometricAlerts.failedTitle': 'Bi ser neket',
+  'settingsScreen.biometricAlerts.failedMessage': 'Ewlehiya biyometrîk bi ser neket',
+
+  // EditProfileScreen
+  'editProfileScreen.labels.phone': 'Hejmara Telefonê',
+  'editProfileScreen.placeholders.firstName': 'Navê xwe binivîse',
+  'editProfileScreen.placeholders.lastName': 'Paşnavê xwe binivîse',
+  'editProfileScreen.placeholders.email': 'E-maila xwe binivîse',
+  'editProfileScreen.placeholders.phone': 'Hejmara telefonê binivîse',
+  'editProfileScreen.alerts.successTitle': 'Serketî',
+  'editProfileScreen.alerts.successMessage': 'Profîl bi serketî hat nûvekirin!',
+  'editProfileScreen.alerts.updateFailed': 'Nûvekirina profîlê bi ser neket',
+  'editProfileScreen.alerts.networkError': 'Çewtiyek torê çêbû',
+  'editProfileScreen.saveButton': 'Guhertinan Tomar Bike',
+
+  // ChangePasswordScreen
+  'changePasswordScreen.info': 'Divê şîfre herî kêm 8 tîpan dirêj be',
+  'changePasswordScreen.labels.current': 'Şîfreya Niha',
+  'changePasswordScreen.labels.new': 'Şîfreya Nû',
+  'changePasswordScreen.labels.confirm': 'Şîfreya Nû Piştrast Bike',
+  'changePasswordScreen.placeholders.current': 'Şîfreya niha binivîse',
+  'changePasswordScreen.placeholders.new': 'Şîfreya nû binivîse',
+  'changePasswordScreen.placeholders.confirm': 'Şîfreya nû piştrast bike',
+  'changePasswordScreen.alerts.fillFields': 'Ji kerema xwe hemî qadan dagirin',
+  'changePasswordScreen.alerts.noMatch': 'Şîfreyên nû li hev nakin',
+  'changePasswordScreen.alerts.lengthError': 'Divê şîfre herî kêm 8 tîpan dirêj be',
+  'changePasswordScreen.alerts.successTitle': 'Serketî',
+  'changePasswordScreen.alerts.successMessage': 'Şîfre bi serketî hat guhertin!',
+  'changePasswordScreen.alerts.updateFailed': 'Guhertina şîfreyê bi ser neket',
+  'changePasswordScreen.alerts.networkError': 'Çewtiyek torê çêbû',
+  'changePasswordScreen.saveButton': 'Şîfreyê Biguherîne',
+
+  // WalletAddressScreen
+  'walletAddressScreen.info': 'Navnîşana berîka we ji bo wergirtina tokenên HEZ û PEZ tê bikar anîn. Piştrast bikin ku ew rast e.',
+  'walletAddressScreen.label': 'Navnîşana Berîkê',
+  'walletAddressScreen.placeholder': 'Navnîşana berîkê binivîse',
+  'walletAddressScreen.noAddress': 'Navnîşana berîkê nehatiye destnîşan kirin',
+  'walletAddressScreen.editButton': 'Navnîşana Berîkê Biguherîne',
+  'walletAddressScreen.alerts.emptyError': 'Navnîşana berîkê nikare vala be',
+  'walletAddressScreen.alerts.successTitle': 'Serketî',
+  'walletAddressScreen.alerts.successMessage': 'Navnîşana berîkê bi serketî hat nûvekirin!',
+  'walletAddressScreen.alerts.updateFailed': 'Nûvekirina navnîşana berîkê bi ser neket',
+  'walletAddressScreen.alerts.networkError': 'Çewtiyek torê çêbû',
+  'walletAddressScreen.alerts.copiedTitle': 'Hat Kopî Kirin',
+  'walletAddressScreen.alerts.copiedMessage': 'Navnîşana berîkê li clipboardê hat kopî kirin',
+
+  // NotificationsScreen
+  'notificationsScreen.title': 'Agahdarî',
+  'notificationsScreen.markAllRead': 'Hemî wekî xwendî nîşan bide',
+
+  // QRScannerScreen
+  'qrScannerScreen.title': 'Koda QR Bişopîne',
+  'qrScannerScreen.titleNoPermission': 'Şopînera QR',
+  'qrScannerScreen.requesting': 'Destûra kamerayê tê xwestin...',
+  'qrScannerScreen.permissionDenied': 'Destûra Kamerayê Hat Red Kirin',
+  'qrScannerScreen.permissionMessage': 'Ji kerema xwe ji bo şopandina kodên QR di mîhengên cîhaza xwe de gihîştina kamerayê çalak bikin.',
+  'qrScannerScreen.requestAgain': 'Destûrê Dîsa Bixwaze',
+  'qrScannerScreen.instruction': 'Koda QR di nav çarçoveyê de bi cih bikin',
+  'qrScannerScreen.scanAgain': 'Dîsa Bişopîne',
+  'qrScannerScreen.alertTitle': 'Koda QR Hat Şopandin',
+  'qrScannerScreen.alertType': 'Cure',
+  'qrScannerScreen.alertData': 'Dane',
+  'qrScannerScreen.alertOK': 'Temam',
+
+  // TermsScreen (title and lastUpdated only - sections/bullets are complex arrays)
+  'termsScreen.title': 'Şertên Karûbarê',
+  'termsScreen.lastUpdated': 'Rojanekirina Dawî: 8 Mijdar 2025',
+
+  // PrivacyScreen (title and lastUpdated only - sections/bullets are complex arrays)
+  'privacyScreen.title': 'Siyaseta Taybetiyê',
+  'privacyScreen.lastUpdated': 'Rojanekirina Dawî: 8 Mijdar 2025',
+
+  // HelpScreen
+  'helpScreen.title': 'Alîkarî û Piştgirî',
+  'helpScreen.contactTitle': 'Bi Piştgiriyê re Têkilî Daynin',
+  'helpScreen.supportCenter': 'Serdana Navenda Piştgiriyê Bikin',
+  'helpScreen.supportCenterLink': 'pezkuwichain.io/support',
+  'helpScreen.emailSupport': 'Piştgiriya E-nameyê',
+  'helpScreen.emailSupportLink': 'support@pezkuwichain.io',
+  'helpScreen.faqTitle': 'Pirsên Pir Tên Pirsîn',
+  'helpScreen.appInfo': 'Guhertoya Sepanê 1.0.0\n\u00a9 2025 PezkuwiChain. Hemû maf parastî ne.',
+
+  // Language Selection
+  'selectYourLanguage': 'Zimanê Xwe Hilbijêre',
+  'digitalCitizenshipPlatform': 'Platforma Hemwelatiya Dijîtal',
+  'continue': 'Bidomîne',
+
+  // Common top-level keys
+  'loading': 'Tê barkirin...',
+  'submit': 'Bişîne',
+  'cancel': 'Betal bike',
+  'save': 'Tomar bike',
+  'back': 'Vegere',
+
+  // HomeTab
+  'homeTab.tikiScore': 'Xala Tiki',
+  'homeTab.trustScore': 'Xala Ewlehiyê',
+  'homeTab.dynamicWidget': 'Widgeta Dînamîk',
+  'homeTab.quickActions': 'Kiryarên Bilez',
+  'homeTab.send': 'Bişîne',
+  'homeTab.receive': 'Bistîne',
+  'homeTab.exchange': 'Guhertin',
+  'homeTab.stake': 'Stake',
+  'homeTab.vote': 'Deng',
+  'homeTab.nft': 'NFT',
+  'homeTab.certificates': 'Sertîfîka',
+  'homeTab.refer': 'Referans',
+  'homeTab.pay': 'Bidin',
+  'homeTab.rewards': 'Xelat',
+  'homeTab.history': 'Dîrok',
+  'homeTab.assets': 'Heyber',
+  'homeTab.welcomeTitle': 'Bi xêr hatî PezkuwiChain!',
+  'homeTab.welcomeMessage': 'Îro dest bi rêwîtiya xwe ya hemwelatiyê bike',
+  'homeTab.featureTitle': 'Taybetmendiya Nû',
+  'homeTab.featureMessage': 'Dengê xwe bide pêşniyarên rêveberiyê',
+
+  // Quick Actions
+  'quickActions.home': 'Mal',
+  'quickActions.governance': 'Rêveberî',
+  'quickActions.exchange': 'Guhertin',
+  'quickActions.b2b': 'Platforma B2B',
+  'quickActions.bank': 'Banka',
+  'quickActions.games': 'Lîstik',
+  'quickActions.university': 'Zanîngeh',
+  'quickActions.education': 'Perwerde',
+  'quickActions.dashboard': 'Dashboard',
+  'quickActions.trading': 'Bazirganî',
+  'quickActions.kurdmedia': 'Kurdmedia',
+  'quickActions.rewards': 'Xelat',
+  'quickActions.forum': 'Forum',
+
+  // WalletTab
+  'walletTab.title': 'Berîka Min',
+  'walletTab.balanceLoading': 'Tê barkirin...',
+  'walletTab.hezName': 'Tokena HÊZ (Hemwelatî)',
+  'walletTab.pezName': 'Tokena PEZ (Pezkuwî)',
+  'walletTab.swap': 'Guhertin',
+  'walletTab.p2p': 'P2P',
+  'walletTab.dapps': 'DApps',
+  'walletTab.staking': 'Staking',
+  'walletTab.connect': 'Girêdan',
+  'walletTab.tokens': 'Token',
+  'walletTab.pezNetwork': 'Tora PEZ',
+  'walletTab.polkadotNetwork': 'Polkadot',
+  'walletTab.bitcoinNetwork': 'Bitcoin',
+  'walletTab.ethereumNetwork': 'Ethereum',
+  'walletTab.bscNetwork': 'Binance Smart Chain',
+  'walletTab.cardanoNetwork': 'Cardano',
+  'walletTab.solanaNetwork': 'Solana',
+
+  // Citizenship Tab
+  'citizenship.title': 'Hemwelatiya Dîjîtal',
+  'citizenship.errorNoUser': 'Ji bo dîtina rewşa hemwelatiyê divê hûn têkevin.',
+  'citizenship.errorFetch': 'Rewşa hemwelatiyê nehat wergirtin. Ji kerema xwe ji bo nûvekirinê bikişînin.',
+  'citizenship.errorUnknown': 'Rewşek nenas ji serverê hat wergirtin.',
+  'citizenship.statusLoading': 'Rewşa hemwelatiya we tê barkirin...',
+  'citizenship.statusNotApplied': 'We hîna serî li hemwelatiya dîjîtal nedaye. Ji bo ku bibin beşek ji civata PezkuwiChain serlêdana xwe dest pê bikin.',
+  'citizenship.statusPending': 'Serlêdana weya hemwelatiyê niha di bin venêrînê de ye. Dema ku pêvajo biqede em ê we agahdar bikin.',
+  'citizenship.statusApproved': 'Pîroz be! Hemwelatiya weya dîjîtal hate pejirandin. Naha hûn dikarin bigihîjin taybetmendiyên taybetî yên hemwelatiyan.',
+  'citizenship.statusRejected': 'Serlêdana weya hemwelatiyê hate red kirin. Ji kerema xwe ji bo bêtir agahdarî agahdariyan kontrol bikin an bi piştgiriyê re têkilî daynin.',
+
+  // Referral Tab
+  'referralTab.title': 'Programa Referansê',
+  'referralTab.subtitle': 'Hevalên xwe vexwîne û xelatan qezenc bike',
+  'referralTab.code': 'Koda We ya Referansê',
+  'referralTab.link': 'Lînka We ya Referansê',
+  'referralTab.count': 'Bi Giştî Vexwendî',
+  'referralTab.people': 'Kes',
+  'referralTab.errorNoUser': 'Divê hûn têkevin da ku agahdariya referansê bibînin.',
+  'referralTab.errorFetch': 'Agahdariya referansê nehat wergirtin. Ji kerema xwe ji bo nûvekirinê bikişînin.',
+  'referralTab.copiedCodeTitle': 'Kod Hat Kopî Kirin',
+  'referralTab.copiedCodeMessage': 'Koda weya referansê li clipboardê hat kopî kirin.',
+  'referralTab.copiedLinkTitle': 'Lînk Hat Kopî Kirin',
+  'referralTab.copiedLinkMessage': 'Lînka weya referansê li clipboardê hat kopî kirin.',
+
+  // Profile Tab
+  'profileTab.notLoggedIn': 'Ji kerema xwe ji bo dîtina profîla xwe têkevin.',
+  'profileTab.editProfile': 'Profîlê Biguherîne',
+  'profileTab.walletAddress': 'Navnîşana Berîkê',
+  'profileTab.changePassword': 'Şîfreyê Biguherîne',
+  'profileTab.security': 'Ewlehî & 2FA',
+  'profileTab.signOutAlertTitle': 'Derkeve',
+  'profileTab.signOutAlertMessage': 'Ma hûn pê bawer in ku hûn dixwazin derkevin?',
+
+  // Send Modal
+  'sendModal.title': 'Tokenan Bişîne',
+  'sendModal.toAddress': 'Ji Navnîşanê re',
+  'sendModal.placeholderAddress': 'Navnîşana berîkê binivîse an QR bişopîne',
+  'sendModal.amount': 'Mîqdar',
+  'sendModal.sendButton': 'Bişîne',
+  'sendModal.errorNoUser': 'Divê hûn têkevin da ku tokenan bişînin.',
+  'sendModal.errorFillFields': 'Ji kerema xwe hem navnîşan û hem jî mîqdarê dagirin.',
+  'sendModal.errorInvalidAmount': 'Ji kerema xwe mîqdarek derbasdar a ji 0 mezintir binivîsin.',
+  'sendModal.errorGeneral': 'Di dema veguheztinê de çewtî çêbû.',
+  'sendModal.successMessage': 'Bi serkeftî {{amount}} {{asset}} hat şandin! TxHash: {{txHash}}...',
+  'sendModal.qrScanned': 'Koda QR Hat Şopandin',
+
+  // Receive Modal
+  'receiveModal.title': 'Tokenan Bistîne',
+  'receiveModal.subtitle': 'Navnîşana xwe parve bike da ku HEZ & PEZ bistînî',
+  'receiveModal.addressLabel': 'Navnîşana Berîka Te',
+  'receiveModal.copy': 'Kopî bike',
+  'receiveModal.share': 'Parve bike',
+  'receiveModal.copiedTitle': 'Li Clipboardê Hat Kopî Kirin',
+  'receiveModal.copiedMessage': 'Navnîşana berîka te hat kopî kirin.',
+  'receiveModal.errorNoAddress': 'Navnîşan ne berdest e. Ji kerema xwe têkeve.',
+
+  // Placeholders
+  'placeholders.citizens': 'Ekrana Hemwelatiyan',
+  'placeholders.referral': 'Ekrana Referansê',
+  'placeholders.profile': 'Ekrana Profîlê',
+
+  // Image Picker
+  'imagePicker.title': 'Wêneyê Profîlê Biguherîne',
+  'imagePicker.subtitle': 'Vebijarkek hilbijêre',
+  'imagePicker.takePhoto': 'Wêneyek Bikişîne',
+  'imagePicker.chooseFromGallery': 'Ji Galeriyê Hilbijêre',
+
+  // Alerts
+  'alerts.permissionRequired': 'Destûr Pêwîst e',
+  'alerts.cameraPermission': 'Destûra kamerayê pêwîst e!',
+  'alerts.galleryPermission': 'Destûra gihîştina galeriyê pêwîst e!',
+
+  // Verification
+  'verification.title': 'Verastkirina Mirovî',
+  'verification.subtitle': 'Ji kerema xwe ji bo domandinê kontrola ewlehiyê temam bikin',
+  'verification.verifying': 'Tê verastkirin...',
+  'verification.loading': 'Barkirina verastkirinê...',
+  'verification.failedTitle': 'Verastkirin bi ser neket',
+  'verification.failedMessage': 'Ji kerema xwe dîsa biceribîne',
+  'verification.errorTitle': 'Çewtî',
+  'verification.errorMessage': 'Verastkirin bi ser neket. Ji kerema xwe dîsa biceribîne.',
+  'verification.webViewError': 'Çewtiya WebView:',
 }
