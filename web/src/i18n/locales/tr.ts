@@ -16,14 +16,14 @@ export default {
   'nav.docs': 'Dokümantasyon',
   'nav.login': 'Giriş Yap',
   'nav.logout': 'Çıkış Yap',
-  
+
   // Hero Section
   'hero.title': 'Blockchain Yönetişim Platformu',
   'hero.subtitle': 'Blockchain teknolojisi ile demokratik ve şeffaf yönetişim',
   'hero.cta.primary': 'Başla',
   'hero.cta.secondary': 'Daha Fazla Bilgi',
-  
-  // Auth
+
+  // Auth (web existing)
   'auth.login': 'Giriş Yap',
   'auth.logout': 'Çıkış Yap',
   'auth.signup': 'Kayıt Ol',
@@ -32,14 +32,35 @@ export default {
   'auth.confirmPassword': 'Şifre Tekrar',
   'auth.rememberMe': 'Beni hatırla',
   'auth.forgotPassword': 'Şifremi unuttum?',
-  
+
+  // Auth (from shared)
+  'auth.signIn': 'Giriş Yap',
+  'auth.signUp': 'Kayıt Ol',
+  'auth.firstName': 'Ad',
+  'auth.lastName': 'Soyad',
+  'auth.phone': 'Telefon',
+  'auth.referralCode': 'Yönlendirme Kodu (Opsiyonel)',
+  'auth.alreadyHaveAccount': 'Hesabınız var mı?',
+  'auth.dontHaveAccount': 'Hesabınız yok mu?',
+  'auth.welcomeBack': 'Tekrar Hoş Geldiniz',
+  'auth.createAccount': 'Hesap Oluştur',
+  'auth.errorTitle': 'Hata',
+  'auth.fillFieldsError': 'Lütfen tüm gerekli alanları doldurun',
+  'auth.authFailedError': 'Kimlik doğrulama başarısız oldu',
+  'auth.placeholders.firstName': 'Ahmet',
+  'auth.placeholders.lastName': 'Yılmaz',
+  'auth.placeholders.phone': '+905001234567',
+  'auth.placeholders.email': 'your@email.com',
+  'auth.placeholders.password': '••••••••',
+  'auth.placeholders.referralCode': 'Yönlendirme kodunu girin',
+
   // Wallet
   'wallet.connect': 'Cüzdan Bağla',
   'wallet.disconnect': 'Bağlantıyı Kes',
   'wallet.balance': 'Bakiye',
   'wallet.address': 'Adres',
   'wallet.network': 'Ağ',
-  
+
   // Governance
   'governance.proposals': 'Öneriler',
   'governance.activeProposals': 'Aktif Öneriler',
@@ -47,7 +68,7 @@ export default {
   'governance.delegate': 'Temsilci',
   'governance.createProposal': 'Öneri Oluştur',
   'governance.votingPower': 'Oy Gücü',
-  
+
   // Treasury
   'treasury.title': 'Hazine',
   'treasury.subtitle': 'Topluluk fonlarını yönetin',
@@ -55,14 +76,14 @@ export default {
   'treasury.proposals': 'Teklifler',
   'treasury.history': 'Geçmiş',
   'treasury.approvals': 'Onaylar',
-  
+
   // Footer
   'footer.description': 'Kürdistan için merkezi olmayan yönetişim',
   'footer.about': 'Hakkında',
   'footer.developers': 'Geliştiriciler',
   'footer.community': 'Topluluk',
   'footer.rights': 'Tüm hakları saklıdır',
-  
+
   // Common
   'common.loading': 'Yükleniyor...',
   'common.save': 'Kaydet',
@@ -80,7 +101,283 @@ export default {
   'common.yes': 'Evet',
   'common.no': 'Hayır',
   'common.backToHome': 'Ana Sayfaya Dön',
-  
+
   // Role
-  'role': 'Rol'
+  'role': 'Rol',
+
+  // Shared top-level keys
+  'appName': 'PezkuwiChain',
+  'welcome': 'Hoş geldiniz',
+  'home': 'Ana Sayfa',
+  'wallet': 'Cüzdan',
+  'citizens': 'Vatandaşlar',
+  'referral': 'Yönlendirme',
+  'profile': 'Profil',
+  'settings': 'Ayarlar',
+  'notifications': 'Bildirimler',
+  'editProfile': 'Profili Düzenle',
+  'changePassword': 'Şifre Değiştir',
+  'signOut': 'Çıkış Yap',
+  'language': 'Dil',
+  'darkMode': 'Karanlık Mod',
+  'security': 'Güvenlik',
+  'preferences': 'Tercihler',
+  'about': 'Hakkında',
+  'biometricAuth': 'Biyometrik Kimlik Doğrulama',
+  'twoFactorAuth': 'İki Faktörlü Kimlik Doğrulama',
+  'pushNotifications': 'Anlık Bildirimler',
+  'version': 'Sürüm',
+  'terms': 'Hizmet Şartları',
+  'privacy': 'Gizlilik Politikası',
+  'help': 'Yardım ve Destek',
+  'walletAddress': 'Cüzdan Adresi',
+  'selectYourLanguage': 'Dilinizi Seçin',
+  'digitalCitizenshipPlatform': 'Dijital Vatandaşlık Platformu',
+  'continue': 'Devam Et',
+  'loading': 'Yükleniyor...',
+  'submit': 'Gönder',
+  'cancel': 'İptal',
+  'save': 'Kaydet',
+  'back': 'Geri',
+
+  // Language Settings
+  'languageSettings.info': '6 dil tam olarak desteklenmektedir. Diğer diller Google Çevirmen kullanır.',
+
+  // Settings Screen
+  'settingsScreen.comingSoon': 'Çok Yakında',
+  'settingsScreen.comingSoonMessage': 'Bu özellik gelecekteki bir güncellemede mevcut olacak',
+  'settingsScreen.subtitles.editProfile': 'Bilgilerinizi güncelleyin',
+  'settingsScreen.subtitles.walletAddress': 'Birincil cüzdan adresiniz',
+  'settingsScreen.subtitles.biometric': 'Parmak izi veya Yüz Tanıma kullanın',
+  'settingsScreen.subtitles.biometricNotAvailable': 'Bu cihazda mevcut değil',
+  'settingsScreen.subtitles.changePassword': 'Şifrenizi güncelleyin',
+  'settingsScreen.subtitles.twoFactorAuth': 'Ekstra güvenlik ekleyin',
+  'settingsScreen.subtitles.notifications': 'Uyarılar ve güncellemeler alın',
+  'settingsScreen.subtitles.darkThemeEnabled': 'Karanlık tema etkin',
+  'settingsScreen.subtitles.lightThemeEnabled': 'Açık tema etkin',
+  'settingsScreen.biometricAlerts.prompt': 'Biyometriyi etkinleştirmek için kimliğinizi doğrulayın',
+  'settingsScreen.biometricAlerts.successTitle': 'Başarılı',
+  'settingsScreen.biometricAlerts.enabled': 'Biyometrik kimlik doğrulama etkinleştirildi',
+  'settingsScreen.biometricAlerts.disabled': 'Biyometrik kimlik doğrulama devre dışı bırakıldı',
+  'settingsScreen.biometricAlerts.failedTitle': 'Başarısız',
+  'settingsScreen.biometricAlerts.failedMessage': 'Biyometrik kimlik doğrulama başarısız oldu',
+
+  // Edit Profile Screen
+  'editProfileScreen.labels.phone': 'Telefon Numarası',
+  'editProfileScreen.placeholders.firstName': 'Adınızı girin',
+  'editProfileScreen.placeholders.lastName': 'Soyadınızı girin',
+  'editProfileScreen.placeholders.email': 'E-postanızı girin',
+  'editProfileScreen.placeholders.phone': 'Telefon numaranızı girin',
+  'editProfileScreen.alerts.successTitle': 'Başarılı',
+  'editProfileScreen.alerts.successMessage': 'Profil başarıyla güncellendi!',
+  'editProfileScreen.alerts.updateFailed': 'Profil güncellenemedi',
+  'editProfileScreen.alerts.networkError': 'Ağ hatası oluştu',
+  'editProfileScreen.saveButton': 'Değişiklikleri Kaydet',
+
+  // Change Password Screen
+  'changePasswordScreen.info': 'Şifre en az 8 karakter olmalıdır',
+  'changePasswordScreen.labels.current': 'Mevcut Şifre',
+  'changePasswordScreen.labels.new': 'Yeni Şifre',
+  'changePasswordScreen.labels.confirm': 'Yeni Şifreyi Onayla',
+  'changePasswordScreen.placeholders.current': 'Mevcut şifreyi girin',
+  'changePasswordScreen.placeholders.new': 'Yeni şifreyi girin',
+  'changePasswordScreen.placeholders.confirm': 'Yeni şifreyi tekrar girin',
+  'changePasswordScreen.alerts.fillFields': 'Lütfen tüm alanları doldurun',
+  'changePasswordScreen.alerts.noMatch': 'Yeni şifreler eşleşmiyor',
+  'changePasswordScreen.alerts.lengthError': 'Şifre en az 8 karakter olmalıdır',
+  'changePasswordScreen.alerts.successTitle': 'Başarılı',
+  'changePasswordScreen.alerts.successMessage': 'Şifre başarıyla değiştirildi!',
+  'changePasswordScreen.alerts.updateFailed': 'Şifre değiştirilemedi',
+  'changePasswordScreen.alerts.networkError': 'Ağ hatası oluştu',
+  'changePasswordScreen.saveButton': 'Şifreyi Değiştir',
+
+  // Wallet Address Screen
+  'walletAddressScreen.info': 'Cüzdan adresiniz HEZ ve PEZ tokenlerini almak için kullanılır. Doğru olduğundan emin olun.',
+  'walletAddressScreen.label': 'Cüzdan Adresi',
+  'walletAddressScreen.placeholder': 'Cüzdan adresini girin',
+  'walletAddressScreen.noAddress': 'Cüzdan adresi ayarlanmamış',
+  'walletAddressScreen.editButton': 'Cüzdan Adresini Düzenle',
+  'walletAddressScreen.alerts.emptyError': 'Cüzdan adresi boş olamaz',
+  'walletAddressScreen.alerts.successTitle': 'Başarılı',
+  'walletAddressScreen.alerts.successMessage': 'Cüzdan adresi başarıyla güncellendi!',
+  'walletAddressScreen.alerts.updateFailed': 'Cüzdan adresi güncellenemedi',
+  'walletAddressScreen.alerts.networkError': 'Ağ hatası oluştu',
+  'walletAddressScreen.alerts.copiedTitle': 'Kopyalandı',
+  'walletAddressScreen.alerts.copiedMessage': 'Cüzdan adresi panoya kopyalandı',
+
+  // Notifications Screen
+  'notificationsScreen.title': 'Bildirimler',
+  'notificationsScreen.markAllRead': 'Tümünü okundu işaretle',
+
+  // QR Scanner Screen
+  'qrScannerScreen.title': 'QR Kodu Tara',
+  'qrScannerScreen.titleNoPermission': 'QR Tarayıcı',
+  'qrScannerScreen.requesting': 'Kamera izni isteniyor...',
+  'qrScannerScreen.permissionDenied': 'Kamera İzni Reddedildi',
+  'qrScannerScreen.permissionMessage': 'QR kodlarını taramak için lütfen cihaz ayarlarınızdan kamera erişimini etkinleştirin.',
+  'qrScannerScreen.requestAgain': 'Tekrar İzin İste',
+  'qrScannerScreen.instruction': 'QR kodu çerçevenin içine yerleştirin',
+  'qrScannerScreen.scanAgain': 'Tekrar Tara',
+  'qrScannerScreen.alertTitle': 'QR Kodu Tarandı',
+  'qrScannerScreen.alertType': 'Tür',
+  'qrScannerScreen.alertData': 'Veri',
+  'qrScannerScreen.alertOK': 'Tamam',
+
+  // Terms Screen
+  'termsScreen.title': 'Hizmet Şartları',
+  'termsScreen.lastUpdated': 'Son Güncelleme: 8 Kasım 2025',
+
+  // Privacy Screen
+  'privacyScreen.title': 'Gizlilik Politikası',
+  'privacyScreen.lastUpdated': 'Son Güncelleme: 8 Kasım 2025',
+
+  // Help Screen
+  'helpScreen.title': 'Yardım ve Destek',
+  'helpScreen.contactTitle': 'Destekle İletişime Geçin',
+  'helpScreen.supportCenter': 'Destek Merkezini Ziyaret Edin',
+  'helpScreen.supportCenterLink': 'pezkuwichain.io/support',
+  'helpScreen.emailSupport': 'E-posta Desteği',
+  'helpScreen.emailSupportLink': 'support@pezkuwichain.io',
+  'helpScreen.faqTitle': 'Sıkça Sorulan Sorular',
+  'helpScreen.appInfo': 'Uygulama Sürümü 1.0.0\n© 2025 PezkuwiChain. Tüm hakları saklıdır.',
+
+  // Home Tab
+  'homeTab.tikiScore': 'Tiki Puanı',
+  'homeTab.trustScore': 'Güven Puanı',
+  'homeTab.dynamicWidget': 'Dinamik Widget',
+  'homeTab.quickActions': 'Hızlı İşlemler',
+  'homeTab.send': 'Gönder',
+  'homeTab.receive': 'Al',
+  'homeTab.exchange': 'Takas',
+  'homeTab.stake': 'Stake',
+  'homeTab.vote': 'Oy',
+  'homeTab.nft': 'NFT',
+  'homeTab.certificates': 'Sertifikalar',
+  'homeTab.refer': 'Yönlendir',
+  'homeTab.pay': 'Öde',
+  'homeTab.rewards': 'Ödüller',
+  'homeTab.history': 'Geçmiş',
+  'homeTab.assets': 'Varlıklar',
+  'homeTab.welcomeTitle': 'PezkuwiChain\'e Hoş Geldiniz!',
+  'homeTab.welcomeMessage': 'Vatandaşlık yolculuğunuza bugün başlayın',
+  'homeTab.featureTitle': 'Yeni Özellik',
+  'homeTab.featureMessage': 'Yönetişim teklifleri için oy kullanın',
+
+  // Quick Actions
+  'quickActions.home': 'Ana Sayfa',
+  'quickActions.governance': 'Yönetişim',
+  'quickActions.exchange': 'Borsa',
+  'quickActions.b2b': 'B2B Platformu',
+  'quickActions.bank': 'Banka',
+  'quickActions.games': 'Oyunlar',
+  'quickActions.university': 'Üniversite',
+  'quickActions.education': 'Eğitim',
+  'quickActions.dashboard': 'Panel',
+  'quickActions.trading': 'Ticaret',
+  'quickActions.kurdmedia': 'Kurdmedya',
+  'quickActions.rewards': 'Ödüller',
+  'quickActions.forum': 'Forum',
+
+  // Wallet Tab
+  'walletTab.title': 'Cüzdanım',
+  'walletTab.balanceLoading': 'Yükleniyor...',
+  'walletTab.hezName': 'HEZ Token (Vatandaşlık)',
+  'walletTab.pezName': 'PEZ Token (Hizmet)',
+  'walletTab.swap': 'Takas',
+  'walletTab.p2p': 'P2P',
+  'walletTab.dapps': 'DApps',
+  'walletTab.staking': 'Staking',
+  'walletTab.connect': 'Bağlan',
+  'walletTab.tokens': 'Tokenlar',
+  'walletTab.pezNetwork': 'PEZ Ağı',
+  'walletTab.polkadotNetwork': 'Polkadot',
+  'walletTab.bitcoinNetwork': 'Bitcoin',
+  'walletTab.ethereumNetwork': 'Ethereum',
+  'walletTab.bscNetwork': 'Binance Smart Chain',
+  'walletTab.cardanoNetwork': 'Cardano',
+  'walletTab.solanaNetwork': 'Solana',
+
+  // Citizenship
+  'citizenship.title': 'Dijital Vatandaşlık',
+  'citizenship.errorNoUser': 'Vatandaşlık durumunu görüntülemek için giriş yapmış olmalısınız.',
+  'citizenship.errorFetch': 'Vatandaşlık durumu alınamadı. Lütfen yenilemek için aşağı çekin.',
+  'citizenship.errorUnknown': 'Sunucudan bilinmeyen bir durum alındı.',
+  'citizenship.statusLoading': 'Vatandaşlık durumunuz yükleniyor...',
+  'citizenship.statusNotApplied': 'Henüz dijital vatandaşlık başvurusunda bulunmadınız. PezkuwiChain topluluğunun bir parçası olmak için başvurunuza başlayın.',
+  'citizenship.statusPending': 'Vatandaşlık başvurunuz şu anda inceleniyor. Süreç tamamlandığında sizi bilgilendireceğiz.',
+  'citizenship.statusApproved': 'Tebrikler! Dijital vatandaşlığınız onaylandı. Artık vatandaşa özel özelliklere erişebilirsiniz.',
+  'citizenship.statusRejected': 'Vatandaşlık başvurunuz reddedildi. Lütfen bildirimleri kontrol edin veya daha fazla bilgi için destek ile iletişime geçin.',
+
+  // Referral Tab
+  'referralTab.title': 'Yönlendirme Programı',
+  'referralTab.subtitle': 'Arkadaşlarını davet et ve ödüller kazan',
+  'referralTab.code': 'Yönlendirme Kodun',
+  'referralTab.link': 'Yönlendirme Bağlantın',
+  'referralTab.count': 'Toplam Davet Edilen',
+  'referralTab.people': 'Kişi',
+  'referralTab.errorNoUser': 'Yönlendirme bilgilerini görmek için giriş yapmalısınız.',
+  'referralTab.errorFetch': 'Yönlendirme bilgileri alınamadı. Lütfen yenilemek için çekin.',
+  'referralTab.copiedCodeTitle': 'Kod Kopyalandı',
+  'referralTab.copiedCodeMessage': 'Yönlendirme kodun panoya kopyalandı.',
+  'referralTab.copiedLinkTitle': 'Bağlantı Kopyalandı',
+  'referralTab.copiedLinkMessage': 'Yönlendirme bağlantın panoya kopyalandı.',
+
+  // Profile Tab
+  'profileTab.notLoggedIn': 'Profilinizi görüntülemek için lütfen giriş yapın.',
+  'profileTab.editProfile': 'Profili Düzenle',
+  'profileTab.walletAddress': 'Cüzdan Adresi',
+  'profileTab.changePassword': 'Şifre Değiştir',
+  'profileTab.security': 'Güvenlik & 2FA',
+  'profileTab.signOutAlertTitle': 'Çıkış Yap',
+  'profileTab.signOutAlertMessage': 'Çıkış yapmak istediğinizden emin misiniz?',
+
+  // Send Modal
+  'sendModal.title': 'Token Gönder',
+  'sendModal.toAddress': 'Alıcı Adresi',
+  'sendModal.placeholderAddress': 'Cüzdan adresini girin veya QR taratın',
+  'sendModal.amount': 'Miktar',
+  'sendModal.sendButton': 'Gönder',
+  'sendModal.errorNoUser': 'Token göndermek için giriş yapmış olmalısınız.',
+  'sendModal.errorFillFields': 'Lütfen hem adresi hem de miktarı doldurun.',
+  'sendModal.errorInvalidAmount': 'Lütfen 0\'dan büyük geçerli bir miktar girin.',
+  'sendModal.errorGeneral': 'Transfer sırasında bir hata oluştu.',
+  'sendModal.successMessage': 'Başarıyla {{amount}} {{asset}} gönderildi! TxHash: {{txHash}}...',
+  'sendModal.qrScanned': 'QR Kod Tarandı',
+
+  // Receive Modal
+  'receiveModal.title': 'Token Al',
+  'receiveModal.subtitle': 'HEZ & PEZ almak için adresini paylaş',
+  'receiveModal.addressLabel': 'Cüzdan Adresiniz',
+  'receiveModal.copy': 'Kopyala',
+  'receiveModal.share': 'Paylaş',
+  'receiveModal.copiedTitle': 'Panoya Kopyalandı',
+  'receiveModal.copiedMessage': 'Cüzdan adresiniz panoya kopyalandı.',
+  'receiveModal.errorNoAddress': 'Adres mevcut değil. Lütfen giriş yapın.',
+
+  // Placeholders
+  'placeholders.citizens': 'Vatandaşlar Ekranı',
+  'placeholders.referral': 'Yönlendirme Ekranı',
+  'placeholders.profile': 'Profil Ekranı',
+
+  // Image Picker
+  'imagePicker.title': 'Profil Fotoğrafını Değiştir',
+  'imagePicker.subtitle': 'Bir seçenek belirleyin',
+  'imagePicker.takePhoto': 'Fotoğraf Çek',
+  'imagePicker.chooseFromGallery': 'Galeriden Seç',
+
+  // Alerts
+  'alerts.permissionRequired': 'İzin Gerekli',
+  'alerts.cameraPermission': 'Kamera izni gerekli!',
+  'alerts.galleryPermission': 'Galeri erişim izni gerekli!',
+
+  // Verification
+  'verification.title': 'İnsan Doğrulaması',
+  'verification.subtitle': 'Lütfen devam etmek için güvenlik kontrolünü tamamlayın',
+  'verification.verifying': 'Doğrulanıyor...',
+  'verification.loading': 'Doğrulama yükleniyor...',
+  'verification.failedTitle': 'Doğrulama Başarısız',
+  'verification.failedMessage': 'Lütfen tekrar deneyin',
+  'verification.errorTitle': 'Hata',
+  'verification.errorMessage': 'Doğrulama başarısız oldu. Lütfen tekrar deneyin.',
+  'verification.webViewError': 'WebView Hatası:',
 }

@@ -16,14 +16,14 @@ export default {
   'nav.docs': 'التوثيق',
   'nav.login': 'تسجيل الدخول',
   'nav.logout': 'تسجيل الخروج',
-  
+
   // Hero Section
   'hero.title': 'منصة الحوكمة بتقنية البلوكشين',
   'hero.subtitle': 'حوكمة ديمقراطية وشفافة بتقنية البلوكشين',
   'hero.cta.primary': 'ابدأ الآن',
   'hero.cta.secondary': 'معرفة المزيد',
-  
-  // Auth
+
+  // Auth (existing web keys)
   'auth.login': 'تسجيل الدخول',
   'auth.logout': 'تسجيل الخروج',
   'auth.signup': 'إنشاء حساب',
@@ -32,14 +32,35 @@ export default {
   'auth.confirmPassword': 'تأكيد كلمة المرور',
   'auth.rememberMe': 'تذكرني',
   'auth.forgotPassword': 'هل نسيت كلمة المرور؟',
-  
-  // Wallet
+
+  // Auth (from shared translations)
+  'auth.signIn': 'تسجيل الدخول',
+  'auth.signUp': 'إنشاء حساب',
+  'auth.firstName': 'الاسم الأول',
+  'auth.lastName': 'اسم العائلة',
+  'auth.phone': 'رقم الهاتف',
+  'auth.referralCode': 'رمز الإحالة (اختياري)',
+  'auth.alreadyHaveAccount': 'هل لديك حساب؟',
+  'auth.dontHaveAccount': 'ليس لديك حساب؟',
+  'auth.welcomeBack': 'مرحبًا بعودتك',
+  'auth.createAccount': 'إنشاء حساب',
+  'auth.errorTitle': 'خطأ',
+  'auth.fillFieldsError': 'يرجى ملء جميع الحقول المطلوبة',
+  'auth.authFailedError': 'فشل المصادقة',
+  'auth.placeholders.firstName': 'الاسم',
+  'auth.placeholders.lastName': 'اللقب',
+  'auth.placeholders.phone': '+٩٦٤١٢٣٤٥٦٧٨٩',
+  'auth.placeholders.email': 'your@email.com',
+  'auth.placeholders.password': '••••••••',
+  'auth.placeholders.referralCode': 'أدخل رمز الإحالة',
+
+  // Wallet (existing web keys)
   'wallet.connect': 'ربط المحفظة',
   'wallet.disconnect': 'قطع الاتصال',
   'wallet.balance': 'الرصيد',
   'wallet.address': 'العنوان',
   'wallet.network': 'الشبكة',
-  
+
   // Governance
   'governance.proposals': 'المقترحات',
   'governance.activeProposals': 'المقترحات النشطة',
@@ -47,7 +68,7 @@ export default {
   'governance.delegate': 'المندوب',
   'governance.createProposal': 'إنشاء مقترح',
   'governance.votingPower': 'قوة التصويت',
-  
+
   // Treasury
   'treasury.title': 'الخزينة',
   'treasury.subtitle': 'إدارة أموال المجتمع',
@@ -55,15 +76,15 @@ export default {
   'treasury.proposals': 'المقترحات',
   'treasury.history': 'السجل',
   'treasury.approvals': 'الموافقات',
-  
+
   // Footer
   'footer.description': 'حوكمة لامركزية لكردستان',
   'footer.about': 'حول',
   'footer.developers': 'المطورون',
   'footer.community': 'المجتمع',
   'footer.rights': 'جميع الحقوق محفوظة',
-  
-  // Common
+
+  // Common (existing web keys)
   'common.loading': 'جاري التحميل...',
   'common.save': 'حفظ',
   'common.cancel': 'إلغاء',
@@ -80,7 +101,291 @@ export default {
   'common.yes': 'نعم',
   'common.no': 'لا',
   'common.backToHome': 'العودة للرئيسية',
-  
+
   // Role
-  'role': 'الدور'
+  'role': 'الدور',
+
+  // === Shared translations (flattened) ===
+
+  // App Name
+  'appName': 'بێزكويتشاين',
+
+  // Language Settings
+  'languageSettings.info': '٦ لغات مدعومة بالكامل. اللغات الأخرى تستخدم مترجم جوجل.',
+
+  // Top-level navigation / settings keys
+  'welcome': 'مرحبا',
+  'home': 'الرئيسية',
+  'wallet': 'المحفظة',
+  'citizens': 'المواطنون',
+  'referral': 'الإحالة',
+  'profile': 'الملف الشخصي',
+  'settings': 'الإعدادات',
+  'notifications': 'الإشعارات',
+  'editProfile': 'تعديل الملف الشخصي',
+  'changePassword': 'تغيير كلمة المرور',
+  'signOut': 'تسجيل الخروج',
+  'language': 'اللغة',
+  'darkMode': 'الوضع الداكن',
+  'security': 'الأمان',
+  'preferences': 'التفضيلات',
+  'about': 'حول',
+  'biometricAuth': 'المصادقة البيومترية',
+  'twoFactorAuth': 'المصادقة الثنائية',
+  'pushNotifications': 'الإشعارات الفورية',
+  'version': 'الإصدار',
+  'terms': 'شروط الخدمة',
+  'privacy': 'سياسة الخصوصية',
+  'help': 'المساعدة والدعم',
+  'walletAddress': 'عنوان المحفظة',
+
+  // SettingsScreen
+  'settingsScreen.comingSoon': 'قريبا',
+  'settingsScreen.comingSoonMessage': 'ستكون هذه الميزة متاحة في التحديث المستقبلي',
+  'settingsScreen.subtitles.editProfile': 'تحديث معلوماتك',
+  'settingsScreen.subtitles.walletAddress': 'عنوان محفظتك الأساسي',
+  'settingsScreen.subtitles.biometric': 'استخدام بصمة الإصبع أو معرف الوجه',
+  'settingsScreen.subtitles.biometricNotAvailable': 'غير متوفر على هذا الجهاز',
+  'settingsScreen.subtitles.changePassword': 'تحديث كلمة المرور الخاصة بك',
+  'settingsScreen.subtitles.twoFactorAuth': 'إضافة أمان إضافي',
+  'settingsScreen.subtitles.notifications': 'تلقي التنبيهات والتحديثات',
+  'settingsScreen.subtitles.darkThemeEnabled': 'تمكين الوضع الداكن',
+  'settingsScreen.subtitles.lightThemeEnabled': 'تمكين الوضع الفاتح',
+  'settingsScreen.biometricAlerts.prompt': 'المصادقة لتمكين القياسات الحيوية',
+  'settingsScreen.biometricAlerts.successTitle': 'نجاح',
+  'settingsScreen.biometricAlerts.enabled': 'تم تمكين المصادقة البيومترية',
+  'settingsScreen.biometricAlerts.disabled': 'تم تعطيل المصادقة البيومترية',
+  'settingsScreen.biometricAlerts.failedTitle': 'فشل',
+  'settingsScreen.biometricAlerts.failedMessage': 'فشلت المصادقة البيومترية',
+
+  // EditProfileScreen
+  'editProfileScreen.labels.phone': 'رقم الهاتف',
+  'editProfileScreen.placeholders.firstName': 'أدخل الاسم الأول',
+  'editProfileScreen.placeholders.lastName': 'أدخل اسم العائلة',
+  'editProfileScreen.placeholders.email': 'أدخل البريد الإلكتروني',
+  'editProfileScreen.placeholders.phone': 'أدخل رقم الهاتف',
+  'editProfileScreen.alerts.successTitle': 'نجاح',
+  'editProfileScreen.alerts.successMessage': 'تم تحديث الملف الشخصي بنجاح!',
+  'editProfileScreen.alerts.updateFailed': 'فشل تحديث الملف الشخصي',
+  'editProfileScreen.alerts.networkError': 'حدث خطأ في الشبكة',
+  'editProfileScreen.saveButton': 'حفظ التغييرات',
+
+  // ChangePasswordScreen
+  'changePasswordScreen.info': 'يجب أن تتكون كلمة المرور من ٨ أحرف على الأقل',
+  'changePasswordScreen.labels.current': 'كلمة المرور الحالية',
+  'changePasswordScreen.labels.new': 'كلمة المرور الجديدة',
+  'changePasswordScreen.labels.confirm': 'تأكيد كلمة المرور الجديدة',
+  'changePasswordScreen.placeholders.current': 'أدخل كلمة المرور الحالية',
+  'changePasswordScreen.placeholders.new': 'أدخل كلمة المرور الجديدة',
+  'changePasswordScreen.placeholders.confirm': 'أدخل كلمة المرور الجديدة مرة أخرى',
+  'changePasswordScreen.alerts.fillFields': 'يرجى ملء جميع الحقول',
+  'changePasswordScreen.alerts.noMatch': 'كلمتا المرور الجديدتان غير متطابقتين',
+  'changePasswordScreen.alerts.lengthError': 'يجب أن تتكون كلمة المرور من ٨ أحرف على الأقل',
+  'changePasswordScreen.alerts.successTitle': 'نجاح',
+  'changePasswordScreen.alerts.successMessage': 'تم تغيير كلمة المرور بنجاح!',
+  'changePasswordScreen.alerts.updateFailed': 'فشل تغيير كلمة المرور',
+  'changePasswordScreen.alerts.networkError': 'حدث خطأ في الشبكة',
+  'changePasswordScreen.saveButton': 'تغيير كلمة المرور',
+
+  // WalletAddressScreen
+  'walletAddressScreen.info': 'يتم استخدام عنوان محفظتك لاستلام رموز HEZ و PEZ. تأكد من صحته.',
+  'walletAddressScreen.label': 'عنوان المحفظة',
+  'walletAddressScreen.placeholder': 'أدخل عنوان المحفظة',
+  'walletAddressScreen.noAddress': 'لم يتم تعيين عنوان محفظة',
+  'walletAddressScreen.editButton': 'تعديل عنوان المحفظة',
+  'walletAddressScreen.alerts.emptyError': 'لا يمكن أن يكون عنوان المحفظة فارغًا',
+  'walletAddressScreen.alerts.successTitle': 'نجاح',
+  'walletAddressScreen.alerts.successMessage': 'تم تحديث عنوان المحفظة بنجاح!',
+  'walletAddressScreen.alerts.updateFailed': 'فشل تحديث عنوان المحفظة',
+  'walletAddressScreen.alerts.networkError': 'حدث خطأ في الشبكة',
+  'walletAddressScreen.alerts.copiedTitle': 'تم النسخ',
+  'walletAddressScreen.alerts.copiedMessage': 'تم نسخ عنوان المحفظة إلى الحافظة',
+
+  // NotificationsScreen
+  'notificationsScreen.title': 'الإشعارات',
+  'notificationsScreen.markAllRead': 'وضع علامة مقروءة على الكل',
+
+  // QRScannerScreen
+  'qrScannerScreen.title': 'مسح رمز الاستجابة السريعة',
+  'qrScannerScreen.titleNoPermission': 'ماسح QR',
+  'qrScannerScreen.requesting': 'جاري طلب إذن الكاميرا...',
+  'qrScannerScreen.permissionDenied': 'تم رفض إذن الكاميرا',
+  'qrScannerScreen.permissionMessage': 'يرجى تمكين الوصول إلى الكاميرا في إعدادات جهازك لمسح رموز QR.',
+  'qrScannerScreen.requestAgain': 'طلب الإذن مرة أخرى',
+  'qrScannerScreen.instruction': 'ضع رمز الاستجابة السريعة داخل الإطار',
+  'qrScannerScreen.scanAgain': 'مسح مرة أخرى',
+  'qrScannerScreen.alertTitle': 'تم مسح رمز الاستجابة السريعة',
+  'qrScannerScreen.alertType': 'النوع',
+  'qrScannerScreen.alertData': 'البيانات',
+  'qrScannerScreen.alertOK': 'موافق',
+
+  // TermsScreen (title and lastUpdated only - sections/bullets skipped)
+  'termsScreen.title': 'شروط الخدمة',
+  'termsScreen.lastUpdated': 'آخر تحديث: ٨ نوفمبر ٢٠٢٥',
+
+  // PrivacyScreen (title and lastUpdated only - sections/bullets skipped)
+  'privacyScreen.title': 'سياسة الخصوصية',
+  'privacyScreen.lastUpdated': 'آخر تحديث: ٨ نوفمبر ٢٠٢٥',
+
+  // HelpScreen (faqs skipped)
+  'helpScreen.title': 'المساعدة والدعم',
+  'helpScreen.contactTitle': 'اتصل بالدعم',
+  'helpScreen.supportCenter': 'زيارة مركز الدعم',
+  'helpScreen.supportCenterLink': 'pezkuwichain.io/support',
+  'helpScreen.emailSupport': 'الدعم عبر البريد الإلكتروني',
+  'helpScreen.emailSupportLink': 'support@pezkuwichain.io',
+  'helpScreen.faqTitle': 'الأسئلة الشائعة',
+  'helpScreen.appInfo': 'إصدار التطبيق ١.٠.٠\n© ٢٠٢٥ PezkuwiChain. جميع الحقوق محفوظة.',
+
+  // Language Selection
+  'selectYourLanguage': 'اختر لغتك',
+  'digitalCitizenshipPlatform': 'منصة المواطنة الرقمية',
+  'continue': 'متابعة',
+
+  // Common (from shared)
+  'loading': 'جاري التحميل...',
+  'submit': 'إرسال',
+  'cancel': 'إلغاء',
+  'save': 'حفظ',
+  'back': 'رجوع',
+
+  // HomeTab
+  'homeTab.tikiScore': 'نقاط تيكي',
+  'homeTab.trustScore': 'نقاط الثقة',
+  'homeTab.dynamicWidget': 'ويدجت ديناميكي',
+  'homeTab.quickActions': 'إجراءات سريعة',
+  'homeTab.send': 'إرسال',
+  'homeTab.receive': 'استقبال',
+  'homeTab.exchange': 'تبادل',
+  'homeTab.stake': 'رهان',
+  'homeTab.vote': 'تصويت',
+  'homeTab.nft': 'NFT',
+  'homeTab.certificates': 'الشهادات',
+  'homeTab.refer': 'إحالة',
+  'homeTab.pay': 'دفع',
+  'homeTab.rewards': 'المكافآت',
+  'homeTab.history': 'السجل',
+  'homeTab.assets': 'الأصول',
+  'homeTab.welcomeTitle': '🎉 مرحبا بك في PezkuwiChain!',
+  'homeTab.welcomeMessage': 'ابدأ رحلة مواطنتك الرقمية اليوم',
+  'homeTab.featureTitle': '📢 ميزة جديدة',
+  'homeTab.featureMessage': 'صوّت على مقترحات الحوكمة',
+
+  // Quick Actions
+  'quickActions.home': 'الرئيسية',
+  'quickActions.governance': 'الحوكمة',
+  'quickActions.exchange': 'تبادل',
+  'quickActions.b2b': 'منصة B2B',
+  'quickActions.bank': 'بنك',
+  'quickActions.games': 'ألعاب',
+  'quickActions.university': 'جامعة',
+  'quickActions.education': 'تعليم',
+  'quickActions.dashboard': 'لوحة التحكم',
+  'quickActions.trading': 'تداول',
+  'quickActions.kurdmedia': 'كورد ميديا',
+  'quickActions.rewards': 'المكافآت',
+  'quickActions.forum': 'منتدى',
+
+  // WalletTab
+  'walletTab.title': 'محفظتي',
+  'walletTab.balanceLoading': 'جاري التحميل...',
+  'walletTab.hezName': 'رمز HÊZ (المواطنة)',
+  'walletTab.pezName': 'رمز PEZ (المنفعة)',
+  'walletTab.swap': 'تبادل',
+  'walletTab.p2p': 'P2P',
+  'walletTab.dapps': 'DApps',
+  'walletTab.staking': 'الرهن',
+  'walletTab.connect': 'اتصال',
+  'walletTab.tokens': 'الرموز',
+  'walletTab.pezNetwork': 'شبكة PEZ',
+  'walletTab.polkadotNetwork': 'Polkadot',
+  'walletTab.bitcoinNetwork': 'Bitcoin',
+  'walletTab.ethereumNetwork': 'Ethereum',
+  'walletTab.bscNetwork': 'Binance Smart Chain',
+  'walletTab.cardanoNetwork': 'Cardano',
+  'walletTab.solanaNetwork': 'Solana',
+
+  // Citizenship
+  'citizenship.title': 'المواطنة الرقمية',
+  'citizenship.errorNoUser': 'يجب عليك تسجيل الدخول لعرض حالة المواطنة.',
+  'citizenship.errorFetch': 'تعذر استرداد حالة المواطنة. يرجى السحب للتحديث.',
+  'citizenship.errorUnknown': 'تم استلام حالة غير معروفة من الخادم.',
+  'citizenship.statusLoading': 'جاري تحميل حالة مواطنتك...',
+  'citizenship.statusNotApplied': 'لم تقدم بعد بطلب للحصول على المواطنة الرقمية. ابدأ طلبك لتصبح جزءًا من مجتمع PezkuwiChain.',
+  'citizenship.statusPending': 'طلب المواطنة الخاص بك قيد المراجعة حاليًا. سنقوم بإعلامك بمجرد اكتمال العملية.',
+  'citizenship.statusApproved': 'تهانينا! تمت الموافقة على مواطنتك الرقمية. يمكنك الآن الوصول إلى الميزات الحصرية للمواطنين.',
+  'citizenship.statusRejected': 'تم رفض طلب المواطنة الخاص بك. يرجى التحقق من الإشعارات أو الاتصال بالدعم لمزيد من المعلومات.',
+
+  // Referral Tab
+  'referralTab.title': 'برنامج الإحالة',
+  'referralTab.subtitle': 'ادعُ الأصدقاء واكسب المكافآت',
+  'referralTab.code': 'رمز الإحالة الخاص بك',
+  'referralTab.link': 'رابط الإحالة الخاص بك',
+  'referralTab.count': 'إجمالي المدعوين',
+  'referralTab.people': 'أشخاص',
+  'referralTab.errorNoUser': 'يجب عليك تسجيل الدخول لعرض معلومات الإحالة.',
+  'referralTab.errorFetch': 'تعذر استرداد معلومات الإحالة. يرجى السحب للتحديث.',
+  'referralTab.copiedCodeTitle': 'تم نسخ الرمز',
+  'referralTab.copiedCodeMessage': 'تم نسخ رمز الإحالة الخاص بك إلى الحافظة.',
+  'referralTab.copiedLinkTitle': 'تم نسخ الرابط',
+  'referralTab.copiedLinkMessage': 'تم نسخ رابط الإحالة الخاص بك إلى الحافظة.',
+
+  // Profile Tab
+  'profileTab.notLoggedIn': 'يرجى تسجيل الدخول لعرض ملفك الشخصي.',
+  'profileTab.editProfile': 'تعديل الملف الشخصي',
+  'profileTab.walletAddress': 'عنوان المحفظة',
+  'profileTab.changePassword': 'تغيير كلمة المرور',
+  'profileTab.security': 'الأمان و 2FA',
+  'profileTab.signOutAlertTitle': 'تسجيل الخروج',
+  'profileTab.signOutAlertMessage': 'هل أنت متأكد أنك تريد تسجيل الخروج؟',
+
+  // Send Modal
+  'sendModal.title': 'إرسال الرموز',
+  'sendModal.toAddress': 'إلى العنوان',
+  'sendModal.placeholderAddress': 'أدخل عنوان المحفظة أو امسح QR',
+  'sendModal.amount': 'المبلغ',
+  'sendModal.sendButton': 'إرسال',
+  'sendModal.errorNoUser': 'يجب عليك تسجيل الدخول لإرسال الرموز.',
+  'sendModal.errorFillFields': 'يرجى ملء كل من العنوان والمبلغ.',
+  'sendModal.errorInvalidAmount': 'يرجى إدخال مبلغ صالح أكبر من 0.',
+  'sendModal.errorGeneral': 'حدث خطأ أثناء التحويل.',
+  'sendModal.successMessage': 'تم إرسال {{amount}} {{asset}} بنجاح! تجزئة المعاملة: {{txHash}}...',
+  'sendModal.qrScanned': 'تم مسح رمز QR',
+
+  // Receive Modal
+  'receiveModal.title': 'استقبال الرموز',
+  'receiveModal.subtitle': 'شارك عنوانك لاستقبال HEZ & PEZ',
+  'receiveModal.addressLabel': 'عنوان محفظتك',
+  'receiveModal.copy': 'نسخ',
+  'receiveModal.share': 'مشاركة',
+  'receiveModal.copiedTitle': 'تم النسخ إلى الحافظة',
+  'receiveModal.copiedMessage': 'تم نسخ عنوان محفظتك.',
+  'receiveModal.errorNoAddress': 'العنوان غير متوفر. يرجى تسجيل الدخول.',
+
+  // Placeholders
+  'placeholders.citizens': 'شاشة المواطنين',
+  'placeholders.referral': 'شاشة الإحالة',
+  'placeholders.profile': 'شاشة الملف الشخصي',
+
+  // Image Picker
+  'imagePicker.title': 'تغيير صورة الملف الشخصي',
+  'imagePicker.subtitle': 'اختر خيارًا',
+  'imagePicker.takePhoto': 'التقاط صورة',
+  'imagePicker.chooseFromGallery': 'الاختيار من المعرض',
+
+  // Alerts
+  'alerts.permissionRequired': 'الإذن مطلوب',
+  'alerts.cameraPermission': 'إذن الكاميرا مطلوب!',
+  'alerts.galleryPermission': 'إذن الوصول إلى المعرض مطلوب!',
+
+  // Verification
+  'verification.title': 'التحقق البشري',
+  'verification.subtitle': 'يرجى إكمال التحقق الأمني للمتابعة',
+  'verification.verifying': 'يتم التحقق...',
+  'verification.loading': 'جاري تحميل التحقق...',
+  'verification.failedTitle': 'فشل التحقق',
+  'verification.failedMessage': 'يرجى المحاولة مرة أخرى',
+  'verification.errorTitle': 'خطأ',
+  'verification.errorMessage': 'فشل التحقق. يرجى المحاولة مرة أخرى.',
+  'verification.webViewError': 'خطأ في WebView:',
 }
