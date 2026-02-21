@@ -32,12 +32,33 @@ export default defineConfig(() => ({
     react(),
     nodePolyfills({
       globals: {
-        Buffer: true,
-        global: true,
-        process: true,
+        Buffer: false,
+        global: false,
+        process: false,
       },
       protocolImports: true,
     }),
+    {
+      name: 'node-globals-shim',
+      transformIndexHtml() {
+        return [
+          {
+            tag: 'script',
+            children: `
+              window.global = window.global || window;
+              window.process = window.process || { env: {}, browser: true, version: "" };
+            `,
+            injectTo: 'head-prepend',
+          },
+          {
+            tag: 'script',
+            attrs: { type: 'module' },
+            children: `import { Buffer } from 'buffer'; window.Buffer = window.Buffer || Buffer;`,
+            injectTo: 'head-prepend',
+          },
+        ];
+      },
+    },
   ].filter(Boolean),
   resolve: {
     mainFields: ['module', 'main', 'exports'],

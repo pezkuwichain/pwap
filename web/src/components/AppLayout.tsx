@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
@@ -19,7 +19,7 @@ import { TreasuryOverview } from './treasury/TreasuryOverview';
 import { FundingProposal } from './treasury/FundingProposal';
 import { SpendingHistory } from './treasury/SpendingHistory';
 import { MultiSigApproval } from './treasury/MultiSigApproval';
-import { ExternalLink, Award, FileEdit, Users2, MessageSquare, ShieldCheck, Wifi, WifiOff, Wallet, DollarSign, PiggyBank, History, Key, TrendingUp, ArrowRightLeft, Lock, LogIn, LayoutDashboard, Settings, Users, Droplet, Mail, Coins, Menu, X } from 'lucide-react';
+import { ExternalLink, Award, FileEdit, Users2, MessageSquare, ShieldCheck, Wifi, WifiOff, Wallet, DollarSign, PiggyBank, History, Key, TrendingUp, ArrowRightLeft, Lock, LogIn, LayoutDashboard, Settings, Users, Droplet, Mail, Coins, Menu, X, ChevronDown } from 'lucide-react';
 import GovernanceInterface from './GovernanceInterface';
 import RewardDistribution from './RewardDistribution';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -48,10 +48,25 @@ const AppLayout: React.FC = () => {
   const [showEducation, setShowEducation] = useState(false);
   const [showP2P, setShowP2P] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
   const { t } = useTranslation();
   const { isConnected } = useWebSocket();
   useWallet();
   const [, _setIsAdmin] = useState(false);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (gridRef.current && !gridRef.current.contains(e.target as Node)) {
+        setOpenMenu(null);
+      }
+    };
+    if (openMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [openMenu]);
 
   // Admin status is handled by AuthContext via wallet whitelist
   // Supabase admin_roles is optional (table may not exist)
@@ -62,7 +77,7 @@ const AppLayout: React.FC = () => {
     <div className="min-h-screen bg-gray-950 text-white">
       {/* Navigation */}
       <nav className="fixed top-0 w-full z-40 bg-gray-950/90 backdrop-blur-md border-b border-gray-800">
-        <div className="w-full px-4">
+        <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             {/* LEFT: Logo - hidden on mobile */}
             <div className="flex-shrink-0 hidden lg:block">
@@ -83,210 +98,171 @@ const AppLayout: React.FC = () => {
             </div>
 
             {/* CENTER & RIGHT: Menu + Actions in same row (Desktop) */}
-            <div className="hidden lg:flex items-center space-x-4 flex-1 justify-start ml-8 pr-4">
+            <div className="hidden lg:flex items-center gap-2 xl:gap-4 flex-1 justify-between ml-4 xl:ml-8 min-w-0">
               {user ? (
-                <>
-                  <button
-                    onClick={() => navigate('/dashboard')}
-                    className="text-gray-300 hover:text-white transition-colors flex items-center gap-1 text-sm"
-                  >
-                    <LayoutDashboard className="w-4 h-4" />
-                    Dashboard
-                  </button>
-
-                  <button
-                    onClick={() => navigate('/wallet')}
-                    className="text-gray-300 hover:text-white transition-colors flex items-center gap-1 text-sm"
-                  >
-                    <Wallet className="w-4 h-4" />
-                    Wallet
-                  </button>
-
-                  <button
-                    onClick={() => navigate('/be-citizen')}
-                    className="text-cyan-300 hover:text-cyan-100 transition-colors flex items-center gap-1 text-sm font-semibold"
-                  >
-                    <Users className="w-4 h-4" />
-                    Be Citizen
-                  </button>
-
-                  {/* Governance Dropdown */}
-                  <div className="relative group">
-                    <button className="text-gray-300 hover:text-white transition-colors flex items-center gap-1 text-sm">
-                      <FileEdit className="w-4 h-4" />
-                      Governance
-                      <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </button>
-                    <div className="absolute left-0 mt-2 w-48 bg-gray-900 border border-gray-700 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                      <button
-                        onClick={() => setShowProposalWizard(true)}
-                        className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2 rounded-t-lg"
-                      >
-                        <FileEdit className="w-4 h-4" />
-                        Proposals
-                      </button>
-                      <button
-                        onClick={() => setShowDelegation(true)}
-                        className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2"
-                      >
-                        <Users2 className="w-4 h-4" />
-                        Delegation
-                      </button>
-                      <button
-                        onClick={() => setShowForum(true)}
-                        className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2"
-                      >
-                        <MessageSquare className="w-4 h-4" />
-                        Forum
-                      </button>
-                      <button
-                        onClick={() => {
-                          setShowTreasury(true);
-                          setTreasuryTab('overview');
-                        }}
-                        className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2"
-                      >
-                        <PiggyBank className="w-4 h-4" />
-                        Treasury
-                      </button>
-                      <button
-                        onClick={() => setShowModeration(true)}
-                        className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2 rounded-b-lg"
-                      >
-                        <ShieldCheck className="w-4 h-4" />
-                        Moderation
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Trading Dropdown */}
-                  <div className="relative group">
-                    <button className="text-gray-300 hover:text-white transition-colors flex items-center gap-1 text-sm">
-                      <ArrowRightLeft className="w-4 h-4" />
-                      Trading
-                      <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </button>
-                    <div className="absolute left-0 mt-2 w-48 bg-gray-900 border border-gray-700 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                      <button
-                        onClick={() => setShowDEX(true)}
-                        className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2 rounded-t-lg"
-                      >
-                        <Droplet className="w-4 h-4" />
-                        DEX Pools
-                      </button>
-                      <button
-                        onClick={() => {
-                          setShowP2P(true);
-                          navigate('/p2p');
-                        }}
-                        className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2"
-                      >
-                        <Users className="w-4 h-4" />
-                        P2P
-                      </button>
-                      <button
-                        onClick={() => navigate('/presale')}
-                        className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2"
-                      >
-                        <Coins className="w-4 h-4" />
-                        Presale
-                      </button>
-                      <button
-                        onClick={() => setShowStaking(true)}
-                        className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2"
-                      >
-                        <TrendingUp className="w-4 h-4" />
-                        Staking
-                      </button>
-                      <button
-                        onClick={() => setShowMultiSig(true)}
-                        className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2 rounded-b-lg"
-                      >
-                        <Lock className="w-4 h-4" />
-                        MultiSig
-                      </button>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => {
-                      setShowEducation(true);
-                      navigate('/education');
-                    }}
-                    className="text-gray-300 hover:text-white transition-colors flex items-center gap-1 text-sm"
-                  >
-                    <Award className="w-4 h-4" />
-                    Education
-                  </button>
-
-                  <button
-                    onClick={() => navigate('/profile/settings')}
-                    className="text-gray-300 hover:text-white transition-colors flex items-center gap-1 text-sm"
-                  >
-                    <Settings className="w-4 h-4" />
-                    Settings
-                  </button>
-
-                  <button
-                    onClick={async () => {
-                      await signOut();
-                      navigate('/login');
-                    }}
-                    className="text-gray-300 hover:text-white transition-colors flex items-center gap-1 text-sm"
-                  >
-                    <LogIn className="w-4 h-4 rotate-180" />
-                    Logout
-                  </button>
-                </>
+                <div />
               ) : (
                 <>
+                <div className="flex items-center gap-2 flex-shrink min-w-0">
                   <button
                     onClick={() => navigate('/be-citizen')}
-                    className="text-cyan-300 hover:text-cyan-100 transition-colors flex items-center gap-1 text-sm font-semibold"
+                    className="text-cyan-300 hover:text-cyan-100 transition-colors flex items-center gap-1 text-sm font-semibold whitespace-nowrap"
                   >
                     <Users className="w-4 h-4" />
                     Be Citizen
                   </button>
                   <button
                     onClick={() => navigate('/login')}
-                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 text-sm"
+                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 text-sm whitespace-nowrap"
                   >
                     <LogIn className="w-4 h-4" />
                     Login
                   </button>
+                </div>
                 </>
               )}
 
-              <a
-                href="/docs"
-                className="text-gray-300 hover:text-white transition-colors text-sm"
-              >
-                Docs
-              </a>
+              {/* Right actions - always visible, flex-shrink-0 */}
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <a
+                  href="/docs"
+                  className="text-gray-300 hover:text-white transition-colors text-sm"
+                >
+                  Docs
+                </a>
 
-              {/* Divider */}
-              <div className="w-px h-6 bg-gray-700"></div>
+                <div className="w-px h-6 bg-gray-700"></div>
 
-              {/* Actions continue after Docs */}
-              <div className="flex items-center">
-                {isConnected ? (
-                  <Wifi className="w-4 h-4 text-green-500" />
-                ) : (
-                  <WifiOff className="w-4 h-4 text-gray-500" />
-                )}
+                <div className="flex items-center">
+                  {isConnected ? (
+                    <Wifi className="w-4 h-4 text-green-500" />
+                  ) : (
+                    <WifiOff className="w-4 h-4 text-gray-500" />
+                  )}
+                </div>
+
+                <NotificationBell />
+                <LanguageSwitcher />
+                <PezkuwiWalletButton />
               </div>
-
-              <NotificationBell />
-              <LanguageSwitcher />
-              <PezkuwiWalletButton />
             </div>
           </div>
         </div>
       </nav>
+
+      {/* Button Grid (logged in only) */}
+      {user && (
+        <div ref={gridRef} className="fixed top-16 w-full z-30 bg-gray-950/95 backdrop-blur-md border-b border-gray-800">
+          <div className="max-w-5xl mx-auto grid grid-cols-4 gap-1.5 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2">
+            {/* Dashboard */}
+            <button
+              onClick={() => { setOpenMenu(null); navigate('/dashboard'); }}
+              className="flex flex-col items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2 rounded-xl bg-gray-900/70 border border-green-500/40 text-[10px] sm:text-xs font-medium transition-all hover:scale-[1.03] active:scale-95 cursor-pointer text-gray-300 hover:text-white"
+            >
+              <LayoutDashboard className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
+              Dashboard
+            </button>
+            {/* Wallet */}
+            <button
+              onClick={() => { setOpenMenu(null); navigate('/wallet'); }}
+              className="flex flex-col items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2 rounded-xl bg-gray-900/70 border border-yellow-400/40 text-[10px] sm:text-xs font-medium transition-all hover:scale-[1.03] active:scale-95 cursor-pointer text-gray-300 hover:text-white"
+            >
+              <Wallet className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
+              Wallet
+            </button>
+            {/* Be Citizen */}
+            <button
+              onClick={() => { setOpenMenu(null); navigate('/be-citizen'); }}
+              className="flex flex-col items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2 rounded-xl bg-gray-900/70 border border-cyan-400/40 text-[10px] sm:text-xs font-medium transition-all hover:scale-[1.03] active:scale-95 cursor-pointer text-gray-300 hover:text-white"
+            >
+              <Users className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" />
+              Be Citizen
+            </button>
+            {/* Governance (dropdown) */}
+            <div className="relative">
+              <button
+                onClick={() => setOpenMenu(openMenu === 'governance' ? null : 'governance')}
+                className="w-full flex flex-col items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2 rounded-xl bg-gray-900/70 border border-green-500/40 text-[10px] sm:text-xs font-medium transition-all hover:scale-[1.03] active:scale-95 cursor-pointer text-gray-300 hover:text-white"
+              >
+                <FileEdit className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
+                <span className="flex items-center gap-0.5">Governance <ChevronDown className="w-3 h-3" /></span>
+              </button>
+              {openMenu === 'governance' && (
+                <div className="absolute left-0 top-full mt-1 w-48 bg-gray-900 border border-gray-700 rounded-lg shadow-lg z-50">
+                  <button onClick={() => { setShowProposalWizard(true); setOpenMenu(null); }} className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2 rounded-t-lg">
+                    <FileEdit className="w-4 h-4" /> Proposals
+                  </button>
+                  <button onClick={() => { setShowDelegation(true); setOpenMenu(null); }} className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2">
+                    <Users2 className="w-4 h-4" /> Delegation
+                  </button>
+                  <button onClick={() => { setShowForum(true); setOpenMenu(null); }} className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2">
+                    <MessageSquare className="w-4 h-4" /> Forum
+                  </button>
+                  <button onClick={() => { setShowTreasury(true); setTreasuryTab('overview'); setOpenMenu(null); }} className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2">
+                    <PiggyBank className="w-4 h-4" /> Treasury
+                  </button>
+                  <button onClick={() => { setShowModeration(true); setOpenMenu(null); }} className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2 rounded-b-lg">
+                    <ShieldCheck className="w-4 h-4" /> Moderation
+                  </button>
+                </div>
+              )}
+            </div>
+            {/* Trading (dropdown) */}
+            <div className="relative">
+              <button
+                onClick={() => setOpenMenu(openMenu === 'trading' ? null : 'trading')}
+                className="w-full flex flex-col items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2 rounded-xl bg-gray-900/70 border border-red-500/40 text-[10px] sm:text-xs font-medium transition-all hover:scale-[1.03] active:scale-95 cursor-pointer text-gray-300 hover:text-white"
+              >
+                <ArrowRightLeft className="w-4 h-4 sm:w-5 sm:h-5 text-red-400" />
+                <span className="flex items-center gap-0.5">Trading <ChevronDown className="w-3 h-3" /></span>
+              </button>
+              {openMenu === 'trading' && (
+                <div className="absolute left-0 top-full mt-1 w-48 bg-gray-900 border border-gray-700 rounded-lg shadow-lg z-50">
+                  <button onClick={() => { setShowDEX(true); setOpenMenu(null); }} className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2 rounded-t-lg">
+                    <Droplet className="w-4 h-4" /> DEX Pools
+                  </button>
+                  <button onClick={() => { setShowP2P(true); navigate('/p2p'); setOpenMenu(null); }} className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2">
+                    <Users className="w-4 h-4" /> P2P
+                  </button>
+                  <button onClick={() => { navigate('/presale'); setOpenMenu(null); }} className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2">
+                    <Coins className="w-4 h-4" /> Presale
+                  </button>
+                  <button onClick={() => { setShowStaking(true); setOpenMenu(null); }} className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2">
+                    <TrendingUp className="w-4 h-4" /> Staking
+                  </button>
+                  <button onClick={() => { setShowMultiSig(true); setOpenMenu(null); }} className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2 rounded-b-lg">
+                    <Lock className="w-4 h-4" /> MultiSig
+                  </button>
+                </div>
+              )}
+            </div>
+            {/* Education */}
+            <button
+              onClick={() => { setOpenMenu(null); setShowEducation(true); navigate('/education'); }}
+              className="flex flex-col items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2 rounded-xl bg-gray-900/70 border border-yellow-400/40 text-[10px] sm:text-xs font-medium transition-all hover:scale-[1.03] active:scale-95 cursor-pointer text-gray-300 hover:text-white"
+            >
+              <Award className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
+              Education
+            </button>
+            {/* Settings */}
+            <button
+              onClick={() => { setOpenMenu(null); navigate('/profile/settings'); }}
+              className="flex flex-col items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2 rounded-xl bg-gray-900/70 border border-gray-500/40 text-[10px] sm:text-xs font-medium transition-all hover:scale-[1.03] active:scale-95 cursor-pointer text-gray-300 hover:text-white"
+            >
+              <Settings className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
+              Settings
+            </button>
+            {/* Logout */}
+            <button
+              onClick={async () => { setOpenMenu(null); await signOut(); navigate('/login'); }}
+              className="flex flex-col items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2 rounded-xl bg-gray-900/70 border border-red-500/40 text-[10px] sm:text-xs font-medium transition-all hover:scale-[1.03] active:scale-95 cursor-pointer text-gray-300 hover:text-white"
+            >
+              <LogIn className="w-4 h-4 sm:w-5 sm:h-5 text-red-400 rotate-180" />
+              Logout
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Mobile Menu Panel */}
       {mobileMenuOpen && (
@@ -432,13 +408,13 @@ const AppLayout: React.FC = () => {
       <main>
         {/* Conditional Rendering for Features */}
         {showDEX ? (
-          <div className="pt-20 min-h-screen bg-gray-950">
+          <div className="pt-[8rem] sm:pt-[8.5rem] min-h-screen bg-gray-950">
             <div className="max-w-full mx-auto px-4">
               <DEXDashboard />
             </div>
           </div>
         ) : showProposalWizard ? (
-          <div className="pt-20 min-h-screen bg-gray-950">
+          <div className="pt-[8rem] sm:pt-[8.5rem] min-h-screen bg-gray-950">
             <div className="max-w-full mx-auto px-4">
               <ProposalWizard
                 onComplete={(proposal) => {
@@ -450,25 +426,25 @@ const AppLayout: React.FC = () => {
             </div>
           </div>
         ) : showDelegation ? (
-          <div className="pt-20 min-h-screen bg-gray-950">
+          <div className="pt-[8rem] sm:pt-[8.5rem] min-h-screen bg-gray-950">
             <div className="max-w-full mx-auto px-4">
               <DelegationManager />
             </div>
           </div>
         ) : showForum ? (
-          <div className="pt-20 min-h-screen bg-gray-950">
+          <div className="pt-[8rem] sm:pt-[8.5rem] min-h-screen bg-gray-950">
             <div className="max-w-full mx-auto px-4">
               <ForumOverview />
             </div>
           </div>
         ) : showModeration ? (
-          <div className="pt-20 min-h-screen bg-gray-950">
+          <div className="pt-[8rem] sm:pt-[8.5rem] min-h-screen bg-gray-950">
             <div className="max-w-full mx-auto px-4">
               <ModerationPanel />
             </div>
           </div>
         ) : showTreasury ? (
-          <div className="pt-20 min-h-screen bg-gray-950">
+          <div className="pt-[8rem] sm:pt-[8.5rem] min-h-screen bg-gray-950">
             <div className="max-w-full mx-auto px-4">
               <div className="text-center mb-12">
                 <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-green-500 via-yellow-400 to-red-500 bg-clip-text text-transparent">
@@ -518,7 +494,7 @@ const AppLayout: React.FC = () => {
             </div>
           </div>
         ) : showStaking ? (
-          <div className="pt-20 min-h-screen bg-gray-950">
+          <div className="pt-[8rem] sm:pt-[8.5rem] min-h-screen bg-gray-950">
             <div className="max-w-full mx-auto px-4">
               <div className="text-center mb-12">
                 <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-green-500 via-yellow-400 to-red-500 bg-clip-text text-transparent">
@@ -532,7 +508,7 @@ const AppLayout: React.FC = () => {
             </div>
           </div>
         ) : showMultiSig ? (
-          <div className="pt-20 min-h-screen bg-gray-950">
+          <div className="pt-[8rem] sm:pt-[8.5rem] min-h-screen bg-gray-950">
             <div className="max-w-full mx-auto px-4">
               <div className="text-center mb-12">
                 <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-green-500 via-yellow-400 to-red-500 bg-clip-text text-transparent">
@@ -546,11 +522,11 @@ const AppLayout: React.FC = () => {
             </div>
           </div>
         ) : showEducation ? (
-          <div className="pt-20 min-h-screen bg-gray-950">
+          <div className="pt-[8rem] sm:pt-[8.5rem] min-h-screen bg-gray-950">
             <EducationPlatform />
           </div>
         ) : showP2P ? (
-          <div className="pt-20 min-h-screen bg-gray-950">
+          <div className="pt-[8rem] sm:pt-[8.5rem] min-h-screen bg-gray-950">
             <P2PDashboard />
           </div>
         ) : (
