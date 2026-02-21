@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ChevronRight, Shield } from 'lucide-react';
+import { ChevronRight, Shield, LogIn } from 'lucide-react';
 import { usePezkuwi } from '../contexts/PezkuwiContext';
-import { useWallet } from '../contexts/WalletContext'; // Import useWallet
+import { useWallet } from '../contexts/WalletContext';
 import { formatBalance } from '@pezkuwi/lib/wallet';
 import { getTrustScore } from '@pezkuwi/lib/scores';
+import { getCurrentEra } from '@pezkuwi/lib/staking';
 
 const HeroSection: React.FC = () => {
   const { t } = useTranslation();
-  const { api, isApiReady, peopleApi } = usePezkuwi();
-  const { selectedAccount } = useWallet(); // Use selectedAccount from WalletContext
+  const navigate = useNavigate();
+  const { api, isApiReady, assetHubApi, isAssetHubReady, peopleApi } = usePezkuwi();
+  const { selectedAccount } = useWallet();
   const [stats, setStats] = useState({
     activeProposals: 0,
     totalVoters: 0,
@@ -17,90 +20,83 @@ const HeroSection: React.FC = () => {
     trustScore: null as number | null
   });
 
+  // Fetch governance stats from Relay Chain
   useEffect(() => {
-    const fetchStats = async () => {
+    const fetchGovernanceStats = async () => {
       if (!api || !isApiReady) return;
 
-      let currentTrustScore: number | null = null; // null = not logged in
-      if (selectedAccount?.address) {
-        try {
-          // Use frontend fallback for trust score
-          if (peopleApi) {
-            currentTrustScore = await getTrustScore(peopleApi, selectedAccount.address);
-          }
-        } catch (err) {
-          if (import.meta.env.DEV) console.warn('Failed to fetch trust score:', err);
-          currentTrustScore = 0;
-        }
+      let activeProposals = 0;
+      try {
+        const entries = await api.query.referenda.referendumInfoFor.entries();
+        activeProposals = entries.filter(([, info]) => {
+          const data = info.toJSON();
+          return data && typeof data === 'object' && 'ongoing' in data;
+        }).length;
+      } catch (err) {
+        if (import.meta.env.DEV) console.warn('Failed to fetch referenda:', err);
       }
+
+      let totalVoters = 0;
+      try {
+        const votingKeys = await api.query.convictionVoting.votingFor.keys();
+        const uniqueAccounts = new Set(votingKeys.map(key => key.args[0].toString()));
+        totalVoters = uniqueAccounts.size;
+      } catch (err) {
+        if (import.meta.env.DEV) console.warn('Failed to fetch voters:', err);
+      }
+
+      setStats(prev => ({ ...prev, activeProposals, totalVoters }));
+    };
+    fetchGovernanceStats();
+  }, [api, isApiReady]);
+
+  // Fetch staking stats from Asset Hub
+  useEffect(() => {
+    const fetchStakingStats = async () => {
+      if (!assetHubApi || !isAssetHubReady) return;
+
+      let tokensStaked = '0';
+      try {
+        const eraIndex = await getCurrentEra(assetHubApi);
+        if (eraIndex > 0) {
+          const totalStake = await assetHubApi.query.staking.erasTotalStake(eraIndex);
+          const formatted = formatBalance(totalStake.toString());
+          const [whole, frac] = formatted.split('.');
+          const formattedWhole = Number(whole).toLocaleString();
+          const formattedFrac = (frac || '00').slice(0, 2);
+          tokensStaked = `${formattedWhole}.${formattedFrac} HEZ`;
+        }
+      } catch (err) {
+        if (import.meta.env.DEV) console.warn('Failed to fetch total stake from AH:', err);
+      }
+
+      setStats(prev => ({ ...prev, tokensStaked }));
+    };
+    fetchStakingStats();
+  }, [assetHubApi, isAssetHubReady]);
+
+  // Fetch trust score from People Chain
+  useEffect(() => {
+    const fetchTrustScore = async () => {
+      if (!selectedAccount?.address) {
+        setStats(prev => ({ ...prev, trustScore: null }));
+        return;
+      }
+      if (!peopleApi) return;
 
       try {
-        // Fetch active (ongoing) referenda only
-        let activeProposals = 0;
-        try {
-          const entries = await api.query.referenda.referendumInfoFor.entries();
-          activeProposals = entries.filter(([, info]) => {
-            const data = info.toJSON();
-            return data && typeof data === 'object' && 'ongoing' in data;
-          }).length;
-        } catch (err) {
-          if (import.meta.env.DEV) console.warn('Failed to fetch referenda:', err);
-        }
-
-        // Fetch total staked tokens
-        let tokensStaked = '0';
-        try {
-          const currentEra = await api.query.staking.currentEra();
-          if (currentEra.isSome) {
-            const eraIndex = currentEra.unwrap().toNumber();
-            const totalStake = await api.query.staking.erasTotalStake(eraIndex);
-            const formatted = formatBalance(totalStake.toString());
-            const [whole, frac] = formatted.split('.');
-            const formattedWhole = Number(whole).toLocaleString();
-            const formattedFrac = (frac || '00').slice(0, 2);
-            tokensStaked = `${formattedWhole}.${formattedFrac} HEZ`;
-          }
-        } catch (err) {
-          if (import.meta.env.DEV) console.warn('Failed to fetch total stake:', err);
-        }
-
-        // Count total voters from conviction voting
-        let totalVoters = 0;
-        try {
-          // Get all voting keys and count unique voters
-          const votingKeys = await api.query.convictionVoting.votingFor.keys();
-          // Each key represents a unique (account, track) pair
-          // Count unique accounts
-          const uniqueAccounts = new Set(votingKeys.map(key => key.args[0].toString()));
-          totalVoters = uniqueAccounts.size;
-        } catch (err) {
-          if (import.meta.env.DEV) console.warn('Failed to fetch voters:', err);
-        }
-
-        // Update stats
-        setStats({
-          activeProposals,
-          totalVoters,
-          tokensStaked,
-          trustScore: currentTrustScore
-        });
-
-        if (import.meta.env.DEV) console.log('✅ Hero stats updated:', {
-          activeProposals,
-          totalVoters,
-          tokensStaked,
-          trustScore: currentTrustScore
-        });
-      } catch (error) {
-        if (import.meta.env.DEV) console.error('Failed to fetch hero stats:', error);
+        const score = await getTrustScore(peopleApi, selectedAccount.address);
+        setStats(prev => ({ ...prev, trustScore: score }));
+      } catch (err) {
+        if (import.meta.env.DEV) console.warn('Failed to fetch trust score:', err);
+        setStats(prev => ({ ...prev, trustScore: 0 }));
       }
     };
-
-    fetchStats();
-  }, [api, isApiReady, peopleApi, selectedAccount]); // Add peopleApi to dependencies
+    fetchTrustScore();
+  }, [peopleApi, selectedAccount]);
 
   return (
-    <section className="relative min-h-screen flex items-center justify-start overflow-hidden bg-gray-950">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gray-950">
       {/* Background Image */}
       <div className="absolute inset-0">
         <img
@@ -143,7 +139,17 @@ const HeroSection: React.FC = () => {
             <div className="text-xs sm:text-sm text-gray-300 font-medium">{t('hero.stats.tokensStaked', 'Tokens Staked')}</div>
           </div>
           <div className="bg-gray-900/70 backdrop-blur-md rounded-xl border border-green-500/40 p-4 sm:p-6 hover:border-green-500/60 transition-all">
-            <div className="text-base sm:text-2xl font-bold text-green-400 mb-2">{stats.trustScore !== null ? stats.trustScore : t('hero.stats.loginToSee', 'Login')}</div>
+            {stats.trustScore !== null ? (
+              <div className="text-base sm:text-2xl font-bold text-green-400 mb-2">{stats.trustScore}</div>
+            ) : (
+              <button
+                onClick={() => navigate('/login')}
+                className="text-xs sm:text-sm font-medium text-green-400 hover:text-green-300 transition-colors flex items-center gap-1 mx-auto mb-2"
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                {t('hero.stats.loginToSee', 'Görmek için giriş yapın')}
+              </button>
+            )}
             <div className="text-xs sm:text-sm text-gray-300 font-medium">{t('hero.stats.trustScore', 'Trust Score')}</div>
           </div>
         </div>
