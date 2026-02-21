@@ -86,8 +86,9 @@ const AppLayout: React.FC = () => {
               </span>
             </div>
 
-            {/* Mobile: Wallet + Hamburger */}
+            {/* Mobile: Language + Wallet + Hamburger */}
             <div className="flex lg:hidden items-center gap-2 ml-auto">
+              <LanguageSwitcher />
               <PezkuwiWalletButton />
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
