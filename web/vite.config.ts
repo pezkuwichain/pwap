@@ -103,5 +103,5 @@ export default defineConfig(() => ({
     },
     chunkSizeWarningLimit: 600
   },
-  assetsInclude: ['**/*.json'],
+  // assetsInclude: ['**/*.json'], // Disabled: interferes with node_modules JSON imports (crypto-browserify)
 }));

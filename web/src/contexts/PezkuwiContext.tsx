@@ -26,6 +26,16 @@ import type { InjectedAccountWithMeta } from '@pezkuwi/extension-inject/types';
 import { DEFAULT_ENDPOINT } from '../../../shared/blockchain/pezkuwi';
 import { getCurrentNetworkConfig } from '../../../shared/blockchain/endpoints';
 import { isMobileApp, getNativeWalletAddress, getNativeAccountName } from '@/lib/mobile-bridge';
+import {
+  initWalletConnect,
+  connectWithQR,
+  getSessionAccounts,
+  getSessionPeerName,
+  restoreSession,
+  disconnectWC,
+  isWCConnected,
+  createWCSigner,
+} from '@/lib/walletconnect-service';
 
 // Get network config from shared endpoints
 const networkConfig = getCurrentNetworkConfig();
@@ -33,6 +43,8 @@ const networkConfig = getCurrentNetworkConfig();
 // Teyrchain endpoints (from environment or shared config)
 const ASSET_HUB_ENDPOINT = import.meta.env.VITE_ASSET_HUB_ENDPOINT || networkConfig.assetHubEndpoint || 'wss://asset-hub-rpc.pezkuwichain.io';
 const PEOPLE_CHAIN_ENDPOINT = import.meta.env.VITE_PEOPLE_CHAIN_ENDPOINT || networkConfig.peopleChainEndpoint || 'wss://people-rpc.pezkuwichain.io';
+
+export type WalletSource = 'extension' | 'native' | 'walletconnect' | null;
 
 interface PezkuwiContextType {
   api: ApiPromise | null;
@@ -46,7 +58,10 @@ interface PezkuwiContextType {
   selectedAccount: InjectedAccountWithMeta | null;
   setSelectedAccount: (account: InjectedAccountWithMeta | null) => void;
   connectWallet: () => Promise<void>;
+  connectWalletConnect: () => Promise<string>;
   disconnectWallet: () => void;
+  walletSource: WalletSource;
+  wcPeerName: string | null;
   error: string | null;
   sudoKey: string | null;
 }
@@ -72,6 +87,8 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
   const [selectedAccount, setSelectedAccount] = useState<InjectedAccountWithMeta | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [sudoKey, setSudoKey] = useState<string | null>(null);
+  const [walletSource, setWalletSource] = useState<WalletSource>(null);
+  const [wcPeerName, setWcPeerName] = useState<string | null>(null);
 
   // Wrapper to trigger events when wallet changes
   const handleSetSelectedAccount = (account: InjectedAccountWithMeta | null) => {
@@ -310,12 +327,44 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
         }
       }
 
-      // Desktop: Try to restore from localStorage
+      // Try to restore WalletConnect session first
+      try {
+        const wcSession = await restoreSession();
+        if (wcSession) {
+          const wcAddresses = getSessionAccounts();
+          if (wcAddresses.length > 0) {
+            const peerName = getSessionPeerName();
+            const wcAccounts: InjectedAccountWithMeta[] = wcAddresses.map((addr) => ({
+              address: addr,
+              meta: {
+                name: peerName || 'WalletConnect',
+                source: 'walletconnect',
+              },
+              type: 'sr25519' as const,
+            }));
+
+            setAccounts(wcAccounts);
+            handleSetSelectedAccount(wcAccounts[0]);
+            setWalletSource('walletconnect');
+            setWcPeerName(peerName);
+            if (import.meta.env.DEV) {
+              console.log('✅ WalletConnect session restored:', wcAddresses[0].slice(0, 8) + '...');
+            }
+            return;
+          }
+        }
+      } catch (err) {
+        if (import.meta.env.DEV) {
+          console.warn('Failed to restore WC session:', err);
+        }
+      }
+
+      // Desktop: Try to restore from localStorage (extension)
       const savedAddress = localStorage.getItem('selectedWallet');
       if (!savedAddress) return;
 
       try {
-        // Enable extension
+        // Enable extension (works for both desktop extension and pezWallet DApps browser)
         const extensions = await web3Enable('PezkuwiChain');
         if (extensions.length === 0) return;
 
@@ -328,6 +377,7 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
         if (savedAccount) {
           setAccounts(allAccounts);
           handleSetSelectedAccount(savedAccount);
+          setWalletSource('extension');
           if (import.meta.env.DEV) {
             console.log('✅ Wallet restored:', savedAddress.slice(0, 8) + '...');
           }
@@ -361,13 +411,12 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
     try {
       setError(null);
 
-      // Check if running in mobile app
+      // Check if running in mobile app (native WebView bridge)
       if (isMobileApp()) {
         const nativeAddress = getNativeWalletAddress();
         const nativeAccountName = getNativeAccountName();
 
         if (nativeAddress) {
-          // Create a virtual account for the mobile wallet
           const mobileAccount: InjectedAccountWithMeta = {
             address: nativeAddress,
             meta: {
@@ -379,30 +428,27 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
 
           setAccounts([mobileAccount]);
           handleSetSelectedAccount(mobileAccount);
+          setWalletSource('native');
 
           if (import.meta.env.DEV) {
             console.log('[Mobile] Native wallet connected:', nativeAddress.slice(0, 8) + '...');
           }
           return;
         } else {
-          // Request wallet connection from native app
           setError('Please connect your wallet in the app');
           return;
         }
       }
 
-      // Desktop: Check if extension is installed first
+      // Desktop / pezWallet DApps browser: Try extension (injected provider)
       const hasExtension = !!(window as unknown as { injectedWeb3?: Record<string, unknown> }).injectedWeb3;
 
-      // Enable extension
       const extensions = await web3Enable('PezkuwiChain');
 
       if (extensions.length === 0) {
         if (hasExtension) {
-          // Extension is installed but user didn't authorize - don't redirect
           setError('Please authorize the connection in your Pezkuwi Wallet extension');
         } else {
-          // Extension not installed - show install link
           setError('Pezkuwi Wallet extension not found. Please install from Chrome Web Store.');
           window.open('https://chrome.google.com/webstore/detail/pezkuwi-wallet/fbnboicjjeebjhgnapneaeccpgjcdibn', '_blank');
         }
@@ -413,7 +459,6 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
         console.log('✅ Pezkuwi.js extension enabled');
       }
 
-      // Get accounts
       const allAccounts = await web3Accounts();
 
       if (allAccounts.length === 0) {
@@ -423,14 +468,13 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
 
       setAccounts(allAccounts);
 
-      // Try to restore previously selected account, otherwise use first
       const savedAddress = localStorage.getItem('selectedWallet');
       const accountToSelect = savedAddress
         ? allAccounts.find(acc => acc.address === savedAddress) || allAccounts[0]
         : allAccounts[0];
 
-      // Use wrapper to trigger events
       handleSetSelectedAccount(accountToSelect);
+      setWalletSource('extension');
 
       if (import.meta.env.DEV) {
         console.log(`✅ Found ${allAccounts.length} account(s)`);
@@ -444,12 +488,67 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
     }
   };
 
-  // Disconnect wallet
-  const disconnectWallet = () => {
+  // Connect via WalletConnect v2 - returns pairing URI for QR code
+  const connectWalletConnect = async (): Promise<string> => {
+    if (!api || !isApiReady) {
+      throw new Error('API not ready. Please wait for blockchain connection.');
+    }
+
+    setError(null);
+    const genesisHash = api.genesisHash.toHex();
+
+    try {
+      await initWalletConnect();
+      const { uri, approval } = await connectWithQR(genesisHash);
+
+      // Start approval listener in background
+      approval().then((session) => {
+        const wcAddresses = getSessionAccounts();
+        if (wcAddresses.length > 0) {
+          const peerName = getSessionPeerName();
+          const wcAccounts: InjectedAccountWithMeta[] = wcAddresses.map((addr) => ({
+            address: addr,
+            meta: {
+              name: peerName || 'WalletConnect',
+              source: 'walletconnect',
+            },
+            type: 'sr25519' as const,
+          }));
+
+          setAccounts(wcAccounts);
+          handleSetSelectedAccount(wcAccounts[0]);
+          setWalletSource('walletconnect');
+          setWcPeerName(peerName);
+          window.dispatchEvent(new Event('walletconnect_connected'));
+
+          if (import.meta.env.DEV) {
+            console.log('✅ WalletConnect session established:', session.topic);
+          }
+        }
+      }).catch((err) => {
+        if (import.meta.env.DEV) console.error('WalletConnect approval failed:', err);
+        setError('WalletConnect connection was rejected');
+      });
+
+      return uri;
+    } catch (err) {
+      if (import.meta.env.DEV) console.error('WalletConnect connection failed:', err);
+      setError('Failed to start WalletConnect');
+      throw err;
+    }
+  };
+
+  // Disconnect wallet (extension, native, or WalletConnect)
+  const disconnectWallet = async () => {
+    if (walletSource === 'walletconnect') {
+      await disconnectWC();
+      setWcPeerName(null);
+    }
     setAccounts([]);
     handleSetSelectedAccount(null);
+    setWalletSource(null);
     if (import.meta.env.DEV) {
-      if (import.meta.env.DEV) console.log('🔌 Wallet disconnected');
+      console.log('🔌 Wallet disconnected');
     }
   };
 
@@ -460,12 +559,15 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
     isApiReady,
     isAssetHubReady,
     isPeopleReady,
-    isConnected: isApiReady, // Alias for backward compatibility
+    isConnected: isApiReady,
     accounts,
     selectedAccount,
     setSelectedAccount: handleSetSelectedAccount,
     connectWallet,
+    connectWalletConnect,
     disconnectWallet,
+    walletSource,
+    wcPeerName,
     error,
     sudoKey,
   };
