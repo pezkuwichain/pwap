@@ -1833,6 +1833,14 @@ export default {
   'walletModal.connectPezkuwi': 'Pezkuwi.js Girêbide',
   'walletModal.noWallet': 'Berîka Pezkuwi tune?',
   'walletModal.getFromStore': 'Ji Chrome Web Store Bistînin',
+  'walletModal.or': 'an jî',
+  'walletModal.connectWC': 'Bi pezWallet ve girêbide (Mobîl)',
+  'walletModal.wcScanQR': 'Ji bo girêdanê bi pezWallet re bişopîne',
+  'walletModal.wcGenerating': 'QR kod tê çêkirin...',
+  'walletModal.wcWaiting': 'Li benda girêdana berîkê...',
+  'walletModal.wcConnected': 'Girêdayî!',
+  'walletModal.wcInstructions': 'Serlêdana pezWallet veke → Mîheng → WalletConnect → QR kodê bişopîne',
+  'walletModal.wcRetry': 'Dîsa biceribîne',
 
   // WalletButton
   'walletBtn.connectWallet': 'Berîkê Girêbide',

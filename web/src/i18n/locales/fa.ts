@@ -1776,6 +1776,14 @@ export default {
   'walletModal.connectPezkuwi': 'اتصال Pezkuwi.js',
   'walletModal.noWallet': 'کیف پول Pezkuwi ندارید؟',
   'walletModal.getFromStore': 'از فروشگاه وب کروم دریافت کنید',
+  'walletModal.or': 'یا',
+  'walletModal.connectWC': 'اتصال با pezWallet (موبایل)',
+  'walletModal.wcScanQR': 'برای اتصال با pezWallet اسکن کنید',
+  'walletModal.wcGenerating': 'در حال ایجاد کد QR...',
+  'walletModal.wcWaiting': 'در انتظار اتصال کیف پول...',
+  'walletModal.wcConnected': 'متصل شد!',
+  'walletModal.wcInstructions': 'برنامه pezWallet را باز کنید → تنظیمات → WalletConnect → کد QR را اسکن کنید',
+  'walletModal.wcRetry': 'تلاش مجدد',
 
   // WalletButton
   'walletBtn.connectWallet': 'اتصال کیف پول',

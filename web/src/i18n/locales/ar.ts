@@ -1816,6 +1816,14 @@ export default {
   'walletModal.connectPezkuwi': 'توصيل Pezkuwi.js',
   'walletModal.noWallet': 'ليس لديك محفظة Pezkuwi؟',
   'walletModal.getFromStore': 'احصل عليها من متجر Chrome الإلكتروني',
+  'walletModal.or': 'أو',
+  'walletModal.connectWC': 'اتصل عبر pezWallet (الجوال)',
+  'walletModal.wcScanQR': 'امسح بـ pezWallet للاتصال',
+  'walletModal.wcGenerating': 'جاري إنشاء رمز QR...',
+  'walletModal.wcWaiting': 'في انتظار اتصال المحفظة...',
+  'walletModal.wcConnected': 'تم الاتصال!',
+  'walletModal.wcInstructions': 'افتح تطبيق pezWallet → الإعدادات → WalletConnect → امسح رمز QR',
+  'walletModal.wcRetry': 'حاول مرة أخرى',
 
   // WalletButton
   'walletBtn.connectWallet': 'توصيل المحفظة',
