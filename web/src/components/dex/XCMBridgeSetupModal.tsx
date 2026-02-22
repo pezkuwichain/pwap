@@ -78,6 +78,7 @@ export const XCMBridgeSetupModal: React.FC<XCMBridgeSetupModalProps> = ({
       setErrorMessage(error instanceof Error ? error.message : 'Status check failed');
       setStep('error');
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [assetHubApi, isAssetHubReady]);
 
   // Reset when modal opens/closes

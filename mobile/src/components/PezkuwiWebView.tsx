@@ -64,7 +64,7 @@ const PezkuwiWebView: React.FC<PezkuwiWebViewProps> = ({
         if (session?.access_token) {
           setSessionToken(session.access_token);
           setRefreshToken(session.refresh_token || null);
-          if (__DEV__) console.log('[WebView] Session token retrieved for SSO');
+          if (__DEV__) console.warn('[WebView] Session token retrieved for SSO');
         }
       } catch (error) {
         if (__DEV__) console.warn('[WebView] Failed to get session:', error);

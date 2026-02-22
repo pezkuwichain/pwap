@@ -40,6 +40,7 @@ export function CourseList({ enrolledCourseIds, onEnroll }: CourseListProps) {
     };
 
     fetchCourses();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleEnroll = async (courseId: number) => {

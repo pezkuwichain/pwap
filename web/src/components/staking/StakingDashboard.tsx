@@ -103,6 +103,7 @@ export const StakingDashboard: React.FC = () => {
     fetchStakingData();
     const interval = setInterval(fetchStakingData, 30000); // Refresh every 30s
     return () => clearInterval(interval);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [assetHubApi, peopleApi, isAssetHubReady, isPeopleReady, selectedAccount]);
 
   // Fetch PEZ rewards data separately from People Chain

@@ -123,6 +123,7 @@ export const LPStakingModal: React.FC<LPStakingModalProps> = ({ isOpen, onClose 
     };
 
     fetchPools();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [assetHubApi, isAssetHubReady, isOpen, selectedAccount, selectedPool]);
 
   const formatAmount = (amount: string, decimals: number = 12): string => {

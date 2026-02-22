@@ -35,6 +35,7 @@ export default function EmailVerification() {
     } else if (token) {
       verifyEmail(token);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, type]);
 
   const verifyEmail = async (verifyToken: string) => {
