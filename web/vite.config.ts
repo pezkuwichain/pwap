@@ -75,6 +75,8 @@ export default defineConfig(() => ({
       'vite-plugin-node-polyfills/shims/buffer': path.resolve(__dirname, './src/polyfills/buffer-shim.ts'),
       'vite-plugin-node-polyfills/shims/global': path.resolve(__dirname, './src/polyfills/global-shim.ts'),
       'vite-plugin-node-polyfills/shims/process': path.resolve(__dirname, './src/polyfills/process-shim.ts'),
+      // Prevent crypto-browserify chain (inherits error) - use native Web Crypto API
+      'crypto-browserify': path.resolve(__dirname, './src/polyfills/crypto-shim.ts'),
     },
     dedupe: ['react', 'lucide-react', 'sonner', '@pezkuwi/util-crypto', '@pezkuwi/util', '@pezkuwi/api', '@pezkuwi/extension-dapp', '@pezkuwi/keyring'],
   },
