@@ -3,6 +3,8 @@ import { usePezkuwi } from '@/contexts/PezkuwiContext';
 
 export interface TreasuryMetrics {
   totalBalance: number;
+  pezBalance: number;
+  hezBalance: number;
   monthlyIncome: number;
   monthlyExpenses: number;
   pendingProposals: number;
@@ -21,9 +23,11 @@ export interface TreasuryProposal {
 }
 
 export function useTreasury() {
-  const { api, isConnected } = usePezkuwi();
+  const { api, assetHubApi, isConnected, isAssetHubReady } = usePezkuwi();
   const [metrics, setMetrics] = useState<TreasuryMetrics>({
     totalBalance: 0,
+    pezBalance: 0,
+    hezBalance: 0,
     monthlyIncome: 0,
     monthlyExpenses: 0,
     pendingProposals: 0,
@@ -45,13 +49,33 @@ export function useTreasury() {
         setLoading(true);
         setError(null);
 
-        // Get treasury account balance
-        const treasuryAccount = await api.query.treasury?.treasury?.();
-        let totalBalance = 0;
+        const TREASURY_ACCOUNT = '5EYCAe5ijiYfyeZ2JJCGq56LmPyNRAKzpG4QkoQkkQNB5e6Z'; // py/trsry
 
-        if (treasuryAccount) {
-          totalBalance = parseInt(treasuryAccount.toString()) / 1e12; // Convert from planck to tokens
+        // Get HEZ balance from Relay Chain treasury account
+        let hezBalance = 0;
+        try {
+          const rcAccount = await api.query.system.account(TREASURY_ACCOUNT);
+          hezBalance = parseInt(rcAccount.data.free.toString()) / 1e12;
+        } catch {
+          if (import.meta.env.DEV) console.warn('Failed to fetch RC treasury HEZ balance');
         }
+
+        // Get PEZ balance from Asset Hub (asset ID 1)
+        let pezBalance = 0;
+        try {
+          if (isAssetHubReady && assetHubApi?.query.assets) {
+            const pezAccount = await assetHubApi.query.assets.account(1, TREASURY_ACCOUNT);
+            if (pezAccount && !pezAccount.isEmpty) {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const unwrapped = (pezAccount as any).unwrap?.() ? (pezAccount as any).unwrap() : pezAccount;
+              pezBalance = parseInt(unwrapped.balance?.toString() || '0') / 1e12;
+            }
+          }
+        } catch {
+          if (import.meta.env.DEV) console.warn('Failed to fetch AH treasury PEZ balance');
+        }
+
+        const totalBalance = hezBalance + pezBalance;
 
         // Fetch all treasury proposals
         const proposalsData = await api.query.treasury?.proposals?.entries();
@@ -60,7 +84,8 @@ export function useTreasury() {
         let pendingCount = 0;
 
         if (proposalsData) {
-          proposalsData.forEach(([key, value]: [unknown, unknown]) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          proposalsData.forEach(([key, value]: [any, any]) => {
             const index = key.args[0].toNumber();
             const proposal = value.unwrap();
             const valueAmount = parseInt(proposal.value.toString()) / 1e12;
@@ -86,6 +111,8 @@ export function useTreasury() {
 
         setMetrics({
           totalBalance,
+          pezBalance,
+          hezBalance,
           monthlyIncome: 0, // This would require historical data
           monthlyExpenses: 0, // This would require historical data
           pendingProposals: pendingCount,
@@ -108,7 +135,7 @@ export function useTreasury() {
     // Subscribe to updates
     const interval = setInterval(fetchTreasuryData, 30000); // Refresh every 30 seconds
     return () => clearInterval(interval);
-  }, [api, isConnected]);
+  }, [api, assetHubApi, isConnected, isAssetHubReady]);
 
   return {
     metrics,

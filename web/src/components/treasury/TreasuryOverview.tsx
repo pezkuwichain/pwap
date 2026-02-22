@@ -77,7 +77,7 @@ export const TreasuryOverview: React.FC = () => {
           {t('treasury.liveData')}
         </Badge>
         <span className="text-sm text-muted-foreground">
-          {t('treasury.activeProposals', { count: proposals.length })} • {t('treasury.hezInTreasury', { amount: metrics.totalBalance.toFixed(2) })}
+          {t('treasury.activeProposals', { count: proposals.length })} • {metrics.pezBalance.toLocaleString(undefined, { maximumFractionDigits: 2 })} PEZ • {metrics.hezBalance.toLocaleString(undefined, { maximumFractionDigits: 4 })} HEZ
         </span>
       </div>
 
@@ -117,7 +117,8 @@ export const TreasuryOverview: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">{t('treasury.totalBalance')}</p>
-                <p className="text-2xl font-bold">${(metrics.totalBalance / 1000000).toFixed(2)}M</p>
+                <p className="text-lg font-bold">{metrics.pezBalance.toLocaleString(undefined, { maximumFractionDigits: 2 })} PEZ</p>
+                <p className="text-sm font-semibold text-muted-foreground">{metrics.hezBalance.toLocaleString(undefined, { maximumFractionDigits: 4 })} HEZ</p>
                 <p className="text-xs text-green-500 flex items-center mt-1">
                   <ArrowUpRight className="h-3 w-3 mr-1" />
                   {t('treasury.thisMonth', { percent: '12.5' })}
