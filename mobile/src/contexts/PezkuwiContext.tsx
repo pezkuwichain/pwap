@@ -223,19 +223,19 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({ children }) =>
   useEffect(() => {
     const initCrypto = async () => {
       try {
-        console.log('🔐 [Pezkuwi] Starting crypto initialization...');
-        console.log('⏳ [Pezkuwi] Waiting for crypto libraries...');
+        console.warn('🔐 [Pezkuwi] Starting crypto initialization...');
+        console.warn('⏳ [Pezkuwi] Waiting for crypto libraries...');
 
         await cryptoWaitReady();
-        console.log('✅ [Pezkuwi] Crypto wait ready completed');
+        console.warn('✅ [Pezkuwi] Crypto wait ready completed');
 
         const networkConfig = NETWORKS[currentNetwork];
-        console.log(`🌐 [Pezkuwi] Creating keyring for ${networkConfig.displayName}`);
+        console.warn(`🌐 [Pezkuwi] Creating keyring for ${networkConfig.displayName}`);
 
         const kr = new Keyring({ type: 'sr25519', ss58Format: networkConfig.ss58Format });
         setKeyring(kr);
         setIsReady(true);
-        console.log('✅ [Pezkuwi] Crypto libraries initialized successfully');
+        console.warn('✅ [Pezkuwi] Crypto libraries initialized successfully');
       } catch (err) {
         console.error('❌ [Pezkuwi] Failed to initialize crypto:', err);
         console.error('❌ [Pezkuwi] Error details:', JSON.stringify(err, null, 2));
@@ -305,7 +305,7 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({ children }) =>
       const seedKey = `pezkuwi_seed_${pair.address}`;
       await secureStorage.setItem(seedKey, mnemonicPhrase);
 
-      if (__DEV__) console.log('[Pezkuwi] Wallet created:', pair.address);
+      if (__DEV__) console.warn('[Pezkuwi] Wallet created:', pair.address);
 
       return {
         address: pair.address,
@@ -359,7 +359,7 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({ children }) =>
       const seedKey = `pezkuwi_seed_${pair.address}`;
       await secureStorage.setItem(seedKey, trimmedInput);
 
-      if (__DEV__) console.log('[Pezkuwi] Wallet imported:', pair.address, isDevUri ? '(dev URI)' : '(mnemonic)');
+      if (__DEV__) console.warn('[Pezkuwi] Wallet imported:', pair.address, isDevUri ? '(dev URI)' : '(mnemonic)');
 
       return { address: pair.address };
     } catch (err: unknown) {
@@ -394,7 +394,7 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({ children }) =>
         }
       }
 
-      if (__DEV__) console.log('[Pezkuwi] Wallet deleted:', address);
+      if (__DEV__) console.warn('[Pezkuwi] Wallet deleted:', address);
     } catch (err: unknown) {
       if (__DEV__) console.warn('[Pezkuwi] Failed to delete wallet:', err);
       throw new Error((err as Error)?.message || 'Failed to delete wallet');
@@ -465,7 +465,7 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({ children }) =>
         await AsyncStorage.setItem(SELECTED_ACCOUNT_KEY, accounts[0].address);
       }
 
-      if (__DEV__) console.log(`[Pezkuwi] Connected with ${accounts.length} account(s)`);
+      if (__DEV__) console.warn(`[Pezkuwi] Connected with ${accounts.length} account(s)`);
     } catch (err) {
       if (__DEV__) console.error('[Pezkuwi] Wallet connection failed:', err);
       setError('Failed to connect wallet');
@@ -476,7 +476,7 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({ children }) =>
   const disconnectWallet = () => {
     setSelectedAccount(null);
     AsyncStorage.removeItem(SELECTED_ACCOUNT_KEY);
-    if (__DEV__) console.log('[Pezkuwi] Wallet disconnected');
+    if (__DEV__) console.warn('[Pezkuwi] Wallet disconnected');
   };
 
   // Switch network
@@ -486,7 +486,7 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({ children }) =>
         return;
       }
 
-      if (__DEV__) console.log('[Pezkuwi] Switching to network:', NETWORKS[network].displayName);
+      if (__DEV__) console.warn('[Pezkuwi] Switching to network:', NETWORKS[network].displayName);
 
       // Save network preference
       await AsyncStorage.setItem(SELECTED_NETWORK_KEY, network);
@@ -495,7 +495,7 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({ children }) =>
       setCurrentNetwork(network);
       setIsApiReady(false);
 
-      if (__DEV__) console.log('[Pezkuwi] Network switched successfully');
+      if (__DEV__) console.warn('[Pezkuwi] Network switched successfully');
     } catch (err) {
       if (__DEV__) console.error('[Pezkuwi] Failed to switch network:', err);
       setError('Failed to switch network');
