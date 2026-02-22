@@ -2175,6 +2175,14 @@ export default {
   'walletModal.connectPezkuwi': 'Connect Pezkuwi.js',
   'walletModal.noWallet': "Don't have Pezkuwi Wallet?",
   'walletModal.getFromStore': 'Get it from Chrome Web Store',
+  'walletModal.or': 'or',
+  'walletModal.connectWC': 'Connect with pezWallet (Mobile)',
+  'walletModal.wcScanQR': 'Scan with pezWallet to connect',
+  'walletModal.wcGenerating': 'Generating QR code...',
+  'walletModal.wcWaiting': 'Waiting for wallet to connect...',
+  'walletModal.wcConnected': 'Connected!',
+  'walletModal.wcInstructions': 'Open pezWallet app → Settings → WalletConnect → Scan QR code',
+  'walletModal.wcRetry': 'Try Again',
 
   // WalletButton
   'walletBtn.connectWallet': 'Connect Wallet',

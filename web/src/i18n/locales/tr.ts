@@ -1827,6 +1827,14 @@ export default {
   'walletModal.connectPezkuwi': 'Pezkuwi.js Bağla',
   'walletModal.noWallet': 'Pezkuwi Cüzdanınız yok mu?',
   'walletModal.getFromStore': 'Chrome Web Mağazası\'ndan Edinin',
+  'walletModal.or': 'veya',
+  'walletModal.connectWC': 'pezWallet ile Bağlan (Mobil)',
+  'walletModal.wcScanQR': 'Bağlanmak için pezWallet ile tarayın',
+  'walletModal.wcGenerating': 'QR kod oluşturuluyor...',
+  'walletModal.wcWaiting': 'Cüzdan bağlantısı bekleniyor...',
+  'walletModal.wcConnected': 'Bağlandı!',
+  'walletModal.wcInstructions': 'pezWallet uygulamasını açın → Ayarlar → WalletConnect → QR kodu tarayın',
+  'walletModal.wcRetry': 'Tekrar Dene',
 
   // WalletButton
   'walletBtn.connectWallet': 'Cüzdan Bağla',

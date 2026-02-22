@@ -1806,6 +1806,14 @@ export default {
   'walletModal.connectPezkuwi': 'Pezkuwi.js پەیوەست بکە',
   'walletModal.noWallet': 'جزدانی Pezkuwi نییە؟',
   'walletModal.getFromStore': 'لە Chrome Web Store بیدەستبهێنە',
+  'walletModal.or': 'یان',
+  'walletModal.connectWC': 'بە pezWallet پەیوەندی بکە (مۆبایل)',
+  'walletModal.wcScanQR': 'بۆ پەیوەندیکردن بە pezWallet سکان بکە',
+  'walletModal.wcGenerating': 'QR کۆد دروستدەکرێت...',
+  'walletModal.wcWaiting': 'چاوەڕوانی پەیوەندیکردنی جزدان...',
+  'walletModal.wcConnected': 'پەیوەندی کرا!',
+  'walletModal.wcInstructions': 'ئەپی pezWallet بکەرەوە → ڕێکخستنەکان → WalletConnect → QR کۆد سکان بکە',
+  'walletModal.wcRetry': 'دووبارە هەوڵبدەرەوە',
 
   // WalletButton
   'walletBtn.connectWallet': 'جزدان پەیوەست بکە',
