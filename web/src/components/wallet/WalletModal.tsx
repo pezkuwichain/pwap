@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Wallet, Chrome, ExternalLink, Copy, Check, LogOut, Award, Users, TrendingUp, Shield, Smartphone } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 import {
   Dialog,
   DialogContent,
@@ -35,6 +36,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
   } = usePezkuwi();
 
   const { t } = useTranslation();
+  const isMobile = useIsMobile();
   const [copied, setCopied] = useState(false);
   const [showWCModal, setShowWCModal] = useState(false);
   const [scores, setScores] = useState<UserScores>({
@@ -332,9 +334,10 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                 </div>
               </div>
             ) : (
-              // No accounts, show two connection options
+              // No accounts — mobile: only mobile wallet, desktop: both options
               <div className="space-y-3">
-                {/* Option 1: Browser Extension */}
+                {/* Option 1: Browser Extension (desktop only) */}
+                {!isMobile && (
                 <div className="rounded-lg border border-gray-700 bg-gray-800/30 p-4 space-y-3">
                   <div className="flex items-center gap-2">
                     <Chrome className="h-5 w-5 text-green-400" />
@@ -361,6 +364,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                     {t('walletModal.extensionGet')}
                   </a>
                 </div>
+                )}
 
                 {/* Option 2: Mobile Wallet */}
                 <div className="rounded-lg border border-gray-700 bg-gray-800/30 p-4 space-y-3">
