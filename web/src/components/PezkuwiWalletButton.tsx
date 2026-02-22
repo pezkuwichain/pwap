@@ -201,7 +201,7 @@ export const PezkuwiWalletButton: React.FC = () => {
 
               <div className="flex gap-3">
                 <a
-                  href="https://chrome.google.com/webstore/detail/pezkuwi-wallet/fbnboicjjeebjhgnapneaeccpgjcdibn"
+                  href="https://chromewebstore.google.com/search/pezkuwi%7B.js%7D%20extension?hl=en-GB&utm_source=ext_sidebar"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex-1"
