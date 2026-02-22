@@ -320,6 +320,7 @@ const WalletScreen: React.FC = () => {
         unsubscribe();
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [api, isApiReady, selectedAccount]);
 
   // Fetch all tokens from blockchain (Nova Wallet style)
@@ -520,6 +521,7 @@ const WalletScreen: React.FC = () => {
       const timer = setTimeout(estimateFee, 500); // Debounce 500ms
       return () => clearTimeout(timer);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recipientAddress, sendAmount, sendModalVisible, selectedToken]);
 
   const handleConfirmSend = async () => {

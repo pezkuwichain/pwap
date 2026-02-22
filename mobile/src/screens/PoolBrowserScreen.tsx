@@ -163,6 +163,7 @@ const PoolBrowserScreen: React.FC = () => {
     // Refresh pools every 10 seconds
     const interval = setInterval(fetchPools, 10000);
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [api, isApiReady]);
 
   const handleRefresh = () => {

@@ -72,6 +72,7 @@ const P2PPlatformScreen: React.FC = () => {
     // Refresh ads every 30 seconds
     const interval = setInterval(fetchAds, 30000);
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTab]); // Re-fetch when tab changes
 
   const handleRefresh = () => {

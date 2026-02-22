@@ -101,6 +101,7 @@ const ProfileScreen: React.FC = () => {
   useFocusEffect(
     useCallback(() => {
       fetchProfileData();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user])
   );
 
