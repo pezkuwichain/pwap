@@ -11,6 +11,7 @@ import type { InjectedAccountWithMeta } from '@pezkuwi/extension-inject/types';
 import type { Signer } from '@pezkuwi/api/types';
 import { web3FromAddress } from '@pezkuwi/extension-dapp';
 import { isMobileApp, signTransactionNative, type TransactionPayload } from '@/lib/mobile-bridge';
+import { createWCSigner, isWCConnected } from '@/lib/walletconnect-service';
 
 interface TokenBalances {
   HEZ: string;
@@ -255,11 +256,25 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         return blockHash;
       }
 
-      // Desktop: Use browser extension for signing
+      // WalletConnect: Use WC signer
+      if (pezkuwi.walletSource === 'walletconnect' && isWCConnected() && pezkuwi.api) {
+        if (import.meta.env.DEV) console.log('[WC] Using WalletConnect for transaction signing');
+
+        const genesisHash = pezkuwi.api.genesisHash.toHex();
+        const wcSigner = createWCSigner(genesisHash, pezkuwi.selectedAccount.address);
+
+        const hash = await (tx as { signAndSend: (address: string, options: { signer: unknown }) => Promise<{ toHex: () => string }> }).signAndSend(
+          pezkuwi.selectedAccount.address,
+          { signer: wcSigner }
+        );
+
+        return hash.toHex();
+      }
+
+      // Desktop / pezWallet DApps browser: Use extension signer
       const { web3FromAddress } = await import('@pezkuwi/extension-dapp');
       const injector = await web3FromAddress(pezkuwi.selectedAccount.address);
 
-      // Sign and send transaction
       const hash = await (tx as { signAndSend: (address: string, options: { signer: unknown }) => Promise<{ toHex: () => string }> }).signAndSend(
         pezkuwi.selectedAccount.address,
         { signer: injector.signer }
@@ -279,6 +294,23 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
 
     try {
+      // WalletConnect signing
+      if (pezkuwi.walletSource === 'walletconnect' && isWCConnected() && pezkuwi.api) {
+        if (import.meta.env.DEV) console.log('[WC] Using WalletConnect for message signing');
+
+        const genesisHash = pezkuwi.api.genesisHash.toHex();
+        const wcSigner = createWCSigner(genesisHash, pezkuwi.selectedAccount.address);
+
+        const { signature } = await wcSigner.signRaw({
+          address: pezkuwi.selectedAccount.address,
+          data: message,
+          type: 'bytes',
+        });
+
+        return signature;
+      }
+
+      // Extension signing
       const { web3FromAddress } = await import('@pezkuwi/extension-dapp');
       const injector = await web3FromAddress(pezkuwi.selectedAccount.address);
 
@@ -297,27 +329,35 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       if (import.meta.env.DEV) console.error('Message signing failed:', error);
       throw new Error(error instanceof Error ? error.message : 'Failed to sign message');
     }
-  }, [pezkuwi.selectedAccount]);
+  }, [pezkuwi.selectedAccount, pezkuwi.walletSource, pezkuwi.api]);
 
-  // Get signer from extension when account changes
+  // Get signer from extension or WalletConnect when account changes
   useEffect(() => {
     const getSigner = async () => {
-      if (pezkuwi.selectedAccount) {
-        try {
+      if (!pezkuwi.selectedAccount) {
+        setSigner(null);
+        return;
+      }
+
+      try {
+        if (pezkuwi.walletSource === 'walletconnect' && isWCConnected() && pezkuwi.api) {
+          const genesisHash = pezkuwi.api.genesisHash.toHex();
+          const wcSigner = createWCSigner(genesisHash, pezkuwi.selectedAccount.address);
+          setSigner(wcSigner as unknown as Signer);
+          if (import.meta.env.DEV) console.log('✅ WC Signer obtained for', pezkuwi.selectedAccount.address);
+        } else {
           const injector = await web3FromAddress(pezkuwi.selectedAccount.address);
           setSigner(injector.signer);
-          if (import.meta.env.DEV) console.log('✅ Signer obtained for', pezkuwi.selectedAccount.address);
-        } catch (error) {
-          if (import.meta.env.DEV) console.error('Failed to get signer:', error);
-          setSigner(null);
+          if (import.meta.env.DEV) console.log('✅ Extension Signer obtained for', pezkuwi.selectedAccount.address);
         }
-      } else {
+      } catch (error) {
+        if (import.meta.env.DEV) console.error('Failed to get signer:', error);
         setSigner(null);
       }
     };
 
     getSigner();
-  }, [pezkuwi.selectedAccount]);
+  }, [pezkuwi.selectedAccount, pezkuwi.walletSource, pezkuwi.api]);
 
   // Update balance when selected account changes or Asset Hub becomes ready
   useEffect(() => {

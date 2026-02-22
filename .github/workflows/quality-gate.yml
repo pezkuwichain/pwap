@@ -67,6 +67,7 @@ jobs:
           VITE_WS_ENDPOINT_FALLBACK_1: wss://mainnet.pezkuwichain.io
           VITE_ASSET_HUB_ENDPOINT: wss://asset-hub-rpc.pezkuwichain.io
           VITE_PEOPLE_CHAIN_ENDPOINT: wss://people-rpc.pezkuwichain.io
+          VITE_WALLETCONNECT_PROJECT_ID: 8292a793b7640e8364c378e331e76d04
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4

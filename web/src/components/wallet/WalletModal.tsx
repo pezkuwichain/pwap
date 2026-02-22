@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Wallet, Chrome, ExternalLink, Copy, Check, LogOut, Award, Users, TrendingUp, Shield } from 'lucide-react';
+import { Wallet, Chrome, ExternalLink, Copy, Check, LogOut, Award, Users, TrendingUp, Shield, Smartphone } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { formatAddress } from '@pezkuwi/lib/wallet';
 import { getAllScores, type UserScores } from '@pezkuwi/lib/scores';
+import { WalletConnectModal } from './WalletConnectModal';
 
 interface WalletModalProps {
   isOpen: boolean;
@@ -28,11 +29,14 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
     api,
     isApiReady,
     peopleApi,
+    walletSource,
+    wcPeerName,
     error
   } = usePezkuwi();
 
   const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
+  const [showWCModal, setShowWCModal] = useState(false);
   const [scores, setScores] = useState<UserScores>({
     trustScore: 0,
     referralScore: 0,
@@ -241,8 +245,15 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
 
               <div>
                 <div className="text-xs text-gray-400 mb-1">{t('walletModal.source')}</div>
-                <div className="text-sm text-gray-300">
-                  {selectedAccount.meta.source || 'pezkuwi'}
+                <div className="text-sm text-gray-300 flex items-center gap-2">
+                  {walletSource === 'walletconnect' ? (
+                    <>
+                      <Smartphone className="h-3 w-3 text-purple-400" />
+                      WalletConnect{wcPeerName ? ` (${wcPeerName})` : ''}
+                    </>
+                  ) : (
+                    selectedAccount.meta.source || 'pezkuwi'
+                  )}
                 </div>
               </div>
             </div>
@@ -321,7 +332,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                 </div>
               </div>
             ) : (
-              // No accounts, show connect button
+              // No accounts, show connect buttons
               <div className="space-y-4">
                 <Button
                   onClick={handleConnect}
@@ -329,6 +340,26 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                 >
                   <Wallet className="mr-2 h-4 w-4" />
                   {t('walletModal.connectPezkuwi')}
+                </Button>
+
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-gray-700" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-gray-500">
+                      {t('walletModal.or', 'or')}
+                    </span>
+                  </div>
+                </div>
+
+                <Button
+                  onClick={() => setShowWCModal(true)}
+                  variant="outline"
+                  className="w-full border-purple-500/30 hover:border-purple-500/60 hover:bg-purple-500/10"
+                >
+                  <Smartphone className="mr-2 h-4 w-4" />
+                  {t('walletModal.connectWC', 'Connect with pezWallet (Mobile)')}
                 </Button>
 
                 <div className="text-sm text-gray-400 text-center">
@@ -347,6 +378,16 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
           </div>
         )}
       </DialogContent>
+
+      {/* WalletConnect QR Modal */}
+      <WalletConnectModal
+        isOpen={showWCModal}
+        onClose={() => {
+          setShowWCModal(false);
+          // If connected via WC, close the main modal too
+          if (selectedAccount) onClose();
+        }}
+      />
     </Dialog>
   );
 };
