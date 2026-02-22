@@ -89,7 +89,7 @@ export const ENV: EnvConfig = {
 
 // Log environment on startup (dev only)
 if (ENV.isDevelopment && ENV.debug) {
-  console.log('🔧 Environment Config:', {
+  console.warn('[ENV] Environment Config:', {
     env: ENV.env,
     network: ENV.network,
     wsEndpoint: ENV.wsEndpoint,

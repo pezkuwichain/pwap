@@ -158,6 +158,7 @@ export default function P2PTrade() {
     } finally {
       setLoading(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tradeId]);
 
   // Initial fetch
@@ -213,6 +214,7 @@ export default function P2PTrade() {
     updateTimer();
     const interval = setInterval(updateTimer, 1000);
     return () => clearInterval(interval);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [trade?.payment_deadline, trade?.status]);
 
   // Format time remaining

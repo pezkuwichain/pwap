@@ -194,6 +194,7 @@ export default function P2PDispute() {
     return () => {
       supabase.removeChannel(channel);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [disputeId]);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {

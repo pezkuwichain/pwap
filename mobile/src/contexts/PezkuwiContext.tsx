@@ -158,15 +158,15 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({ children }) =>
 
     const initApi = async () => {
       try {
-        console.log('🔗 [Pezkuwi] Starting API initialization...');
+        if (__DEV__) console.warn('[Pezkuwi] Starting API initialization...');
         setIsApiReady(false);
         setError(null); // Clear previous errors
 
         const networkConfig = NETWORKS[currentNetwork];
-        console.log(`🌐 [Pezkuwi] Connecting to ${networkConfig.displayName} at ${networkConfig.rpcEndpoint}`);
+        if (__DEV__) console.warn(`[Pezkuwi] Connecting to ${networkConfig.displayName} at ${networkConfig.rpcEndpoint}`);
 
         const provider = new WsProvider(networkConfig.rpcEndpoint);
-        console.log('📡 [Pezkuwi] WsProvider created, creating API...');
+        if (__DEV__) console.warn('[Pezkuwi] WsProvider created, creating API...');
         const newApi = await ApiPromise.create({ provider });
 
         // Set SS58 format for address encoding/decoding
@@ -175,13 +175,13 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({ children }) =>
             ss58Format: networkConfig.ss58Format,
           }) as unknown as Parameters<typeof newApi.registry.setChainProperties>[0]
         );
-        console.log(`✅ [Pezkuwi] API created with SS58 format: ${networkConfig.ss58Format}`);
+        if (__DEV__) console.warn(`[Pezkuwi] API created with SS58 format: ${networkConfig.ss58Format}`);
 
         if (isSubscribed) {
           setApi(newApi);
           setIsApiReady(true);
           setError(null); // Clear any previous errors
-          console.log('✅ [Pezkuwi] Connected to', networkConfig.displayName);
+          if (__DEV__) console.warn('[Pezkuwi] Connected to', networkConfig.displayName);
         }
       } catch (err) {
         console.error('❌ [Pezkuwi] Failed to connect to blockchain:', err);
@@ -193,10 +193,10 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({ children }) =>
           setApi(null); // ✅ FIX: Clear API on error
 
           // Retry connection after 5 seconds
-          console.log('🔄 [Pezkuwi] Will retry connection in 5 seconds...');
+          if (__DEV__) console.warn('[Pezkuwi] Will retry connection in 5 seconds...');
           retryTimeout = setTimeout(() => {
             if (isSubscribed) {
-              console.log('🔄 [Pezkuwi] Retrying blockchain connection...');
+              if (__DEV__) console.warn('[Pezkuwi] Retrying blockchain connection...');
               initApi();
             }
           }, 5000);
@@ -216,6 +216,7 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({ children }) =>
         api.disconnect();
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentNetwork]);
 
   // Initialize crypto and keyring
