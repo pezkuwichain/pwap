@@ -1836,6 +1836,7 @@ export default {
   'walletModal.wcConnected': 'تم الاتصال!',
   'walletModal.wcInstructions': 'افتح تطبيق pezWallet → الإعدادات → WalletConnect → امسح رمز QR',
   'walletModal.wcRetry': 'حاول مرة أخرى',
+  'walletModal.wcTimeout': 'انتهت مهلة الاتصال. يرجى المحاولة مرة أخرى.',
 
   // WalletButton
   'walletBtn.connectWallet': 'توصيل المحفظة',

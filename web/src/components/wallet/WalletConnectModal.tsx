@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Smartphone, Loader2, CheckCircle, XCircle, ExternalLink } from 'lucide-react';
 import QRCode from 'qrcode';
@@ -12,6 +12,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useIsMobile } from '@/hooks/use-mobile';
+
+const CONNECTION_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
 
 interface WalletConnectModalProps {
   isOpen: boolean;
@@ -28,14 +30,33 @@ export const WalletConnectModal: React.FC<WalletConnectModalProps> = ({ isOpen, 
   const [wcUri, setWcUri] = useState<string>('');
   const [connectionState, setConnectionState] = useState<ConnectionState>('generating');
   const [errorMsg, setErrorMsg] = useState<string>('');
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const connectedRef = useRef(false);
+
+  const clearConnectionTimeout = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+  }, []);
 
   const startConnection = useCallback(async () => {
     setConnectionState('generating');
     setErrorMsg('');
+    connectedRef.current = false;
+    clearConnectionTimeout();
 
     try {
       const uri = await connectWalletConnect();
       setWcUri(uri);
+
+      // Start connection timeout
+      timeoutRef.current = setTimeout(() => {
+        if (!connectedRef.current) {
+          setConnectionState('error');
+          setErrorMsg(t('walletModal.wcTimeout', 'Connection timed out. Please try again.'));
+        }
+      }, CONNECTION_TIMEOUT_MS);
 
       if (isMobile) {
         // Mobile: open pezWallet via deep link automatically
@@ -56,35 +77,38 @@ export const WalletConnectModal: React.FC<WalletConnectModalProps> = ({ isOpen, 
         setConnectionState('waiting');
       }
     } catch (err) {
+      clearConnectionTimeout();
       setConnectionState('error');
       setErrorMsg(err instanceof Error ? err.message : 'Connection failed');
     }
-  }, [connectWalletConnect, isMobile]);
+  }, [connectWalletConnect, isMobile, clearConnectionTimeout, t]);
 
-  // Start connection when modal opens
+  // Listen for successful connection - registered BEFORE startConnection to avoid race
   useEffect(() => {
-    if (isOpen) {
-      startConnection();
-    }
+    if (!isOpen) return;
 
-    return () => {
-      setQrDataUrl('');
-      setWcUri('');
-      setConnectionState('generating');
-    };
-  }, [isOpen, startConnection]);
-
-  // Listen for successful connection
-  useEffect(() => {
     const handleConnected = () => {
+      connectedRef.current = true;
+      clearConnectionTimeout();
       setConnectionState('connected');
-      // Auto-close after brief success display
       setTimeout(() => onClose(), 1500);
     };
 
     window.addEventListener('walletconnect_connected', handleConnected);
-    return () => window.removeEventListener('walletconnect_connected', handleConnected);
-  }, [onClose]);
+
+    // Start connection after listener is registered
+    startConnection();
+
+    return () => {
+      window.removeEventListener('walletconnect_connected', handleConnected);
+      clearConnectionTimeout();
+      setQrDataUrl('');
+      setWcUri('');
+      setConnectionState('generating');
+      connectedRef.current = false;
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
 
   const handleOpenPezWallet = () => {
     if (wcUri) {
