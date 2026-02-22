@@ -11,12 +11,12 @@ import fa from './locales/fa';
 import ckb from './locales/ckb';
 
 export const languages = {
-  en: { name: 'English', flag: '🇬🇧', dir: 'ltr' },
-  tr: { name: 'Türkçe', flag: '🇹🇷', dir: 'ltr' },
-  'ku-kurmanji': { name: 'Kurdî (Kurmancî)', flag: '☀️', dir: 'ltr' },
-  'ku-sorani': { name: 'کوردی (سۆرانی)', flag: '☀️', dir: 'rtl' },
-  ar: { name: 'العربية', flag: '🇸🇦', dir: 'rtl' },
-  fa: { name: 'فارسی', flag: '🇮🇷', dir: 'rtl' }
+  en: { name: 'English', flag: '🇬🇧', flagImg: null, dir: 'ltr' },
+  tr: { name: 'Türkçe', flag: '🇹🇷', flagImg: null, dir: 'ltr' },
+  'ku-kurmanji': { name: 'Kurdî (Kurmancî)', flag: '', flagImg: '/flags/kurdistan.svg', dir: 'ltr' },
+  'ku-sorani': { name: 'کوردی (سۆرانی)', flag: '', flagImg: '/flags/kurdistan.svg', dir: 'rtl' },
+  ar: { name: 'العربية', flag: '🇸🇦', flagImg: null, dir: 'rtl' },
+  fa: { name: 'فارسی', flag: '🇮🇷', flagImg: null, dir: 'rtl' }
 };
 
 const resources = {

@@ -39,7 +39,11 @@ export function LanguageSwitcher() {
         <Button variant="ghost" size="sm" className="gap-2">
           <Globe className="h-4 w-4" />
           <span className="hidden sm:inline">{currentLanguage.name}</span>
-          <span className="text-lg">{currentLanguage.flag}</span>
+          {currentLanguage.flagImg ? (
+            <img src={currentLanguage.flagImg} alt="" className="h-5 w-5 rounded-sm object-cover" />
+          ) : (
+            <span className="text-lg">{currentLanguage.flag}</span>
+          )}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
@@ -49,7 +53,11 @@ export function LanguageSwitcher() {
             onClick={() => changeLanguage(code)}
             className={`cursor-pointer ${i18n.language === code ? 'bg-yellow-100 dark:bg-yellow-900' : ''}`}
           >
-            <span className="text-lg mr-2">{lang.flag}</span>
+            {lang.flagImg ? (
+              <img src={lang.flagImg} alt="" className="h-5 w-5 rounded-sm object-cover mr-2" />
+            ) : (
+              <span className="text-lg mr-2">{lang.flag}</span>
+            )}
             <span>{lang.name}</span>
           </DropdownMenuItem>
         ))}

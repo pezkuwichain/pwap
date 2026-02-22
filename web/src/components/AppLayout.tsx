@@ -8,7 +8,7 @@ import PalletsGrid from './PalletsGrid';
 import ChainSpecs from './ChainSpecs';
 import TrustScoreCalculator from './TrustScoreCalculator';
 import { NetworkStats } from './NetworkStats';
-import { WalletModal } from './wallet/WalletModal';
+
 import { LanguageSwitcher } from './LanguageSwitcher';
 import NotificationBell from './notifications/NotificationBell';
 import ProposalWizard from './proposals/ProposalWizard';
@@ -34,7 +34,6 @@ import EducationPlatform from '../pages/EducationPlatform';
 
 const AppLayout: React.FC = () => {
   const navigate = useNavigate();
-  const [walletModalOpen, setWalletModalOpen] = useState(false);
   const { user, signOut } = useAuth();
   const [showProposalWizard, setShowProposalWizard] = useState(false);
   const [showDelegation, setShowDelegation] = useState(false);
@@ -576,9 +575,6 @@ const AppLayout: React.FC = () => {
           </div>
         )}
       </main>
-
-      {/* Wallet Modal */}
-      <WalletModal isOpen={walletModalOpen} onClose={() => setWalletModalOpen(false)} />
 
       {/* Footer */}
       <footer className="bg-gray-950 border-t border-gray-800 py-12">
