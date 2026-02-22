@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -31,6 +32,7 @@ export const AddTokenModal: React.FC<AddTokenModalProps> = ({
   onClose,
   onAddToken,
 }) => {
+  const { t } = useTranslation();
   const { assetHubApi, isAssetHubReady } = usePezkuwi();
   const [assetId, setAssetId] = useState('');
   const [error, setError] = useState('');
@@ -56,12 +58,12 @@ export const AddTokenModal: React.FC<AddTokenModalProps> = ({
 
     const id = parseInt(assetId);
     if (isNaN(id) || id < 0) {
-      setError('Please enter a valid asset ID (positive number)');
+      setError(t('addToken.invalidId'));
       return;
     }
 
     if (!assetHubApi || !isAssetHubReady) {
-      setError('Asset Hub connection not ready. Please wait...');
+      setError(t('addToken.notReady'));
       return;
     }
 
@@ -71,7 +73,7 @@ export const AddTokenModal: React.FC<AddTokenModalProps> = ({
       const assetInfo = await assetHubApi.query.assets.asset(id);
 
       if (!assetInfo || assetInfo.isNone) {
-        setError(`Asset #${id} not found on blockchain`);
+        setError(t('addToken.notFound', { id }));
         setIsSearching(false);
         return;
       }
@@ -104,7 +106,7 @@ export const AddTokenModal: React.FC<AddTokenModalProps> = ({
       });
     } catch (err) {
       console.error('Failed to fetch asset:', err);
-      setError('Failed to fetch asset from blockchain');
+      setError(t('addToken.fetchFailed'));
     } finally {
       setIsSearching(false);
     }
@@ -118,7 +120,7 @@ export const AddTokenModal: React.FC<AddTokenModalProps> = ({
       await onAddToken(tokenInfo.assetId);
       handleClose();
     } catch {
-      setError('Failed to add token');
+      setError(t('addToken.addFailed'));
     } finally {
       setIsAdding(false);
     }
@@ -142,9 +144,9 @@ export const AddTokenModal: React.FC<AddTokenModalProps> = ({
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="bg-gray-900 border-gray-800 text-white sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-xl">Add Custom Token</DialogTitle>
+          <DialogTitle className="text-xl">{t('addToken.title')}</DialogTitle>
           <DialogDescription className="text-gray-400">
-            Enter the asset ID to fetch token details from blockchain.
+            {t('addToken.description')}
           </DialogDescription>
         </DialogHeader>
 
@@ -152,7 +154,7 @@ export const AddTokenModal: React.FC<AddTokenModalProps> = ({
           {/* Search Input */}
           <div className="space-y-2">
             <Label htmlFor="assetId" className="text-sm text-gray-300">
-              Asset ID
+              {t('addToken.assetIdLabel')}
             </Label>
             <div className="flex gap-2">
               <Input
@@ -165,7 +167,7 @@ export const AddTokenModal: React.FC<AddTokenModalProps> = ({
                   setError('');
                 }}
                 onKeyPress={handleKeyPress}
-                placeholder="e.g., 1001"
+                placeholder={t('addToken.assetIdPlaceholder')}
                 className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 flex-1"
                 min="0"
               />
@@ -183,7 +185,7 @@ export const AddTokenModal: React.FC<AddTokenModalProps> = ({
               </Button>
             </div>
             <p className="text-xs text-gray-500">
-              Known assets: 1001 (DOT), 1002 (ETH), 1003 (BTC)
+              {t('addToken.assetIdHelp')}
             </p>
           </div>
 
@@ -192,23 +194,23 @@ export const AddTokenModal: React.FC<AddTokenModalProps> = ({
             <div className="p-4 bg-gray-800/50 border border-green-500/30 rounded-lg">
               <div className="flex items-center gap-3 mb-3">
                 <CheckCircle className="h-5 w-5 text-green-400" />
-                <span className="text-green-400 font-medium">Token Found!</span>
+                <span className="text-green-400 font-medium">{t('addToken.found')}</span>
               </div>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Symbol:</span>
+                  <span className="text-gray-400">{t('addToken.symbol')}:</span>
                   <span className="text-white font-semibold">{tokenInfo.symbol}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Name:</span>
+                  <span className="text-gray-400">{t('addToken.name')}:</span>
                   <span className="text-white">{tokenInfo.name}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Decimals:</span>
+                  <span className="text-gray-400">{t('addToken.decimals')}:</span>
                   <span className="text-white">{tokenInfo.decimals}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Asset ID:</span>
+                  <span className="text-gray-400">{t('addToken.assetId')}:</span>
                   <span className="text-white font-mono">#{tokenInfo.assetId}</span>
                 </div>
               </div>
@@ -232,7 +234,7 @@ export const AddTokenModal: React.FC<AddTokenModalProps> = ({
               disabled={isAdding}
               className="border border-gray-700 hover:bg-gray-800"
             >
-              Cancel
+              {t('addToken.cancel')}
             </Button>
             <Button
               type="button"
@@ -243,10 +245,10 @@ export const AddTokenModal: React.FC<AddTokenModalProps> = ({
               {isAdding ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Adding...
+                  {t('addToken.adding')}
                 </>
               ) : (
-                'Add Token'
+                t('addToken.add')
               )}
             </Button>
           </div>

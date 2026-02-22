@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -17,6 +18,7 @@ interface CitizenshipModalProps {
 }
 
 export const CitizenshipModal: React.FC<CitizenshipModalProps> = ({ isOpen, onClose, referrerAddress }) => {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'existing' | 'new'>(referrerAddress ? 'new' : 'existing');
 
   return (
@@ -24,19 +26,19 @@ export const CitizenshipModal: React.FC<CitizenshipModalProps> = ({ isOpen, onCl
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-2xl">
-            🏛️ Digital Kurdistan Citizenship
+            🏛️ {t('citizenModal.title')}
           </DialogTitle>
           <DialogDescription>
             {referrerAddress
-              ? 'You have been invited to join Digital Kurdistan! Complete the application below.'
-              : 'Join the Digital Kurdistan State as a citizen or authenticate your existing citizenship'}
+              ? t('citizenModal.invitedDesc')
+              : t('citizenModal.defaultDesc')}
           </DialogDescription>
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'existing' | 'new')} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="existing">I am Already a Citizen</TabsTrigger>
-            <TabsTrigger value="new">I Want to Become a Citizen</TabsTrigger>
+            <TabsTrigger value="existing">{t('citizenModal.existingTab')}</TabsTrigger>
+            <TabsTrigger value="new">{t('citizenModal.newTab')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="existing" className="mt-6">

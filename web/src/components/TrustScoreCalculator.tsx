@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Calculator, TrendingUp, Users, BookOpen, Award } from 'lucide-react';
 
 const TrustScoreCalculator: React.FC = () => {
+  const { t } = useTranslation();
   const [stakedAmount, setStakedAmount] = useState(100);
   const [stakingMonths, setStakingMonths] = useState(6);
   const [referralCount, setReferralCount] = useState(5);
@@ -56,10 +58,10 @@ const TrustScoreCalculator: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
-            Trust Score Calculator
+            {t('trustCalc.title')}
           </h2>
           <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-            Simulate your trust score based on staking, referrals, education, and roles
+            {t('trustCalc.description')}
           </p>
         </div>
 
@@ -70,12 +72,12 @@ const TrustScoreCalculator: React.FC = () => {
             <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl border border-gray-800 p-6">
               <div className="flex items-center mb-4">
                 <TrendingUp className="w-5 h-5 text-purple-400 mr-3" />
-                <h3 className="text-lg font-semibold text-white">Staking Amount</h3>
+                <h3 className="text-lg font-semibold text-white">{t('trustCalc.stakingTitle')}</h3>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <label className="text-gray-400 text-sm">Staked Amount (HEZ)</label>
+                  <label className="text-gray-400 text-sm">{t('trustCalc.stakedAmount')}</label>
                   <input
                     type="range"
                     min="0"
@@ -87,12 +89,12 @@ const TrustScoreCalculator: React.FC = () => {
                   />
                   <div className="flex justify-between items-center mt-2">
                     <span className="text-cyan-400">{stakedAmount} HEZ</span>
-                    <span className="text-purple-400">Score: {getAmountScore(stakedAmount)}</span>
+                    <span className="text-purple-400">{t('trustCalc.score', { score: getAmountScore(stakedAmount) })}</span>
                   </div>
                 </div>
                 
                 <div>
-                  <label className="text-gray-400 text-sm">Staking Duration (Months)</label>
+                  <label className="text-gray-400 text-sm">{t('trustCalc.stakingDuration')}</label>
                   <input
                     type="range"
                     min="0"
@@ -102,8 +104,8 @@ const TrustScoreCalculator: React.FC = () => {
                     className="w-full mt-2"
                   />
                   <div className="flex justify-between items-center mt-2">
-                    <span className="text-cyan-400">{stakingMonths} months</span>
-                    <span className="text-purple-400">×{getStakingMultiplier(stakingMonths).toFixed(1)} multiplier</span>
+                    <span className="text-cyan-400">{t('trustCalc.months', { count: stakingMonths })}</span>
+                    <span className="text-purple-400">{t('trustCalc.multiplier', { value: getStakingMultiplier(stakingMonths).toFixed(1) })}</span>
                   </div>
                 </div>
               </div>
@@ -113,11 +115,11 @@ const TrustScoreCalculator: React.FC = () => {
             <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl border border-gray-800 p-6">
               <div className="flex items-center mb-4">
                 <Users className="w-5 h-5 text-cyan-400 mr-3" />
-                <h3 className="text-lg font-semibold text-white">Referral Score</h3>
+                <h3 className="text-lg font-semibold text-white">{t('trustCalc.referralTitle')}</h3>
               </div>
               
               <div>
-                <label className="text-gray-400 text-sm">Number of Referrals</label>
+                <label className="text-gray-400 text-sm">{t('trustCalc.referralCount')}</label>
                 <input
                   type="number"
                   min="0"
@@ -127,7 +129,7 @@ const TrustScoreCalculator: React.FC = () => {
                   className="w-full mt-2 px-4 py-2 bg-gray-800 text-white rounded-lg border border-gray-700 focus:border-cyan-500 focus:outline-none"
                 />
                 <div className="mt-2 text-sm text-cyan-400">
-                  Score: {getReferralScore(referralCount)} points
+                  {t('trustCalc.scorePoints', { score: getReferralScore(referralCount) })}
                 </div>
               </div>
             </div>
@@ -137,7 +139,7 @@ const TrustScoreCalculator: React.FC = () => {
               <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl border border-gray-800 p-6">
                 <div className="flex items-center mb-4">
                   <BookOpen className="w-5 h-5 text-teal-400 mr-3" />
-                  <h3 className="text-sm font-semibold text-white">Perwerde Score</h3>
+                  <h3 className="text-sm font-semibold text-white">{t('trustCalc.perwerdeTitle')}</h3>
                 </div>
                 <input
                   type="range"
@@ -153,7 +155,7 @@ const TrustScoreCalculator: React.FC = () => {
               <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl border border-gray-800 p-6">
                 <div className="flex items-center mb-4">
                   <Award className="w-5 h-5 text-purple-400 mr-3" />
-                  <h3 className="text-sm font-semibold text-white">Tiki Score</h3>
+                  <h3 className="text-sm font-semibold text-white">{t('trustCalc.tikiTitle')}</h3>
                 </div>
                 <input
                   type="range"
@@ -173,18 +175,18 @@ const TrustScoreCalculator: React.FC = () => {
             {/* Final Score */}
             <div className="bg-gradient-to-br from-purple-900/30 to-cyan-900/30 backdrop-blur-sm rounded-xl border border-purple-500/50 p-8 text-center">
               <Calculator className="w-12 h-12 text-cyan-400 mx-auto mb-4" />
-              <h3 className="text-2xl font-semibold text-white mb-2">Final Trust Score</h3>
+              <h3 className="text-2xl font-semibold text-white mb-2">{t('trustCalc.resultTitle')}</h3>
               <div className="text-6xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
                 {finalScore}
               </div>
               <div className="mt-4 text-gray-400">
-                Out of theoretical maximum
+                {t('trustCalc.resultHint')}
               </div>
             </div>
 
             {/* Formula Breakdown */}
             <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl border border-gray-800 p-6">
-              <h3 className="text-lg font-semibold text-white mb-4">Formula Breakdown</h3>
+              <h3 className="text-lg font-semibold text-white mb-4">{t('trustCalc.formulaTitle')}</h3>
               
               <div className="bg-gray-950/50 rounded-lg p-4 font-mono text-sm">
                 <div className="text-purple-400 mb-2">
@@ -209,19 +211,19 @@ const TrustScoreCalculator: React.FC = () => {
 
               <div className="mt-4 space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">Staking Component:</span>
+                  <span className="text-gray-400">{t('trustCalc.formulaStaking')}:</span>
                   <span className="text-purple-400">{Math.min(Math.round(getAmountScore(stakedAmount) * getStakingMultiplier(stakingMonths)), 100)} × 100</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">Referral Component:</span>
+                  <span className="text-gray-400">{t('trustCalc.formulaReferral')}:</span>
                   <span className="text-cyan-400">{getReferralScore(referralCount)} × 300</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">Perwerde Component:</span>
+                  <span className="text-gray-400">{t('trustCalc.formulaPerwerde')}:</span>
                   <span className="text-teal-400">{perwerdeScore} × 300</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">Tiki Component:</span>
+                  <span className="text-gray-400">{t('trustCalc.formulaTiki')}:</span>
                   <span className="text-purple-400">{tikiScore} × 300</span>
                 </div>
               </div>
@@ -229,16 +231,16 @@ const TrustScoreCalculator: React.FC = () => {
 
             {/* Score Impact */}
             <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl border border-gray-800 p-6">
-              <h3 className="text-lg font-semibold text-white mb-4">Score Impact</h3>
+              <h3 className="text-lg font-semibold text-white mb-4">{t('trustCalc.impactTitle')}</h3>
               <div className="space-y-3">
                 <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
-                  <span className="text-gray-400">Monthly Rewards Eligibility</span>
+                  <span className="text-gray-400">{t('trustCalc.rewards')}</span>
                   <span className={`px-3 py-1 rounded-full text-sm ${finalScore > 100 ? 'bg-green-900/30 text-green-400' : 'bg-red-900/30 text-red-400'}`}>
-                    {finalScore > 100 ? 'Eligible' : 'Not Eligible'}
+                    {finalScore > 100 ? t('trustCalc.eligible') : t('trustCalc.notEligible')}
                   </span>
                 </div>
                 <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
-                  <span className="text-gray-400">Governance Voting Weight</span>
+                  <span className="text-gray-400">{t('trustCalc.votingWeight')}</span>
                   <span className="text-cyan-400 font-semibold">{Math.min(Math.floor(finalScore / 100), 10)}x</span>
                 </div>
               </div>

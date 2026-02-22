@@ -12,6 +12,7 @@ import { NATIVE_TOKEN_ID } from '@/types/dex';
 import { AddLiquidityModal } from '@/components/AddLiquidityModal';
 import { RemoveLiquidityModal } from '@/components/RemoveLiquidityModal';
 import { LPStakingModal } from '@/components/LPStakingModal';
+import { useTranslation } from 'react-i18next';
 
 // Helper function to convert asset IDs to user-friendly display names
 // Users should only see HEZ, PEZ, USDT - wrapped tokens are backend details
@@ -45,6 +46,7 @@ interface LPPosition {
 const PoolDashboard = () => {
   // Use Asset Hub API for DEX operations (assetConversion pallet is on Asset Hub)
   const { assetHubApi, isAssetHubReady, selectedAccount } = usePezkuwi();
+  const { t } = useTranslation();
 
   const [poolData, setPoolData] = useState<PoolData | null>(null);
   const [lpPosition, setLPPosition] = useState<LPPosition | null>(null);
@@ -331,7 +333,7 @@ const PoolDashboard = () => {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-400">Loading pool data...</p>
+          <p className="text-gray-400">{t('poolDash.loadingPoolData')}</p>
         </div>
       </div>
     );
@@ -350,7 +352,7 @@ const PoolDashboard = () => {
     return (
       <Alert className="bg-yellow-900/20 border-yellow-500">
         <Info className="h-4 w-4" />
-        <AlertDescription>No pool data available</AlertDescription>
+        <AlertDescription>{t('poolDash.noPoolData')}</AlertDescription>
       </Alert>
     );
   }
@@ -365,10 +367,10 @@ const PoolDashboard = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div>
-            <h3 className="text-sm font-medium text-gray-400 mb-1">Pool Dashboards</h3>
+            <h3 className="text-sm font-medium text-gray-400 mb-1">{t('poolDash.poolDashboards')}</h3>
             <Select value={selectedPool} onValueChange={setSelectedPool}>
               <SelectTrigger className="w-[240px] bg-gray-800/50 border-gray-700">
-                <SelectValue placeholder="Select pool" />
+                <SelectValue placeholder={t('poolDash.selectPool')} />
               </SelectTrigger>
               <SelectContent>
                 {availablePools.map(([asset0, asset1]) => {
@@ -386,7 +388,7 @@ const PoolDashboard = () => {
         </div>
         <Badge variant="outline" className="flex items-center gap-1">
           <Clock className="h-3 w-3" />
-          Live
+          {t('poolDash.live')}
         </Badge>
       </div>
 
@@ -395,9 +397,9 @@ const PoolDashboard = () => {
         <div>
           <h2 className="text-2xl font-bold text-white flex items-center gap-2">
             <Droplet className="h-6 w-6 text-blue-400" />
-            {asset0Symbol}/{asset1Symbol} Pool Dashboard
+            {t('poolDash.poolDashboard', { asset0: asset0Symbol, asset1: asset1Symbol })}
           </h2>
-          <p className="text-gray-400 mt-1">Monitor liquidity pool metrics and your position</p>
+          <p className="text-gray-400 mt-1">{t('poolDash.monitorDesc')}</p>
         </div>
       </div>
 
@@ -407,7 +409,7 @@ const PoolDashboard = () => {
         <Card className="p-4 bg-gray-800/50 border-gray-700">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm text-gray-400">Total Liquidity</p>
+              <p className="text-sm text-gray-400">{t('poolDash.totalLiquidity')}</p>
               <p className="text-2xl font-bold text-white mt-1">
                 ${totalLiquidityUSD.toLocaleString('en-US', { maximumFractionDigits: 0 })}
               </p>
@@ -423,7 +425,7 @@ const PoolDashboard = () => {
         <Card className="p-4 bg-gray-800/50 border-gray-700">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm text-gray-400">{asset0Symbol} Price</p>
+              <p className="text-sm text-gray-400">{t('poolDash.price', { symbol: asset0Symbol })}</p>
               <p className="text-2xl font-bold text-white mt-1">
                 ${currentPrice.toFixed(4)}
               </p>
@@ -439,12 +441,12 @@ const PoolDashboard = () => {
         <Card className="p-4 bg-gray-800/50 border-gray-700">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm text-gray-400">Estimated APR</p>
+              <p className="text-sm text-gray-400">{t('poolDash.estimatedApr')}</p>
               <p className="text-2xl font-bold text-white mt-1">
                 {estimateAPR().toFixed(2)}%
               </p>
               <p className="text-xs text-gray-500 mt-1">
-                From swap fees
+                {t('poolDash.fromSwapFees')}
               </p>
             </div>
             <Percent className="h-8 w-8 text-yellow-400" />
@@ -455,7 +457,7 @@ const PoolDashboard = () => {
         <Card className="p-4 bg-gray-800/50 border-gray-700">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm text-gray-400">Constant (k)</p>
+              <p className="text-sm text-gray-400">{t('poolDash.constant')}</p>
               <p className="text-2xl font-bold text-white mt-1">
                 {(constantProduct / 1e9).toFixed(1)}B
               </p>
@@ -470,20 +472,20 @@ const PoolDashboard = () => {
 
       <Tabs defaultValue="reserves" className="w-full">
         <TabsList className="grid w-full grid-cols-3 bg-gray-800">
-          <TabsTrigger value="reserves">Reserves</TabsTrigger>
-          <TabsTrigger value="position">Your Position</TabsTrigger>
-          <TabsTrigger value="calculator">IL Calculator</TabsTrigger>
+          <TabsTrigger value="reserves">{t('poolDash.reserves')}</TabsTrigger>
+          <TabsTrigger value="position">{t('poolDash.yourPosition')}</TabsTrigger>
+          <TabsTrigger value="calculator">{t('poolDash.ilCalculator')}</TabsTrigger>
         </TabsList>
 
         {/* Reserves Tab */}
         <TabsContent value="reserves" className="space-y-4">
           <Card className="p-6 bg-gray-800/50 border-gray-700">
-            <h3 className="text-lg font-semibold text-white mb-4">Pool Reserves</h3>
+            <h3 className="text-lg font-semibold text-white mb-4">{t('poolDash.poolReserves')}</h3>
 
             <div className="space-y-4">
               <div className="flex items-center justify-between p-4 bg-gray-900/50 rounded-lg">
                 <div>
-                  <p className="text-sm text-gray-400">{asset0Symbol} Reserve</p>
+                  <p className="text-sm text-gray-400">{t('poolDash.reserve', { symbol: asset0Symbol })}</p>
                   <p className="text-2xl font-bold text-white">{poolData.reserve0.toLocaleString('en-US', { maximumFractionDigits: 2 })}</p>
                 </div>
                 <Badge variant="outline">Asset 1</Badge>
@@ -491,7 +493,7 @@ const PoolDashboard = () => {
 
               <div className="flex items-center justify-between p-4 bg-gray-900/50 rounded-lg">
                 <div>
-                  <p className="text-sm text-gray-400">{asset1Symbol} Reserve</p>
+                  <p className="text-sm text-gray-400">{t('poolDash.reserve', { symbol: asset1Symbol })}</p>
                   <p className="text-2xl font-bold text-white">{poolData.reserve1.toLocaleString('en-US', { maximumFractionDigits: 2 })}</p>
                 </div>
                 <Badge variant="outline">Asset 2</Badge>
@@ -502,8 +504,8 @@ const PoolDashboard = () => {
               <div className="flex items-start gap-2">
                 <Info className="h-4 w-4 text-blue-400 mt-0.5" />
                 <div className="text-sm text-gray-300">
-                  <p className="font-semibold text-blue-400 mb-1">AMM Formula</p>
-                  <p>Pool maintains constant product: x × y = k</p>
+                  <p className="font-semibold text-blue-400 mb-1">{t('poolDash.ammFormula')}</p>
+                  <p>{t('poolDash.poolMaintains')}</p>
                   <p className="mt-2 font-mono text-xs">
                     {poolData.reserve0.toFixed(2)} × {poolData.reserve1.toFixed(2)} = {constantProduct.toLocaleString()}
                   </p>
@@ -516,39 +518,39 @@ const PoolDashboard = () => {
         {/* Your Position Tab */}
         <TabsContent value="position" className="space-y-4">
           <Card className="p-6 bg-gray-800/50 border-gray-700">
-            <h3 className="text-lg font-semibold text-white mb-4">Your Liquidity Position</h3>
+            <h3 className="text-lg font-semibold text-white mb-4">{t('poolDash.yourLpPosition')}</h3>
 
             {!selectedAccount ? (
               <Alert className="bg-yellow-900/20 border-yellow-500">
                 <Info className="h-4 w-4" />
-                <AlertDescription>Connect wallet to view your position</AlertDescription>
+                <AlertDescription>{t('poolDash.connectWallet')}</AlertDescription>
               </Alert>
             ) : !lpPosition ? (
               <div className="text-center py-8 text-gray-400">
                 <Droplet className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                <p>No liquidity position found</p>
+                <p>{t('poolDash.noPosition')}</p>
                 <Button
                   onClick={() => setIsAddLiquidityModalOpen(true)}
                   className="mt-4 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700"
                 >
-                  Add Liquidity
+                  {t('poolDash.addLiquidity')}
                 </Button>
               </div>
             ) : (
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="p-4 bg-gray-900/50 rounded-lg">
-                    <p className="text-sm text-gray-400">LP Tokens</p>
+                    <p className="text-sm text-gray-400">{t('poolDash.lpTokens')}</p>
                     <p className="text-xl font-bold text-white">{lpPosition.lpTokenBalance.toFixed(4)}</p>
                   </div>
                   <div className="p-4 bg-gray-900/50 rounded-lg">
-                    <p className="text-sm text-gray-400">Pool Share</p>
+                    <p className="text-sm text-gray-400">{t('poolDash.poolShare')}</p>
                     <p className="text-xl font-bold text-white">{lpPosition.share.toFixed(4)}%</p>
                   </div>
                 </div>
 
                 <div className="p-4 bg-gray-900/50 rounded-lg">
-                  <p className="text-sm text-gray-400 mb-2">Your Position Value</p>
+                  <p className="text-sm text-gray-400 mb-2">{t('poolDash.positionValue')}</p>
                   <div className="space-y-2">
                     <div className="flex justify-between">
                       <span className="text-gray-300">{asset0Symbol}:</span>
@@ -562,18 +564,18 @@ const PoolDashboard = () => {
                 </div>
 
                 <div className="p-4 bg-green-900/20 border border-green-500/30 rounded-lg">
-                  <p className="text-sm text-gray-400 mb-2">Estimated Earnings (APR {estimateAPR().toFixed(2)}%)</p>
+                  <p className="text-sm text-gray-400 mb-2">{t('poolDash.estimatedEarnings', { apr: estimateAPR().toFixed(2) })}</p>
                   <div className="space-y-1 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-300">Daily:</span>
+                      <span className="text-gray-300">{t('poolDash.daily')}</span>
                       <span className="text-green-400">~{((lpPosition.asset0Amount * 2 * estimateAPR()) / 365 / 100).toFixed(4)} {asset0Symbol}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-300">Monthly:</span>
+                      <span className="text-gray-300">{t('poolDash.monthly')}</span>
                       <span className="text-green-400">~{((lpPosition.asset0Amount * 2 * estimateAPR()) / 12 / 100).toFixed(4)} {asset0Symbol}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-300">Yearly:</span>
+                      <span className="text-gray-300">{t('poolDash.yearly')}</span>
                       <span className="text-green-400">~{((lpPosition.asset0Amount * 2 * estimateAPR()) / 100).toFixed(4)} {asset0Symbol}</span>
                     </div>
                   </div>
@@ -584,21 +586,21 @@ const PoolDashboard = () => {
                     onClick={() => setIsAddLiquidityModalOpen(true)}
                     className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700"
                   >
-                    Add More
+                    {t('poolDash.addMore')}
                   </Button>
                   <Button
                     onClick={() => setIsStakingModalOpen(true)}
                     className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
                   >
                     <Lock className="w-4 h-4 mr-1" />
-                    Stake LP
+                    {t('poolDash.stakeLP')}
                   </Button>
                   <Button
                     onClick={() => setIsRemoveLiquidityModalOpen(true)}
                     variant="outline"
                     className="border-red-600 text-red-400 hover:bg-red-900/20"
                   >
-                    Remove
+                    {t('poolDash.remove')}
                   </Button>
                 </div>
               </div>
@@ -609,11 +611,11 @@ const PoolDashboard = () => {
         {/* Impermanent Loss Calculator Tab */}
         <TabsContent value="calculator" className="space-y-4">
           <Card className="p-6 bg-gray-800/50 border-gray-700">
-            <h3 className="text-lg font-semibold text-white mb-4">Impermanent Loss Calculator</h3>
+            <h3 className="text-lg font-semibold text-white mb-4">{t('poolDash.ilCalcTitle')}</h3>
 
             <div className="space-y-4">
               <div className="p-4 bg-gray-900/50 rounded-lg">
-                <p className="text-sm text-gray-400 mb-3">If {asset0Symbol} price changes by:</p>
+                <p className="text-sm text-gray-400 mb-3">{t('poolDash.ifPriceChanges', { symbol: asset0Symbol })}</p>
 
                 <div className="space-y-2">
                   {[10, 25, 50, 100, 200].map((change) => {
@@ -625,7 +627,7 @@ const PoolDashboard = () => {
                           variant="outline"
                           className={il < -1 ? 'border-red-500 text-red-400' : 'border-yellow-500 text-yellow-400'}
                         >
-                          {il.toFixed(2)}% Loss
+                          {t('poolDash.loss', { percent: il.toFixed(2) })}
                         </Badge>
                       </div>
                     );
@@ -636,11 +638,9 @@ const PoolDashboard = () => {
               <Alert className="bg-orange-900/20 border-orange-500">
                 <AlertTriangle className="h-4 w-4" />
                 <AlertDescription>
-                  <p className="font-semibold mb-1">What is Impermanent Loss?</p>
+                  <p className="font-semibold mb-1">{t('poolDash.whatIsIL')}</p>
                   <p className="text-sm text-gray-300">
-                    Impermanent loss occurs when the price ratio of tokens in the pool changes.
-                    The larger the price change, the greater the loss compared to simply holding the tokens.
-                    Fees earned from swaps can offset this loss over time.
+                    {t('poolDash.ilExplanation')}
                   </p>
                 </AlertDescription>
               </Alert>

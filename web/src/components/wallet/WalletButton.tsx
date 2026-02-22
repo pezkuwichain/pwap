@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Wallet, LogOut, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -14,10 +15,11 @@ import { formatAddress, formatBalance } from '@pezkuwi/lib/wallet';
 import { Badge } from '@/components/ui/badge';
 
 export const WalletButton: React.FC = () => {
-  const { 
-    isConnected, 
-    address, 
-    balance, 
+  const { t } = useTranslation();
+  const {
+    isConnected,
+    address,
+    balance,
     chainId,
     error,
     connectMetaMask,
@@ -39,7 +41,7 @@ export const WalletButton: React.FC = () => {
           className="bg-kesk hover:bg-kesk/90 text-white"
         >
           <Wallet className="mr-2 h-4 w-4" />
-          Connect Wallet
+          {t('walletBtn.connectWallet')}
         </Button>
       </div>
     );
@@ -59,41 +61,41 @@ export const WalletButton: React.FC = () => {
             </div>
             {!isCorrectNetwork && (
               <Badge variant="destructive" className="ml-2 bg-sor">
-                Wrong Network
+                {t('walletBtn.wrongNetwork')}
               </Badge>
             )}
           </div>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel>Wallet Details</DropdownMenuLabel>
+        <DropdownMenuLabel>{t('walletBtn.walletDetails')}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <div className="px-2 py-1.5">
-          <div className="text-sm text-muted-foreground">Address</div>
+          <div className="text-sm text-muted-foreground">{t('walletBtn.address')}</div>
           <div className="text-sm font-mono">{formatAddress(address!)}</div>
         </div>
         <div className="px-2 py-1.5">
-          <div className="text-sm text-muted-foreground">Balance</div>
+          <div className="text-sm text-muted-foreground">{t('walletBtn.balance')}</div>
           <div className="text-sm font-medium">{formatBalance(balance)} HEZ</div>
         </div>
         <div className="px-2 py-1.5">
-          <div className="text-sm text-muted-foreground">Network</div>
+          <div className="text-sm text-muted-foreground">{t('walletBtn.network')}</div>
           <div className="text-sm font-medium">
-            {isCorrectNetwork ? 'PezkuwiChain' : 'Unknown Network'}
+            {isCorrectNetwork ? t('walletBtn.pezkuwiChain') : t('walletBtn.unknownNetwork')}
           </div>
         </div>
         <DropdownMenuSeparator />
         {!isCorrectNetwork && (
           <>
             <DropdownMenuItem onClick={switchNetwork} className="text-zer">
-              Switch to PezkuwiChain
+              {t('walletBtn.switchNetwork')}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
           </>
         )}
         <DropdownMenuItem onClick={disconnect} className="text-sor">
           <LogOut className="mr-2 h-4 w-4" />
-          Disconnect
+          {t('walletBtn.disconnect')}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

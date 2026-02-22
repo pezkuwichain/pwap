@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,6 +17,7 @@ interface TwoFactorVerifyProps {
 
 export function TwoFactorVerify({ userId, onSuccess, onCancel }: TwoFactorVerifyProps) {
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [verificationCode, setVerificationCode] = useState('');
   const [backupCode, setBackupCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -25,8 +27,8 @@ export function TwoFactorVerify({ userId, onSuccess, onCancel }: TwoFactorVerify
     
     if (!code) {
       toast({
-        title: 'Error',
-        description: 'Please enter a code',
+        title: t('common.error'),
+        description: t('twoFactor.pleaseEnterCode'),
         variant: 'destructive',
       });
       return;
@@ -47,8 +49,8 @@ export function TwoFactorVerify({ userId, onSuccess, onCancel }: TwoFactorVerify
       
       if (data.success) {
         toast({
-          title: 'Verification Successful',
-          description: 'You have been authenticated',
+          title: t('twoFactor.verifySuccess'),
+          description: t('twoFactor.authenticated'),
         });
         onSuccess();
       } else {
@@ -56,7 +58,7 @@ export function TwoFactorVerify({ userId, onSuccess, onCancel }: TwoFactorVerify
       }
     } catch (error) {
       toast({
-        title: 'Verification Failed',
+        title: t('twoFactor.verificationFailed'),
         description: error.message,
         variant: 'destructive',
       });
@@ -70,23 +72,23 @@ export function TwoFactorVerify({ userId, onSuccess, onCancel }: TwoFactorVerify
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Shield className="h-5 w-5" />
-          Two-Factor Authentication
+          {t('twoFactor.title')}
         </CardTitle>
         <CardDescription>
-          Enter your authentication code to continue
+          {t('twoFactor.enterAuthCode')}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="authenticator" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="authenticator">Authenticator App</TabsTrigger>
-            <TabsTrigger value="backup">Backup Code</TabsTrigger>
+            <TabsTrigger value="authenticator">{t('twoFactor.authenticatorTab')}</TabsTrigger>
+            <TabsTrigger value="backup">{t('twoFactor.backupTab')}</TabsTrigger>
           </TabsList>
           
           <TabsContent value="authenticator" className="space-y-4">
             <Alert>
               <AlertDescription>
-                Enter the 6-digit code from your authenticator app
+                {t('twoFactor.enterCode')}
               </AlertDescription>
             </Alert>
             <Input
@@ -99,15 +101,15 @@ export function TwoFactorVerify({ userId, onSuccess, onCancel }: TwoFactorVerify
             <div className="flex gap-2">
               <Button 
                 className="flex-1" 
-                onClick={() => handleVerify(false)} 
+                onClick={() => handleVerify(false)}
                 disabled={isLoading}
               >
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Verify
+                {t('twoFactor.verify')}
               </Button>
               {onCancel && (
                 <Button variant="outline" onClick={onCancel} disabled={isLoading}>
-                  Cancel
+                  {t('common.cancel')}
                 </Button>
               )}
             </div>
@@ -116,7 +118,7 @@ export function TwoFactorVerify({ userId, onSuccess, onCancel }: TwoFactorVerify
           <TabsContent value="backup" className="space-y-4">
             <Alert>
               <AlertDescription>
-                Enter one of your backup codes
+                {t('twoFactor.enterBackupCode')}
               </AlertDescription>
             </Alert>
             <Input
@@ -128,15 +130,15 @@ export function TwoFactorVerify({ userId, onSuccess, onCancel }: TwoFactorVerify
             <div className="flex gap-2">
               <Button 
                 className="flex-1" 
-                onClick={() => handleVerify(true)} 
+                onClick={() => handleVerify(true)}
                 disabled={isLoading}
               >
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Verify
+                {t('twoFactor.verify')}
               </Button>
               {onCancel && (
                 <Button variant="outline" onClick={onCancel} disabled={isLoading}>
-                  Cancel
+                  {t('common.cancel')}
                 </Button>
               )}
             </div>

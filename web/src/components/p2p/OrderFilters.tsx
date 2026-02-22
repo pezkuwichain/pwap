@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabase';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -50,6 +51,7 @@ export function OrderFilters({
   onFiltersChange,
   variant = 'inline'
 }: OrderFiltersProps) {
+  const { t } = useTranslation();
   const [localFilters, setLocalFilters] = useState<P2PFilters>(filters);
   const [paymentMethods, setPaymentMethods] = useState<{ id: string; method_name: string }[]>([]);
   const [isOpen, setIsOpen] = useState(false);
@@ -117,7 +119,7 @@ export function OrderFilters({
     <div className="space-y-4">
       {/* Token Selection */}
       <div className="space-y-2">
-        <Label>Cryptocurrency</Label>
+        <Label>{t('p2pFilters.cryptocurrency')}</Label>
         <div className="flex gap-2">
           {['all', 'HEZ', 'PEZ'].map((token) => (
             <Button
@@ -127,7 +129,7 @@ export function OrderFilters({
               onClick={() => updateFilter('token', token as P2PFilters['token'])}
               className={localFilters.token === token ? 'bg-kurdish-green hover:bg-kurdish-green-dark' : ''}
             >
-              {token === 'all' ? 'All' : token}
+              {token === 'all' ? t('p2pFilters.all') : token}
             </Button>
           ))}
         </div>
@@ -136,7 +138,7 @@ export function OrderFilters({
       {/* Fiat Currency */}
       <Collapsible open={expandedSections.currency} onOpenChange={() => toggleSection('currency')}>
         <CollapsibleTrigger className="flex items-center justify-between w-full py-2">
-          <Label className="cursor-pointer">Fiat Currency</Label>
+          <Label className="cursor-pointer">{t('p2pFilters.fiatCurrency')}</Label>
           <ChevronDown className={`h-4 w-4 transition-transform ${expandedSections.currency ? 'rotate-180' : ''}`} />
         </CollapsibleTrigger>
         <CollapsibleContent className="pt-2">
@@ -145,10 +147,10 @@ export function OrderFilters({
             onValueChange={(value) => updateFilter('fiatCurrency', value)}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Select currency" />
+              <SelectValue placeholder={t('p2pFilters.selectCurrency')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Currencies</SelectItem>
+              <SelectItem value="all">{t('p2pFilters.allCurrencies')}</SelectItem>
               {FIAT_CURRENCIES.map((currency) => (
                 <SelectItem key={currency.value} value={currency.value}>
                   {currency.label}
@@ -162,7 +164,7 @@ export function OrderFilters({
       {/* Payment Methods */}
       <Collapsible open={expandedSections.payment} onOpenChange={() => toggleSection('payment')}>
         <CollapsibleTrigger className="flex items-center justify-between w-full py-2">
-          <Label className="cursor-pointer">Payment Methods</Label>
+          <Label className="cursor-pointer">{t('p2pFilters.paymentMethods')}</Label>
           <div className="flex items-center gap-2">
             {localFilters.paymentMethods.length > 0 && (
               <Badge variant="secondary" className="text-xs">
@@ -197,13 +199,13 @@ export function OrderFilters({
       {/* Amount Range */}
       <Collapsible open={expandedSections.amount} onOpenChange={() => toggleSection('amount')}>
         <CollapsibleTrigger className="flex items-center justify-between w-full py-2">
-          <Label className="cursor-pointer">Amount Range</Label>
+          <Label className="cursor-pointer">{t('p2pFilters.amountRange')}</Label>
           <ChevronDown className={`h-4 w-4 transition-transform ${expandedSections.amount ? 'rotate-180' : ''}`} />
         </CollapsibleTrigger>
         <CollapsibleContent className="pt-2">
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <Label className="text-xs">Min Amount</Label>
+              <Label className="text-xs">{t('p2pFilters.minAmount')}</Label>
               <Input
                 type="number"
                 placeholder="0"
@@ -212,10 +214,10 @@ export function OrderFilters({
               />
             </div>
             <div>
-              <Label className="text-xs">Max Amount</Label>
+              <Label className="text-xs">{t('p2pFilters.maxAmount')}</Label>
               <Input
                 type="number"
-                placeholder="No limit"
+                placeholder={t('p2pFilters.noLimit')}
                 value={localFilters.maxAmount || ''}
                 onChange={(e) => updateFilter('maxAmount', e.target.value ? Number(e.target.value) : null)}
               />
@@ -227,7 +229,7 @@ export function OrderFilters({
       {/* Merchant Tier */}
       <Collapsible open={expandedSections.merchant} onOpenChange={() => toggleSection('merchant')}>
         <CollapsibleTrigger className="flex items-center justify-between w-full py-2">
-          <Label className="cursor-pointer">Merchant Tier</Label>
+          <Label className="cursor-pointer">{t('p2pFilters.merchantTier')}</Label>
           <ChevronDown className={`h-4 w-4 transition-transform ${expandedSections.merchant ? 'rotate-180' : ''}`} />
         </CollapsibleTrigger>
         <CollapsibleContent className="pt-2 space-y-2">
@@ -248,7 +250,7 @@ export function OrderFilters({
                 />
                 <label htmlFor={`tier-${tier.value}`} className="flex items-center gap-1 text-sm cursor-pointer">
                   <Icon className={`h-4 w-4 ${tier.color}`} />
-                  {tier.label}+ only
+                  {t(`p2pFilters.${tier.value}Plus`)}
                 </label>
               </div>
             );
@@ -258,7 +260,7 @@ export function OrderFilters({
 
       {/* Completion Rate */}
       <div className="space-y-2">
-        <Label>Min Completion Rate: {localFilters.minCompletionRate}%</Label>
+        <Label>{t('p2pFilters.minCompletionRate', { percent: localFilters.minCompletionRate })}</Label>
         <Slider
           value={[localFilters.minCompletionRate]}
           onValueChange={([value]) => updateFilter('minCompletionRate', value)}
@@ -277,7 +279,7 @@ export function OrderFilters({
             onCheckedChange={(checked) => updateFilter('onlineOnly', !!checked)}
           />
           <label htmlFor="online-only" className="text-sm cursor-pointer">
-            Online traders only
+            {t('p2pFilters.onlineOnly')}
           </label>
         </div>
 
@@ -288,14 +290,14 @@ export function OrderFilters({
             onCheckedChange={(checked) => updateFilter('verifiedOnly', !!checked)}
           />
           <label htmlFor="verified-only" className="text-sm cursor-pointer">
-            Verified merchants only
+            {t('p2pFilters.verifiedOnly')}
           </label>
         </div>
       </div>
 
       {/* Sort */}
       <div className="space-y-2">
-        <Label>Sort By</Label>
+        <Label>{t('p2pFilters.sortBy')}</Label>
         <div className="grid grid-cols-2 gap-2">
           <Select
             value={localFilters.sortBy}
@@ -305,10 +307,10 @@ export function OrderFilters({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="price">Price</SelectItem>
-              <SelectItem value="completion_rate">Completion Rate</SelectItem>
-              <SelectItem value="trades">Trade Count</SelectItem>
-              <SelectItem value="newest">Newest</SelectItem>
+              <SelectItem value="price">{t('p2pFilters.sortPrice')}</SelectItem>
+              <SelectItem value="completion_rate">{t('p2pFilters.sortCompletionRate')}</SelectItem>
+              <SelectItem value="trades">{t('p2pFilters.sortTradeCount')}</SelectItem>
+              <SelectItem value="newest">{t('p2pFilters.sortNewest')}</SelectItem>
             </SelectContent>
           </Select>
           <Select
@@ -319,8 +321,8 @@ export function OrderFilters({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="asc">Low to High</SelectItem>
-              <SelectItem value="desc">High to Low</SelectItem>
+              <SelectItem value="asc">{t('p2pFilters.lowToHigh')}</SelectItem>
+              <SelectItem value="desc">{t('p2pFilters.highToLow')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -335,7 +337,7 @@ export function OrderFilters({
         <SheetTrigger asChild>
           <Button variant="outline" size="sm" className="gap-2">
             <SlidersHorizontal className="h-4 w-4" />
-            Filters
+            {t('p2pFilters.filters')}
             {activeFilterCount() > 0 && (
               <Badge variant="secondary" className="ml-1">
                 {activeFilterCount()}
@@ -348,11 +350,11 @@ export function OrderFilters({
             <SheetTitle className="flex items-center justify-between">
               <span className="flex items-center gap-2">
                 <Filter className="h-5 w-5" />
-                Filter Orders
+                {t('p2pFilters.filterOrders')}
               </span>
               <Button variant="ghost" size="sm" onClick={resetFilters}>
                 <RefreshCw className="h-4 w-4 mr-1" />
-                Reset
+                {t('p2pFilters.reset')}
               </Button>
             </SheetTitle>
           </SheetHeader>
@@ -361,11 +363,11 @@ export function OrderFilters({
           </div>
           <SheetFooter className="absolute bottom-0 left-0 right-0 p-4 bg-background border-t">
             <Button variant="outline" onClick={() => setIsOpen(false)} className="flex-1">
-              Cancel
+              {t('p2p.cancel')}
             </Button>
             <Button onClick={applyFilters} className="flex-1 bg-kurdish-green hover:bg-kurdish-green-dark">
               <Check className="h-4 w-4 mr-1" />
-              Apply Filters
+              {t('p2pFilters.applyFilters')}
             </Button>
           </SheetFooter>
         </SheetContent>
@@ -380,17 +382,17 @@ export function OrderFilters({
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-medium flex items-center gap-2">
             <Filter className="h-4 w-4" />
-            Filters
+            {t('p2pFilters.filters')}
           </h3>
           <Button variant="ghost" size="sm" onClick={resetFilters}>
             <RefreshCw className="h-4 w-4 mr-1" />
-            Reset
+            {t('p2pFilters.reset')}
           </Button>
         </div>
         <FilterContent />
         <Button onClick={applyFilters} className="w-full mt-4 bg-kurdish-green hover:bg-kurdish-green-dark">
           <Check className="h-4 w-4 mr-1" />
-          Apply Filters
+          {t('p2pFilters.applyFilters')}
         </Button>
       </CardContent>
     </Card>
@@ -405,6 +407,7 @@ export function QuickFilterBar({
   filters: P2PFilters;
   onFiltersChange: (filters: P2PFilters) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-wrap items-center gap-2">
       {/* Token quick select */}
@@ -417,7 +420,7 @@ export function QuickFilterBar({
             onClick={() => onFiltersChange({ ...filters, token: token as P2PFilters['token'] })}
             className={filters.token === token ? 'bg-kurdish-green hover:bg-kurdish-green-dark' : ''}
           >
-            {token === 'all' ? 'All' : token}
+            {token === 'all' ? t('p2pFilters.all') : token}
           </Button>
         ))}
       </div>
@@ -428,10 +431,10 @@ export function QuickFilterBar({
         onValueChange={(value) => onFiltersChange({ ...filters, fiatCurrency: value })}
       >
         <SelectTrigger className="w-[120px] h-9">
-          <SelectValue placeholder="Currency" />
+          <SelectValue placeholder={t('p2p.currency')} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">All</SelectItem>
+          <SelectItem value="all">{t('p2pFilters.all')}</SelectItem>
           {FIAT_CURRENCIES.map((currency) => (
             <SelectItem key={currency.value} value={currency.value}>
               {currency.value}
@@ -443,7 +446,7 @@ export function QuickFilterBar({
       {/* Amount input */}
       <Input
         type="number"
-        placeholder="I want to trade..."
+        placeholder={t('p2pFilters.iWantToTrade')}
         className="w-[150px] h-9"
         onChange={(e) => {
           const value = e.target.value ? Number(e.target.value) : null;
@@ -474,7 +477,7 @@ export function QuickFilterBar({
 
       {filters.minCompletionRate > 0 && (
         <Badge variant="secondary" className="gap-1">
-          {filters.minCompletionRate}%+ rate
+          {t('p2pFilters.rate', { percent: filters.minCompletionRate })}
           <button
             onClick={() => onFiltersChange({ ...filters, minCompletionRate: 0 })}
             className="ml-1 hover:text-destructive"

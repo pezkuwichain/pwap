@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { Button } from '@/components/ui/button';
@@ -22,6 +23,7 @@ interface CreateAdProps {
 }
 
 export function CreateAd({ onAdCreated }: CreateAdProps) {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { account } = useWallet();
   
@@ -78,13 +80,13 @@ export function CreateAd({ onAdCreated }: CreateAdProps) {
     console.log('🔥 handleCreateAd called', { account, user: user?.id });
 
     if (!account || !user) {
-      toast.error('Please connect your wallet and log in');
+      toast.error(t('p2p.connectWalletAndLogin'));
       console.log('❌ No account or user', { account, user });
       return;
     }
 
     if (!selectedPaymentMethod) {
-      toast.error('Please select a payment method');
+      toast.error(t('p2pCreate.selectPaymentMethodError'));
       return;
     }
 
@@ -105,22 +107,22 @@ export function CreateAd({ onAdCreated }: CreateAdProps) {
     const fiatAmt = parseFloat(fiatAmount);
 
     if (!cryptoAmt || cryptoAmt <= 0) {
-      toast.error('Invalid crypto amount');
+      toast.error(t('p2pCreate.invalidCryptoAmount'));
       return;
     }
 
     if (!fiatAmt || fiatAmt <= 0) {
-      toast.error('Invalid fiat amount');
+      toast.error(t('p2pCreate.invalidFiatAmount'));
       return;
     }
 
     if (selectedPaymentMethod.min_trade_amount && fiatAmt < selectedPaymentMethod.min_trade_amount) {
-      toast.error(`Minimum trade amount: ${selectedPaymentMethod.min_trade_amount} ${fiatCurrency}`);
+      toast.error(t('p2pCreate.minTradeAmount', { amount: selectedPaymentMethod.min_trade_amount, currency: fiatCurrency }));
       return;
     }
 
     if (selectedPaymentMethod.max_trade_amount && fiatAmt > selectedPaymentMethod.max_trade_amount) {
-      toast.error(`Maximum trade amount: ${selectedPaymentMethod.max_trade_amount} ${fiatCurrency}`);
+      toast.error(t('p2pCreate.maxTradeAmount', { amount: selectedPaymentMethod.max_trade_amount, currency: fiatCurrency }));
       return;
     }
 
@@ -152,16 +154,16 @@ export function CreateAd({ onAdCreated }: CreateAdProps) {
 
       if (error) {
         console.error('❌ Supabase error:', error);
-        toast.error(error.message || 'Failed to create offer');
+        toast.error(error.message || t('p2pCreate.failedToCreate'));
         return;
       }
 
       console.log('✅ Offer created successfully:', data);
-      toast.success('Ad created successfully!');
+      toast.success(t('p2pCreate.adCreated'));
       onAdCreated();
     } catch (error) {
       if (import.meta.env.DEV) console.error('Create ad error:', error);
-      toast.error('Failed to create offer');
+      toast.error(t('p2pCreate.failedToCreate'));
     } finally {
       setLoading(false);
     }
@@ -170,15 +172,15 @@ export function CreateAd({ onAdCreated }: CreateAdProps) {
   return (
     <Card className="bg-gray-900 border-gray-800">
       <CardHeader>
-        <CardTitle className="text-white">Create P2P Offer</CardTitle>
+        <CardTitle className="text-white">{t('p2pCreate.title')}</CardTitle>
         <CardDescription>
-          Lock your crypto in escrow and set your price
+          {t('p2pCreate.description')}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Ad Type Selection */}
         <div>
-          <Label>I want to</Label>
+          <Label>{t('p2pCreate.iWantTo')}</Label>
           <div className="grid grid-cols-2 gap-2 mt-2">
             <Button
               type="button"
@@ -186,7 +188,7 @@ export function CreateAd({ onAdCreated }: CreateAdProps) {
               className={adType === 'sell' ? 'bg-red-600 hover:bg-red-700' : ''}
               onClick={() => setAdType('sell')}
             >
-              Sell {token}
+              {t('p2pCreate.sellToken', { token })}
             </Button>
             <Button
               type="button"
@@ -194,20 +196,20 @@ export function CreateAd({ onAdCreated }: CreateAdProps) {
               className={adType === 'buy' ? 'bg-green-600 hover:bg-green-700' : ''}
               onClick={() => setAdType('buy')}
             >
-              Buy {token}
+              {t('p2pCreate.buyToken', { token })}
             </Button>
           </div>
           <p className="text-xs text-gray-400 mt-1">
             {adType === 'sell'
-              ? 'You will receive fiat payment and send crypto to buyer'
-              : 'You will send fiat payment and receive crypto from seller'}
+              ? t('p2pCreate.sellDescription')
+              : t('p2pCreate.buyDescription')}
           </p>
         </div>
 
         {/* Crypto Details */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="token">Token</Label>
+            <Label htmlFor="token">{t('p2p.token')}</Label>
             <Select value={token} onValueChange={(v) => setToken(v as CryptoToken)}>
               <SelectTrigger>
                 <SelectValue />
@@ -219,14 +221,14 @@ export function CreateAd({ onAdCreated }: CreateAdProps) {
             </Select>
           </div>
           <div>
-            <Label htmlFor="amountCrypto">Amount ({token})</Label>
+            <Label htmlFor="amountCrypto">{t('p2pCreate.amountLabel', { token })}</Label>
             <Input
               id="amountCrypto"
               type="number"
               step="0.01"
               value={amountCrypto}
               onChange={e => setAmountCrypto(e.target.value)}
-              placeholder="Amount"
+              placeholder={t('p2pCreate.amountPlaceholder')}
               className="placeholder:text-gray-500 placeholder:opacity-50"
             />
           </div>
@@ -235,7 +237,7 @@ export function CreateAd({ onAdCreated }: CreateAdProps) {
         {/* Fiat Details */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="fiatCurrency">Fiat Currency</Label>
+            <Label htmlFor="fiatCurrency">{t('p2pCreate.fiatCurrency')}</Label>
             <Select value={fiatCurrency} onValueChange={(v) => setFiatCurrency(v as FiatCurrency)}>
               <SelectTrigger>
                 <SelectValue />
@@ -260,14 +262,14 @@ export function CreateAd({ onAdCreated }: CreateAdProps) {
             </Select>
           </div>
           <div>
-            <Label htmlFor="fiatAmount">Total Amount ({fiatCurrency})</Label>
+            <Label htmlFor="fiatAmount">{t('p2pCreate.totalFiatAmount', { currency: fiatCurrency })}</Label>
             <Input
               id="fiatAmount"
               type="number"
               step="0.01"
               value={fiatAmount}
               onChange={e => setFiatAmount(e.target.value)}
-              placeholder="Amount"
+              placeholder={t('p2pCreate.amountPlaceholder')}
               className="placeholder:text-gray-500 placeholder:opacity-50"
             />
           </div>
@@ -276,7 +278,7 @@ export function CreateAd({ onAdCreated }: CreateAdProps) {
         {/* Price Display */}
         {amountCrypto && fiatAmount && (
           <div className="p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
-            <p className="text-sm text-gray-400">Price per {token}</p>
+            <p className="text-sm text-gray-400">{t('p2pCreate.pricePerToken', { token })}</p>
             <p className="text-2xl font-bold text-green-400">
               {pricePerUnit} {fiatCurrency}
             </p>
@@ -285,10 +287,10 @@ export function CreateAd({ onAdCreated }: CreateAdProps) {
 
         {/* Payment Method */}
         <div>
-          <Label htmlFor="paymentMethod">Payment Method</Label>
+          <Label htmlFor="paymentMethod">{t('p2pCreate.paymentMethod')}</Label>
           <Select onValueChange={handlePaymentMethodChange}>
             <SelectTrigger>
-              <SelectValue placeholder="Select payment method..." />
+              <SelectValue placeholder={t('p2pCreate.selectPaymentMethod')} />
             </SelectTrigger>
             <SelectContent>
               {paymentMethods.map(method => (
@@ -303,7 +305,7 @@ export function CreateAd({ onAdCreated }: CreateAdProps) {
         {/* Dynamic Payment Details Fields */}
         {selectedPaymentMethod && Object.keys(selectedPaymentMethod.fields).length > 0 && (
           <div className="space-y-4 p-4 border border-gray-700 rounded-lg">
-            <h3 className="font-semibold text-white">Payment Details</h3>
+            <h3 className="font-semibold text-white">{t('p2pCreate.paymentDetails')}</h3>
             {Object.entries(selectedPaymentMethod.fields).map(([field, placeholder]) => (
               <div key={field}>
                 <Label htmlFor={field}>
@@ -324,26 +326,26 @@ export function CreateAd({ onAdCreated }: CreateAdProps) {
         {/* Order Limits */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="minOrder">Min Order (optional)</Label>
+            <Label htmlFor="minOrder">{t('p2pCreate.minOrder')}</Label>
             <Input
               id="minOrder"
               type="number"
               step="0.01"
               value={minOrderAmount}
               onChange={e => setMinOrderAmount(e.target.value)}
-              placeholder="Minimum amount (optional)"
+              placeholder={t('p2pCreate.minOrderPlaceholder')}
               className="placeholder:text-gray-500 placeholder:opacity-50"
             />
           </div>
           <div>
-            <Label htmlFor="maxOrder">Max Order (optional)</Label>
+            <Label htmlFor="maxOrder">{t('p2pCreate.maxOrder')}</Label>
             <Input
               id="maxOrder"
               type="number"
               step="0.01"
               value={maxOrderAmount}
               onChange={e => setMaxOrderAmount(e.target.value)}
-              placeholder="Maximum amount (optional)"
+              placeholder={t('p2pCreate.maxOrderPlaceholder')}
               className="placeholder:text-gray-500 placeholder:opacity-50"
             />
           </div>
@@ -351,16 +353,16 @@ export function CreateAd({ onAdCreated }: CreateAdProps) {
 
         {/* Time Limit */}
         <div>
-          <Label htmlFor="timeLimit">Payment Time Limit (minutes)</Label>
+          <Label htmlFor="timeLimit">{t('p2pCreate.paymentTimeLimit')}</Label>
           <Select value={timeLimit.toString()} onValueChange={(v) => setTimeLimit(parseInt(v))}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="15">15 minutes</SelectItem>
-              <SelectItem value="30">30 minutes</SelectItem>
-              <SelectItem value="60">1 hour</SelectItem>
-              <SelectItem value="120">2 hours</SelectItem>
+              <SelectItem value="15">{t('p2pCreate.15min')}</SelectItem>
+              <SelectItem value="30">{t('p2pCreate.30min')}</SelectItem>
+              <SelectItem value="60">{t('p2pCreate.1hour')}</SelectItem>
+              <SelectItem value="120">{t('p2pCreate.2hours')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -373,10 +375,10 @@ export function CreateAd({ onAdCreated }: CreateAdProps) {
           {loading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Creating offer & locking escrow...
+              {t('p2pCreate.creatingOffer')}
             </>
           ) : (
-            'Create Offer'
+            t('p2pCreate.createOffer')
           )}
         </Button>
       </CardContent>

@@ -26,7 +26,7 @@ import {
   CheckCircle,
   Eye
 } from 'lucide-react';
-// import { useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { useForum } from '@/hooks/useForum';
 import { DiscussionThread } from './DiscussionThread';
 import { useAuth } from '@/contexts/AuthContext';
@@ -34,6 +34,7 @@ import { formatDistanceToNow } from 'date-fns';
 
 export function ForumOverview() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const { announcements, categories, discussions, loading, reactToDiscussion } = useForum();
   const [selectedDiscussion, setSelectedDiscussion] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -96,7 +97,7 @@ export function ForumOverview() {
           variant="outline"
           onClick={() => setSelectedDiscussion(null)}
         >
-          ← Back to Forum
+          {t('forum.backToForum')}
         </Button>
         <DiscussionThread proposalId={selectedDiscussion} />
       </div>
@@ -104,7 +105,7 @@ export function ForumOverview() {
   }
 
   if (loading) {
-    return <LoadingState message="Loading forum..." />;
+    return <LoadingState message={t('forum.loading')} />;
   }
 
   return (
@@ -145,7 +146,7 @@ export function ForumOverview() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Total Discussions</p>
+                <p className="text-sm text-muted-foreground">{t('forum.totalDiscussions')}</p>
                 <p className="text-2xl font-bold">{discussions.length}</p>
               </div>
               <MessageSquare className="h-8 w-8 text-blue-500" />
@@ -157,7 +158,7 @@ export function ForumOverview() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Categories</p>
+                <p className="text-sm text-muted-foreground">{t('forum.categories')}</p>
                 <p className="text-2xl font-bold">{categories.length}</p>
               </div>
               <Filter className="h-8 w-8 text-purple-500" />
@@ -169,7 +170,7 @@ export function ForumOverview() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Active Users</p>
+                <p className="text-sm text-muted-foreground">{t('forum.activeUsers')}</p>
                 <p className="text-2xl font-bold">
                   {new Set(discussions.map(d => d.author_id)).size}
                 </p>
@@ -183,7 +184,7 @@ export function ForumOverview() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Total Replies</p>
+                <p className="text-sm text-muted-foreground">{t('forum.totalReplies')}</p>
                 <p className="text-2xl font-bold">
                   {discussions.reduce((sum, d) => sum + d.replies_count, 0)}
                 </p>
@@ -201,7 +202,7 @@ export function ForumOverview() {
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
-                placeholder="Search discussions..."
+                placeholder={t('forum.searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
@@ -209,10 +210,10 @@ export function ForumOverview() {
             </div>
             <Select value={filterCategory} onValueChange={setFilterCategory}>
               <SelectTrigger className="w-full md:w-[180px]">
-                <SelectValue placeholder="All Categories" />
+                <SelectValue placeholder={t('forum.allCategories')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
+                <SelectItem value="all">{t('forum.allCategories')}</SelectItem>
                 {categories.map((cat) => (
                   <SelectItem key={cat.id} value={cat.name.toLowerCase()}>
                     {cat.icon} {cat.name}
@@ -222,19 +223,19 @@ export function ForumOverview() {
             </Select>
             <Select value={sortBy} onValueChange={setSortBy}>
               <SelectTrigger className="w-full md:w-[180px]">
-                <SelectValue placeholder="Sort by" />
+                <SelectValue placeholder={t('forum.sortBy')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="recent">Most Recent</SelectItem>
-                <SelectItem value="popular">Most Popular</SelectItem>
-                <SelectItem value="replies">Most Replies</SelectItem>
-                <SelectItem value="views">Most Viewed</SelectItem>
+                <SelectItem value="recent">{t('forum.sortRecent')}</SelectItem>
+                <SelectItem value="popular">{t('forum.sortPopular')}</SelectItem>
+                <SelectItem value="replies">{t('forum.sortReplies')}</SelectItem>
+                <SelectItem value="views">{t('forum.sortViewed')}</SelectItem>
               </SelectContent>
             </Select>
             {user && (
               <Button>
                 <Plus className="h-4 w-4 mr-2" />
-                New Discussion
+                {t('forum.newDiscussion')}
               </Button>
             )}
           </div>
@@ -253,7 +254,7 @@ export function ForumOverview() {
               <div className="text-4xl mb-2">{category.icon}</div>
               <h3 className="font-semibold">{category.name}</h3>
               <p className="text-xs text-muted-foreground mt-1">
-                {discussions.filter(d => d.category?.id === category.id).length} discussions
+                {t('forum.discussionCount', { count: discussions.filter(d => d.category?.id === category.id).length })}
               </p>
             </CardContent>
           </Card>
@@ -266,9 +267,9 @@ export function ForumOverview() {
           <Card>
             <CardContent className="py-12 text-center">
               <MessageSquare className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">No discussions found</p>
+              <p className="text-muted-foreground">{t('forum.noDiscussions')}</p>
               <p className="text-sm text-muted-foreground mt-2">
-                Try adjusting your search or filters
+                {t('forum.adjustFilters')}
               </p>
             </CardContent>
           </Card>
@@ -287,13 +288,13 @@ export function ForumOverview() {
                       {discussion.is_pinned && (
                         <Badge variant="secondary" className="bg-yellow-500/10 text-yellow-700 border-yellow-500/20">
                           <Pin className="h-3 w-3 mr-1" />
-                          Pinned
+                          {t('forum.pinned')}
                         </Badge>
                       )}
                       {discussion.is_locked && (
                         <Badge variant="secondary" className="bg-red-500/10 text-red-700 border-red-500/20">
                           <Lock className="h-3 w-3 mr-1" />
-                          Locked
+                          {t('forum.locked')}
                         </Badge>
                       )}
                       {discussion.category && (
@@ -304,7 +305,7 @@ export function ForumOverview() {
                       {(discussion.upvotes || 0) > 10 && (
                         <Badge variant="destructive">
                           <Flame className="h-3 w-3 mr-1" />
-                          Trending
+                          {t('forum.trending')}
                         </Badge>
                       )}
                     </div>
@@ -316,14 +317,14 @@ export function ForumOverview() {
 
                     {/* Meta Info */}
                     <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
-                      <span>by {discussion.author_name}</span>
+                      <span>{t('forum.by')} {discussion.author_name}</span>
                       <span className="flex items-center gap-1">
                         <MessageSquare className="h-4 w-4" />
-                        {discussion.replies_count} replies
+                        {discussion.replies_count} {t('forum.replies')}
                       </span>
                       <span className="flex items-center gap-1">
                         <Eye className="h-4 w-4" />
-                        {discussion.views_count} views
+                        {discussion.views_count} {t('forum.views')}
                       </span>
                       <span className="flex items-center gap-1">
                         <Clock className="h-4 w-4" />

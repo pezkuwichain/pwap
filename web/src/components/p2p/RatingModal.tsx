@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Star, Loader2, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabase';
 
 interface RatingModalProps {
@@ -32,6 +33,7 @@ export function RatingModal({
   counterpartyWallet,
   isBuyer,
 }: RatingModalProps) {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
@@ -40,7 +42,7 @@ export function RatingModal({
 
   const handleSubmit = async () => {
     if (!user || rating === 0) {
-      toast.error('Please select a rating');
+      toast.error(t('p2pRating.selectRatingError'));
       return;
     }
 
@@ -56,7 +58,7 @@ export function RatingModal({
         .single();
 
       if (existingRating) {
-        toast.error('You have already rated this trade');
+        toast.error(t('p2pRating.alreadyRated'));
         onClose();
         return;
       }
@@ -111,11 +113,11 @@ export function RatingModal({
         is_read: false,
       });
 
-      toast.success('Rating submitted successfully');
+      toast.success(t('p2pRating.submitted'));
       onClose();
     } catch (error) {
       console.error('Submit rating error:', error);
-      toast.error('Failed to submit rating');
+      toast.error(t('p2pRating.failedToSubmit'));
     } finally {
       setLoading(false);
     }
@@ -148,30 +150,30 @@ export function RatingModal({
 
   const getRatingLabel = (r: number): string => {
     switch (r) {
-      case 1: return 'Poor';
-      case 2: return 'Fair';
-      case 3: return 'Good';
-      case 4: return 'Very Good';
-      case 5: return 'Excellent';
-      default: return 'Select a rating';
+      case 1: return t('p2pRating.poor');
+      case 2: return t('p2pRating.fair');
+      case 3: return t('p2pRating.good');
+      case 4: return t('p2pRating.veryGood');
+      case 5: return t('p2pRating.excellent');
+      default: return t('p2pRating.selectRating');
     }
   };
 
   const quickReviews = [
-    { icon: ThumbsUp, text: 'Fast payment', positive: true },
-    { icon: ThumbsUp, text: 'Good communication', positive: true },
-    { icon: ThumbsUp, text: 'Smooth transaction', positive: true },
-    { icon: ThumbsDown, text: 'Slow response', positive: false },
-    { icon: ThumbsDown, text: 'Delayed payment', positive: false },
+    { icon: ThumbsUp, text: t('p2pRating.fastPayment'), positive: true },
+    { icon: ThumbsUp, text: t('p2pRating.goodCommunication'), positive: true },
+    { icon: ThumbsUp, text: t('p2pRating.smoothTransaction'), positive: true },
+    { icon: ThumbsDown, text: t('p2pRating.slowResponse'), positive: false },
+    { icon: ThumbsDown, text: t('p2pRating.delayedPayment'), positive: false },
   ];
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-md">
         <DialogHeader>
-          <DialogTitle>Rate Your Experience</DialogTitle>
+          <DialogTitle>{t('p2pRating.title')}</DialogTitle>
           <DialogDescription className="text-gray-400">
-            How was your trade with {counterpartyWallet.slice(0, 6)}...{counterpartyWallet.slice(-4)}?
+            {t('p2pRating.description', { address: `${counterpartyWallet.slice(0, 6)}...${counterpartyWallet.slice(-4)}` })}
           </DialogDescription>
         </DialogHeader>
 
@@ -190,7 +192,7 @@ export function RatingModal({
 
           {/* Quick Review Buttons */}
           <div>
-            <Label className="text-gray-400 text-sm">Quick feedback (optional)</Label>
+            <Label className="text-gray-400 text-sm">{t('p2pRating.quickFeedback')}</Label>
             <div className="flex flex-wrap gap-2 mt-2">
               {quickReviews.map((qr, i) => (
                 <button
@@ -218,13 +220,13 @@ export function RatingModal({
           {/* Review Text */}
           <div>
             <Label htmlFor="review" className="text-gray-400 text-sm">
-              Additional comments (optional)
+              {t('p2pRating.additionalComments')}
             </Label>
             <Textarea
               id="review"
               value={review}
               onChange={(e) => setReview(e.target.value)}
-              placeholder="Share your experience..."
+              placeholder={t('p2pRating.sharePlaceholder')}
               className="mt-2 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 resize-none"
               rows={3}
               maxLength={500}
@@ -243,7 +245,7 @@ export function RatingModal({
                 : 'bg-blue-500/20 text-blue-400'
               }
             `}>
-              Rating as {isBuyer ? 'Buyer' : 'Seller'}
+              {isBuyer ? t('p2pRating.ratingAsBuyer') : t('p2pRating.ratingAsSeller')}
             </span>
           </div>
         </div>
@@ -255,7 +257,7 @@ export function RatingModal({
             disabled={loading}
             className="border-gray-700"
           >
-            Skip
+            {t('p2pRating.skip')}
           </Button>
           <Button
             onClick={handleSubmit}
@@ -265,10 +267,10 @@ export function RatingModal({
             {loading ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Submitting...
+                {t('p2pRating.submitting')}
               </>
             ) : (
-              'Submit Rating'
+              t('p2pRating.submitRating')
             )}
           </Button>
         </DialogFooter>

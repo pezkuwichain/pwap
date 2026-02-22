@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -18,44 +19,45 @@ interface Role {
 
 const PERMISSION_CATEGORIES = {
   governance: {
-    title: 'Governance',
+    titleKey: 'permission.catGovernance',
     permissions: {
-      create_proposal: 'Create Proposals',
-      vote_proposal: 'Vote on Proposals',
-      delegate_vote: 'Delegate Voting Power',
-      manage_treasury: 'Manage Treasury',
+      create_proposal: 'permission.createProposals',
+      vote_proposal: 'permission.voteOnProposals',
+      delegate_vote: 'permission.delegateVoting',
+      manage_treasury: 'permission.manageTreasury',
     }
   },
   moderation: {
-    title: 'Moderation',
+    titleKey: 'permission.catModeration',
     permissions: {
-      moderate_content: 'Moderate Content',
-      ban_users: 'Ban Users',
-      delete_posts: 'Delete Posts',
-      pin_posts: 'Pin Posts',
+      moderate_content: 'permission.moderateContent',
+      ban_users: 'permission.banUsers',
+      delete_posts: 'permission.deletePosts',
+      pin_posts: 'permission.pinPosts',
     }
   },
   administration: {
-    title: 'Administration',
+    titleKey: 'permission.catAdministration',
     permissions: {
-      manage_users: 'Manage Users',
-      manage_roles: 'Manage Roles',
-      view_analytics: 'View Analytics',
-      system_settings: 'System Settings',
+      manage_users: 'permission.manageUsers',
+      manage_roles: 'permission.manageRoles',
+      view_analytics: 'permission.viewAnalytics',
+      system_settings: 'permission.systemSettings',
     }
   },
   security: {
-    title: 'Security',
+    titleKey: 'permission.catSecurity',
     permissions: {
-      view_audit_logs: 'View Audit Logs',
-      manage_sessions: 'Manage Sessions',
-      configure_2fa: 'Configure 2FA',
-      access_api: 'Access API',
+      view_audit_logs: 'permission.viewAuditLogs',
+      manage_sessions: 'permission.manageSessions',
+      configure_2fa: 'permission.configure2fa',
+      access_api: 'permission.accessApi',
     }
   }
 };
 
 export function PermissionEditor() {
+  const { t } = useTranslation();
   const [roles, setRoles] = useState<Role[]>([]);
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [saving, setSaving] = useState(false);
@@ -81,8 +83,8 @@ export function PermissionEditor() {
     } catch {
       if (import.meta.env.DEV) console.error('Error loading roles:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to load roles',
+        title: t('common.error'),
+        description: t('permission.loadFailed'),
         variant: 'destructive',
       });
     } finally {
@@ -116,13 +118,13 @@ export function PermissionEditor() {
       if (error) throw error;
 
       toast({
-        title: 'Success',
-        description: 'Permissions updated successfully',
+        title: t('common.success'),
+        description: t('permission.saved'),
       });
     } catch {
       toast({
-        title: 'Error',
-        description: 'Failed to save permissions',
+        title: t('common.error'),
+        description: t('permission.saveFailed'),
         variant: 'destructive',
       });
     } finally {
@@ -143,7 +145,7 @@ export function PermissionEditor() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Shield className="h-5 w-5" />
-          Permission Editor
+          {t('permission.title')}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -171,7 +173,7 @@ export function PermissionEditor() {
                   {selectedRole.is_system && (
                     <Badge variant="secondary" className="mt-2">
                       <Lock className="h-3 w-3 mr-1" />
-                      System Role (Read Only)
+                      {t('permission.systemRole')}
                     </Badge>
                   )}
                 </div>
@@ -183,7 +185,7 @@ export function PermissionEditor() {
                       onClick={resetPermissions}
                     >
                       <RefreshCw className="h-4 w-4 mr-1" />
-                      Reset
+                      {t('permission.reset')}
                     </Button>
                     <Button
                       size="sm"
@@ -191,7 +193,7 @@ export function PermissionEditor() {
                       disabled={saving}
                     >
                       <Save className="h-4 w-4 mr-1" />
-                      Save Changes
+                      {t('permission.saveChanges')}
                     </Button>
                   </div>
                 )}
@@ -200,7 +202,7 @@ export function PermissionEditor() {
               <div className="space-y-6">
                 {Object.entries(PERMISSION_CATEGORIES).map(([categoryKey, category]) => (
                   <div key={categoryKey} className="space-y-3">
-                    <h4 className="font-medium text-sm">{category.title}</h4>
+                    <h4 className="font-medium text-sm">{t(category.titleKey)}</h4>
                     <div className="space-y-2">
                       {Object.entries(category.permissions).map(([permKey, permName]) => {
                         const fullPerm = `${categoryKey}.${permKey}`;
@@ -214,7 +216,7 @@ export function PermissionEditor() {
                               ) : (
                                 <Lock className="h-4 w-4 text-muted-foreground" />
                               )}
-                              <span className="text-sm">{permName}</span>
+                              <span className="text-sm">{t(permName)}</span>
                             </div>
                             <Switch
                               checked={isEnabled}

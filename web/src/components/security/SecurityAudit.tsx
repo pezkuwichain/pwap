@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -25,6 +26,7 @@ interface AuditLog {
 }
 
 export function SecurityAudit() {
+  const { t } = useTranslation();
   const [metrics, setMetrics] = useState<SecurityMetrics>({
     totalUsers: 0,
     activeUsers: 0,
@@ -106,25 +108,25 @@ export function SecurityAudit() {
   };
 
   const getScoreBadge = (score: number) => {
-    if (score >= 80) return { text: 'Excellent', variant: 'default' as const };
-    if (score >= 60) return { text: 'Good', variant: 'secondary' as const };
-    if (score >= 40) return { text: 'Fair', variant: 'outline' as const };
-    return { text: 'Poor', variant: 'destructive' as const };
+    if (score >= 80) return { text: t('securityAudit.excellent'), variant: 'default' as const };
+    if (score >= 60) return { text: t('securityAudit.good'), variant: 'secondary' as const };
+    if (score >= 40) return { text: t('securityAudit.fair'), variant: 'outline' as const };
+    return { text: t('securityAudit.poor'), variant: 'destructive' as const };
   };
 
   const pieData = [
-    { name: '2FA Enabled', value: metrics.twoFactorEnabled, color: '#10b981' },
-    { name: 'No 2FA', value: metrics.totalUsers - metrics.twoFactorEnabled, color: '#ef4444' },
+    { name: t('securityAudit.pieEnabled'), value: metrics.twoFactorEnabled, color: '#10b981' },
+    { name: t('securityAudit.pieNotEnabled'), value: metrics.totalUsers - metrics.twoFactorEnabled, color: '#ef4444' },
   ];
 
   const activityData = [
-    { name: 'Mon', logins: 45, failures: 2 },
-    { name: 'Tue', logins: 52, failures: 3 },
-    { name: 'Wed', logins: 48, failures: 1 },
-    { name: 'Thu', logins: 61, failures: 4 },
-    { name: 'Fri', logins: 55, failures: 2 },
-    { name: 'Sat', logins: 32, failures: 1 },
-    { name: 'Sun', logins: 28, failures: 0 },
+    { name: t('securityAudit.dayMon'), logins: 45, failures: 2 },
+    { name: t('securityAudit.dayTue'), logins: 52, failures: 3 },
+    { name: t('securityAudit.dayWed'), logins: 48, failures: 1 },
+    { name: t('securityAudit.dayThu'), logins: 61, failures: 4 },
+    { name: t('securityAudit.dayFri'), logins: 55, failures: 2 },
+    { name: t('securityAudit.daySat'), logins: 32, failures: 1 },
+    { name: t('securityAudit.daySun'), logins: 28, failures: 0 },
   ];
 
   const scoreBadge = getScoreBadge(metrics.securityScore);
@@ -137,7 +139,7 @@ export function SecurityAudit() {
           <CardTitle className="flex items-center justify-between">
             <span className="flex items-center gap-2">
               <Shield className="h-5 w-5" />
-              Security Score
+              {t('securityAudit.scoreTitle')}
             </span>
             <Badge variant={scoreBadge.variant}>{scoreBadge.text}</Badge>
           </CardTitle>
@@ -148,7 +150,7 @@ export function SecurityAudit() {
               <div className={`text-6xl font-bold ${getScoreColor(metrics.securityScore)}`}>
                 {metrics.securityScore}
               </div>
-              <p className="text-sm text-muted-foreground mt-2">Out of 100</p>
+              <p className="text-sm text-muted-foreground mt-2">{t('securityAudit.outOf')}</p>
             </div>
             <Progress value={metrics.securityScore} className="h-3" />
           </div>
@@ -161,7 +163,7 @@ export function SecurityAudit() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Total Users</p>
+                <p className="text-sm text-muted-foreground">{t('securityAudit.totalUsers')}</p>
                 <p className="text-2xl font-bold">{metrics.totalUsers}</p>
               </div>
               <Users className="h-8 w-8 text-blue-500" />
@@ -173,7 +175,7 @@ export function SecurityAudit() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">2FA Enabled</p>
+                <p className="text-sm text-muted-foreground">{t('securityAudit.twoFaEnabled')}</p>
                 <p className="text-2xl font-bold">{metrics.twoFactorEnabled}</p>
               </div>
               <Key className="h-8 w-8 text-green-500" />
@@ -185,7 +187,7 @@ export function SecurityAudit() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Active Sessions</p>
+                <p className="text-sm text-muted-foreground">{t('securityAudit.activeSessions')}</p>
                 <p className="text-2xl font-bold">{metrics.activeUsers}</p>
               </div>
               <Activity className="h-8 w-8 text-purple-500" />
@@ -197,7 +199,7 @@ export function SecurityAudit() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Suspicious</p>
+                <p className="text-sm text-muted-foreground">{t('securityAudit.suspicious')}</p>
                 <p className="text-2xl font-bold">{metrics.suspiciousActivities}</p>
               </div>
               <AlertTriangle className="h-8 w-8 text-orange-500" />
@@ -210,7 +212,7 @@ export function SecurityAudit() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Login Activity</CardTitle>
+            <CardTitle>{t('securityAudit.loginActivity')}</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -228,7 +230,7 @@ export function SecurityAudit() {
 
         <Card>
           <CardHeader>
-            <CardTitle>2FA Adoption</CardTitle>
+            <CardTitle>{t('securityAudit.twoFaAdoption')}</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -257,7 +259,7 @@ export function SecurityAudit() {
       {/* Recent Security Events */}
       <Card>
         <CardHeader>
-          <CardTitle>Recent Security Events</CardTitle>
+          <CardTitle>{t('securityAudit.recentEvents')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
@@ -270,7 +272,7 @@ export function SecurityAudit() {
                   {log.severity === 'low' && <CheckCircle className="h-5 w-5 text-green-500" />}
                   <div>
                     <p className="font-medium">{log.action}</p>
-                    <p className="text-sm text-muted-foreground">IP: {log.ip_address}</p>
+                    <p className="text-sm text-muted-foreground">{t('securityAudit.ip')}: {log.ip_address}</p>
                   </div>
                 </div>
                 <Badge variant={

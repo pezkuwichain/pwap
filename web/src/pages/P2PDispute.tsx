@@ -71,39 +71,39 @@ interface Evidence {
   created_at: string;
 }
 
-const STATUS_CONFIG: Record<string, { color: string; icon: React.ReactNode; label: string }> = {
+const STATUS_CONFIG: Record<string, { color: string; icon: React.ReactNode; labelKey: string }> = {
   open: {
     color: 'bg-amber-500',
     icon: <Clock className="h-4 w-4" />,
-    label: 'Open',
+    labelKey: 'p2pDispute.statusOpen',
   },
   under_review: {
     color: 'bg-blue-500',
     icon: <Scale className="h-4 w-4" />,
-    label: 'Under Review',
+    labelKey: 'p2pDispute.statusUnderReview',
   },
   resolved: {
     color: 'bg-green-500',
     icon: <CheckCircle className="h-4 w-4" />,
-    label: 'Resolved',
+    labelKey: 'p2pDispute.statusResolved',
   },
   closed: {
     color: 'bg-gray-500',
     icon: <XCircle className="h-4 w-4" />,
-    label: 'Closed',
+    labelKey: 'p2pDispute.statusClosed',
   },
 };
 
-const RESOLUTION_LABELS: Record<string, string> = {
-  release_to_buyer: 'Released to Buyer',
-  refund_to_seller: 'Refunded to Seller',
-  split: 'Split Decision',
+const RESOLUTION_LABEL_KEYS: Record<string, string> = {
+  release_to_buyer: 'p2pDispute.releasedToBuyer',
+  refund_to_seller: 'p2pDispute.refundedToSeller',
+  split: 'p2pDispute.splitDecision',
 };
 
 export default function P2PDispute() {
   const { disputeId } = useParams<{ disputeId: string }>();
   const navigate = useNavigate();
-  useTranslation();
+  const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [dispute, setDispute] = useState<DisputeDetails | null>(null);
@@ -150,7 +150,7 @@ export default function P2PDispute() {
         }
       } catch (error) {
         console.error('Failed to fetch dispute:', error);
-        toast.error('Failed to load dispute details');
+        toast.error(t('p2pDispute.failedToLoad'));
       } finally {
         setIsLoading(false);
       }
@@ -205,7 +205,7 @@ export default function P2PDispute() {
     try {
       for (const file of Array.from(files)) {
         if (file.size > 10 * 1024 * 1024) {
-          toast.error(`File ${file.name} is too large (max 10MB)`);
+          toast.error(t('p2pDispute.fileTooLarge', { name: file.name }));
           continue;
         }
 
@@ -230,10 +230,10 @@ export default function P2PDispute() {
         });
       }
 
-      toast.success('Evidence uploaded successfully');
+      toast.success(t('p2pDispute.evidenceUploaded'));
     } catch (error) {
       console.error('Upload failed:', error);
-      toast.error('Failed to upload evidence');
+      toast.error(t('p2pDispute.failedToUpload'));
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) {
@@ -273,12 +273,12 @@ export default function P2PDispute() {
         <Card>
           <CardContent className="py-12 text-center">
             <AlertTriangle className="h-12 w-12 mx-auto text-amber-500 mb-4" />
-            <h2 className="text-lg font-semibold mb-2">Dispute Not Found</h2>
+            <h2 className="text-lg font-semibold mb-2">{t('p2pDispute.notFound')}</h2>
             <p className="text-muted-foreground mb-4">
-              The dispute you are looking for does not exist or you do not have access.
+              {t('p2pDispute.notFoundDesc')}
             </p>
             <Button onClick={() => navigate('/p2p/orders')}>
-              Go to My Trades
+              {t('p2pDispute.goToTrades')}
             </Button>
           </CardContent>
         </Card>
@@ -297,7 +297,7 @@ export default function P2PDispute() {
         className="gap-2"
       >
         <ArrowLeft className="h-4 w-4" />
-        Back
+        {t('p2p.back')}
       </Button>
 
       {/* Header Card */}
@@ -307,16 +307,16 @@ export default function P2PDispute() {
             <div>
               <CardTitle className="flex items-center gap-2">
                 <AlertTriangle className="h-5 w-5 text-amber-500" />
-                Dispute #{dispute.id.slice(0, 8)}
+                {t('p2pDispute.disputeId', { id: dispute.id.slice(0, 8) })}
               </CardTitle>
               <CardDescription className="flex items-center gap-2 mt-1">
                 <Calendar className="h-4 w-4" />
-                Opened {new Date(dispute.created_at).toLocaleDateString()}
+                {t('p2pDispute.opened', { date: new Date(dispute.created_at).toLocaleDateString() })}
               </CardDescription>
             </div>
             <Badge className={`${statusConfig.color} text-white flex items-center gap-1`}>
               {statusConfig.icon}
-              {statusConfig.label}
+              {t(statusConfig.labelKey)}
             </Badge>
           </div>
         </CardHeader>
@@ -326,32 +326,31 @@ export default function P2PDispute() {
             <div className="bg-muted rounded-lg p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Related Trade</p>
+                  <p className="text-sm text-muted-foreground">{t('p2pDispute.relatedTrade')}</p>
                   <p className="font-medium">
-                    {dispute.trade.crypto_amount} {dispute.trade.token} for{' '}
-                    {dispute.trade.fiat_amount} {dispute.trade.fiat_currency}
+                    {t('p2pDispute.tradeAmountFor', { cryptoAmount: dispute.trade.crypto_amount, token: dispute.trade.token, fiatAmount: dispute.trade.fiat_amount, currency: dispute.trade.fiat_currency })}
                   </p>
                 </div>
                 <Link to={`/p2p/trade/${dispute.trade_id}`}>
                   <Button variant="outline" size="sm">
-                    View Trade
+                    {t('p2pDispute.viewTrade')}
                     <ChevronRight className="h-4 w-4 ml-1" />
                   </Button>
                 </Link>
               </div>
               <div className="grid grid-cols-2 gap-4 mt-4 text-sm">
                 <div>
-                  <span className="text-muted-foreground">Buyer:</span>{' '}
+                  <span className="text-muted-foreground">{t('p2p.buyer')}:</span>{' '}
                   <span className={isBuyer ? 'font-medium text-primary' : ''}>
                     {formatAddress(dispute.trade.buyer_wallet, 6, 4)}
-                    {isBuyer && ' (You)'}
+                    {isBuyer && ` ${t('p2p.you')}`}
                   </span>
                 </div>
                 <div>
-                  <span className="text-muted-foreground">Seller:</span>{' '}
+                  <span className="text-muted-foreground">{t('p2p.seller')}:</span>{' '}
                   <span className={isSeller ? 'font-medium text-primary' : ''}>
                     {formatAddress(dispute.trade.seller_wallet, 6, 4)}
-                    {isSeller && ' (You)'}
+                    {isSeller && ` ${t('p2p.you')}`}
                   </span>
                 </div>
               </div>
@@ -362,7 +361,7 @@ export default function P2PDispute() {
           <div>
             <h3 className="font-semibold mb-2 flex items-center gap-2">
               <MessageSquare className="h-4 w-4" />
-              Dispute Reason
+              {t('p2pDispute.disputeReason')}
             </h3>
             <Badge variant="outline" className="mb-2">
               {dispute.reason.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
@@ -371,7 +370,7 @@ export default function P2PDispute() {
               {dispute.description}
             </p>
             <p className="text-xs text-muted-foreground mt-2">
-              Opened by: {isOpener ? 'You' : (isBuyer ? 'Seller' : 'Buyer')}
+              {t('p2pDispute.openedBy', { party: isOpener ? t('p2p.you').replace(/[()]/g, '') : (isBuyer ? t('p2p.seller') : t('p2p.buyer')) })}
             </p>
           </div>
 
@@ -380,10 +379,10 @@ export default function P2PDispute() {
             <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
               <h3 className="font-semibold mb-2 flex items-center gap-2 text-green-700 dark:text-green-300">
                 <CheckCircle className="h-4 w-4" />
-                Resolution
+                {t('p2pDispute.resolutionTitle')}
               </h3>
               <p className="font-medium text-green-800 dark:text-green-200">
-                {RESOLUTION_LABELS[dispute.resolution]}
+                {t(RESOLUTION_LABEL_KEYS[dispute.resolution])}
               </p>
               {dispute.resolution_notes && (
                 <p className="text-sm text-green-700 dark:text-green-300 mt-2">
@@ -392,7 +391,7 @@ export default function P2PDispute() {
               )}
               {dispute.resolved_at && (
                 <p className="text-xs text-green-600 dark:text-green-400 mt-2">
-                  Resolved on {new Date(dispute.resolved_at).toLocaleString()}
+                  {t('p2pDispute.resolvedOn', { date: new Date(dispute.resolved_at).toLocaleString() })}
                 </p>
               )}
             </div>
@@ -404,7 +403,7 @@ export default function P2PDispute() {
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg">Evidence</CardTitle>
+            <CardTitle className="text-lg">{t('p2pDispute.evidenceTitle')}</CardTitle>
             {isParticipant && dispute.status !== 'resolved' && (
               <div>
                 <input
@@ -422,7 +421,7 @@ export default function P2PDispute() {
                   disabled={isUploading}
                 >
                   <Upload className="h-4 w-4 mr-2" />
-                  {isUploading ? 'Uploading...' : 'Add Evidence'}
+                  {isUploading ? t('p2pDispute.uploading') : t('p2pDispute.addEvidence')}
                 </Button>
               </div>
             )}
@@ -432,10 +431,10 @@ export default function P2PDispute() {
           {evidence.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <FileText className="h-12 w-12 mx-auto mb-2 opacity-50" />
-              <p>No evidence submitted yet</p>
+              <p>{t('p2pDispute.noEvidence')}</p>
               {isParticipant && dispute.status !== 'resolved' && (
                 <p className="text-sm mt-1">
-                  Upload screenshots, receipts, or documents to support your case
+                  {t('p2pDispute.uploadEvidenceHelp')}
                 </p>
               )}
             </div>
@@ -468,8 +467,8 @@ export default function P2PDispute() {
                     <div className="p-2 text-xs">
                       <p className="truncate font-medium">{item.description}</p>
                       <p className="text-muted-foreground">
-                        {isMyEvidence ? 'You' : (
-                          item.uploaded_by === dispute.trade?.buyer_id ? 'Buyer' : 'Seller'
+                        {isMyEvidence ? t('p2p.you').replace(/[()]/g, '') : (
+                          item.uploaded_by === dispute.trade?.buyer_id ? t('p2p.buyer') : t('p2p.seller')
                         )}
                       </p>
                     </div>
@@ -491,7 +490,7 @@ export default function P2PDispute() {
       {/* Status Timeline */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Status Timeline</CardTitle>
+          <CardTitle className="text-lg">{t('p2pDispute.statusTimeline')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -501,7 +500,7 @@ export default function P2PDispute() {
                 <Clock className="h-4 w-4 text-white" />
               </div>
               <div>
-                <p className="font-medium">Dispute Opened</p>
+                <p className="font-medium">{t('p2pDispute.disputeOpenedStep')}</p>
                 <p className="text-sm text-muted-foreground">
                   {new Date(dispute.created_at).toLocaleString()}
                 </p>
@@ -515,9 +514,9 @@ export default function P2PDispute() {
                   <Scale className="h-4 w-4 text-white" />
                 </div>
                 <div>
-                  <p className="font-medium">Under Review</p>
+                  <p className="font-medium">{t('p2pDispute.underReviewStep')}</p>
                   <p className="text-sm text-muted-foreground">
-                    Admin is reviewing the case
+                    {t('p2pDispute.adminReviewing')}
                   </p>
                 </div>
               </div>
@@ -530,7 +529,7 @@ export default function P2PDispute() {
                   <CheckCircle className="h-4 w-4 text-white" />
                 </div>
                 <div>
-                  <p className="font-medium">Resolved</p>
+                  <p className="font-medium">{t('p2pDispute.resolvedStep')}</p>
                   <p className="text-sm text-muted-foreground">
                     {dispute.resolved_at && new Date(dispute.resolved_at).toLocaleString()}
                   </p>
@@ -546,8 +545,8 @@ export default function P2PDispute() {
                     <Scale className="h-4 w-4 text-white" />
                   </div>
                   <div>
-                    <p className="font-medium">Under Review</p>
-                    <p className="text-sm text-muted-foreground">Pending</p>
+                    <p className="font-medium">{t('p2pDispute.underReviewStep')}</p>
+                    <p className="text-sm text-muted-foreground">{t('p2pDispute.pending')}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 opacity-40">
@@ -555,8 +554,8 @@ export default function P2PDispute() {
                     <CheckCircle className="h-4 w-4 text-white" />
                   </div>
                   <div>
-                    <p className="font-medium">Resolution</p>
-                    <p className="text-sm text-muted-foreground">Pending</p>
+                    <p className="font-medium">{t('p2pDispute.resolutionStep')}</p>
+                    <p className="text-sm text-muted-foreground">{t('p2pDispute.pending')}</p>
                   </div>
                 </div>
               </>
@@ -571,13 +570,13 @@ export default function P2PDispute() {
           <div className="flex items-center gap-4">
             <User className="h-10 w-10 text-muted-foreground" />
             <div className="flex-1">
-              <h3 className="font-medium">Need Help?</h3>
+              <h3 className="font-medium">{t('p2pDispute.needHelp')}</h3>
               <p className="text-sm text-muted-foreground">
-                Our support team typically responds within 24-48 hours.
+                {t('p2pDispute.supportResponse')}
               </p>
             </div>
             <Button variant="outline" asChild>
-              <a href="mailto:support@pezkuwichain.io">Contact Support</a>
+              <a href="mailto:support@pezkuwichain.io">{t('p2pDispute.contactSupport')}</a>
             </Button>
           </div>
         </CardContent>

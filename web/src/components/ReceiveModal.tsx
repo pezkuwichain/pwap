@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import {
   Dialog,
@@ -20,6 +21,7 @@ interface ReceiveModalProps {
 export const ReceiveModal: React.FC<ReceiveModalProps> = ({ isOpen, onClose }) => {
   const { selectedAccount } = usePezkuwi();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('');
 
@@ -46,15 +48,15 @@ export const ReceiveModal: React.FC<ReceiveModalProps> = ({ isOpen, onClose }) =
       await navigator.clipboard.writeText(selectedAccount.address);
       setCopied(true);
       toast({
-        title: "Address Copied!",
-        description: "Your wallet address has been copied to clipboard",
+        title: t('receive.addressCopied'),
+        description: t('receive.addressCopiedDesc'),
       });
 
       setTimeout(() => setCopied(false), 2000);
     } catch {
       toast({
-        title: "Copy Failed",
-        description: "Failed to copy address to clipboard",
+        title: t('receive.copyFailed'),
+        description: t('receive.copyFailedDesc'),
         variant: "destructive",
       });
     }
@@ -68,9 +70,9 @@ export const ReceiveModal: React.FC<ReceiveModalProps> = ({ isOpen, onClose }) =
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="bg-gray-900 border-gray-800 max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-white">Receive Tokens</DialogTitle>
+          <DialogTitle className="text-white">{t('receive.title')}</DialogTitle>
           <DialogDescription className="text-gray-400">
-            Share this address to receive HEZ, PEZ, and other tokens
+            {t('receive.description')}
           </DialogDescription>
         </DialogHeader>
 
@@ -88,15 +90,15 @@ export const ReceiveModal: React.FC<ReceiveModalProps> = ({ isOpen, onClose }) =
 
           {/* Account Name */}
           <div className="text-center">
-            <div className="text-sm text-gray-400 mb-1">Account Name</div>
+            <div className="text-sm text-gray-400 mb-1">{t('receive.accountName')}</div>
             <div className="text-xl font-semibold text-white">
-              {selectedAccount.meta.name || 'Unnamed Account'}
+              {selectedAccount.meta.name || t('receive.unnamed')}
             </div>
           </div>
 
           {/* Address */}
           <div className="bg-gray-800/50 rounded-lg p-4">
-            <div className="text-sm text-gray-400 mb-2">Wallet Address</div>
+            <div className="text-sm text-gray-400 mb-2">{t('receive.walletAddress')}</div>
             <div className="bg-gray-900 rounded p-3 mb-3">
               <div className="text-white font-mono text-sm break-all">
                 {selectedAccount.address}
@@ -110,12 +112,12 @@ export const ReceiveModal: React.FC<ReceiveModalProps> = ({ isOpen, onClose }) =
               {copied ? (
                 <>
                   <CheckCircle className="w-4 h-4 mr-2" />
-                  Copied!
+                  {t('receive.copied')}
                 </>
               ) : (
                 <>
                   <Copy className="w-4 h-4 mr-2" />
-                  Copy Address
+                  {t('receive.copyAddress')}
                 </>
               )}
             </Button>
@@ -124,7 +126,7 @@ export const ReceiveModal: React.FC<ReceiveModalProps> = ({ isOpen, onClose }) =
           {/* Warning */}
           <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3">
             <p className="text-yellow-400 text-xs">
-              <strong>Important:</strong> Only send PezkuwiChain compatible tokens to this address. Sending other tokens may result in permanent loss.
+              {t('receive.warning')}
             </p>
           </div>
         </div>

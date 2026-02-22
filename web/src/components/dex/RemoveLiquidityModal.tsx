@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { X, Minus, AlertCircle, Loader2, CheckCircle, Info } from 'lucide-react';
@@ -34,6 +35,7 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
   // Use Asset Hub API for DEX operations (assetConversion pallet is on Asset Hub)
   const { assetHubApi, isAssetHubReady } = usePezkuwi();
   const { account, signer } = useWallet();
+  const { t } = useTranslation();
 
   const [lpTokenBalance, setLpTokenBalance] = useState<string>('0');
   const [removePercentage, setRemovePercentage] = useState(25);
@@ -112,12 +114,12 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
 
   const handleRemoveLiquidity = async () => {
     if (!assetHubApi || !isAssetHubReady || !signer || !account || !pool) {
-      setErrorMessage('Wallet not connected');
+      setErrorMessage(t('common.walletNotConnected'));
       return;
     }
 
     if (BigInt(lpTokenBalance) === BigInt(0)) {
-      setErrorMessage('No liquidity to remove');
+      setErrorMessage(t('removeLiquidity.noLiquidity'));
       return;
     }
 
@@ -175,7 +177,7 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
       );
     } catch (error) {
       if (import.meta.env.DEV) console.error('Remove liquidity failed:', error);
-      setErrorMessage(error instanceof Error ? error.message : 'Transaction failed');
+      setErrorMessage(error instanceof Error ? error.message : t('common.txFailed'));
       setTxStatus('error');
     }
   };
@@ -190,7 +192,7 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
         <CardHeader className="border-b border-gray-800">
           <div className="flex items-center justify-between">
             <CardTitle className="text-xl font-bold text-white">
-              Remove Liquidity
+              {t('removeLiquidity.title')}
             </CardTitle>
             <button
               onClick={onClose}
@@ -201,7 +203,7 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
             </button>
           </div>
           <div className="text-sm text-gray-400 mt-2">
-            {pool.asset1Symbol} / {pool.asset2Symbol} Pool
+            {t('removeLiquidity.pool', { asset1: pool.asset1Symbol, asset2: pool.asset2Symbol })}
           </div>
         </CardHeader>
 
@@ -210,13 +212,13 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
           <div className="flex items-start gap-2 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
             <Info className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
             <span className="text-sm text-blue-400">
-              Remove liquidity to receive your tokens back. You&apos;ll burn LP tokens in proportion to your withdrawal.
+              {t('removeLiquidity.info')}
             </span>
           </div>
 
           {/* LP Token Balance */}
           <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-700">
-            <div className="text-sm text-gray-400 mb-1">Your LP Tokens</div>
+            <div className="text-sm text-gray-400 mb-1">{t('removeLiquidity.yourLpTokens')}</div>
             <div className="text-2xl font-bold text-white font-mono">
               {formatTokenBalance(lpTokenBalance, 12, 6)}
             </div>
@@ -225,7 +227,7 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
           {/* Percentage Selector */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <label className="text-sm text-gray-400">Remove Amount</label>
+              <label className="text-sm text-gray-400">{t('removeLiquidity.removeAmount')}</label>
               <span className="text-lg font-bold text-white">{removePercentage}%</span>
             </div>
 
@@ -266,7 +268,7 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
 
           {/* Output Preview */}
           <div className="space-y-3">
-            <div className="text-sm text-gray-400 mb-2">You will receive</div>
+            <div className="text-sm text-gray-400 mb-2">{t('removeLiquidity.youWillReceive')}</div>
 
             <div className="p-4 bg-gray-800 border border-gray-700 rounded-lg space-y-3">
               <div className="flex items-center justify-between">
@@ -286,7 +288,7 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
 
           {/* Slippage Tolerance */}
           <div className="space-y-2">
-            <label className="text-sm text-gray-400">Slippage Tolerance</label>
+            <label className="text-sm text-gray-400">{t('common.slippageTolerance')}</label>
             <div className="flex gap-2">
               {[0.5, 1, 2].map((value) => (
                 <button
@@ -318,7 +320,7 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
             <div className="flex items-start gap-2 p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
               <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
               <span className="text-sm text-green-400">
-                Liquidity removed successfully!
+                {t('removeLiquidity.success')}
               </span>
             </div>
           )}
@@ -330,7 +332,7 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
               className="flex-1 px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors border border-gray-700"
               disabled={txStatus === 'signing' || txStatus === 'submitting'}
             >
-              Cancel
+              {t('common.cancel')}
             </button>
             <button
               onClick={handleRemoveLiquidity}
@@ -345,21 +347,21 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
               {txStatus === 'signing' && (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Signing...
+                  {t('common.signing')}
                 </>
               )}
               {txStatus === 'submitting' && (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Removing...
+                  {t('removeLiquidity.removing')}
                 </>
               )}
-              {txStatus === 'idle' && 'Remove Liquidity'}
-              {txStatus === 'error' && 'Retry'}
+              {txStatus === 'idle' && t('removeLiquidity.removeLiquidity')}
+              {txStatus === 'error' && t('common.retry')}
               {txStatus === 'success' && (
                 <>
                   <CheckCircle className="w-4 h-4" />
-                  Success
+                  {t('common.success')}
                 </>
               )}
             </button>

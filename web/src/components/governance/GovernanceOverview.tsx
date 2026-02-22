@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Users, Gavel, FileText, TrendingUpIcon,
   Shield
@@ -30,6 +31,7 @@ const RELAY_TREASURY = '5EYCAe5ijiYfyeZ2JJCGq56LmPyNRAKzpG4QkoQkkQNB5e6Z'; // py
 const PEZ_TREASURY = '5EYCAe5iipewaoUvoNr8ttcKqj5czZPBvVAex6uWbT6HxQNU'; // pez/trea (Asset Hub)
 
 const GovernanceOverview: React.FC = () => {
+  const { t } = useTranslation();
   const { api, isApiReady, assetHubApi, isAssetHubReady } = usePezkuwi();
   const [stats, setStats] = useState<GovernanceStats>({
     activeProposals: 0,
@@ -165,7 +167,7 @@ const GovernanceOverview: React.FC = () => {
   }, [api, isApiReady, assetHubApi, isAssetHubReady]);
 
   if (loading) {
-    return <LoadingState message="Loading governance data..." />;
+    return <LoadingState message={t('governance.overview.loading')} />;
   }
 
   return (
@@ -176,7 +178,7 @@ const GovernanceOverview: React.FC = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-400 text-sm">Active Proposals</p>
+                <p className="text-gray-400 text-sm">{t('governance.overview.activeProposals')}</p>
                 <p className="text-2xl font-bold text-white mt-1">{stats.activeProposals}</p>
               </div>
               <div className="p-3 bg-blue-500/10 rounded-lg">
@@ -190,7 +192,7 @@ const GovernanceOverview: React.FC = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-400 text-sm">Active Elections</p>
+                <p className="text-gray-400 text-sm">{t('governance.overview.activeElections')}</p>
                 <p className="text-2xl font-bold text-white mt-1">{stats.activeElections}</p>
               </div>
               <div className="p-3 bg-cyan-500/10 rounded-lg">
@@ -204,7 +206,7 @@ const GovernanceOverview: React.FC = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-400 text-sm">Total Voters</p>
+                <p className="text-gray-400 text-sm">{t('governance.overview.totalVoters')}</p>
                 <p className="text-2xl font-bold text-white mt-1">{stats.totalVoters}</p>
               </div>
               <div className="p-3 bg-kurdish-green/10 rounded-lg">
@@ -218,7 +220,7 @@ const GovernanceOverview: React.FC = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-400 text-sm">Treasury</p>
+                <p className="text-gray-400 text-sm">{t('governance.overview.treasury')}</p>
                 <p className="text-lg font-bold text-white mt-1">{stats.pezTreasuryBalance}</p>
                 <p className="text-sm text-gray-400 mt-1">{stats.relayTreasuryBalance}</p>
               </div>
@@ -236,23 +238,23 @@ const GovernanceOverview: React.FC = () => {
           <CardHeader>
             <CardTitle className="text-white flex items-center">
               <Gavel className="w-5 h-5 mr-2 text-purple-400" />
-              Parliament Status
+              {t('governance.overview.parliamentStatus')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-gray-400">Active Members</span>
+                <span className="text-gray-400">{t('governance.overview.activeMembers')}</span>
                 <span className="text-white font-semibold">{stats.parliamentMembers}/{stats.parliamentMax}</span>
               </div>
               {stats.activeElections > 0 && (
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-400">Elections</span>
-                  <Badge className="bg-green-500/10 text-green-400 border-green-500/20">Active</Badge>
+                  <span className="text-gray-400">{t('governance.overview.elections')}</span>
+                  <Badge className="bg-green-500/10 text-green-400 border-green-500/20">{t('governance.status.active')}</Badge>
                 </div>
               )}
               <div className="flex items-center justify-between">
-                <span className="text-gray-400">Pending Votes</span>
+                <span className="text-gray-400">{t('governance.overview.pendingVotes')}</span>
                 <span className="text-white font-semibold">{stats.pendingVotes}</span>
               </div>
             </div>
@@ -263,17 +265,17 @@ const GovernanceOverview: React.FC = () => {
           <CardHeader>
             <CardTitle className="text-white flex items-center">
               <Shield className="w-5 h-5 mr-2 text-cyan-400" />
-              Diwan (Constitutional Court)
+              {t('governance.overview.diwan')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-gray-400">Active Judges</span>
+                <span className="text-gray-400">{t('governance.overview.activeJudges')}</span>
                 <span className="text-white font-semibold">{stats.diwanMembers}/{stats.diwanMax}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-gray-400">Pending Reviews</span>
+                <span className="text-gray-400">{t('governance.overview.pendingReviews')}</span>
                 <span className="text-white font-semibold">{stats.diwanPendingReviews}</span>
               </div>
             </div>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useReferral } from '@/contexts/ReferralContext';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,6 +12,7 @@ import { getPendingApprovalsForReferrer, approveReferral } from '@pezkuwi/lib/ci
 import type { PendingApproval } from '@pezkuwi/lib/citizenship-workflow';
 
 export const ReferralDashboard: React.FC = () => {
+  const { t } = useTranslation();
   const { stats, myReferrals, loading } = useReferral();
   const { peopleApi, isPeopleReady, selectedAccount } = usePezkuwi();
   const { toast } = useToast();
@@ -83,10 +85,10 @@ export const ReferralDashboard: React.FC = () => {
         <div>
           <h2 className="text-2xl font-bold text-white flex items-center gap-2">
             <Users className="w-6 h-6 text-green-500" />
-            Referral System
+            {t('referral.title')}
           </h2>
           <p className="text-gray-400 mt-1">
-            Invite friends to PezkuwiChain and earn trust score
+            {t('referral.subtitle')}
           </p>
         </div>
         <Button
@@ -94,7 +96,7 @@ export const ReferralDashboard: React.FC = () => {
           className="bg-green-600 hover:bg-green-700 text-white"
         >
           <UserPlus className="mr-2 h-4 w-4" />
-          Invite Friend
+          {t('referral.inviteFriend')}
         </Button>
       </div>
 
@@ -105,10 +107,10 @@ export const ReferralDashboard: React.FC = () => {
           <CardHeader className="pb-3">
             <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
               <Users className="w-5 h-5 text-green-500" />
-              Total Referrals
+              {t('referral.totalReferrals')}
             </CardTitle>
             <CardDescription className="text-gray-400">
-              Confirmed referrals (KYC completed)
+              {t('referral.totalReferralsDesc')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -123,10 +125,10 @@ export const ReferralDashboard: React.FC = () => {
           <CardHeader className="pb-3">
             <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
               <Trophy className="w-5 h-5 text-yellow-500" />
-              Referral Score
+              {t('referral.referralScore')}
             </CardTitle>
             <CardDescription className="text-gray-400">
-              Score earned from referrals
+              {t('referral.referralScoreDesc')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -134,7 +136,7 @@ export const ReferralDashboard: React.FC = () => {
               {stats?.referralScore ?? 0}
             </div>
             <div className="mt-2 text-xs text-gray-500">
-              Max: 500 points
+              {t('referral.maxPoints')}
             </div>
           </CardContent>
         </Card>
@@ -144,10 +146,10 @@ export const ReferralDashboard: React.FC = () => {
           <CardHeader className="pb-3">
             <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
               <Clock className="w-5 h-5 text-yellow-500" />
-              Pending Approvals
+              {t('referral.pendingApprovals')}
             </CardTitle>
             <CardDescription className="text-gray-400">
-              Waiting for your approval
+              {t('referral.pendingApprovalsDesc')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -156,7 +158,7 @@ export const ReferralDashboard: React.FC = () => {
             </div>
             {stats?.whoInvitedMe && (
               <div className="mt-2 text-xs text-gray-500">
-                You were invited by {stats.whoInvitedMe.slice(0, 8)}...{stats.whoInvitedMe.slice(-6)}
+                {t('referral.invitedBy')} {stats.whoInvitedMe.slice(0, 8)}...{stats.whoInvitedMe.slice(-6)}
               </div>
             )}
           </CardContent>
@@ -166,28 +168,28 @@ export const ReferralDashboard: React.FC = () => {
       {/* Score Breakdown */}
       <Card className="bg-gray-900 border-gray-800">
         <CardHeader>
-          <CardTitle className="text-white">Score Calculation</CardTitle>
+          <CardTitle className="text-white">{t('referral.scoreCalc')}</CardTitle>
           <CardDescription className="text-gray-400">
-            How referrals contribute to your trust score
+            {t('referral.scoreCalcDesc')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
             <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
-              <span className="text-gray-300">1-10 referrals</span>
-              <span className="text-green-400 font-semibold">10 points each</span>
+              <span className="text-gray-300">{t('referral.referrals1_10')}</span>
+              <span className="text-green-400 font-semibold">{t('referral.points10each')}</span>
             </div>
             <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
-              <span className="text-gray-300">11-50 referrals</span>
-              <span className="text-blue-400 font-semibold">100 + 5 points each</span>
+              <span className="text-gray-300">{t('referral.referrals11_50')}</span>
+              <span className="text-blue-400 font-semibold">{t('referral.points5each')}</span>
             </div>
             <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
-              <span className="text-gray-300">51-100 referrals</span>
-              <span className="text-yellow-400 font-semibold">300 + 4 points each</span>
+              <span className="text-gray-300">{t('referral.referrals51_100')}</span>
+              <span className="text-yellow-400 font-semibold">{t('referral.points4each')}</span>
             </div>
             <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
-              <span className="text-gray-300">101+ referrals</span>
-              <span className="text-red-400 font-semibold">500 points (max)</span>
+              <span className="text-gray-300">{t('referral.referrals101plus')}</span>
+              <span className="text-red-400 font-semibold">{t('referral.maxPointsValue')}</span>
             </div>
           </div>
         </CardContent>
@@ -198,10 +200,10 @@ export const ReferralDashboard: React.FC = () => {
         <CardHeader>
           <CardTitle className="text-white flex items-center gap-2">
             <Users className="w-5 h-5 text-green-500" />
-            My Invitations ({pendingApprovals.length + myReferrals.length})
+            {t('referral.myInvitations')} ({pendingApprovals.length + myReferrals.length})
           </CardTitle>
           <CardDescription className="text-gray-400">
-            People you invited — approve pending ones to complete step 2
+            {t('referral.myInvitationsDesc')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -212,16 +214,16 @@ export const ReferralDashboard: React.FC = () => {
           ) : pendingApprovals.length === 0 && myReferrals.length === 0 ? (
             <div className="text-center py-8">
               <Users className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-              <p className="text-gray-500">No invitations yet</p>
+              <p className="text-gray-500">{t('referral.noInvitations')}</p>
               <p className="text-gray-600 text-sm mt-1">
-                Invite friends to start building your network
+                {t('referral.noInvitationsDesc')}
               </p>
               <Button
                 onClick={() => setShowInviteModal(true)}
                 className="mt-4 bg-green-600 hover:bg-green-700"
               >
                 <UserPlus className="mr-2 h-4 w-4" />
-                Send First Invitation
+                {t('referral.sendFirst')}
               </Button>
             </div>
           ) : (
@@ -242,7 +244,7 @@ export const ReferralDashboard: React.FC = () => {
                       </div>
                       <div className="text-xs mt-0.5">
                         <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30 text-[10px] px-1.5 py-0">
-                          Pending — Waiting Your Approval
+                          {t('referral.pendingApproval')}
                         </Badge>
                       </div>
                     </div>
@@ -258,7 +260,7 @@ export const ReferralDashboard: React.FC = () => {
                     ) : (
                       <CheckCircle className="w-4 h-4 mr-1" />
                     )}
-                    Approve
+                    {t('referral.approve')}
                   </Button>
                 </div>
               ))}
@@ -279,7 +281,7 @@ export const ReferralDashboard: React.FC = () => {
                       </div>
                       <div className="text-xs mt-0.5">
                         <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-[10px] px-1.5 py-0">
-                          Confirmed
+                          {t('referral.confirmed')}
                         </Badge>
                       </div>
                     </div>
@@ -303,9 +305,9 @@ export const ReferralDashboard: React.FC = () => {
                 <Award className="w-5 h-5 text-blue-400" />
               </div>
               <div className="flex-1">
-                <div className="text-white font-semibold">Pending Invitation</div>
+                <div className="text-white font-semibold">{t('referral.pendingInvitation')}</div>
                 <div className="text-sm text-blue-300">
-                  Complete KYC to confirm your referral from{' '}
+                  {t('referral.completeKyc')}{' '}
                   <span className="font-mono">
                     {stats.pendingReferral.slice(0, 8)}...{stats.pendingReferral.slice(-6)}
                   </span>

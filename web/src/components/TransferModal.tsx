@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import {
   Dialog,
@@ -68,6 +69,7 @@ const TOKENS: Token[] = [
 export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, selectedAsset }) => {
   const { api, assetHubApi, isApiReady, isAssetHubReady, selectedAccount } = usePezkuwi();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const [selectedToken, setSelectedToken] = useState<TokenType>('HEZ');
   const [recipient, setRecipient] = useState('');
@@ -90,8 +92,8 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, s
   const handleTransfer = async () => {
     if (!api || !isApiReady || !selectedAccount) {
       toast({
-        title: "Error",
-        description: "Wallet not connected",
+        title: t('transfer.error'),
+        description: t('transfer.walletNotConnected'),
         variant: "destructive",
       });
       return;
@@ -107,8 +109,8 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, s
                                currentToken.assetId === 1000;   // wUSDT
     if (isAssetHubTransfer && (!assetHubApi || !isAssetHubReady)) {
       toast({
-        title: "Error",
-        description: "Asset Hub connection not ready. This token is on Asset Hub.",
+        title: t('transfer.error'),
+        description: t('transfer.assetHubNotReady'),
         variant: "destructive",
       });
       return;
@@ -116,8 +118,8 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, s
 
     if (!recipient || !amount) {
       toast({
-        title: "Error",
-        description: "Please fill in all fields",
+        title: t('transfer.error'),
+        description: t('transfer.fillAllFields'),
         variant: "destructive",
       });
       return;
@@ -178,15 +180,15 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, s
 
               setTxStatus('error');
               toast({
-                title: "Transfer Failed",
+                title: t('transfer.failed'),
                 description: errorMessage,
                 variant: "destructive",
               });
             } else {
               setTxStatus('success');
               toast({
-                title: "Transfer Successful!",
-                description: `Sent ${amount} ${currentToken.symbol} to ${recipient.slice(0, 8)}...${recipient.slice(-6)}`,
+                title: t('transfer.success'),
+                description: t('transfer.sentAmount', { amount, token: currentToken.symbol, recipient: `${recipient.slice(0, 8)}...${recipient.slice(-6)}` }),
               });
 
               // Reset form after 2 seconds
@@ -210,8 +212,8 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, s
       setIsTransferring(false);
 
       toast({
-        title: "Transfer Failed",
-        description: error instanceof Error ? error.message : "An error occurred during transfer",
+        title: t('transfer.failed'),
+        description: error instanceof Error ? error.message : t('transfer.errorOccurred'),
         variant: "destructive",
       });
     }
@@ -233,23 +235,23 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, s
       <DialogContent className="bg-gray-900 border-gray-800">
         <DialogHeader>
           <DialogTitle className="text-white">
-            {selectedAsset ? `Send ${selectedAsset.symbol}` : 'Send Tokens'}
+            {selectedAsset ? t('transfer.sendToken', { token: selectedAsset.symbol }) : t('transfer.sendTokens')}
           </DialogTitle>
           <DialogDescription className="text-gray-400">
             {selectedAsset
-              ? `Transfer ${selectedAsset.name} to another account`
-              : 'Transfer tokens to another account'}
+              ? t('transfer.transferTo', { name: selectedAsset.name })
+              : t('transfer.transferTokens')}
           </DialogDescription>
         </DialogHeader>
 
         {txStatus === 'success' ? (
           <div className="py-8 text-center">
             <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">Transfer Successful!</h3>
-            <p className="text-gray-400 mb-4">Your transaction has been finalized</p>
+            <h3 className="text-xl font-semibold text-white mb-2">{t('transfer.success')}</h3>
+            <p className="text-gray-400 mb-4">{t('transfer.finalized')}</p>
             {txHash && (
               <div className="bg-gray-800/50 rounded-lg p-3">
-                <div className="text-xs text-gray-400 mb-1">Transaction Hash</div>
+                <div className="text-xs text-gray-400 mb-1">{t('transfer.txHash')}</div>
                 <div className="text-white font-mono text-xs break-all">
                   {txHash}
                 </div>
@@ -259,13 +261,13 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, s
         ) : txStatus === 'error' ? (
           <div className="py-8 text-center">
             <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">Transfer Failed</h3>
-            <p className="text-gray-400">Please try again</p>
+            <h3 className="text-xl font-semibold text-white mb-2">{t('transfer.failed')}</h3>
+            <p className="text-gray-400">{t('transfer.pleaseTryAgain')}</p>
             <Button
               onClick={() => setTxStatus('idle')}
               className="mt-4 bg-gray-800 hover:bg-gray-700"
             >
-              Try Again
+              {t('transfer.tryAgain')}
             </Button>
           </div>
         ) : (
@@ -273,10 +275,10 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, s
             {/* Token Selection - Only show if no asset is pre-selected */}
             {!selectedAsset && (
               <div>
-                <Label htmlFor="token" className="text-white">Select Token</Label>
+                <Label htmlFor="token" className="text-white">{t('transfer.selectToken')}</Label>
                 <Select value={selectedToken} onValueChange={(value) => setSelectedToken(value as TokenType)} disabled={isTransferring}>
                   <SelectTrigger className="bg-gray-800 border-gray-700 text-white mt-2">
-                    <SelectValue placeholder="Select token" />
+                    <SelectValue placeholder={t('transfer.selectTokenPlaceholder')} />
                   </SelectTrigger>
                   <SelectContent className="bg-gray-800 border-gray-700">
                     {TOKENS.map((token) => (
@@ -302,38 +304,38 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, s
             )}
 
             <div>
-              <Label htmlFor="recipient" className="text-white">Recipient Address</Label>
+              <Label htmlFor="recipient" className="text-white">{t('transfer.recipientAddress')}</Label>
               <Input
                 id="recipient"
                 value={recipient}
                 onChange={(e) => setRecipient(e.target.value)}
-                placeholder="Recipient address"
+                placeholder={t('transfer.recipientPlaceholder')}
                 className="bg-gray-800 border-gray-700 text-white mt-2 placeholder:text-gray-500 placeholder:opacity-50"
                 disabled={isTransferring}
               />
             </div>
 
             <div>
-              <Label htmlFor="amount" className="text-white">Amount ({selectedToken})</Label>
+              <Label htmlFor="amount" className="text-white">{t('transfer.amountLabel', { token: selectedToken })}</Label>
               <Input
                 id="amount"
                 type="number"
                 step={selectedToken === 'HEZ' || selectedToken === 'PEZ' ? '0.0001' : '0.000001'}
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                placeholder="Amount"
+                placeholder={t('transfer.amountPlaceholder')}
                 className="bg-gray-800 border-gray-700 text-white mt-2 placeholder:text-gray-500 placeholder:opacity-50"
                 disabled={isTransferring}
               />
               <div className="text-xs text-gray-500 mt-1">
-                Decimals: {currentToken.decimals}
+                {t('transfer.decimals', { decimals: currentToken.decimals })}
               </div>
             </div>
 
             {txStatus === 'signing' && (
               <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3">
                 <p className="text-yellow-400 text-sm">
-                  Please sign the transaction in your Pezkuwi.js extension
+                  {t('transfer.signTransaction')}
                 </p>
               </div>
             )}
@@ -342,7 +344,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, s
               <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3">
                 <p className="text-blue-400 text-sm flex items-center gap-2">
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Transaction pending... Waiting for finalization
+                  {t('transfer.txPending')}
                 </p>
               </div>
             )}
@@ -355,11 +357,11 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, s
               {isTransferring ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  {txStatus === 'signing' ? 'Waiting for signature...' : 'Processing...'}
+                  {txStatus === 'signing' ? t('transfer.waitingSignature') : t('transfer.processing')}
                 </>
               ) : (
                 <>
-                  Send {selectedToken}
+                  {t('transfer.sendToken', { token: selectedToken })}
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </>
               )}

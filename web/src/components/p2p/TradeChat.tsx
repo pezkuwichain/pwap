@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabase';
 
 interface Message {
@@ -41,6 +42,7 @@ export function TradeChat({
   counterpartyWallet,
   isTradeActive,
 }: TradeChatProps) {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
@@ -158,7 +160,7 @@ export function TradeChat({
       await supabase.from('p2p_notifications').insert({
         user_id: counterpartyId,
         type: 'new_message',
-        title: 'New Message',
+        title: t('p2pChat.newMessage'),
         message: messageText.slice(0, 100),
         reference_type: 'trade',
         reference_id: tradeId,
@@ -166,7 +168,7 @@ export function TradeChat({
       });
     } catch (error) {
       console.error('Send message error:', error);
-      toast.error('Failed to send message');
+      toast.error(t('p2pChat.failedToSend'));
       setNewMessage(messageText); // Restore message
     } finally {
       setSending(false);
@@ -188,12 +190,12 @@ export function TradeChat({
 
     // Validate file
     if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file');
+      toast.error(t('p2pChat.selectImage'));
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image must be less than 5MB');
+      toast.error(t('p2pChat.imageTooLarge'));
       return;
     }
 
@@ -217,7 +219,7 @@ export function TradeChat({
       const { error: msgError } = await supabase.from('p2p_messages').insert({
         trade_id: tradeId,
         sender_id: user.id,
-        message: 'Sent an image',
+        message: t('p2pChat.sentImage'),
         message_type: 'image',
         attachment_url: urlData.publicUrl,
         is_read: false,
@@ -229,17 +231,17 @@ export function TradeChat({
       await supabase.from('p2p_notifications').insert({
         user_id: counterpartyId,
         type: 'new_message',
-        title: 'New Image',
-        message: 'Sent an image',
+        title: t('p2pChat.newImage'),
+        message: t('p2pChat.sentImage'),
         reference_type: 'trade',
         reference_id: tradeId,
         is_read: false,
       });
 
-      toast.success('Image sent');
+      toast.success(t('p2pChat.imageSent'));
     } catch (error) {
       console.error('Upload image error:', error);
-      toast.error('Failed to upload image');
+      toast.error(t('p2pChat.failedToUpload'));
     } finally {
       setUploading(false);
       if (fileInputRef.current) {
@@ -301,7 +303,7 @@ export function TradeChat({
                 >
                   <img
                     src={message.attachment_url}
-                    alt="Shared image"
+                    alt={t('p2pChat.sharedImage')}
                     className="max-w-[200px] max-h-[200px] rounded-lg"
                   />
                 </a>
@@ -329,7 +331,7 @@ export function TradeChat({
     <Card className="bg-gray-900 border-gray-800 h-[400px] flex flex-col">
       <CardHeader className="py-3 px-4 border-b border-gray-800">
         <CardTitle className="text-white text-base flex items-center gap-2">
-          <span>Chat</span>
+          <span>{t('p2pChat.title')}</span>
           {messages.filter(m => m.sender_id !== user?.id && !m.is_read).length > 0 && (
             <span className="px-1.5 py-0.5 text-xs bg-green-500 text-white rounded-full">
               {messages.filter(m => m.sender_id !== user?.id && !m.is_read).length}
@@ -348,8 +350,8 @@ export function TradeChat({
           ) : messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-gray-500">
               <AlertCircle className="w-8 h-8 mb-2" />
-              <p className="text-sm">No messages yet</p>
-              <p className="text-xs">Start the conversation</p>
+              <p className="text-sm">{t('p2pChat.noMessages')}</p>
+              <p className="text-xs">{t('p2pChat.startConversation')}</p>
             </div>
           ) : (
             messages.map(renderMessage)
@@ -384,7 +386,7 @@ export function TradeChat({
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Type a message..."
+                placeholder={t('p2pChat.placeholder')}
                 disabled={sending}
                 className="flex-1 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
               />
@@ -405,7 +407,7 @@ export function TradeChat({
         ) : (
           <div className="p-3 border-t border-gray-800 text-center">
             <p className="text-sm text-gray-500">
-              Chat is disabled for completed/cancelled trades
+              {t('p2pChat.chatDisabled')}
             </p>
           </div>
         )}

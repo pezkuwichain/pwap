@@ -10,6 +10,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -50,6 +51,7 @@ import {
 // import { web3FromAddress } from '@pezkuwi/extension-dapp';
 
 export default function Elections() {
+  const { t } = useTranslation();
   const { api, isApiReady } = usePezkuwi();
 
   const [loading, setLoading] = useState(true);
@@ -96,16 +98,16 @@ export default function Elections() {
   }, [api, isApiReady]);
 
   if (loading) {
-    return <LoadingState message="Loading elections and governance data..." />;
+    return <LoadingState message={t('elections.loading')} />;
   }
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-4xl font-bold text-white mb-2">Welati - Elections & Governance</h1>
+        <h1 className="text-4xl font-bold text-white mb-2">{t('elections.title')}</h1>
         <p className="text-gray-400">
-          Democratic governance for Digital Kurdistan. Vote, propose, and participate in building our nation.
+          {t('elections.subtitle')}
         </p>
       </div>
 
@@ -114,15 +116,15 @@ export default function Elections() {
         <TabsList className="grid w-full grid-cols-3 lg:w-auto bg-gray-900">
           <TabsTrigger value="elections">
             <Vote className="w-4 h-4 mr-2" />
-            Elections
+            {t('elections.electionsTab')}
           </TabsTrigger>
           <TabsTrigger value="proposals">
             <FileText className="w-4 h-4 mr-2" />
-            Proposals
+            {t('elections.proposalsTab')}
           </TabsTrigger>
           <TabsTrigger value="government">
             <Crown className="w-4 h-4 mr-2" />
-            Government
+            {t('elections.governmentTab')}
           </TabsTrigger>
         </TabsList>
 
@@ -132,7 +134,7 @@ export default function Elections() {
             <Alert>
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                No active elections at this time. Check back later for upcoming elections.
+                {t('elections.noActiveElections')}
               </AlertDescription>
             </Alert>
           ) : (
@@ -150,7 +152,7 @@ export default function Elections() {
             <Alert>
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                No active proposals at this time. Parliament members can submit new proposals.
+                {t('elections.noActiveProposals')}
               </AlertDescription>
             </Alert>
           ) : (
@@ -177,6 +179,7 @@ export default function Elections() {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function ElectionCard({ election, api }: { election: ElectionInfo; api: any }) {
+  const { t } = useTranslation();
   const [candidates, setCandidates] = useState<CandidateInfo[]>([]);
   const [timeLeft, setTimeLeft] = useState<string | null>(null);
 
@@ -223,21 +226,21 @@ function ElectionCard({ election, api }: { election: ElectionInfo; api: any }) {
           <div className="bg-gray-800/50 rounded-lg p-4">
             <div className="flex items-center gap-2 text-gray-400 mb-1">
               <Users className="w-4 h-4" />
-              <span className="text-sm">Candidates</span>
+              <span className="text-sm">{t('elections.candidates')}</span>
             </div>
             <div className="text-2xl font-bold text-white">{election.totalCandidates}</div>
           </div>
           <div className="bg-gray-800/50 rounded-lg p-4">
             <div className="flex items-center gap-2 text-gray-400 mb-1">
               <Vote className="w-4 h-4" />
-              <span className="text-sm">Votes Cast</span>
+              <span className="text-sm">{t('elections.votesCast')}</span>
             </div>
             <div className="text-2xl font-bold text-white">{election.totalVotes.toLocaleString()}</div>
           </div>
           <div className="bg-gray-800/50 rounded-lg p-4">
             <div className="flex items-center gap-2 text-gray-400 mb-1">
               <Clock className="w-4 h-4" />
-              <span className="text-sm">Time Left</span>
+              <span className="text-sm">{t('elections.timeLeft')}</span>
             </div>
             <div className="text-lg font-bold text-white">
               {timeLeft ? `${timeLeft.days}d ${timeLeft.hours}h` : '-'}
@@ -248,7 +251,7 @@ function ElectionCard({ election, api }: { election: ElectionInfo; api: any }) {
         {/* Top Candidates */}
         {candidates.length > 0 && (
           <div>
-            <h4 className="text-sm font-medium text-gray-400 mb-3">Leading Candidates</h4>
+            <h4 className="text-sm font-medium text-gray-400 mb-3">{t('elections.leadingCandidates')}</h4>
             <div className="space-y-2">
               {candidates.slice(0, 5).map((candidate, idx) => (
                 <div
@@ -279,17 +282,17 @@ function ElectionCard({ election, api }: { election: ElectionInfo; api: any }) {
         <div className="flex gap-3">
           {election.status === 'CandidacyPeriod' && (
             <Button className="flex-1 bg-green-600 hover:bg-green-700">
-              Register as Candidate
+              {t('elections.registerCandidate')}
             </Button>
           )}
           {election.status === 'VotingPeriod' && (
             <Button className="flex-1 bg-green-600 hover:bg-green-700">
               <Vote className="w-4 h-4 mr-2" />
-              Cast Your Vote
+              {t('elections.castVote')}
             </Button>
           )}
           <Button variant="outline" className="flex-1">
-            View Details
+            {t('elections.viewDetails')}
           </Button>
         </div>
       </CardContent>
@@ -395,6 +398,7 @@ function ProposalCard({ proposal, api }: { proposal: CollectiveProposal; api: an
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function GovernmentOfficials({ officials, ministers }: { officials: any; ministers: any }) {
+  const { t } = useTranslation();
   return (
     <div className="space-y-6">
       {/* Executive */}
@@ -402,7 +406,7 @@ function GovernmentOfficials({ officials, ministers }: { officials: any; ministe
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-white">
             <Crown className="w-5 h-5 text-yellow-500" />
-            Executive Branch
+            {t('elections.executiveBranch')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -423,7 +427,7 @@ function GovernmentOfficials({ officials, ministers }: { officials: any; ministe
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-white">
             <Building className="w-5 h-5" />
-            Cabinet Ministers
+            {t('elections.cabinetMinisters')}
           </CardTitle>
         </CardHeader>
         <CardContent className="grid gap-3">
@@ -440,7 +444,7 @@ function GovernmentOfficials({ officials, ministers }: { officials: any; ministe
               )
           )}
           {Object.values(ministers).every((v) => !v) && (
-            <div className="text-gray-400 text-sm text-center py-4">No ministers appointed yet</div>
+            <div className="text-gray-400 text-sm text-center py-4">{t('elections.noMinistersYet')}</div>
           )}
         </CardContent>
       </Card>

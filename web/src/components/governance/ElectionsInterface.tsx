@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -28,6 +29,7 @@ interface ElectionWithCandidates extends ElectionInfo {
 }
 
 const ElectionsInterface: React.FC = () => {
+  const { t } = useTranslation();
   const { api, isApiReady } = usePezkuwi();
   const { account, signer } = useWallet();
   const [elections, setElections] = useState<ElectionWithCandidates[]>([]);
@@ -101,7 +103,7 @@ const ElectionsInterface: React.FC = () => {
 
   const handleVote = async (electionId: number, candidateAccount: string, electionType: string) => {
     if (!api || !account || !signer) {
-      toast.error('Please connect your wallet first');
+      toast.error(t('elections.connectWallet'));
       return;
     }
 
@@ -124,35 +126,35 @@ const ElectionsInterface: React.FC = () => {
 
       await tx.signAndSend(account, { signer }, ({ status, dispatchError }) => {
         if (status.isInBlock) {
-          toast.success('Vote submitted successfully!');
+          toast.success(t('elections.voteSuccess'));
           setVotingElectionId(null);
         }
         if (dispatchError) {
           if (dispatchError.isModule) {
             const decoded = api.registry.findMetaError(dispatchError.asModule);
-            toast.error(`Vote failed: ${decoded.name}`);
+            toast.error(t('elections.voteFailed', { error: decoded.name }));
           } else {
-            toast.error(`Vote failed: ${dispatchError.toString()}`);
+            toast.error(t('elections.voteFailed', { error: dispatchError.toString() }));
           }
           setVotingElectionId(null);
         }
       });
     } catch (err) {
       console.error('Error voting:', err);
-      toast.error('Failed to submit vote');
+      toast.error(t('elections.voteError'));
       setVotingElectionId(null);
     }
   };
 
   const submitParliamentaryVotes = async (electionId: number) => {
     if (!api || !account || !signer) {
-      toast.error('Please connect your wallet first');
+      toast.error(t('elections.connectWallet'));
       return;
     }
 
     const candidates = selectedCandidates.get(electionId) || [];
     if (candidates.length === 0) {
-      toast.error('Please select at least one candidate');
+      toast.error(t('elections.selectCandidate'));
       return;
     }
 
@@ -163,34 +165,34 @@ const ElectionsInterface: React.FC = () => {
 
       await tx.signAndSend(account, { signer }, ({ status, dispatchError }) => {
         if (status.isInBlock) {
-          toast.success('Votes submitted successfully!');
+          toast.success(t('elections.votesSuccess'));
           setSelectedCandidates(new Map(selectedCandidates.set(electionId, [])));
           setVotingElectionId(null);
         }
         if (dispatchError) {
           if (dispatchError.isModule) {
             const decoded = api.registry.findMetaError(dispatchError.asModule);
-            toast.error(`Vote failed: ${decoded.name}`);
+            toast.error(t('elections.voteFailed', { error: decoded.name }));
           } else {
-            toast.error(`Vote failed: ${dispatchError.toString()}`);
+            toast.error(t('elections.voteFailed', { error: dispatchError.toString() }));
           }
           setVotingElectionId(null);
         }
       });
     } catch (err) {
       console.error('Error voting:', err);
-      toast.error('Failed to submit votes');
+      toast.error(t('elections.votesError'));
       setVotingElectionId(null);
     }
   };
 
   const formatRemainingTime = (endBlock: number) => {
     const remaining = endBlock - currentBlock;
-    if (remaining <= 0) return 'Ended';
+    if (remaining <= 0) return t('elections.ended');
     const time = blocksToTime(remaining);
-    if (time.days > 0) return `${time.days}d ${time.hours}h remaining`;
-    if (time.hours > 0) return `${time.hours}h ${time.minutes}m remaining`;
-    return `${time.minutes}m remaining`;
+    if (time.days > 0) return t('elections.daysRemaining', { days: time.days, hours: time.hours });
+    if (time.hours > 0) return t('elections.hoursRemaining', { hours: time.hours, minutes: time.minutes });
+    return t('elections.minutesRemaining', { minutes: time.minutes });
   };
 
   const getStatusColor = (status: string) => {
@@ -206,7 +208,7 @@ const ElectionsInterface: React.FC = () => {
     return (
       <div className="flex items-center justify-center py-12">
         <Loader2 className="w-8 h-8 animate-spin text-green-500" />
-        <span className="ml-3 text-gray-400">Loading elections from blockchain...</span>
+        <span className="ml-3 text-gray-400">{t('elections.loading')}</span>
       </div>
     );
   }
@@ -217,7 +219,7 @@ const ElectionsInterface: React.FC = () => {
         <CardContent className="pt-6">
           <div className="flex items-center text-red-400">
             <AlertCircle className="w-5 h-5 mr-2" />
-            Error loading elections: {error}
+            {t('elections.loadError', { error })}
           </div>
         </CardContent>
       </Card>
@@ -231,17 +233,17 @@ const ElectionsInterface: React.FC = () => {
         <div className="flex items-center gap-2">
           <Badge variant="outline" className="bg-green-500/10 border-green-500 text-green-400">
             <Activity className="h-3 w-3 mr-1" />
-            Live Blockchain Data
+            {t('elections.liveData')}
           </Badge>
-          <span className="text-sm text-gray-500">Block #{currentBlock.toLocaleString()}</span>
+          <span className="text-sm text-gray-500">{t('elections.block', { number: currentBlock.toLocaleString() })}</span>
         </div>
       </div>
 
       <Tabs defaultValue="active" className="w-full">
         <TabsList className="grid w-full grid-cols-3 bg-gray-800/50">
-          <TabsTrigger value="active">Active Elections</TabsTrigger>
-          <TabsTrigger value="register">Register</TabsTrigger>
-          <TabsTrigger value="results">Results</TabsTrigger>
+          <TabsTrigger value="active">{t('elections.activeElections')}</TabsTrigger>
+          <TabsTrigger value="register">{t('elections.register')}</TabsTrigger>
+          <TabsTrigger value="results">{t('elections.results')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="active" className="space-y-4">
@@ -249,8 +251,8 @@ const ElectionsInterface: React.FC = () => {
             <Card className="bg-gray-900/50 border-gray-800">
               <CardContent className="pt-6 text-center text-gray-400">
                 <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>No active elections at this time</p>
-                <p className="text-sm mt-2">Check back later for upcoming elections</p>
+                <p>{t('elections.noActive')}</p>
+                <p className="text-sm mt-2">{t('elections.checkBack')}</p>
               </CardContent>
             </Card>
           ) : (
@@ -276,7 +278,7 @@ const ElectionsInterface: React.FC = () => {
                       {election.userHasVoted && (
                         <Badge variant="outline" className="border-green-500 text-green-400">
                           <CheckCircle className="w-3 h-3 mr-1" />
-                          You Voted
+                          {t('elections.youVoted')}
                         </Badge>
                       )}
                     </div>
@@ -286,7 +288,7 @@ const ElectionsInterface: React.FC = () => {
                   {election.status === 'VotingPeriod' && (
                     <div className="space-y-4">
                       {election.candidates.length === 0 ? (
-                        <p className="text-gray-400 text-center py-4">No candidates registered</p>
+                        <p className="text-gray-400 text-center py-4">{t('elections.noCandidates')}</p>
                       ) : (
                         <>
                           {election.candidates.map(candidate => {
@@ -304,13 +306,13 @@ const ElectionsInterface: React.FC = () => {
                                       {candidate.account.substring(0, 8)}...{candidate.account.slice(-6)}
                                     </p>
                                     <p className="text-sm text-gray-400">
-                                      {candidate.endorsersCount} endorsements
+                                      {t('elections.endorsements', { count: candidate.endorsersCount })}
                                     </p>
                                   </div>
                                   <div className="text-right">
                                     <p className="font-bold text-white">{percentage.toFixed(1)}%</p>
                                     <p className="text-sm text-gray-400">
-                                      {candidate.voteCount.toLocaleString()} votes
+                                      {t('elections.votesCount', { count: candidate.voteCount.toLocaleString() })}
                                     </p>
                                   </div>
                                 </div>
@@ -326,17 +328,17 @@ const ElectionsInterface: React.FC = () => {
                                     {votingElectionId === election.electionId ? (
                                       <>
                                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                        Submitting...
+                                        {t('elections.submitting')}
                                       </>
                                     ) : isSelected ? (
                                       <>
                                         <CheckCircle className="w-4 h-4 mr-2" />
-                                        Selected
+                                        {t('elections.selected')}
                                       </>
                                     ) : (
                                       <>
                                         <Vote className="w-4 h-4 mr-2" />
-                                        {election.electionType === 'Parliamentary' ? 'Select' : 'Vote'}
+                                        {election.electionType === 'Parliamentary' ? t('elections.select') : t('elections.vote')}
                                       </>
                                     )}
                                   </Button>
@@ -348,7 +350,7 @@ const ElectionsInterface: React.FC = () => {
                           {election.electionType === 'Parliamentary' && !election.userHasVoted && (
                             <div className="mt-4 pt-4 border-t border-gray-700">
                               <p className="text-sm text-gray-400 text-center mb-3">
-                                Select multiple candidates for parliamentary election
+                                {t('elections.selectMultiple')}
                               </p>
                               <Button
                                 onClick={() => submitParliamentaryVotes(election.electionId)}
@@ -359,12 +361,12 @@ const ElectionsInterface: React.FC = () => {
                                 {votingElectionId === election.electionId ? (
                                   <>
                                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                    Submitting Votes...
+                                    {t('elections.submittingVotes')}
                                   </>
                                 ) : (
                                   <>
                                     <Vote className="w-4 h-4 mr-2" />
-                                    Submit {(selectedCandidates.get(election.electionId) || []).length} Vote(s)
+                                    {t('elections.submitVotes', { count: (selectedCandidates.get(election.electionId) || []).length })}
                                   </>
                                 )}
                               </Button>
@@ -378,17 +380,17 @@ const ElectionsInterface: React.FC = () => {
                   {election.status === 'CandidacyPeriod' && (
                     <div className="text-center py-4">
                       <p className="text-gray-400 mb-4">
-                        {election.totalCandidates} candidates registered so far
+                        {t('elections.candidatesRegistered', { count: election.totalCandidates })}
                       </p>
                       <Button variant="outline">
-                        Register as Candidate
+                        {t('elections.registerAsCandidate')}
                       </Button>
                     </div>
                   )}
 
                   {election.status === 'CampaignPeriod' && (
                     <div className="text-center py-4 text-gray-400">
-                      <p>{election.totalCandidates} candidates competing</p>
+                      <p>{t('elections.candidatesCompeting', { count: election.totalCandidates })}</p>
                       <p className="text-sm mt-2">Voting begins {formatRemainingTime(election.campaignEndBlock)}</p>
                     </div>
                   )}
@@ -401,9 +403,9 @@ const ElectionsInterface: React.FC = () => {
         <TabsContent value="register">
           <Card className="bg-gray-900/50 border-gray-800">
             <CardHeader>
-              <CardTitle className="text-white">Candidate Registration</CardTitle>
+              <CardTitle className="text-white">{t('elections.candidateRegistration')}</CardTitle>
               <CardDescription>
-                Register as a candidate for upcoming elections
+                {t('elections.registerDescription')}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -412,7 +414,7 @@ const ElectionsInterface: React.FC = () => {
                   <AlertCircle className="w-5 h-5 text-amber-500 mt-0.5" />
                   <div>
                     <p className="font-medium text-amber-400">
-                      Requirements
+                      {t('elections.requirements')}
                     </p>
                     <ul className="text-sm text-amber-300/80 mt-2 space-y-1">
                       <li>• Minimum Trust Score: 300 (Parliamentary) / 600 (Presidential)</li>
@@ -424,7 +426,7 @@ const ElectionsInterface: React.FC = () => {
                 </div>
               </div>
               <Button className="w-full bg-green-600 hover:bg-green-700" size="lg">
-                Register as Candidate
+                {t('elections.registerAsCandidate')}
               </Button>
             </CardContent>
           </Card>
@@ -433,14 +435,14 @@ const ElectionsInterface: React.FC = () => {
         <TabsContent value="results">
           <Card className="bg-gray-900/50 border-gray-800">
             <CardHeader>
-              <CardTitle className="text-white">Election Results</CardTitle>
-              <CardDescription>Historical election outcomes</CardDescription>
+              <CardTitle className="text-white">{t('elections.electionResults')}</CardTitle>
+              <CardDescription>{t('elections.resultsDescription')}</CardDescription>
             </CardHeader>
             <CardContent>
               {completedResults.length === 0 ? (
                 <div className="text-center py-8 text-gray-400">
                   <Trophy className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <p>No completed elections yet</p>
+                  <p>{t('elections.noCompletedElections')}</p>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -448,36 +450,36 @@ const ElectionsInterface: React.FC = () => {
                     <div key={result.electionId} className="p-4 border border-gray-700 rounded-lg">
                       <div className="flex justify-between items-start mb-3">
                         <div>
-                          <p className="font-medium text-white">Election #{result.electionId}</p>
+                          <p className="font-medium text-white">{t('governance.historyTab.election', { id: result.electionId })}</p>
                           <p className="text-sm text-gray-400">
-                            Finalized at block #{result.finalizedAt.toLocaleString()}
+                            {t('elections.finalizedAtBlock', { block: result.finalizedAt.toLocaleString() })}
                           </p>
                         </div>
                         <Badge variant="outline" className="border-green-500 text-green-400">
                           <Trophy className="w-3 h-3 mr-1" />
-                          Completed
+                          {t('elections.completed')}
                         </Badge>
                       </div>
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
-                          <span className="text-gray-400">Winner(s)</span>
+                          <span className="text-gray-400">{t('elections.winners')}</span>
                           <span className="font-medium text-white">
                             {result.winners.length > 0
                               ? result.winners.map(w => `${w.substring(0, 8)}...`).join(', ')
-                              : 'N/A'}
+                              : t('elections.na')}
                           </span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-gray-400">Total Votes</span>
+                          <span className="text-gray-400">{t('elections.totalVotes')}</span>
                           <span className="text-white">{result.totalVotes.toLocaleString()}</span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-gray-400">Turnout</span>
+                          <span className="text-gray-400">{t('elections.turnout')}</span>
                           <span className="text-white">{result.turnoutPercentage}%</span>
                         </div>
                         {result.runoffRequired && (
                           <Badge className="bg-yellow-500/20 text-yellow-400">
-                            Runoff Required
+                            {t('elections.runoffRequired')}
                           </Badge>
                         )}
                       </div>

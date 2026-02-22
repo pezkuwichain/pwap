@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -17,6 +18,7 @@ interface Proposal {
 }
 
 export function CommissionProposalsCard() {
+  const { t } = useTranslation();
   const { api, isApiReady, selectedAccount } = usePezkuwi();
   const { toast } = useToast();
 
@@ -98,8 +100,8 @@ export function CommissionProposalsCard() {
   const handleVote = async (proposal: Proposal, approve: boolean) => {
     if (!api || !selectedAccount) {
       toast({
-        title: 'Wallet Not Connected',
-        description: 'Please connect your wallet first',
+        title: t('proposalCard.walletNotConnected'),
+        description: t('proposalCard.connectFirst'),
         variant: 'destructive',
       });
       return;
@@ -132,7 +134,7 @@ export function CommissionProposalsCard() {
                 }
 
                 toast({
-                  title: 'Vote Failed',
+                  title: t('proposalCard.voteFailed'),
                   description: errorMessage,
                   variant: 'destructive',
                 });
@@ -150,13 +152,13 @@ export function CommissionProposalsCard() {
 
               if (executedEvent) {
                 toast({
-                  title: 'Proposal Passed!',
-                  description: 'Threshold reached and executed. KYC approved!',
+                  title: t('proposalCard.proposalPassed'),
+                  description: t('proposalCard.thresholdReached'),
                 });
               } else if (votedEvent) {
                 toast({
-                  title: 'Vote Recorded',
-                  description: `Your ${approve ? 'AYE' : 'NAY'} vote has been recorded`,
+                  title: t('proposalCard.voteRecorded'),
+                  description: approve ? t('proposalCard.ayeRecorded') : t('proposalCard.nayRecorded'),
                 });
               }
 
@@ -165,8 +167,8 @@ export function CommissionProposalsCard() {
           }
         ).catch((error) => {
           toast({
-            title: 'Transaction Error',
-            description: error instanceof Error ? error.message : 'Failed to submit transaction',
+            title: t('proposalCard.voteFailed'),
+            description: error instanceof Error ? error.message : t('proposalCard.voteFailed'),
             variant: 'destructive',
           });
           reject(error);
@@ -176,8 +178,8 @@ export function CommissionProposalsCard() {
       setTimeout(() => loadProposals(), 2000);
     } catch (error) {
       toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to vote',
+        title: t('proposalCard.voteFailed'),
+        description: error instanceof Error ? error.message : t('proposalCard.voteFailed'),
         variant: 'destructive',
       });
     } finally {
@@ -188,8 +190,8 @@ export function CommissionProposalsCard() {
   const handleExecute = async (proposal: Proposal) => {
     if (!api || !selectedAccount) {
       toast({
-        title: 'Wallet Not Connected',
-        description: 'Please connect your wallet first',
+        title: t('proposalCard.walletNotConnected'),
+        description: t('proposalCard.connectFirst'),
         variant: 'destructive',
       });
       return;
@@ -231,7 +233,7 @@ export function CommissionProposalsCard() {
                 }
 
                 toast({
-                  title: 'Execute Failed',
+                  title: t('proposalCard.executeFailed'),
                   description: errorMessage,
                   variant: 'destructive',
                 });
@@ -258,20 +260,20 @@ export function CommissionProposalsCard() {
                 if (result && typeof result === 'object' && 'Err' in result) {
                   if (import.meta.env.DEV) console.error('Execution failed:', result.Err);
                   toast({
-                    title: 'Execution Failed',
-                    description: `Proposal closed but execution failed: ${JSON.stringify(result.Err)}`,
+                    title: t('proposalCard.executeFailed'),
+                    description: `${JSON.stringify(result.Err)}`,
                     variant: 'destructive',
                   });
                 } else {
                   toast({
-                    title: 'Proposal Executed!',
-                    description: 'KYC approved and NFT minted successfully!',
+                    title: t('proposalCard.executeSuccess'),
+                    description: t('proposalCard.executeKycApproved'),
                   });
                 }
               } else if (closedEvent) {
                 toast({
-                  title: 'Proposal Closed',
-                  description: 'Proposal has been closed',
+                  title: t('proposalCard.proposalClosed'),
+                  description: t('proposalCard.proposalClosedDesc'),
                 });
               }
 
@@ -280,8 +282,8 @@ export function CommissionProposalsCard() {
           }
         ).catch((error) => {
           toast({
-            title: 'Transaction Error',
-            description: error instanceof Error ? error.message : 'Failed to submit transaction',
+            title: t('proposalCard.executeFailed'),
+            description: error instanceof Error ? error.message : t('proposalCard.executeFailed'),
             variant: 'destructive',
           });
           reject(error);
@@ -291,8 +293,8 @@ export function CommissionProposalsCard() {
       setTimeout(() => loadProposals(), 2000);
     } catch (error) {
       toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to execute proposal',
+        title: t('proposalCard.executeFailed'),
+        description: error instanceof Error ? error.message : t('proposalCard.executeFailed'),
         variant: 'destructive',
       });
     } finally {
@@ -310,13 +312,13 @@ export function CommissionProposalsCard() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Vote className="h-5 w-5" />
-            Commission Proposals
+            {t('proposalCard.title')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center py-4">
             <Loader2 className="h-6 w-6 animate-spin mr-2" />
-            <span>Loading proposals...</span>
+            <span>{t('proposalCard.loading')}</span>
           </div>
         </CardContent>
       </Card>
@@ -329,11 +331,11 @@ export function CommissionProposalsCard() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Vote className="h-5 w-5" />
-            Commission Proposals
+            {t('proposalCard.title')}
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-center text-muted-foreground py-4">No active proposals</p>
+          <p className="text-center text-muted-foreground py-4">{t('proposalCard.empty')}</p>
         </CardContent>
       </Card>
     );
@@ -344,7 +346,7 @@ export function CommissionProposalsCard() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Vote className="h-5 w-5" />
-          Commission Proposals ({proposals.length})
+          {t('proposalCard.titleCount', { count: proposals.length })}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -357,11 +359,11 @@ export function CommissionProposalsCard() {
             <div key={proposal.hash} className="border rounded-lg p-4 space-y-3">
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="font-medium">Proposal #{proposal.proposalIndex}</p>
-                  <p className="text-sm text-muted-foreground">KYC Approval</p>
+                  <p className="font-medium">{t('proposalCard.proposal', { index: proposal.proposalIndex })}</p>
+                  <p className="text-sm text-muted-foreground">{t('proposalCard.kycApproval')}</p>
                 </div>
                 <Badge variant={progress >= 100 ? 'default' : 'secondary'} className={progress >= 100 ? 'bg-green-600' : ''}>
-                  {progress >= 100 ? 'PASSED' : `${progress.toFixed(0)}%`}
+                  {progress >= 100 ? t('proposalCard.passed') : `${progress.toFixed(0)}%`}
                 </Badge>
               </div>
 
@@ -387,11 +389,11 @@ export function CommissionProposalsCard() {
                   {voting === proposal.hash ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
-                    <>Execute Proposal</>
+                    <>{t('proposalCard.execute')}</>
                   )}
                 </Button>
               ) : hasVoted ? (
-                <p className="text-sm text-green-600">✓ You already voted</p>
+                <p className="text-sm text-green-600">{t('proposalCard.voted')}</p>
               ) : (
                 <div className="flex gap-2">
                   <Button
@@ -405,7 +407,7 @@ export function CommissionProposalsCard() {
                     ) : (
                       <>
                         <ThumbsUp className="h-4 w-4 mr-1" />
-                        Aye
+                        {t('proposalCard.aye')}
                       </>
                     )}
                   </Button>
@@ -420,7 +422,7 @@ export function CommissionProposalsCard() {
                     ) : (
                       <>
                         <ThumbsDown className="h-4 w-4 mr-1" />
-                        Nay
+                        {t('proposalCard.nay')}
                       </>
                     )}
                   </Button>

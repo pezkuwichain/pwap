@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Activity, Wifi, WifiOff, Users, Box, TrendingUp } from 'lucide-react';
 
 export const NetworkStats: React.FC = () => {
+  const { t } = useTranslation();
   const { api, assetHubApi, peopleApi, isApiReady, isAssetHubReady, isPeopleReady, error } = usePezkuwi();
   const [blockNumber, setBlockNumber] = useState<number>(0);
   const [blockHash, setBlockHash] = useState<string>('');
@@ -125,13 +127,13 @@ export const NetworkStats: React.FC = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-red-400">
             <WifiOff className="w-5 h-5" />
-            Network Disconnected
+            {t('networkStats.disconnected')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-red-300 text-sm">{error}</p>
           <p className="text-red-400 text-xs mt-2">
-            Make sure your validator node is running at ws://127.0.0.1:9944
+            {t('networkStats.disconnectedDesc')}
           </p>
         </CardContent>
       </Card>
@@ -144,7 +146,7 @@ export const NetworkStats: React.FC = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Activity className="w-5 h-5 animate-pulse" />
-            Connecting to Network...
+            {t('networkStats.connecting')}
           </CardTitle>
         </CardHeader>
       </Card>
@@ -158,15 +160,15 @@ export const NetworkStats: React.FC = () => {
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-2">
             <Wifi className="w-4 h-4 text-green-500" />
-            Network Status
+            {t('networkStats.title')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between">
             <Badge className="bg-green-500/20 text-green-400 border-green-500/50">
-              Connected
+              {t('networkStats.connected')}
             </Badge>
-            <span className="text-xs text-gray-500">{peers} peers</span>
+            <span className="text-xs text-gray-500">{peers} {t('networkStats.peers')}</span>
           </div>
         </CardContent>
       </Card>
@@ -176,7 +178,7 @@ export const NetworkStats: React.FC = () => {
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-2">
             <Box className="w-4 h-4 text-blue-500" />
-            Latest Block
+            {t('networkStats.latestBlock')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -196,7 +198,7 @@ export const NetworkStats: React.FC = () => {
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-2">
             <TrendingUp className="w-4 h-4 text-purple-500" />
-            Finalized Block
+            {t('networkStats.finalizedBlock')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -204,7 +206,7 @@ export const NetworkStats: React.FC = () => {
             #{finalizedBlock.toLocaleString()}
           </div>
           <div className="text-xs text-gray-500 mt-1">
-            {blockNumber - finalizedBlock} blocks behind
+            {blockNumber - finalizedBlock} {t('networkStats.blocksBehind')}
           </div>
         </CardContent>
       </Card>
@@ -214,7 +216,7 @@ export const NetworkStats: React.FC = () => {
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-2">
             <Users className="w-4 h-4 text-yellow-500" />
-            Active Validators
+            {t('networkStats.activeValidators')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -222,7 +224,7 @@ export const NetworkStats: React.FC = () => {
             {validatorCount}
           </div>
           <div className="text-xs text-gray-500 mt-1">
-            Validating blocks
+            {t('networkStats.validating')}
           </div>
         </CardContent>
       </Card>
@@ -232,7 +234,7 @@ export const NetworkStats: React.FC = () => {
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-2">
             <Users className="w-4 h-4 text-orange-500" />
-            Active Collators
+            {t('networkStats.activeCollators')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -240,7 +242,7 @@ export const NetworkStats: React.FC = () => {
             {collatorCount}
           </div>
           <div className="text-xs text-gray-500 mt-1">
-            Producing blocks
+            {t('networkStats.producing')}
           </div>
         </CardContent>
       </Card>
@@ -250,7 +252,7 @@ export const NetworkStats: React.FC = () => {
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-2">
             <Users className="w-4 h-4 text-cyan-500" />
-            Active Nominators
+            {t('networkStats.activeNominators')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -258,7 +260,7 @@ export const NetworkStats: React.FC = () => {
             {nominatorCount}
           </div>
           <div className="text-xs text-gray-500 mt-1">
-            Staking to validators
+            {t('networkStats.staking')}
           </div>
         </CardContent>
       </Card>

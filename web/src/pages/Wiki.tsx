@@ -1,8 +1,10 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import Layout from '@/components/Layout';
 import { Search, BookOpen, Star } from 'lucide-react';
 
 const Wiki: React.FC = () => {
+  const { t } = useTranslation();
 
   const categories = [
     { name: 'General', description: 'Learn the basics of PezkuwiChain.' },
@@ -24,14 +26,14 @@ const Wiki: React.FC = () => {
     <Layout>
       <div className="container mx-auto px-4 py-8 text-white">
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold mb-2">Community Wiki</h1>
-          <p className="text-xl text-gray-400">Your community-driven knowledge base for all things PezkuwiChain.</p>
+          <h1 className="text-5xl font-bold mb-2">{t('wiki.title')}</h1>
+          <p className="text-xl text-gray-400">{t('wiki.subtitle')}</p>
           <div className="mt-6 max-w-2xl mx-auto">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={24} />
               <input
                 type="text"
-                placeholder="Search the wiki..."
+                placeholder={t('wiki.searchPlaceholder')}
                 className="w-full pl-14 pr-4 py-3 rounded-lg bg-gray-800 text-white text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -42,7 +44,7 @@ const Wiki: React.FC = () => {
           <div className="lg:col-span-2">
             <h2 className="text-3xl font-bold mb-6 flex items-center">
               <BookOpen className="mr-3 text-blue-400" />
-              Categories
+              {t('wiki.categories')}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {categories.map((category, index) => (
@@ -56,7 +58,7 @@ const Wiki: React.FC = () => {
           <div>
             <h2 className="text-3xl font-bold mb-6 flex items-center">
               <Star className="mr-3 text-yellow-400" />
-              Popular Articles
+              {t('wiki.popularArticles')}
             </h2>
             <div className="bg-gray-800 p-6 rounded-lg">
               <ul className="space-y-4">

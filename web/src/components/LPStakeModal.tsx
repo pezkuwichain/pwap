@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X, Lock, AlertCircle, Loader2, Clock } from 'lucide-react';
 import { web3FromAddress } from '@pezkuwi/extension-dapp';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
@@ -36,10 +37,10 @@ interface DurationOption {
 }
 
 const DURATION_OPTIONS: DurationOption[] = [
-  { label: '1 Ay', months: 1, multiplier: 1 },
-  { label: '3 Ay', months: 3, multiplier: 1.5 },
-  { label: '6 Ay', months: 6, multiplier: 2 },
-  { label: '1 Yıl', months: 12, multiplier: 3 },
+  { label: 'lpStake.month1', months: 1, multiplier: 1 },
+  { label: 'lpStake.month3', months: 3, multiplier: 1.5 },
+  { label: 'lpStake.month6', months: 6, multiplier: 2 },
+  { label: 'lpStake.year1', months: 12, multiplier: 3 },
 ];
 
 export const LPStakeModal: React.FC<LPStakeModalProps> = ({
@@ -48,6 +49,7 @@ export const LPStakeModal: React.FC<LPStakeModalProps> = ({
   lpToken,
   onStakeSuccess,
 }) => {
+  const { t } = useTranslation();
   const { assetHubApi, selectedAccount, isAssetHubReady } = usePezkuwi();
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -62,18 +64,18 @@ export const LPStakeModal: React.FC<LPStakeModalProps> = ({
 
   const handleStake = async () => {
     if (!assetHubApi || !isAssetHubReady || !selectedAccount || poolId === undefined) {
-      setError('API bağlantısı hazır değil');
+      setError(t('lpStake.apiNotReady'));
       return;
     }
 
     const amount = parseFloat(stakeAmount);
     if (isNaN(amount) || amount <= 0) {
-      setError('Geçerli bir miktar girin');
+      setError(t('lpStake.invalidAmount'));
       return;
     }
 
     if (amount > maxBalance) {
-      setError('Yetersiz LP token bakiyesi');
+      setError(t('lpStake.insufficientBalance'));
       return;
     }
 
@@ -108,8 +110,9 @@ export const LPStakeModal: React.FC<LPStakeModalProps> = ({
         );
       });
 
-      const durationLabel = DURATION_OPTIONS.find(d => d.months === selectedDuration)?.label || `${selectedDuration} ay`;
-      setSuccess(`${stakeAmount} ${lpToken.symbol} başarıyla ${durationLabel} süreyle stake edildi!`);
+      const durationOption = DURATION_OPTIONS.find(d => d.months === selectedDuration);
+      const durationLabel = durationOption ? t(durationOption.label) : `${selectedDuration}`;
+      setSuccess(t('lpStake.success', { amount: stakeAmount, symbol: lpToken.symbol, duration: durationLabel }));
       setStakeAmount('');
 
       if (onStakeSuccess) {
@@ -121,7 +124,7 @@ export const LPStakeModal: React.FC<LPStakeModalProps> = ({
         onClose();
       }, 2000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Stake işlemi başarısız oldu');
+      setError(err instanceof Error ? err.message : t('lpStake.failed'));
     } finally {
       setIsProcessing(false);
     }
@@ -142,7 +145,7 @@ export const LPStakeModal: React.FC<LPStakeModalProps> = ({
               <Lock className="w-5 h-5 text-purple-400" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white">LP Token Stake</h2>
+              <h2 className="text-xl font-bold text-white">{t('lpStake.title')}</h2>
               <p className="text-sm text-gray-400">{lpToken.symbol}</p>
             </div>
           </div>
@@ -169,7 +172,7 @@ export const LPStakeModal: React.FC<LPStakeModalProps> = ({
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-3">
               <Clock className="w-4 h-4 inline mr-2" />
-              Stake Süresi
+              {t('lpStake.duration')}
             </label>
             <div className="grid grid-cols-4 gap-2">
               {DURATION_OPTIONS.map((option) => (
@@ -183,7 +186,7 @@ export const LPStakeModal: React.FC<LPStakeModalProps> = ({
                   }`}
                   disabled={isProcessing}
                 >
-                  <div className="text-sm font-medium">{option.label}</div>
+                  <div className="text-sm font-medium">{t(option.label)}</div>
                   <div className="text-xs mt-1 text-gray-500">{option.multiplier}x</div>
                 </button>
               ))}
@@ -193,12 +196,12 @@ export const LPStakeModal: React.FC<LPStakeModalProps> = ({
           {/* Balance Info */}
           <div className="bg-gray-800/50 rounded-lg p-4">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-400">Mevcut Bakiye:</span>
+              <span className="text-gray-400">{t('lpStake.currentBalance')}</span>
               <span className="text-white font-medium">{lpToken.balance} {lpToken.symbol}</span>
             </div>
             {selectedDurationOption && (
               <div className="flex justify-between text-sm mt-2">
-                <span className="text-gray-400">Ödül Çarpanı:</span>
+                <span className="text-gray-400">{t('lpStake.rewardMultiplier')}</span>
                 <span className="text-purple-400 font-medium">{selectedDurationOption.multiplier}x</span>
               </div>
             )}
@@ -207,7 +210,7 @@ export const LPStakeModal: React.FC<LPStakeModalProps> = ({
           {/* Amount Input */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              Stake Miktarı
+              {t('lpStake.stakeAmount')}
             </label>
             <div className="relative">
               <input
@@ -230,7 +233,7 @@ export const LPStakeModal: React.FC<LPStakeModalProps> = ({
               </button>
             </div>
             <div className="text-xs text-gray-500 mt-1">
-              Pool ID: {poolId}
+              {t('lpStake.poolId', { id: poolId })}
             </div>
           </div>
 
@@ -239,8 +242,7 @@ export const LPStakeModal: React.FC<LPStakeModalProps> = ({
             <div className="flex items-start gap-2">
               <AlertCircle className="w-4 h-4 text-yellow-400 mt-0.5 flex-shrink-0" />
               <div className="text-xs text-yellow-300">
-                LP tokenlarınız seçilen süre boyunca kilitlenecektir. Bu süre içinde unstake yapamazsınız.
-                Ödüller her blokta otomatik olarak birikir.
+                {t('lpStake.lockWarning')}
               </div>
             </div>
           </div>
@@ -254,12 +256,12 @@ export const LPStakeModal: React.FC<LPStakeModalProps> = ({
             {isProcessing ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Stake Ediliyor...
+                {t('lpStake.staking')}
               </>
             ) : (
               <>
                 <Lock className="w-4 h-4 mr-2" />
-                {selectedDurationOption?.label} Stake Et
+                {t('lpStake.stakeBtn', { duration: selectedDurationOption ? t(selectedDurationOption.label) : '' })}
               </>
             )}
           </Button>

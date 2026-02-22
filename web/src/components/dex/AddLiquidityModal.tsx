@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { X, Plus, AlertCircle, Loader2, CheckCircle, Info } from 'lucide-react';
@@ -34,6 +35,7 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
   // Use Asset Hub API for DEX operations
   const { assetHubApi, isAssetHubReady } = usePezkuwi();
   const { account, signer } = useWallet();
+  const { t } = useTranslation();
 
   const [amount1Input, setAmount1Input] = useState('');
   const [amount2Input, setAmount2Input] = useState('');
@@ -125,22 +127,22 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
   };
 
   const validateInputs = (): string | null => {
-    if (!pool) return 'No pool selected';
-    if (!amount1Input || !amount2Input) return 'Please enter amounts';
+    if (!pool) return t('addLiquidity.noPoolSelected');
+    if (!amount1Input || !amount2Input) return t('addLiquidity.enterAmounts');
 
     const amount1Raw = parseTokenInput(amount1Input, pool.asset1Decimals);
     const amount2Raw = parseTokenInput(amount2Input, pool.asset2Decimals);
 
     if (BigInt(amount1Raw) <= BigInt(0) || BigInt(amount2Raw) <= BigInt(0)) {
-      return 'Amounts must be greater than zero';
+      return t('common.amountGtZero');
     }
 
     if (BigInt(amount1Raw) > BigInt(balance1)) {
-      return `Insufficient ${pool.asset1Symbol} balance`;
+      return t('common.insufficientBalance', { symbol: pool.asset1Symbol });
     }
 
     if (BigInt(amount2Raw) > BigInt(balance2)) {
-      return `Insufficient ${pool.asset2Symbol} balance`;
+      return t('common.insufficientBalance', { symbol: pool.asset2Symbol });
     }
 
     return null;
@@ -148,7 +150,7 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
 
   const handleAddLiquidity = async () => {
     if (!assetHubApi || !isAssetHubReady || !signer || !account || !pool) {
-      setErrorMessage('Wallet not connected');
+      setErrorMessage(t('common.walletNotConnected'));
       return;
     }
 
@@ -213,7 +215,7 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
       );
     } catch (error) {
       if (import.meta.env.DEV) console.error('Add liquidity failed:', error);
-      setErrorMessage(error instanceof Error ? error.message : 'Transaction failed');
+      setErrorMessage(error instanceof Error ? error.message : t('common.txFailed'));
       setTxStatus('error');
     }
   };
@@ -248,7 +250,7 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
         <CardHeader className="border-b border-gray-800">
           <div className="flex items-center justify-between">
             <CardTitle className="text-xl font-bold text-white">
-              Add Liquidity
+              {t('addLiquidity.title')}
             </CardTitle>
             <button
               onClick={onClose}
@@ -259,7 +261,7 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
             </button>
           </div>
           <div className="text-sm text-gray-400 mt-2">
-            {pool.asset1Symbol} / {pool.asset2Symbol} Pool
+            {t('addLiquidity.pool', { asset1: pool.asset1Symbol, asset2: pool.asset2Symbol })}
           </div>
         </CardHeader>
 
@@ -268,7 +270,7 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
           <div className="flex items-start gap-2 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
             <Info className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
             <span className="text-sm text-blue-400">
-              Add liquidity in proportion to the pool&apos;s current ratio. You&apos;ll receive LP tokens representing your share.
+              {t('addLiquidity.info')}
             </span>
           </div>
 
@@ -277,7 +279,7 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
             <div className="flex items-center justify-between">
               <label className="text-sm text-gray-400">{pool.asset1Symbol}</label>
               <span className="text-xs text-gray-500">
-                Balance: {formatTokenBalance(balance1, pool.asset1Decimals, 4)}
+                {t('common.balance')}: {formatTokenBalance(balance1, pool.asset1Decimals, 4)}
               </span>
             </div>
             <div className="relative">
@@ -296,7 +298,7 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
                 className="absolute right-3 top-1/2 -translate-y-1/2 px-3 py-1 bg-green-600/20 hover:bg-green-600/30 text-green-400 text-xs rounded border border-green-600/30 transition-colors"
                 disabled={txStatus === 'signing' || txStatus === 'submitting'}
               >
-                MAX
+                {t('common.max')}
               </button>
             </div>
           </div>
@@ -313,7 +315,7 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
             <div className="flex items-center justify-between">
               <label className="text-sm text-gray-400">{pool.asset2Symbol}</label>
               <span className="text-xs text-gray-500">
-                Balance: {formatTokenBalance(balance2, pool.asset2Decimals, 4)}
+                {t('common.balance')}: {formatTokenBalance(balance2, pool.asset2Decimals, 4)}
               </span>
             </div>
             <div className="relative">
@@ -332,14 +334,14 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
                 className="absolute right-3 top-1/2 -translate-y-1/2 px-3 py-1 bg-green-600/20 hover:bg-green-600/30 text-green-400 text-xs rounded border border-green-600/30 transition-colors"
                 disabled={txStatus === 'signing' || txStatus === 'submitting'}
               >
-                MAX
+                {t('common.max')}
               </button>
             </div>
           </div>
 
           {/* Slippage Tolerance */}
           <div className="space-y-2">
-            <label className="text-sm text-gray-400">Slippage Tolerance</label>
+            <label className="text-sm text-gray-400">{t('common.slippageTolerance')}</label>
             <div className="flex gap-2">
               {[0.5, 1, 2].map((value) => (
                 <button
@@ -362,11 +364,11 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
           {amount1Input && amount2Input && (
             <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-700 space-y-2">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-400">Share of Pool</span>
+                <span className="text-gray-400">{t('addLiquidity.shareOfPool')}</span>
                 <span className="text-white font-mono">{shareOfPool}%</span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-400">Exchange Rate</span>
+                <span className="text-gray-400">{t('common.exchangeRate')}</span>
                 <span className="text-cyan-400 font-mono">
                   1 {pool.asset1Symbol} ={' '}
                   {(
@@ -392,7 +394,7 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
             <div className="flex items-start gap-2 p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
               <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
               <span className="text-sm text-green-400">
-                Liquidity added successfully!
+                {t('addLiquidity.success')}
               </span>
             </div>
           )}
@@ -404,7 +406,7 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
               className="flex-1 px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors border border-gray-700"
               disabled={txStatus === 'signing' || txStatus === 'submitting'}
             >
-              Cancel
+              {t('common.cancel')}
             </button>
             <button
               onClick={handleAddLiquidity}
@@ -418,21 +420,21 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
               {txStatus === 'signing' && (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Signing...
+                  {t('common.signing')}
                 </>
               )}
               {txStatus === 'submitting' && (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Adding...
+                  {t('addLiquidity.adding')}
                 </>
               )}
-              {txStatus === 'idle' && 'Add Liquidity'}
-              {txStatus === 'error' && 'Retry'}
+              {txStatus === 'idle' && t('addLiquidity.title')}
+              {txStatus === 'error' && t('common.retry')}
               {txStatus === 'success' && (
                 <>
                   <CheckCircle className="w-4 h-4" />
-                  Success
+                  {t('common.success')}
                 </>
               )}
             </button>

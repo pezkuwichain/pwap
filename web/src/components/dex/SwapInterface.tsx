@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { ArrowDownUp, AlertCircle, Loader2, Info, Settings, AlertTriangle, RefreshCw } from 'lucide-react';
@@ -50,6 +51,7 @@ const getAvailableTokens = (pools: PoolInfo[]) => {
 };
 
 export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
+  const { t } = useTranslation();
   // Use Asset Hub API for DEX operations
   const { assetHubApi, isAssetHubReady } = usePezkuwi();
   const { account, signer } = useWallet();
@@ -247,8 +249,8 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
   const handleConfirmSwap = async () => {
     if (!assetHubApi || !signer || !account || !fromTokenInfo || !toTokenInfo) {
       toast({
-        title: 'Error',
-        description: 'Please connect your wallet',
+        title: t('common.error'),
+        description: t('common.connectWalletAlert'),
         variant: 'destructive',
       });
       return;
@@ -256,8 +258,8 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
 
     if (!activePool) {
       toast({
-        title: 'Error',
-        description: 'No liquidity pool available for this pair',
+        title: t('common.error'),
+        description: t('swap.noPool'),
         variant: 'destructive',
       });
       return;
@@ -340,15 +342,15 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
               }
               setTxStatus('error');
               toast({
-                title: 'Transaction Failed',
+                title: t('swap.swapFailed'),
                 description: errorMessage,
                 variant: 'destructive',
               });
             } else {
               setTxStatus('success');
               toast({
-                title: 'Success!',
-                description: `Swapped ${fromAmount} ${fromToken} for ~${toAmount} ${toToken}`,
+                title: t('common.success'),
+                description: t('swap.swapped', { fromAmount, fromToken, toAmount, toToken }),
               });
               setTimeout(() => {
                 setFromAmount('');
@@ -361,11 +363,11 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
       );
     } catch (error) {
       if (import.meta.env.DEV) console.error('Swap failed:', error);
-      setErrorMessage(error instanceof Error ? error.message : 'Transaction failed');
+      setErrorMessage(error instanceof Error ? error.message : t('common.txFailed'));
       setTxStatus('error');
       toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Swap transaction failed',
+        title: t('common.error'),
+        description: error instanceof Error ? error.message : t('swap.swapFailed'),
         variant: 'destructive',
       });
     }
@@ -382,7 +384,7 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
           <div className="flex flex-col items-center gap-4">
             <Loader2 className="w-16 h-16 animate-spin text-green-400" />
             <p className="text-white text-xl font-semibold">
-              {txStatus === 'signing' ? 'Waiting for signature...' : 'Processing swap...'}
+              {txStatus === 'signing' ? t('swap.waitingSignature') : t('swap.processingSwap')}
             </p>
           </div>
         </div>
@@ -391,7 +393,7 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
       <Card className="bg-gray-900 border-gray-800">
         <CardHeader className="border-b border-gray-800">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-xl font-bold text-white">Swap Tokens</CardTitle>
+            <CardTitle className="text-xl font-bold text-white">{t('swap.title')}</CardTitle>
             <Button variant="ghost" size="icon" onClick={() => setShowSettings(true)}>
               <Settings className="h-5 w-5 text-gray-400" />
             </Button>
@@ -403,7 +405,7 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
             <Alert className="bg-yellow-500/10 border-yellow-500/30">
               <AlertCircle className="h-4 w-4 text-yellow-500" />
               <AlertDescription className="text-yellow-300">
-                Please connect your wallet to swap tokens
+                {t('swap.connectWalletAlert')}
               </AlertDescription>
             </Alert>
           )}
@@ -411,9 +413,9 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
           {/* From Token */}
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-400">From</span>
+              <span className="text-gray-400">{t('swap.from')}</span>
               <span className="text-gray-400">
-                Balance: {formatTokenBalance(fromBalance, fromTokenInfo?.decimals ?? 12, 4)} {fromToken}
+                {t('common.balance')} {formatTokenBalance(fromBalance, fromTokenInfo?.decimals ?? 12, 4)} {fromToken}
               </span>
             </div>
 
@@ -460,7 +462,7 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
                 className="px-3 py-1 bg-green-600/20 hover:bg-green-600/30 text-green-400 text-xs rounded border border-green-600/30 transition-colors"
                 disabled={!account}
               >
-                MAX
+                {t('common.max')}
               </button>
             </div>
           </div>
@@ -481,9 +483,9 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
           {/* To Token */}
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-400">To</span>
+              <span className="text-gray-400">{t('swap.to')}</span>
               <span className="text-gray-400">
-                Balance: {formatTokenBalance(toBalance, toTokenInfo?.decimals ?? 12, 4)} {toToken}
+                {t('common.balance')} {formatTokenBalance(toBalance, toTokenInfo?.decimals ?? 12, 4)} {toToken}
               </span>
             </div>
 
@@ -532,12 +534,12 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
             <div className="flex justify-between items-center">
               <span className="text-gray-400 flex items-center gap-1">
                 <Info className="w-3 h-3" />
-                Exchange Rate
-                <span className="text-xs text-green-500">(CoinGecko)</span>
+                {t('common.exchangeRate')}
+                <span className="text-xs text-green-500">{t('swap.coinGecko')}</span>
               </span>
               <div className="flex items-center gap-2">
                 <span className="text-white">
-                  {oracleRate ? `1 ${fromToken} = ${exchangeRate} ${toToken}` : 'Loading...'}
+                  {oracleRate ? `1 ${fromToken} = ${exchangeRate} ${toToken}` : t('common.loading')}
                 </span>
                 <button onClick={fetchPrices} className="text-gray-400 hover:text-white">
                   <RefreshCw className={`w-3 h-3 ${pricesLoading ? 'animate-spin' : ''}`} />
@@ -558,7 +560,7 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
             {/* Route */}
             {swapRoute.length > 0 && (
               <div className="flex justify-between">
-                <span className="text-gray-400">Route</span>
+                <span className="text-gray-400">{t('swap.route')}</span>
                 <span className="text-purple-400 text-xs">
                   {swapRoute.join(' → ')}
                 </span>
@@ -567,15 +569,15 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
 
             {/* Fees */}
             <div className="flex justify-between">
-              <span className="text-gray-400">Swap Fee</span>
+              <span className="text-gray-400">{t('swap.swapFee')}</span>
               <span className="text-yellow-400">
                 {swapRoute.length > 2 ? '0.6%' : '0.3%'}
-                {swapRoute.length > 2 && <span className="text-xs text-gray-500 ml-1">(2 hops)</span>}
+                {swapRoute.length > 2 && <span className="text-xs text-gray-500 ml-1">{t('swap.twoHops')}</span>}
               </span>
             </div>
 
             <div className="flex justify-between pt-2 border-t border-gray-700">
-              <span className="text-gray-400">Slippage Tolerance</span>
+              <span className="text-gray-400">{t('common.slippageTolerance')}</span>
               <span className="text-blue-400">{slippage}%</span>
             </div>
           </div>
@@ -585,7 +587,7 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
             <Alert className="bg-red-900/20 border-red-500/30">
               <AlertTriangle className="h-4 w-4 text-red-500" />
               <AlertDescription className="text-red-300 text-sm">
-                Insufficient {fromToken} balance
+                {t('swap.insufficientBalance', { token: fromToken })}
               </AlertDescription>
             </Alert>
           )}
@@ -594,7 +596,7 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
             <Alert className="bg-yellow-900/20 border-yellow-500/30">
               <Info className="h-4 w-4 text-yellow-500" />
               <AlertDescription className="text-yellow-300 text-sm">
-                This swap uses multi-hop routing ({swapRoute.join(' → ')}). Double fee applies.
+                {t('swap.multiHopWarning', { route: swapRoute.join(' → ') })}
               </AlertDescription>
             </Alert>
           )}
@@ -615,14 +617,14 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
             }
           >
             {!account
-              ? 'Connect Wallet'
+              ? t('swap.connectWallet')
               : hasInsufficientBalance
-              ? `Insufficient ${fromToken} Balance`
+              ? t('swap.insufficientBalanceBtn', { token: fromToken })
               : !oracleRate
-              ? 'Price Not Available'
+              ? t('swap.priceNotAvailable')
               : pricesLoading
-              ? 'Loading Prices...'
-              : 'Swap Tokens'}
+              ? t('swap.loadingPrices')
+              : t('swap.swapTokens')}
           </Button>
         </CardContent>
       </Card>
@@ -631,11 +633,11 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
       <Dialog open={showSettings} onOpenChange={setShowSettings}>
         <DialogContent className="bg-gray-900 border-gray-800">
           <DialogHeader>
-            <DialogTitle className="text-white">Swap Settings</DialogTitle>
+            <DialogTitle className="text-white">{t('swap.settings')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium text-gray-300">Slippage Tolerance</label>
+              <label className="text-sm font-medium text-gray-300">{t('common.slippageTolerance')}</label>
               <div className="flex gap-2 mt-2">
                 {[0.1, 0.5, 1.0, 2.0].map(val => (
                   <Button
@@ -657,24 +659,24 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
       <Dialog open={showConfirm} onOpenChange={setShowConfirm}>
         <DialogContent className="bg-gray-900 border-gray-800">
           <DialogHeader>
-            <DialogTitle className="text-white">Confirm Swap</DialogTitle>
+            <DialogTitle className="text-white">{t('swap.confirmSwap')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="p-4 bg-gray-800 border border-gray-700 rounded-lg space-y-2">
               <div className="flex justify-between">
-                <span className="text-gray-300">You Pay</span>
+                <span className="text-gray-300">{t('swap.youPay')}</span>
                 <span className="font-bold text-white">{fromAmount} {fromToken}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-300">You Receive</span>
+                <span className="text-gray-300">{t('swap.youReceive')}</span>
                 <span className="font-bold text-white">{toAmount} {toToken}</span>
               </div>
               <div className="flex justify-between text-sm pt-2 border-t border-gray-700">
-                <span className="text-gray-400">Exchange Rate</span>
+                <span className="text-gray-400">{t('common.exchangeRate')}</span>
                 <span className="text-gray-400">1 {fromToken} = {exchangeRate} {toToken}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-400">Slippage</span>
+                <span className="text-gray-400">{t('swap.slippage')}</span>
                 <span className="text-gray-400">{slippage}%</span>
               </div>
             </div>
@@ -683,7 +685,7 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ pools }) => {
               onClick={handleConfirmSwap}
               disabled={txStatus === 'signing' || txStatus === 'submitting'}
             >
-              {txStatus === 'signing' ? 'Signing...' : txStatus === 'submitting' ? 'Swapping...' : 'Confirm Swap'}
+              {txStatus === 'signing' ? t('common.signing') : txStatus === 'submitting' ? t('swap.swapping') : t('swap.confirmSwap')}
             </Button>
           </div>
         </DialogContent>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -29,6 +30,7 @@ interface Transaction {
 }
 
 export const SpendingHistory: React.FC = () => {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
@@ -102,11 +104,11 @@ export const SpendingHistory: React.FC = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'completed':
-        return <Badge className="bg-green-600"><CheckCircle className="w-3 h-3 mr-1" />Completed</Badge>;
+        return <Badge className="bg-green-600"><CheckCircle className="w-3 h-3 mr-1" />{t('spending.completed')}</Badge>;
       case 'pending':
-        return <Badge className="bg-yellow-600"><Clock className="w-3 h-3 mr-1" />Pending</Badge>;
+        return <Badge className="bg-yellow-600"><Clock className="w-3 h-3 mr-1" />{t('spending.pending')}</Badge>;
       case 'rejected':
-        return <Badge className="bg-red-600"><XCircle className="w-3 h-3 mr-1" />Rejected</Badge>;
+        return <Badge className="bg-red-600"><XCircle className="w-3 h-3 mr-1" />{t('spending.rejected')}</Badge>;
       default:
         return null;
     }
@@ -129,9 +131,9 @@ export const SpendingHistory: React.FC = () => {
     <div className="space-y-6">
       <Card className="bg-gray-900 border-gray-800">
         <CardHeader>
-          <CardTitle className="text-white">Treasury Spending History</CardTitle>
+          <CardTitle className="text-white">{t('spending.title')}</CardTitle>
           <CardDescription className="text-gray-400">
-            Track all treasury expenditures and approved proposals
+            {t('spending.description')}
           </CardDescription>
         </CardHeader>
 
@@ -141,7 +143,7 @@ export const SpendingHistory: React.FC = () => {
               <div className="relative">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
                 <Input
-                  placeholder="Search transactions..."
+                  placeholder={t('spending.searchPlaceholder')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 bg-gray-800 border-gray-700 text-white"
@@ -154,11 +156,11 @@ export const SpendingHistory: React.FC = () => {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-gray-800 border-gray-700">
-                <SelectItem value="all">All Categories</SelectItem>
-                <SelectItem value="Development">Development</SelectItem>
-                <SelectItem value="Marketing">Marketing</SelectItem>
-                <SelectItem value="Infrastructure">Infrastructure</SelectItem>
-                <SelectItem value="Community">Community</SelectItem>
+                <SelectItem value="all">{t('spending.allCategories')}</SelectItem>
+                <SelectItem value="Development">{t('funding.catDevelopment')}</SelectItem>
+                <SelectItem value="Marketing">{t('funding.catMarketing')}</SelectItem>
+                <SelectItem value="Infrastructure">{t('funding.catInfrastructure')}</SelectItem>
+                <SelectItem value="Community">{t('funding.catCommunity')}</SelectItem>
               </SelectContent>
             </Select>
 
@@ -167,16 +169,16 @@ export const SpendingHistory: React.FC = () => {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-gray-800 border-gray-700">
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="completed">Completed</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="rejected">Rejected</SelectItem>
+                <SelectItem value="all">{t('spending.allStatus')}</SelectItem>
+                <SelectItem value="completed">{t('spending.completed')}</SelectItem>
+                <SelectItem value="pending">{t('spending.pending')}</SelectItem>
+                <SelectItem value="rejected">{t('spending.rejected')}</SelectItem>
               </SelectContent>
             </Select>
 
             <Button className="bg-blue-600 hover:bg-blue-700">
               <Download className="w-4 h-4 mr-2" />
-              Export
+              {t('spending.export')}
             </Button>
           </div>
 
@@ -184,13 +186,13 @@ export const SpendingHistory: React.FC = () => {
             <Table>
               <TableHeader>
                 <TableRow className="border-gray-700 hover:bg-gray-750">
-                  <TableHead className="text-gray-400">Date</TableHead>
-                  <TableHead className="text-gray-400">Description</TableHead>
-                  <TableHead className="text-gray-400">Category</TableHead>
-                  <TableHead className="text-gray-400">Amount</TableHead>
-                  <TableHead className="text-gray-400">Status</TableHead>
-                  <TableHead className="text-gray-400">Proposal ID</TableHead>
-                  <TableHead className="text-gray-400">Actions</TableHead>
+                  <TableHead className="text-gray-400">{t('spending.date')}</TableHead>
+                  <TableHead className="text-gray-400">{t('spending.desc')}</TableHead>
+                  <TableHead className="text-gray-400">{t('spending.category')}</TableHead>
+                  <TableHead className="text-gray-400">{t('spending.amount')}</TableHead>
+                  <TableHead className="text-gray-400">{t('spending.status')}</TableHead>
+                  <TableHead className="text-gray-400">{t('spending.proposalId')}</TableHead>
+                  <TableHead className="text-gray-400">{t('spending.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -210,7 +212,7 @@ export const SpendingHistory: React.FC = () => {
                     <TableCell>{getStatusBadge(tx.status)}</TableCell>
                     <TableCell className="text-gray-300 font-mono">{tx.proposalId}</TableCell>
                     <TableCell>
-                      <Button variant="ghost" size="sm">View</Button>
+                      <Button variant="ghost" size="sm">{t('spending.view')}</Button>
                     </TableCell>
                   </TableRow>
                 ))}

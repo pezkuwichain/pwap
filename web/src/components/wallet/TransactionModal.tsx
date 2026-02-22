@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Send, Loader2, CheckCircle, XCircle } from 'lucide-react';
 import {
   Dialog,
@@ -27,6 +28,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
   type
 }) => {
   const { signTransaction, signMessage } = useWallet();
+  const { t } = useTranslation();
   const [recipient, setRecipient] = useState('');
   const [amount, setAmount] = useState('');
   const [message, setMessage] = useState('');
@@ -36,7 +38,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
 
   const handleSendTransaction = async () => {
     if (!recipient || !amount) {
-      setError('Please fill in all fields');
+      setError(t('txModal.fillAllFields'));
       return;
     }
 
@@ -62,7 +64,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
 
   const handleSignMessage = async () => {
     if (!message) {
-      setError('Please enter a message to sign');
+      setError(t('txModal.enterMessage'));
       return;
     }
 
@@ -95,14 +97,14 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Send className="h-5 w-5 text-kesk" />
-            {type === 'send' ? 'Send HEZ' : type === 'vote' ? 'Cast Vote' : 'Delegate Voting Power'}
+            {type === 'send' ? t('txModal.sendHez') : type === 'vote' ? t('txModal.castVote') : t('txModal.delegateVoting')}
           </DialogTitle>
           <DialogDescription>
             {type === 'send'
-              ? 'Send HEZ tokens to another address'
+              ? t('txModal.sendHezDesc')
               : type === 'vote'
-              ? 'Submit your vote for the proposal'
-              : 'Delegate your voting power to another address'}
+              ? t('txModal.voteDesc')
+              : t('txModal.delegateDesc')}
           </DialogDescription>
         </DialogHeader>
 
@@ -111,7 +113,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
             {type === 'send' && (
               <>
                 <div>
-                  <Label htmlFor="recipient">Recipient Address</Label>
+                  <Label htmlFor="recipient">{t('txModal.recipientAddress')}</Label>
                   <Input
                     id="recipient"
                     placeholder="0x..."
@@ -121,7 +123,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                   />
                 </div>
                 <div>
-                  <Label htmlFor="amount">Amount (HEZ)</Label>
+                  <Label htmlFor="amount">{t('txModal.amountHez')}</Label>
                   <Input
                     id="amount"
                     type="number"
@@ -135,10 +137,10 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
 
             {type === 'vote' && (
               <div>
-                <Label htmlFor="message">Vote Message</Label>
+                <Label htmlFor="message">{t('txModal.voteMessage')}</Label>
                 <Textarea
                   id="message"
-                  placeholder="Enter your vote reason (optional)"
+                  placeholder={t('txModal.votePlaceholder')}
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                 />
@@ -161,17 +163,17 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Processing...
+                    {t('txModal.processing')}
                   </>
                 ) : (
                   <>
                     <Send className="mr-2 h-4 w-4" />
-                    {type === 'send' ? 'Send Transaction' : 'Sign & Submit'}
+                    {type === 'send' ? t('txModal.sendTransaction') : t('txModal.signSubmit')}
                   </>
                 )}
               </Button>
               <Button variant="outline" onClick={resetForm} disabled={loading}>
-                Cancel
+                {t('txModal.cancel')}
               </Button>
             </div>
           </div>
@@ -180,15 +182,15 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
             <Alert className="border-kesk/20">
               <CheckCircle className="h-4 w-4 text-kesk" />
               <AlertDescription>
-                Transaction submitted successfully!
+                {t('txModal.txSubmitted')}
               </AlertDescription>
             </Alert>
             <div className="p-3 bg-muted rounded-lg">
-              <div className="text-sm text-muted-foreground">Transaction Hash</div>
+              <div className="text-sm text-muted-foreground">{t('txModal.txHash')}</div>
               <div className="font-mono text-xs break-all">{txHash}</div>
             </div>
             <Button onClick={resetForm} className="w-full">
-              Close
+              {t('txModal.close')}
             </Button>
           </div>
         )}

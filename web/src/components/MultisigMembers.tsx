@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Shield, Users, CheckCircle, XCircle, ExternalLink } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -31,6 +32,7 @@ export const MultisigMembers: React.FC<MultisigMembersProps> = ({
   specificAddresses = {},
   showMultisigAddress = true,
 }) => {
+  const { t } = useTranslation();
   const { api, isApiReady } = usePezkuwi();
   const [members, setMembers] = useState<MultisigMember[]>([]);
   const [multisigAddress, setMultisigAddress] = useState('');
@@ -78,29 +80,29 @@ export const MultisigMembers: React.FC<MultisigMembersProps> = ({
         <div className="flex items-center gap-3">
           <Shield className="h-6 w-6 text-blue-400" />
           <div>
-            <h3 className="text-lg font-bold text-white">USDT Treasury Multisig</h3>
+            <h3 className="text-lg font-bold text-white">{t('multisigMembers.title')}</h3>
             <p className="text-sm text-gray-400">
-              {USDT_MULTISIG_CONFIG.threshold}/{members.length} Signatures Required
+              {t('multisigMembers.threshold', { threshold: USDT_MULTISIG_CONFIG.threshold, total: members.length })}
             </p>
           </div>
         </div>
         <Badge variant="outline" className="flex items-center gap-1">
           <Users className="h-3 w-3" />
-          {members.length} Members
+          {t('multisigMembers.members', { count: members.length })}
         </Badge>
       </div>
 
       {/* Multisig Address */}
       {showMultisigAddress && multisigAddress && (
         <div className="mb-6 p-4 bg-gray-900/50 rounded-lg">
-          <p className="text-xs text-gray-400 mb-2">Multisig Account</p>
+          <p className="text-xs text-gray-400 mb-2">{t('multisigMembers.account')}</p>
           <div className="flex items-center justify-between">
             <code className="text-sm text-green-400 font-mono">{formatMultisigAddress(multisigAddress)}</code>
             <button
               onClick={() => navigator.clipboard.writeText(multisigAddress)}
               className="text-blue-400 hover:text-blue-300 text-xs"
             >
-              Copy Full
+              {t('multisigMembers.copyFull')}
             </button>
           </div>
         </div>
@@ -126,7 +128,7 @@ export const MultisigMembers: React.FC<MultisigMembersProps> = ({
                   {member.isUnique && (
                     <Badge variant="secondary" className="text-xs flex items-center gap-1">
                       <CheckCircle className="h-3 w-3" />
-                      On-Chain
+                      {t('multisigMembers.onChain')}
                     </Badge>
                   )}
                 </div>
@@ -139,9 +141,9 @@ export const MultisigMembers: React.FC<MultisigMembersProps> = ({
               </code>
               <div className="flex items-center gap-2 mt-1 justify-end">
                 {member.isUnique ? (
-                  <CheckCircle className="h-4 w-4 text-green-500" title="Verified on-chain" />
+                  <CheckCircle className="h-4 w-4 text-green-500" title={t('multisigMembers.verified')} />
                 ) : (
-                  <XCircle className="h-4 w-4 text-yellow-500" title="Specified address" />
+                  <XCircle className="h-4 w-4 text-yellow-500" title={t('multisigMembers.specified')} />
                 )}
               </div>
             </div>
@@ -153,12 +155,12 @@ export const MultisigMembers: React.FC<MultisigMembersProps> = ({
       <Alert className="mt-6 bg-blue-900/20 border-blue-500">
         <Shield className="h-4 w-4" />
         <AlertDescription>
-          <p className="font-semibold mb-1">Security Features</p>
+          <p className="font-semibold mb-1">{t('multisigMembers.securityTitle')}</p>
           <ul className="text-sm space-y-1">
-            <li>• {USDT_MULTISIG_CONFIG.threshold} out of {members.length} signatures required</li>
-            <li>• {members.filter(m => m.isUnique).length} members verified on-chain via Tiki</li>
-            <li>• No single person can control funds</li>
-            <li>• All transactions visible on blockchain</li>
+            <li>• {t('multisigMembers.sigRequired', { threshold: USDT_MULTISIG_CONFIG.threshold, total: members.length })}</li>
+            <li>• {t('multisigMembers.verifiedOnChain', { count: members.filter(m => m.isUnique).length })}</li>
+            <li>• {t('multisigMembers.noSingleControl')}</li>
+            <li>• {t('multisigMembers.allVisible')}</li>
           </ul>
         </AlertDescription>
       </Alert>
@@ -172,7 +174,7 @@ export const MultisigMembers: React.FC<MultisigMembersProps> = ({
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300"
           >
-            View on Explorer
+            {t('multisigMembers.viewExplorer')}
             <ExternalLink className="h-4 w-4" />
           </a>
         </div>

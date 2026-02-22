@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,6 +19,7 @@ import { ReferralDashboard } from '@/components/referral/ReferralDashboard';
 // import { CommissionProposalsCard } from '@/components/dashboard/CommissionProposalsCard';
 
 export default function Dashboard() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { api, isApiReady, peopleApi, isPeopleReady, selectedAccount } = usePezkuwi();
   const navigate = useNavigate();
@@ -146,8 +148,8 @@ export default function Dashboard() {
   const handleStartScoreTracking = async () => {
     if (!peopleApi || !selectedAccount) {
       toast({
-        title: "Hata",
-        description: "Lütfen önce cüzdanınızı bağlayın",
+        title: t('common.error'),
+        description: t('dashboard.connectWalletError'),
         variant: "destructive"
       });
       return;
@@ -161,23 +163,23 @@ export default function Dashboard() {
 
       if (result.success) {
         toast({
-          title: "Başarılı",
-          description: "Score tracking başlatıldı! Staking score'unuz artık hesaplanacak."
+          title: t('common.success'),
+          description: t('dashboard.scoreTrackingStarted')
         });
         // Refresh scores after starting tracking
         fetchScoresAndTikis();
       } else {
         toast({
-          title: "Hata",
-          description: result.error || "Score tracking başlatılamadı",
+          title: t('common.error'),
+          description: result.error || t('dashboard.scoreTrackingFailed'),
           variant: "destructive"
         });
       }
     } catch (error) {
       if (import.meta.env.DEV) console.error('Error starting score tracking:', error);
       toast({
-        title: "Hata",
-        description: error instanceof Error ? error.message : "Score tracking başlatılamadı",
+        title: t('common.error'),
+        description: error instanceof Error ? error.message : t('dashboard.scoreTrackingFailed'),
         variant: "destructive"
       });
     } finally {
@@ -194,13 +196,13 @@ export default function Dashboard() {
       const result = await recordTrustScore(peopleApi, selectedAccount.address, injector.signer);
 
       if (result.success) {
-        toast({ title: "Success", description: "Trust score recorded for this epoch." });
+        toast({ title: t('common.success'), description: t('dashboard.trustScoreRecorded') });
         fetchScoresAndTikis();
       } else {
-        toast({ title: "Error", description: result.error || "Failed to record trust score", variant: "destructive" });
+        toast({ title: t('common.error'), description: result.error || t('dashboard.trustScoreRecordFailed'), variant: "destructive" });
       }
     } catch (error) {
-      toast({ title: "Error", description: error instanceof Error ? error.message : "Failed to record trust score", variant: "destructive" });
+      toast({ title: t('common.error'), description: error instanceof Error ? error.message : t('dashboard.trustScoreRecordFailed'), variant: "destructive" });
     } finally {
       setIsRecordingScore(false);
     }
@@ -216,13 +218,13 @@ export default function Dashboard() {
 
       if (result.success) {
         const rewardInfo = pezRewards?.claimableRewards.find(r => r.epoch === epochIndex);
-        toast({ title: "Success", description: `${rewardInfo?.amount || '0'} PEZ reward claimed!` });
+        toast({ title: t('common.success'), description: t('dashboard.rewardClaimed', { amount: rewardInfo?.amount || '0' }) });
         fetchScoresAndTikis();
       } else {
-        toast({ title: "Error", description: result.error || "Failed to claim reward", variant: "destructive" });
+        toast({ title: t('common.error'), description: result.error || t('dashboard.rewardClaimFailed'), variant: "destructive" });
       }
     } catch (error) {
-      toast({ title: "Error", description: error instanceof Error ? error.message : "Failed to claim reward", variant: "destructive" });
+      toast({ title: t('common.error'), description: error instanceof Error ? error.message : t('dashboard.rewardClaimFailed'), variant: "destructive" });
     } finally {
       setIsClaimingReward(false);
     }
@@ -238,8 +240,8 @@ export default function Dashboard() {
   const sendVerificationEmail = async () => {
     if (!user?.email) {
       toast({
-        title: "Error",
-        description: "No email address found",
+        title: t('common.error'),
+        description: t('dashboard.noEmailFound'),
         variant: "destructive"
       });
       return;
@@ -276,25 +278,25 @@ export default function Dashboard() {
       }
 
       toast({
-        title: "Verification Email Sent",
-        description: "Please check your email inbox and spam folder",
+        title: t('dashboard.verificationEmailSent'),
+        description: t('dashboard.checkInboxAndSpam'),
       });
     } catch (error) {
       if (import.meta.env.DEV) console.error('Error sending verification email:', error);
 
       // Provide more detailed error message
-      let errorMessage = "Failed to send verification email";
+      let errorMessage = t('dashboard.failedToSendEmail');
 
       if (error.message?.includes('Email rate limit exceeded')) {
-        errorMessage = "Too many requests. Please wait a few minutes and try again.";
+        errorMessage = t('dashboard.rateLimitExceeded');
       } else if (error.message?.includes('User not found')) {
-        errorMessage = "Account not found. Please sign up first.";
+        errorMessage = t('dashboard.accountNotFound');
       } else if (error.message) {
         errorMessage = error.message;
       }
 
       toast({
-        title: "Error",
+        title: t('common.error'),
         description: errorMessage,
         variant: "destructive"
       });
@@ -304,8 +306,8 @@ export default function Dashboard() {
   const handleRenounceCitizenship = async () => {
     if (!api || !selectedAccount) {
       toast({
-        title: "Error",
-        description: "Please connect your wallet first",
+        title: t('common.error'),
+        description: t('dashboard.connectWalletError'),
         variant: "destructive"
       });
       return;
@@ -313,21 +315,15 @@ export default function Dashboard() {
 
     if (kycStatus !== 'Approved') {
       toast({
-        title: "Error",
-        description: "Only citizens can renounce citizenship",
+        title: t('common.error'),
+        description: t('dashboard.renounceOnlyCitizens'),
         variant: "destructive"
       });
       return;
     }
 
     // Confirm action
-    const confirmed = window.confirm(
-      'Are you sure you want to renounce your citizenship? This will:\n' +
-      '• Burn your Citizen (Welati) NFT\n' +
-      '• Reset your KYC status to NotStarted\n' +
-      '• Remove all associated citizen privileges\n\n' +
-      'You can always reapply later if you change your mind.'
-    );
+    const confirmed = window.confirm(t('dashboard.renounceConfirmMsg'));
 
     if (!confirmed) return;
 
@@ -351,7 +347,7 @@ export default function Dashboard() {
           }
           if (import.meta.env.DEV) console.error(errorMessage);
           toast({
-            title: "Renunciation Failed",
+            title: t('dashboard.renounceFailed'),
             description: errorMessage,
             variant: "destructive"
           });
@@ -367,8 +363,8 @@ export default function Dashboard() {
             if (event.section === 'identityKyc' && event.method === 'CitizenshipRenounced') {
               if (import.meta.env.DEV) console.log('📢 CitizenshipRenounced event detected');
               toast({
-                title: "Citizenship Renounced",
-                description: "Your citizenship has been successfully renounced. You can reapply anytime."
+                title: t('dashboard.citizenshipRenounced'),
+                description: t('dashboard.renounceSuccess')
               });
 
               // Refresh data after a short delay
@@ -388,7 +384,7 @@ export default function Dashboard() {
       if (import.meta.env.DEV) console.error('Renunciation error:', err);
       const errorMsg = err instanceof Error ? err.message : 'Failed to renounce citizenship';
       toast({
-        title: "Error",
+        title: t('common.error'),
         description: errorMsg,
         variant: "destructive"
       });
@@ -397,7 +393,7 @@ export default function Dashboard() {
   };
 
   const getRoleDisplay = (): string => {
-    if (loadingScores) return 'Loading...';
+    if (loadingScores) return t('dashboard.loading');
     if (!selectedAccount) return 'Member';
     if (tikis.length === 0) return 'Member';
 
@@ -411,7 +407,7 @@ export default function Dashboard() {
   };
 
   if (loading) {
-    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+    return <div className="flex justify-center items-center h-screen">{t('dashboard.loading')}</div>;
   }
 
   return (
@@ -422,33 +418,33 @@ export default function Dashboard() {
       >
         <ArrowLeft className="w-5 h-5" />
       </button>
-      <h1 className="text-3xl font-bold mb-6">User Dashboard</h1>
+      <h1 className="text-3xl font-bold mb-6">{t('dashboard.title')}</h1>
       
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Account Status</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('dashboard.accountStatus')}</CardTitle>
             <Shield className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
               {user?.email_confirmed_at || profile?.email_verified ? (
-                <Badge className="bg-green-500">Verified</Badge>
+                <Badge className="bg-green-500">{t('dashboard.verified')}</Badge>
               ) : (
-                <Badge variant="destructive">Unverified</Badge>
+                <Badge variant="destructive">{t('dashboard.unverified')}</Badge>
               )}
             </div>
             <p className="text-xs text-muted-foreground">
               {user?.email_confirmed_at
-                ? `Verified on ${new Date(user.email_confirmed_at).toLocaleDateString()}`
-                : 'Email verification status'}
+                ? t('dashboard.verifiedOn', { date: new Date(user.email_confirmed_at).toLocaleDateString() })
+                : t('dashboard.emailVerificationStatus')}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Member Since</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('dashboard.memberSince')}</CardTitle>
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -456,14 +452,14 @@ export default function Dashboard() {
               {new Date(profile?.joined_at || user?.created_at).toLocaleDateString()}
             </div>
             <p className="text-xs text-muted-foreground">
-              Registration date
+              {t('dashboard.registrationDate')}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Role</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('dashboard.role')}</CardTitle>
             <User className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -471,14 +467,14 @@ export default function Dashboard() {
               {getRoleDisplay()}
             </div>
             <p className="text-xs text-muted-foreground">
-              {selectedAccount ? 'From Tiki NFTs' : 'Connect wallet for roles'}
+              {selectedAccount ? t('dashboard.fromTikiNfts') : t('dashboard.connectWalletForRoles')}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Score</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('dashboard.totalScore')}</CardTitle>
             <Award className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -486,7 +482,7 @@ export default function Dashboard() {
               {loadingScores ? '...' : scores.totalScore}
             </div>
             <p className="text-xs text-muted-foreground">
-              Combined from all score types
+              {t('dashboard.combinedScores')}
             </p>
           </CardContent>
         </Card>
@@ -495,7 +491,7 @@ export default function Dashboard() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Trust Score</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('dashboard.trustScore')}</CardTitle>
             <Shield className="h-4 w-4 text-purple-500" />
           </CardHeader>
           <CardContent>
@@ -503,14 +499,14 @@ export default function Dashboard() {
               {loadingScores ? '...' : scores.trustScore}
             </div>
             <p className="text-xs text-muted-foreground">
-              Frontend calculation
+              {t('dashboard.frontendCalc')}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Referral Score</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('dashboard.referralScore')}</CardTitle>
             <Users className="h-4 w-4 text-cyan-500" />
           </CardHeader>
           <CardContent>
@@ -518,14 +514,14 @@ export default function Dashboard() {
               {loadingScores ? '...' : scores.referralScore}
             </div>
             <p className="text-xs text-muted-foreground">
-              From referral system
+              {t('dashboard.fromReferral')}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Staking Score</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('dashboard.stakingScore')}</CardTitle>
             <TrendingUp className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
@@ -534,7 +530,7 @@ export default function Dashboard() {
             </div>
             {stakingStatus?.isTracking ? (
               <p className="text-xs text-muted-foreground">
-                Tracking: {formatDuration(stakingStatus.durationBlocks)}
+                {t('dashboard.tracking', { duration: formatDuration(stakingStatus.durationBlocks) })}
               </p>
             ) : selectedAccount ? (
               <Button
@@ -547,18 +543,18 @@ export default function Dashboard() {
                 {startingScoreTracking ? (
                   <>
                     <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                    Starting...
+                    {t('dashboard.starting')}
                   </>
                 ) : (
                   <>
                     <Play className="h-3 w-3 mr-1" />
-                    Start Tracking
+                    {t('dashboard.startTracking')}
                   </>
                 )}
               </Button>
             ) : (
               <p className="text-xs text-muted-foreground">
-                Connect wallet to track
+                {t('dashboard.connectToTrack')}
               </p>
             )}
           </CardContent>
@@ -566,7 +562,7 @@ export default function Dashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tiki Score</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('dashboard.tikiScore')}</CardTitle>
             <Award className="h-4 w-4 text-pink-500" />
           </CardHeader>
           <CardContent>
@@ -574,7 +570,7 @@ export default function Dashboard() {
               {loadingScores ? '...' : scores.tikiScore}
             </div>
             <p className="text-xs text-muted-foreground">
-              {tikis.length} {tikis.length === 1 ? 'role' : 'roles'} assigned
+              {t('dashboard.rolesAssigned', { count: tikis.length })}
             </p>
           </CardContent>
         </Card>
@@ -584,7 +580,7 @@ export default function Dashboard() {
       {selectedAccount && pezRewards && (
         <Card className="mb-6">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">PEZ Rewards</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('dashboard.pezRewards')}</CardTitle>
             <div className="flex items-center gap-2">
               <Badge className={
                 pezRewards.epochStatus === 'Open'
@@ -593,21 +589,21 @@ export default function Dashboard() {
                   ? 'bg-orange-500'
                   : 'bg-gray-500'
               }>
-                {pezRewards.epochStatus === 'Open' ? 'Open' : pezRewards.epochStatus === 'ClaimPeriod' ? 'Claim Period' : 'Closed'}
+                {pezRewards.epochStatus === 'Open' ? t('dashboard.epochOpen') : pezRewards.epochStatus === 'ClaimPeriod' ? t('dashboard.epochClaim') : t('dashboard.epochClosed')}
               </Badge>
               <Coins className="h-4 w-4 text-orange-500" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              <p className="text-xs text-muted-foreground">Epoch {pezRewards.currentEpoch}</p>
+              <p className="text-xs text-muted-foreground">{t('dashboard.epoch', { number: pezRewards.currentEpoch })}</p>
 
                 {/* Open epoch: Record score or show recorded score */}
                 {pezRewards.epochStatus === 'Open' && (
                   pezRewards.hasRecordedThisEpoch ? (
                     <div className="flex items-center gap-2">
                       <div className="text-lg font-bold text-green-600">Score: {pezRewards.userScoreCurrentEpoch}</div>
-                      <Badge variant="outline" className="text-green-600 border-green-300">Recorded</Badge>
+                      <Badge variant="outline" className="text-green-600 border-green-300">{t('dashboard.recorded')}</Badge>
                     </div>
                   ) : (
                     <Button
@@ -619,12 +615,12 @@ export default function Dashboard() {
                       {isRecordingScore ? (
                         <>
                           <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                          Recording...
+                          {t('dashboard.recording')}
                         </>
                       ) : (
                         <>
                           <Play className="h-3 w-3 mr-1" />
-                          Record Trust Score
+                          {t('dashboard.recordTrustScore')}
                         </>
                       )}
                     </Button>
@@ -639,7 +635,7 @@ export default function Dashboard() {
                     </div>
                     {pezRewards.claimableRewards.map((reward) => (
                       <div key={reward.epoch} className="flex items-center justify-between">
-                        <span className="text-xs text-muted-foreground">Epoch {reward.epoch}: {reward.amount} PEZ</span>
+                        <span className="text-xs text-muted-foreground">{t('dashboard.epoch', { number: reward.epoch })}: {reward.amount} PEZ</span>
                         <Button
                           size="sm"
                           variant="outline"
@@ -647,7 +643,7 @@ export default function Dashboard() {
                           disabled={isClaimingReward}
                           className="h-6 text-xs px-2"
                         >
-                          {isClaimingReward ? '...' : 'Claim'}
+                          {isClaimingReward ? '...' : t('dashboard.claim')}
                         </Button>
                       </div>
                     ))}
@@ -664,63 +660,63 @@ export default function Dashboard() {
 
       <Tabs defaultValue="profile" className="space-y-4">
         <TabsList className="flex flex-wrap gap-1">
-          <TabsTrigger value="profile" className="text-xs sm:text-sm px-2 sm:px-3">Profile</TabsTrigger>
-          <TabsTrigger value="roles" className="text-xs sm:text-sm px-2 sm:px-3">Roles & Tikis</TabsTrigger>
-          <TabsTrigger value="referrals" className="text-xs sm:text-sm px-2 sm:px-3">Referrals</TabsTrigger>
-          <TabsTrigger value="security" className="text-xs sm:text-sm px-2 sm:px-3">Security</TabsTrigger>
-          <TabsTrigger value="activity" className="text-xs sm:text-sm px-2 sm:px-3">Activity</TabsTrigger>
+          <TabsTrigger value="profile" className="text-xs sm:text-sm px-2 sm:px-3">{t('dashboard.profileTab')}</TabsTrigger>
+          <TabsTrigger value="roles" className="text-xs sm:text-sm px-2 sm:px-3">{t('dashboard.rolesTab')}</TabsTrigger>
+          <TabsTrigger value="referrals" className="text-xs sm:text-sm px-2 sm:px-3">{t('dashboard.referralsTab')}</TabsTrigger>
+          <TabsTrigger value="security" className="text-xs sm:text-sm px-2 sm:px-3">{t('dashboard.securityTab')}</TabsTrigger>
+          <TabsTrigger value="activity" className="text-xs sm:text-sm px-2 sm:px-3">{t('dashboard.activityTab')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Profile Information</CardTitle>
-              <CardDescription>Your personal details and contact information</CardDescription>
+              <CardTitle>{t('dashboard.profileInfo')}</CardTitle>
+              <CardDescription>{t('dashboard.personalDetails')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-4">
                 <div className="flex items-center gap-2">
                   <User className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">Full Name:</span>
-                  <span>{profile?.full_name || 'Not set'}</span>
+                  <span className="font-medium">{t('dashboard.fullName')}</span>
+                  <span>{profile?.full_name || t('dashboard.notSet')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Mail className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">Email:</span>
+                  <span className="font-medium">{t('dashboard.emailLabel')}</span>
                   <span>{user?.email}</span>
                   {user?.email_confirmed_at || profile?.email_verified ? (
-                    <Badge className="bg-green-500">Verified</Badge>
+                    <Badge className="bg-green-500">{t('dashboard.verified')}</Badge>
                   ) : (
                     <Button size="sm" variant="outline" onClick={sendVerificationEmail}>
-                      Verify Email
+                      {t('dashboard.verifyEmail')}
                     </Button>
                   )}
                 </div>
                 <div className="flex items-center gap-2">
                   <Mail className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">Recovery Email:</span>
-                  <span>{profile?.recovery_email || 'Not set'}</span>
+                  <span className="font-medium">{t('dashboard.recoveryEmail')}</span>
+                  <span>{profile?.recovery_email || t('dashboard.notSet')}</span>
                   {profile?.recovery_email_verified && profile?.recovery_email && (
-                    <Badge className="bg-green-500">Verified</Badge>
+                    <Badge className="bg-green-500">{t('dashboard.verified')}</Badge>
                   )}
                 </div>
                 <div className="flex items-center gap-2">
                   <Phone className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">Phone:</span>
-                  <span>{profile?.phone_number || 'Not set'}</span>
+                  <span className="font-medium">{t('dashboard.phone')}</span>
+                  <span>{profile?.phone_number || t('dashboard.notSet')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Globe className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">Website:</span>
-                  <span>{profile?.website || 'Not set'}</span>
+                  <span className="font-medium">{t('dashboard.website')}</span>
+                  <span>{profile?.website || t('dashboard.notSet')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">Location:</span>
-                  <span>{profile?.location || 'Not set'}</span>
+                  <span className="font-medium">{t('dashboard.location')}</span>
+                  <span>{profile?.location || t('dashboard.notSet')}</span>
                 </div>
               </div>
-              <Button onClick={() => navigate('/profile/settings')}>Edit Profile</Button>
+              <Button onClick={() => navigate('/profile/settings')}>{t('dashboard.editProfile')}</Button>
             </CardContent>
           </Card>
         </TabsContent>
@@ -728,11 +724,11 @@ export default function Dashboard() {
         <TabsContent value="roles" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Roles & Tikis</CardTitle>
+              <CardTitle>{t('dashboard.rolesTitle')}</CardTitle>
               <CardDescription>
                 {selectedAccount
-                  ? 'Your roles from the blockchain (Pallet-Tiki)'
-                  : 'Connect your wallet to view your roles'}
+                  ? t('dashboard.rolesFromBlockchain')
+                  : t('dashboard.connectWalletToView')}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -740,17 +736,17 @@ export default function Dashboard() {
                 <div className="text-center py-8">
                   <Shield className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <p className="text-muted-foreground mb-4">
-                    Connect your Pezkuwi wallet to view your on-chain roles
+                    {t('dashboard.connectWalletMsg')}
                   </p>
                   <Button onClick={() => navigate('/')}>
-                    Go to Home to Connect Wallet
+                    {t('dashboard.goHomeToConnect')}
                   </Button>
                 </div>
               )}
 
               {selectedAccount && loadingScores && (
                 <div className="text-center py-8">
-                  <p className="text-muted-foreground">Loading roles from blockchain...</p>
+                  <p className="text-muted-foreground">{t('dashboard.loadingRoles')}</p>
                 </div>
               )}
 
@@ -758,10 +754,10 @@ export default function Dashboard() {
                 <div className="text-center py-8">
                   <Award className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <p className="text-muted-foreground mb-2">
-                    No roles assigned yet
+                    {t('dashboard.noRolesYet')}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    Complete KYC to become a Citizen (Welati)
+                    {t('dashboard.completeKyc')}
                   </p>
                 </div>
               )}
@@ -770,23 +766,23 @@ export default function Dashboard() {
                 <div className="space-y-4">
                   <div className="grid gap-2">
                     <div className="flex items-center gap-2">
-                      <span className="font-medium">Primary Role:</span>
+                      <span className="font-medium">{t('dashboard.primaryRole')}</span>
                       <Badge className="text-lg">
                         {getTikiEmoji(getPrimaryRole(tikis))} {getTikiDisplayName(getPrimaryRole(tikis))}
                       </Badge>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="font-medium">Total Score:</span>
+                      <span className="font-medium">{t('dashboard.totalScore')}:</span>
                       <span className="text-lg font-bold text-purple-600">{scores.totalScore}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="font-medium">Categories:</span>
+                      <span className="font-medium">{t('dashboard.categories')}</span>
                       <span className="text-muted-foreground">{getRoleCategories().join(', ')}</span>
                     </div>
                   </div>
 
                   <div className="border-t pt-4">
-                    <h4 className="font-medium mb-3">All Roles ({tikis.length})</h4>
+                    <h4 className="font-medium mb-3">{t('dashboard.allRoles', { count: tikis.length })}</h4>
                     <div className="flex flex-wrap gap-2">
                       {tikis.map((tiki, index) => (
                         <Badge
@@ -802,16 +798,16 @@ export default function Dashboard() {
 
                   {nftDetails.totalNFTs > 0 && (
                     <div className="border-t pt-4">
-                      <h4 className="font-medium mb-3">NFT Details ({nftDetails.totalNFTs})</h4>
+                      <h4 className="font-medium mb-3">{t('dashboard.nftDetails', { count: nftDetails.totalNFTs })}</h4>
                       <div className="space-y-3">
                         {nftDetails.citizenNFT && (
                           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
                             <div className="flex items-center justify-between mb-2">
                               <span className="font-medium text-blue-900 dark:text-blue-100">
-                                {nftDetails.citizenNFT.tikiEmoji} Citizen NFT
+                                {nftDetails.citizenNFT.tikiEmoji} {t('dashboard.citizenNft')}
                               </span>
                               <Badge variant="outline" className="text-blue-700 border-blue-300">
-                                Primary
+                                {t('dashboard.primary')}
                               </Badge>
                             </div>
 
@@ -819,7 +815,7 @@ export default function Dashboard() {
                             <div className="grid grid-cols-2 gap-3 mb-3">
                               {/* NFT Number */}
                               <div className="p-2 bg-white dark:bg-blue-950 rounded border border-blue-300 dark:border-blue-700">
-                                <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">NFT Number:</span>
+                                <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">{t('dashboard.nftNumber')}</span>
                                 <div className="font-mono text-lg font-bold text-blue-900 dark:text-blue-100">
                                   #{nftDetails.citizenNFT.collectionId}-{nftDetails.citizenNFT.itemId}
                                 </div>
@@ -827,7 +823,7 @@ export default function Dashboard() {
 
                               {/* Citizen Number = NFT Number + 6 digits */}
                               <div className="p-2 bg-white dark:bg-green-950 rounded border border-green-300 dark:border-green-700">
-                                <span className="text-xs text-green-600 dark:text-green-400 font-medium">Citizen Number:</span>
+                                <span className="text-xs text-green-600 dark:text-green-400 font-medium">{t('dashboard.citizenNumberLabel')}</span>
                                 <div className="font-mono text-lg font-bold text-green-900 dark:text-green-100">
                                   #{nftDetails.citizenNFT.collectionId}-{nftDetails.citizenNFT.itemId}-{generateCitizenNumber(
                                     nftDetails.citizenNFT.owner,
@@ -840,25 +836,25 @@ export default function Dashboard() {
 
                             <div className="grid grid-cols-2 gap-2 text-sm">
                               <div>
-                                <span className="text-blue-700 dark:text-blue-300 font-medium">Collection ID:</span>
+                                <span className="text-blue-700 dark:text-blue-300 font-medium">{t('dashboard.collectionId')}</span>
                                 <span className="ml-2 font-mono text-blue-900 dark:text-blue-100">
                                   {nftDetails.citizenNFT.collectionId}
                                 </span>
                               </div>
                               <div>
-                                <span className="text-blue-700 dark:text-blue-300 font-medium">Item ID:</span>
+                                <span className="text-blue-700 dark:text-blue-300 font-medium">{t('dashboard.itemId')}</span>
                                 <span className="ml-2 font-mono text-blue-900 dark:text-blue-100">
                                   {nftDetails.citizenNFT.itemId}
                                 </span>
                               </div>
                               <div className="col-span-2">
-                                <span className="text-blue-700 dark:text-blue-300 font-medium">Role:</span>
+                                <span className="text-blue-700 dark:text-blue-300 font-medium">{t('dashboard.roleLabel')}</span>
                                 <span className="ml-2 text-blue-900 dark:text-blue-100">
                                   {nftDetails.citizenNFT.tikiDisplayName}
                                 </span>
                               </div>
                               <div className="col-span-2">
-                                <span className="text-blue-700 dark:text-blue-300 font-medium">Tiki Type:</span>
+                                <span className="text-blue-700 dark:text-blue-300 font-medium">{t('dashboard.tikiType')}</span>
                                 <span className="ml-2 font-semibold text-purple-600 dark:text-purple-400">
                                   {nftDetails.citizenNFT.tikiRole}
                                 </span>
@@ -869,7 +865,7 @@ export default function Dashboard() {
 
                         {nftDetails.roleNFTs.length > 0 && (
                           <div className="space-y-2">
-                            <p className="text-sm text-muted-foreground font-medium">Additional Role NFTs:</p>
+                            <p className="text-sm text-muted-foreground font-medium">{t('dashboard.additionalRoleNfts')}</p>
                             {nftDetails.roleNFTs.map((nft, /*index*/) => (
                               <div
                                 key={`${nft.collectionId}-${nft.itemId}`}
@@ -885,15 +881,15 @@ export default function Dashboard() {
                                 </div>
                                 <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
                                   <div>
-                                    <span className="font-medium">Collection:</span>
+                                    <span className="font-medium">{t('dashboard.collection')}</span>
                                     <span className="ml-2 font-mono">{nft.collectionId}</span>
                                   </div>
                                   <div>
-                                    <span className="font-medium">Item:</span>
+                                    <span className="font-medium">{t('dashboard.item')}</span>
                                     <span className="ml-2 font-mono">{nft.itemId}</span>
                                   </div>
                                   <div className="col-span-2">
-                                    <span className="font-medium">Tiki Type:</span>
+                                    <span className="font-medium">{t('dashboard.tikiType')}</span>
                                     <span className="ml-2 font-semibold text-purple-600 dark:text-purple-400">{nft.tikiRole}</span>
                                   </div>
                                 </div>
@@ -906,7 +902,7 @@ export default function Dashboard() {
                   )}
 
                   <div className="border-t pt-4 bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
-                    <h4 className="font-medium mb-2">Blockchain Address</h4>
+                    <h4 className="font-medium mb-2">{t('dashboard.blockchainAddress')}</h4>
                     <p className="text-sm text-muted-foreground font-mono break-all">
                       {selectedAccount.address}
                     </p>
@@ -917,18 +913,18 @@ export default function Dashboard() {
                       <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
                         <h4 className="font-medium mb-2 text-yellow-800 dark:text-yellow-200 flex items-center gap-2">
                           <UserMinus className="h-4 w-4" />
-                          Renounce Citizenship
+                          {t('dashboard.renounceCitizenship')}
                         </h4>
                         <p className="text-sm text-yellow-700 dark:text-yellow-300 mb-3">
-                          You can voluntarily renounce your citizenship at any time. This will:
+                          {t('dashboard.renounceDesc')}
                         </p>
                         <ul className="text-sm text-yellow-700 dark:text-yellow-300 mb-3 list-disc list-inside space-y-1">
-                          <li>Burn your Citizen (Welati) NFT</li>
-                          <li>Reset your KYC status</li>
-                          <li>Remove citizen privileges</li>
+                          <li>{t('dashboard.renounceBurn')}</li>
+                          <li>{t('dashboard.renounceReset')}</li>
+                          <li>{t('dashboard.renounceRemove')}</li>
                         </ul>
                         <p className="text-xs text-yellow-600 dark:text-yellow-400 mb-3">
-                          Note: You can always reapply for citizenship later if you change your mind.
+                          {t('dashboard.renounceNote')}
                         </p>
                         <Button
                           variant="destructive"
@@ -936,7 +932,7 @@ export default function Dashboard() {
                           onClick={handleRenounceCitizenship}
                           disabled={renouncingCitizenship}
                         >
-                          {renouncingCitizenship ? 'Renouncing...' : 'Renounce Citizenship'}
+                          {renouncingCitizenship ? t('dashboard.renouncing') : t('dashboard.renounceBtn')}
                         </Button>
                       </div>
                     </div>
@@ -954,14 +950,14 @@ export default function Dashboard() {
         <TabsContent value="security" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Security Settings</CardTitle>
-              <CardDescription>Manage your account security</CardDescription>
+              <CardTitle>{t('dashboard.securitySettings')}</CardTitle>
+              <CardDescription>{t('dashboard.manageAccountSecurity')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <h3 className="font-medium">Password</h3>
-                <p className="text-sm text-muted-foreground">Last changed: Never</p>
-                <Button onClick={() => navigate('/reset-password')}>Change Password</Button>
+                <h3 className="font-medium">{t('dashboard.password')}</h3>
+                <p className="text-sm text-muted-foreground">{t('dashboard.lastChanged')}</p>
+                <Button onClick={() => navigate('/reset-password')}>{t('dashboard.changePassword')}</Button>
               </div>
               
               {!user?.email_confirmed_at && !profile?.email_verified && (
@@ -969,8 +965,8 @@ export default function Dashboard() {
                   <div className="flex items-center">
                     <AlertCircle className="h-5 w-5 text-yellow-600 mr-2" />
                     <div>
-                      <h4 className="font-medium text-gray-900">Verify your email</h4>
-                      <p className="text-sm text-gray-900">Please verify your email to access all features</p>
+                      <h4 className="font-medium text-gray-900">{t('dashboard.verifyYourEmail')}</h4>
+                      <p className="text-sm text-gray-900">{t('dashboard.verifyEmailMsg')}</p>
                     </div>
                   </div>
                 </div>
@@ -982,11 +978,11 @@ export default function Dashboard() {
         <TabsContent value="activity" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
-              <CardDescription>Your recent actions and transactions</CardDescription>
+              <CardTitle>{t('dashboard.recentActivity')}</CardTitle>
+              <CardDescription>{t('dashboard.recentActivityDesc')}</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground">No recent activity</p>
+              <p className="text-muted-foreground">{t('dashboard.noRecentActivity')}</p>
             </CardContent>
           </Card>
         </TabsContent>

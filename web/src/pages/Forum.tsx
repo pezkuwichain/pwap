@@ -42,6 +42,7 @@ import {
   LogIn,
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 
 interface Category {
   id: string;
@@ -89,6 +90,7 @@ interface ForumStats {
 const Forum: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useTranslation();
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [discussions, setDiscussions] = useState<Discussion[]>([]);
@@ -284,10 +286,10 @@ const Forum: React.FC = () => {
             <div>
               <h1 className="text-3xl font-bold text-white flex items-center gap-3">
                 <MessageSquare className="w-8 h-8 text-green-500" />
-                Community Forum
+                {t('forum.communityForum')}
               </h1>
               <p className="text-gray-400 mt-1">
-                Discuss proposals, share ideas, and connect with the community
+                {t('forum.communityForumDesc')}
               </p>
             </div>
             <Button
@@ -295,7 +297,7 @@ const Forum: React.FC = () => {
               className="bg-gradient-to-r from-green-600 to-yellow-500 hover:from-green-700 hover:to-yellow-600"
             >
               <Plus className="w-4 h-4 mr-2" />
-              New Topic
+              {t('forum.newTopic')}
             </Button>
           </div>
 
@@ -306,8 +308,8 @@ const Forum: React.FC = () => {
                 <div className="flex items-center gap-3">
                   <Eye className="w-5 h-5 text-green-400" />
                   <div>
-                    <p className="text-white font-medium">You are browsing as a guest</p>
-                    <p className="text-gray-400 text-sm">Login to create topics, reply, and interact with the community</p>
+                    <p className="text-white font-medium">{t('forum.guestBrowsing')}</p>
+                    <p className="text-gray-400 text-sm">{t('forum.guestBrowsingDesc')}</p>
                   </div>
                 </div>
                 <Button
@@ -316,7 +318,7 @@ const Forum: React.FC = () => {
                   className="border-green-500 text-green-400 hover:bg-green-500/20"
                 >
                   <LogIn className="w-4 h-4 mr-2" />
-                  Login
+                  {t('forum.login')}
                 </Button>
               </div>
             </div>
@@ -348,24 +350,24 @@ const Forum: React.FC = () => {
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg text-white flex items-center gap-2">
                     <TrendingUp className="w-5 h-5 text-green-500" />
-                    Forum Stats
+                    {t('forum.forumStats')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-400">Topics</span>
+                    <span className="text-gray-400">{t('forum.topics')}</span>
                     <span className="text-white font-semibold">{stats.totalDiscussions}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-400">Replies</span>
+                    <span className="text-gray-400">{t('forum.replies')}</span>
                     <span className="text-white font-semibold">{stats.totalReplies}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-400">Members</span>
+                    <span className="text-gray-400">{t('forum.members')}</span>
                     <span className="text-white font-semibold">{stats.totalUsers}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-400">Online Now</span>
+                    <span className="text-gray-400">{t('forum.onlineNow')}</span>
                     <span className="text-green-400 font-semibold flex items-center gap-1">
                       <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
                       {stats.onlineNow}
@@ -379,7 +381,7 @@ const Forum: React.FC = () => {
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg text-white flex items-center gap-2">
                     <Filter className="w-5 h-5 text-yellow-500" />
-                    Categories
+                    {t('forum.categories')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-1">
@@ -393,7 +395,7 @@ const Forum: React.FC = () => {
                   >
                     <span className="flex items-center gap-2">
                       <span>📋</span>
-                      <span>All Topics</span>
+                      <span>{t('forum.allTopics')}</span>
                     </span>
                     <ChevronRight className="w-4 h-4" />
                   </button>
@@ -423,18 +425,18 @@ const Forum: React.FC = () => {
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg text-white flex items-center gap-2">
                     <Users className="w-5 h-5 text-blue-500" />
-                    Quick Links
+                    {t('forum.quickLinks')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <a href="/governance" className="block text-gray-400 hover:text-green-400 text-sm transition-colors">
-                    → Governance Dashboard
+                    → {t('forum.govDashboard')}
                   </a>
                   <a href="/docs" className="block text-gray-400 hover:text-green-400 text-sm transition-colors">
-                    → Documentation
+                    → {t('forum.documentation')}
                   </a>
                   <a href="https://discord.gg/pezkuwi" target="_blank" rel="noopener noreferrer" className="block text-gray-400 hover:text-green-400 text-sm transition-colors">
-                    → Join Discord
+                    → {t('forum.joinDiscord')}
                   </a>
                 </CardContent>
               </Card>
@@ -448,7 +450,7 @@ const Forum: React.FC = () => {
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
                   <Input
                     type="text"
-                    placeholder="Search discussions..."
+                    placeholder={t('forum.searchPlaceholder')}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-10 bg-gray-900 border-gray-700 text-white placeholder:text-gray-500"
@@ -456,22 +458,22 @@ const Forum: React.FC = () => {
                 </div>
                 <Select value={sortBy} onValueChange={(v) => setSortBy(v as 'recent' | 'popular' | 'replies')}>
                   <SelectTrigger className="w-[180px] bg-gray-900 border-gray-700 text-white">
-                    <SelectValue placeholder="Sort by" />
+                    <SelectValue placeholder={t('forum.sortBy')} />
                   </SelectTrigger>
                   <SelectContent className="bg-gray-900 border-gray-700">
                     <SelectItem value="recent" className="text-white hover:bg-gray-800">
                       <span className="flex items-center gap-2">
-                        <Clock className="w-4 h-4" /> Recent Activity
+                        <Clock className="w-4 h-4" /> {t('forum.recentActivity')}
                       </span>
                     </SelectItem>
                     <SelectItem value="popular" className="text-white hover:bg-gray-800">
                       <span className="flex items-center gap-2">
-                        <Eye className="w-4 h-4" /> Most Viewed
+                        <Eye className="w-4 h-4" /> {t('forum.sortViewed')}
                       </span>
                     </SelectItem>
                     <SelectItem value="replies" className="text-white hover:bg-gray-800">
                       <span className="flex items-center gap-2">
-                        <MessageSquare className="w-4 h-4" /> Most Replies
+                        <MessageSquare className="w-4 h-4" /> {t('forum.sortReplies')}
                       </span>
                     </SelectItem>
                   </SelectContent>
@@ -495,14 +497,14 @@ const Forum: React.FC = () => {
                 <Card className="bg-gray-900 border-gray-800">
                   <CardContent className="py-16 text-center">
                     <MessageSquare className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-white mb-2">No discussions yet</h3>
-                    <p className="text-gray-400 mb-6">Be the first to start a conversation!</p>
+                    <h3 className="text-xl font-semibold text-white mb-2">{t('forum.noDiscussionsYet')}</h3>
+                    <p className="text-gray-400 mb-6">{t('forum.beFirstToStart')}</p>
                     <Button
                       onClick={() => requireAuth(() => setIsCreateModalOpen(true))}
                       className="bg-gradient-to-r from-green-600 to-yellow-500"
                     >
                       <Plus className="w-4 h-4 mr-2" />
-                      Create First Topic
+                      {t('forum.createFirstTopic')}
                     </Button>
                   </CardContent>
                 </Card>
@@ -529,13 +531,13 @@ const Forum: React.FC = () => {
                               {discussion.is_pinned && (
                                 <Badge variant="outline" className="border-yellow-500 text-yellow-500 text-xs">
                                   <Pin className="w-3 h-3 mr-1" />
-                                  Pinned
+                                  {t('forum.pinned')}
                                 </Badge>
                               )}
                               {discussion.is_locked && (
                                 <Badge variant="outline" className="border-gray-500 text-gray-500 text-xs">
                                   <Lock className="w-3 h-3 mr-1" />
-                                  Locked
+                                  {t('forum.locked')}
                                 </Badge>
                               )}
                               {discussion.category && (
@@ -559,7 +561,7 @@ const Forum: React.FC = () => {
 
                             <div className="flex items-center gap-4 mt-3 text-xs text-gray-500">
                               <span className="flex items-center gap-1">
-                                by <span className="text-gray-300">{discussion.author_name}</span>
+                                {t('forum.by')} <span className="text-gray-300">{discussion.author_name}</span>
                               </span>
                               <span className="flex items-center gap-1">
                                 <Clock className="w-3 h-3" />
@@ -599,7 +601,7 @@ const Forum: React.FC = () => {
                               </span>
                             ))}
                             {discussion.tags.length > 3 && (
-                              <span className="text-xs text-gray-500">+{discussion.tags.length - 3} more</span>
+                              <span className="text-xs text-gray-500">{t('forum.moreTags', { count: discussion.tags.length - 3 })}</span>
                             )}
                           </div>
                         )}
@@ -619,10 +621,10 @@ const Forum: React.FC = () => {
           <DialogHeader>
             <DialogTitle className="text-white text-xl flex items-center gap-2">
               <LogIn className="w-6 h-6 text-green-500" />
-              Login Required
+              {t('forum.loginRequired')}
             </DialogTitle>
             <DialogDescription className="text-gray-400">
-              You need to be logged in to perform this action.
+              {t('forum.loginRequiredDesc')}
             </DialogDescription>
           </DialogHeader>
 
@@ -630,12 +632,12 @@ const Forum: React.FC = () => {
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-green-500/20 to-yellow-500/20 flex items-center justify-center mx-auto mb-4">
               <Users className="w-8 h-8 text-green-400" />
             </div>
-            <p className="text-gray-300 mb-2">Join our community to:</p>
+            <p className="text-gray-300 mb-2">{t('forum.joinCommunity')}</p>
             <ul className="text-gray-400 text-sm space-y-1">
-              <li>• Create new discussion topics</li>
-              <li>• Reply to existing discussions</li>
-              <li>• Upvote helpful content</li>
-              <li>• Participate in governance</li>
+              <li>• {t('forum.joinCreateTopics')}</li>
+              <li>• {t('forum.joinReply')}</li>
+              <li>• {t('forum.joinUpvote')}</li>
+              <li>• {t('forum.joinGov')}</li>
             </ul>
           </div>
 
@@ -645,7 +647,7 @@ const Forum: React.FC = () => {
               onClick={() => setShowLoginPrompt(false)}
               className="flex-1 border-gray-700 text-gray-300"
             >
-              Continue Browsing
+              {t('forum.continueBrowsing')}
             </Button>
             <Button
               onClick={() => {
@@ -655,7 +657,7 @@ const Forum: React.FC = () => {
               className="flex-1 bg-gradient-to-r from-green-600 to-yellow-500 hover:from-green-700 hover:to-yellow-600"
             >
               <LogIn className="w-4 h-4 mr-2" />
-              Login
+              {t('forum.login')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -665,21 +667,21 @@ const Forum: React.FC = () => {
       <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
         <DialogContent className="bg-gray-900 border-gray-800 max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="text-white text-xl">Create New Topic</DialogTitle>
+            <DialogTitle className="text-white text-xl">{t('forum.createNewTopic')}</DialogTitle>
             <DialogDescription className="text-gray-400">
-              Start a new discussion with the community
+              {t('forum.startNewDiscussion')}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
             <div>
-              <label className="text-sm font-medium text-gray-300 mb-2 block">Category</label>
+              <label className="text-sm font-medium text-gray-300 mb-2 block">{t('forum.category')}</label>
               <Select
                 value={newTopic.category_id}
                 onValueChange={(v) => setNewTopic({ ...newTopic, category_id: v })}
               >
                 <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
-                  <SelectValue placeholder="Select a category" />
+                  <SelectValue placeholder={t('forum.selectCategory')} />
                 </SelectTrigger>
                 <SelectContent className="bg-gray-800 border-gray-700">
                   {categories.map((category) => (
@@ -695,32 +697,32 @@ const Forum: React.FC = () => {
             </div>
 
             <div>
-              <label className="text-sm font-medium text-gray-300 mb-2 block">Title</label>
+              <label className="text-sm font-medium text-gray-300 mb-2 block">{t('forum.title')}</label>
               <Input
                 value={newTopic.title}
                 onChange={(e) => setNewTopic({ ...newTopic, title: e.target.value })}
-                placeholder="Enter a descriptive title"
+                placeholder={t('forum.enterTitle')}
                 className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
               />
             </div>
 
             <div>
-              <label className="text-sm font-medium text-gray-300 mb-2 block">Content</label>
+              <label className="text-sm font-medium text-gray-300 mb-2 block">{t('forum.content')}</label>
               <Textarea
                 value={newTopic.content}
                 onChange={(e) => setNewTopic({ ...newTopic, content: e.target.value })}
-                placeholder="Write your discussion content here..."
+                placeholder={t('forum.writeContent')}
                 rows={8}
                 className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
               />
             </div>
 
             <div>
-              <label className="text-sm font-medium text-gray-300 mb-2 block">Tags (optional)</label>
+              <label className="text-sm font-medium text-gray-300 mb-2 block">{t('forum.tagsOptional')}</label>
               <Input
                 value={newTopic.tags}
                 onChange={(e) => setNewTopic({ ...newTopic, tags: e.target.value })}
-                placeholder="governance, proposal, treasury (comma separated)"
+                placeholder={t('forum.tagsPlaceholder')}
                 className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
               />
             </div>
@@ -732,7 +734,7 @@ const Forum: React.FC = () => {
               onClick={() => setIsCreateModalOpen(false)}
               className="border-gray-700 text-gray-300"
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               onClick={handleCreateTopic}
@@ -742,12 +744,12 @@ const Forum: React.FC = () => {
               {isCreating ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Creating...
+                  {t('forum.creating')}
                 </>
               ) : (
                 <>
                   <Plus className="w-4 h-4 mr-2" />
-                  Create Topic
+                  {t('forum.createTopic')}
                 </>
               )}
             </Button>

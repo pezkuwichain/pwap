@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X, ArrowDown, ArrowUp, AlertCircle, Info, Clock, CheckCircle2 } from 'lucide-react';
 import { web3FromAddress } from '@pezkuwi/extension-dapp';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
@@ -28,6 +29,7 @@ export const USDTBridge: React.FC<USDTBridgeProps> = ({
   onClose,
   specificAddresses = {},
 }) => {
+  const { t } = useTranslation();
   const { api, selectedAccount, isApiReady } = usePezkuwi();
   const { refreshBalances } = useWallet();
 
@@ -59,7 +61,7 @@ export const USDTBridge: React.FC<USDTBridgeProps> = ({
   // Handle deposit (user requests deposit)
   const handleDeposit = async () => {
     if (!depositAmount || parseFloat(depositAmount) <= 0) {
-      setError('Please enter a valid amount');
+      setError(t('bridge.invalidAmount'));
       return;
     }
 
@@ -75,7 +77,7 @@ export const USDTBridge: React.FC<USDTBridgeProps> = ({
 
       // For now, just show instructions
       setSuccess(
-        `Deposit request for ${depositAmount} USDT created. Please follow the instructions to complete the deposit.`
+        t('bridge.depositSuccess', { amount: depositAmount })
       );
       setDepositAmount('');
     } catch (err) {
@@ -93,17 +95,17 @@ export const USDTBridge: React.FC<USDTBridgeProps> = ({
     const amount = parseFloat(withdrawAmount);
 
     if (!amount || amount <= 0) {
-      setError('Please enter a valid amount');
+      setError(t('bridge.invalidAmount'));
       return;
     }
 
     if (amount > wusdtBalance) {
-      setError('Insufficient wUSDT balance');
+      setError(t('bridge.insufficientBalance'));
       return;
     }
 
     if (!withdrawAddress) {
-      setError('Please enter withdrawal address');
+      setError(t('bridge.noAddress'));
       return;
     }
 
@@ -122,7 +124,7 @@ export const USDTBridge: React.FC<USDTBridgeProps> = ({
         if (status.isFinalized) {
           const delay = calculateWithdrawalDelay(amount);
           setSuccess(
-            `Withdrawal request submitted! wUSDT burned. USDT will be sent to ${withdrawAddress} after ${formatDelay(delay)}.`
+            t('bridge.withdrawSuccess', { address: withdrawAddress, delay: formatDelay(delay) })
           );
           setWithdrawAmount('');
           setWithdrawAddress('');
@@ -148,8 +150,8 @@ export const USDTBridge: React.FC<USDTBridgeProps> = ({
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h2 className="text-2xl font-bold text-white">USDT Bridge</h2>
-            <p className="text-sm text-gray-400 mt-1">Deposit or withdraw USDT</p>
+            <h2 className="text-2xl font-bold text-white">{t('bridge.title')}</h2>
+            <p className="text-sm text-gray-400 mt-1">{t('bridge.subtitle')}</p>
           </div>
           <button
             onClick={onClose}
@@ -161,11 +163,11 @@ export const USDTBridge: React.FC<USDTBridgeProps> = ({
 
         {/* Balance Display */}
         <div className="mb-6 p-4 bg-gray-800/50 rounded-lg">
-          <p className="text-sm text-gray-400 mb-1">Your wUSDT Balance</p>
+          <p className="text-sm text-gray-400 mb-1">{t('bridge.balance')}</p>
           <p className="text-3xl font-bold text-white">{formatWUSDT(wusdtBalance)}</p>
           {isMultisigMemberState && (
             <Badge variant="outline" className="mt-2">
-              Multisig Member
+              {t('bridge.multisigMember')}
             </Badge>
           )}
         </div>
@@ -188,8 +190,8 @@ export const USDTBridge: React.FC<USDTBridgeProps> = ({
         {/* Tabs */}
         <Tabs defaultValue="deposit" className="w-full">
           <TabsList className="grid w-full grid-cols-2 bg-gray-800">
-            <TabsTrigger value="deposit">Deposit</TabsTrigger>
-            <TabsTrigger value="withdraw">Withdraw</TabsTrigger>
+            <TabsTrigger value="deposit">{t('bridge.tabDeposit')}</TabsTrigger>
+            <TabsTrigger value="withdraw">{t('bridge.tabWithdraw')}</TabsTrigger>
           </TabsList>
 
           {/* Deposit Tab */}
@@ -197,25 +199,25 @@ export const USDTBridge: React.FC<USDTBridgeProps> = ({
             <Alert className="bg-blue-900/20 border-blue-500">
               <Info className="h-4 w-4" />
               <AlertDescription className="text-sm">
-                <p className="font-semibold mb-2">How to Deposit:</p>
+                <p className="font-semibold mb-2">{t('bridge.depositHow')}</p>
                 <ol className="list-decimal list-inside space-y-1">
-                  <li>Transfer USDT to the treasury account (off-chain)</li>
-                  <li>Notary verifies and records your transaction</li>
-                  <li>Multisig (3/5) approves and mints wUSDT to your account</li>
-                  <li>Receive wUSDT in 2-5 minutes</li>
+                  <li>{t('bridge.depositStep1')}</li>
+                  <li>{t('bridge.depositStep2')}</li>
+                  <li>{t('bridge.depositStep3')}</li>
+                  <li>{t('bridge.depositStep4')}</li>
                 </ol>
               </AlertDescription>
             </Alert>
 
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
-                USDT Amount
+                {t('bridge.usdtAmount')}
               </label>
               <input
                 type="number"
                 value={depositAmount}
                 onChange={(e) => setDepositAmount(e.target.value)}
-                placeholder="Amount"
+                placeholder={t('bridge.amountPlaceholder')}
                 className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 placeholder:text-gray-500 placeholder:opacity-50"
                 disabled={isLoading}
               />
@@ -223,18 +225,18 @@ export const USDTBridge: React.FC<USDTBridgeProps> = ({
 
             <div className="p-4 bg-gray-800 rounded-lg space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-400">You will receive:</span>
+                <span className="text-gray-400">{t('bridge.willReceive')}</span>
                 <span className="text-white font-semibold">
-                  {depositAmount || '0.00'} wUSDT
+                  {depositAmount || '0.00'} {t('bridge.wusdt')}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">Exchange rate:</span>
-                <span className="text-white">1:1</span>
+                <span className="text-gray-400">{t('bridge.exchangeRate')}</span>
+                <span className="text-white">{t('bridge.rate')}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">Estimated time:</span>
-                <span className="text-white">2-5 minutes</span>
+                <span className="text-gray-400">{t('bridge.estimatedTime')}</span>
+                <span className="text-white">{t('bridge.time')}</span>
               </div>
             </div>
 
@@ -246,12 +248,12 @@ export const USDTBridge: React.FC<USDTBridgeProps> = ({
               {isLoading ? (
                 <div className="flex items-center gap-2">
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  Processing...
+                  {t('bridge.processing')}
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
                   <ArrowDown className="h-5 w-5" />
-                  Request Deposit
+                  {t('bridge.requestDeposit')}
                 </div>
               )}
             </Button>
@@ -262,25 +264,25 @@ export const USDTBridge: React.FC<USDTBridgeProps> = ({
             <Alert className="bg-orange-900/20 border-orange-500">
               <Info className="h-4 w-4" />
               <AlertDescription className="text-sm">
-                <p className="font-semibold mb-2">How to Withdraw:</p>
+                <p className="font-semibold mb-2">{t('bridge.withdrawHow')}</p>
                 <ol className="list-decimal list-inside space-y-1">
-                  <li>Burn your wUSDT on-chain</li>
-                  <li>Wait for security delay ({withdrawalDelay > 0 && formatDelay(withdrawalDelay)})</li>
-                  <li>Multisig (3/5) approves and sends USDT</li>
-                  <li>Receive USDT to your specified address</li>
+                  <li>{t('bridge.withdrawStep1')}</li>
+                  <li>{t('bridge.withdrawStep2', { delay: withdrawalDelay > 0 ? formatDelay(withdrawalDelay) : '' })}</li>
+                  <li>{t('bridge.withdrawStep3')}</li>
+                  <li>{t('bridge.withdrawStep4')}</li>
                 </ol>
               </AlertDescription>
             </Alert>
 
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
-                wUSDT Amount
+                {t('bridge.wusdtAmount')}
               </label>
               <input
                 type="number"
                 value={withdrawAmount}
                 onChange={(e) => setWithdrawAmount(e.target.value)}
-                placeholder="Amount"
+                placeholder={t('bridge.amountPlaceholder')}
                 max={wusdtBalance}
                 className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 placeholder:text-gray-500 placeholder:opacity-50"
                 disabled={isLoading}
@@ -289,19 +291,19 @@ export const USDTBridge: React.FC<USDTBridgeProps> = ({
                 onClick={() => setWithdrawAmount(wusdtBalance.toString())}
                 className="text-xs text-blue-400 hover:text-blue-300 mt-1"
               >
-                Max: {formatWUSDT(wusdtBalance)}
+                {t('bridge.max')}: {formatWUSDT(wusdtBalance)}
               </button>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
-                Withdrawal Address (Bank Account or Crypto Address)
+                {t('bridge.withdrawAddress')}
               </label>
               <input
                 type="text"
                 value={withdrawAddress}
                 onChange={(e) => setWithdrawAddress(e.target.value)}
-                placeholder="Bank account or crypto address"
+                placeholder={t('bridge.addressPlaceholder')}
                 className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 placeholder:text-gray-500 placeholder:opacity-50"
                 disabled={isLoading}
               />
@@ -310,17 +312,17 @@ export const USDTBridge: React.FC<USDTBridgeProps> = ({
             {withdrawAmount && parseFloat(withdrawAmount) > 0 && (
               <div className="p-4 bg-gray-800 rounded-lg space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-400">You will receive:</span>
+                  <span className="text-gray-400">{t('bridge.willReceive')}</span>
                   <span className="text-white font-semibold">{withdrawAmount} USDT</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Withdrawal tier:</span>
+                  <span className="text-gray-400">{t('bridge.withdrawTier')}</span>
                   <Badge variant={withdrawalTier === 'Large' ? 'destructive' : 'outline'}>
                     {withdrawalTier}
                   </Badge>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-400">Security delay:</span>
+                  <span className="text-gray-400">{t('bridge.securityDelay')}</span>
                   <span className="text-white flex items-center gap-1">
                     <Clock className="h-4 w-4" />
                     {formatDelay(withdrawalDelay)}
@@ -337,12 +339,12 @@ export const USDTBridge: React.FC<USDTBridgeProps> = ({
               {isLoading ? (
                 <div className="flex items-center gap-2">
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  Processing...
+                  {t('bridge.processing')}
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
                   <ArrowUp className="h-5 w-5" />
-                  Withdraw USDT
+                  {t('bridge.withdrawBtn')}
                 </div>
               )}
             </Button>

@@ -4,6 +4,7 @@
 // Catches React errors and displays fallback UI
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { useTranslation, Translation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -92,31 +93,33 @@ export class ErrorBoundary extends Component<Props, State> {
 
       // Default error UI
       return (
+        <Translation>
+          {(t) => (
         <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
           <Card className="bg-gray-900 border-gray-800 max-w-2xl w-full">
             <CardContent className="p-8">
               <Alert className="bg-red-900/20 border-red-500 mb-6">
                 <AlertTriangle className="h-6 w-6 text-red-400" />
                 <AlertDescription className="text-gray-300">
-                  <h2 className="text-xl font-bold mb-2 text-white">Something Went Wrong</h2>
+                  <h2 className="text-xl font-bold mb-2 text-white">{t('errors.somethingWentWrong')}</h2>
                   <p className="mb-4">
-                    An unexpected error occurred. We apologize for the inconvenience.
+                    {t('errors.unexpectedError')}
                   </p>
                   {this.state.error && (
                     <details className="mt-4 p-4 bg-gray-950 rounded border border-gray-700">
                       <summary className="cursor-pointer text-sm font-semibold text-gray-400 hover:text-gray-300">
-                        Error Details (for developers)
+                        {t('errors.errorDetails')}
                       </summary>
                       <div className="mt-3 text-xs font-mono space-y-2">
                         <div>
-                          <strong className="text-red-400">Error:</strong>
+                          <strong className="text-red-400">{t('errors.error')}</strong>
                           <pre className="mt-1 text-gray-400 whitespace-pre-wrap">
                             {this.state.error.toString()}
                           </pre>
                         </div>
                         {this.state.errorInfo && (
                           <div>
-                            <strong className="text-red-400">Component Stack:</strong>
+                            <strong className="text-red-400">{t('errors.componentStack')}</strong>
                             <pre className="mt-1 text-gray-400 whitespace-pre-wrap">
                               {this.state.errorInfo.componentStack}
                             </pre>
@@ -134,7 +137,7 @@ export class ErrorBoundary extends Component<Props, State> {
                   className="bg-green-600 hover:bg-green-700 flex items-center gap-2"
                 >
                   <RefreshCw className="w-4 h-4" />
-                  Try Again
+                  {t('common.tryAgain')}
                 </Button>
                 <Button
                   onClick={this.handleReload}
@@ -142,7 +145,7 @@ export class ErrorBoundary extends Component<Props, State> {
                   className="border-gray-700 hover:bg-gray-800 flex items-center gap-2"
                 >
                   <RefreshCw className="w-4 h-4" />
-                  Reload Page
+                  {t('common.reloadPage')}
                 </Button>
                 <Button
                   onClick={this.handleGoHome}
@@ -150,12 +153,12 @@ export class ErrorBoundary extends Component<Props, State> {
                   className="border-gray-700 hover:bg-gray-800 flex items-center gap-2"
                 >
                   <Home className="w-4 h-4" />
-                  Go Home
+                  {t('common.goHome')}
                 </Button>
               </div>
 
               <p className="mt-6 text-sm text-gray-500">
-                If this problem persists, please contact support at{' '}
+                {t('errors.contactSupport')}{' '}
                 <a
                   href="mailto:info@pezkuwichain.io"
                   className="text-green-400 hover:underline"
@@ -166,6 +169,8 @@ export class ErrorBoundary extends Component<Props, State> {
             </CardContent>
           </Card>
         </div>
+          )}
+        </Translation>
       );
     }
 
@@ -187,6 +192,7 @@ export const RouteErrorBoundary: React.FC<{
   routeName?: string;
 }> = ({ children, routeName = 'this page' }) => {
   const [hasError, setHasError] = React.useState(false);
+  const { t } = useTranslation();
 
   const handleReset = () => {
     setHasError(false);
@@ -198,12 +204,12 @@ export const RouteErrorBoundary: React.FC<{
         <Alert className="bg-red-900/20 border-red-500">
           <AlertTriangle className="h-5 w-5 text-red-400" />
           <AlertDescription className="text-gray-300">
-            <strong className="block mb-2">Error loading {routeName}</strong>
-            An error occurred while rendering this component.
+            <strong className="block mb-2">{t('errors.errorLoading', { routeName })}</strong>
+            {t('errors.renderError')}
             <div className="mt-4">
               <Button onClick={handleReset} size="sm" className="bg-green-600 hover:bg-green-700">
                 <RefreshCw className="w-4 h-4 mr-2" />
-                Try Again
+                {t('common.tryAgain')}
               </Button>
             </div>
           </AlertDescription>
@@ -223,17 +229,18 @@ const RouteErrorFallback: React.FC<{ routeName: string; onReset: () => void }> =
   routeName,
   onReset,
 }) => {
+  const { t } = useTranslation();
   return (
     <div className="p-8">
       <Alert className="bg-red-900/20 border-red-500">
         <AlertTriangle className="h-5 w-5 text-red-400" />
         <AlertDescription className="text-gray-300">
-          <strong className="block mb-2">Error loading {routeName}</strong>
-          An unexpected error occurred.
+          <strong className="block mb-2">{t('errors.errorLoading', { routeName })}</strong>
+          {t('errors.unexpectedError')}
           <div className="mt-4">
             <Button onClick={onReset} size="sm" className="bg-green-600 hover:bg-green-700">
               <RefreshCw className="w-4 h-4 mr-2" />
-              Try Again
+              {t('common.tryAgain')}
             </Button>
           </div>
         </AlertDescription>

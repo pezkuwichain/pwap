@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import {
   Dialog,
@@ -24,6 +25,7 @@ interface TradeModalProps {
 }
 
 export function TradeModal({ offer, onClose }: TradeModalProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { api, selectedAccount } = usePezkuwi();
@@ -40,28 +42,28 @@ export function TradeModal({ offer, onClose }: TradeModalProps) {
 
   const handleInitiateTrade = async () => {
     if (!api || !selectedAccount || !user) {
-      toast.error('Please connect your wallet and log in');
+      toast.error(t('p2p.connectWalletAndLogin'));
       return;
     }
 
     // Prevent self-trading
     if (offer.seller_id === user.id) {
-      toast.error('You cannot trade with your own offer');
+      toast.error(t('p2pTrade.cannotTradeOwn'));
       return;
     }
 
     if (!isValidAmount) {
-      toast.error('Invalid amount');
+      toast.error(t('p2pTrade.invalidAmount'));
       return;
     }
 
     if (!meetsMinOrder) {
-      toast.error(`Minimum order: ${offer.min_order_amount} ${offer.token}`);
+      toast.error(t('p2p.minOrder', { amount: offer.min_order_amount, token: offer.token }));
       return;
     }
 
     if (!meetsMaxOrder) {
-      toast.error(`Maximum order: ${offer.max_order_amount} ${offer.token}`);
+      toast.error(t('p2p.maxOrder', { amount: offer.max_order_amount, token: offer.token }));
       return;
     }
 
@@ -75,7 +77,7 @@ export function TradeModal({ offer, onClose }: TradeModalProps) {
         amount: cryptoAmount
       });
 
-      toast.success('Trade initiated! Proceed to payment.');
+      toast.success(t('p2pTrade.tradeInitiated'));
       onClose();
 
       // Navigate to trade page
@@ -92,9 +94,9 @@ export function TradeModal({ offer, onClose }: TradeModalProps) {
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-md">
         <DialogHeader>
-          <DialogTitle>Buy {offer.token}</DialogTitle>
+          <DialogTitle>{t('p2pTrade.buyToken', { token: offer.token })}</DialogTitle>
           <DialogDescription className="text-gray-400">
-            Trading with {offer.seller_wallet.slice(0, 6)}...{offer.seller_wallet.slice(-4)}
+            {t('p2pTrade.tradingWith', { address: `${offer.seller_wallet.slice(0, 6)}...${offer.seller_wallet.slice(-4)}` })}
           </DialogDescription>
         </DialogHeader>
 
@@ -102,37 +104,37 @@ export function TradeModal({ offer, onClose }: TradeModalProps) {
           {/* Price Info */}
           <div className="p-4 bg-gray-800 rounded-lg">
             <div className="flex justify-between items-center mb-2">
-              <span className="text-gray-400">Price</span>
+              <span className="text-gray-400">{t('p2p.price')}</span>
               <span className="text-xl font-bold text-green-400">
                 {offer.price_per_unit.toFixed(2)} {offer.fiat_currency}
               </span>
             </div>
             <div className="flex justify-between items-center text-sm">
-              <span className="text-gray-400">Available</span>
+              <span className="text-gray-400">{t('p2p.available')}</span>
               <span className="text-white">{offer.remaining_amount} {offer.token}</span>
             </div>
           </div>
 
           {/* Amount Input */}
           <div>
-            <Label htmlFor="buyAmount">Amount to Buy ({offer.token})</Label>
+            <Label htmlFor="buyAmount">{t('p2pTrade.amountToBuy', { token: offer.token })}</Label>
             <Input
               id="buyAmount"
               type="number"
               step="0.01"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              placeholder="Amount"
+              placeholder={t('p2p.amount')}
               className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 placeholder:opacity-50"
             />
             {offer.min_order_amount && (
               <p className="text-xs text-gray-500 mt-1">
-                Min: {offer.min_order_amount} {offer.token}
+                {t('p2p.minLimit', { amount: offer.min_order_amount, token: offer.token })}
               </p>
             )}
             {offer.max_order_amount && (
               <p className="text-xs text-gray-500 mt-1">
-                Max: {offer.max_order_amount} {offer.token}
+                {t('p2p.maxLimit', { amount: offer.max_order_amount, token: offer.token })}
               </p>
             )}
           </div>
@@ -140,7 +142,7 @@ export function TradeModal({ offer, onClose }: TradeModalProps) {
           {/* Calculation */}
           {cryptoAmount > 0 && (
             <div className="p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
-              <p className="text-sm text-gray-400 mb-1">You will pay</p>
+              <p className="text-sm text-gray-400 mb-1">{t('p2pTrade.youWillPay')}</p>
               <p className="text-2xl font-bold text-green-400">
                 {fiatAmount.toFixed(2)} {offer.fiat_currency}
               </p>
@@ -152,7 +154,7 @@ export function TradeModal({ offer, onClose }: TradeModalProps) {
             <Alert variant="destructive">
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
-                Minimum order: {offer.min_order_amount} {offer.token}
+                {t('p2p.minOrder', { amount: offer.min_order_amount, token: offer.token })}
               </AlertDescription>
             </Alert>
           )}
@@ -161,7 +163,7 @@ export function TradeModal({ offer, onClose }: TradeModalProps) {
             <Alert variant="destructive">
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
-                Maximum order: {offer.max_order_amount} {offer.token}
+                {t('p2p.maxOrder', { amount: offer.max_order_amount, token: offer.token })}
               </AlertDescription>
             </Alert>
           )}
@@ -170,7 +172,7 @@ export function TradeModal({ offer, onClose }: TradeModalProps) {
           <Alert>
             <Clock className="h-4 w-4" />
             <AlertDescription>
-              Payment deadline: {offer.time_limit_minutes} minutes after accepting
+              {t('p2pTrade.paymentDeadline', { minutes: offer.time_limit_minutes })}
             </AlertDescription>
           </Alert>
         </div>
@@ -182,7 +184,7 @@ export function TradeModal({ offer, onClose }: TradeModalProps) {
             disabled={loading}
             className="bg-gray-800 border-gray-700 hover:bg-gray-700"
           >
-            Cancel
+            {t('p2p.cancel')}
           </Button>
           <Button 
             onClick={handleInitiateTrade}
@@ -191,10 +193,10 @@ export function TradeModal({ offer, onClose }: TradeModalProps) {
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Initiating...
+                {t('p2pTrade.initiating')}
               </>
             ) : (
-              'Accept & Continue'
+              t('p2pTrade.acceptAndContinue')
             )}
           </Button>
         </DialogFooter>

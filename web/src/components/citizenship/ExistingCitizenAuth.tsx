@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -15,6 +16,7 @@ interface ExistingCitizenAuthProps {
 }
 
 export const ExistingCitizenAuth: React.FC<ExistingCitizenAuthProps> = ({ onClose }) => {
+  const { t } = useTranslation();
   const { peopleApi, isPeopleReady, selectedAccount, connectWallet } = usePezkuwi();
 
   const [citizenNumber, setCitizenNumber] = useState('');
@@ -24,12 +26,12 @@ export const ExistingCitizenAuth: React.FC<ExistingCitizenAuthProps> = ({ onClos
 
   const handleVerifyNFT = async () => {
     if (!peopleApi || !isPeopleReady || !selectedAccount) {
-      setError('Please connect your wallet first');
+      setError(t('existingAuth.connectWallet'));
       return;
     }
 
     if (!citizenNumber.trim()) {
-      setError('Please enter your Citizen Number');
+      setError(t('existingAuth.enterCitizenNumber'));
       return;
     }
 
@@ -41,7 +43,7 @@ export const ExistingCitizenAuth: React.FC<ExistingCitizenAuthProps> = ({ onClos
       const isValid = await verifyCitizenNumber(peopleApi, citizenNumber, selectedAccount.address);
 
       if (!isValid) {
-        setError(`Invalid Citizen Number or it doesn&apos;t match your wallet`);
+        setError(t('existingAuth.invalidNumber'));
         setStep('error');
         return;
       }
@@ -52,14 +54,14 @@ export const ExistingCitizenAuth: React.FC<ExistingCitizenAuthProps> = ({ onClos
       setStep('signing');
     } catch {
       if (import.meta.env.DEV) console.error('Verification error:', err);
-      setError('Failed to verify Citizen Number');
+      setError(t('existingAuth.verificationFailed'));
       setStep('error');
     }
   };
 
   const handleSignChallenge = async () => {
     if (!selectedAccount || !challenge) {
-      setError('Missing authentication data');
+      setError(t('existingAuth.missingAuthData'));
       return;
     }
 
@@ -73,7 +75,7 @@ export const ExistingCitizenAuth: React.FC<ExistingCitizenAuthProps> = ({ onClos
       const isValid = await verifySignature(signature, challenge, selectedAccount.address);
 
       if (!isValid) {
-        setError('Signature verification failed');
+        setError(t('existingAuth.signatureFailed'));
         setStep('error');
         return;
       }
@@ -98,7 +100,7 @@ export const ExistingCitizenAuth: React.FC<ExistingCitizenAuthProps> = ({ onClos
       }, 2000);
     } catch {
       if (import.meta.env.DEV) console.error('Signature error:', err);
-      setError('Failed to sign authentication challenge');
+      setError(t('existingAuth.signError'));
       setStep('error');
     }
   };
@@ -107,7 +109,7 @@ export const ExistingCitizenAuth: React.FC<ExistingCitizenAuthProps> = ({ onClos
     try {
       await connectWallet();
     } catch {
-      setError('Failed to connect wallet');
+      setError(t('existingAuth.walletConnectFailed'));
     }
   };
 
@@ -117,10 +119,10 @@ export const ExistingCitizenAuth: React.FC<ExistingCitizenAuthProps> = ({ onClos
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Shield className="h-5 w-5 text-cyan-500" />
-            Authenticate as Citizen
+            {t('existingAuth.title')}
           </CardTitle>
           <CardDescription>
-            Enter your Citizen Number from your Dashboard to authenticate
+            {t('existingAuth.description')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -128,7 +130,7 @@ export const ExistingCitizenAuth: React.FC<ExistingCitizenAuthProps> = ({ onClos
           {step === 'input' && (
             <>
               <div className="space-y-2">
-                <Label htmlFor="citizenNumber">Citizen Number</Label>
+                <Label htmlFor="citizenNumber">{t('existingAuth.citizenNumber')}</Label>
                 <Input
                   id="citizenNumber"
                   placeholder="#42-0-123456"
@@ -138,17 +140,17 @@ export const ExistingCitizenAuth: React.FC<ExistingCitizenAuthProps> = ({ onClos
                   className="bg-gray-100 dark:bg-gray-800 placeholder:text-gray-400 dark:placeholder:text-gray-500 font-mono"
                 />
                 <p className="text-xs text-muted-foreground">
-                  Enter your full Citizen Number from your Dashboard (format: #CollectionID-ItemID-6digits)
+                  {t('existingAuth.citizenNumberHint')}
                 </p>
               </div>
 
               {!selectedAccount ? (
                 <Button onClick={handleConnectWallet} className="w-full">
-                  Connect Wallet First
+                  {t('existingAuth.connectWalletFirst')}
                 </Button>
               ) : (
                 <Button onClick={handleVerifyNFT} className="w-full">
-                  Verify Citizen Number
+                  {t('existingAuth.verifyCitizenNumber')}
                 </Button>
               )}
             </>
@@ -158,7 +160,7 @@ export const ExistingCitizenAuth: React.FC<ExistingCitizenAuthProps> = ({ onClos
           {step === 'verifying' && (
             <div className="flex flex-col items-center justify-center py-8 space-y-4">
               <Loader2 className="h-12 w-12 animate-spin text-cyan-500" />
-              <p className="text-sm text-muted-foreground">Verifying Citizen Number on blockchain...</p>
+              <p className="text-sm text-muted-foreground">{t('existingAuth.verifying')}</p>
             </div>
           )}
 
@@ -168,19 +170,19 @@ export const ExistingCitizenAuth: React.FC<ExistingCitizenAuthProps> = ({ onClos
               <Alert>
                 <CheckCircle className="h-4 w-4 text-green-500" />
                 <AlertDescription>
-                  NFT ownership verified! Now sign to prove you control this wallet.
+                  {t('existingAuth.nftVerified')}
                 </AlertDescription>
               </Alert>
 
               <div className="bg-muted p-4 rounded-lg space-y-2">
-                <p className="text-sm font-medium">Authentication Challenge:</p>
+                <p className="text-sm font-medium">{t('existingAuth.authChallenge')}</p>
                 <p className="text-xs text-muted-foreground font-mono break-all">
                   {challenge?.nonce}
                 </p>
               </div>
 
               <Button onClick={handleSignChallenge} className="w-full">
-                Sign Message to Authenticate
+                {t('existingAuth.signMessage')}
               </Button>
             </>
           )}
@@ -189,12 +191,12 @@ export const ExistingCitizenAuth: React.FC<ExistingCitizenAuthProps> = ({ onClos
           {step === 'success' && (
             <div className="flex flex-col items-center justify-center py-8 space-y-4">
               <CheckCircle className="h-16 w-16 text-green-500" />
-              <h3 className="text-lg font-semibold">Authentication Successful!</h3>
+              <h3 className="text-lg font-semibold">{t('existingAuth.authSuccess')}</h3>
               <p className="text-sm text-muted-foreground text-center">
-                Welcome back, Citizen #{citizenNumber}
+                {t('existingAuth.welcomeBack', { number: citizenNumber })}
               </p>
               <p className="text-xs text-muted-foreground">
-                Redirecting to citizen dashboard...
+                {t('existingAuth.redirecting')}
               </p>
             </div>
           )}
@@ -209,7 +211,7 @@ export const ExistingCitizenAuth: React.FC<ExistingCitizenAuthProps> = ({ onClos
 
           {step === 'error' && (
             <Button onClick={() => { setStep('input'); setError(null); }} variant="outline" className="w-full">
-              Try Again
+              {t('existingAuth.tryAgain')}
             </Button>
           )}
         </CardContent>
@@ -221,13 +223,13 @@ export const ExistingCitizenAuth: React.FC<ExistingCitizenAuthProps> = ({ onClos
           <div className="space-y-2 text-sm">
             <h4 className="font-semibold flex items-center gap-2">
               <Shield className="h-4 w-4" />
-              Security Information
+              {t('existingAuth.securityInfo')}
             </h4>
             <ul className="space-y-1 text-xs text-muted-foreground">
-              <li>• Your NFT number is cryptographically verified on-chain</li>
-              <li>• Signature proves you control the wallet without revealing private keys</li>
-              <li>• Session expires after 24 hours for your security</li>
-              <li>• No personal data is transmitted or stored on-chain</li>
+              <li>• {t('existingAuth.securityNft')}</li>
+              <li>• {t('existingAuth.securitySig')}</li>
+              <li>• {t('existingAuth.securityExpire')}</li>
+              <li>• {t('existingAuth.securityNoData')}</li>
             </ul>
           </div>
         </CardContent>

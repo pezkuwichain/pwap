@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from 'react-i18next';
 
 interface InitializeUsdtModalProps {
   isOpen: boolean;
@@ -29,6 +30,7 @@ export const InitializeUsdtModal: React.FC<InitializeUsdtModalProps> = ({
   const { assetHubApi, isAssetHubReady } = usePezkuwi();
   const { account, signer } = useWallet();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const [usdtAmount, setUsdtAmount] = useState('10000');
 
@@ -66,8 +68,8 @@ export const InitializeUsdtModal: React.FC<InitializeUsdtModalProps> = ({
   const handleMint = async () => {
     if (!assetHubApi || !isAssetHubReady || !signer || !account) {
       toast({
-        title: 'Error',
-        description: 'Please connect your wallet and wait for Asset Hub connection',
+        title: t('common.error'),
+        description: t('mint.connectWallet'),
         variant: 'destructive',
       });
       return;
@@ -75,10 +77,10 @@ export const InitializeUsdtModal: React.FC<InitializeUsdtModalProps> = ({
 
     // Check if assets pallet is available on Asset Hub
     if (!assetHubApi.tx.assets || !assetHubApi.tx.assets.mint) {
-      setErrorMessage('Assets pallet is not available on Asset Hub.');
+      setErrorMessage(t('mint.palletNotAvailable'));
       toast({
-        title: 'Pallet Not Available',
-        description: 'The Assets pallet is not deployed on Asset Hub.',
+        title: t('mint.palletToast'),
+        description: t('mint.palletToastDesc'),
         variant: 'destructive',
       });
       return;
@@ -87,7 +89,7 @@ export const InitializeUsdtModal: React.FC<InitializeUsdtModalProps> = ({
     const usdtAmountRaw = BigInt(parseFloat(usdtAmount) * 10 ** USDT_DECIMALS);
 
     if (usdtAmountRaw <= BigInt(0)) {
-      setErrorMessage('Amount must be greater than zero');
+      setErrorMessage(t('common.amountGtZero'));
       return;
     }
 
@@ -129,7 +131,7 @@ export const InitializeUsdtModal: React.FC<InitializeUsdtModalProps> = ({
               setErrorMessage(errorMsg);
               setTxStatus('error');
               toast({
-                title: 'Transaction Failed',
+                title: t('common.txFailed'),
                 description: errorMsg,
                 variant: 'destructive',
               });
@@ -138,8 +140,8 @@ export const InitializeUsdtModal: React.FC<InitializeUsdtModalProps> = ({
               if (import.meta.env.DEV) console.log('📋 Events:', events.map(e => e.event.method).join(', '));
               setTxStatus('success');
               toast({
-                title: 'Success!',
-                description: `Successfully minted ${usdtAmount} wUSDT`,
+                title: t('common.success'),
+                description: t('mintUsdt.minted', { amount: usdtAmount }),
               });
               setTimeout(() => {
                 onSuccess?.();
@@ -151,11 +153,11 @@ export const InitializeUsdtModal: React.FC<InitializeUsdtModalProps> = ({
       );
     } catch (error) {
       if (import.meta.env.DEV) console.error('Mint failed:', error);
-      setErrorMessage(error instanceof Error ? error.message : 'Transaction failed');
+      setErrorMessage(error instanceof Error ? error.message : t('common.txFailed'));
       setTxStatus('error');
       toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Mint failed',
+        title: t('common.error'),
+        description: error instanceof Error ? error.message : t('common.txFailed'),
         variant: 'destructive',
       });
     }
@@ -171,7 +173,7 @@ export const InitializeUsdtModal: React.FC<InitializeUsdtModalProps> = ({
         <CardHeader className="border-b border-gray-800">
           <div className="flex items-center justify-between">
             <CardTitle className="text-xl font-bold text-white">
-              Mint wUSDT Tokens
+              {t('mintUsdt.title')}
             </CardTitle>
             <button
               onClick={onClose}
@@ -182,7 +184,7 @@ export const InitializeUsdtModal: React.FC<InitializeUsdtModalProps> = ({
             </button>
           </div>
           <Badge className="bg-green-600/20 text-green-400 border-green-600/30 w-fit mt-2">
-            Admin Only - Token Minting
+            {t('mintUsdt.adminOnly')}
           </Badge>
         </CardHeader>
 
@@ -191,17 +193,16 @@ export const InitializeUsdtModal: React.FC<InitializeUsdtModalProps> = ({
           <Alert className="bg-green-500/10 border-green-500/30">
             <Info className="h-4 w-4 text-green-400" />
             <AlertDescription className="text-green-300 text-sm">
-              Mint wUSDT (Wrapped USDT) tokens for testing and liquidity pool creation.
-              Use responsibly!
+              {t('mintUsdt.info')}
             </AlertDescription>
           </Alert>
 
           {/* USDT Amount */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label className="text-sm text-gray-400">wUSDT Amount</label>
+              <label className="text-sm text-gray-400">{t('mintUsdt.amount')}</label>
               <span className="text-xs text-gray-500">
-                Current: {wusdtBalanceDisplay} wUSDT
+                {t('mint.current')} {wusdtBalanceDisplay} wUSDT
               </span>
             </div>
             <div className="relative">
@@ -231,13 +232,13 @@ export const InitializeUsdtModal: React.FC<InitializeUsdtModalProps> = ({
               </div>
             </div>
             <p className="text-xs text-gray-500">
-              💡 wUSDT has 6 decimals (same as real USDT)
+              {t('mintUsdt.decimalsInfo')}
             </p>
           </div>
 
           {/* Current wUSDT Balance */}
           <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-700">
-            <div className="text-sm text-gray-400 mb-1">Current wUSDT Balance</div>
+            <div className="text-sm text-gray-400 mb-1">{t('mintUsdt.currentBalance')}</div>
             <div className="text-2xl font-bold text-green-400 font-mono">
               {wusdtBalanceDisplay} wUSDT
             </div>
@@ -258,7 +259,7 @@ export const InitializeUsdtModal: React.FC<InitializeUsdtModalProps> = ({
             <Alert className="bg-green-500/10 border-green-500/30">
               <CheckCircle className="h-4 w-4 text-green-400" />
               <AlertDescription className="text-green-300 text-sm">
-                Successfully minted {usdtAmount} wUSDT!
+                {t('mintUsdt.success', { amount: usdtAmount })}
               </AlertDescription>
             </Alert>
           )}
@@ -271,7 +272,7 @@ export const InitializeUsdtModal: React.FC<InitializeUsdtModalProps> = ({
               className="flex-1 border-gray-700 hover:bg-gray-800"
               disabled={txStatus === 'signing' || txStatus === 'submitting'}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               onClick={handleMint}
@@ -285,21 +286,21 @@ export const InitializeUsdtModal: React.FC<InitializeUsdtModalProps> = ({
               {txStatus === 'signing' && (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  Signing...
+                  {t('common.signing')}
                 </>
               )}
               {txStatus === 'submitting' && (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  Minting...
+                  {t('mintUsdt.minting')}
                 </>
               )}
-              {txStatus === 'idle' && 'Mint wUSDT'}
-              {txStatus === 'error' && 'Retry'}
+              {txStatus === 'idle' && t('mintUsdt.mintBtn')}
+              {txStatus === 'error' && t('common.retry')}
               {txStatus === 'success' && (
                 <>
                   <CheckCircle className="w-4 h-4 mr-2" />
-                  Success
+                  {t('common.success')}
                 </>
               )}
             </Button>

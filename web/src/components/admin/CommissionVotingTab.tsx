@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -26,6 +27,7 @@ interface Proposal {
 }
 
 export function CommissionVotingTab() {
+  const { t } = useTranslation();
   const { api, isApiReady, selectedAccount } = usePezkuwi();
   const { toast } = useToast();
 
@@ -120,8 +122,7 @@ export function CommissionVotingTab() {
     } catch (error) {
       if (import.meta.env.DEV) console.error('Error loading proposals:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to load proposals',
+        title: t('commission.voting.loadFailed'),
         variant: 'destructive',
       });
     } finally {
@@ -132,8 +133,8 @@ export function CommissionVotingTab() {
   const handleVote = async (proposal: Proposal, approve: boolean) => {
     if (!api || !selectedAccount) {
       toast({
-        title: 'Wallet Not Connected',
-        description: 'Please connect your wallet first',
+        title: t('commission.voting.walletNotConnected'),
+        description: t('commission.voting.connectFirst'),
         variant: 'destructive',
       });
       return;
@@ -141,8 +142,7 @@ export function CommissionVotingTab() {
 
     if (!isCommissionMember) {
       toast({
-        title: 'Not a Commission Member',
-        description: 'You are not a member of the KYC Approval Commission',
+        title: t('commission.voting.notMemberTitle'),
         variant: 'destructive',
       });
       return;
@@ -182,7 +182,7 @@ export function CommissionVotingTab() {
 
                 if (import.meta.env.DEV) console.error('Vote error:', errorMessage);
                 toast({
-                  title: 'Vote Failed',
+                  title: t('commission.voting.voteFailed'),
                   description: errorMessage,
                   variant: 'destructive',
                 });
@@ -203,14 +203,14 @@ export function CommissionVotingTab() {
               if (executedEvent) {
                 if (import.meta.env.DEV) console.log('✅ Proposal executed (threshold reached)');
                 toast({
-                  title: 'Success',
-                  description: 'Proposal passed and executed! KYC approved.',
+                  title: t('commission.voting.proposalPassed'),
+                  description: t('commission.voting.kycApproved'),
                 });
               } else if (votedEvent) {
                 if (import.meta.env.DEV) console.log('✅ Vote recorded');
                 toast({
-                  title: 'Vote Recorded',
-                  description: `Your ${approve ? 'AYE' : 'NAY'} vote has been recorded`,
+                  title: t('commission.voting.voteRecorded'),
+                  description: approve ? t('commission.voting.ayeRecorded') : t('commission.voting.nayRecorded'),
                 });
               }
 
@@ -220,8 +220,8 @@ export function CommissionVotingTab() {
         ).catch((error) => {
           if (import.meta.env.DEV) console.error('Failed to sign and send:', error);
           toast({
-            title: 'Transaction Error',
-            description: error instanceof Error ? error.message : 'Failed to submit transaction',
+            title: t('commission.voting.submitFailed'),
+            description: error instanceof Error ? error.message : t('commission.voting.submitFailed'),
             variant: 'destructive',
           });
           reject(error);
@@ -236,8 +236,8 @@ export function CommissionVotingTab() {
     } catch (error) {
       if (import.meta.env.DEV) console.error('Error voting:', error);
       toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to vote',
+        title: t('commission.voting.voteFailed'),
+        description: error instanceof Error ? error.message : t('commission.voting.voteFailed'),
         variant: 'destructive',
       });
     } finally {
@@ -248,8 +248,8 @@ export function CommissionVotingTab() {
   const handleExecute = async (proposal: Proposal) => {
     if (!api || !selectedAccount) {
       toast({
-        title: 'Wallet Not Connected',
-        description: 'Please connect your wallet first',
+        title: t('commission.voting.walletNotConnected'),
+        description: t('commission.voting.connectFirst'),
         variant: 'destructive',
       });
       return;
@@ -297,7 +297,7 @@ export function CommissionVotingTab() {
 
                 if (import.meta.env.DEV) console.error('Execute error:', errorMessage);
                 toast({
-                  title: 'Execute Failed',
+                  title: t('commission.voting.executeFailed'),
                   description: errorMessage,
                   variant: 'destructive',
                 });
@@ -324,21 +324,21 @@ export function CommissionVotingTab() {
                 if (result && typeof result === 'object' && 'Err' in result) {
                   if (import.meta.env.DEV) console.error('Execution failed:', result.Err);
                   toast({
-                    title: 'Execution Failed',
-                    description: `Proposal closed but execution failed: ${JSON.stringify(result.Err)}`,
+                    title: t('commission.voting.executeFailed'),
+                    description: JSON.stringify(result.Err),
                     variant: 'destructive',
                   });
                 } else {
                   toast({
-                    title: 'Proposal Executed!',
-                    description: 'KYC approved and NFT minted successfully!',
+                    title: t('commission.voting.executeSuccess'),
+                    description: t('commission.voting.kycApproved'),
                   });
                 }
               } else if (closedEvent) {
                 if (import.meta.env.DEV) console.log('Proposal closed');
                 toast({
-                  title: 'Proposal Closed',
-                  description: 'Proposal has been closed',
+                  title: t('commission.voting.proposalClosed'),
+                  description: t('commission.voting.proposalClosedDesc'),
                 });
               }
 
@@ -348,8 +348,8 @@ export function CommissionVotingTab() {
         ).catch((error) => {
           if (import.meta.env.DEV) console.error('Failed to sign and send:', error);
           toast({
-            title: 'Transaction Error',
-            description: error instanceof Error ? error.message : 'Failed to submit transaction',
+            title: t('commission.voting.submitFailed'),
+            description: error instanceof Error ? error.message : t('commission.voting.submitFailed'),
             variant: 'destructive',
           });
           reject(error);
@@ -363,8 +363,8 @@ export function CommissionVotingTab() {
     } catch (error) {
       if (import.meta.env.DEV) console.error('Error executing:', error);
       toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to execute proposal',
+        title: t('commission.voting.executeFailed'),
+        description: error instanceof Error ? error.message : t('commission.voting.executeFailed'),
         variant: 'destructive',
       });
     } finally {
@@ -373,19 +373,19 @@ export function CommissionVotingTab() {
   };
 
   const getProposalDescription = (call: Record<string, unknown>): string => {
-    if (!call) return 'Unknown proposal';
+    if (!call) return t('commission.voting.unknownProposal');
 
     try {
       const callStr = JSON.stringify(call);
       if (callStr.includes('approveKyc')) {
-        return 'KYC Approval';
+        return t('commission.voting.kycApproval');
       }
       if (callStr.includes('rejectKyc')) {
-        return 'KYC Rejection';
+        return t('commission.voting.kycRejection');
       }
-      return 'Commission Action';
+      return t('commission.voting.commissionAction');
     } catch {
-      return 'Unknown proposal';
+      return t('commission.voting.unknownProposal');
     }
   };
 
@@ -393,12 +393,12 @@ export function CommissionVotingTab() {
     const progress = (proposal.ayes.length / proposal.threshold) * 100;
 
     if (proposal.ayes.length >= proposal.threshold) {
-      return <Badge variant="default" className="bg-green-600">PASSED</Badge>;
+      return <Badge variant="default" className="bg-green-600">{t('commission.voting.statusPassed')}</Badge>;
     }
     if (progress >= 50) {
-      return <Badge variant="default" className="bg-yellow-600">VOTING ({progress.toFixed(0)}%)</Badge>;
+      return <Badge variant="default" className="bg-yellow-600">{t('commission.voting.statusVoting', { progress: progress.toFixed(0) })}</Badge>;
     }
-    return <Badge variant="secondary">VOTING ({progress.toFixed(0)}%)</Badge>;
+    return <Badge variant="secondary">{t('commission.voting.statusVoting', { progress: progress.toFixed(0) })}</Badge>;
   };
 
   if (!isApiReady) {
@@ -407,7 +407,7 @@ export function CommissionVotingTab() {
         <CardContent className="pt-6">
           <div className="flex items-center justify-center">
             <Loader2 className="h-6 w-6 animate-spin mr-2" />
-            <span>Connecting to blockchain...</span>
+            <span>{t('commission.voting.connecting')}</span>
           </div>
         </CardContent>
       </Card>
@@ -419,7 +419,7 @@ export function CommissionVotingTab() {
       <Card>
         <CardContent className="pt-6">
           <div className="text-center text-muted-foreground">
-            <p>Please connect your wallet to view commission proposals</p>
+            <p>{t('commission.voting.noWallet')}</p>
           </div>
         </CardContent>
       </Card>
@@ -461,20 +461,19 @@ export function CommissionVotingTab() {
           ({ status, dispatchError }) => {
             if (status.isInBlock || status.isFinalized) {
               if (dispatchError) {
-                let errorMessage = 'Failed to join commission';
+                let errorMessage = t('commission.voting.joinFailed');
                 if (dispatchError.isModule) {
                   const decoded = api.registry.findMetaError(dispatchError.asModule);
                   errorMessage = `${decoded.section}.${decoded.name}`;
                 }
                 toast({
-                  title: 'Error',
+                  title: t('commission.voting.joinFailed'),
                   description: errorMessage,
                   variant: 'destructive',
                 });
               } else {
                 toast({
-                  title: 'Success',
-                  description: 'You have joined the KYC Commission!',
+                  title: t('commission.voting.joinSuccess'),
                 });
                 setTimeout(() => checkMembership(), 2000);
               }
@@ -483,8 +482,8 @@ export function CommissionVotingTab() {
         );
       } catch (error) {
         toast({
-          title: 'Error',
-          description: error instanceof Error ? error.message : 'Failed to join commission',
+          title: t('commission.voting.joinFailed'),
+          description: error instanceof Error ? error.message : t('commission.voting.joinFailed'),
           variant: 'destructive',
         });
       }
@@ -494,13 +493,13 @@ export function CommissionVotingTab() {
       <Card>
         <CardContent className="pt-6">
           <div className="text-center">
-            <p className="text-muted-foreground mb-4">You are not a member of the KYC Approval Commission</p>
-            <p className="text-sm text-muted-foreground mb-6">Only commission members can view and vote on proposals</p>
+            <p className="text-muted-foreground mb-4">{t('commission.voting.notMember')}</p>
+            <p className="text-sm text-muted-foreground mb-6">{t('commission.voting.onlyMembers')}</p>
             <Button
               onClick={handleJoinCommission}
               className="bg-green-600 hover:bg-green-700"
             >
-              Join Commission
+              {t('commission.voting.joinBtn')}
             </Button>
           </div>
         </CardContent>
@@ -512,9 +511,9 @@ export function CommissionVotingTab() {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold">Commission Proposals</h2>
+          <h2 className="text-2xl font-bold">{t('commission.voting.title')}</h2>
           <p className="text-muted-foreground">
-            Active voting proposals for {COMMISSIONS.KYC.name}
+            {t('commission.voting.subtitle', { name: COMMISSIONS.KYC.name })}
           </p>
         </div>
         <Button
@@ -523,7 +522,7 @@ export function CommissionVotingTab() {
           variant="outline"
         >
           <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-          Refresh
+          {t('commission.voting.refresh')}
         </Button>
       </div>
 
@@ -532,7 +531,7 @@ export function CommissionVotingTab() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-center">
               <Loader2 className="h-6 w-6 animate-spin mr-2" />
-              <span>Loading proposals...</span>
+              <span>{t('commission.voting.loading')}</span>
             </div>
           </CardContent>
         </Card>
@@ -541,25 +540,25 @@ export function CommissionVotingTab() {
           <CardContent className="pt-6">
             <div className="text-center text-muted-foreground">
               <Clock className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>No active proposals</p>
-              <p className="text-sm mt-2">Proposals will appear here when commission members create them</p>
+              <p>{t('commission.voting.noProposals')}</p>
+              <p className="text-sm mt-2">{t('commission.voting.noProposalsHelp')}</p>
             </div>
           </CardContent>
         </Card>
       ) : (
         <Card>
           <CardHeader>
-            <CardTitle>Active Proposals ({proposals.length})</CardTitle>
+            <CardTitle>{t('commission.voting.activeProposals', { count: proposals.length })}</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Proposal</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Votes</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead>{t('commission.voting.tableProposal')}</TableHead>
+                  <TableHead>{t('commission.voting.tableType')}</TableHead>
+                  <TableHead>{t('commission.voting.tableStatus')}</TableHead>
+                  <TableHead>{t('commission.voting.tableVotes')}</TableHead>
+                  <TableHead className="text-right">{t('commission.voting.tableActions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -602,7 +601,7 @@ export function CommissionVotingTab() {
                             {voting === proposal.hash ? (
                               <Loader2 className="h-4 w-4 animate-spin" />
                             ) : (
-                              <>Execute Proposal</>
+                              <>{t('commission.voting.execute')}</>
                             )}
                           </Button>
                         ) : (
@@ -619,7 +618,7 @@ export function CommissionVotingTab() {
                               ) : (
                                 <>
                                   <ThumbsUp className="h-4 w-4 mr-1" />
-                                  Aye
+                                  {t('commission.voting.aye')}
                                 </>
                               )}
                             </Button>
@@ -634,7 +633,7 @@ export function CommissionVotingTab() {
                               ) : (
                                 <>
                                   <ThumbsDown className="h-4 w-4 mr-1" />
-                                  Nay
+                                  {t('commission.voting.nay')}
                                 </>
                               )}
                             </Button>

@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import type { AssetConfig } from './mintableAssets';
+import { useTranslation } from 'react-i18next';
 
 interface MintAssetModalProps {
   isOpen: boolean;
@@ -28,6 +29,7 @@ export const MintAssetModal: React.FC<MintAssetModalProps> = ({
   const { assetHubApi, isAssetHubReady } = usePezkuwi();
   const { account, signer } = useWallet();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const [amount, setAmount] = useState(asset.defaultAmount || '1000');
   const [balance, setBalance] = useState<string>('0');
@@ -73,18 +75,18 @@ export const MintAssetModal: React.FC<MintAssetModalProps> = ({
   const handleMint = async () => {
     if (!assetHubApi || !isAssetHubReady || !signer || !account) {
       toast({
-        title: 'Error',
-        description: 'Please connect your wallet and wait for Asset Hub connection',
+        title: t('common.error'),
+        description: t('mint.connectWallet'),
         variant: 'destructive',
       });
       return;
     }
 
     if (!assetHubApi.tx.assets || !assetHubApi.tx.assets.mint) {
-      setErrorMessage('Assets pallet is not available on Asset Hub.');
+      setErrorMessage(t('mint.palletNotAvailable'));
       toast({
-        title: 'Pallet Not Available',
-        description: 'The Assets pallet is not deployed on Asset Hub.',
+        title: t('mint.palletToast'),
+        description: t('mint.palletToastDesc'),
         variant: 'destructive',
       });
       return;
@@ -93,7 +95,7 @@ export const MintAssetModal: React.FC<MintAssetModalProps> = ({
     const amountRaw = BigInt(Math.floor(parseFloat(amount) * 10 ** asset.decimals));
 
     if (amountRaw <= BigInt(0)) {
-      setErrorMessage('Amount must be greater than zero');
+      setErrorMessage(t('common.amountGtZero'));
       return;
     }
 
@@ -135,7 +137,7 @@ export const MintAssetModal: React.FC<MintAssetModalProps> = ({
               setErrorMessage(errorMsg);
               setTxStatus('error');
               toast({
-                title: 'Transaction Failed',
+                title: t('common.txFailed'),
                 description: errorMsg,
                 variant: 'destructive',
               });
@@ -143,8 +145,8 @@ export const MintAssetModal: React.FC<MintAssetModalProps> = ({
               if (import.meta.env.DEV) console.log('Mint successful!');
               setTxStatus('success');
               toast({
-                title: 'Success!',
-                description: `Successfully minted ${amount} ${asset.symbol}`,
+                title: t('common.success'),
+                description: t('mint.minted', { amount, symbol: asset.symbol }),
               });
               setTimeout(() => {
                 onSuccess?.();
@@ -156,11 +158,11 @@ export const MintAssetModal: React.FC<MintAssetModalProps> = ({
       );
     } catch (error) {
       if (import.meta.env.DEV) console.error('Mint failed:', error);
-      setErrorMessage(error instanceof Error ? error.message : 'Transaction failed');
+      setErrorMessage(error instanceof Error ? error.message : t('common.txFailed'));
       setTxStatus('error');
       toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Mint failed',
+        title: t('common.error'),
+        description: error instanceof Error ? error.message : t('common.txFailed'),
         variant: 'destructive',
       });
     }
@@ -180,7 +182,7 @@ export const MintAssetModal: React.FC<MintAssetModalProps> = ({
                 <img src={asset.logo} alt={asset.symbol} className="w-8 h-8 rounded-full" />
               )}
               <CardTitle className="text-xl font-bold text-white">
-                Mint {asset.symbol}
+                {t('mint.title', { symbol: asset.symbol })}
               </CardTitle>
             </div>
             <button
@@ -192,7 +194,7 @@ export const MintAssetModal: React.FC<MintAssetModalProps> = ({
             </button>
           </div>
           <Badge className={`${colors.bg} ${colors.text} ${colors.border} w-fit mt-2`}>
-            Admin Only - Token Minting
+            {t('mint.adminOnly')}
           </Badge>
         </CardHeader>
 
@@ -201,16 +203,16 @@ export const MintAssetModal: React.FC<MintAssetModalProps> = ({
           <Alert className={`${colors.bg} ${colors.border}`}>
             <Info className={`h-4 w-4 ${colors.text}`} />
             <AlertDescription className={`${colors.text.replace('400', '300')} text-sm`}>
-              Mint {asset.name} tokens for testing and liquidity pool creation.
+              {t('mint.info', { name: asset.name })}
             </AlertDescription>
           </Alert>
 
           {/* Amount Input */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label className="text-sm text-gray-400">{asset.symbol} Amount</label>
+              <label className="text-sm text-gray-400">{t('mint.amount', { symbol: asset.symbol })}</label>
               <span className="text-xs text-gray-500">
-                Current: {balanceDisplay} {asset.symbol}
+                {t('mint.current')}: {balanceDisplay} {asset.symbol}
               </span>
             </div>
             <div className="relative">
@@ -240,13 +242,13 @@ export const MintAssetModal: React.FC<MintAssetModalProps> = ({
               </div>
             </div>
             <p className="text-xs text-gray-500">
-              {asset.symbol} has {asset.decimals} decimals
+              {t('mint.decimalsInfo', { symbol: asset.symbol, decimals: asset.decimals })}
             </p>
           </div>
 
           {/* Current Balance */}
           <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-700">
-            <div className="text-sm text-gray-400 mb-1">Current {asset.symbol} Balance</div>
+            <div className="text-sm text-gray-400 mb-1">{t('mint.currentBalance', { symbol: asset.symbol })}</div>
             <div className={`text-2xl font-bold ${colors.text} font-mono`}>
               {balanceDisplay} {asset.symbol}
             </div>
@@ -267,7 +269,7 @@ export const MintAssetModal: React.FC<MintAssetModalProps> = ({
             <Alert className={`${colors.bg} ${colors.border}`}>
               <CheckCircle className={`h-4 w-4 ${colors.text}`} />
               <AlertDescription className={`${colors.text.replace('400', '300')} text-sm`}>
-                Successfully minted {amount} {asset.symbol}!
+                {t('mint.success', { amount, symbol: asset.symbol })}
               </AlertDescription>
             </Alert>
           )}
@@ -280,7 +282,7 @@ export const MintAssetModal: React.FC<MintAssetModalProps> = ({
               className="flex-1 border-gray-700 hover:bg-gray-800"
               disabled={txStatus === 'signing' || txStatus === 'submitting'}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               onClick={handleMint}
@@ -294,21 +296,21 @@ export const MintAssetModal: React.FC<MintAssetModalProps> = ({
               {txStatus === 'signing' && (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  Signing...
+                  {t('common.signing')}
                 </>
               )}
               {txStatus === 'submitting' && (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  Minting...
+                  {t('mint.minting')}
                 </>
               )}
-              {txStatus === 'idle' && `Mint ${asset.symbol}`}
-              {txStatus === 'error' && 'Retry'}
+              {txStatus === 'idle' && t('mint.mintBtn', { symbol: asset.symbol })}
+              {txStatus === 'error' && t('common.retry')}
               {txStatus === 'success' && (
                 <>
                   <CheckCircle className="w-4 h-4 mr-2" />
-                  Success
+                  {t('common.success')}
                 </>
               )}
             </Button>

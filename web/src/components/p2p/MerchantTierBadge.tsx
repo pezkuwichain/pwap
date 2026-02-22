@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Diamond, Star, Shield } from 'lucide-react';
@@ -12,25 +13,28 @@ interface MerchantTierBadgeProps {
 
 const TIER_CONFIG = {
   lite: {
-    label: 'Lite',
+    labelKey: 'p2pTier.lite',
     icon: Shield,
     className: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
     iconClassName: 'text-gray-400',
-    description: 'Basic verified trader'
+    descKey: 'p2pTier.liteDesc',
+    merchantKey: 'p2pTier.liteMerchant'
   },
   super: {
-    label: 'Super',
+    labelKey: 'p2pTier.super',
     icon: Star,
     className: 'bg-yellow-500/20 text-yellow-500 border-yellow-500/30',
     iconClassName: 'text-yellow-500',
-    description: 'Professional trader with 20+ trades and 90%+ completion rate'
+    descKey: 'p2pTier.superDesc',
+    merchantKey: 'p2pTier.superMerchant'
   },
   diamond: {
-    label: 'Diamond',
+    labelKey: 'p2pTier.diamond',
     icon: Diamond,
     className: 'bg-purple-500/20 text-purple-500 border-purple-500/30',
     iconClassName: 'text-purple-500',
-    description: 'Elite merchant with 100+ trades and 95%+ completion rate'
+    descKey: 'p2pTier.diamondDesc',
+    merchantKey: 'p2pTier.diamondMerchant'
   }
 };
 
@@ -54,6 +58,7 @@ export function MerchantTierBadge({
   size = 'md',
   showLabel = true
 }: MerchantTierBadgeProps) {
+  const { t } = useTranslation();
   const config = TIER_CONFIG[tier];
   const sizeConfig = SIZE_CONFIG[size];
   const Icon = config.icon;
@@ -67,12 +72,12 @@ export function MerchantTierBadge({
             className={`${config.className} ${sizeConfig.badge} gap-1 cursor-help`}
           >
             <Icon className={`${sizeConfig.icon} ${config.iconClassName}`} />
-            {showLabel && <span>{config.label}</span>}
+            {showLabel && <span>{t(config.labelKey)}</span>}
           </Badge>
         </TooltipTrigger>
         <TooltipContent>
-          <p className="font-medium">{config.label} Merchant</p>
-          <p className="text-xs text-muted-foreground">{config.description}</p>
+          <p className="font-medium">{t(config.merchantKey)}</p>
+          <p className="text-xs text-muted-foreground">{t(config.descKey)}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
@@ -87,6 +92,7 @@ export function MerchantTierIcon({
   tier: MerchantTier;
   size?: 'sm' | 'md' | 'lg';
 }) {
+  const { t } = useTranslation();
   const config = TIER_CONFIG[tier];
   const sizeConfig = SIZE_CONFIG[size];
   const Icon = config.icon;
@@ -100,7 +106,7 @@ export function MerchantTierIcon({
           </span>
         </TooltipTrigger>
         <TooltipContent>
-          <p className="font-medium">{config.label} Merchant</p>
+          <p className="font-medium">{t(config.merchantKey)}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>

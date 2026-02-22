@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -72,6 +73,7 @@ interface TimelineStep {
 export default function P2PTrade() {
   const { tradeId } = useParams<{ tradeId: string }>();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { api, selectedAccount } = usePezkuwi();
 
@@ -152,7 +154,7 @@ export default function P2PTrade() {
       });
     } catch (error) {
       console.error('Fetch trade error:', error);
-      toast.error('Failed to load trade details');
+      toast.error(t('p2pTrade.failedToLoad'));
     } finally {
       setLoading(false);
     }
@@ -204,7 +206,7 @@ export default function P2PTrade() {
 
       if (remaining === 0 && trade.status === 'pending') {
         // Auto-cancel logic could go here
-        toast.warning('Payment deadline expired');
+        toast.warning(t('p2pTrade.paymentDeadlineExpired'));
       }
     };
 
@@ -215,7 +217,7 @@ export default function P2PTrade() {
 
   // Format time remaining
   const formatTimeRemaining = (seconds: number): string => {
-    if (seconds <= 0) return 'Expired';
+    if (seconds <= 0) return t('p2pTrade.expired');
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
@@ -227,30 +229,30 @@ export default function P2PTrade() {
     const steps: TimelineStep[] = [
       {
         id: 'created',
-        label: 'Order Created',
-        description: 'Trade initiated',
+        label: t('p2pTrade.orderCreated'),
+        description: t('p2pTrade.tradeInitiatedStep'),
         status: 'completed',
         timestamp: trade?.created_at,
       },
       {
         id: 'pending',
-        label: 'Awaiting Payment',
-        description: isBuyer ? 'Send payment to seller' : 'Waiting for buyer payment',
+        label: t('p2pTrade.awaitingPayment'),
+        description: isBuyer ? t('p2pTrade.sendPaymentToSeller') : t('p2pTrade.waitingForBuyerPayment'),
         status: status === 'pending' ? 'current' :
                 ['payment_sent', 'completed'].includes(status) ? 'completed' : 'pending',
       },
       {
         id: 'payment_sent',
-        label: 'Payment Sent',
-        description: isSeller ? 'Verify and release crypto' : 'Waiting for confirmation',
+        label: t('p2pTrade.paymentSent'),
+        description: isSeller ? t('p2pTrade.verifyAndRelease') : t('p2pTrade.waitingForConfirmation'),
         status: status === 'payment_sent' ? 'current' :
                 status === 'completed' ? 'completed' : 'pending',
         timestamp: trade?.buyer_marked_paid_at,
       },
       {
         id: 'completed',
-        label: 'Completed',
-        description: 'Crypto released to buyer',
+        label: t('p2pTrade.completedStep'),
+        description: t('p2pTrade.cryptoReleased'),
         status: status === 'completed' ? 'completed' : 'pending',
         timestamp: trade?.completed_at,
       },
@@ -278,7 +280,7 @@ export default function P2PTrade() {
       setShowProofModal(false);
       setPaymentProof(null);
       setPaymentReference('');
-      toast.success('Payment marked as sent');
+      toast.success(t('p2pTrade.paymentMarkedSent'));
       fetchTrade();
     } catch (error) {
       console.error('Mark as paid error:', error);
@@ -290,14 +292,14 @@ export default function P2PTrade() {
   // Handle release crypto
   const handleReleaseCrypto = async () => {
     if (!trade || !api || !selectedAccount) {
-      toast.error('Please connect your wallet');
+      toast.error(t('p2p.connectWallet'));
       return;
     }
 
     setActionLoading(true);
     try {
       await confirmPaymentReceived(api, selectedAccount, trade.id);
-      toast.success('Crypto released to buyer!');
+      toast.success(t('p2pTrade.cryptoReleasedToast'));
       fetchTrade();
     } catch (error) {
       console.error('Release crypto error:', error);
@@ -333,11 +335,11 @@ export default function P2PTrade() {
         .eq('id', trade.offer_id);
 
       setShowCancelModal(false);
-      toast.success('Trade cancelled');
+      toast.success(t('p2pTrade.tradeCancelledToast'));
       fetchTrade();
     } catch (error) {
       console.error('Cancel trade error:', error);
-      toast.error('Failed to cancel trade');
+      toast.error(t('p2pTrade.failedToCancel'));
     } finally {
       setActionLoading(false);
     }
@@ -346,7 +348,7 @@ export default function P2PTrade() {
   // Copy to clipboard
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
-    toast.success(`${label} copied!`);
+    toast.success(t('p2pTrade.addressCopied', { label }));
   };
 
   // Render loading state
@@ -367,9 +369,9 @@ export default function P2PTrade() {
         <Card className="bg-gray-900 border-gray-800">
           <CardContent className="py-12 text-center">
             <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-white mb-2">Trade Not Found</h2>
-            <p className="text-gray-400 mb-6">This trade does not exist or you do not have access.</p>
-            <Button onClick={() => navigate('/p2p')}>Back to P2P</Button>
+            <h2 className="text-xl font-semibold text-white mb-2">{t('p2pTrade.tradeNotFound')}</h2>
+            <p className="text-gray-400 mb-6">{t('p2pTrade.tradeNotFoundDesc')}</p>
+            <Button onClick={() => navigate('/p2p')}>{t('p2pTrade.backToP2P')}</Button>
           </CardContent>
         </Card>
       </div>
@@ -390,8 +392,8 @@ export default function P2PTrade() {
   };
 
   const counterparty = isSeller ?
-    { id: trade.buyer_id, wallet: trade.buyer_wallet, reputation: trade.buyer_reputation, label: 'Buyer' } :
-    { id: trade.seller_id, wallet: trade.offer?.seller_wallet || '', reputation: trade.seller_reputation, label: 'Seller' };
+    { id: trade.buyer_id, wallet: trade.buyer_wallet, reputation: trade.buyer_reputation, label: t('p2p.buyer') } :
+    { id: trade.seller_id, wallet: trade.offer?.seller_wallet || '', reputation: trade.seller_reputation, label: t('p2p.seller') };
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -404,7 +406,7 @@ export default function P2PTrade() {
           className="text-gray-400 hover:text-white"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          My Trades
+          {t('p2p.myTrades')}
         </Button>
         <div className="flex-1" />
         <Button
@@ -423,7 +425,7 @@ export default function P2PTrade() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <CardTitle className="text-white">
-                {isBuyer ? 'Buy' : 'Sell'} {trade.offer?.token || 'HEZ'}
+                {isBuyer ? t('p2p.buy') : t('p2p.sell')} {trade.offer?.token || 'HEZ'}
               </CardTitle>
               <Badge className={getStatusColor(trade.status as TradeStatus)}>
                 {trade.status.replace('_', ' ').toUpperCase()}
@@ -442,25 +444,25 @@ export default function P2PTrade() {
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
-              <p className="text-sm text-gray-400">Amount</p>
+              <p className="text-sm text-gray-400">{t('p2p.amount')}</p>
               <p className="text-lg font-semibold text-white">
                 {trade.crypto_amount} {trade.offer?.token || 'HEZ'}
               </p>
             </div>
             <div>
-              <p className="text-sm text-gray-400">Price</p>
+              <p className="text-sm text-gray-400">{t('p2p.price')}</p>
               <p className="text-lg font-semibold text-green-400">
                 {trade.fiat_amount.toFixed(2)} {trade.offer?.fiat_currency || 'TRY'}
               </p>
             </div>
             <div>
-              <p className="text-sm text-gray-400">Unit Price</p>
+              <p className="text-sm text-gray-400">{t('p2pTrade.unitPrice')}</p>
               <p className="text-lg font-semibold text-white">
                 {trade.price_per_unit.toFixed(2)} {trade.offer?.fiat_currency || 'TRY'}
               </p>
             </div>
             <div>
-              <p className="text-sm text-gray-400">Payment Method</p>
+              <p className="text-sm text-gray-400">{t('p2pTrade.paymentMethod')}</p>
               <p className="text-lg font-semibold text-white">
                 {trade.payment_method_name}
               </p>
@@ -472,7 +474,7 @@ export default function P2PTrade() {
       {/* Timeline */}
       <Card className="bg-gray-900 border-gray-800 mb-6">
         <CardHeader>
-          <CardTitle className="text-white text-lg">Trade Progress</CardTitle>
+          <CardTitle className="text-white text-lg">{t('p2pTrade.tradeProgress')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="relative">
@@ -523,7 +525,7 @@ export default function P2PTrade() {
       {/* Counterparty Info */}
       <Card className="bg-gray-900 border-gray-800 mb-6">
         <CardHeader>
-          <CardTitle className="text-white text-lg">{counterparty.label} Information</CardTitle>
+          <CardTitle className="text-white text-lg">{t('p2pTrade.counterpartyInfo', { role: counterparty.label })}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-4">
@@ -546,16 +548,16 @@ export default function P2PTrade() {
                   <Copy className="w-3 h-3" />
                 </Button>
                 {counterparty.reputation?.verified_merchant && (
-                  <Shield className="w-4 h-4 text-blue-400" title="Verified Merchant" />
+                  <Shield className="w-4 h-4 text-blue-400" title={t('p2p.verifiedMerchant')} />
                 )}
                 {counterparty.reputation?.fast_trader && (
-                  <Zap className="w-4 h-4 text-yellow-400" title="Fast Trader" />
+                  <Zap className="w-4 h-4 text-yellow-400" title={t('p2p.fastTrader')} />
                 )}
               </div>
               {counterparty.reputation && (
                 <p className="text-sm text-gray-400">
-                  {counterparty.reputation.completed_trades} trades •
-                  {' '}{((counterparty.reputation.completed_trades / (counterparty.reputation.total_trades || 1)) * 100).toFixed(0)}% completion
+                  {t('p2p.trades', { count: counterparty.reputation.completed_trades })} •
+                  {' '}{t('p2p.completion', { percent: ((counterparty.reputation.completed_trades / (counterparty.reputation.total_trades || 1)) * 100).toFixed(0) })}
                 </p>
               )}
             </div>
@@ -567,14 +569,13 @@ export default function P2PTrade() {
       {isBuyer && trade.status === 'pending' && trade.payment_details && Object.keys(trade.payment_details).length > 0 && (
         <Card className="bg-gray-900 border-gray-800 mb-6">
           <CardHeader>
-            <CardTitle className="text-white text-lg">Payment Details</CardTitle>
+            <CardTitle className="text-white text-lg">{t('p2pTrade.paymentDetailsTitle')}</CardTitle>
           </CardHeader>
           <CardContent>
             <Alert className="bg-yellow-500/10 border-yellow-500/30 mb-4">
               <AlertTriangle className="h-4 w-4 text-yellow-400" />
               <AlertDescription className="text-yellow-200">
-                Send exactly <strong>{trade.fiat_amount.toFixed(2)} {trade.offer?.fiat_currency}</strong> to the account below.
-                Do not include any cryptocurrency references in your payment.
+                {t('p2pTrade.sendExactly', { amount: trade.fiat_amount.toFixed(2), currency: trade.offer?.fiat_currency })}
               </AlertDescription>
             </Alert>
             <div className="space-y-3">
@@ -604,7 +605,7 @@ export default function P2PTrade() {
       {trade.buyer_payment_proof_url && (
         <Card className="bg-gray-900 border-gray-800 mb-6">
           <CardHeader>
-            <CardTitle className="text-white text-lg">Payment Proof</CardTitle>
+            <CardTitle className="text-white text-lg">{t('p2pTrade.paymentProof')}</CardTitle>
           </CardHeader>
           <CardContent>
             <a
@@ -614,7 +615,7 @@ export default function P2PTrade() {
               className="flex items-center gap-2 text-blue-400 hover:text-blue-300"
             >
               <ExternalLink className="w-4 h-4" />
-              View Payment Proof
+              {t('p2pTrade.viewPaymentProof')}
             </a>
           </CardContent>
         </Card>
@@ -634,7 +635,7 @@ export default function P2PTrade() {
                     disabled={actionLoading}
                   >
                     <CheckCircle2 className="w-4 h-4 mr-2" />
-                    I Have Paid
+                    {t('p2pTrade.iHavePaid')}
                   </Button>
                   <Button
                     variant="outline"
@@ -643,7 +644,7 @@ export default function P2PTrade() {
                     disabled={actionLoading}
                   >
                     <Ban className="w-4 h-4 mr-2" />
-                    Cancel Trade
+                    {t('p2pTrade.cancelTrade')}
                   </Button>
                 </>
               )}
@@ -661,7 +662,7 @@ export default function P2PTrade() {
                     ) : (
                       <CheckCircle2 className="w-4 h-4 mr-2" />
                     )}
-                    Release Crypto
+                    {t('p2pTrade.releaseCrypto')}
                   </Button>
                   <Button
                     variant="outline"
@@ -670,7 +671,7 @@ export default function P2PTrade() {
                     disabled={actionLoading}
                   >
                     <AlertTriangle className="w-4 h-4 mr-2" />
-                    Open Dispute
+                    {t('p2pTrade.openDispute')}
                   </Button>
                 </>
               )}
@@ -682,7 +683,7 @@ export default function P2PTrade() {
                 onClick={() => setShowChat(!showChat)}
               >
                 <MessageSquare className="w-4 h-4 mr-2" />
-                {showChat ? 'Hide Chat' : 'Chat'}
+                {showChat ? t('p2pTrade.hideChat') : t('p2pTrade.chat')}
               </Button>
             </div>
           </CardContent>
@@ -706,11 +707,11 @@ export default function P2PTrade() {
         <Card className="bg-green-500/10 border-green-500/30 mb-6">
           <CardContent className="py-6 text-center">
             <CheckCircle2 className="w-16 h-16 text-green-500 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-green-400 mb-2">Trade Completed!</h3>
+            <h3 className="text-xl font-semibold text-green-400 mb-2">{t('p2pTrade.tradeCompleted')}</h3>
             <p className="text-gray-400 mb-4">
               {isBuyer
-                ? `You received ${trade.crypto_amount} ${trade.offer?.token}`
-                : `You received ${trade.fiat_amount.toFixed(2)} ${trade.offer?.fiat_currency}`
+                ? t('p2pTrade.youReceived', { amount: trade.crypto_amount, token: trade.offer?.token })
+                : t('p2pTrade.youReceivedFiat', { amount: trade.fiat_amount.toFixed(2), currency: trade.offer?.fiat_currency })
               }
             </p>
             <Button
@@ -718,7 +719,7 @@ export default function P2PTrade() {
               className="bg-yellow-500 hover:bg-yellow-600 text-black"
             >
               <Star className="w-4 h-4 mr-2" />
-              Rate This Trade
+              {t('p2pTrade.rateTrade')}
             </Button>
           </CardContent>
         </Card>
@@ -729,9 +730,9 @@ export default function P2PTrade() {
         <Card className="bg-gray-500/10 border-gray-500/30 mb-6">
           <CardContent className="py-6 text-center">
             <XCircle className="w-16 h-16 text-gray-500 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-400 mb-2">Trade Cancelled</h3>
+            <h3 className="text-xl font-semibold text-gray-400 mb-2">{t('p2pTrade.tradeCancelled')}</h3>
             {trade.cancel_reason && (
-              <p className="text-gray-500">Reason: {trade.cancel_reason}</p>
+              <p className="text-gray-500">{t('p2pTrade.cancelReason', { reason: trade.cancel_reason })}</p>
             )}
           </CardContent>
         </Card>
@@ -741,30 +742,30 @@ export default function P2PTrade() {
       <Dialog open={showProofModal} onOpenChange={setShowProofModal}>
         <DialogContent className="bg-gray-900 border-gray-800">
           <DialogHeader>
-            <DialogTitle className="text-white">Confirm Payment</DialogTitle>
+            <DialogTitle className="text-white">{t('p2pTrade.confirmPayment')}</DialogTitle>
             <DialogDescription className="text-gray-400">
-              Please confirm you have sent the payment to the seller.
+              {t('p2pTrade.confirmPaymentDesc')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div>
-              <Label htmlFor="reference">Payment Reference (Optional)</Label>
+              <Label htmlFor="reference">{t('p2pTrade.paymentReference')}</Label>
               <Input
                 id="reference"
                 value={paymentReference}
                 onChange={(e) => setPaymentReference(e.target.value)}
-                placeholder="Transaction ID or reference number"
+                placeholder={t('p2pTrade.paymentReferencePlaceholder')}
                 className="bg-gray-800 border-gray-700"
               />
             </div>
             <div>
-              <Label>Payment Proof (Optional)</Label>
+              <Label>{t('p2pTrade.paymentProofOptional')}</Label>
               <div className="mt-2">
                 <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-700 border-dashed rounded-lg cursor-pointer hover:bg-gray-800">
                   <div className="flex flex-col items-center justify-center pt-5 pb-6">
                     <Upload className="w-8 h-8 text-gray-400 mb-2" />
                     <p className="text-sm text-gray-400">
-                      {paymentProof ? paymentProof.name : 'Click to upload screenshot'}
+                      {paymentProof ? paymentProof.name : t('p2pTrade.clickToUpload')}
                     </p>
                   </div>
                   <input
@@ -779,8 +780,7 @@ export default function P2PTrade() {
             <Alert className="bg-yellow-500/10 border-yellow-500/30">
               <AlertTriangle className="h-4 w-4 text-yellow-400" />
               <AlertDescription className="text-yellow-200">
-                Only click confirm after you have actually sent the payment.
-                Falsely marking payment as sent may result in account suspension.
+                {t('p2pTrade.falsePaymentWarning')}
               </AlertDescription>
             </Alert>
           </div>
@@ -791,7 +791,7 @@ export default function P2PTrade() {
               disabled={actionLoading}
               className="border-gray-700"
             >
-              Cancel
+              {t('p2p.cancel')}
             </Button>
             <Button
               onClick={handleMarkAsPaid}
@@ -803,7 +803,7 @@ export default function P2PTrade() {
               ) : (
                 <CheckCircle2 className="w-4 h-4 mr-2" />
               )}
-              Confirm Payment Sent
+              {t('p2pTrade.confirmPaymentSent')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -813,18 +813,18 @@ export default function P2PTrade() {
       <Dialog open={showCancelModal} onOpenChange={setShowCancelModal}>
         <DialogContent className="bg-gray-900 border-gray-800">
           <DialogHeader>
-            <DialogTitle className="text-white">Cancel Trade</DialogTitle>
+            <DialogTitle className="text-white">{t('p2pTrade.cancelTradeTitle')}</DialogTitle>
             <DialogDescription className="text-gray-400">
-              Are you sure you want to cancel this trade? The crypto will be returned to the seller.
+              {t('p2pTrade.cancelTradeDesc')}
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
-            <Label htmlFor="cancelReason">Reason for cancellation</Label>
+            <Label htmlFor="cancelReason">{t('p2pTrade.cancelReasonLabel')}</Label>
             <Input
               id="cancelReason"
               value={cancelReason}
               onChange={(e) => setCancelReason(e.target.value)}
-              placeholder="Optional reason"
+              placeholder={t('p2pTrade.cancelReasonPlaceholder')}
               className="bg-gray-800 border-gray-700 mt-2"
             />
           </div>
@@ -835,7 +835,7 @@ export default function P2PTrade() {
               disabled={actionLoading}
               className="border-gray-700"
             >
-              Keep Trade
+              {t('p2pTrade.keepTrade')}
             </Button>
             <Button
               variant="destructive"
@@ -847,7 +847,7 @@ export default function P2PTrade() {
               ) : (
                 <XCircle className="w-4 h-4 mr-2" />
               )}
-              Cancel Trade
+              {t('p2pTrade.cancelTrade')}
             </Button>
           </DialogFooter>
         </DialogContent>

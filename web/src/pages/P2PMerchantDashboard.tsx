@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabase';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -89,6 +90,7 @@ interface ChartDataPoint {
 
 export default function P2PMerchantDashboard() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<MerchantStats | null>(null);
   const [tierInfo, setTierInfo] = useState<MerchantTier | null>(null);
@@ -212,17 +214,17 @@ export default function P2PMerchantDashboard() {
 
       if (error) throw error;
 
-      toast.success(`Ad ${newStatus === 'open' ? 'activated' : 'paused'}`);
+      toast.success(newStatus === 'open' ? t('p2pMerchant.adActivated') : t('p2pMerchant.adPaused'));
       fetchData();
     } catch (error) {
       console.error('Error toggling ad status:', error);
-      toast.error('Failed to update ad status');
+      toast.error(t('p2pMerchant.failedToUpdateStatus'));
     }
   };
 
   // Delete ad
   const deleteAd = async (adId: string) => {
-    if (!confirm('Are you sure you want to delete this ad?')) return;
+    if (!confirm(t('p2pMerchant.confirmDelete'))) return;
 
     try {
       const { error } = await supabase
@@ -232,11 +234,11 @@ export default function P2PMerchantDashboard() {
 
       if (error) throw error;
 
-      toast.success('Ad deleted successfully');
+      toast.success(t('p2pMerchant.adDeleted'));
       fetchData();
     } catch (error) {
       console.error('Error deleting ad:', error);
-      toast.error('Failed to delete ad');
+      toast.error(t('p2pMerchant.failedToDelete'));
     }
   };
 
@@ -255,7 +257,7 @@ export default function P2PMerchantDashboard() {
 
     const fiatAmt = parseFloat(editFiatAmount);
     if (!fiatAmt || fiatAmt <= 0) {
-      toast.error('Invalid fiat amount');
+      toast.error(t('p2pMerchant.invalidFiatAmount'));
       return;
     }
 
@@ -274,13 +276,13 @@ export default function P2PMerchantDashboard() {
 
       if (error) throw error;
 
-      toast.success('Ad updated successfully');
+      toast.success(t('p2pMerchant.adUpdated'));
       setEditAdOpen(false);
       setEditingAd(null);
       fetchData();
     } catch (error) {
       console.error('Error updating ad:', error);
-      toast.error('Failed to update ad');
+      toast.error(t('p2pMerchant.failedToUpdate'));
     } finally {
       setSavingEdit(false);
     }
@@ -298,11 +300,11 @@ export default function P2PMerchantDashboard() {
 
       if (error) throw error;
 
-      toast.success('Auto-reply message saved');
+      toast.success(t('p2pMerchant.autoReplySaved'));
       setAutoReplyOpen(false);
     } catch (error) {
       console.error('Error saving auto-reply:', error);
-      toast.error('Failed to save auto-reply');
+      toast.error(t('p2pMerchant.failedToSaveAutoReply'));
     } finally {
       setSavingAutoReply(false);
     }
@@ -327,10 +329,10 @@ export default function P2PMerchantDashboard() {
           <div>
             <h1 className="text-2xl font-bold flex items-center gap-2">
               <Crown className="h-6 w-6 text-kurdish-green" />
-              Merchant Dashboard
+              {t('p2pMerchant.dashboardTitle')}
             </h1>
             <p className="text-muted-foreground text-sm">
-              Manage your P2P trading business
+              {t('p2pMerchant.dashboardSubtitle')}
             </p>
           </div>
         </div>
@@ -341,19 +343,19 @@ export default function P2PMerchantDashboard() {
         <TabsList>
           <TabsTrigger value="overview" className="gap-1">
             <BarChart3 className="h-4 w-4" />
-            Overview
+            {t('p2pMerchant.tabOverview')}
           </TabsTrigger>
           <TabsTrigger value="ads" className="gap-1">
             <ShoppingBag className="h-4 w-4" />
-            My Ads
+            {t('p2pMerchant.tabAds')}
           </TabsTrigger>
           <TabsTrigger value="upgrade" className="gap-1">
             <TrendingUp className="h-4 w-4" />
-            Upgrade Tier
+            {t('p2pMerchant.tabUpgrade')}
           </TabsTrigger>
           <TabsTrigger value="settings" className="gap-1">
             <Settings className="h-4 w-4" />
-            Settings
+            {t('p2pMerchant.tabSettings')}
           </TabsTrigger>
         </TabsList>
 
@@ -365,7 +367,7 @@ export default function P2PMerchantDashboard() {
               <CardContent className="pt-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">30-Day Volume</p>
+                    <p className="text-sm text-muted-foreground">{t('p2pMerchant.thirtyDayVolumeLabel')}</p>
                     <p className="text-2xl font-bold">
                       ${stats?.total_volume_30d?.toLocaleString() || '0'}
                     </p>
@@ -379,7 +381,7 @@ export default function P2PMerchantDashboard() {
               <CardContent className="pt-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">30-Day Trades</p>
+                    <p className="text-sm text-muted-foreground">{t('p2pMerchant.thirtyDayTrades')}</p>
                     <p className="text-2xl font-bold">{stats?.total_trades_30d || 0}</p>
                   </div>
                   <ShoppingBag className="h-8 w-8 text-blue-500/50" />
@@ -391,7 +393,7 @@ export default function P2PMerchantDashboard() {
               <CardContent className="pt-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">Completion Rate</p>
+                    <p className="text-sm text-muted-foreground">{t('p2pMerchant.completionRateLabel')}</p>
                     <p className="text-2xl font-bold">
                       {stats?.completion_rate_30d?.toFixed(1) || '0'}%
                     </p>
@@ -405,7 +407,7 @@ export default function P2PMerchantDashboard() {
               <CardContent className="pt-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">Avg Release Time</p>
+                    <p className="text-sm text-muted-foreground">{t('p2pMerchant.avgReleaseTime')}</p>
                     <p className="text-2xl font-bold">
                       {stats?.avg_release_time_minutes || 0}m
                     </p>
@@ -421,8 +423,8 @@ export default function P2PMerchantDashboard() {
             {/* Volume Chart */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Volume Trend</CardTitle>
-                <CardDescription>Last 30 days trading volume</CardDescription>
+                <CardTitle className="text-lg">{t('p2pMerchant.volumeTrend')}</CardTitle>
+                <CardDescription>{t('p2pMerchant.last30dVolume')}</CardDescription>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={250}>
@@ -451,8 +453,8 @@ export default function P2PMerchantDashboard() {
             {/* Trades Chart */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Trade Count</CardTitle>
-                <CardDescription>Daily trades over last 30 days</CardDescription>
+                <CardTitle className="text-lg">{t('p2pMerchant.tradeCount')}</CardTitle>
+                <CardDescription>{t('p2pMerchant.dailyTrades30d')}</CardDescription>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={250}>
@@ -476,7 +478,7 @@ export default function P2PMerchantDashboard() {
           {/* Quick Stats */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Lifetime Statistics</CardTitle>
+              <CardTitle className="text-lg">{t('p2pMerchant.lifetimeStats')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -484,23 +486,23 @@ export default function P2PMerchantDashboard() {
                   <p className="text-2xl font-bold">
                     ${stats?.total_volume_lifetime?.toLocaleString() || '0'}
                   </p>
-                  <p className="text-sm text-muted-foreground">Total Volume</p>
+                  <p className="text-sm text-muted-foreground">{t('p2pMerchant.totalVolume')}</p>
                 </div>
                 <div className="text-center p-4 bg-muted rounded-lg">
                   <p className="text-2xl font-bold">{stats?.total_trades_lifetime || 0}</p>
-                  <p className="text-sm text-muted-foreground">Total Trades</p>
+                  <p className="text-sm text-muted-foreground">{t('p2pMerchant.totalTrades')}</p>
                 </div>
                 <div className="text-center p-4 bg-muted rounded-lg">
                   <p className="text-2xl font-bold">
                     ${stats?.buy_volume_30d?.toLocaleString() || '0'}
                   </p>
-                  <p className="text-sm text-muted-foreground">Buy Volume (30d)</p>
+                  <p className="text-sm text-muted-foreground">{t('p2pMerchant.buyVolume30d')}</p>
                 </div>
                 <div className="text-center p-4 bg-muted rounded-lg">
                   <p className="text-2xl font-bold">
                     ${stats?.sell_volume_30d?.toLocaleString() || '0'}
                   </p>
-                  <p className="text-sm text-muted-foreground">Sell Volume (30d)</p>
+                  <p className="text-sm text-muted-foreground">{t('p2pMerchant.sellVolume30d')}</p>
                 </div>
               </div>
             </CardContent>
@@ -511,14 +513,14 @@ export default function P2PMerchantDashboard() {
         <TabsContent value="ads" className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">
-              Active Advertisements ({activeAds.length})
+              {t('p2pMerchant.activeAds', { count: activeAds.length })}
             </h2>
             <Button
               className="bg-kurdish-green hover:bg-kurdish-green-dark"
               onClick={() => setCreateAdOpen(true)}
             >
               <Plus className="h-4 w-4 mr-1" />
-              Create New Ad
+              {t('p2pMerchant.createNewAd')}
             </Button>
           </div>
 
@@ -527,11 +529,11 @@ export default function P2PMerchantDashboard() {
               <CardContent className="py-12 text-center">
                 <ShoppingBag className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
                 <p className="text-muted-foreground mb-4">
-                  You don&apos;t have any active ads yet.
+                  {t('p2pMerchant.noAdsYet')}
                 </p>
                 <Button onClick={() => setCreateAdOpen(true)}>
                   <Plus className="h-4 w-4 mr-1" />
-                  Create Your First Ad
+                  {t('p2pMerchant.createFirstAd')}
                 </Button>
               </CardContent>
             </Card>
@@ -548,17 +550,17 @@ export default function P2PMerchantDashboard() {
                               {ad.status.toUpperCase()}
                             </Badge>
                             <span className="font-medium">
-                              Sell {ad.token} for {ad.fiat_currency}
+                              {t('p2pMerchant.sellTokenFor', { token: ad.token, currency: ad.fiat_currency })}
                             </span>
                             {ad.is_featured && (
                               <Badge className="bg-yellow-500/20 text-yellow-500 border-yellow-500/30">
                                 <Star className="h-3 w-3 mr-1" />
-                                Featured
+                                {t('p2pMerchant.featured')}
                               </Badge>
                             )}
                           </div>
                           <p className="text-sm text-muted-foreground">
-                            {ad.remaining_amount} / {ad.amount_crypto} {ad.token} remaining
+                            {t('p2pMerchant.remaining', { remaining: ad.remaining_amount, total: ad.amount_crypto, token: ad.token })}
                           </p>
                         </div>
                       </div>
@@ -568,7 +570,7 @@ export default function P2PMerchantDashboard() {
                           {ad.price_per_unit?.toFixed(2)} {ad.fiat_currency}/{ad.token}
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          Total: {ad.fiat_amount?.toLocaleString()} {ad.fiat_currency}
+                          {t('p2pMerchant.total', { amount: ad.fiat_amount?.toLocaleString(), currency: ad.fiat_currency })}
                         </p>
                       </div>
 
@@ -577,7 +579,7 @@ export default function P2PMerchantDashboard() {
                           variant="ghost"
                           size="icon"
                           onClick={() => toggleAdStatus(ad.id, ad.status)}
-                          title={ad.status === 'open' ? 'Pause' : 'Activate'}
+                          title={ad.status === 'open' ? t('p2pMerchant.pause') : t('p2pMerchant.activate')}
                         >
                           {ad.status === 'open' ? (
                             <Pause className="h-4 w-4" />
@@ -589,7 +591,7 @@ export default function P2PMerchantDashboard() {
                           variant="ghost"
                           size="icon"
                           onClick={() => openEditModal(ad)}
-                          title="Edit"
+                          title={t('p2pMerchant.edit')}
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -597,7 +599,7 @@ export default function P2PMerchantDashboard() {
                           variant="ghost"
                           size="icon"
                           onClick={() => deleteAd(ad.id)}
-                          title="Delete"
+                          title={t('p2pMerchant.delete')}
                           className="text-destructive hover:text-destructive"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -616,13 +618,13 @@ export default function P2PMerchantDashboard() {
               <CardContent className="py-4">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">
-                    Active ads: {activeAds.filter(a => a.status === 'open').length} / {tierInfo.max_pending_orders}
+                    {t('p2pMerchant.activeAdsCount', { current: activeAds.filter(a => a.status === 'open').length, max: tierInfo.max_pending_orders })}
                   </span>
                   <span className="text-muted-foreground">
-                    Max order: ${tierInfo.max_order_amount.toLocaleString()}
+                    {t('p2pMerchant.maxOrderLimit', { amount: tierInfo.max_order_amount.toLocaleString() })}
                   </span>
                   <span className="text-muted-foreground">
-                    Featured ads: {activeAds.filter(a => a.is_featured).length} / {tierInfo.featured_ads_allowed}
+                    {t('p2pMerchant.featuredAdsCount', { current: activeAds.filter(a => a.is_featured).length, max: tierInfo.featured_ads_allowed })}
                   </span>
                 </div>
               </CardContent>
@@ -642,16 +644,16 @@ export default function P2PMerchantDashboard() {
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <MessageSquare className="h-5 w-5" />
-                Auto-Reply Message
+                {t('p2pMerchant.autoReplyTitle')}
               </CardTitle>
               <CardDescription>
-                Automatically send this message when someone starts a trade with you
+                {t('p2pMerchant.autoReplyDesc')}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Button variant="outline" onClick={() => setAutoReplyOpen(true)}>
                 <Edit className="h-4 w-4 mr-2" />
-                Configure Auto-Reply
+                {t('p2pMerchant.configureAutoReply')}
               </Button>
             </CardContent>
           </Card>
@@ -659,32 +661,32 @@ export default function P2PMerchantDashboard() {
           {/* Notification Settings */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Notification Settings</CardTitle>
+              <CardTitle className="text-lg">{t('p2pMerchant.notificationSettings')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium">New Order Notifications</p>
+                  <p className="font-medium">{t('p2pMerchant.newOrderNotifications')}</p>
                   <p className="text-sm text-muted-foreground">
-                    Get notified when someone accepts your offer
+                    {t('p2pMerchant.newOrderNotificationsDesc')}
                   </p>
                 </div>
                 <Switch defaultChecked />
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium">Payment Notifications</p>
+                  <p className="font-medium">{t('p2pMerchant.paymentNotifications')}</p>
                   <p className="text-sm text-muted-foreground">
-                    Get notified when buyer marks payment as sent
+                    {t('p2pMerchant.paymentNotificationsDesc')}
                   </p>
                 </div>
                 <Switch defaultChecked />
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium">Chat Notifications</p>
+                  <p className="font-medium">{t('p2pMerchant.chatNotifications')}</p>
                   <p className="text-sm text-muted-foreground">
-                    Get notified for new chat messages
+                    {t('p2pMerchant.chatNotificationsDesc')}
                   </p>
                 </div>
                 <Switch defaultChecked />
@@ -695,17 +697,17 @@ export default function P2PMerchantDashboard() {
           {/* Danger Zone */}
           <Card className="border-destructive/30">
             <CardHeader>
-              <CardTitle className="text-lg text-destructive">Danger Zone</CardTitle>
+              <CardTitle className="text-lg text-destructive">{t('p2pMerchant.dangerZone')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium">Pause All Ads</p>
+                  <p className="font-medium">{t('p2pMerchant.pauseAllAds')}</p>
                   <p className="text-sm text-muted-foreground">
-                    Temporarily pause all your active advertisements
+                    {t('p2pMerchant.pauseAllAdsDesc')}
                   </p>
                 </div>
-                <Button variant="outline">Pause All</Button>
+                <Button variant="outline">{t('p2pMerchant.pauseAll')}</Button>
               </div>
             </CardContent>
           </Card>
@@ -716,25 +718,25 @@ export default function P2PMerchantDashboard() {
       <Dialog open={autoReplyOpen} onOpenChange={setAutoReplyOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Auto-Reply Message</DialogTitle>
+            <DialogTitle>{t('p2pMerchant.autoReplyDialogTitle')}</DialogTitle>
             <DialogDescription>
-              This message will be automatically sent when someone starts a trade with you.
+              {t('p2pMerchant.autoReplyDialogDesc')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label>Message</Label>
+              <Label>{t('p2pMerchant.messageLabel')}</Label>
               <Textarea
                 value={autoReplyMessage}
                 onChange={(e) => setAutoReplyMessage(e.target.value)}
-                placeholder="Hello! Thank you for choosing to trade with me. Please follow the payment instructions and mark as paid once done."
+                placeholder={t('p2pMerchant.autoReplyPlaceholder')}
                 rows={4}
               />
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setAutoReplyOpen(false)}>
-              Cancel
+              {t('p2p.cancel')}
             </Button>
             <Button
               className="bg-kurdish-green hover:bg-kurdish-green-dark"
@@ -742,7 +744,7 @@ export default function P2PMerchantDashboard() {
               disabled={savingAutoReply}
             >
               {savingAutoReply && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Save Message
+              {t('p2pMerchant.saveMessage')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -752,9 +754,9 @@ export default function P2PMerchantDashboard() {
       <Dialog open={createAdOpen} onOpenChange={setCreateAdOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Create New P2P Offer</DialogTitle>
+            <DialogTitle>{t('p2pMerchant.createNewOffer')}</DialogTitle>
             <DialogDescription>
-              Lock your crypto in escrow and set your price
+              {t('p2pCreate.description')}
             </DialogDescription>
           </DialogHeader>
           <CreateAd onAdCreated={() => {
@@ -768,9 +770,9 @@ export default function P2PMerchantDashboard() {
       <Dialog open={editAdOpen} onOpenChange={setEditAdOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit Ad</DialogTitle>
+            <DialogTitle>{t('p2pMerchant.editAdTitle')}</DialogTitle>
             <DialogDescription>
-              Update your ad price and order limits
+              {t('p2pMerchant.editAdDesc')}
             </DialogDescription>
           </DialogHeader>
           {editingAd && (
@@ -778,31 +780,31 @@ export default function P2PMerchantDashboard() {
               {/* Ad Info (Read-only) */}
               <div className="p-4 bg-muted rounded-lg">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-muted-foreground">Ad Type</span>
+                  <span className="text-sm text-muted-foreground">{t('p2pMerchant.adType')}</span>
                   <Badge variant={editingAd.ad_type === 'sell' ? 'default' : 'secondary'}>
-                    {editingAd.ad_type === 'sell' ? 'Selling' : 'Buying'} {editingAd.token}
+                    {editingAd.ad_type === 'sell' ? t('p2pMerchant.selling') : t('p2pMerchant.buying')} {editingAd.token}
                   </Badge>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Amount</span>
+                  <span className="text-sm text-muted-foreground">{t('p2p.amount')}</span>
                   <span className="font-medium">{editingAd.amount_crypto} {editingAd.token}</span>
                 </div>
               </div>
 
               {/* Fiat Amount */}
               <div>
-                <Label htmlFor="editFiatAmount">Total Fiat Amount ({editingAd.fiat_currency})</Label>
+                <Label htmlFor="editFiatAmount">{t('p2pMerchant.totalFiatAmount', { currency: editingAd.fiat_currency })}</Label>
                 <Input
                   id="editFiatAmount"
                   type="number"
                   step="0.01"
                   value={editFiatAmount}
                   onChange={(e) => setEditFiatAmount(e.target.value)}
-                  placeholder="Enter fiat amount"
+                  placeholder={t('p2pMerchant.enterFiatAmount')}
                 />
                 {editFiatAmount && editingAd.amount_crypto > 0 && (
                   <p className="text-sm text-muted-foreground mt-1">
-                    Price per {editingAd.token}: {(parseFloat(editFiatAmount) / editingAd.amount_crypto).toFixed(2)} {editingAd.fiat_currency}
+                    {t('p2pMerchant.pricePerTokenCalc', { token: editingAd.token, price: (parseFloat(editFiatAmount) / editingAd.amount_crypto).toFixed(2), currency: editingAd.fiat_currency })}
                   </p>
                 )}
               </div>
@@ -810,25 +812,25 @@ export default function P2PMerchantDashboard() {
               {/* Order Limits */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="editMinOrder">Min Order ({editingAd.token})</Label>
+                  <Label htmlFor="editMinOrder">{t('p2pMerchant.minOrderLabel', { token: editingAd.token })}</Label>
                   <Input
                     id="editMinOrder"
                     type="number"
                     step="0.01"
                     value={editMinOrder}
                     onChange={(e) => setEditMinOrder(e.target.value)}
-                    placeholder="Optional"
+                    placeholder={t('p2pMerchant.optional')}
                   />
                 </div>
                 <div>
-                  <Label htmlFor="editMaxOrder">Max Order ({editingAd.token})</Label>
+                  <Label htmlFor="editMaxOrder">{t('p2pMerchant.maxOrderLabel', { token: editingAd.token })}</Label>
                   <Input
                     id="editMaxOrder"
                     type="number"
                     step="0.01"
                     value={editMaxOrder}
                     onChange={(e) => setEditMaxOrder(e.target.value)}
-                    placeholder="Optional"
+                    placeholder={t('p2pMerchant.optional')}
                   />
                 </div>
               </div>
@@ -836,7 +838,7 @@ export default function P2PMerchantDashboard() {
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditAdOpen(false)}>
-              Cancel
+              {t('p2p.cancel')}
             </Button>
             <Button
               className="bg-kurdish-green hover:bg-kurdish-green-dark"
@@ -844,7 +846,7 @@ export default function P2PMerchantDashboard() {
               disabled={savingEdit}
             >
               {savingEdit && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Save Changes
+              {t('p2pMerchant.saveChanges')}
             </Button>
           </DialogFooter>
         </DialogContent>

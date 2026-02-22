@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { GraduationCap } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
@@ -13,6 +14,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
 export default function EducationPlatform() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { selectedAccount } = usePezkuwi();
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
@@ -58,22 +60,22 @@ export default function EducationPlatform() {
         <div>
           <h1 className="text-4xl font-bold text-white mb-2 flex items-center gap-3">
             <GraduationCap className="w-10 h-10 text-green-500" />
-            Perwerde - Education Platform
+            {t('education.title')}
           </h1>
           <p className="text-gray-400">
-            Decentralized learning for Digital Kurdistan. Build skills, earn credentials, empower our nation.
+            {t('education.subtitle')}
           </p>
         </div>
         <Button onClick={() => navigate('/')} className="bg-gray-700 hover:bg-gray-600 text-white">
-          ← Back to Home
+          {t('education.backToHome')}
         </Button>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList>
-          <TabsTrigger value="courses">Available Courses</TabsTrigger>
-          {selectedAccount && <TabsTrigger value="dashboard">My Dashboard</TabsTrigger>}
-          {isAdmin && <TabsTrigger value="create">Create Course</TabsTrigger>}
+          <TabsTrigger value="courses">{t('education.availableCourses')}</TabsTrigger>
+          {selectedAccount && <TabsTrigger value="dashboard">{t('education.myDashboard')}</TabsTrigger>}
+          {isAdmin && <TabsTrigger value="create">{t('education.createCourse')}</TabsTrigger>}
         </TabsList>
 
         <TabsContent value="courses">

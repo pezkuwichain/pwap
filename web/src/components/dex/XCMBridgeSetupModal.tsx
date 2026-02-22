@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from 'react-i18next';
 import {
   checkBridgeStatus,
   fetchAssetHubUsdtInfo,
@@ -38,6 +39,7 @@ export const XCMBridgeSetupModal: React.FC<XCMBridgeSetupModalProps> = ({
   const { assetHubApi, isAssetHubReady } = usePezkuwi();
   const { account, signer } = useWallet();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   // State
   const [step, setStep] = useState<SetupStep>('idle');
@@ -56,7 +58,7 @@ export const XCMBridgeSetupModal: React.FC<XCMBridgeSetupModalProps> = ({
     if (!assetHubApi || !isAssetHubReady) return;
 
     setStep('checking');
-    setStatusMessage('Checking bridge status...');
+    setStatusMessage(t('xcmBridge.checkingStatus'));
     setErrorMessage('');
 
     try {
@@ -65,11 +67,11 @@ export const XCMBridgeSetupModal: React.FC<XCMBridgeSetupModalProps> = ({
       setBridgeStatus(status);
 
       // Fetch Asset Hub USDT info
-      setStatusMessage('Fetching Asset Hub USDT info...');
+      setStatusMessage(t('xcmBridge.fetchingInfo'));
       const info = await fetchAssetHubUsdtInfo();
       setAssetHubInfo(info);
 
-      setStatusMessage('Status check complete');
+      setStatusMessage(t('xcmBridge.statusComplete'));
       setStep('idle');
     } catch (error) {
       console.error('Initial check failed:', error);
@@ -99,8 +101,8 @@ export const XCMBridgeSetupModal: React.FC<XCMBridgeSetupModalProps> = ({
   const handleConfigureBridge = async () => {
     if (!assetHubApi || !isAssetHubReady || !signer || !account) {
       toast({
-        title: 'Error',
-        description: 'Please connect your wallet',
+        title: t('common.error'),
+        description: t('common.connectWalletAlert'),
         variant: 'destructive',
       });
       return;
@@ -118,22 +120,22 @@ export const XCMBridgeSetupModal: React.FC<XCMBridgeSetupModalProps> = ({
       );
 
       toast({
-        title: 'Success!',
-        description: 'XCM bridge configured successfully',
+        title: t('common.success'),
+        description: t('xcmBridge.bridgeConfigured'),
       });
 
       // Refresh status
       await performInitialCheck();
 
       setStep('success');
-      setStatusMessage('Bridge configuration complete!');
+      setStatusMessage(t('xcmBridge.configComplete'));
     } catch (error) {
       console.error('Bridge configuration failed:', error);
       setErrorMessage(error instanceof Error ? error.message : 'Configuration failed');
       setStep('error');
       toast({
-        title: 'Configuration Failed',
-        description: error instanceof Error ? error.message : 'Unknown error',
+        title: t('xcmBridge.configFailed'),
+        description: error instanceof Error ? error.message : t('common.error'),
         variant: 'destructive',
       });
     }
@@ -145,8 +147,8 @@ export const XCMBridgeSetupModal: React.FC<XCMBridgeSetupModalProps> = ({
   const handleCreatePool = async () => {
     if (!assetHubApi || !isAssetHubReady || !signer || !account) {
       toast({
-        title: 'Error',
-        description: 'Please connect your wallet',
+        title: t('common.error'),
+        description: t('common.connectWalletAlert'),
         variant: 'destructive',
       });
       return;
@@ -170,12 +172,12 @@ export const XCMBridgeSetupModal: React.FC<XCMBridgeSetupModalProps> = ({
       );
 
       toast({
-        title: 'Success!',
-        description: 'wUSDT/HEZ pool created successfully',
+        title: t('common.success'),
+        description: t('xcmBridge.poolCreated'),
       });
 
       setStep('success');
-      setStatusMessage('Pool creation complete!');
+      setStatusMessage(t('xcmBridge.poolComplete'));
 
       setTimeout(() => {
         onSuccess?.();
@@ -186,8 +188,8 @@ export const XCMBridgeSetupModal: React.FC<XCMBridgeSetupModalProps> = ({
       setErrorMessage(error instanceof Error ? error.message : 'Pool creation failed');
       setStep('error');
       toast({
-        title: 'Pool Creation Failed',
-        description: error instanceof Error ? error.message : 'Unknown error',
+        title: t('xcmBridge.poolFailed'),
+        description: error instanceof Error ? error.message : t('common.error'),
         variant: 'destructive',
       });
     }
@@ -203,7 +205,7 @@ export const XCMBridgeSetupModal: React.FC<XCMBridgeSetupModalProps> = ({
         <CardHeader className="border-b border-gray-800">
           <div className="flex items-center justify-between">
             <CardTitle className="text-xl font-bold text-white">
-              XCM Bridge Setup
+              {t('xcmBridge.title')}
             </CardTitle>
             <button
               onClick={onClose}
@@ -214,7 +216,7 @@ export const XCMBridgeSetupModal: React.FC<XCMBridgeSetupModalProps> = ({
             </button>
           </div>
           <Badge className="bg-purple-600/20 text-purple-400 border-purple-600/30 w-fit mt-2">
-            Admin Only - XCM Configuration
+            {t('xcmBridge.adminOnly')}
           </Badge>
         </CardHeader>
 
@@ -223,18 +225,17 @@ export const XCMBridgeSetupModal: React.FC<XCMBridgeSetupModalProps> = ({
           <Alert className="bg-purple-500/10 border-purple-500/30">
             <Zap className="h-4 w-4 text-purple-400" />
             <AlertDescription className="text-purple-300 text-sm">
-              Configure Asset Hub USDT → wUSDT bridge with one click. This enables
-              cross-chain transfers from Westend Asset Hub to PezkuwiChain.
+              {t('xcmBridge.info')}
             </AlertDescription>
           </Alert>
 
           {/* Current Status */}
           {bridgeStatus && (
             <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-700 space-y-3">
-              <div className="text-sm font-semibold text-gray-300 mb-2">Current Status</div>
+              <div className="text-sm font-semibold text-gray-300 mb-2">{t('xcmBridge.currentStatus')}</div>
 
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-400">Asset Hub Connection:</span>
+                <span className="text-sm text-gray-400">{t('xcmBridge.assetHubConnection')}</span>
                 <div className="flex items-center gap-2">
                   {bridgeStatus.assetHubConnected ? (
                     <CheckCircle className="w-4 h-4 text-green-400" />
@@ -242,13 +243,13 @@ export const XCMBridgeSetupModal: React.FC<XCMBridgeSetupModalProps> = ({
                     <AlertCircle className="w-4 h-4 text-yellow-400" />
                   )}
                   <span className={bridgeStatus.assetHubConnected ? 'text-green-400' : 'text-yellow-400'}>
-                    {bridgeStatus.assetHubConnected ? 'Connected' : 'Checking...'}
+                    {bridgeStatus.assetHubConnected ? t('xcmBridge.connected') : t('xcmBridge.checking')}
                   </span>
                 </div>
               </div>
 
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-400">wUSDT Asset Exists:</span>
+                <span className="text-sm text-gray-400">{t('xcmBridge.wusdtAssetExists')}</span>
                 <div className="flex items-center gap-2">
                   {bridgeStatus.wusdtExists ? (
                     <CheckCircle className="w-4 h-4 text-green-400" />
@@ -256,13 +257,13 @@ export const XCMBridgeSetupModal: React.FC<XCMBridgeSetupModalProps> = ({
                     <AlertCircle className="w-4 h-4 text-red-400" />
                   )}
                   <span className={bridgeStatus.wusdtExists ? 'text-green-400' : 'text-red-400'}>
-                    {bridgeStatus.wusdtExists ? 'Yes (ID: 1000)' : 'Not Found'}
+                    {bridgeStatus.wusdtExists ? t('xcmBridge.yesId') : t('xcmBridge.notFound')}
                   </span>
                 </div>
               </div>
 
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-400">XCM Bridge Configured:</span>
+                <span className="text-sm text-gray-400">{t('xcmBridge.xcmConfigured')}</span>
                 <div className="flex items-center gap-2">
                   {bridgeStatus.isConfigured ? (
                     <CheckCircle className="w-4 h-4 text-green-400" />
@@ -270,7 +271,7 @@ export const XCMBridgeSetupModal: React.FC<XCMBridgeSetupModalProps> = ({
                     <AlertCircle className="w-4 h-4 text-yellow-400" />
                   )}
                   <span className={bridgeStatus.isConfigured ? 'text-green-400' : 'text-yellow-400'}>
-                    {bridgeStatus.isConfigured ? 'Configured' : 'Not Configured'}
+                    {bridgeStatus.isConfigured ? t('xcmBridge.configured') : t('xcmBridge.notConfigured')}
                   </span>
                 </div>
               </div>
@@ -280,7 +281,7 @@ export const XCMBridgeSetupModal: React.FC<XCMBridgeSetupModalProps> = ({
           {/* Asset Hub USDT Info */}
           {assetHubInfo && (
             <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-700 space-y-2">
-              <div className="text-sm font-semibold text-gray-300 mb-2">Asset Hub USDT Info</div>
+              <div className="text-sm font-semibold text-gray-300 mb-2">{t('xcmBridge.assetHubInfo')}</div>
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <span className="text-gray-400">Asset ID:</span>
                 <span className="text-white font-mono">{assetHubInfo.id}</span>
@@ -307,7 +308,7 @@ export const XCMBridgeSetupModal: React.FC<XCMBridgeSetupModalProps> = ({
 
           {/* Configuration Details */}
           <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-700 space-y-2">
-            <div className="text-sm font-semibold text-gray-300 mb-2">Configuration Details</div>
+            <div className="text-sm font-semibold text-gray-300 mb-2">{t('xcmBridge.configDetails')}</div>
             <div className="text-xs space-y-1 text-gray-400 font-mono">
               <div>Asset Hub Endpoint: {ASSET_HUB_ENDPOINT}</div>
               <div>Asset Hub USDT ID: {ASSET_HUB_USDT_ID}</div>
@@ -349,10 +350,10 @@ export const XCMBridgeSetupModal: React.FC<XCMBridgeSetupModalProps> = ({
           {/* Pool Creation Section (Optional) */}
           {showPoolCreation && (
             <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-700 space-y-4">
-              <div className="text-sm font-semibold text-gray-300">Create wUSDT/HEZ Pool (Optional)</div>
+              <div className="text-sm font-semibold text-gray-300">{t('xcmBridge.createPoolSection')}</div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs text-gray-400">wUSDT Amount</label>
+                  <label className="text-xs text-gray-400">{t('xcmBridge.wusdtAmount')}</label>
                   <input
                     type="number"
                     value={wusdtAmount}
@@ -362,7 +363,7 @@ export const XCMBridgeSetupModal: React.FC<XCMBridgeSetupModalProps> = ({
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-400">HEZ Amount</label>
+                  <label className="text-xs text-gray-400">{t('xcmBridge.hezAmount')}</label>
                   <input
                     type="number"
                     value={hezAmount}
@@ -383,7 +384,7 @@ export const XCMBridgeSetupModal: React.FC<XCMBridgeSetupModalProps> = ({
               className="flex-1 border-gray-700 hover:bg-gray-800"
               disabled={isLoading}
             >
-              Close
+              {t('xcmBridge.close')}
             </Button>
 
             {!bridgeStatus?.isConfigured && (
@@ -395,10 +396,10 @@ export const XCMBridgeSetupModal: React.FC<XCMBridgeSetupModalProps> = ({
                 {step === 'configuring' ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                    Configuring...
+                    {t('xcmBridge.configuring')}
                   </>
                 ) : (
-                  'Configure Bridge'
+                  t('xcmBridge.configureBridge')
                 )}
               </Button>
             )}
@@ -408,7 +409,7 @@ export const XCMBridgeSetupModal: React.FC<XCMBridgeSetupModalProps> = ({
                 onClick={() => setShowPoolCreation(true)}
                 className="flex-1 bg-green-600 hover:bg-green-700"
               >
-                Create Pool (Optional)
+                {t('xcmBridge.createPoolOptional')}
               </Button>
             )}
 
@@ -421,10 +422,10 @@ export const XCMBridgeSetupModal: React.FC<XCMBridgeSetupModalProps> = ({
                 {step === 'pool-creation' ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                    Creating...
+                    {t('xcmBridge.creatingPool')}
                   </>
                 ) : (
-                  'Create Pool'
+                  t('xcmBridge.createPool')
                 )}
               </Button>
             )}
@@ -432,7 +433,7 @@ export const XCMBridgeSetupModal: React.FC<XCMBridgeSetupModalProps> = ({
 
           {/* Note */}
           <div className="text-xs text-gray-500 text-center">
-            ⚠️ XCM bridge configuration requires sudo access
+            {t('xcmBridge.sudoWarning')}
           </div>
         </CardContent>
       </Card>

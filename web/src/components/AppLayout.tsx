@@ -110,14 +110,14 @@ const AppLayout: React.FC = () => {
                     className="text-cyan-300 hover:text-cyan-100 transition-colors flex items-center gap-1 text-sm font-semibold whitespace-nowrap"
                   >
                     <Users className="w-4 h-4" />
-                    Be Citizen
+                    {t('nav.beCitizen')}
                   </button>
                   <button
                     onClick={() => navigate('/login')}
                     className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 text-sm whitespace-nowrap"
                   >
                     <LogIn className="w-4 h-4" />
-                    Login
+                    {t('nav.login')}
                   </button>
                 </div>
                 </>
@@ -129,7 +129,7 @@ const AppLayout: React.FC = () => {
                   href="/docs"
                   className="text-gray-300 hover:text-white transition-colors text-sm"
                 >
-                  Docs
+                  {t('nav.docs')}
                 </a>
 
                 <div className="w-px h-6 bg-gray-700"></div>
@@ -161,7 +161,7 @@ const AppLayout: React.FC = () => {
               className="flex flex-col items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2 rounded-xl bg-gray-900/70 border border-green-500/40 text-[10px] sm:text-xs font-medium transition-all hover:scale-[1.03] active:scale-95 cursor-pointer text-gray-300 hover:text-white"
             >
               <LayoutDashboard className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
-              Dashboard
+              {t('nav.dashboard')}
             </button>
             {/* Wallet */}
             <button
@@ -169,7 +169,7 @@ const AppLayout: React.FC = () => {
               className="flex flex-col items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2 rounded-xl bg-gray-900/70 border border-yellow-400/40 text-[10px] sm:text-xs font-medium transition-all hover:scale-[1.03] active:scale-95 cursor-pointer text-gray-300 hover:text-white"
             >
               <Wallet className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
-              Wallet
+              {t('nav.wallet')}
             </button>
             {/* Be Citizen */}
             <button
@@ -177,7 +177,7 @@ const AppLayout: React.FC = () => {
               className="flex flex-col items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2 rounded-xl bg-gray-900/70 border border-cyan-400/40 text-[10px] sm:text-xs font-medium transition-all hover:scale-[1.03] active:scale-95 cursor-pointer text-gray-300 hover:text-white"
             >
               <Users className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" />
-              Be Citizen
+              {t('nav.beCitizen')}
             </button>
             {/* Governance (dropdown) */}
             <div className="relative">
@@ -186,24 +186,24 @@ const AppLayout: React.FC = () => {
                 className="w-full flex flex-col items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2 rounded-xl bg-gray-900/70 border border-green-500/40 text-[10px] sm:text-xs font-medium transition-all hover:scale-[1.03] active:scale-95 cursor-pointer text-gray-300 hover:text-white"
               >
                 <FileEdit className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
-                <span className="flex items-center gap-0.5">Governance <ChevronDown className="w-3 h-3" /></span>
+                <span className="flex items-center gap-0.5">{t('nav.governance')} <ChevronDown className="w-3 h-3" /></span>
               </button>
               {openMenu === 'governance' && (
                 <div className="absolute left-0 top-full mt-1 w-48 bg-gray-900 border border-gray-700 rounded-lg shadow-lg z-50">
                   <button onClick={() => { setShowProposalWizard(true); setOpenMenu(null); }} className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2 rounded-t-lg">
-                    <FileEdit className="w-4 h-4" /> Proposals
+                    <FileEdit className="w-4 h-4" /> {t('governance.proposals')}
                   </button>
                   <button onClick={() => { setShowDelegation(true); setOpenMenu(null); }} className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2">
-                    <Users2 className="w-4 h-4" /> Delegation
+                    <Users2 className="w-4 h-4" /> {t('governance.delegation')}
                   </button>
                   <button onClick={() => { setShowForum(true); setOpenMenu(null); }} className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2">
-                    <MessageSquare className="w-4 h-4" /> Forum
+                    <MessageSquare className="w-4 h-4" /> {t('nav.forum')}
                   </button>
                   <button onClick={() => { setShowTreasury(true); setTreasuryTab('overview'); setOpenMenu(null); }} className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2">
-                    <PiggyBank className="w-4 h-4" /> Treasury
+                    <PiggyBank className="w-4 h-4" /> {t('nav.treasury')}
                   </button>
                   <button onClick={() => { setShowModeration(true); setOpenMenu(null); }} className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2 rounded-b-lg">
-                    <ShieldCheck className="w-4 h-4" /> Moderation
+                    <ShieldCheck className="w-4 h-4" /> {t('nav.moderation')}
                   </button>
                 </div>
               )}
@@ -215,24 +215,24 @@ const AppLayout: React.FC = () => {
                 className="w-full flex flex-col items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2 rounded-xl bg-gray-900/70 border border-red-500/40 text-[10px] sm:text-xs font-medium transition-all hover:scale-[1.03] active:scale-95 cursor-pointer text-gray-300 hover:text-white"
               >
                 <ArrowRightLeft className="w-4 h-4 sm:w-5 sm:h-5 text-red-400" />
-                <span className="flex items-center gap-0.5">Trading <ChevronDown className="w-3 h-3" /></span>
+                <span className="flex items-center gap-0.5">{t('nav.trading')} <ChevronDown className="w-3 h-3" /></span>
               </button>
               {openMenu === 'trading' && (
                 <div className="absolute left-0 top-full mt-1 w-48 bg-gray-900 border border-gray-700 rounded-lg shadow-lg z-50">
                   <button onClick={() => { setShowDEX(true); setOpenMenu(null); }} className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2 rounded-t-lg">
-                    <Droplet className="w-4 h-4" /> DEX Pools
+                    <Droplet className="w-4 h-4" /> {t('trading.dexPools')}
                   </button>
                   <button onClick={() => { setShowP2P(true); navigate('/p2p'); setOpenMenu(null); }} className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2">
-                    <Users className="w-4 h-4" /> P2P
+                    <Users className="w-4 h-4" /> {t('trading.p2p')}
                   </button>
                   <button onClick={() => { navigate('/presale'); setOpenMenu(null); }} className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2">
-                    <Coins className="w-4 h-4" /> Presale
+                    <Coins className="w-4 h-4" /> {t('trading.presale')}
                   </button>
                   <button onClick={() => { setShowStaking(true); setOpenMenu(null); }} className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2">
-                    <TrendingUp className="w-4 h-4" /> Staking
+                    <TrendingUp className="w-4 h-4" /> {t('trading.staking')}
                   </button>
                   <button onClick={() => { setShowMultiSig(true); setOpenMenu(null); }} className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2 rounded-b-lg">
-                    <Lock className="w-4 h-4" /> MultiSig
+                    <Lock className="w-4 h-4" /> {t('trading.multiSig')}
                   </button>
                 </div>
               )}
@@ -243,7 +243,7 @@ const AppLayout: React.FC = () => {
               className="flex flex-col items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2 rounded-xl bg-gray-900/70 border border-yellow-400/40 text-[10px] sm:text-xs font-medium transition-all hover:scale-[1.03] active:scale-95 cursor-pointer text-gray-300 hover:text-white"
             >
               <Award className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
-              Education
+              {t('nav.education')}
             </button>
             {/* Settings */}
             <button
@@ -251,7 +251,7 @@ const AppLayout: React.FC = () => {
               className="flex flex-col items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2 rounded-xl bg-gray-900/70 border border-gray-500/40 text-[10px] sm:text-xs font-medium transition-all hover:scale-[1.03] active:scale-95 cursor-pointer text-gray-300 hover:text-white"
             >
               <Settings className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
-              Settings
+              {t('nav.settings')}
             </button>
             {/* Logout */}
             <button
@@ -259,7 +259,7 @@ const AppLayout: React.FC = () => {
               className="flex flex-col items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2 rounded-xl bg-gray-900/70 border border-red-500/40 text-[10px] sm:text-xs font-medium transition-all hover:scale-[1.03] active:scale-95 cursor-pointer text-gray-300 hover:text-white"
             >
               <LogIn className="w-4 h-4 sm:w-5 sm:h-5 text-red-400 rotate-180" />
-              Logout
+              {t('nav.logout')}
             </button>
           </div>
         </div>
@@ -281,81 +281,81 @@ const AppLayout: React.FC = () => {
                     className="w-full text-left px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-3"
                   >
                     <LayoutDashboard className="w-5 h-5" />
-                    Dashboard
+                    {t('nav.dashboard')}
                   </button>
                   <button
                     onClick={() => { navigate('/wallet'); setMobileMenuOpen(false); }}
                     className="w-full text-left px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-3"
                   >
                     <Wallet className="w-5 h-5" />
-                    Wallet
+                    {t('nav.wallet')}
                   </button>
                   <button
                     onClick={() => { navigate('/citizens'); setMobileMenuOpen(false); }}
                     className="w-full text-left px-4 py-3 rounded-lg text-cyan-400 hover:bg-gray-800 flex items-center gap-3"
                   >
                     <Users className="w-5 h-5" />
-                    Citizens Portal
+                    {t('nav.citizensPortal')}
                   </button>
                   <button
                     onClick={() => { navigate('/be-citizen'); setMobileMenuOpen(false); }}
                     className="w-full text-left px-4 py-3 rounded-lg text-cyan-300 hover:bg-gray-800 flex items-center gap-3"
                   >
                     <Users className="w-5 h-5" />
-                    Be Citizen
+                    {t('nav.beCitizen')}
                   </button>
                   <div className="border-t border-gray-800 my-2" />
-                  <div className="px-4 py-2 text-xs text-gray-500 uppercase tracking-wider">Governance</div>
+                  <div className="px-4 py-2 text-xs text-gray-500 uppercase tracking-wider">{t('nav.governance')}</div>
                   <button
                     onClick={() => { setShowProposalWizard(true); setMobileMenuOpen(false); }}
                     className="w-full text-left px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-3"
                   >
                     <FileEdit className="w-5 h-5" />
-                    Proposals
+                    {t('governance.proposals')}
                   </button>
                   <button
                     onClick={() => { setShowDelegation(true); setMobileMenuOpen(false); }}
                     className="w-full text-left px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-3"
                   >
                     <Users2 className="w-5 h-5" />
-                    Delegation
+                    {t('governance.delegation')}
                   </button>
                   <button
                     onClick={() => { setShowTreasury(true); setMobileMenuOpen(false); }}
                     className="w-full text-left px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-3"
                   >
                     <PiggyBank className="w-5 h-5" />
-                    Treasury
+                    {t('nav.treasury')}
                   </button>
                   <div className="border-t border-gray-800 my-2" />
-                  <div className="px-4 py-2 text-xs text-gray-500 uppercase tracking-wider">Trading</div>
+                  <div className="px-4 py-2 text-xs text-gray-500 uppercase tracking-wider">{t('nav.trading')}</div>
                   <button
                     onClick={() => { setShowDEX(true); setMobileMenuOpen(false); }}
                     className="w-full text-left px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-3"
                   >
                     <Droplet className="w-5 h-5" />
-                    DEX Pools
+                    {t('trading.dexPools')}
                   </button>
                   <button
                     onClick={() => { navigate('/p2p'); setMobileMenuOpen(false); }}
                     className="w-full text-left px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-3"
                   >
                     <ArrowRightLeft className="w-5 h-5" />
-                    P2P
+                    {t('trading.p2p')}
                   </button>
                   <button
                     onClick={() => { navigate('/presale'); setMobileMenuOpen(false); }}
                     className="w-full text-left px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-3"
                   >
                     <Coins className="w-5 h-5" />
-                    Presale
+                    {t('trading.presale')}
                   </button>
                   <button
                     onClick={() => { setShowStaking(true); setMobileMenuOpen(false); }}
                     className="w-full text-left px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-3"
                   >
                     <TrendingUp className="w-5 h-5" />
-                    Staking
+                    {t('trading.staking')}
                   </button>
                   <div className="border-t border-gray-800 my-2" />
                   <button
@@ -363,14 +363,14 @@ const AppLayout: React.FC = () => {
                     className="w-full text-left px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-3"
                   >
                     <Settings className="w-5 h-5" />
-                    Settings
+                    {t('nav.settings')}
                   </button>
                   <button
                     onClick={async () => { await signOut(); navigate('/login'); setMobileMenuOpen(false); }}
                     className="w-full text-left px-4 py-3 rounded-lg text-red-400 hover:bg-gray-800 flex items-center gap-3"
                   >
                     <LogIn className="w-5 h-5 rotate-180" />
-                    Logout
+                    {t('nav.logout')}
                   </button>
                 </>
               ) : (
@@ -380,14 +380,14 @@ const AppLayout: React.FC = () => {
                     className="w-full text-left px-4 py-3 rounded-lg text-cyan-300 hover:bg-gray-800 flex items-center gap-3"
                   >
                     <Users className="w-5 h-5" />
-                    Be Citizen
+                    {t('nav.beCitizen')}
                   </button>
                   <button
                     onClick={() => { navigate('/login'); setMobileMenuOpen(false); }}
                     className="w-full text-left px-4 py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white flex items-center gap-3"
                   >
                     <LogIn className="w-5 h-5" />
-                    Login
+                    {t('nav.login')}
                   </button>
                 </>
               )}
@@ -398,7 +398,7 @@ const AppLayout: React.FC = () => {
                 className="w-full text-left px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-3"
               >
                 <ExternalLink className="w-5 h-5" />
-                Docs
+                {t('nav.docs')}
               </a>
             </div>
           </div>
@@ -499,10 +499,10 @@ const AppLayout: React.FC = () => {
             <div className="max-w-full mx-auto px-4">
               <div className="text-center mb-12">
                 <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-green-500 via-yellow-400 to-red-500 bg-clip-text text-transparent">
-                  Staking Rewards
+                  {t('staking.title')}
                 </h2>
                 <p className="text-gray-400 text-lg max-w-3xl mx-auto">
-                  Stake your tokens and earn rewards
+                  {t('staking.subtitle')}
                 </p>
               </div>
               <StakingDashboard />
@@ -513,10 +513,10 @@ const AppLayout: React.FC = () => {
             <div className="max-w-full mx-auto px-4">
               <div className="text-center mb-12">
                 <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-green-500 via-yellow-400 to-red-500 bg-clip-text text-transparent">
-                  Multi-Signature Wallet
+                  {t('multiSig.title')}
                 </h2>
                 <p className="text-gray-400 text-lg max-w-3xl mx-auto">
-                  Secure your funds with multi-signature protection
+                  {t('multiSig.subtitle')}
                 </p>
               </div>
               <MultiSigWallet />
@@ -571,7 +571,7 @@ const AppLayout: React.FC = () => {
               }}
               className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-full shadow-lg flex items-center gap-2 transition-all"
             >
-              ← Back to Home
+              {`← ${t('common.backToHome')}`}
             </button>
           </div>
         )}
@@ -600,12 +600,12 @@ const AppLayout: React.FC = () => {
                 PezkuwiChain
               </h3>
               <p className="text-gray-400 text-sm">
-                Decentralized governance platform
+                {t('footer.platform')}
               </p>
             </div>
 
             <div>
-              <h4 className="text-white font-semibold mb-4 text-left">About</h4>
+              <h4 className="text-white font-semibold mb-4 text-left">{t('footer.about')}</h4>
               <ul className="space-y-2 text-left">
                 <li>
                   <a
@@ -613,13 +613,13 @@ const AppLayout: React.FC = () => {
                     download="Pezkuwi_Whitepaper.pdf"
                     className="text-gray-400 hover:text-white text-sm inline-flex items-center"
                   >
-                    Whitepaper
+                    {t('footer.whitepaper')}
                     <ExternalLink className="w-3 h-3 ml-1" />
                   </a>
                 </li>
                 <li>
                   <a href="https://github.com/pezkuwichain" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white text-sm inline-flex items-center">
-                    GitHub
+                    {t('footer.github')}
                     <ExternalLink className="w-3 h-3 ml-1" />
                   </a>
                 </li>
@@ -627,17 +627,17 @@ const AppLayout: React.FC = () => {
             </div>
 
             <div>
-              <h4 className="text-white font-semibold mb-4 text-left">Developers</h4>
+              <h4 className="text-white font-semibold mb-4 text-left">{t('footer.developers')}</h4>
               <ul className="space-y-2 text-left">
                 <li>
                   <a href="/api" className="text-gray-400 hover:text-white text-sm inline-flex items-center">
-                    API
+                    {t('footer.api')}
                     <ExternalLink className="w-3 h-3 ml-1" />
                   </a>
                 </li>
                 <li>
                   <a href="/developers" className="text-gray-400 hover:text-white text-sm inline-flex items-center">
-                    SDK
+                    {t('footer.sdk')}
                     <ExternalLink className="w-3 h-3 ml-1" />
                   </a>
                 </li>
@@ -645,45 +645,45 @@ const AppLayout: React.FC = () => {
             </div>
 
             <div>
-              <h4 className="text-white font-semibold mb-4 text-left">Community</h4>
+              <h4 className="text-white font-semibold mb-4 text-left">{t('footer.community')}</h4>
               <ul className="space-y-2 text-left">
                 <li>
                   <a href="https://discord.gg/pezkuwichain" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white text-sm inline-flex items-center">
-                    Discord
+                    {t('footer.discord')}
                     <ExternalLink className="w-3 h-3 ml-1" />
                   </a>
                 </li>
                 <li>
                   <a href="https://x.com/PezkuwiChain" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white text-sm inline-flex items-center">
-                    Twitter/X
+                    {t('footer.twitter')}
                     <ExternalLink className="w-3 h-3 ml-1" />
                   </a>
                 </li>
                 <li>
                   <a href="https://t.me/PezkuwiApp" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white text-sm inline-flex items-center">
-                    Telegram
+                    {t('footer.telegram')}
                     <ExternalLink className="w-3 h-3 ml-1" />
                   </a>
                 </li>
                 <li>
                   <a href="https://www.youtube.com/@SatoshiQazi" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white text-sm inline-flex items-center">
-                    YouTube
+                    {t('footer.youtube')}
                     <ExternalLink className="w-3 h-3 ml-1" />
                   </a>
                 </li>
                 <li>
                   <a href="https://facebook.com/profile.php?id=61582484611719" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white text-sm inline-flex items-center">
-                    Facebook
+                    {t('footer.facebook')}
                     <ExternalLink className="w-3 h-3 ml-1" />
                   </a>
                 </li>
               </ul>
             </div>
           </div>
-          
+
           <div className="mt-8 pt-8 border-t border-gray-800 text-center">
             <p className="text-gray-400 text-sm">
-              © 2024 PezkuwiChain. All rights reserved.
+              {t('footer.copyright')}
             </p>
           </div>
         </div>

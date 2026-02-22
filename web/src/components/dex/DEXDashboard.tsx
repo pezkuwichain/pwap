@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 // import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useWallet } from '@/contexts/WalletContext';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -16,6 +17,7 @@ import { isFounderWallet } from '@pezkuwi/utils/auth';
 
 // DEX Dashboard - Asset Hub API migration complete
 export const DEXDashboard: React.FC = () => {
+  const { t } = useTranslation();
   const { account } = useWallet();
   const { sudoKey } = usePezkuwi();
   const [activeTab, setActiveTab] = useState('swap');
@@ -53,17 +55,17 @@ export const DEXDashboard: React.FC = () => {
       <div className="bg-gradient-to-r from-green-900/30 via-yellow-900/30 to-red-900/30 border-b border-gray-800 py-8">
         <div className="max-w-7xl mx-auto px-4">
           <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-green-400 via-yellow-400 to-red-400 bg-clip-text text-transparent">
-            Pezkuwi DEX
+            {t('dex.title')}
           </h1>
           <p className="text-gray-400 text-lg">
-            Decentralized exchange for trading tokens on PezkuwiChain
+            {t('dex.description')}
           </p>
 
           {/* Wallet status */}
           {account && (
             <div className="mt-4 flex items-center gap-4">
               <div className="px-4 py-2 bg-gray-900/80 rounded-lg border border-gray-800">
-                <span className="text-xs text-gray-400">Connected: </span>
+                <span className="text-xs text-gray-400">{t('dex.connected')} </span>
                 <span className="text-sm font-mono text-white">
                   {account.slice(0, 6)}...{account.slice(-4)}
                 </span>
@@ -71,7 +73,7 @@ export const DEXDashboard: React.FC = () => {
               {isFounder && (
                 <div className="px-4 py-2 bg-green-600/20 border border-green-600/30 rounded-lg">
                   <span className="text-xs text-green-400 font-semibold">
-                    FOUNDER ACCESS
+                    {t('dex.founderAccess')}
                   </span>
                 </div>
               )}
@@ -85,7 +87,7 @@ export const DEXDashboard: React.FC = () => {
         {!account ? (
           <div className="text-center py-12">
             <div className="mb-4 text-gray-400 text-lg">
-              Please connect your Pezkuwi wallet to use the DEX
+              {t('dex.connectWallet')}
             </div>
           </div>
         ) : (
@@ -93,16 +95,16 @@ export const DEXDashboard: React.FC = () => {
             <TabsList className={`grid w-full ${isFounder ? 'grid-cols-3' : 'grid-cols-2'} gap-2 bg-gray-900/50 p-1 rounded-lg mb-8`}>
               <TabsTrigger value="swap" className="flex items-center gap-2">
                 <ArrowRightLeft className="w-4 h-4" />
-                <span className="hidden sm:inline">Swap</span>
+                <span className="hidden sm:inline">{t('dex.tabs.swap')}</span>
               </TabsTrigger>
               <TabsTrigger value="pools" className="flex items-center gap-2">
                 <Droplet className="w-4 h-4" />
-                <span className="hidden sm:inline">Pools</span>
+                <span className="hidden sm:inline">{t('dex.tabs.pools')}</span>
               </TabsTrigger>
               {isFounder && (
                 <TabsTrigger value="admin" className="flex items-center gap-2">
                   <Settings className="w-4 h-4" />
-                  <span className="hidden sm:inline">Admin</span>
+                  <span className="hidden sm:inline">{t('dex.tabs.admin')}</span>
                 </TabsTrigger>
               )}
             </TabsList>
@@ -119,23 +121,23 @@ export const DEXDashboard: React.FC = () => {
               <TabsContent value="admin" className="mt-6">
                 <div className="max-w-2xl mx-auto space-y-6">
                   <div className="p-6 bg-gray-900 border border-blue-900/30 rounded-lg">
-                    <h3 className="text-xl font-bold text-white mb-2">Token Wrapping</h3>
+                    <h3 className="text-xl font-bold text-white mb-2">{t('dex.admin.tokenWrapping')}</h3>
                     <p className="text-gray-400 mb-6">
-                      Convert native HEZ to wrapped wHEZ for use in DEX pools
+                      {t('dex.admin.tokenWrappingDesc')}
                     </p>
                     <button
                       onClick={() => setShowInitializeHezPoolModal(true)}
                       className="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium"
                     >
-                      Wrap HEZ to wHEZ
+                      {t('dex.admin.wrapHez')}
                     </button>
                   </div>
 
                   {/* Token Minting Section */}
                   <div className="p-6 bg-gray-900 border border-gray-800 rounded-lg">
-                    <h3 className="text-xl font-bold text-white mb-2">Token Minting</h3>
+                    <h3 className="text-xl font-bold text-white mb-2">{t('dex.admin.tokenMinting')}</h3>
                     <p className="text-gray-400 mb-6">
-                      Mint wrapped tokens for testing and liquidity provision
+                      {t('dex.admin.tokenMintingDesc')}
                     </p>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                       <button
@@ -143,62 +145,62 @@ export const DEXDashboard: React.FC = () => {
                         className="flex items-center justify-center gap-2 px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium"
                       >
                         <img src="/tokens/USDT.png" alt="USDT" className="w-5 h-5 rounded-full" />
-                        Mint wUSDT
+                        {t('dex.admin.mintToken', { symbol: 'wUSDT' })}
                       </button>
                       <button
                         onClick={() => setMintModalAsset(MINTABLE_ASSETS.wDOT)}
                         className="flex items-center justify-center gap-2 px-4 py-3 bg-pink-600 hover:bg-pink-700 text-white rounded-lg transition-colors font-medium"
                       >
                         <img src="/tokens/DOT.png" alt="DOT" className="w-5 h-5 rounded-full" />
-                        Mint wDOT
+                        {t('dex.admin.mintToken', { symbol: 'wDOT' })}
                       </button>
                       <button
                         onClick={() => setMintModalAsset(MINTABLE_ASSETS.wETH)}
                         className="flex items-center justify-center gap-2 px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors font-medium"
                       >
                         <img src="/tokens/ETH.png" alt="ETH" className="w-5 h-5 rounded-full" />
-                        Mint wETH
+                        {t('dex.admin.mintToken', { symbol: 'wETH' })}
                       </button>
                       <button
                         onClick={() => setMintModalAsset(MINTABLE_ASSETS.wBTC)}
                         className="flex items-center justify-center gap-2 px-4 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors font-medium"
                       >
                         <img src="/tokens/BTC.png" alt="BTC" className="w-5 h-5 rounded-full" />
-                        Mint wBTC
+                        {t('dex.admin.mintToken', { symbol: 'wBTC' })}
                       </button>
                     </div>
                   </div>
 
                   <div className="p-6 bg-gray-900 border border-purple-900/30 rounded-lg">
-                    <h3 className="text-xl font-bold text-white mb-2">XCM Configuration Wizard</h3>
+                    <h3 className="text-xl font-bold text-white mb-2">{t('dex.admin.xcmWizard')}</h3>
                     <p className="text-gray-400 mb-6">
-                      Complete 6-step parachain setup: Reserve ParaId, generate artifacts, register parachain, open HRMP channels, register foreign assets, and test XCM transfers.
+                      {t('dex.admin.xcmWizardDesc')}
                     </p>
                     <button
                       onClick={() => setShowXcmBridgeModal(true)}
                       className="w-full px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors font-medium"
                     >
-                      Open XCM Configuration Wizard
+                      {t('dex.admin.openXcmWizard')}
                     </button>
                   </div>
 
                   <div className="p-6 bg-gray-900 border border-gray-800 rounded-lg">
-                    <h3 className="text-xl font-bold text-white mb-2">Pool Management</h3>
+                    <h3 className="text-xl font-bold text-white mb-2">{t('dex.admin.poolManagement')}</h3>
                     <p className="text-gray-400 mb-6">
-                      Create new liquidity pools for token pairs on PezkuwiChain
+                      {t('dex.admin.poolManagementDesc')}
                     </p>
                     <button
                       onClick={handleCreatePool}
                       className="w-full px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium"
                     >
-                      Create New Pool
+                      {t('dex.admin.createNewPool')}
                     </button>
                   </div>
 
                   <div className="p-6 bg-gray-900 border border-gray-800 rounded-lg">
-                    <h3 className="text-xl font-bold text-white mb-2">Pool Statistics</h3>
+                    <h3 className="text-xl font-bold text-white mb-2">{t('dex.admin.poolStatistics')}</h3>
                     <p className="text-gray-400 text-sm">
-                      View detailed pool statistics in the Pools tab
+                      {t('dex.admin.poolStatsDesc')}
                     </p>
                   </div>
                 </div>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X, Lock, Unlock, Gift, AlertCircle, Loader2, Info } from 'lucide-react';
 import { web3FromAddress } from '@pezkuwi/extension-dapp';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
@@ -31,6 +32,7 @@ const LP_TOKEN_NAMES: Record<number, string> = {
 
 export const LPStakingModal: React.FC<LPStakingModalProps> = ({ isOpen, onClose }) => {
   const { assetHubApi, selectedAccount, isAssetHubReady } = usePezkuwi();
+  const { t } = useTranslation();
   const [pools, setPools] = useState<StakingPool[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -114,7 +116,7 @@ export const LPStakingModal: React.FC<LPStakingModalProps> = ({ isOpen, onClose 
         }
       } catch (err) {
         console.error('Error fetching staking pools:', err);
-        setError('Failed to fetch staking pools');
+        setError(t('lpStaking.fetchError'));
       } finally {
         setIsLoading(false);
       }
@@ -165,10 +167,10 @@ export const LPStakingModal: React.FC<LPStakingModalProps> = ({ isOpen, onClose 
         );
       });
 
-      setSuccess(`Successfully staked ${stakeAmount} ${pool.stakedAsset}!`);
+      setSuccess(t('lpStaking.stakeSuccess', { amount: stakeAmount, asset: pool.stakedAsset }));
       setStakeAmount('');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to stake');
+      setError(err instanceof Error ? err.message : t('lpStaking.stakeFailed'));
     } finally {
       setIsProcessing(false);
     }
@@ -211,10 +213,10 @@ export const LPStakingModal: React.FC<LPStakingModalProps> = ({ isOpen, onClose 
         );
       });
 
-      setSuccess(`Successfully unstaked ${unstakeAmount} ${pool.stakedAsset}!`);
+      setSuccess(t('lpStaking.unstakeSuccess', { amount: unstakeAmount, asset: pool.stakedAsset }));
       setUnstakeAmount('');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to unstake');
+      setError(err instanceof Error ? err.message : t('lpStaking.unstakeFailed'));
     } finally {
       setIsProcessing(false);
     }
@@ -252,9 +254,9 @@ export const LPStakingModal: React.FC<LPStakingModalProps> = ({ isOpen, onClose 
         );
       });
 
-      setSuccess('Successfully harvested rewards!');
+      setSuccess(t('lpStaking.harvestSuccess'));
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to harvest rewards');
+      setError(err instanceof Error ? err.message : t('lpStaking.harvestFailed'));
     } finally {
       setIsProcessing(false);
     }
@@ -268,7 +270,7 @@ export const LPStakingModal: React.FC<LPStakingModalProps> = ({ isOpen, onClose 
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-gray-900 rounded-lg max-w-lg w-full p-6 border border-gray-700 max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-white">LP Staking</h2>
+          <h2 className="text-2xl font-bold text-white">{t('lpStaking.title')}</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-white">
             <X className="w-6 h-6" />
           </button>
@@ -290,17 +292,17 @@ export const LPStakingModal: React.FC<LPStakingModalProps> = ({ isOpen, onClose 
         {isLoading ? (
           <div className="text-center py-8">
             <Loader2 className="w-8 h-8 animate-spin mx-auto text-cyan-400" />
-            <p className="text-gray-400 mt-2">Loading staking pools...</p>
+            <p className="text-gray-400 mt-2">{t('lpStaking.loading')}</p>
           </div>
         ) : pools.length === 0 ? (
           <Alert className="bg-yellow-900/20 border-yellow-500">
             <Info className="h-4 w-4" />
-            <AlertDescription>No staking pools available.</AlertDescription>
+            <AlertDescription>{t('lpStaking.noPools')}</AlertDescription>
           </Alert>
         ) : (
           <>
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-300 mb-2">Select Pool</label>
+              <label className="block text-sm font-medium text-gray-300 mb-2">{t('lpStaking.selectPool')}</label>
               <select
                 value={selectedPool ?? ''}
                 onChange={(e) => setSelectedPool(parseInt(e.target.value))}
@@ -317,19 +319,19 @@ export const LPStakingModal: React.FC<LPStakingModalProps> = ({ isOpen, onClose 
             {currentPool && (
               <div className="bg-gray-800/50 rounded-lg p-4 mb-6 space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">Total Staked:</span>
+                  <span className="text-gray-400">{t('lpStaking.totalStaked')}</span>
                   <span className="text-white">{formatAmount(currentPool.totalStaked)} LP</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">Your Staked:</span>
+                  <span className="text-gray-400">{t('lpStaking.yourStaked')}</span>
                   <span className="text-white">{formatAmount(currentPool.userStaked)} LP</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">Your LP Balance:</span>
+                  <span className="text-gray-400">{t('lpStaking.yourLpBalance')}</span>
                   <span className="text-white">{formatAmount(currentPool.lpBalance)} LP</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">Reward Rate:</span>
+                  <span className="text-gray-400">{t('lpStaking.rewardRate')}</span>
                   <span className="text-cyan-400">{formatAmount(currentPool.rewardRatePerBlock)} PEZ/block</span>
                 </div>
               </div>
@@ -339,22 +341,22 @@ export const LPStakingModal: React.FC<LPStakingModalProps> = ({ isOpen, onClose 
               <TabsList className="w-full mb-4">
                 <TabsTrigger value="stake" className="flex-1">
                   <Lock className="w-4 h-4 mr-2" />
-                  Stake
+                  {t('lpStaking.tabStake')}
                 </TabsTrigger>
                 <TabsTrigger value="unstake" className="flex-1">
                   <Unlock className="w-4 h-4 mr-2" />
-                  Unstake
+                  {t('lpStaking.tabUnstake')}
                 </TabsTrigger>
                 <TabsTrigger value="harvest" className="flex-1">
                   <Gift className="w-4 h-4 mr-2" />
-                  Harvest
+                  {t('lpStaking.tabHarvest')}
                 </TabsTrigger>
               </TabsList>
 
               <TabsContent value="stake">
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Amount to Stake</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">{t('lpStaking.amountToStake')}</label>
                     <div className="relative">
                       <input
                         type="number"
@@ -378,7 +380,7 @@ export const LPStakingModal: React.FC<LPStakingModalProps> = ({ isOpen, onClose 
                     className="w-full bg-gradient-to-r from-green-600 to-cyan-600 h-12"
                   >
                     {isProcessing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Lock className="w-4 h-4 mr-2" />}
-                    {isProcessing ? 'Staking...' : 'Stake LP Tokens'}
+                    {isProcessing ? t('lpStaking.staking') : t('lpStaking.stakeLp')}
                   </Button>
                 </div>
               </TabsContent>
@@ -386,7 +388,7 @@ export const LPStakingModal: React.FC<LPStakingModalProps> = ({ isOpen, onClose 
               <TabsContent value="unstake">
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Amount to Unstake</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">{t('lpStaking.amountToUnstake')}</label>
                     <div className="relative">
                       <input
                         type="number"
@@ -410,7 +412,7 @@ export const LPStakingModal: React.FC<LPStakingModalProps> = ({ isOpen, onClose 
                     className="w-full bg-gradient-to-r from-orange-600 to-red-600 h-12"
                   >
                     {isProcessing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Unlock className="w-4 h-4 mr-2" />}
-                    {isProcessing ? 'Unstaking...' : 'Unstake LP Tokens'}
+                    {isProcessing ? t('lpStaking.unstaking') : t('lpStaking.unstakeLp')}
                   </Button>
                 </div>
               </TabsContent>
@@ -418,7 +420,7 @@ export const LPStakingModal: React.FC<LPStakingModalProps> = ({ isOpen, onClose 
               <TabsContent value="harvest">
                 <div className="space-y-4">
                   <div className="bg-gray-800/50 rounded-lg p-4 text-center">
-                    <p className="text-gray-400 mb-2">Pending Rewards</p>
+                    <p className="text-gray-400 mb-2">{t('lpStaking.pendingRewards')}</p>
                     <p className="text-3xl font-bold text-cyan-400">
                       {currentPool ? formatAmount(currentPool.pendingRewards) : '0'} PEZ
                     </p>
@@ -429,7 +431,7 @@ export const LPStakingModal: React.FC<LPStakingModalProps> = ({ isOpen, onClose 
                     className="w-full bg-gradient-to-r from-purple-600 to-pink-600 h-12"
                   >
                     {isProcessing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Gift className="w-4 h-4 mr-2" />}
-                    {isProcessing ? 'Harvesting...' : 'Harvest Rewards'}
+                    {isProcessing ? t('lpStaking.harvesting') : t('lpStaking.harvestRewards')}
                   </Button>
                 </div>
               </TabsContent>

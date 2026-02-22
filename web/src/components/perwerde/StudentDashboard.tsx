@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -15,11 +16,12 @@ interface StudentDashboardProps {
 }
 
 export function StudentDashboard({ enrollments, loading, onCourseCompleted }: StudentDashboardProps) {
+  const { t } = useTranslation();
   const { api, selectedAccount } = usePezkuwi();
 
   const handleComplete = async (courseId: number) => {
     if (!api || !selectedAccount) {
-      toast.error('Please connect your wallet first');
+      toast.error(t('studentDashboard.connectWallet'));
       return;
     }
 
@@ -34,7 +36,7 @@ export function StudentDashboard({ enrollments, loading, onCourseCompleted }: St
   };
 
   if (loading) {
-    return <LoadingState message="Loading your dashboard..." />;
+    return <LoadingState message={t('studentDashboard.loading')} />;
   }
 
   const completedCourses = enrollments.filter(e => e.is_completed).length;
@@ -51,7 +53,7 @@ export function StudentDashboard({ enrollments, loading, onCourseCompleted }: St
               </div>
               <div>
                 <div className="text-2xl font-bold text-white">{enrollments.length}</div>
-                <div className="text-sm text-gray-400">Enrolled Courses</div>
+                <div className="text-sm text-gray-400">{t('studentDashboard.enrolledCourses')}</div>
               </div>
             </div>
           </CardContent>
@@ -64,7 +66,7 @@ export function StudentDashboard({ enrollments, loading, onCourseCompleted }: St
               </div>
               <div>
                 <div className="text-2xl font-bold text-white">{completedCourses}</div>
-                <div className="text-sm text-gray-400">Completed</div>
+                <div className="text-sm text-gray-400">{t('studentDashboard.completed')}</div>
               </div>
             </div>
           </CardContent>
@@ -77,7 +79,7 @@ export function StudentDashboard({ enrollments, loading, onCourseCompleted }: St
               </div>
               <div>
                 <div className="text-2xl font-bold text-white">{totalPoints}</div>
-                <div className="text-sm text-gray-400">Total Points</div>
+                <div className="text-sm text-gray-400">{t('studentDashboard.totalPoints')}</div>
               </div>
             </div>
           </CardContent>
@@ -86,28 +88,28 @@ export function StudentDashboard({ enrollments, loading, onCourseCompleted }: St
 
       <Card className="bg-gray-900 border-gray-800">
         <CardHeader>
-          <CardTitle className="text-white">My Courses</CardTitle>
+          <CardTitle className="text-white">{t('studentDashboard.myCourses')}</CardTitle>
         </CardHeader>
         <CardContent>
           {enrollments.length === 0 ? (
-            <p className="text-gray-400">You are not enrolled in any courses yet.</p>
+            <p className="text-gray-400">{t('studentDashboard.notEnrolled')}</p>
           ) : (
             <div className="space-y-4">
               {enrollments.map(enrollment => (
                 <div key={enrollment.id} className="p-4 bg-gray-800 rounded-lg">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="font-bold text-white">Course #{enrollment.course_id}</h4>
+                      <h4 className="font-bold text-white">{t('studentDashboard.courseNum', { id: enrollment.course_id })}</h4>
                       <p className="text-sm text-gray-400">
-                        Enrolled on: {new Date(enrollment.enrolled_at).toLocaleDateString()}
+                        {t('studentDashboard.enrolledOn')}: {new Date(enrollment.enrolled_at).toLocaleDateString()}
                       </p>
                     </div>
                     <div>
                       {enrollment.is_completed ? (
-                        <Badge className="bg-green-500/10 text-green-400">Completed</Badge>
+                        <Badge className="bg-green-500/10 text-green-400">{t('studentDashboard.completed')}</Badge>
                       ) : (
                         <Button size="sm" onClick={() => handleComplete(enrollment.course_id)}>
-                          Mark as Complete
+                          {t('studentDashboard.markComplete')}
                         </Button>
                       )}
                     </div>

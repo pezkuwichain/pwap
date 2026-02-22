@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
@@ -16,6 +17,7 @@ import {  User, Shield, Bell, Palette, ArrowLeft } from 'lucide-react';
 import { TwoFactorSetup } from '@/components/auth/TwoFactorSetup';
 export default function ProfileSettings() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
@@ -217,36 +219,36 @@ export default function ProfileSettings() {
       >
         <ArrowLeft className="w-5 h-5" />
       </button>
-      <h1 className="text-3xl font-bold mb-8">Profile Settings</h1>
+      <h1 className="text-3xl font-bold mb-8">{t('profileSettings.title')}</h1>
 
       <Tabs defaultValue="profile" className="space-y-4">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="profile">
             <User className="mr-2 h-4 w-4" />
-            Profile
+            {t('profileSettings.profileTab')}
           </TabsTrigger>
           <TabsTrigger value="notifications">
             <Bell className="mr-2 h-4 w-4" />
-            Notifications
+            {t('profileSettings.notificationsTab')}
           </TabsTrigger>
           <TabsTrigger value="security">
             <Shield className="mr-2 h-4 w-4" />
-            Security
+            {t('profileSettings.securityTab')}
           </TabsTrigger>
           <TabsTrigger value="preferences">
             <Palette className="mr-2 h-4 w-4" />
-            Preferences
+            {t('profileSettings.preferencesTab')}
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile">
           <Card>
             <CardHeader>
-              <CardTitle>Profile Information</CardTitle>
+              <CardTitle>{t('profileSettings.profileInfo')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label>Username</Label>
+                <Label>{t('profileSettings.username')}</Label>
                 <Input
                   value={profile.username}
                   onChange={(e) => setProfile({ ...profile, username: e.target.value })}
@@ -254,7 +256,7 @@ export default function ProfileSettings() {
                 />
               </div>
               <div>
-                <Label>Full Name</Label>
+                <Label>{t('profileSettings.fullName')}</Label>
                 <Input
                   value={profile.full_name}
                   onChange={(e) => setProfile({ ...profile, full_name: e.target.value })}
@@ -262,7 +264,7 @@ export default function ProfileSettings() {
                 />
               </div>
               <div>
-                <Label>Bio</Label>
+                <Label>{t('profileSettings.bio')}</Label>
                 <Textarea
                   value={profile.bio}
                   onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
@@ -271,7 +273,7 @@ export default function ProfileSettings() {
                 />
               </div>
               <div>
-                <Label>Phone Number</Label>
+                <Label>{t('profileSettings.phoneNumber')}</Label>
                 <Input
                   value={profile.phone_number}
                   onChange={(e) => setProfile({ ...profile, phone_number: e.target.value })}
@@ -279,7 +281,7 @@ export default function ProfileSettings() {
                 />
               </div>
               <div>
-                <Label>Location</Label>
+                <Label>{t('profileSettings.location')}</Label>
                 <Input
                   value={profile.location}
                   onChange={(e) => setProfile({ ...profile, location: e.target.value })}
@@ -287,7 +289,7 @@ export default function ProfileSettings() {
                 />
               </div>
               <div>
-                <Label>Website</Label>
+                <Label>{t('profileSettings.website')}</Label>
                 <Input
                   value={profile.website}
                   onChange={(e) => setProfile({ ...profile, website: e.target.value })}
@@ -295,7 +297,7 @@ export default function ProfileSettings() {
                 />
               </div>
               <Button onClick={updateProfile} disabled={loading}>
-                Save Changes
+                {t('profileSettings.saveChanges')}
               </Button>
             </CardContent>
           </Card>
@@ -304,53 +306,53 @@ export default function ProfileSettings() {
         <TabsContent value="notifications">
           <Card>
             <CardHeader>
-              <CardTitle>Notification Preferences</CardTitle>
+              <CardTitle>{t('profileSettings.notifPreferences')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <Label>Email Notifications</Label>
+                  <Label>{t('profileSettings.emailNotif')}</Label>
                   <p className="text-sm text-muted-foreground">
-                    Receive notifications via email
+                    {t('profileSettings.emailNotifDesc')}
                   </p>
                 </div>
                 <Switch
                   checked={profile.notifications_email}
-                  onCheckedChange={(checked) => 
+                  onCheckedChange={(checked) =>
                     setProfile({ ...profile, notifications_email: checked })
                   }
                 />
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <Label>Push Notifications</Label>
+                  <Label>{t('profileSettings.pushNotif')}</Label>
                   <p className="text-sm text-muted-foreground">
-                    Receive push notifications in browser
+                    {t('profileSettings.pushNotifDesc')}
                   </p>
                 </div>
                 <Switch
                   checked={profile.notifications_push}
-                  onCheckedChange={(checked) => 
+                  onCheckedChange={(checked) =>
                     setProfile({ ...profile, notifications_push: checked })
                   }
                 />
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <Label>SMS Notifications</Label>
+                  <Label>{t('profileSettings.smsNotif')}</Label>
                   <p className="text-sm text-muted-foreground">
-                    Receive notifications via SMS
+                    {t('profileSettings.smsNotifDesc')}
                   </p>
                 </div>
                 <Switch
                   checked={profile.notifications_sms}
-                  onCheckedChange={(checked) => 
+                  onCheckedChange={(checked) =>
                     setProfile({ ...profile, notifications_sms: checked })
                   }
                 />
               </div>
               <Button onClick={updateNotificationSettings} disabled={loading}>
-                Save Preferences
+                {t('profileSettings.savePreferences')}
               </Button>
             </CardContent>
           </Card>
@@ -361,14 +363,14 @@ export default function ProfileSettings() {
             
             <Card>
               <CardHeader>
-                <CardTitle>Password Security</CardTitle>
+                <CardTitle>{t('profileSettings.passwordSecurity')}</CardTitle>
                 <CardDescription>
-                  Manage your password settings
+                  {t('profileSettings.passwordSecurityDesc')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <Button variant="outline" onClick={changePassword}>
-                  Change Password
+                  {t('profileSettings.changePassword')}
                 </Button>
               </CardContent>
             </Card>
@@ -378,11 +380,11 @@ export default function ProfileSettings() {
         <TabsContent value="preferences">
           <Card>
             <CardHeader>
-              <CardTitle>App Preferences</CardTitle>
+              <CardTitle>{t('profileSettings.appPreferences')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label>Language</Label>
+                <Label>{t('profileSettings.language')}</Label>
                 <Select
                   value={profile.language}
                   onValueChange={(value) => setProfile({ ...profile, language: value })}
@@ -401,7 +403,7 @@ export default function ProfileSettings() {
                 </Select>
               </div>
               <div>
-                <Label>Theme</Label>
+                <Label>{t('profileSettings.theme')}</Label>
                 <Select
                   value={profile.theme}
                   onValueChange={(value) => setProfile({ ...profile, theme: value })}
@@ -410,14 +412,14 @@ export default function ProfileSettings() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="light">Light</SelectItem>
-                    <SelectItem value="dark">Dark</SelectItem>
-                    <SelectItem value="system">System</SelectItem>
+                    <SelectItem value="light">{t('profileSettings.themeLight')}</SelectItem>
+                    <SelectItem value="dark">{t('profileSettings.themeDark')}</SelectItem>
+                    <SelectItem value="system">{t('profileSettings.themeSystem')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <Button onClick={updateProfile} disabled={loading}>
-                Save Preferences
+                {t('profileSettings.savePreferences')}
               </Button>
             </CardContent>
           </Card>

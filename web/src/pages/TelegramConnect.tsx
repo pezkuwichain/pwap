@@ -7,14 +7,16 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { Loader2, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 type Status = 'loading' | 'connecting' | 'success' | 'error';
 
 export default function TelegramConnect() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [status, setStatus] = useState<Status>('loading');
-  const [message, setMessage] = useState('Girêdan tê kirin...');
+  const [message, setMessage] = useState(t('telegramConnect.connecting'));
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -29,7 +31,7 @@ export default function TelegramConnect() {
         // Validate params
         if (!telegramId || from !== 'miniapp') {
           setStatus('error');
-          setError('Parametreyên nederbasdar. Ji kerema xwe ji mini app-ê dest pê bikin.');
+          setError(t('telegramConnect.invalidParams'));
           return;
         }
 
@@ -39,13 +41,13 @@ export default function TelegramConnect() {
           const now = Date.now();
           if (now - ts > 5 * 60 * 1000) {
             setStatus('error');
-            setError('Lînk qediya. Ji kerema xwe dîsa biceribînin.');
+            setError(t('telegramConnect.linkExpired'));
             return;
           }
         }
 
         setStatus('connecting');
-        setMessage('Bikarhêner tê pejirandin...');
+        setMessage(t('telegramConnect.authenticating'));
 
         // Find user by telegram_id
         const { data: userData, error: userError } = await supabase
@@ -56,7 +58,7 @@ export default function TelegramConnect() {
 
         if (userError || !userData) {
           setStatus('error');
-          setError('Bikarhêner nehat dîtin. Ji kerema xwe berî dest bi P2P-ê bikin, di mini app-ê de cîzdanê xwe ava bikin.');
+          setError(t('telegramConnect.userNotFound'));
           return;
         }
 
@@ -78,7 +80,7 @@ export default function TelegramConnect() {
         if (authData?.session) {
           // Already logged in, redirect to P2P
           setStatus('success');
-          setMessage('Serketî! Tê veguheztin...');
+          setMessage(t('telegramConnect.success'));
           setTimeout(() => navigate('/p2p'), 1000);
           return;
         }
@@ -109,20 +111,20 @@ export default function TelegramConnect() {
           }));
 
           setStatus('success');
-          setMessage('Serketî! Tê veguheztin...');
+          setMessage(t('telegramConnect.success'));
           setTimeout(() => navigate('/p2p'), 1000);
           return;
         }
 
         // Success - redirect to P2P
         setStatus('success');
-        setMessage('Serketî! Tê veguheztin...');
+        setMessage(t('telegramConnect.success'));
         setTimeout(() => navigate('/p2p'), 1000);
 
       } catch (err) {
         console.error('Telegram connect error:', err);
         setStatus('error');
-        setError('Xeletî di girêdanê de. Ji kerema xwe dîsa biceribînin.');
+        setError(t('telegramConnect.connectionError'));
       }
     };
 
@@ -145,7 +147,7 @@ export default function TelegramConnect() {
 
         {/* Title */}
         <h1 className="text-xl font-semibold text-white mb-2">
-          {status === 'error' ? 'Xeletî' : 'Telegram Connect'}
+          {status === 'error' ? t('telegramConnect.errorTitle') : t('telegramConnect.title')}
         </h1>
 
         {/* Status Message */}
@@ -160,10 +162,10 @@ export default function TelegramConnect() {
               onClick={() => window.close()}
               className="w-full py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-xl font-medium transition-colors"
             >
-              Pencereyê Bigire
+              {t('telegramConnect.closeWindow')}
             </button>
             <p className="text-xs text-gray-500">
-              Ji kerema xwe vegerin mini app-ê û dîsa biceribînin
+              {t('telegramConnect.returnToMiniApp')}
             </p>
           </div>
         )}
@@ -173,7 +175,7 @@ export default function TelegramConnect() {
           <div className="mt-6">
             <div className="flex items-center justify-center gap-2 text-green-400">
               <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-              <span className="text-sm">P2P Platform tê vekirin...</span>
+              <span className="text-sm">{t('telegramConnect.openingP2P')}</span>
             </div>
           </div>
         )}

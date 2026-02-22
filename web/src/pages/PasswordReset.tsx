@@ -7,11 +7,13 @@ import { Label } from '@/components/ui/label';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, ArrowLeft } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export default function PasswordReset() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -30,15 +32,15 @@ export default function PasswordReset() {
       if (error) throw error;
 
       toast({
-        title: "Reset Email Sent",
-        description: "If the email exists, you'll receive a password reset link",
+        title: t('passwordReset.resetEmailSent'),
+        description: t('passwordReset.resetEmailSentDesc'),
       });
       
       setEmail('');
     } catch (error) {
       toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to send reset email",
+        title: t('common.error'),
+        description: error instanceof Error ? error.message : t('passwordReset.failedToSend'),
         variant: "destructive"
       });
     } finally {
@@ -51,8 +53,8 @@ export default function PasswordReset() {
     
     if (password !== confirmPassword) {
       toast({
-        title: "Error",
-        description: "Passwords do not match",
+        title: t('common.error'),
+        description: t('passwordReset.passwordMismatch'),
         variant: "destructive"
       });
       return;
@@ -60,8 +62,8 @@ export default function PasswordReset() {
 
     if (password.length < 8) {
       toast({
-        title: "Error",
-        description: "Password must be at least 8 characters",
+        title: t('common.error'),
+        description: t('passwordReset.passwordTooShort'),
         variant: "destructive"
       });
       return;
@@ -77,15 +79,15 @@ export default function PasswordReset() {
       if (error) throw error;
 
       toast({
-        title: "Password Reset Successful",
-        description: "Your password has been updated",
+        title: t('passwordReset.success'),
+        description: t('passwordReset.successDesc'),
       });
       
       navigate('/login');
     } catch (error) {
       toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to reset password",
+        title: t('common.error'),
+        description: error instanceof Error ? error.message : t('passwordReset.failedToReset'),
         variant: "destructive"
       });
     } finally {
@@ -103,22 +105,22 @@ export default function PasswordReset() {
           <ArrowLeft className="w-5 h-5" />
         </button>
         <CardHeader>
-          <CardTitle>{token ? 'Reset Password' : 'Forgot Password'}</CardTitle>
+          <CardTitle>{token ? t('passwordReset.resetPassword') : t('passwordReset.forgotPassword')}</CardTitle>
           <CardDescription>
-            {token 
-              ? 'Enter your new password below' 
-              : 'Enter your email to receive a password reset link'}
+            {token
+              ? t('passwordReset.enterNewPassword')
+              : t('passwordReset.enterEmail')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           {!token ? (
             <form onSubmit={handleRequestReset} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t('passwordReset.email')}</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="Enter your email"
+                  placeholder={t('passwordReset.emailPlaceholder')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -128,7 +130,7 @@ export default function PasswordReset() {
               
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Send Reset Link
+                {t('passwordReset.sendResetLink')}
               </Button>
               
               <div className="text-center text-sm">
@@ -138,18 +140,18 @@ export default function PasswordReset() {
                   onClick={() => navigate('/login')}
                   className="text-primary"
                 >
-                  Back to Login
+                  {t('passwordReset.backToLogin')}
                 </Button>
               </div>
             </form>
           ) : (
             <form onSubmit={handleResetPassword} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="password">New Password</Label>
+                <Label htmlFor="password">{t('passwordReset.newPassword')}</Label>
                 <Input
                   id="password"
                   type="password"
-                  placeholder="Enter new password"
+                  placeholder={t('passwordReset.newPasswordPlaceholder')}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -159,11 +161,11 @@ export default function PasswordReset() {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <Label htmlFor="confirmPassword">{t('passwordReset.confirmPassword')}</Label>
                 <Input
                   id="confirmPassword"
                   type="password"
-                  placeholder="Confirm new password"
+                  placeholder={t('passwordReset.confirmPlaceholder')}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
@@ -174,7 +176,7 @@ export default function PasswordReset() {
               
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Reset Password
+                {t('passwordReset.resetBtn')}
               </Button>
               
               <div className="text-center text-sm">
@@ -184,7 +186,7 @@ export default function PasswordReset() {
                   onClick={() => navigate('/login')}
                   className="text-primary"
                 >
-                  Back to Login
+                  {t('passwordReset.backToLogin')}
                 </Button>
               </div>
             </form>

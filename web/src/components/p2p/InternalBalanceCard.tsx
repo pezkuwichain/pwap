@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -19,6 +20,7 @@ interface InternalBalanceCardProps {
 }
 
 export function InternalBalanceCard({ onDeposit, onWithdraw }: InternalBalanceCardProps) {
+  const { t } = useTranslation();
   const [balances, setBalances] = useState<InternalBalance[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -73,7 +75,7 @@ export function InternalBalanceCard({ onDeposit, onWithdraw }: InternalBalanceCa
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-lg">
             <Wallet className="h-5 w-5" />
-            P2P Internal Balance
+            {t('p2pBalance.title')}
           </CardTitle>
           <Button
             variant="ghost"
@@ -85,15 +87,15 @@ export function InternalBalanceCard({ onDeposit, onWithdraw }: InternalBalanceCa
           </Button>
         </div>
         <p className="text-xs text-muted-foreground">
-          Internal balance for P2P trading. Deposit to start selling.
+          {t('p2pBalance.subtitle')}
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
         {balances.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <Wallet className="h-12 w-12 mx-auto mb-3 opacity-50" />
-            <p className="text-sm">No balance yet</p>
-            <p className="text-xs">Deposit crypto to start P2P trading</p>
+            <p className="text-sm">{t('p2pBalance.noBalance')}</p>
+            <p className="text-xs">{t('p2pBalance.depositToStart')}</p>
           </div>
         ) : (
           balances.map((balance) => (
@@ -111,7 +113,7 @@ export function InternalBalanceCard({ onDeposit, onWithdraw }: InternalBalanceCa
                   <span className="font-semibold">{balance.token}</span>
                 </div>
                 <Badge variant="outline" className="text-xs">
-                  Total: {formatBalance(balance.total_balance)}
+                  {t('p2pBalance.total', { amount: formatBalance(balance.total_balance) })}
                 </Badge>
               </div>
 
@@ -119,7 +121,7 @@ export function InternalBalanceCard({ onDeposit, onWithdraw }: InternalBalanceCa
                 <div className="flex items-center gap-2">
                   <Unlock className="h-4 w-4 text-green-500" />
                   <div>
-                    <p className="text-muted-foreground text-xs">Available</p>
+                    <p className="text-muted-foreground text-xs">{t('p2pBalance.available')}</p>
                     <p className="font-medium text-green-600">
                       {formatBalance(balance.available_balance)}
                     </p>
@@ -128,7 +130,7 @@ export function InternalBalanceCard({ onDeposit, onWithdraw }: InternalBalanceCa
                 <div className="flex items-center gap-2">
                   <Lock className="h-4 w-4 text-yellow-500" />
                   <div>
-                    <p className="text-muted-foreground text-xs">Locked (Escrow)</p>
+                    <p className="text-muted-foreground text-xs">{t('p2pBalance.lockedEscrow')}</p>
                     <p className="font-medium text-yellow-600">
                       {formatBalance(balance.locked_balance)}
                     </p>
@@ -138,11 +140,11 @@ export function InternalBalanceCard({ onDeposit, onWithdraw }: InternalBalanceCa
 
               <div className="mt-3 pt-3 border-t grid grid-cols-2 gap-2 text-xs text-muted-foreground">
                 <div>
-                  <span>Total Deposited: </span>
+                  <span>{t('p2pBalance.totalDeposited')}</span>
                   <span className="text-foreground">{formatBalance(balance.total_deposited, 2)}</span>
                 </div>
                 <div>
-                  <span>Total Withdrawn: </span>
+                  <span>{t('p2pBalance.totalWithdrawn')}</span>
                   <span className="text-foreground">{formatBalance(balance.total_withdrawn, 2)}</span>
                 </div>
               </div>
@@ -158,7 +160,7 @@ export function InternalBalanceCard({ onDeposit, onWithdraw }: InternalBalanceCa
             onClick={onDeposit}
           >
             <ArrowDownToLine className="h-4 w-4 mr-2" />
-            Deposit
+            {t('p2pBalance.deposit')}
           </Button>
           <Button
             variant="outline"
@@ -167,7 +169,7 @@ export function InternalBalanceCard({ onDeposit, onWithdraw }: InternalBalanceCa
             disabled={balances.every(b => b.available_balance <= 0)}
           >
             <ArrowUpFromLine className="h-4 w-4 mr-2" />
-            Withdraw
+            {t('p2pBalance.withdraw')}
           </Button>
         </div>
       </CardContent>
