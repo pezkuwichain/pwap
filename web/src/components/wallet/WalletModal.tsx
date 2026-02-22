@@ -148,7 +148,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
 
             <div className="flex gap-3">
               <a
-                href="https://chrome.google.com/webstore/detail/pezkuwi-wallet/fbnboicjjeebjhgnapneaeccpgjcdibn"
+                href="https://chromewebstore.google.com/search/pezkuwi%7B.js%7D%20extension?hl=en-GB&utm_source=ext_sidebar"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex-1"
@@ -332,46 +332,57 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                 </div>
               </div>
             ) : (
-              // No accounts, show connect buttons
-              <div className="space-y-4">
-                <Button
-                  onClick={handleConnect}
-                  className="w-full bg-gradient-to-r from-purple-600 to-cyan-400 hover:from-purple-700 hover:to-cyan-500"
-                >
-                  <Wallet className="mr-2 h-4 w-4" />
-                  {t('walletModal.connectPezkuwi')}
-                </Button>
-
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-gray-700" />
+              // No accounts, show two connection options
+              <div className="space-y-3">
+                {/* Option 1: Browser Extension */}
+                <div className="rounded-lg border border-gray-700 bg-gray-800/30 p-4 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Chrome className="h-5 w-5 text-green-400" />
+                    <div>
+                      <div className="font-medium text-sm">{t('walletModal.extensionTitle')}</div>
+                      <div className="text-xs text-gray-400">{t('walletModal.extensionDesc')}</div>
+                    </div>
                   </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-gray-500">
-                      {t('walletModal.or', 'or')}
-                    </span>
-                  </div>
-                </div>
-
-                <Button
-                  onClick={() => setShowWCModal(true)}
-                  variant="outline"
-                  className="w-full border-purple-500/30 hover:border-purple-500/60 hover:bg-purple-500/10"
-                >
-                  <Smartphone className="mr-2 h-4 w-4" />
-                  {t('walletModal.connectWC', 'Connect with pezWallet (Mobile)')}
-                </Button>
-
-                <div className="text-sm text-gray-400 text-center">
-                  {t('walletModal.noWallet')}{' '}
+                  <Button
+                    onClick={handleConnect}
+                    className="w-full bg-gradient-to-r from-purple-600 to-cyan-400 hover:from-purple-700 hover:to-cyan-500"
+                    size="sm"
+                  >
+                    <Wallet className="mr-2 h-4 w-4" />
+                    {t('walletModal.extensionConnect')}
+                  </Button>
                   <a
-                    href="https://chrome.google.com/webstore/detail/pezkuwi-wallet/fbnboicjjeebjhgnapneaeccpgjcdibn"
+                    href="https://chromewebstore.google.com/search/pezkuwi%7B.js%7D%20extension?hl=en-GB&utm_source=ext_sidebar"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-purple-400 hover:underline"
+                    className="flex items-center justify-center gap-1 text-xs text-gray-400 hover:text-purple-400 transition-colors"
                   >
-                    {t('walletModal.getFromStore')}
+                    <ExternalLink className="h-3 w-3" />
+                    {t('walletModal.extensionGet')}
                   </a>
+                </div>
+
+                {/* Option 2: Mobile Wallet */}
+                <div className="rounded-lg border border-gray-700 bg-gray-800/30 p-4 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Smartphone className="h-5 w-5 text-purple-400" />
+                    <div>
+                      <div className="font-medium text-sm">{t('walletModal.mobileTitle')}</div>
+                      <div className="text-xs text-gray-400">{t('walletModal.mobileDesc')}</div>
+                    </div>
+                  </div>
+                  <Button
+                    onClick={() => setShowWCModal(true)}
+                    variant="outline"
+                    className="w-full border-purple-500/30 hover:border-purple-500/60 hover:bg-purple-500/10"
+                    size="sm"
+                  >
+                    <Smartphone className="mr-2 h-4 w-4" />
+                    {t('walletModal.mobileConnect')}
+                  </Button>
+                  <div className="flex items-center justify-center gap-1 text-xs text-gray-400">
+                    {t('walletModal.mobileComingSoon')}
+                  </div>
                 </div>
               </div>
             )}

@@ -448,7 +448,7 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
           setError('Please authorize the connection in your Pezkuwi Wallet extension');
         } else {
           setError('Pezkuwi Wallet extension not found. Please install from Chrome Web Store.');
-          window.open('https://chrome.google.com/webstore/detail/pezkuwi-wallet/fbnboicjjeebjhgnapneaeccpgjcdibn', '_blank');
+          window.open('https://chromewebstore.google.com/search/pezkuwi%7B.js%7D%20extension?hl=en-GB&utm_source=ext_sidebar', '_blank');
         }
         return;
       }
