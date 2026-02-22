@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Smartphone, Loader2, CheckCircle, XCircle } from 'lucide-react';
+import { Smartphone, Loader2, CheckCircle, XCircle, ExternalLink } from 'lucide-react';
 import QRCode from 'qrcode';
 import {
   Dialog,
@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface WalletConnectModalProps {
   isOpen: boolean;
@@ -22,7 +23,9 @@ type ConnectionState = 'generating' | 'waiting' | 'connected' | 'error';
 export const WalletConnectModal: React.FC<WalletConnectModalProps> = ({ isOpen, onClose }) => {
   const { t } = useTranslation();
   const { connectWalletConnect, selectedAccount, wcPeerName } = usePezkuwi();
+  const isMobile = useIsMobile();
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
+  const [wcUri, setWcUri] = useState<string>('');
   const [connectionState, setConnectionState] = useState<ConnectionState>('generating');
   const [errorMsg, setErrorMsg] = useState<string>('');
 
@@ -32,24 +35,31 @@ export const WalletConnectModal: React.FC<WalletConnectModalProps> = ({ isOpen, 
 
     try {
       const uri = await connectWalletConnect();
+      setWcUri(uri);
 
-      // Generate QR code as data URL
-      const dataUrl = await QRCode.toDataURL(uri, {
-        width: 300,
-        margin: 2,
-        color: {
-          dark: '#000000',
-          light: '#ffffff',
-        },
-      });
-
-      setQrDataUrl(dataUrl);
-      setConnectionState('waiting');
+      if (isMobile) {
+        // Mobile: open pezWallet via deep link automatically
+        const deepLink = `pezkuwiwallet://wc?uri=${encodeURIComponent(uri)}`;
+        window.location.href = deepLink;
+        setConnectionState('waiting');
+      } else {
+        // Desktop: generate QR code
+        const dataUrl = await QRCode.toDataURL(uri, {
+          width: 300,
+          margin: 2,
+          color: {
+            dark: '#000000',
+            light: '#ffffff',
+          },
+        });
+        setQrDataUrl(dataUrl);
+        setConnectionState('waiting');
+      }
     } catch (err) {
       setConnectionState('error');
       setErrorMsg(err instanceof Error ? err.message : 'Connection failed');
     }
-  }, [connectWalletConnect]);
+  }, [connectWalletConnect, isMobile]);
 
   // Start connection when modal opens
   useEffect(() => {
@@ -59,6 +69,7 @@ export const WalletConnectModal: React.FC<WalletConnectModalProps> = ({ isOpen, 
 
     return () => {
       setQrDataUrl('');
+      setWcUri('');
       setConnectionState('generating');
     };
   }, [isOpen, startConnection]);
@@ -75,6 +86,12 @@ export const WalletConnectModal: React.FC<WalletConnectModalProps> = ({ isOpen, 
     return () => window.removeEventListener('walletconnect_connected', handleConnected);
   }, [onClose]);
 
+  const handleOpenPezWallet = () => {
+    if (wcUri) {
+      window.location.href = `pezkuwiwallet://wc?uri=${encodeURIComponent(wcUri)}`;
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
@@ -84,7 +101,9 @@ export const WalletConnectModal: React.FC<WalletConnectModalProps> = ({ isOpen, 
             WalletConnect
           </DialogTitle>
           <DialogDescription>
-            {t('walletModal.wcScanQR', 'Scan with pezWallet to connect')}
+            {isMobile
+              ? t('walletModal.wcOpenWallet', 'Connect with pezWallet app')
+              : t('walletModal.wcScanQR', 'Scan with pezWallet to connect')}
           </DialogDescription>
         </DialogHeader>
 
@@ -94,28 +113,59 @@ export const WalletConnectModal: React.FC<WalletConnectModalProps> = ({ isOpen, 
             <div className="flex flex-col items-center gap-3 py-8">
               <Loader2 className="h-8 w-8 animate-spin text-purple-400" />
               <p className="text-sm text-gray-400">
-                {t('walletModal.wcGenerating', 'Generating QR code...')}
+                {t('walletModal.wcGenerating', 'Generating connection...')}
               </p>
             </div>
           )}
 
-          {/* QR Code display - waiting for scan */}
-          {connectionState === 'waiting' && qrDataUrl && (
+          {/* Waiting state */}
+          {connectionState === 'waiting' && (
             <>
-              <div className="bg-white rounded-xl p-3">
-                <img
-                  src={qrDataUrl}
-                  alt="WalletConnect QR Code"
-                  className="w-[280px] h-[280px]"
-                />
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-400">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                {t('walletModal.wcWaiting', 'Waiting for wallet to connect...')}
-              </div>
-              <p className="text-xs text-gray-500 text-center max-w-[280px]">
-                {t('walletModal.wcInstructions', 'Open pezWallet app → Settings → WalletConnect → Scan QR code')}
-              </p>
+              {isMobile ? (
+                // Mobile: deep link button
+                <div className="flex flex-col items-center gap-4 py-4 w-full">
+                  <div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center">
+                    <Smartphone className="h-8 w-8 text-purple-400" />
+                  </div>
+                  <p className="text-sm text-gray-400 text-center">
+                    {t('walletModal.wcWaitingMobile', 'Approve the connection in pezWallet')}
+                  </p>
+                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    {t('walletModal.wcWaiting', 'Waiting for wallet to connect...')}
+                  </div>
+                  <Button
+                    onClick={handleOpenPezWallet}
+                    className="w-full bg-gradient-to-r from-purple-600 to-cyan-400 hover:from-purple-700 hover:to-cyan-500"
+                  >
+                    <ExternalLink className="mr-2 h-4 w-4" />
+                    {t('walletModal.wcOpenApp', 'Open pezWallet')}
+                  </Button>
+                  <p className="text-xs text-gray-500 text-center">
+                    {t('walletModal.wcInstallHint', "Don't have pezWallet? It will be available on Play Store soon.")}
+                  </p>
+                </div>
+              ) : (
+                // Desktop: QR code
+                <>
+                  {qrDataUrl && (
+                    <div className="bg-white rounded-xl p-3">
+                      <img
+                        src={qrDataUrl}
+                        alt="WalletConnect QR Code"
+                        className="w-[280px] h-[280px]"
+                      />
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2 text-sm text-gray-400">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    {t('walletModal.wcWaiting', 'Waiting for wallet to connect...')}
+                  </div>
+                  <p className="text-xs text-gray-500 text-center max-w-[280px]">
+                    {t('walletModal.wcInstructions', 'Open pezWallet app → Settings → WalletConnect → Scan QR code')}
+                  </p>
+                </>
+              )}
             </>
           )}
 
