@@ -285,7 +285,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       if (import.meta.env.DEV) console.error('Transaction failed:', error);
       throw new Error(error instanceof Error ? error.message : WALLET_ERRORS.TRANSACTION_FAILED);
     }
-  }, [pezkuwi.api, pezkuwi.selectedAccount]);
+  }, [pezkuwi.api, pezkuwi.selectedAccount, pezkuwi.walletSource]);
 
   // Sign message
   const signMessage = useCallback(async (message: string): Promise<string> => {

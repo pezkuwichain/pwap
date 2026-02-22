@@ -33,8 +33,6 @@ import {
   getSessionPeerName,
   restoreSession,
   disconnectWC,
-  isWCConnected,
-  createWCSigner,
 } from '@/lib/walletconnect-service';
 
 // Get network config from shared endpoints
