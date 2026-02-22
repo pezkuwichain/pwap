@@ -155,7 +155,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
       const status = await getKycStatus(api, selectedAccount.address);
       setKycStatus(status);
 
-      if (__DEV__) console.log('[Dashboard] Blockchain data fetched:', { tikis: userTikis, scores: allScores, kycStatus: status });
+      if (__DEV__) console.warn('[Dashboard] Blockchain data fetched:', { tikis: userTikis, scores: allScores, kycStatus: status });
     } catch (error) {
       if (__DEV__) console.error('[Dashboard] Error fetching blockchain data:', error);
     } finally {
@@ -171,6 +171,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
     if (selectedAccount && api && isApiReady) {
       fetchBlockchainData();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchBlockchainData]);
 
   // Check if user is a visitor (default when no blockchain wallet or no tikis)
