@@ -81,15 +81,17 @@ export const NetworkStats: React.FC = () => {
               if (import.meta.env.DEV) console.warn('Failed to fetch People Chain collators', err);
             }
 
-            // 3. Count Nominators
+            // 3. Count Nominators from Asset Hub (staking migrated to AH)
             let nCount = 0;
             try {
-              const nominators = await api.query.staking?.nominators.entries();
-              if (nominators) {
-                nCount = nominators.length;
+              if (isAssetHubReady && assetHubApi?.query.staking?.nominators) {
+                const nominators = await assetHubApi.query.staking.nominators.entries();
+                if (nominators) {
+                  nCount = nominators.length;
+                }
               }
             } catch {
-              if (import.meta.env.DEV) console.warn('Staking pallet not available, nominators = 0');
+              if (import.meta.env.DEV) console.warn('Staking pallet not available on AH, nominators = 0');
             }
 
             setValidatorCount(vCount);
