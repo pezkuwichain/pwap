@@ -60,6 +60,15 @@ export async function initWalletConnect(): Promise<SignClient> {
       }
     });
 
+    // Debug: log all session-related events
+    client.on('session_proposal', (proposal) => {
+      console.warn('[WC] session_proposal received:', JSON.stringify(proposal));
+    });
+
+    client.core.pairing.events.on('pairing_ping', (data) => {
+      console.warn('[WC] pairing_ping:', data);
+    });
+
     return client;
   }).catch((err) => {
     initPromise = null;
@@ -89,6 +98,10 @@ export async function connectWithQR(genesisHash: string): Promise<{
   const client = await initWalletConnect();
   const chainId = buildChainId(genesisHash);
 
+  console.warn('[WC] Session proposal chain ID:', chainId);
+  console.warn('[WC] Genesis hash:', genesisHash);
+  console.warn('[WC] Methods:', POLKADOT_METHODS);
+
   const { uri, approval } = await client.connect({
     optionalNamespaces: {
       polkadot: {
@@ -103,10 +116,19 @@ export async function connectWithQR(genesisHash: string): Promise<{
     throw new Error('Failed to generate WalletConnect pairing URI');
   }
 
+  console.warn('[WC] Pairing URI generated, waiting for wallet approval...');
+
   return {
     uri,
     approval: async () => {
+      console.warn('[WC] approval() called, waiting for wallet response...');
       const session = await approval();
+      console.warn('[WC] Session approved!', JSON.stringify({
+        topic: session.topic,
+        namespaces: Object.keys(session.namespaces),
+        accounts: Object.values(session.namespaces).flatMap(ns => ns.accounts || []),
+        peer: session.peer.metadata.name,
+      }));
       currentSession = session;
       localStorage.setItem(WC_SESSION_KEY, session.topic);
       return session;
