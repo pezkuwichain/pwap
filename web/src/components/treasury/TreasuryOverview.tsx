@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -10,7 +11,7 @@ import {
   DollarSign,
   TrendingUp,
   TrendingDown,
-  
+
   Activity,
   AlertCircle,
   CheckCircle,
@@ -30,6 +31,7 @@ interface BudgetCategory {
 }
 
 export const TreasuryOverview: React.FC = () => {
+  const { t } = useTranslation();
   const { metrics, proposals, loading, error } = useTreasury();
 
   const [categories] = useState<BudgetCategory[]>([
@@ -42,17 +44,17 @@ export const TreasuryOverview: React.FC = () => {
   ]);
 
   const getHealthStatus = (score: number) => {
-    if (score >= 80) return { label: 'Excellent', color: 'text-green-500', icon: CheckCircle };
-    if (score >= 60) return { label: 'Good', color: 'text-blue-500', icon: Activity };
-    if (score >= 40) return { label: 'Fair', color: 'text-yellow-500', icon: AlertCircle };
-    return { label: 'Critical', color: 'text-red-500', icon: AlertCircle };
+    if (score >= 80) return { label: 'treasury.healthExcellent', color: 'text-green-500', icon: CheckCircle };
+    if (score >= 60) return { label: 'treasury.healthGood', color: 'text-blue-500', icon: Activity };
+    if (score >= 40) return { label: 'treasury.healthFair', color: 'text-yellow-500', icon: AlertCircle };
+    return { label: 'treasury.healthCritical', color: 'text-red-500', icon: AlertCircle };
   };
 
   const healthStatus = getHealthStatus(metrics.healthScore);
   const HealthIcon = healthStatus.icon;
 
   if (loading) {
-    return <LoadingState message="Loading treasury data from blockchain..." />;
+    return <LoadingState message={t('treasury.loading')} />;
   }
 
   if (error) {
@@ -60,7 +62,7 @@ export const TreasuryOverview: React.FC = () => {
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          Failed to load treasury data: {error}
+          {t('treasury.errorLoad', { error })}
         </AlertDescription>
       </Alert>
     );
@@ -72,10 +74,10 @@ export const TreasuryOverview: React.FC = () => {
       <div className="flex items-center gap-2">
         <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20">
           <Activity className="h-3 w-3 mr-1" />
-          Live Blockchain Data
+          {t('treasury.liveData')}
         </Badge>
         <span className="text-sm text-muted-foreground">
-          {proposals.length} active proposals • {metrics.totalBalance.toFixed(2)} HEZ in treasury
+          {t('treasury.activeProposals', { count: proposals.length })} • {t('treasury.hezInTreasury', { amount: metrics.totalBalance.toFixed(2) })}
         </span>
       </div>
 
@@ -83,7 +85,7 @@ export const TreasuryOverview: React.FC = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
-            <span>Treasury Health</span>
+            <span>{t('treasury.health')}</span>
             <HealthIcon className={`h-6 w-6 ${healthStatus.color}`} />
           </CardTitle>
         </CardHeader>
@@ -91,16 +93,16 @@ export const TreasuryOverview: React.FC = () => {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-2xl font-bold">{metrics.healthScore}%</span>
-              <Badge className={healthStatus.color}>{healthStatus.label}</Badge>
+              <Badge className={healthStatus.color}>{t(healthStatus.label)}</Badge>
             </div>
             <Progress value={metrics.healthScore} className="h-3" />
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <p className="text-muted-foreground">Runway</p>
-                <p className="font-semibold">20.8 months</p>
+                <p className="text-muted-foreground">{t('treasury.runway')}</p>
+                <p className="font-semibold">{t('treasury.runwayMonths', { months: '20.8' })}</p>
               </div>
               <div>
-                <p className="text-muted-foreground">Burn Rate</p>
+                <p className="text-muted-foreground">{t('treasury.burnRate')}</p>
                 <p className="font-semibold">$120k/month</p>
               </div>
             </div>
@@ -114,11 +116,11 @@ export const TreasuryOverview: React.FC = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Total Balance</p>
+                <p className="text-sm text-muted-foreground">{t('treasury.totalBalance')}</p>
                 <p className="text-2xl font-bold">${(metrics.totalBalance / 1000000).toFixed(2)}M</p>
                 <p className="text-xs text-green-500 flex items-center mt-1">
                   <ArrowUpRight className="h-3 w-3 mr-1" />
-                  +12.5% this month
+                  {t('treasury.thisMonth', { percent: '12.5' })}
                 </p>
               </div>
               <DollarSign className="h-8 w-8 text-green-500" />
@@ -130,11 +132,11 @@ export const TreasuryOverview: React.FC = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Monthly Income</p>
+                <p className="text-sm text-muted-foreground">{t('treasury.monthlyIncome')}</p>
                 <p className="text-2xl font-bold">${(metrics.monthlyIncome / 1000).toFixed(0)}k</p>
                 <p className="text-xs text-green-500 flex items-center mt-1">
                   <TrendingUp className="h-3 w-3 mr-1" />
-                  +8.3% vs last month
+                  {t('treasury.vsLastMonth', { percent: '+8.3' })}
                 </p>
               </div>
               <TrendingUp className="h-8 w-8 text-blue-500" />
@@ -146,11 +148,11 @@ export const TreasuryOverview: React.FC = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Monthly Expenses</p>
+                <p className="text-sm text-muted-foreground">{t('treasury.monthlyExpenses')}</p>
                 <p className="text-2xl font-bold">${(metrics.monthlyExpenses / 1000).toFixed(0)}k</p>
                 <p className="text-xs text-red-500 flex items-center mt-1">
                   <ArrowDownRight className="h-3 w-3 mr-1" />
-                  -5.2% vs last month
+                  {t('treasury.vsLastMonth', { percent: '-5.2' })}
                 </p>
               </div>
               <TrendingDown className="h-8 w-8 text-red-500" />
@@ -162,11 +164,11 @@ export const TreasuryOverview: React.FC = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Pending Proposals</p>
+                <p className="text-sm text-muted-foreground">{t('treasury.pendingProposals')}</p>
                 <p className="text-2xl font-bold">{metrics.pendingProposals}</p>
                 <p className="text-xs text-yellow-500 flex items-center mt-1">
                   <Clock className="h-3 w-3 mr-1" />
-                  $450k requested
+                  {t('treasury.requested', { amount: '450' })}
                 </p>
               </div>
               <Clock className="h-8 w-8 text-yellow-500" />
@@ -178,8 +180,8 @@ export const TreasuryOverview: React.FC = () => {
       {/* Budget Categories */}
       <Card>
         <CardHeader>
-          <CardTitle>Budget Allocation by Category</CardTitle>
-          <CardDescription>Current quarter budget utilization</CardDescription>
+          <CardTitle>{t('treasury.budgetAllocation')}</CardTitle>
+          <CardDescription>{t('treasury.quarterUtilization')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">

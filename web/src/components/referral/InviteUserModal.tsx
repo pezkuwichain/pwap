@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,6 +22,7 @@ interface InviteUserModalProps {
 }
 
 export const InviteUserModal: React.FC<InviteUserModalProps> = ({ isOpen, onClose }) => {
+  const { t } = useTranslation();
   const { peopleApi, isPeopleReady, selectedAccount } = usePezkuwi();
   const [copied, setCopied] = useState(false);
   const [inviteeAddress, setInviteeAddress] = useState('');
@@ -122,17 +124,17 @@ export const InviteUserModal: React.FC<InviteUserModalProps> = ({ isOpen, onClos
         <DialogHeader>
           <DialogTitle className="text-white flex items-center gap-2">
             <Share2 className="w-5 h-5 text-green-500" />
-            Invite Friends to PezkuwiChain
+            {t('invite.title')}
           </DialogTitle>
           <DialogDescription className="text-gray-400">
-            Share your referral link. When your friends complete KYC, you&apos;ll earn trust score points!
+            {t('invite.subtitle')}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 mt-4">
           {/* Referral Link Display */}
           <div className="space-y-2">
-            <Label className="text-gray-300">Your Referral Link</Label>
+            <Label className="text-gray-300">{t('invite.yourLink')}</Label>
             <div className="flex gap-2">
               <Input
                 type="text"
@@ -157,23 +159,22 @@ export const InviteUserModal: React.FC<InviteUserModalProps> = ({ isOpen, onClos
               </Button>
             </div>
             <p className="text-xs text-gray-500">
-              Anyone who signs up with this link will be counted as your referral
+              {t('invite.linkDesc')}
             </p>
           </div>
 
           {/* Manual Referral Initiation */}
           <div className="space-y-2 bg-blue-900/20 border border-blue-600/30 rounded-lg p-4">
-            <Label className="text-blue-300">Or Pre-Register a Friend (Advanced)</Label>
+            <Label className="text-blue-300">{t('invite.preRegister')}</Label>
             <p className="text-xs text-gray-400 mb-2">
-              If you know your friend&apos;s wallet address, you can pre-register them on-chain.
-              They must then complete KYC to finalize the referral.
+              {t('invite.preRegisterDesc')}
             </p>
             <div className="flex gap-2">
               <Input
                 type="text"
                 value={inviteeAddress}
                 onChange={(e) => setInviteeAddress(e.target.value)}
-                placeholder="Friend's wallet address"
+                placeholder={t('invite.friendAddress')}
                 className="bg-gray-800 border-gray-700 text-white font-mono text-sm placeholder:text-gray-500 placeholder:opacity-50"
               />
               <Button
@@ -181,11 +182,11 @@ export const InviteUserModal: React.FC<InviteUserModalProps> = ({ isOpen, onClos
                 disabled={initiating || !inviteeAddress}
                 className="bg-blue-600 hover:bg-blue-700 shrink-0"
               >
-                {initiating ? 'Initiating...' : 'Initiate'}
+                {initiating ? t('invite.initiating') : t('invite.initiate')}
               </Button>
             </div>
             {initiateSuccess && (
-              <p className="text-xs text-green-400">Referral initiated successfully!</p>
+              <p className="text-xs text-green-400">{t('invite.initiated')}</p>
             )}
             {initiateError && (
               <p className="text-xs text-red-400">{initiateError}</p>
@@ -194,7 +195,7 @@ export const InviteUserModal: React.FC<InviteUserModalProps> = ({ isOpen, onClos
 
           {/* Share Options */}
           <div className="space-y-3">
-            <Label className="text-gray-300">Share via</Label>
+            <Label className="text-gray-300">{t('invite.shareVia')}</Label>
             <div className="grid grid-cols-2 gap-3">
               {/* WhatsApp */}
               <Button
@@ -260,12 +261,12 @@ export const InviteUserModal: React.FC<InviteUserModalProps> = ({ isOpen, onClos
 
           {/* Rewards Info */}
           <div className="bg-green-900/20 border border-green-600/30 rounded-lg p-4">
-            <h4 className="text-green-400 font-semibold mb-2 text-sm">Referral Rewards</h4>
+            <h4 className="text-green-400 font-semibold mb-2 text-sm">{t('invite.rewards')}</h4>
             <ul className="text-xs text-gray-300 space-y-1">
-              <li>• 1-10 referrals: 10 points each (up to 100 points)</li>
-              <li>• 11-50 referrals: 5 points each (up to 300 points)</li>
-              <li>• 51-100 referrals: 4 points each (up to 500 points)</li>
-              <li>• Maximum: 500 trust score points</li>
+              <li>• {t('invite.reward1')}</li>
+              <li>• {t('invite.reward2')}</li>
+              <li>• {t('invite.reward3')}</li>
+              <li>• {t('invite.maxReward')}</li>
             </ul>
           </div>
 
@@ -275,7 +276,7 @@ export const InviteUserModal: React.FC<InviteUserModalProps> = ({ isOpen, onClos
               onClick={onClose}
               className="bg-gray-800 hover:bg-gray-700 text-white"
             >
-              Done
+              {t('invite.done')}
             </Button>
           </div>
         </div>

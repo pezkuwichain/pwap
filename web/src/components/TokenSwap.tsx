@@ -14,6 +14,7 @@ import { formatAssetLocation, NATIVE_TOKEN_ID } from '@pezkuwi/utils/dex';
 import { useToast } from '@/hooks/use-toast';
 import { KurdistanSun } from './KurdistanSun';
 import { PriceChart } from './trading/PriceChart';
+import { useTranslation } from 'react-i18next';
 
 // Available tokens for swap
 const AVAILABLE_TOKENS = [
@@ -27,6 +28,7 @@ const TokenSwap = () => {
   const { assetHubApi, isAssetHubReady, selectedAccount } = usePezkuwi();
   const { balances, refreshBalances } = useWallet();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const [fromToken, setFromToken] = useState('PEZ');
   const [toToken, setToToken] = useState('HEZ');
@@ -514,8 +516,8 @@ const TokenSwap = () => {
   const handleConfirmSwap = async () => {
     if (!assetHubApi || !selectedAccount) {
       toast({
-        title: 'Error',
-        description: 'Please connect your wallet',
+        title: t('common.error'),
+        description: t('common.connectWalletAlert'),
         variant: 'destructive',
       });
       return;
@@ -523,8 +525,8 @@ const TokenSwap = () => {
 
     if (!isDexAvailable) {
       toast({
-        title: 'DEX Not Available',
-        description: 'AssetConversion pallet is not enabled in runtime',
+        title: t('tokenSwap.dexNotAvailable'),
+        description: t('tokenSwap.dexNotAvailableDesc'),
         variant: 'destructive',
       });
       return;
@@ -532,8 +534,8 @@ const TokenSwap = () => {
 
     if (!exchangeRate || exchangeRate === 0) {
       toast({
-        title: 'Error',
-        description: 'No liquidity pool available for this pair',
+        title: t('common.error'),
+        description: t('swap.noPool'),
         variant: 'destructive',
       });
       return;
@@ -545,8 +547,8 @@ const TokenSwap = () => {
 
     if (fromAmountNum > fromBalanceNum) {
       toast({
-        title: 'Insufficient Balance',
-        description: `You only have ${fromBalanceNum.toFixed(4)} ${getTokenDisplayName(fromToken)}. Cannot swap ${fromAmountNum} ${getTokenDisplayName(fromToken)}.`,
+        title: t('swap.insufficientBalanceBtn', { token: getTokenDisplayName(fromToken) }),
+        description: t('tokenSwap.insufficientBalanceToast', { balance: fromBalanceNum.toFixed(4), token: getTokenDisplayName(fromToken), amount: fromAmountNum }),
         variant: 'destructive',
       });
       return;
@@ -685,8 +687,8 @@ const TokenSwap = () => {
             if (import.meta.env.DEV) console.log('✅ Transaction in block:', status.asInBlock.toHex());
 
             toast({
-              title: 'Transaction Submitted',
-              description: `Processing in block ${status.asInBlock.toHex().slice(0, 10)}...`,
+              title: t('tokenSwap.txSubmitted'),
+              description: t('tokenSwap.processingInBlock', { hash: status.asInBlock.toHex().slice(0, 10) }),
             });
           }
 
@@ -705,7 +707,7 @@ const TokenSwap = () => {
               }
 
               toast({
-                title: 'Error',
+                title: t('common.error'),
                 description: errorMessage,
                 variant: 'destructive',
               });
@@ -720,8 +722,8 @@ const TokenSwap = () => {
 
             if (hasSwapEvent || fromToken === 'HEZ' || toToken === 'HEZ') {
               toast({
-                title: 'Success!',
-                description: `Swapped ${fromAmount} ${fromToken} for ~${toAmount} ${toToken}`,
+                title: t('common.success'),
+                description: t('swap.swapped', { fromAmount, fromToken, toAmount, toToken }),
               });
 
               setFromAmount('');
@@ -809,8 +811,8 @@ const TokenSwap = () => {
               }, 3000);
             } else {
               toast({
-                title: 'Error',
-                description: 'Swap transaction failed',
+                title: t('common.error'),
+                description: t('swap.swapFailed'),
                 variant: 'destructive',
               });
             }
@@ -822,8 +824,8 @@ const TokenSwap = () => {
     } catch (error) {
       if (import.meta.env.DEV) console.error('Swap failed:', error);
       toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Swap transaction failed',
+        title: t('common.error'),
+        description: error instanceof Error ? error.message : t('swap.swapFailed'),
         variant: 'destructive',
       });
       setIsSwapping(false);
@@ -843,20 +845,19 @@ const TokenSwap = () => {
             </div>
             
             <div>
-              <h2 className="text-2xl font-bold mb-2">DEX Coming Soon</h2>
+              <h2 className="text-2xl font-bold mb-2">{t('tokenSwap.dexComingSoon')}</h2>
               <p className="text-gray-300 max-w-md mx-auto">
-                The AssetConversion pallet is not yet enabled in the runtime.
-                Token swapping functionality will be available after the next runtime upgrade.
+                {t('tokenSwap.dexComingDesc')}
               </p>
             </div>
 
             <Badge variant="outline" className="text-yellow-500 border-yellow-500/30">
-              Scheduled for Next Runtime Upgrade
+              {t('tokenSwap.scheduledUpgrade')}
             </Badge>
 
             <div className="pt-4">
               <Button variant="outline" onClick={() => window.location.href = '/'}>
-                Back to Dashboard
+                {t('tokenSwap.backToDashboard')}
               </Button>
             </div>
           </div>
@@ -873,7 +874,7 @@ const TokenSwap = () => {
           <div className="flex flex-col items-center gap-4">
             <KurdistanSun size={300} />
             <p className="text-white text-xl font-semibold animate-pulse">
-              Processing your swap...
+              {t('tokenSwap.processingSwap')}
             </p>
           </div>
         </div>
@@ -891,7 +892,7 @@ const TokenSwap = () => {
 
         <Card className="p-6">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold">Token Swap</h2>
+            <h2 className="text-2xl font-bold">{t('tokenSwap.tokenSwap')}</h2>
             <Button variant="ghost" size="icon" onClick={() => setShowSettings(true)}>
               <Settings className="h-5 w-5" />
             </Button>
@@ -901,7 +902,7 @@ const TokenSwap = () => {
             <Alert className="mb-4 bg-yellow-500/10 border-yellow-500/30">
               <AlertCircle className="h-4 w-4 text-yellow-500" />
               <AlertDescription className="text-yellow-300">
-                Please connect your wallet to swap tokens
+                {t('tokenSwap.connectWalletAlert')}
               </AlertDescription>
             </Alert>
           )}
@@ -909,9 +910,9 @@ const TokenSwap = () => {
           <div className="space-y-4">
             <div className="bg-gray-800 border border-gray-700 rounded-lg p-4">
               <div className="flex justify-between mb-2">
-                <span className="text-sm text-gray-400">From</span>
+                <span className="text-sm text-gray-400">{t('tokenSwap.from')}</span>
                 <span className="text-sm text-gray-400">
-                  Balance: {fromBalance} {getTokenDisplayName(fromToken)}
+                  {t('common.balance')}: {fromBalance} {getTokenDisplayName(fromToken)}
                 </span>
               </div>
               <div className="flex gap-3">
@@ -980,9 +981,9 @@ const TokenSwap = () => {
 
             <div className="bg-gray-800 border border-gray-700 rounded-lg p-4">
               <div className="flex justify-between mb-2">
-                <span className="text-sm text-gray-400">To</span>
+                <span className="text-sm text-gray-400">{t('tokenSwap.to')}</span>
                 <span className="text-sm text-gray-400">
-                  Balance: {toBalance} {getTokenDisplayName(toToken)}
+                  {t('common.balance')}: {toBalance} {getTokenDisplayName(toToken)}
                 </span>
               </div>
               <div className="flex gap-3">
@@ -1041,15 +1042,15 @@ const TokenSwap = () => {
               <div className="flex justify-between text-sm">
                 <span className="text-gray-400 flex items-center gap-1">
                   <Info className="w-3 h-3" />
-                  Exchange Rate
+                  {t('common.exchangeRate')}
                 </span>
                 <span className="font-semibold text-white">
                   {isLoadingRate ? (
-                    'Loading...'
+                    t('common.loading')
                   ) : exchangeRate > 0 ? (
                     `1 ${getTokenDisplayName(fromToken)} = ${exchangeRate.toFixed(4)} ${getTokenDisplayName(toToken)}`
                   ) : (
-                    'No pool available'
+                    t('tokenSwap.noPoolAvailable')
                   )}
                 </span>
               </div>
@@ -1063,7 +1064,7 @@ const TokenSwap = () => {
                       priceImpact < 5 ? 'text-yellow-500' :
                       'text-red-500'
                     }`} />
-                    Price Impact
+                    {t('tokenSwap.priceImpact')}
                   </span>
                   <span className={`font-semibold ${
                     priceImpact < 1 ? 'text-green-400' :
@@ -1078,7 +1079,7 @@ const TokenSwap = () => {
               {/* LP Fee */}
               {fromAmount && parseFloat(fromAmount) > 0 && lpFee && (
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">Liquidity Provider Fee</span>
+                  <span className="text-gray-400">{t('tokenSwap.lpFee')}</span>
                   <span className="text-gray-300">{lpFee} {getTokenDisplayName(fromToken)}</span>
                 </div>
               )}
@@ -1086,13 +1087,13 @@ const TokenSwap = () => {
               {/* Minimum Received */}
               {fromAmount && parseFloat(fromAmount) > 0 && minimumReceived && (
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">Minimum Received</span>
+                  <span className="text-gray-400">{t('tokenSwap.minimumReceived')}</span>
                   <span className="text-gray-300">{minimumReceived} {getTokenDisplayName(toToken)}</span>
                 </div>
               )}
 
               <div className="flex justify-between text-sm pt-2 border-t border-gray-700">
-                <span className="text-gray-400">Slippage Tolerance</span>
+                <span className="text-gray-400">{t('common.slippageTolerance')}</span>
                 <span className="font-semibold text-blue-400">{slippage}%</span>
               </div>
             </div>
@@ -1102,7 +1103,7 @@ const TokenSwap = () => {
               <Alert className="bg-red-900/20 border-red-500/30">
                 <AlertTriangle className="h-4 w-4 text-red-500" />
                 <AlertDescription className="text-red-300 text-sm">
-                  Insufficient {getTokenDisplayName(fromToken)} balance. You have {fromBalance} {getTokenDisplayName(fromToken)} but trying to swap {fromAmount} {getTokenDisplayName(fromToken)}.
+                  {t('tokenSwap.insufficientWarning', { token: getTokenDisplayName(fromToken), balance: fromBalance, amount: fromAmount })}
                 </AlertDescription>
               </Alert>
             )}
@@ -1112,7 +1113,7 @@ const TokenSwap = () => {
               <Alert className="bg-red-900/20 border-red-500/30">
                 <AlertTriangle className="h-4 w-4 text-red-500" />
                 <AlertDescription className="text-red-300 text-sm">
-                  High price impact! Your trade will significantly affect the pool price. Consider a smaller amount or check if there&apos;s better liquidity.
+                  {t('tokenSwap.highPriceImpact')}
                 </AlertDescription>
               </Alert>
             )}
@@ -1123,12 +1124,12 @@ const TokenSwap = () => {
               disabled={!fromAmount || parseFloat(fromAmount) <= 0 || !selectedAccount || exchangeRate === 0 || hasInsufficientBalance}
             >
               {!selectedAccount
-                ? 'Connect Wallet'
+                ? t('tokenSwap.connectWallet')
                 : hasInsufficientBalance
-                ? `Insufficient ${getTokenDisplayName(fromToken)} Balance`
+                ? t('tokenSwap.insufficientBalance', { token: getTokenDisplayName(fromToken) })
                 : exchangeRate === 0
-                ? 'No Pool Available'
-                : 'Swap Tokens'}
+                ? t('tokenSwap.noPool')
+                : t('tokenSwap.swapTokens')}
             </Button>
           </div>
         </Card>
@@ -1136,11 +1137,11 @@ const TokenSwap = () => {
         <Card className="p-6">
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <TrendingUp className="h-5 w-5" />
-            Liquidity Pools
+            {t('tokenSwap.liquidityPools')}
           </h3>
           
           {isLoadingPools ? (
-            <div className="text-center text-gray-400 py-8">Loading pools...</div>
+            <div className="text-center text-gray-400 py-8">{t('tokenSwap.loadingPools')}</div>
           ) : liquidityPools.length > 0 ? (
             <div className="space-y-3">
               {liquidityPools.map((pool, idx) => (
@@ -1158,7 +1159,7 @@ const TokenSwap = () => {
             </div>
           ) : (
             <div className="text-center text-gray-400 py-8">
-              No liquidity pools available yet
+              {t('tokenSwap.noPoolsAvailable')}
             </div>
           )}
         </Card>
@@ -1168,16 +1169,16 @@ const TokenSwap = () => {
         <Card className="p-6">
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <Clock className="h-5 w-5" />
-            Recent Swaps
+            {t('tokenSwap.recentSwaps')}
           </h3>
 
           {!selectedAccount ? (
             <div className="text-center text-gray-400 py-8">
-              Connect wallet to view history
+              {t('tokenSwap.connectForHistory')}
             </div>
           ) : isLoadingHistory ? (
             <div className="text-center text-gray-400 py-8">
-              Loading history...
+              {t('tokenSwap.loadingHistory')}
             </div>
           ) : swapHistory.length > 0 ? (
             <div className="space-y-3">
@@ -1196,11 +1197,11 @@ const TokenSwap = () => {
                   </div>
                   <div className="text-sm text-gray-400 space-y-1">
                     <div className="flex justify-between">
-                      <span>Sent:</span>
+                      <span>{t('tokenSwap.sent')}</span>
                       <span className="text-red-400">-{tx.fromAmount} {getTokenDisplayName(tx.fromToken)}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Received:</span>
+                      <span>{t('tokenSwap.received')}</span>
                       <span className="text-green-400">+{tx.toAmount} {getTokenDisplayName(tx.toToken)}</span>
                     </div>
                     <div className="flex justify-between text-xs pt-1 border-t border-gray-700">
@@ -1213,7 +1214,7 @@ const TokenSwap = () => {
             </div>
           ) : (
             <div className="text-center text-gray-400 py-8">
-              No swap history yet
+              {t('tokenSwap.noSwapHistory')}
             </div>
           )}
         </Card>
@@ -1222,11 +1223,11 @@ const TokenSwap = () => {
       <Dialog open={showSettings} onOpenChange={setShowSettings}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Swap Settings</DialogTitle>
+            <DialogTitle>{t('tokenSwap.swapSettings')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium">Slippage Tolerance</label>
+              <label className="text-sm font-medium">{t('common.slippageTolerance')}</label>
               <div className="flex gap-2 mt-2">
                 {['0.1', '0.5', '1.0'].map(val => (
                   <Button
@@ -1253,24 +1254,24 @@ const TokenSwap = () => {
       <Dialog open={showConfirm} onOpenChange={setShowConfirm}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Confirm Swap</DialogTitle>
+            <DialogTitle>{t('tokenSwap.confirmSwap')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="p-4 bg-gray-800 border border-gray-700 rounded-lg">
               <div className="flex justify-between mb-2">
-                <span className="text-gray-300">You Pay</span>
+                <span className="text-gray-300">{t('tokenSwap.youPay')}</span>
                 <span className="font-bold text-white">{fromAmount} {getTokenDisplayName(fromToken)}</span>
               </div>
               <div className="flex justify-between mb-2">
-                <span className="text-gray-300">You Receive</span>
+                <span className="text-gray-300">{t('tokenSwap.youReceive')}</span>
                 <span className="font-bold text-white">{toAmount} {getTokenDisplayName(toToken)}</span>
               </div>
               <div className="flex justify-between mt-3 pt-3 border-t border-gray-700 text-sm">
-                <span className="text-gray-400">Exchange Rate</span>
+                <span className="text-gray-400">{t('common.exchangeRate')}</span>
                 <span className="text-gray-400">1 {getTokenDisplayName(fromToken)} = {exchangeRate.toFixed(4)} {getTokenDisplayName(toToken)}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-400">Slippage</span>
+                <span className="text-gray-400">{t('swap.slippage')}</span>
                 <span className="text-gray-400">{slippage}%</span>
               </div>
             </div>
@@ -1279,7 +1280,7 @@ const TokenSwap = () => {
               onClick={handleConfirmSwap}
               disabled={isSwapping}
             >
-              {isSwapping ? 'Swapping...' : 'Confirm Swap'}
+              {isSwapping ? t('tokenSwap.swapping') : t('tokenSwap.confirmSwap')}
             </Button>
           </div>
         </DialogContent>

@@ -11,6 +11,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useWallet } from '@/contexts/WalletContext';
 import {
@@ -65,6 +66,7 @@ export const XCMConfigurationWizard: React.FC<XCMConfigurationWizardProps> = ({
   onClose,
   onSuccess,
 }) => {
+  const { t } = useTranslation();
   // Use Asset Hub API for asset registration (Step 5) and XCM testing (Step 6)
   // Steps 1-4 connect to relay chain directly via xcm-wizard functions
   const { assetHubApi, isAssetHubReady } = usePezkuwi();
@@ -138,8 +140,8 @@ export const XCMConfigurationWizard: React.FC<XCMConfigurationWizardProps> = ({
   const handleReserveParaId = async () => {
     if (!account || !signer) {
       toast({
-        title: 'Wallet not connected',
-        description: 'Please connect your wallet first',
+        title: t('xcmWizard.walletNotConnected'),
+        description: t('xcmWizard.connectFirst'),
         variant: 'destructive',
       });
       return;
@@ -163,8 +165,7 @@ export const XCMConfigurationWizard: React.FC<XCMConfigurationWizardProps> = ({
       }));
 
       toast({
-        title: 'ParaId Reserved!',
-        description: `Successfully reserved ParaId ${paraId} on ${relayChain}`,
+        title: t('xcmWizard.reserveSuccess', { paraId, chain: relayChain }),
       });
 
       // Auto-advance to next step
@@ -178,8 +179,8 @@ export const XCMConfigurationWizard: React.FC<XCMConfigurationWizardProps> = ({
         1: { completed: false, error: error instanceof Error ? error.message : 'Unknown error' },
       }));
       toast({
-        title: 'Reservation Failed',
-        description: error instanceof Error ? error.message : 'Failed to reserve ParaId',
+        title: t('xcmWizard.reserveFailed'),
+        description: error instanceof Error ? error.message : t('xcmWizard.reserveFailed'),
         variant: 'destructive',
       });
     } finally {
@@ -205,8 +206,7 @@ export const XCMConfigurationWizard: React.FC<XCMConfigurationWizardProps> = ({
       }));
 
       toast({
-        title: 'Artifacts Generated!',
-        description: 'Genesis state and runtime WASM are ready for download',
+        title: t('xcmWizard.artifactsReady'),
       });
 
       setCurrentStep(3);
@@ -217,8 +217,7 @@ export const XCMConfigurationWizard: React.FC<XCMConfigurationWizardProps> = ({
         2: { completed: false, error: error instanceof Error ? error.message : 'Unknown error' },
       }));
       toast({
-        title: 'Generation Failed',
-        description: 'Failed to generate chain artifacts',
+        title: t('xcmWizard.artifactsFailed'),
         variant: 'destructive',
       });
     } finally {
@@ -232,8 +231,7 @@ export const XCMConfigurationWizard: React.FC<XCMConfigurationWizardProps> = ({
   const handleRegisterParachain = async () => {
     if (!reservedParaId || !genesisFile || !wasmFile || !account || !signer) {
       toast({
-        title: 'Missing Data',
-        description: 'Please upload both genesis and WASM files',
+        title: t('xcmWizard.missingFiles'),
         variant: 'destructive',
       });
       return;
@@ -254,8 +252,7 @@ export const XCMConfigurationWizard: React.FC<XCMConfigurationWizardProps> = ({
       }));
 
       toast({
-        title: 'Parachain Registered!',
-        description: `ParaId ${reservedParaId} registered on ${relayChain}`,
+        title: t('xcmWizard.registerSuccess'),
       });
 
       setCurrentStep(4);
@@ -268,8 +265,8 @@ export const XCMConfigurationWizard: React.FC<XCMConfigurationWizardProps> = ({
         3: { completed: false, error: error instanceof Error ? error.message : 'Unknown error' },
       }));
       toast({
-        title: 'Registration Failed',
-        description: error instanceof Error ? error.message : 'Failed to register parachain',
+        title: t('xcmWizard.registerFailed'),
+        description: error instanceof Error ? error.message : t('xcmWizard.registerFailed'),
         variant: 'destructive',
       });
     } finally {
@@ -302,8 +299,7 @@ export const XCMConfigurationWizard: React.FC<XCMConfigurationWizardProps> = ({
       }));
 
       toast({
-        title: 'HRMP Channels Opened!',
-        description: `Opened ${channels.length} channel(s) with Asset Hub`,
+        title: t('xcmWizard.hrmpSuccess', { count: channels.length }),
       });
 
       setCurrentStep(5);
@@ -316,8 +312,8 @@ export const XCMConfigurationWizard: React.FC<XCMConfigurationWizardProps> = ({
         4: { completed: false, error: error instanceof Error ? error.message : 'Unknown error' },
       }));
       toast({
-        title: 'Channel Opening Failed',
-        description: error instanceof Error ? error.message : 'Failed to open HRMP channels',
+        title: t('xcmWizard.hrmpFailed'),
+        description: error instanceof Error ? error.message : t('xcmWizard.hrmpFailed'),
         variant: 'destructive',
       });
     } finally {
@@ -331,8 +327,7 @@ export const XCMConfigurationWizard: React.FC<XCMConfigurationWizardProps> = ({
   const handleRegisterAssets = async () => {
     if (!assetHubApi || !isAssetHubReady || !account || !signer) {
       toast({
-        title: 'Not Ready',
-        description: 'Please wait for Asset Hub connection',
+        title: t('xcmWizard.notReady'),
         variant: 'destructive',
       });
       return;
@@ -381,8 +376,7 @@ export const XCMConfigurationWizard: React.FC<XCMConfigurationWizardProps> = ({
       }));
 
       toast({
-        title: 'Assets Registered!',
-        description: `Registered ${registered.length} foreign asset(s)`,
+        title: t('xcmWizard.assetsSuccess', { count: registered.length }),
       });
 
       setCurrentStep(6);
@@ -393,8 +387,8 @@ export const XCMConfigurationWizard: React.FC<XCMConfigurationWizardProps> = ({
         5: { completed: false, error: error instanceof Error ? error.message : 'Unknown error' },
       }));
       toast({
-        title: 'Asset Registration Failed',
-        description: error instanceof Error ? error.message : 'Failed to register foreign assets',
+        title: t('xcmWizard.assetsFailed'),
+        description: error instanceof Error ? error.message : t('xcmWizard.assetsFailed'),
         variant: 'destructive',
       });
     } finally {
@@ -408,8 +402,7 @@ export const XCMConfigurationWizard: React.FC<XCMConfigurationWizardProps> = ({
   const handleTestXCMTransfer = async () => {
     if (!assetHubApi || !isAssetHubReady || !account || !signer) {
       toast({
-        title: 'Not Ready',
-        description: 'Please wait for Asset Hub connection',
+        title: t('xcmWizard.notReady'),
         variant: 'destructive',
       });
       return;
@@ -428,13 +421,12 @@ export const XCMConfigurationWizard: React.FC<XCMConfigurationWizardProps> = ({
 
       if (result.success) {
         toast({
-          title: 'XCM Test Successful!',
-          description: `Received ${result.balance} wUSDT`,
+          title: t('xcmWizard.testSuccess', { balance: result.balance }),
         });
       } else {
         toast({
-          title: 'XCM Test Failed',
-          description: result.error || 'Test transfer failed',
+          title: t('xcmWizard.testFailed'),
+          description: result.error || t('xcmWizard.testFailed'),
           variant: 'destructive',
         });
       }
@@ -445,8 +437,8 @@ export const XCMConfigurationWizard: React.FC<XCMConfigurationWizardProps> = ({
         6: { completed: false, error: error instanceof Error ? error.message : 'Unknown error' },
       }));
       toast({
-        title: 'Test Failed',
-        description: error instanceof Error ? error.message : 'XCM test failed',
+        title: t('xcmWizard.testFailed'),
+        description: error instanceof Error ? error.message : t('xcmWizard.testFailed'),
         variant: 'destructive',
       });
     } finally {
@@ -463,15 +455,15 @@ export const XCMConfigurationWizard: React.FC<XCMConfigurationWizardProps> = ({
         return (
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Select Relay Chain</Label>
+              <Label>{t('xcmWizard.relayChainLabel')}</Label>
               <Select value={relayChain} onValueChange={(value: RelayChain) => setRelayChain(value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="westend">Westend (Testnet)</SelectItem>
-                  <SelectItem value="rococo">Rococo (Testnet)</SelectItem>
-                  <SelectItem value="polkadot">Polkadot (Mainnet)</SelectItem>
+                  <SelectItem value="westend">{t('xcmWizard.westend')}</SelectItem>
+                  <SelectItem value="rococo">{t('xcmWizard.rococo')}</SelectItem>
+                  <SelectItem value="polkadot">{t('xcmWizard.polkadot')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -496,15 +488,15 @@ export const XCMConfigurationWizard: React.FC<XCMConfigurationWizardProps> = ({
               {reserving ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Reserving ParaId...
+                  {t('xcmWizard.reserving')}
                 </>
               ) : steps[1].completed ? (
                 <>
                   <CheckCircle className="mr-2 h-4 w-4" />
-                  ParaId Reserved
+                  {t('xcmWizard.reserved')}
                 </>
               ) : (
-                'Reserve ParaId'
+                t('xcmWizard.reserveBtn')
               )}
             </Button>
           </div>
@@ -550,15 +542,15 @@ export const XCMConfigurationWizard: React.FC<XCMConfigurationWizardProps> = ({
               {generating ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Generating Artifacts...
+                  {t('xcmWizard.generating')}
                 </>
               ) : steps[2].completed ? (
                 <>
                   <CheckCircle className="mr-2 h-4 w-4" />
-                  Artifacts Generated
+                  {t('xcmWizard.generated')}
                 </>
               ) : (
-                'Generate Chain Artifacts'
+                t('xcmWizard.generateBtn')
               )}
             </Button>
           </div>
@@ -568,7 +560,7 @@ export const XCMConfigurationWizard: React.FC<XCMConfigurationWizardProps> = ({
         return (
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Upload Genesis State</Label>
+              <Label>{t('xcmWizard.genesisLabel')}</Label>
               <Input
                 type="file"
                 accept=".hex,.txt"
@@ -577,7 +569,7 @@ export const XCMConfigurationWizard: React.FC<XCMConfigurationWizardProps> = ({
             </div>
 
             <div className="space-y-2">
-              <Label>Upload Runtime WASM</Label>
+              <Label>{t('xcmWizard.wasmLabel')}</Label>
               <Input
                 type="file"
                 accept=".wasm"
@@ -609,15 +601,15 @@ export const XCMConfigurationWizard: React.FC<XCMConfigurationWizardProps> = ({
               {registering ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Registering Parachain...
+                  {t('xcmWizard.registering')}
                 </>
               ) : steps[3].completed ? (
                 <>
                   <CheckCircle className="mr-2 h-4 w-4" />
-                  Parachain Registered
+                  {t('xcmWizard.registered')}
                 </>
               ) : (
-                'Register Parachain'
+                t('xcmWizard.registerBtn')
               )}
             </Button>
           </div>
@@ -657,15 +649,15 @@ export const XCMConfigurationWizard: React.FC<XCMConfigurationWizardProps> = ({
               {openingChannels ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Opening HRMP Channels...
+                  {t('xcmWizard.openingHrmp')}
                 </>
               ) : steps[4].completed ? (
                 <>
                   <CheckCircle className="mr-2 h-4 w-4" />
-                  Channels Opened
+                  {t('xcmWizard.channelsOpened')}
                 </>
               ) : (
-                'Open HRMP Channels'
+                t('xcmWizard.hrmpBtn')
               )}
             </Button>
           </div>
@@ -675,7 +667,7 @@ export const XCMConfigurationWizard: React.FC<XCMConfigurationWizardProps> = ({
         return (
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Register foreign assets: USDT, DOT, and other cross-chain tokens
+              {t('xcmWizard.assetsDesc')}
             </p>
 
             {registeredAssets.length > 0 && (
@@ -705,15 +697,15 @@ export const XCMConfigurationWizard: React.FC<XCMConfigurationWizardProps> = ({
               {registeringAssets ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Registering Assets...
+                  {t('xcmWizard.registeringAssets')}
                 </>
               ) : steps[5].completed ? (
                 <>
                   <CheckCircle className="mr-2 h-4 w-4" />
-                  Assets Registered
+                  {t('xcmWizard.assetsRegistered')}
                 </>
               ) : (
-                'Register Foreign Assets'
+                t('xcmWizard.assetsBtn')
               )}
             </Button>
           </div>
@@ -723,7 +715,7 @@ export const XCMConfigurationWizard: React.FC<XCMConfigurationWizardProps> = ({
         return (
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Test XCM transfer from Asset Hub to verify bridge functionality
+              {t('xcmWizard.testDesc')}
             </p>
 
             {testResult && (
@@ -731,8 +723,8 @@ export const XCMConfigurationWizard: React.FC<XCMConfigurationWizardProps> = ({
                 {testResult.success ? <CheckCircle className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
                 <AlertDescription>
                   {testResult.success
-                    ? `Test successful! Balance: ${testResult.balance} wUSDT`
-                    : `Test failed: ${testResult.error}`}
+                    ? t('xcmWizard.testSuccess', { balance: testResult.balance })
+                    : testResult.error}
                 </AlertDescription>
               </Alert>
             )}
@@ -748,15 +740,15 @@ export const XCMConfigurationWizard: React.FC<XCMConfigurationWizardProps> = ({
               {testing ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Testing XCM Transfer...
+                  {t('xcmWizard.testing')}
                 </>
               ) : steps[6].completed ? (
                 <>
                   <CheckCircle className="mr-2 h-4 w-4" />
-                  XCM Test Passed
+                  {t('xcmWizard.testPassed')}
                 </>
               ) : (
-                'Test XCM Transfer'
+                t('xcmWizard.testBtn')
               )}
             </Button>
           </div>
@@ -773,8 +765,8 @@ export const XCMConfigurationWizard: React.FC<XCMConfigurationWizardProps> = ({
   // Handle Finish Configuration
   const handleFinishConfiguration = () => {
     toast({
-      title: 'XCM Configuration Complete!',
-      description: 'Your parachain is fully configured and ready for cross-chain transfers',
+      title: t('xcmWizard.complete'),
+      description: t('xcmWizard.completeDesc'),
     });
 
     if (onSuccess) {
@@ -792,9 +784,9 @@ export const XCMConfigurationWizard: React.FC<XCMConfigurationWizardProps> = ({
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>XCM Configuration Wizard</CardTitle>
+              <CardTitle>{t('xcmWizard.title')}</CardTitle>
               <CardDescription>
-                Complete parachain setup and cross-chain integration
+                {t('xcmWizard.subtitle')}
               </CardDescription>
             </div>
             <Button variant="ghost" size="icon" onClick={onClose}>
@@ -805,7 +797,7 @@ export const XCMConfigurationWizard: React.FC<XCMConfigurationWizardProps> = ({
           <div className="mt-4">
             <Progress value={progress} className="h-2" />
             <p className="mt-2 text-xs text-muted-foreground text-center">
-              {Object.values(steps).filter(s => s.completed).length} / {totalSteps} steps completed
+              {t('xcmWizard.progress', { completed: Object.values(steps).filter(s => s.completed).length, total: totalSteps })}
             </p>
           </div>
         </CardHeader>
@@ -842,12 +834,12 @@ export const XCMConfigurationWizard: React.FC<XCMConfigurationWizardProps> = ({
             <div className="flex items-center gap-2">
               <Badge variant="outline">Step {currentStep}</Badge>
               <h3 className="font-semibold">
-                {currentStep === 1 && 'Reserve ParaId'}
-                {currentStep === 2 && 'Generate Chain Artifacts'}
-                {currentStep === 3 && 'Register Parachain'}
-                {currentStep === 4 && 'Open HRMP Channels'}
-                {currentStep === 5 && 'Register Foreign Assets'}
-                {currentStep === 6 && 'Test XCM Transfer'}
+                {currentStep === 1 && t('xcmWizard.stepReserve')}
+                {currentStep === 2 && t('xcmWizard.stepArtifacts')}
+                {currentStep === 3 && t('xcmWizard.stepParachain')}
+                {currentStep === 4 && t('xcmWizard.stepHrmp')}
+                {currentStep === 5 && t('xcmWizard.stepAssets')}
+                {currentStep === 6 && t('xcmWizard.stepTest')}
               </h3>
             </div>
 
@@ -861,20 +853,20 @@ export const XCMConfigurationWizard: React.FC<XCMConfigurationWizardProps> = ({
               onClick={() => setCurrentStep(Math.max(1, currentStep - 1))}
               disabled={currentStep === 1}
             >
-              Previous
+              {t('xcmWizard.previous')}
             </Button>
 
             {allStepsCompleted ? (
               <Button onClick={handleFinishConfiguration} className="bg-kurdish-green hover:bg-kurdish-green-dark">
                 <CheckCircle className="mr-2 h-4 w-4" />
-                Finish Configuration
+                {t('xcmWizard.finish')}
               </Button>
             ) : (
               <Button
                 onClick={() => setCurrentStep(Math.min(totalSteps, currentStep + 1))}
                 disabled={currentStep === totalSteps || !steps[currentStep].completed}
               >
-                Next
+                {t('xcmWizard.next')}
                 <ChevronRight className="ml-2 h-4 w-4" />
               </Button>
             )}

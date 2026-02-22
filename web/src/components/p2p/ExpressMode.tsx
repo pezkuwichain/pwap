@@ -19,6 +19,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import type { CryptoToken, FiatCurrency } from '@pezkuwi/lib/p2p-fiat';
 
 interface BestOffer {
@@ -67,6 +68,7 @@ export function ExpressMode({ onTradeStarted }: ExpressModeProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
+  const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -139,17 +141,17 @@ export function ExpressMode({ onTradeStarted }: ExpressModeProps) {
   // Handle express trade
   const handleExpressTrade = async () => {
     if (!user) {
-      toast.error('Please login to trade');
+      toast.error(t('p2pExpress.loginRequired'));
       return;
     }
 
     if (!bestOffer) {
-      toast.error('No offers available');
+      toast.error(t('p2pExpress.noOffersAvailable'));
       return;
     }
 
     if (cryptoAmount > bestOffer.remaining_amount) {
-      toast.error(`Maximum available: ${bestOffer.remaining_amount} ${token}`);
+      toast.error(t('p2pExpress.maxAvailable', { amount: bestOffer.remaining_amount, token }));
       return;
     }
 
@@ -171,7 +173,7 @@ export function ExpressMode({ onTradeStarted }: ExpressModeProps) {
         throw new Error(response.error || 'Failed to start trade');
       }
 
-      toast.success('Express trade started!');
+      toast.success(t('p2pExpress.tradeStarted'));
 
       if (onTradeStarted) {
         onTradeStarted(response.trade_id);
@@ -195,12 +197,12 @@ export function ExpressMode({ onTradeStarted }: ExpressModeProps) {
               <Zap className="w-5 h-5 text-yellow-400" />
             </div>
             <div>
-              <CardTitle className="text-lg text-white">Express Mode</CardTitle>
-              <p className="text-xs text-gray-400">Instant best-rate matching</p>
+              <CardTitle className="text-lg text-white">{t('p2pExpress.title')}</CardTitle>
+              <p className="text-xs text-gray-400">{t('p2pExpress.subtitle')}</p>
             </div>
           </div>
           <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">
-            Fast
+            {t('p2pExpress.fast')}
           </Badge>
         </div>
       </CardHeader>
@@ -209,10 +211,10 @@ export function ExpressMode({ onTradeStarted }: ExpressModeProps) {
         <Tabs value={mode} onValueChange={(v) => setMode(v as 'buy' | 'sell')}>
           <TabsList className="grid w-full grid-cols-2 bg-gray-800">
             <TabsTrigger value="buy" className="data-[state=active]:bg-green-600">
-              Buy {token}
+              {t('p2pExpress.buyToken', { token })}
             </TabsTrigger>
             <TabsTrigger value="sell" className="data-[state=active]:bg-red-600">
-              Sell {token}
+              {t('p2pExpress.sellToken', { token })}
             </TabsTrigger>
           </TabsList>
         </Tabs>
@@ -220,7 +222,7 @@ export function ExpressMode({ onTradeStarted }: ExpressModeProps) {
         {/* Token & Fiat Selection */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <Label className="text-gray-400 text-xs">Crypto</Label>
+            <Label className="text-gray-400 text-xs">{t('p2p.crypto')}</Label>
             <Select value={token} onValueChange={(v) => setToken(v as CryptoToken)}>
               <SelectTrigger className="bg-gray-800 border-gray-700">
                 <SelectValue />
@@ -233,7 +235,7 @@ export function ExpressMode({ onTradeStarted }: ExpressModeProps) {
             </Select>
           </div>
           <div>
-            <Label className="text-gray-400 text-xs">Currency</Label>
+            <Label className="text-gray-400 text-xs">{t('p2p.currency')}</Label>
             <Select value={fiat} onValueChange={(v) => setFiat(v as FiatCurrency)}>
               <SelectTrigger className="bg-gray-800 border-gray-700">
                 <SelectValue />
@@ -253,7 +255,7 @@ export function ExpressMode({ onTradeStarted }: ExpressModeProps) {
         <div>
           <div className="flex items-center justify-between mb-1">
             <Label className="text-gray-400 text-xs">
-              {inputType === 'fiat' ? `Amount (${fiat})` : `Amount (${token})`}
+              {t('p2pExpress.amountLabel', { unit: inputType === 'fiat' ? fiat : token })}
             </Label>
             <Button
               variant="ghost"
@@ -261,7 +263,7 @@ export function ExpressMode({ onTradeStarted }: ExpressModeProps) {
               className="text-xs text-yellow-400 h-auto p-0"
               onClick={() => setInputType(inputType === 'fiat' ? 'crypto' : 'fiat')}
             >
-              Switch to {inputType === 'fiat' ? token : fiat}
+              {t('p2pExpress.switchTo', { unit: inputType === 'fiat' ? token : fiat })}
             </Button>
           </div>
           <div className="relative">
@@ -282,7 +284,7 @@ export function ExpressMode({ onTradeStarted }: ExpressModeProps) {
         {bestOffer && parseFloat(amount) > 0 && (
           <div className="p-3 bg-gray-800/50 rounded-lg space-y-2">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-400">You {mode === 'buy' ? 'pay' : 'receive'}</span>
+              <span className="text-gray-400">{mode === 'buy' ? t('p2pExpress.youPay') : t('p2pExpress.youReceive')}</span>
               <span className="text-white font-medium">
                 {fiatSymbol}{fiatAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })} {fiat}
               </span>
@@ -291,31 +293,31 @@ export function ExpressMode({ onTradeStarted }: ExpressModeProps) {
               <ArrowRight className="w-4 h-4 text-gray-500" />
             </div>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-400">You {mode === 'buy' ? 'receive' : 'send'}</span>
+              <span className="text-gray-400">{mode === 'buy' ? t('p2pExpress.youReceive') : t('p2pExpress.youSend')}</span>
               <span className="text-white font-medium">
                 {cryptoAmount.toLocaleString(undefined, { maximumFractionDigits: 6 })} {token}
               </span>
             </div>
             <div className="pt-2 border-t border-gray-700 space-y-1">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-gray-500">Rate</span>
+                <span className="text-gray-500">{t('p2pExpress.rate')}</span>
                 <span className="text-gray-300">
                   1 {token} = {fiatSymbol}{bestOffer.price_per_unit.toLocaleString()}
                 </span>
               </div>
               <div className="flex items-center justify-between text-xs">
-                <span className="text-gray-500">Merchant Rating</span>
+                <span className="text-gray-500">{t('p2pExpress.merchantRating')}</span>
                 <span className="text-yellow-400 flex items-center gap-1">
                   <Star className="w-3 h-3" />
-                  {bestOffer.seller_reputation}% ({bestOffer.seller_completed_trades} trades)
+                  {bestOffer.seller_reputation}% ({t('p2p.trades', { count: bestOffer.seller_completed_trades })})
                 </span>
               </div>
               <div className="flex items-center justify-between text-xs">
-                <span className="text-gray-500">Payment</span>
+                <span className="text-gray-500">{t('p2pExpress.payment')}</span>
                 <span className="text-gray-300">{bestOffer.payment_method_name}</span>
               </div>
               <div className="flex items-center justify-between text-xs">
-                <span className="text-gray-500">Time Limit</span>
+                <span className="text-gray-500">{t('p2pExpress.timeLimit')}</span>
                 <span className="text-gray-300 flex items-center gap-1">
                   <Clock className="w-3 h-3" />
                   {bestOffer.time_limit_minutes} min
@@ -330,7 +332,7 @@ export function ExpressMode({ onTradeStarted }: ExpressModeProps) {
           <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg flex items-center gap-2">
             <AlertCircle className="w-4 h-4 text-red-400" />
             <span className="text-sm text-red-400">
-              No offers available for this pair
+              {t('p2pExpress.noOffers')}
             </span>
           </div>
         )}
@@ -343,11 +345,11 @@ export function ExpressMode({ onTradeStarted }: ExpressModeProps) {
           disabled={!bestOffer || isLoading || isProcessing || !user}
         >
           {isProcessing ? (
-            <>Processing...</>
+            <>{t('p2pExpress.processing')}</>
           ) : (
             <>
               <Zap className="w-4 h-4 mr-2" />
-              {mode === 'buy' ? 'Buy' : 'Sell'} {token} Instantly
+              {mode === 'buy' ? t('p2pExpress.buyInstantly', { token }) : t('p2pExpress.sellInstantly', { token })}
             </>
           )}
         </Button>
@@ -356,11 +358,11 @@ export function ExpressMode({ onTradeStarted }: ExpressModeProps) {
         <div className="flex items-center justify-center gap-4 text-xs text-gray-500">
           <span className="flex items-center gap-1">
             <Shield className="w-3 h-3 text-green-400" />
-            Escrow Protected
+            {t('p2p.escrowProtected')}
           </span>
           <span className="flex items-center gap-1">
             <CheckCircle2 className="w-3 h-3 text-blue-400" />
-            Verified Merchants
+            {t('p2p.verifiedMerchants')}
           </span>
         </div>
       </CardContent>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -23,6 +24,7 @@ export const PezkuwiWalletButton: React.FC = () => {
     error
   } = usePezkuwi();
 
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
   const isMobile = useIsMobile();
@@ -38,7 +40,7 @@ export const PezkuwiWalletButton: React.FC = () => {
     setSelectedAccount(account);
     setIsOpen(false);
     toast({
-      title: "Account Connected",
+      title: t('pezWallet.connected'),
       description: `${account.meta.name} - ${formatAddress(account.address)}`,
     });
   };
@@ -46,8 +48,8 @@ export const PezkuwiWalletButton: React.FC = () => {
   const handleDisconnect = () => {
     disconnectWallet();
     toast({
-      title: "Wallet Disconnected",
-      description: "Your wallet has been disconnected",
+      title: t('pezWallet.disconnected'),
+      description: t('pezWallet.disconnectedDesc'),
     });
   };
 
@@ -59,8 +61,8 @@ export const PezkuwiWalletButton: React.FC = () => {
     if (selectedAccount) {
       navigator.clipboard.writeText(selectedAccount.address);
       toast({
-        title: "Address Copied",
-        description: "Address copied to clipboard",
+        title: t('pezWallet.addressCopied'),
+        description: t('pezWallet.addressCopiedDesc'),
       });
     }
   };
@@ -96,22 +98,22 @@ export const PezkuwiWalletButton: React.FC = () => {
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogContent className="bg-gray-900 border-gray-800">
             <DialogHeader>
-              <DialogTitle className="text-white">Account Details</DialogTitle>
+              <DialogTitle className="text-white">{t('pezWallet.accountDetails')}</DialogTitle>
               <DialogDescription className="text-gray-400">
-                Your connected Pezkuwi account
+                {t('pezWallet.accountDetailsDesc')}
               </DialogDescription>
             </DialogHeader>
 
             <div className="space-y-4">
               <div className="bg-gray-800/50 rounded-lg p-4">
-                <div className="text-sm text-gray-400 mb-1">Account Name</div>
+                <div className="text-sm text-gray-400 mb-1">{t('pezWallet.accountName')}</div>
                 <div className="text-white font-medium">
-                  {selectedAccount.meta.name || 'Unnamed Account'}
+                  {selectedAccount.meta.name || t('pezWallet.unnamed')}
                 </div>
               </div>
 
               <div className="bg-gray-800/50 rounded-lg p-4">
-                <div className="text-sm text-gray-400 mb-1">Address</div>
+                <div className="text-sm text-gray-400 mb-1">{t('pezWallet.address')}</div>
                 <div className="flex items-center justify-between">
                   <code className="text-white text-sm font-mono">
                     {selectedAccount.address}
@@ -128,7 +130,7 @@ export const PezkuwiWalletButton: React.FC = () => {
               </div>
 
               <div className="bg-gray-800/50 rounded-lg p-4">
-                <div className="text-sm text-gray-400 mb-1">Source</div>
+                <div className="text-sm text-gray-400 mb-1">{t('pezWallet.source')}</div>
                 <div className="text-white">
                   {selectedAccount.meta.source || 'pezkuwi'}
                 </div>
@@ -136,7 +138,7 @@ export const PezkuwiWalletButton: React.FC = () => {
 
               {accounts.length > 1 && (
                 <div>
-                  <div className="text-sm text-gray-400 mb-2">Switch Account</div>
+                  <div className="text-sm text-gray-400 mb-2">{t('pezWallet.switchAccount')}</div>
                   <div className="space-y-2">
                     {accounts.map((account) => (
                       <button
@@ -150,7 +152,7 @@ export const PezkuwiWalletButton: React.FC = () => {
                       >
                         <div className="text-left">
                           <div className="text-white font-medium">
-                            {account.meta.name || 'Unnamed'}
+                            {account.meta.name || t('pezWallet.unnamed')}
                           </div>
                           <div className="text-gray-400 text-xs font-mono">
                             {formatAddress(account.address)}
@@ -179,22 +181,22 @@ export const PezkuwiWalletButton: React.FC = () => {
         size={isMobile ? "icon" : "default"}
       >
         <Wallet className={isMobile ? "w-4 h-4" : "w-4 h-4 mr-2"} />
-        {!isMobile && "Connect Wallet"}
+        {!isMobile && t('pezWallet.connect')}
       </Button>
 
       {error && error.includes('not found') && (
         <Dialog open={!!error} onOpenChange={() => {}}>
           <DialogContent className="bg-gray-900 border-gray-800">
             <DialogHeader>
-              <DialogTitle className="text-white">Install Pezkuwi Wallet Extension</DialogTitle>
+              <DialogTitle className="text-white">{t('pezWallet.installTitle')}</DialogTitle>
               <DialogDescription className="text-gray-400">
-                You need the Pezkuwi Wallet browser extension to connect
+                {t('pezWallet.installDesc')}
               </DialogDescription>
             </DialogHeader>
 
             <div className="space-y-4">
               <p className="text-gray-300">
-                The Pezkuwi Wallet extension allows you to manage your accounts and sign transactions securely.
+                {t('pezWallet.installText')}
               </p>
 
               <div className="flex gap-3">
@@ -206,13 +208,13 @@ export const PezkuwiWalletButton: React.FC = () => {
                 >
                   <Button className="w-full bg-green-600 hover:bg-green-700">
                     <ExternalLink className="w-4 h-4 mr-2" />
-                    Install from Chrome Web Store
+                    {t('pezWallet.installChrome')}
                   </Button>
                 </a>
               </div>
 
               <p className="text-xs text-gray-500">
-                After installing, refresh this page and click &quot;Connect Wallet&quot; again.
+                {t('pezWallet.installRefresh')}
               </p>
             </div>
           </DialogContent>
@@ -222,9 +224,9 @@ export const PezkuwiWalletButton: React.FC = () => {
       <Dialog open={isOpen && accounts.length > 0} onOpenChange={setIsOpen}>
         <DialogContent className="bg-gray-900 border-gray-800">
           <DialogHeader>
-            <DialogTitle className="text-white">Select Account</DialogTitle>
+            <DialogTitle className="text-white">{t('pezWallet.selectTitle')}</DialogTitle>
             <DialogDescription className="text-gray-400">
-              Choose an account to connect
+              {t('pezWallet.selectDesc')}
             </DialogDescription>
           </DialogHeader>
 
@@ -236,7 +238,7 @@ export const PezkuwiWalletButton: React.FC = () => {
                 className="w-full p-4 rounded-lg border border-gray-700 bg-gray-800/50 hover:border-green-500/50 hover:bg-gray-800 transition-all text-left"
               >
                 <div className="text-white font-medium mb-1">
-                  {account.meta.name || 'Unnamed Account'}
+                  {account.meta.name || t('pezWallet.unnamed')}
                 </div>
                 <div className="text-gray-400 text-sm font-mono">
                   {account.address}

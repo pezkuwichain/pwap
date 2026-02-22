@@ -37,6 +37,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -89,6 +90,7 @@ const ForumTopic: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useTranslation();
 
   const [discussion, setDiscussion] = useState<Discussion | null>(null);
   const [replies, setReplies] = useState<Reply[]>([]);
@@ -408,7 +410,7 @@ const ForumTopic: React.FC = () => {
                   className="flex items-center gap-1 text-gray-500 hover:text-green-400 text-sm transition-colors"
                 >
                   <Reply className="w-4 h-4" />
-                  Reply
+                  {t('discussion.reply')}
                 </button>
 
                 <DropdownMenu>
@@ -426,7 +428,7 @@ const ForumTopic: React.FC = () => {
                       className="text-gray-300 hover:bg-gray-800"
                     >
                       <Flag className="w-4 h-4 mr-2" />
-                      Report
+                      {t('forumTopic.report')}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -438,7 +440,7 @@ const ForumTopic: React.FC = () => {
                   <Textarea
                     value={nestedReplyContent}
                     onChange={(e) => setNestedReplyContent(e.target.value)}
-                    placeholder={`Reply to ${reply.author_name}...`}
+                    placeholder={t('forumTopic.replyTo', { name: reply.author_name })}
                     rows={2}
                     className="flex-1 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
                   />
@@ -482,11 +484,11 @@ const ForumTopic: React.FC = () => {
         <div className="min-h-screen bg-gray-950 flex items-center justify-center">
           <div className="text-center">
             <MessageSquare className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-white mb-2">Discussion Not Found</h2>
-            <p className="text-gray-400 mb-6">This discussion may have been removed or does not exist.</p>
+            <h2 className="text-xl font-semibold text-white mb-2">{t('forumTopic.notFound')}</h2>
+            <p className="text-gray-400 mb-6">{t('forumTopic.notFoundDesc')}</p>
             <Button onClick={() => navigate('/forum')} variant="outline" className="border-gray-700">
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Forum
+              {t('forum.backToForum')}
             </Button>
           </div>
         </div>
@@ -505,7 +507,7 @@ const ForumTopic: React.FC = () => {
             className="mb-6 text-gray-400 hover:text-white"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Forum
+            {t('forum.backToForum')}
           </Button>
 
           {/* Discussion Header */}
@@ -523,13 +525,13 @@ const ForumTopic: React.FC = () => {
                     {discussion.is_pinned && (
                       <Badge variant="outline" className="border-yellow-500 text-yellow-500">
                         <Pin className="w-3 h-3 mr-1" />
-                        Pinned
+                        {t('forum.pinned')}
                       </Badge>
                     )}
                     {discussion.is_locked && (
                       <Badge variant="outline" className="border-gray-500 text-gray-500">
                         <Lock className="w-3 h-3 mr-1" />
-                        Locked
+                        {t('forum.locked')}
                       </Badge>
                     )}
                     {discussion.category && (
@@ -551,18 +553,18 @@ const ForumTopic: React.FC = () => {
 
                   {/* Meta info */}
                   <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
-                    <span>by <span className="text-gray-300">{discussion.author_name}</span></span>
+                    <span>{t('forum.by')} <span className="text-gray-300">{discussion.author_name}</span></span>
                     <span className="flex items-center gap-1">
                       <Clock className="w-4 h-4" />
                       {format(new Date(discussion.created_at), 'MMM d, yyyy')}
                     </span>
                     <span className="flex items-center gap-1">
                       <Eye className="w-4 h-4" />
-                      {discussion.views_count} views
+                      {discussion.views_count} {t('forum.views')}
                     </span>
                     <span className="flex items-center gap-1">
                       <MessageSquare className="w-4 h-4" />
-                      {discussion.replies_count} replies
+                      {discussion.replies_count} {t('forum.replies')}
                     </span>
                   </div>
 
@@ -608,7 +610,7 @@ const ForumTopic: React.FC = () => {
                       }`}
                     >
                       <Bookmark className="w-4 h-4" />
-                      {isBookmarked ? 'Saved' : 'Save'}
+                      {isBookmarked ? t('forumTopic.saved') : t('forumTopic.save')}
                     </button>
 
                     <button
@@ -616,7 +618,7 @@ const ForumTopic: React.FC = () => {
                       className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-gray-400 hover:bg-gray-800 transition-colors"
                     >
                       <Share2 className="w-4 h-4" />
-                      Share
+                      {t('forumTopic.share')}
                     </button>
 
                     <button
@@ -627,7 +629,7 @@ const ForumTopic: React.FC = () => {
                       className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-gray-400 hover:bg-gray-800 transition-colors"
                     >
                       <Flag className="w-4 h-4" />
-                      Report
+                      {t('forumTopic.report')}
                     </button>
                   </div>
                 </div>
@@ -639,13 +641,13 @@ const ForumTopic: React.FC = () => {
           {!discussion.is_locked ? (
             <Card className="bg-gray-900 border-gray-800 mb-6">
               <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-white mb-4">Leave a Reply</h3>
+                <h3 className="text-lg font-semibold text-white mb-4">{t('forumTopic.leaveReply')}</h3>
                 {user ? (
                   <div>
                     <Textarea
                       value={replyContent}
                       onChange={(e) => setReplyContent(e.target.value)}
-                      placeholder="Write your reply..."
+                      placeholder={t('forumTopic.writeReply')}
                       rows={4}
                       className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 mb-4"
                     />
@@ -657,25 +659,25 @@ const ForumTopic: React.FC = () => {
                       {isSubmitting ? (
                         <>
                           <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          Posting...
+                          {t('forumTopic.posting')}
                         </>
                       ) : (
                         <>
                           <Send className="w-4 h-4 mr-2" />
-                          Post Reply
+                          {t('forumTopic.postReply')}
                         </>
                       )}
                     </Button>
                   </div>
                 ) : (
                   <div className="text-center py-4">
-                    <p className="text-gray-400 mb-4">Login to join the discussion</p>
+                    <p className="text-gray-400 mb-4">{t('forumTopic.loginToJoin')}</p>
                     <Button
                       onClick={() => navigate('/login')}
                       className="bg-gradient-to-r from-green-600 to-yellow-500"
                     >
                       <LogIn className="w-4 h-4 mr-2" />
-                      Login to Reply
+                      {t('forumTopic.loginToReply')}
                     </Button>
                   </div>
                 )}
@@ -685,7 +687,7 @@ const ForumTopic: React.FC = () => {
             <Card className="bg-gray-900 border-gray-800 mb-6">
               <CardContent className="p-6 text-center">
                 <Lock className="w-8 h-8 text-gray-500 mx-auto mb-2" />
-                <p className="text-gray-400">This discussion has been locked and no longer accepts new replies.</p>
+                <p className="text-gray-400">{t('forumTopic.lockedMsg')}</p>
               </CardContent>
             </Card>
           )}
@@ -694,14 +696,14 @@ const ForumTopic: React.FC = () => {
           <div>
             <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
               <MessageSquare className="w-5 h-5 text-green-500" />
-              {replies.length} {replies.length === 1 ? 'Reply' : 'Replies'}
+              {t('forumTopic.replyCount_other', { count: replies.length })}
             </h3>
 
             {replies.length === 0 ? (
               <Card className="bg-gray-900 border-gray-800">
                 <CardContent className="py-12 text-center">
                   <MessageSquare className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-                  <p className="text-gray-400">No replies yet. Be the first to respond!</p>
+                  <p className="text-gray-400">{t('forumTopic.noReplies')}</p>
                 </CardContent>
               </Card>
             ) : (
@@ -719,10 +721,10 @@ const ForumTopic: React.FC = () => {
           <DialogHeader>
             <DialogTitle className="text-white text-xl flex items-center gap-2">
               <LogIn className="w-6 h-6 text-green-500" />
-              Login Required
+              {t('forum.loginRequired')}
             </DialogTitle>
             <DialogDescription className="text-gray-400">
-              You need to be logged in to perform this action.
+              {t('forum.loginRequiredDesc')}
             </DialogDescription>
           </DialogHeader>
 
@@ -730,11 +732,11 @@ const ForumTopic: React.FC = () => {
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-green-500/20 to-yellow-500/20 flex items-center justify-center mx-auto mb-4">
               <Users className="w-8 h-8 text-green-400" />
             </div>
-            <p className="text-gray-300 mb-2">Join our community to:</p>
+            <p className="text-gray-300 mb-2">{t('forum.joinCommunity')}</p>
             <ul className="text-gray-400 text-sm space-y-1">
-              <li>• Reply to discussions</li>
-              <li>• Upvote helpful content</li>
-              <li>• Save topics for later</li>
+              <li>• {t('forumTopic.joinReply')}</li>
+              <li>• {t('forumTopic.joinUpvote')}</li>
+              <li>• {t('forumTopic.joinSave')}</li>
             </ul>
           </div>
 
@@ -744,7 +746,7 @@ const ForumTopic: React.FC = () => {
               onClick={() => setShowLoginPrompt(false)}
               className="flex-1 border-gray-700 text-gray-300"
             >
-              Continue Reading
+              {t('forumTopic.continueReading')}
             </Button>
             <Button
               onClick={() => {
@@ -754,7 +756,7 @@ const ForumTopic: React.FC = () => {
               className="flex-1 bg-gradient-to-r from-green-600 to-yellow-500"
             >
               <LogIn className="w-4 h-4 mr-2" />
-              Login
+              {t('forum.login')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -766,15 +768,15 @@ const ForumTopic: React.FC = () => {
           <DialogHeader>
             <DialogTitle className="text-white text-xl flex items-center gap-2">
               <AlertTriangle className="w-6 h-6 text-yellow-500" />
-              Report Content
+              {t('forumTopic.reportContent')}
             </DialogTitle>
             <DialogDescription className="text-gray-400">
-              Why are you reporting this content?
+              {t('forumTopic.reportReason')}
             </DialogDescription>
           </DialogHeader>
 
           <div className="py-4 space-y-2">
-            {['Spam or misleading', 'Harassment or hate speech', 'Inappropriate content', 'Off-topic', 'Other'].map((reason) => (
+            {[t('forumTopic.reportSpam'), t('forumTopic.reportHarassment'), t('forumTopic.reportInappropriate'), t('forumTopic.reportOffTopic'), t('forumTopic.reportOther')].map((reason) => (
               <button
                 key={reason}
                 onClick={() => handleReport(reason)}
@@ -791,7 +793,7 @@ const ForumTopic: React.FC = () => {
               onClick={() => setShowReportModal(false)}
               className="border-gray-700 text-gray-300"
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
           </DialogFooter>
         </DialogContent>

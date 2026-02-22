@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,6 +23,7 @@ export const PoolBrowser: React.FC<PoolBrowserProps> = ({
   onSwap,
   onCreatePool,
 }) => {
+  const { t } = useTranslation();
   // Use Asset Hub API for DEX operations
   const { assetHubApi, isAssetHubReady, sudoKey } = usePezkuwi();
   const { account } = useWallet();
@@ -64,7 +66,7 @@ export const PoolBrowser: React.FC<PoolBrowserProps> = ({
   });
 
   if (loading && pools.length === 0) {
-    return <LoadingState message="Loading liquidity pools..." />;
+    return <LoadingState message={t('pools.loading')} />;
   }
 
   return (
@@ -75,7 +77,7 @@ export const PoolBrowser: React.FC<PoolBrowserProps> = ({
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
             type="text"
-            placeholder="Search pools by token..."
+            placeholder={t('pools.searchPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2 bg-gray-900 border border-gray-800 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -88,7 +90,7 @@ export const PoolBrowser: React.FC<PoolBrowserProps> = ({
             className="flex items-center gap-2 px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
           >
             <Plus className="w-4 h-4" />
-            Create Pool
+            {t('pools.createPool')}
           </button>
         )}
       </div>
@@ -99,8 +101,8 @@ export const PoolBrowser: React.FC<PoolBrowserProps> = ({
           <CardContent className="py-12">
             <div className="text-center text-gray-400">
               {searchTerm
-                ? 'No pools found matching your search'
-                : 'No liquidity pools available yet'}
+                ? t('pools.noSearchResults')
+                : t('pools.noPools')}
             </div>
           </CardContent>
         </Card>
@@ -134,6 +136,7 @@ const PoolCard: React.FC<PoolCardProps> = ({
   onRemoveLiquidity,
   onSwap,
 }) => {
+  const { t } = useTranslation();
   const reserve1Display = formatTokenBalance(
     pool.reserve1,
     pool.asset1Decimals,
@@ -161,7 +164,7 @@ const PoolCard: React.FC<PoolCardProps> = ({
             <span className="text-yellow-400">{pool.asset2Symbol}</span>
           </CardTitle>
           <Badge className="bg-green-500/10 text-green-400 border-green-500/20">
-            Active
+            {t('pools.active')}
           </Badge>
         </div>
       </CardHeader>
@@ -170,13 +173,13 @@ const PoolCard: React.FC<PoolCardProps> = ({
         {/* Reserves */}
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-400">Reserve {pool.asset1Symbol}</span>
+            <span className="text-gray-400">{t('pools.reserve', { symbol: pool.asset1Symbol })}</span>
             <span className="text-white font-mono">
               {reserve1Display} {pool.asset1Symbol}
             </span>
           </div>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-400">Reserve {pool.asset2Symbol}</span>
+            <span className="text-gray-400">{t('pools.reserve', { symbol: pool.asset2Symbol })}</span>
             <span className="text-white font-mono">
               {reserve2Display} {pool.asset2Symbol}
             </span>
@@ -186,7 +189,7 @@ const PoolCard: React.FC<PoolCardProps> = ({
         {/* Exchange rate */}
         <div className="p-3 bg-gray-800/50 rounded-lg">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-400">Exchange Rate</span>
+            <span className="text-gray-400">{t('common.exchangeRate')}</span>
             <span className="text-cyan-400 font-mono">
               1 {pool.asset1Symbol} = {rate} {pool.asset2Symbol}
             </span>
@@ -196,21 +199,21 @@ const PoolCard: React.FC<PoolCardProps> = ({
         {/* Stats row */}
         <div className="grid grid-cols-3 gap-2 pt-2 border-t border-gray-800">
           <div className="text-center">
-            <div className="text-xs text-gray-500">Fee</div>
+            <div className="text-xs text-gray-500">{t('pools.fee')}</div>
             <div className="text-sm font-semibold text-white">
               {pool.feeRate || '0.3'}%
             </div>
           </div>
           <div className="text-center">
-            <div className="text-xs text-gray-500">Volume 24h</div>
+            <div className="text-xs text-gray-500">{t('pools.volume24h')}</div>
             <div className="text-sm font-semibold text-white">
-              {pool.volume24h || 'N/A'}
+              {pool.volume24h || t('pools.na')}
             </div>
           </div>
           <div className="text-center">
-            <div className="text-xs text-gray-500">APR</div>
+            <div className="text-xs text-gray-500">{t('pools.apr')}</div>
             <div className="text-sm font-semibold text-green-400">
-              {pool.apr7d || 'N/A'}
+              {pool.apr7d || t('pools.na')}
             </div>
           </div>
         </div>
@@ -223,7 +226,7 @@ const PoolCard: React.FC<PoolCardProps> = ({
               className="px-3 py-2 bg-green-600/20 hover:bg-green-600/30 text-green-400 border border-green-600/30 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-1"
             >
               <Droplet className="w-3 h-3" />
-              Add
+              {t('pools.add')}
             </button>
           )}
           {onRemoveLiquidity && (
@@ -231,7 +234,7 @@ const PoolCard: React.FC<PoolCardProps> = ({
               onClick={() => onRemoveLiquidity(pool)}
               className="px-3 py-2 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-600/30 rounded-lg text-xs font-medium transition-colors"
             >
-              Remove
+              {t('pools.remove')}
             </button>
           )}
           {onSwap && (
@@ -240,7 +243,7 @@ const PoolCard: React.FC<PoolCardProps> = ({
               className="px-3 py-2 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-600/30 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-1"
             >
               <TrendingUp className="w-3 h-3" />
-              Swap
+              {t('pools.swap')}
             </button>
           )}
         </div>

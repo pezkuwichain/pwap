@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -15,6 +16,7 @@ interface CourseListProps {
 }
 
 export function CourseList({ enrolledCourseIds, onEnroll }: CourseListProps) {
+  const { t } = useTranslation();
   const { api, selectedAccount } = usePezkuwi();
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
@@ -29,7 +31,7 @@ export function CourseList({ enrolledCourseIds, onEnroll }: CourseListProps) {
         if (import.meta.env.DEV) console.error('Failed to fetch courses:', error);
         toast({
           title: 'Error',
-          description: 'Failed to fetch courses',
+          description: t('courseList.fetchFailed'),
           variant: 'destructive',
         });
       } finally {
@@ -44,7 +46,7 @@ export function CourseList({ enrolledCourseIds, onEnroll }: CourseListProps) {
     if (!api || !selectedAccount) {
       toast({
         title: 'Error',
-        description: 'Please connect your wallet first',
+        description: t('courseList.connectWallet'),
         variant: 'destructive',
       });
       return;
@@ -65,16 +67,16 @@ export function CourseList({ enrolledCourseIds, onEnroll }: CourseListProps) {
   return (
     <div>
       <h2 className="text-2xl font-bold text-white mb-6">
-        {courses.length > 0 ? `Available Courses (${courses.length})` : 'No Courses Available'}
+        {courses.length > 0 ? `${t('courseList.title')} (${courses.length})` : t('courseList.noCourses')}
       </h2>
 
       {courses.length === 0 ? (
         <Card className="bg-gray-900 border-gray-800">
           <CardContent className="p-12 text-center">
             <BookOpen className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-gray-400 mb-2">No Active Courses</h3>
+            <h3 className="text-xl font-bold text-gray-400 mb-2">{t('courseList.noActive')}</h3>
             <p className="text-gray-500 mb-6">
-              Check back later for new educational content.
+              {t('courseList.checkBackLater')}
             </p>
           </CardContent>
         </Card>
@@ -98,7 +100,7 @@ export function CourseList({ enrolledCourseIds, onEnroll }: CourseListProps) {
                         </Badge>
                         {isUserEnrolled && (
                           <Badge className="bg-blue-500/10 text-blue-400 border-blue-500/30">
-                            Enrolled
+                            {t('courseList.enrolled')}
                           </Badge>
                         )}
                       </div>
@@ -118,7 +120,7 @@ export function CourseList({ enrolledCourseIds, onEnroll }: CourseListProps) {
                             className="flex items-center gap-1 text-green-400 hover:text-green-300"
                           >
                             <ExternalLink className="w-4 h-4" />
-                            Course Materials
+                            {t('courseList.courseMaterials')}
                           </a>
                         )}
                       </div>
@@ -128,7 +130,7 @@ export function CourseList({ enrolledCourseIds, onEnroll }: CourseListProps) {
                       {isUserEnrolled ? (
                         <Button className="bg-blue-600 hover:bg-blue-700" disabled>
                           <Play className="w-4 h-4 mr-2" />
-                          Already Enrolled
+                          {t('courseList.alreadyEnrolled')}
                         </Button>
                       ) : (
                         <Button
@@ -136,7 +138,7 @@ export function CourseList({ enrolledCourseIds, onEnroll }: CourseListProps) {
                           onClick={() => handleEnroll(course.id)}
                           disabled={!selectedAccount}
                         >
-                          Enroll Now
+                          {t('courseList.enrollNow')}
                         </Button>
                       )}
                     </div>

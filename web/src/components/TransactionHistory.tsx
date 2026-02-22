@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import {
   Dialog,
@@ -32,6 +33,7 @@ interface Transaction {
 export const TransactionHistory: React.FC<TransactionHistoryProps> = ({ isOpen, onClose }) => {
   const { api, isApiReady, selectedAccount } = usePezkuwi();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -234,8 +236,8 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({ isOpen, 
     } catch {
       if (import.meta.env.DEV) console.error('Failed to fetch transactions:', error);
       toast({
-        title: "Error",
-        description: "Failed to fetch transaction history",
+        title: t('transfer.error'),
+        description: t('txHistory.fetchError'),
         variant: "destructive",
       });
     } finally {
@@ -272,9 +274,9 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({ isOpen, 
         <DialogHeader>
           <div className="flex items-center justify-between">
             <div>
-              <DialogTitle className="text-white">Transaction History</DialogTitle>
+              <DialogTitle className="text-white">{t('txHistory.title')}</DialogTitle>
               <DialogDescription className="text-gray-400">
-                Recent transactions involving your account
+                {t('txHistory.description')}
               </DialogDescription>
             </div>
             <Button
@@ -293,14 +295,14 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({ isOpen, 
           {isLoading ? (
             <div className="text-center py-12">
               <RefreshCw className="w-12 h-12 text-gray-600 mx-auto mb-3 animate-spin" />
-              <p className="text-gray-400">Loading transactions...</p>
+              <p className="text-gray-400">{t('txHistory.loading')}</p>
             </div>
           ) : transactions.length === 0 ? (
             <div className="text-center py-12">
               <History className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-              <p className="text-gray-500">No transactions found</p>
+              <p className="text-gray-500">{t('txHistory.noTx')}</p>
               <p className="text-gray-600 text-sm mt-1">
-                Your recent transactions will appear here
+                {t('txHistory.noTxDesc')}
               </p>
             </div>
           ) : (
@@ -322,7 +324,7 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({ isOpen, 
                     )}
                     <div>
                       <div className="text-white font-semibold">
-                        {isIncoming(tx) ? 'Received' : 'Sent'}
+                        {isIncoming(tx) ? t('txHistory.received') : t('txHistory.sent')}
                       </div>
                       <div className="text-xs text-gray-400">
                         {tx.section}.{tx.method}
@@ -341,14 +343,14 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({ isOpen, 
 
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div>
-                    <span className="text-gray-500">From:</span>
+                    <span className="text-gray-500">{t('txHistory.from')}</span>
                     <div className="text-gray-300 font-mono">
                       {tx.from.slice(0, 8)}...{tx.from.slice(-6)}
                     </div>
                   </div>
                   {tx.to && (
                     <div>
-                      <span className="text-gray-500">To:</span>
+                      <span className="text-gray-500">{t('txHistory.to')}</span>
                       <div className="text-gray-300 font-mono">
                         {tx.to.slice(0, 8)}...{tx.to.slice(-6)}
                       </div>
@@ -366,12 +368,12 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({ isOpen, 
                     className="text-xs text-blue-400 hover:text-blue-300"
                     onClick={() => {
                       toast({
-                        title: "Transaction Details",
-                        description: `Block #${tx.blockNumber}, Extrinsic #${tx.extrinsicIndex}`,
+                        title: t('txHistory.txDetails'),
+                        description: t('txHistory.blockExtrinsic', { block: tx.blockNumber, extrinsic: tx.extrinsicIndex }),
                       });
                     }}
                   >
-                    View Details
+                    {t('txHistory.viewDetails')}
                     <ExternalLink className="w-3 h-3 ml-1" />
                   </Button>
                 </div>

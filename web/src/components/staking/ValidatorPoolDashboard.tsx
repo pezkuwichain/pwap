@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
@@ -16,6 +17,7 @@ import { Loader2, Users, UserCheck, UserX } from 'lucide-react';
 import { PoolCategorySelector } from './PoolCategorySelector';
 
 export function ValidatorPoolDashboard() {
+  const { t } = useTranslation();
   const { api, selectedAccount } = usePezkuwi();
   const [poolMember, setPoolMember] = useState<ValidatorPoolCategory | null>(null);
   const [poolSize, setPoolSize] = useState(0);
@@ -49,7 +51,7 @@ export function ValidatorPoolDashboard() {
       }
     } catch (error) {
       if (import.meta.env.DEV) console.error('Failed to fetch validator pool data:', error);
-      toast.error('Failed to fetch pool data');
+      toast.error(t('validatorPool.fetchError'));
     } finally {
       setLoading(false);
     }
@@ -64,7 +66,7 @@ export function ValidatorPoolDashboard() {
     setActionLoading(true);
     try {
       await joinValidatorPool(api, selectedAccount, category);
-      toast.success(`Joined the ${category} pool`);
+      toast.success(t('validatorPool.joinedPool', { category }));
       fetchData();
     } catch (error) {
       if (import.meta.env.DEV) console.error('Join pool error:', error);
@@ -79,7 +81,7 @@ export function ValidatorPoolDashboard() {
     setActionLoading(true);
     try {
       await leaveValidatorPool(api, selectedAccount);
-      toast.success('Left the validator pool');
+      toast.success(t('validatorPool.leftPool'));
       fetchData();
     } catch (error) {
       if (import.meta.env.DEV) console.error('Leave pool error:', error);
@@ -94,7 +96,7 @@ export function ValidatorPoolDashboard() {
     setActionLoading(true);
     try {
       await updateValidatorCategory(api, selectedAccount, newCategory);
-      toast.success(`Switched to ${newCategory}`);
+      toast.success(t('validatorPool.switchedCategory', { category: newCategory }));
       fetchData();
     } catch (error) {
       if (import.meta.env.DEV) console.error('Switch category error:', error);
@@ -109,7 +111,7 @@ export function ValidatorPoolDashboard() {
       <Card className="bg-gray-900 border-gray-800">
         <CardContent className="p-12 text-center">
           <Loader2 className="w-8 h-8 animate-spin text-green-500 mx-auto mb-4" />
-          <p className="text-gray-400">Loading validator pool info...</p>
+          <p className="text-gray-400">{t('validatorPool.loading')}</p>
         </CardContent>
       </Card>
     );
@@ -118,22 +120,22 @@ export function ValidatorPoolDashboard() {
   return (
     <Card className="bg-gray-900 border-gray-800">
       <CardHeader>
-        <CardTitle className="text-white">Validator Pool</CardTitle>
-        <CardDescription>Join a pool to support the network and earn rewards.</CardDescription>
+        <CardTitle className="text-white">{t('validatorPool.title')}</CardTitle>
+        <CardDescription>{t('validatorPool.description')}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid grid-cols-2 gap-4">
           <div className="p-4 bg-gray-800 rounded-lg">
             <div className="flex items-center text-gray-400 mb-2">
               <Users className="w-4 h-4 mr-2" />
-              Pool Size
+              {t('validatorPool.poolSize')}
             </div>
             <div className="text-2xl font-bold text-white">{poolSize}</div>
           </div>
           <div className="p-4 bg-gray-800 rounded-lg">
             <div className="flex items-center text-gray-400 mb-2">
               <UserCheck className="w-4 h-4 mr-2" />
-              Active Validators
+              {t('validatorPool.activeValidators')}
             </div>
             <div className="text-2xl font-bold text-white">{validatorCount}</div>
           </div>
@@ -144,7 +146,7 @@ export function ValidatorPoolDashboard() {
             <div className="space-y-4">
               <div className="p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
                 <p className="text-green-400">
-                  You are in the <span className="font-bold">{poolMember}</span> pool
+                  {t('validatorPool.inPool', { category: poolMember })}
                 </p>
               </div>
               <PoolCategorySelector
@@ -163,13 +165,13 @@ export function ValidatorPoolDashboard() {
                 ) : (
                   <UserX className="mr-2 h-4 w-4" />
                 )}
-                Leave Pool
+                {t('validatorPool.leavePool')}
               </Button>
             </div>
           ) : (
             <div className="space-y-4">
               <div className="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
-                <p className="text-yellow-400">You are not currently in a validator pool</p>
+                <p className="text-yellow-400">{t('validatorPool.notInPool')}</p>
               </div>
               <PoolCategorySelector 
                 onCategoryChange={handleJoin} 
@@ -179,7 +181,7 @@ export function ValidatorPoolDashboard() {
           )
         ) : (
           <div className="p-6 text-center">
-            <p className="text-gray-400">Please connect your wallet to manage pool membership</p>
+            <p className="text-gray-400">{t('validatorPool.connectWallet')}</p>
           </div>
         )}
       </CardContent>

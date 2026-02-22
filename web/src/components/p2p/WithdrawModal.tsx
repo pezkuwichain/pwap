@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -48,6 +49,7 @@ interface WithdrawModalProps {
 type WithdrawStep = 'form' | 'confirm' | 'success';
 
 export function WithdrawModal({ isOpen, onClose, onSuccess }: WithdrawModalProps) {
+  const { t } = useTranslation();
   const { selectedAccount } = usePezkuwi();
 
   const [step, setStep] = useState<WithdrawStep>('form');
@@ -134,25 +136,25 @@ export function WithdrawModal({ isOpen, onClose, onSuccess }: WithdrawModalProps
     const withdrawAmount = parseFloat(amount);
 
     if (isNaN(withdrawAmount) || withdrawAmount <= 0) {
-      return 'Please enter a valid amount';
+      return t('p2pWithdraw.enterValidAmount');
     }
 
     if (withdrawAmount < MIN_WITHDRAWAL) {
-      return `Minimum withdrawal is ${MIN_WITHDRAWAL} ${token}`;
+      return t('p2pWithdraw.minimumWithdrawal', { amount: MIN_WITHDRAWAL, token });
     }
 
     if (withdrawAmount > getMaxWithdrawable()) {
-      return 'Insufficient available balance';
+      return t('p2pWithdraw.insufficientBalance');
     }
 
     if (!walletAddress || walletAddress.length < 40) {
-      return 'Please enter a valid wallet address';
+      return t('p2pWithdraw.invalidAddress');
     }
 
     // Check for pending requests
     const hasPendingForToken = pendingRequests.some(r => r.token === token);
     if (hasPendingForToken) {
-      return `You already have a pending ${token} withdrawal request`;
+      return t('p2pWithdraw.pendingForToken', { token });
     }
 
     return null;
@@ -201,14 +203,14 @@ export function WithdrawModal({ isOpen, onClose, onSuccess }: WithdrawModalProps
         <>
           {/* Token Selection */}
           <div className="space-y-2">
-            <Label>Select Token</Label>
+            <Label>{t('p2pWithdraw.selectToken')}</Label>
             <Select value={token} onValueChange={(v) => setToken(v as CryptoToken)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="HEZ">HEZ (Native)</SelectItem>
-                <SelectItem value="PEZ">PEZ</SelectItem>
+                <SelectItem value="HEZ">{t('p2pWithdraw.hezNative')}</SelectItem>
+                <SelectItem value="PEZ">{t('p2pWithdraw.pez')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -217,13 +219,13 @@ export function WithdrawModal({ isOpen, onClose, onSuccess }: WithdrawModalProps
           <div className="p-4 rounded-lg bg-muted/50 border">
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <p className="text-muted-foreground">Available</p>
+                <p className="text-muted-foreground">{t('p2pWithdraw.available')}</p>
                 <p className="font-semibold text-green-500">
                   {getAvailableBalance().toFixed(4)} {token}
                 </p>
               </div>
               <div>
-                <p className="text-muted-foreground">Locked (Escrow)</p>
+                <p className="text-muted-foreground">{t('p2pWithdraw.lockedEscrow')}</p>
                 <p className="font-semibold text-yellow-500">
                   {getLockedBalance().toFixed(4)} {token}
                 </p>
@@ -233,7 +235,7 @@ export function WithdrawModal({ isOpen, onClose, onSuccess }: WithdrawModalProps
 
           {/* Amount Input */}
           <div className="space-y-2">
-            <Label>Withdrawal Amount</Label>
+            <Label>{t('p2pWithdraw.withdrawalAmount')}</Label>
             <div className="relative">
               <Input
                 type="number"
@@ -253,17 +255,17 @@ export function WithdrawModal({ isOpen, onClose, onSuccess }: WithdrawModalProps
                 className="absolute right-2 top-1/2 -translate-y-1/2 h-7 text-xs"
                 onClick={handleSetMax}
               >
-                MAX
+                {t('p2pWithdraw.max')}
               </Button>
             </div>
             <p className="text-xs text-muted-foreground">
-              Min: {MIN_WITHDRAWAL} {token} | Max: {getMaxWithdrawable().toFixed(4)} {token}
+              {t('p2pWithdraw.minMax', { min: MIN_WITHDRAWAL, max: getMaxWithdrawable().toFixed(4), token })}
             </p>
           </div>
 
           {/* Wallet Address */}
           <div className="space-y-2">
-            <Label>Destination Wallet Address</Label>
+            <Label>{t('p2pWithdraw.destinationAddress')}</Label>
             <Input
               value={walletAddress}
               onChange={(e) => setWalletAddress(e.target.value)}
@@ -271,7 +273,7 @@ export function WithdrawModal({ isOpen, onClose, onSuccess }: WithdrawModalProps
               className="font-mono text-xs"
             />
             <p className="text-xs text-muted-foreground">
-              Only PezkuwiChain addresses are supported
+              {t('p2pWithdraw.onlyPezkuwiAddresses')}
             </p>
           </div>
 
@@ -280,7 +282,7 @@ export function WithdrawModal({ isOpen, onClose, onSuccess }: WithdrawModalProps
             <Alert>
               <Info className="h-4 w-4" />
               <AlertDescription>
-                Network fee: ~{NETWORK_FEE} HEZ (deducted from withdrawal amount)
+                {t('p2pWithdraw.networkFee', { fee: NETWORK_FEE })}
               </AlertDescription>
             </Alert>
           )}
@@ -290,21 +292,20 @@ export function WithdrawModal({ isOpen, onClose, onSuccess }: WithdrawModalProps
             <Alert variant="destructive">
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
-                You have {pendingRequests.length} pending withdrawal request(s).
-                Please wait for them to complete.
+                {t('p2pWithdraw.pendingWarning', { count: pendingRequests.length })}
               </AlertDescription>
             </Alert>
           )}
 
           <DialogFooter>
             <Button variant="outline" onClick={handleClose}>
-              Cancel
+              {t('cancel')}
             </Button>
             <Button
               onClick={handleContinue}
               disabled={!amount || parseFloat(amount) <= 0}
             >
-              Continue
+              {t('continue')}
             </Button>
           </DialogFooter>
         </>
@@ -321,28 +322,27 @@ export function WithdrawModal({ isOpen, onClose, onSuccess }: WithdrawModalProps
         <Alert>
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
-            Please review your withdrawal details carefully.
-            This action cannot be undone.
+            {t('p2pWithdraw.reviewWarning')}
           </AlertDescription>
         </Alert>
 
         <div className="p-4 rounded-lg bg-muted/50 border space-y-4">
           <div className="flex justify-between items-center">
-            <span className="text-muted-foreground">Token</span>
+            <span className="text-muted-foreground">{t('p2pWithdraw.tokenLabel')}</span>
             <span className="font-semibold">{token}</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-muted-foreground">Withdrawal Amount</span>
+            <span className="text-muted-foreground">{t('p2pWithdraw.withdrawalAmountLabel')}</span>
             <span className="font-semibold">{withdrawAmount.toFixed(4)} {token}</span>
           </div>
           {token === 'HEZ' && (
             <div className="flex justify-between items-center">
-              <span className="text-muted-foreground">Network Fee</span>
+              <span className="text-muted-foreground">{t('p2pWithdraw.networkFeeLabel')}</span>
               <span className="text-yellow-500">-{NETWORK_FEE} HEZ</span>
             </div>
           )}
           <div className="border-t pt-4 flex justify-between items-center">
-            <span className="text-muted-foreground">You Will Receive</span>
+            <span className="text-muted-foreground">{t('p2pWithdraw.youWillReceive')}</span>
             <span className="font-bold text-lg text-green-500">
               {receiveAmount.toFixed(4)} {token}
             </span>
@@ -350,18 +350,18 @@ export function WithdrawModal({ isOpen, onClose, onSuccess }: WithdrawModalProps
         </div>
 
         <div className="p-4 rounded-lg bg-muted/30 border">
-          <p className="text-xs text-muted-foreground mb-1">Destination Address</p>
+          <p className="text-xs text-muted-foreground mb-1">{t('p2pWithdraw.destinationAddressLabel')}</p>
           <p className="font-mono text-xs break-all">{walletAddress}</p>
         </div>
 
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Clock className="h-4 w-4" />
-          <span>Processing time: Usually within 5-30 minutes</span>
+          <span>{t('p2pWithdraw.processingTime')}</span>
         </div>
 
         <DialogFooter>
           <Button variant="outline" onClick={() => setStep('form')}>
-            Back
+            {t('back')}
           </Button>
           <Button
             onClick={handleSubmitWithdrawal}
@@ -370,12 +370,12 @@ export function WithdrawModal({ isOpen, onClose, onSuccess }: WithdrawModalProps
             {submitting ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Processing...
+                {t('p2pWithdraw.processing')}
               </>
             ) : (
               <>
                 <ArrowUpFromLine className="h-4 w-4 mr-2" />
-                Confirm Withdrawal
+                {t('p2pWithdraw.confirmWithdrawal')}
               </>
             )}
           </Button>
@@ -392,29 +392,29 @@ export function WithdrawModal({ isOpen, onClose, onSuccess }: WithdrawModalProps
 
       <div>
         <h3 className="text-xl font-semibold text-green-500">
-          Withdrawal Request Submitted!
+          {t('p2pWithdraw.requestSubmitted')}
         </h3>
         <p className="text-muted-foreground mt-2">
-          Your withdrawal request has been submitted for processing.
+          {t('p2pWithdraw.requestSubmittedDesc')}
         </p>
       </div>
 
       <div className="p-4 rounded-lg bg-muted/50 border space-y-3">
         <div className="flex items-center justify-between">
-          <span className="text-muted-foreground">Request ID</span>
+          <span className="text-muted-foreground">{t('p2pWithdraw.requestId')}</span>
           <Badge variant="outline" className="font-mono text-xs">
             {requestId.slice(0, 8)}...
           </Badge>
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-muted-foreground">Status</span>
+          <span className="text-muted-foreground">{t('p2pWithdraw.statusLabel')}</span>
           <Badge className="bg-yellow-500/20 text-yellow-500 border-yellow-500/30">
             <Clock className="h-3 w-3 mr-1" />
-            Processing
+            {t('p2pWithdraw.statusProcessing')}
           </Badge>
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-muted-foreground">Amount</span>
+          <span className="text-muted-foreground">{t('p2pWithdraw.amountLabel')}</span>
           <span className="font-semibold">{amount} {token}</span>
         </div>
       </div>
@@ -422,13 +422,12 @@ export function WithdrawModal({ isOpen, onClose, onSuccess }: WithdrawModalProps
       <Alert>
         <Info className="h-4 w-4" />
         <AlertDescription>
-          You can track your withdrawal status in the transaction history.
-          Funds will arrive in your wallet within 5-30 minutes.
+          {t('p2pWithdraw.trackInfo')}
         </AlertDescription>
       </Alert>
 
       <Button onClick={handleClose} className="w-full">
-        Done
+        {t('p2pWithdraw.done')}
       </Button>
     </div>
   );
@@ -439,12 +438,12 @@ export function WithdrawModal({ isOpen, onClose, onSuccess }: WithdrawModalProps
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ArrowUpFromLine className="h-5 w-5" />
-            Withdraw from P2P Balance
+            {t('p2pWithdraw.title')}
           </DialogTitle>
           {step !== 'success' && (
             <DialogDescription>
-              {step === 'form' && 'Withdraw crypto from your P2P balance to external wallet'}
-              {step === 'confirm' && 'Review and confirm your withdrawal'}
+              {step === 'form' && t('p2pWithdraw.formStep')}
+              {step === 'confirm' && t('p2pWithdraw.confirmStep')}
             </DialogDescription>
           )}
         </DialogHeader>

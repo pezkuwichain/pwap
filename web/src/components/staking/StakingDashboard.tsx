@@ -10,6 +10,7 @@ import { AlertCircle, CheckCircle2 } from 'lucide-react';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import { web3FromAddress, web3Enable } from '@pezkuwi/extension-dapp';
 import {
   getStakingInfo,
@@ -46,6 +47,7 @@ async function getInjectorSigner(address: string) {
 export const StakingDashboard: React.FC = () => {
   const { assetHubApi, peopleApi, selectedAccount, isAssetHubReady, isPeopleReady } = usePezkuwi();
   const { balances, refreshBalances } = useWallet();
+  const { t } = useTranslation();
 
   const [stakingInfo, setStakingInfo] = useState<StakingInfo | null>(null);
   const [validators, setValidators] = useState<string[]>([]);
@@ -92,7 +94,7 @@ export const StakingDashboard: React.FC = () => {
         }
       } catch (error) {
         if (import.meta.env.DEV) console.error('Failed to fetch staking data:', error);
-        toast.error('Failed to fetch staking information');
+        toast.error(t('staking.fetchError'));
       } finally {
         setIsLoadingData(false);
       }
@@ -139,11 +141,11 @@ export const StakingDashboard: React.FC = () => {
           }
         }, 3000);
       } else {
-        toast.error(result.error || 'Failed to record trust score');
+        toast.error(result.error || t('staking.recordFailed'));
       }
     } catch (error) {
       if (import.meta.env.DEV) console.error('Record trust score failed:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to record trust score');
+      toast.error(error instanceof Error ? error.message : t('staking.recordFailed'));
     } finally {
       setIsRecordingScore(false);
     }
@@ -169,11 +171,11 @@ export const StakingDashboard: React.FC = () => {
           }
         }, 3000);
       } else {
-        toast.error(result.error || 'Failed to claim reward');
+        toast.error(result.error || t('staking.claimFailed'));
       }
     } catch (error) {
       if (import.meta.env.DEV) console.error('Claim reward failed:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to claim reward');
+      toast.error(error instanceof Error ? error.message : t('staking.claimFailed'));
     } finally {
       setIsClaimingReward(false);
     }
@@ -188,11 +190,11 @@ export const StakingDashboard: React.FC = () => {
 
       // Validate
       if (parseFloat(bondAmount) < parseFloat(minNominatorBond)) {
-        throw new Error(`Minimum bond is ${minNominatorBond} HEZ`);
+        throw new Error(t('staking.minBondError', { amount: minNominatorBond }));
       }
 
       if (parseFloat(bondAmount) > parseFloat(balances.HEZ)) {
-        throw new Error('Insufficient HEZ balance');
+        throw new Error(t('staking.insufficientHez'));
       }
 
       const injector = await getInjectorSigner(selectedAccount.address);
@@ -242,7 +244,7 @@ export const StakingDashboard: React.FC = () => {
     if (!assetHubApi || !selectedAccount || selectedValidators.length === 0) return;
 
     if (!stakingInfo || parseFloat(stakingInfo.bonded) === 0) {
-      toast.error('You must bond tokens before nominating validators');
+      toast.error(t('staking.bondBeforeNominate'));
       return;
     }
 
@@ -288,7 +290,7 @@ export const StakingDashboard: React.FC = () => {
       const amount = parseAmount(unbondAmount);
 
       if (!stakingInfo || parseFloat(unbondAmount) > parseFloat(stakingInfo.active)) {
-        throw new Error('Insufficient staked amount');
+        throw new Error(t('staking.insufficientStaked'));
       }
 
       const injector = await getInjectorSigner(selectedAccount.address);
@@ -329,7 +331,7 @@ export const StakingDashboard: React.FC = () => {
     if (!assetHubApi || !selectedAccount) return;
 
     if (!stakingInfo || parseFloat(stakingInfo.redeemable) === 0) {
-      toast.info('No tokens available to withdraw');
+      toast.info(t('staking.noWithdraw'));
       return;
     }
 
@@ -346,7 +348,7 @@ export const StakingDashboard: React.FC = () => {
         ({ status, dispatchError }) => {
           if (status.isInBlock) {
             if (dispatchError) {
-              let errorMessage = 'Withdrawal failed';
+              let errorMessage = t('staking.withdrawFailed');
               if (dispatchError.isModule) {
                 const decoded = assetHubApi.registry.findMetaError(dispatchError.asModule);
                 errorMessage = `${decoded.section}.${decoded.name}: ${decoded.docs.join(' ')}`;
@@ -354,7 +356,7 @@ export const StakingDashboard: React.FC = () => {
               toast.error(errorMessage);
               setIsLoading(false);
             } else {
-              toast.success(`Withdrew ${stakingInfo.redeemable} HEZ`);
+              toast.success(t('staking.withdrawSuccess', { amount: stakingInfo.redeemable }));
               refreshBalances();
               setTimeout(() => {
                 if (assetHubApi && selectedAccount) {
@@ -388,7 +390,7 @@ export const StakingDashboard: React.FC = () => {
         ({ status, dispatchError }) => {
           if (status.isInBlock) {
             if (dispatchError) {
-              let errorMessage = 'Failed to start score tracking';
+              let errorMessage = t('staking.scoreTrackingFailed');
               if (dispatchError.isModule) {
                 const decoded = peopleApi.registry.findMetaError(dispatchError.asModule);
                 errorMessage = `${decoded.section}.${decoded.name}: ${decoded.docs.join(' ')}`;
@@ -396,7 +398,7 @@ export const StakingDashboard: React.FC = () => {
               toast.error(errorMessage);
               setIsLoading(false);
             } else {
-              toast.success('Score tracking started successfully! Your staking score will now accumulate over time.');
+              toast.success(t('staking.scoreTrackingSuccess'));
               // Refresh staking data after a delay
               setTimeout(() => {
                 if (assetHubApi && selectedAccount) {
@@ -410,7 +412,7 @@ export const StakingDashboard: React.FC = () => {
       );
     } catch (error) {
       if (import.meta.env.DEV) console.error('Start score tracking failed:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to start score tracking');
+      toast.error(error instanceof Error ? error.message : t('staking.scoreTrackingFailed'));
       setIsLoading(false);
     }
   };
@@ -422,7 +424,7 @@ export const StakingDashboard: React.FC = () => {
       } else {
         // Max 16 nominations
         if (prev.length >= 16) {
-          toast.info('Maximum 16 validators can be nominated');
+          toast.info(t('staking.maxValidators'));
           return prev;
         }
         return [...prev, validator];
@@ -431,7 +433,7 @@ export const StakingDashboard: React.FC = () => {
   };
 
   if (isLoadingData) {
-    return <LoadingState message="Loading staking data..." />;
+    return <LoadingState message={t('staking.loadingData')} />;
   }
 
   return (
@@ -440,35 +442,35 @@ export const StakingDashboard: React.FC = () => {
       <div className={`grid grid-cols-1 md:grid-cols-2 ${pezRewards ? 'lg:grid-cols-5' : 'lg:grid-cols-4'} gap-4`}>
         <Card className="bg-gray-900 border-gray-800">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm text-gray-400">Total Bonded</CardTitle>
+            <CardTitle className="text-sm text-gray-400">{t('staking.totalBonded')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-white">
               {stakingInfo?.bonded || '0'} HEZ
             </div>
             <p className="text-xs text-gray-500 mt-1">
-              Active: {stakingInfo?.active || '0'} HEZ
+              {t('staking.activeAmount', { amount: stakingInfo?.active || '0' })}
             </p>
           </CardContent>
         </Card>
 
         <Card className="bg-gray-900 border-gray-800">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm text-gray-400">Unlocking</CardTitle>
+            <CardTitle className="text-sm text-gray-400">{t('staking.unlocking')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-yellow-500">
               {stakingInfo?.unlocking.reduce((sum, u) => sum + parseFloat(u.amount), 0).toFixed(2) || '0'} HEZ
             </div>
             <p className="text-xs text-gray-500 mt-1">
-              {stakingInfo?.unlocking.length || 0} chunk(s)
+              {t('staking.chunks', { count: stakingInfo?.unlocking.length || 0 })}
             </p>
           </CardContent>
         </Card>
 
         <Card className="bg-gray-900 border-gray-800">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm text-gray-400">Redeemable</CardTitle>
+            <CardTitle className="text-sm text-gray-400">{t('staking.redeemable')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-500">
@@ -480,14 +482,14 @@ export const StakingDashboard: React.FC = () => {
               disabled={!stakingInfo || parseFloat(stakingInfo.redeemable) === 0 || isLoading}
               className="mt-2 w-full"
             >
-              Withdraw
+              {t('staking.withdraw')}
             </Button>
           </CardContent>
         </Card>
 
         <Card className="bg-gray-900 border-gray-800">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm text-gray-400">Staking Score</CardTitle>
+            <CardTitle className="text-sm text-gray-400">{t('staking.stakingScore')}</CardTitle>
           </CardHeader>
           <CardContent>
             {stakingInfo?.hasStartedScoreTracking ? (
@@ -497,29 +499,29 @@ export const StakingDashboard: React.FC = () => {
                     {stakingInfo.stakingScore}/100
                   </div>
                   <p className="text-xs text-gray-500 mt-1">
-                    Duration: {stakingInfo.stakingDuration
-                      ? `${Math.floor(stakingInfo.stakingDuration / (24 * 60 * 10))} days`
-                      : '0 days'}
+                    {t('staking.scoreDuration', { days: stakingInfo.stakingDuration
+                      ? Math.floor(stakingInfo.stakingDuration / (24 * 60 * 10))
+                      : 0 })}
                   </p>
                 </>
               ) : (
                 <>
-                  <div className="text-lg font-bold text-yellow-500">Waiting for data...</div>
+                  <div className="text-lg font-bold text-yellow-500">{t('staking.waitingData')}</div>
                   <p className="text-xs text-gray-500 mt-1">
-                    Score tracking started. A noter will submit your staking data soon.
+                    {t('staking.scoreTrackingStartedInfo')}
                   </p>
                 </>
               )
             ) : (
               <>
-                <div className="text-2xl font-bold text-gray-500">Not Started</div>
+                <div className="text-2xl font-bold text-gray-500">{t('staking.notStarted')}</div>
                 <Button
                   size="sm"
                   onClick={handleStartScoreTracking}
                   disabled={!stakingInfo || isLoading}
                   className="mt-2 w-full bg-purple-600 hover:bg-purple-700"
                 >
-                  Start Score Tracking
+                  {t('staking.startScoreTracking')}
                 </Button>
               </>
             )}
@@ -531,7 +533,7 @@ export const StakingDashboard: React.FC = () => {
           <Card className="bg-gray-900 border-gray-800">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-sm text-gray-400">PEZ Rewards</CardTitle>
+                <CardTitle className="text-sm text-gray-400">{t('staking.pezRewards')}</CardTitle>
                 <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                   pezRewards.epochStatus === 'Open'
                     ? 'bg-green-500/20 text-green-400'
@@ -539,22 +541,22 @@ export const StakingDashboard: React.FC = () => {
                     ? 'bg-orange-500/20 text-orange-400'
                     : 'bg-gray-500/20 text-gray-400'
                 }`}>
-                  {pezRewards.epochStatus === 'Open' ? 'Open' : pezRewards.epochStatus === 'ClaimPeriod' ? 'Claim Period' : 'Closed'}
+                  {pezRewards.epochStatus === 'Open' ? t('staking.epochOpen') : pezRewards.epochStatus === 'ClaimPeriod' ? t('staking.epochClaimPeriod') : t('staking.epochClosed')}
                 </span>
               </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                <p className="text-xs text-gray-500">Epoch {pezRewards.currentEpoch}</p>
+                <p className="text-xs text-gray-500">{t('staking.epoch', { epoch: pezRewards.currentEpoch })}</p>
 
                 {/* Open epoch: Record score or show recorded score */}
                 {pezRewards.epochStatus === 'Open' && (
                   pezRewards.hasRecordedThisEpoch ? (
                     <div>
                       <div className="text-lg font-bold text-green-400">
-                        Score: {pezRewards.userScoreCurrentEpoch}
+                        {t('staking.scoreLabel', { score: pezRewards.userScoreCurrentEpoch })}
                       </div>
-                      <p className="text-xs text-gray-500">Recorded for this epoch</p>
+                      <p className="text-xs text-gray-500">{t('staking.recordedForEpoch')}</p>
                     </div>
                   ) : (
                     <Button
@@ -563,7 +565,7 @@ export const StakingDashboard: React.FC = () => {
                       disabled={isRecordingScore}
                       className="w-full bg-green-600 hover:bg-green-700"
                     >
-                      {isRecordingScore ? 'Recording...' : 'Record Trust Score'}
+                      {isRecordingScore ? t('staking.recording') : t('staking.recordTrustScore')}
                     </Button>
                   )
                 )}
@@ -577,7 +579,7 @@ export const StakingDashboard: React.FC = () => {
                     <div className="space-y-1">
                       {pezRewards.claimableRewards.map((reward) => (
                         <div key={reward.epoch} className="flex items-center justify-between">
-                          <span className="text-xs text-gray-400">Epoch {reward.epoch}: {reward.amount} PEZ</span>
+                          <span className="text-xs text-gray-400">{t('staking.epochReward', { epoch: reward.epoch, amount: reward.amount })}</span>
                           <Button
                             size="sm"
                             variant="outline"
@@ -585,7 +587,7 @@ export const StakingDashboard: React.FC = () => {
                             disabled={isClaimingReward}
                             className="h-6 text-xs px-2 border-orange-500 text-orange-400 hover:bg-orange-500/20"
                           >
-                            {isClaimingReward ? '...' : 'Claim'}
+                            {isClaimingReward ? '...' : t('staking.claim')}
                           </Button>
                         </div>
                       ))}
@@ -601,18 +603,18 @@ export const StakingDashboard: React.FC = () => {
       {/* Main Staking Interface */}
       <Card className="bg-gray-900 border-gray-800">
         <CardHeader>
-          <CardTitle className="text-xl text-white">Staking</CardTitle>
+          <CardTitle className="text-xl text-white">{t('staking.title')}</CardTitle>
           <CardDescription className="text-gray-400">
-            Stake HEZ to secure the network and earn rewards.
+            {t('staking.description')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="stake">
             <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="stake">Stake</TabsTrigger>
-              <TabsTrigger value="nominate">Nominate</TabsTrigger>
-              <TabsTrigger value="pool">Validator Pool</TabsTrigger>
-              <TabsTrigger value="unstake">Unstake</TabsTrigger>
+              <TabsTrigger value="stake">{t('staking.tabStake')}</TabsTrigger>
+              <TabsTrigger value="nominate">{t('staking.tabNominate')}</TabsTrigger>
+              <TabsTrigger value="pool">{t('staking.tabPool')}</TabsTrigger>
+              <TabsTrigger value="unstake">{t('staking.tabUnstake')}</TabsTrigger>
             </TabsList>
 
             {/* STAKE TAB */}
@@ -620,12 +622,12 @@ export const StakingDashboard: React.FC = () => {
               <Alert className="bg-blue-900/20 border-blue-500">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription className="text-sm">
-                  Minimum bond: {minNominatorBond} HEZ. Bonded tokens are locked and earn rewards when nominated validators produce blocks.
+                  {t('staking.minBondInfo', { amount: minNominatorBond })}
                 </AlertDescription>
               </Alert>
 
               <div>
-                <Label>Amount to Bond (HEZ)</Label>
+                <Label>{t('staking.amountToBond')}</Label>
                 <Input
                   type="number"
                   placeholder={`Min: ${minNominatorBond}`}
@@ -635,12 +637,12 @@ export const StakingDashboard: React.FC = () => {
                   disabled={isLoading}
                 />
                 <div className="flex justify-between mt-1 text-xs text-gray-400">
-                  <span>Available: {balances.HEZ} HEZ</span>
+                  <span>{t('staking.available', { amount: balances.HEZ })}</span>
                   <button
                     onClick={() => setBondAmount(balances.HEZ)}
                     className="text-blue-400 hover:text-blue-300"
                   >
-                    Max
+                    {t('staking.max')}
                   </button>
                 </div>
               </div>
@@ -650,7 +652,7 @@ export const StakingDashboard: React.FC = () => {
                 disabled={isLoading || !bondAmount || parseFloat(bondAmount) < parseFloat(minNominatorBond)}
                 className="w-full bg-green-600 hover:bg-green-700"
               >
-                {stakingInfo && parseFloat(stakingInfo.bonded) > 0 ? 'Bond Additional' : 'Bond Tokens'}
+                {stakingInfo && parseFloat(stakingInfo.bonded) > 0 ? t('staking.bondAdditional') : t('staking.bondTokens')}
               </Button>
             </TabsContent>
 
@@ -659,13 +661,13 @@ export const StakingDashboard: React.FC = () => {
               <Alert className="bg-purple-900/20 border-purple-500">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription className="text-sm">
-                  Select up to 16 validators to nominate. Your stake will be distributed to active validators.
-                  {stakingInfo && parseFloat(stakingInfo.bonded) === 0 && ' You must bond tokens first.'}
+                  {t('staking.nominateInfo')}
+                  {stakingInfo && parseFloat(stakingInfo.bonded) === 0 && ` ${t('staking.bondFirst')}`}
                 </AlertDescription>
               </Alert>
 
               <div className="space-y-2">
-                <Label>Active Validators ({validators.length})</Label>
+                <Label>{t('staking.activeValidators', { count: validators.length })}</Label>
                 <div className="max-h-64 overflow-y-auto space-y-2 border border-gray-700 rounded-lg p-3 bg-gray-800">
                   {validators.map((validator) => (
                     <div
@@ -687,7 +689,7 @@ export const StakingDashboard: React.FC = () => {
                   ))}
                 </div>
                 <p className="text-xs text-gray-400">
-                  Selected: {selectedValidators.length}/16
+                  {t('staking.selected', { count: selectedValidators.length })}
                 </p>
               </div>
 
@@ -696,7 +698,7 @@ export const StakingDashboard: React.FC = () => {
                 disabled={isLoading || selectedValidators.length === 0 || !stakingInfo || parseFloat(stakingInfo.bonded) === 0}
                 className="w-full bg-purple-600 hover:bg-purple-700"
               >
-                Nominate Validators
+                {t('staking.nominateValidators')}
               </Button>
             </TabsContent>
 
@@ -710,12 +712,12 @@ export const StakingDashboard: React.FC = () => {
               <Alert className="bg-yellow-900/20 border-yellow-500">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription className="text-sm">
-                  Unbonded tokens will be locked for {bondingDuration} eras (~{Math.floor(bondingDuration / 4)} days) before withdrawal.
+                  {t('staking.unbondInfo', { eras: bondingDuration, days: Math.floor(bondingDuration / 4) })}
                 </AlertDescription>
               </Alert>
 
               <div>
-                <Label>Amount to Unbond (HEZ)</Label>
+                <Label>{t('staking.amountToUnbond')}</Label>
                 <Input
                   type="number"
                   placeholder={`Max: ${stakingInfo?.active || '0'}`}
@@ -725,24 +727,24 @@ export const StakingDashboard: React.FC = () => {
                   disabled={isLoading}
                 />
                 <div className="flex justify-between mt-1 text-xs text-gray-400">
-                  <span>Staked: {stakingInfo?.active || '0'} HEZ</span>
+                  <span>{t('staking.staked', { amount: stakingInfo?.active || '0' })}</span>
                   <button
                     onClick={() => setUnbondAmount(stakingInfo?.active || '0')}
                     className="text-blue-400 hover:text-blue-300"
                   >
-                    Max
+                    {t('staking.max')}
                   </button>
                 </div>
               </div>
 
               {stakingInfo && stakingInfo.unlocking.length > 0 && (
                 <div className="bg-gray-800 rounded-lg p-3 space-y-2">
-                  <Label className="text-sm">Unlocking Chunks</Label>
+                  <Label className="text-sm">{t('staking.unlockingChunks')}</Label>
                   {stakingInfo.unlocking.map((chunk, i) => (
                     <div key={i} className="flex justify-between text-sm">
                       <span className="text-gray-400">{chunk.amount} HEZ</span>
                       <span className="text-gray-500">
-                        Era {chunk.era} ({chunk.blocksRemaining > 0 ? `~${Math.floor(chunk.blocksRemaining / 600)} blocks` : 'Ready'})
+                        {t('staking.eraInfo', { era: chunk.era })} ({chunk.blocksRemaining > 0 ? t('staking.blocksRemaining', { blocks: Math.floor(chunk.blocksRemaining / 600) }) : t('staking.ready')})
                       </span>
                     </div>
                   ))}
@@ -755,7 +757,7 @@ export const StakingDashboard: React.FC = () => {
                 className="w-full bg-red-600 hover:bg-red-700"
                 variant="destructive"
               >
-                Unbond Tokens
+                {t('staking.unbondTokens')}
               </Button>
             </TabsContent>
           </Tabs>

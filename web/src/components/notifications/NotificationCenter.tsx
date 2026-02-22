@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Bell, MessageCircle, AtSign, Heart, Award, TrendingUp, X, Check } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -25,6 +26,7 @@ interface Notification {
 }
 
 export const NotificationCenter: React.FC = () => {
+  const { t } = useTranslation();
   const { subscribe, unsubscribe } = useWebSocket();
   const { toast } = useToast();
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -50,8 +52,8 @@ export const NotificationCenter: React.FC = () => {
       const notification: Notification = {
         id: Date.now().toString(),
         type: 'mention',
-        title: 'You were mentioned',
-        message: `${data.sender} mentioned you in a discussion`,
+        title: t('notifCenter.youWereMentioned'),
+        message: t('notifCenter.mentionedYou', { sender: data.sender as string }),
         timestamp: new Date(),
         read: false,
         actionUrl: data.url,
@@ -64,8 +66,8 @@ export const NotificationCenter: React.FC = () => {
       const notification: Notification = {
         id: Date.now().toString(),
         type: 'reply',
-        title: 'New reply',
-        message: `${data.sender} replied to your comment`,
+        title: t('notifCenter.newReply'),
+        message: t('notifCenter.repliedToComment', { sender: data.sender as string }),
         timestamp: new Date(),
         read: false,
         actionUrl: data.url,
@@ -147,9 +149,9 @@ export const NotificationCenter: React.FC = () => {
           <Tabs defaultValue="all" className="w-full">
             <div className="flex items-center justify-between p-4 border-b">
               <TabsList>
-                <TabsTrigger value="all">All</TabsTrigger>
-                <TabsTrigger value="unread">Unread</TabsTrigger>
-                <TabsTrigger value="settings">Settings</TabsTrigger>
+                <TabsTrigger value="all">{t('notifCenter.all')}</TabsTrigger>
+                <TabsTrigger value="unread">{t('notifCenter.unread')}</TabsTrigger>
+                <TabsTrigger value="settings">{t('notifCenter.settings')}</TabsTrigger>
               </TabsList>
               <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)}>
                 <X className="h-4 w-4" />
@@ -159,11 +161,11 @@ export const NotificationCenter: React.FC = () => {
             <TabsContent value="all" className="p-0">
               <div className="flex items-center justify-between px-4 py-2 border-b">
                 <span className="text-sm text-muted-foreground">
-                  {notifications.length} notifications
+                  {t('notifCenter.notifications', { count: notifications.length })}
                 </span>
                 <Button variant="ghost" size="sm" onClick={markAllAsRead}>
                   <Check className="h-3 w-3 mr-1" />
-                  Mark all read
+                  {t('notifCenter.markAllRead')}
                 </Button>
               </div>
               <ScrollArea className="h-96">
@@ -221,7 +223,7 @@ export const NotificationCenter: React.FC = () => {
             <TabsContent value="settings" className="p-4">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="push">Push Notifications</Label>
+                  <Label htmlFor="push">{t('notifCenter.pushNotifications')}</Label>
                   <Switch
                     id="push"
                     checked={settings.pushEnabled}
@@ -237,7 +239,7 @@ export const NotificationCenter: React.FC = () => {
                   />
                 </div>
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="mentions">Mentions</Label>
+                  <Label htmlFor="mentions">{t('notifCenter.mentions')}</Label>
                   <Switch
                     id="mentions"
                     checked={settings.mentions}
@@ -246,7 +248,7 @@ export const NotificationCenter: React.FC = () => {
                   />
                 </div>
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="replies">Replies</Label>
+                  <Label htmlFor="replies">{t('notifCenter.replies')}</Label>
                   <Switch
                     id="replies"
                     checked={settings.replies}

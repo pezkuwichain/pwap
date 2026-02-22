@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/supabase';
 import { CheckCircle, XCircle, Loader2, ArrowLeft, Mail, RefreshCw } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export default function EmailVerification() {
   const [searchParams] = useSearchParams();
@@ -14,6 +15,7 @@ export default function EmailVerification() {
   const [error, setError] = useState('');
   const [resending, setResending] = useState(false);
   const [resent, setResent] = useState(false);
+  const { t } = useTranslation();
 
   // Get email from navigation state (after sign up)
   const email = location.state?.email;
@@ -46,7 +48,7 @@ export default function EmailVerification() {
 
       setVerified(true);
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to verify email';
+      const errorMessage = err instanceof Error ? err.message : t('emailVerify.failedToVerify');
       setError(errorMessage);
     } finally {
       setVerifying(false);
@@ -91,17 +93,17 @@ export default function EmailVerification() {
             <div className="mx-auto w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mb-4">
               <Mail className="w-8 h-8 text-green-500" />
             </div>
-            <CardTitle className="text-2xl text-white">Check Your Email</CardTitle>
+            <CardTitle className="text-2xl text-white">{t('emailVerify.checkEmail')}</CardTitle>
             <CardDescription className="text-gray-400">
-              We sent a verification link to
+              {t('emailVerify.sentVerificationTo')}
             </CardDescription>
           </CardHeader>
           <CardContent className="text-center space-y-6">
             <p className="text-lg font-medium text-green-400">{email}</p>
 
             <div className="bg-gray-800/50 rounded-lg p-4 text-left space-y-2">
-              <p className="text-sm text-gray-300">Please check your email and click the verification link to activate your account.</p>
-              <p className="text-xs text-gray-500">If you don&apos;t see the email, check your spam folder.</p>
+              <p className="text-sm text-gray-300">{t('emailVerify.checkInbox')}</p>
+              <p className="text-xs text-gray-500">{t('emailVerify.checkSpam')}</p>
             </div>
 
             {error && (
@@ -109,7 +111,7 @@ export default function EmailVerification() {
             )}
 
             {resent && (
-              <p className="text-sm text-green-400">Verification email sent!</p>
+              <p className="text-sm text-green-400">{t('emailVerify.emailSent')}</p>
             )}
 
             <div className="space-y-3">
@@ -122,12 +124,12 @@ export default function EmailVerification() {
                 {resending ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Sending...
+                    {t('emailVerify.sending')}
                   </>
                 ) : (
                   <>
                     <RefreshCw className="mr-2 h-4 w-4" />
-                    Resend Verification Email
+                    {t('emailVerify.resend')}
                   </>
                 )}
               </Button>
@@ -137,7 +139,7 @@ export default function EmailVerification() {
                 className="w-full text-gray-400 hover:text-white"
                 onClick={() => navigate('/login')}
               >
-                Back to Login
+                {t('emailVerify.backToLogin')}
               </Button>
             </div>
           </CardContent>
@@ -157,31 +159,31 @@ export default function EmailVerification() {
           <ArrowLeft className="w-5 h-5" />
         </button>
         <CardHeader>
-          <CardTitle className="text-white">Email Verification</CardTitle>
+          <CardTitle className="text-white">{t('emailVerify.title')}</CardTitle>
           <CardDescription className="text-gray-400">
-            {verifying ? 'Verifying your email...' : 'Email verification status'}
+            {verifying ? t('emailVerify.verifyingEmail') : t('emailVerify.verificationStatus')}
           </CardDescription>
         </CardHeader>
         <CardContent className="text-center space-y-4">
           {verifying && (
             <div className="flex flex-col items-center space-y-4">
               <Loader2 className="h-12 w-12 animate-spin text-green-500" />
-              <p className="text-gray-300">Please wait while we verify your email...</p>
+              <p className="text-gray-300">{t('emailVerify.pleaseWait')}</p>
             </div>
           )}
 
           {!verifying && verified && (
             <div className="flex flex-col items-center space-y-4">
               <CheckCircle className="h-12 w-12 text-green-500" />
-              <h3 className="text-lg font-semibold text-white">Email Verified Successfully!</h3>
+              <h3 className="text-lg font-semibold text-white">{t('emailVerify.success')}</h3>
               <p className="text-gray-400">
-                Your email has been verified. You can now access all features.
+                {t('emailVerify.successDesc')}
               </p>
               <Button
                 className="bg-green-600 hover:bg-green-500"
                 onClick={() => navigate('/login')}
               >
-                Go to Login
+                {t('emailVerify.goToLogin')}
               </Button>
             </div>
           )}
@@ -189,14 +191,14 @@ export default function EmailVerification() {
           {!verifying && !verified && error && (
             <div className="flex flex-col items-center space-y-4">
               <XCircle className="h-12 w-12 text-red-500" />
-              <h3 className="text-lg font-semibold text-white">Verification Failed</h3>
+              <h3 className="text-lg font-semibold text-white">{t('emailVerify.failed')}</h3>
               <p className="text-gray-400">{error}</p>
               <div className="flex gap-2">
                 <Button variant="outline" onClick={() => navigate('/')}>
-                  Go to Home
+                  {t('emailVerify.goToHome')}
                 </Button>
                 <Button onClick={() => navigate('/login')}>
-                  Login
+                  {t('emailVerify.login')}
                 </Button>
               </div>
             </div>
@@ -205,12 +207,12 @@ export default function EmailVerification() {
           {!verifying && !verified && !error && !token && !type && (
             <div className="flex flex-col items-center space-y-4">
               <Mail className="h-12 w-12 text-gray-500" />
-              <h3 className="text-lg font-semibold text-white">No Verification Token</h3>
+              <h3 className="text-lg font-semibold text-white">{t('emailVerify.noToken')}</h3>
               <p className="text-gray-400">
-                Please click the verification link in your email.
+                {t('emailVerify.noTokenDesc')}
               </p>
               <Button onClick={() => navigate('/login')}>
-                Back to Login
+                {t('emailVerify.backToLogin')}
               </Button>
             </div>
           )}

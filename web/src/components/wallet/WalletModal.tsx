@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Wallet, Chrome, ExternalLink, Copy, Check, LogOut, Award, Users, TrendingUp, Shield } from 'lucide-react';
 import {
   Dialog,
@@ -30,6 +31,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
     error
   } = usePezkuwi();
 
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
   const [scores, setScores] = useState<UserScores>({
     trustScore: 0,
@@ -103,12 +105,12 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Wallet className="h-5 w-5 text-purple-400" />
-            {selectedAccount ? 'Wallet Connected' : 'Connect Wallet'}
+            {selectedAccount ? t('walletModal.connected') : t('walletModal.connect')}
           </DialogTitle>
           <DialogDescription>
             {selectedAccount
-              ? 'Manage your Pezkuwi account'
-              : 'Connect your Pezkuwi.js extension to interact with PezkuwiChain'}
+              ? t('walletModal.manageAccount')
+              : t('walletModal.connectDesc')}
           </DialogDescription>
         </DialogHeader>
 
@@ -126,7 +128,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
               className="w-full bg-gradient-to-r from-purple-600 to-cyan-400 hover:from-purple-700 hover:to-cyan-500"
             >
               <Wallet className="mr-2 h-4 w-4" />
-              Try Again
+              {t('walletModal.tryAgain')}
             </Button>
           </div>
         )}
@@ -149,13 +151,13 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
               >
                 <Button className="w-full bg-green-600 hover:bg-green-700">
                   <Chrome className="mr-2 h-4 w-4" />
-                  Install from Chrome Web Store
+                  {t('walletModal.installChrome')}
                 </Button>
               </a>
             </div>
 
             <p className="text-xs text-gray-400 text-center">
-              After installing, refresh the page and try again
+              {t('walletModal.afterInstall')}
             </p>
           </div>
         )}
@@ -166,12 +168,12 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
             {/* Account Info */}
             <div className="bg-gray-800/50 rounded-lg p-4 space-y-3">
               <div>
-                <div className="text-xs text-gray-400 mb-1">Account Name</div>
-                <div className="font-medium">{selectedAccount.meta.name || 'Unnamed Account'}</div>
+                <div className="text-xs text-gray-400 mb-1">{t('walletModal.accountName')}</div>
+                <div className="font-medium">{selectedAccount.meta.name || t('walletModal.unnamed')}</div>
               </div>
 
               <div>
-                <div className="text-xs text-gray-400 mb-1">Address</div>
+                <div className="text-xs text-gray-400 mb-1">{t('walletModal.address')}</div>
                 <div className="flex items-center justify-between gap-2">
                   <code className="text-sm font-mono text-gray-300 truncate">
                     {formatAddress(selectedAccount.address)}
@@ -192,36 +194,36 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
               </div>
 
               <div>
-                <div className="text-xs text-gray-400 mb-2">Scores from Blockchain</div>
+                <div className="text-xs text-gray-400 mb-2">{t('walletModal.scoresFromBlockchain')}</div>
                 {loadingScores ? (
-                  <div className="text-sm text-gray-400">Loading scores...</div>
+                  <div className="text-sm text-gray-400">{t('walletModal.loadingScores')}</div>
                 ) : (
                   <div className="grid grid-cols-2 gap-3">
                     <div className="bg-gray-900/50 rounded p-2">
                       <div className="flex items-center gap-1 mb-1">
                         <Shield className="h-3 w-3 text-purple-400" />
-                        <span className="text-xs text-gray-400">Trust</span>
+                        <span className="text-xs text-gray-400">{t('walletModal.trust')}</span>
                       </div>
                       <span className="text-sm font-bold text-purple-400">{scores.trustScore}</span>
                     </div>
                     <div className="bg-gray-900/50 rounded p-2">
                       <div className="flex items-center gap-1 mb-1">
                         <Users className="h-3 w-3 text-cyan-400" />
-                        <span className="text-xs text-gray-400">Referral</span>
+                        <span className="text-xs text-gray-400">{t('walletModal.referral')}</span>
                       </div>
                       <span className="text-sm font-bold text-cyan-400">{scores.referralScore}</span>
                     </div>
                     <div className="bg-gray-900/50 rounded p-2">
                       <div className="flex items-center gap-1 mb-1">
                         <TrendingUp className="h-3 w-3 text-green-400" />
-                        <span className="text-xs text-gray-400">Staking</span>
+                        <span className="text-xs text-gray-400">{t('walletModal.staking')}</span>
                       </div>
                       <span className="text-sm font-bold text-green-400">{scores.stakingScore}</span>
                     </div>
                     <div className="bg-gray-900/50 rounded p-2">
                       <div className="flex items-center gap-1 mb-1">
                         <Award className="h-3 w-3 text-pink-400" />
-                        <span className="text-xs text-gray-400">Tiki</span>
+                        <span className="text-xs text-gray-400">{t('walletModal.tiki')}</span>
                       </div>
                       <span className="text-sm font-bold text-pink-400">{scores.tikiScore}</span>
                     </div>
@@ -229,7 +231,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                 )}
                 <div className="mt-2 pt-2 border-t border-gray-700">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-400">Total Score</span>
+                    <span className="text-xs text-gray-400">{t('walletModal.totalScore')}</span>
                     <span className="text-lg font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
                       {loadingScores ? '...' : scores.totalScore}
                     </span>
@@ -238,7 +240,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
               </div>
 
               <div>
-                <div className="text-xs text-gray-400 mb-1">Source</div>
+                <div className="text-xs text-gray-400 mb-1">{t('walletModal.source')}</div>
                 <div className="text-sm text-gray-300">
                   {selectedAccount.meta.source || 'pezkuwi'}
                 </div>
@@ -253,7 +255,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                 onClick={() => window.open(`https://pezkuwichain.io/explorer`, '_blank')}
               >
                 <ExternalLink className="mr-2 h-4 w-4" />
-                View on Explorer
+                {t('walletModal.viewOnExplorer')}
               </Button>
               <Button
                 variant="outline"
@@ -261,14 +263,14 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                 className="text-red-400 border-red-400/30 hover:bg-red-400/10"
               >
                 <LogOut className="mr-2 h-4 w-4" />
-                Disconnect
+                {t('walletModal.disconnect')}
               </Button>
             </div>
 
             {/* Switch Account */}
             {accounts.length > 1 && (
               <div className="space-y-2">
-                <div className="text-sm text-gray-400">Switch Account</div>
+                <div className="text-sm text-gray-400">{t('walletModal.switchAccount')}</div>
                 <div className="space-y-2 max-h-48 overflow-y-auto">
                   {accounts.map((account) => (
                     <button
@@ -281,7 +283,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                       }`}
                     >
                       <div className="font-medium text-sm">
-                        {account.meta.name || 'Unnamed'}
+                        {account.meta.name || t('walletModal.unnamed')}
                       </div>
                       <div className="text-xs text-gray-400 font-mono">
                         {formatAddress(account.address)}
@@ -300,7 +302,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
             {accounts.length > 0 ? (
               // Has accounts, show selection
               <div className="space-y-2">
-                <div className="text-sm text-gray-400">Select an account to connect:</div>
+                <div className="text-sm text-gray-400">{t('walletModal.selectAccount')}</div>
                 <div className="space-y-2">
                   {accounts.map((account) => (
                     <button
@@ -309,7 +311,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                       className="w-full p-4 rounded-lg border border-gray-700 bg-gray-800/50 hover:border-purple-500/50 hover:bg-gray-800 transition-all text-left"
                     >
                       <div className="font-medium mb-1">
-                        {account.meta.name || 'Unnamed Account'}
+                        {account.meta.name || t('walletModal.unnamed')}
                       </div>
                       <div className="text-sm text-gray-400 font-mono">
                         {account.address}
@@ -326,18 +328,18 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                   className="w-full bg-gradient-to-r from-purple-600 to-cyan-400 hover:from-purple-700 hover:to-cyan-500"
                 >
                   <Wallet className="mr-2 h-4 w-4" />
-                  Connect Pezkuwi.js
+                  {t('walletModal.connectPezkuwi')}
                 </Button>
 
                 <div className="text-sm text-gray-400 text-center">
-                  Don&apos;t have Pezkuwi Wallet?{' '}
+                  {t('walletModal.noWallet')}{' '}
                   <a
                     href="https://chrome.google.com/webstore/detail/pezkuwi-wallet/fbnboicjjeebjhgnapneaeccpgjcdibn"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-purple-400 hover:underline"
                   >
-                    Get it from Chrome Web Store
+                    {t('walletModal.getFromStore')}
                   </a>
                 </div>
               </div>

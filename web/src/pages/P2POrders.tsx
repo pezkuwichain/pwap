@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -32,6 +33,7 @@ interface TradeWithOffer extends P2PFiatTrade {
 
 export default function P2POrders() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { user } = useAuth();
 
   const [trades, setTrades] = useState<TradeWithOffer[]>([]);
@@ -75,7 +77,7 @@ export default function P2POrders() {
       setTrades(tradesWithOffers);
     } catch (error) {
       console.error('Fetch trades error:', error);
-      toast.error('Failed to load trades');
+      toast.error(t('p2pOrders.failedToLoad'));
     } finally {
       setLoading(false);
     }
@@ -102,42 +104,42 @@ export default function P2POrders() {
         return (
           <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">
             <Clock className="w-3 h-3 mr-1" />
-            Awaiting Payment
+            {t('p2pOrders.awaitingPayment')}
           </Badge>
         );
       case 'payment_sent':
         return (
           <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
             <Clock className="w-3 h-3 mr-1" />
-            Payment Sent
+            {t('p2pOrders.paymentSent')}
           </Badge>
         );
       case 'completed':
         return (
           <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
             <CheckCircle2 className="w-3 h-3 mr-1" />
-            Completed
+            {t('p2pOrders.completed')}
           </Badge>
         );
       case 'cancelled':
         return (
           <Badge className="bg-gray-500/20 text-gray-400 border-gray-500/30">
             <XCircle className="w-3 h-3 mr-1" />
-            Cancelled
+            {t('p2pOrders.cancelled')}
           </Badge>
         );
       case 'disputed':
         return (
           <Badge className="bg-red-500/20 text-red-400 border-red-500/30">
             <AlertTriangle className="w-3 h-3 mr-1" />
-            Disputed
+            {t('p2pOrders.disputed')}
           </Badge>
         );
       case 'refunded':
         return (
           <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">
             <RefreshCw className="w-3 h-3 mr-1" />
-            Refunded
+            {t('p2pOrders.refunded')}
           </Badge>
         );
       default:
@@ -154,13 +156,13 @@ export default function P2POrders() {
 
     const timeAgo = (date: string) => {
       const seconds = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
-      if (seconds < 60) return 'Just now';
+      if (seconds < 60) return t('p2p.justNow');
       const minutes = Math.floor(seconds / 60);
-      if (minutes < 60) return `${minutes}m ago`;
+      if (minutes < 60) return t('p2p.minutesAgo', { count: minutes });
       const hours = Math.floor(minutes / 60);
-      if (hours < 24) return `${hours}h ago`;
+      if (hours < 24) return t('p2p.hoursAgo', { count: hours });
       const days = Math.floor(hours / 24);
-      return `${days}d ago`;
+      return t('p2p.daysAgo', { count: days });
     };
 
     return (
@@ -187,7 +189,7 @@ export default function P2POrders() {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
                 <span className={`font-semibold ${isBuyer ? 'text-green-400' : 'text-red-400'}`}>
-                  {isBuyer ? 'Buy' : 'Sell'}
+                  {isBuyer ? t('p2p.buy') : t('p2p.sell')}
                 </span>
                 <span className="text-white font-medium">
                   {trade.crypto_amount} {trade.offer?.token || 'HEZ'}
@@ -225,7 +227,7 @@ export default function P2POrders() {
               <div className="flex items-center gap-2 text-yellow-400 text-sm">
                 <Clock className="w-4 h-4" />
                 <span>
-                  Payment deadline: {new Date(trade.payment_deadline).toLocaleTimeString()}
+                  {t('p2pOrders.paymentDeadline', { time: new Date(trade.payment_deadline).toLocaleTimeString() })}
                 </span>
               </div>
             </div>
@@ -249,9 +251,9 @@ export default function P2POrders() {
         <Card className="bg-gray-900 border-gray-800">
           <CardContent className="py-12 text-center">
             <AlertTriangle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-white mb-2">Login Required</h2>
-            <p className="text-gray-400 mb-6">Please log in to view your P2P trades.</p>
-            <Button onClick={() => navigate('/login')}>Log In</Button>
+            <h2 className="text-xl font-semibold text-white mb-2">{t('p2p.loginRequired')}</h2>
+            <p className="text-gray-400 mb-6">{t('p2p.loginToView')}</p>
+            <Button onClick={() => navigate('/login')}>{t('p2p.logIn')}</Button>
           </CardContent>
         </Card>
       </div>
@@ -269,7 +271,7 @@ export default function P2POrders() {
           className="text-gray-400 hover:text-white"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          P2P Trading
+          {t('p2p.p2pTrading')}
         </Button>
         <div className="flex-1" />
         <Button
@@ -285,8 +287,8 @@ export default function P2POrders() {
 
       {/* Title */}
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-white">My Trades</h1>
-        <p className="text-gray-400">View and manage your P2P trades</p>
+        <h1 className="text-3xl font-bold text-white">{t('p2pOrders.title')}</h1>
+        <p className="text-gray-400">{t('p2pOrders.subtitle')}</p>
       </div>
 
       {/* Stats Cards */}
@@ -294,19 +296,19 @@ export default function P2POrders() {
         <Card className="bg-gray-900 border-gray-800">
           <CardContent className="py-4 text-center">
             <p className="text-2xl font-bold text-yellow-400">{activeTrades.length}</p>
-            <p className="text-sm text-gray-400">Active</p>
+            <p className="text-sm text-gray-400">{t('p2pOrders.active')}</p>
           </CardContent>
         </Card>
         <Card className="bg-gray-900 border-gray-800">
           <CardContent className="py-4 text-center">
             <p className="text-2xl font-bold text-green-400">{completedTrades.length}</p>
-            <p className="text-sm text-gray-400">Completed</p>
+            <p className="text-sm text-gray-400">{t('p2pOrders.completed')}</p>
           </CardContent>
         </Card>
         <Card className="bg-gray-900 border-gray-800">
           <CardContent className="py-4 text-center">
             <p className="text-2xl font-bold text-gray-400">{cancelledTrades.length}</p>
-            <p className="text-sm text-gray-400">Cancelled</p>
+            <p className="text-sm text-gray-400">{t('p2pOrders.cancelled')}</p>
           </CardContent>
         </Card>
       </div>
@@ -315,15 +317,15 @@ export default function P2POrders() {
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-3 mb-6">
           <TabsTrigger value="active" className="relative">
-            Active
+            {t('p2pOrders.active')}
             {activeTrades.length > 0 && (
               <span className="ml-2 px-1.5 py-0.5 text-xs bg-yellow-500 text-black rounded-full">
                 {activeTrades.length}
               </span>
             )}
           </TabsTrigger>
-          <TabsTrigger value="completed">Completed</TabsTrigger>
-          <TabsTrigger value="cancelled">Cancelled</TabsTrigger>
+          <TabsTrigger value="completed">{t('p2pOrders.completed')}</TabsTrigger>
+          <TabsTrigger value="cancelled">{t('p2pOrders.cancelled')}</TabsTrigger>
         </TabsList>
 
         {loading ? (
@@ -334,21 +336,21 @@ export default function P2POrders() {
           <>
             <TabsContent value="active" className="space-y-4">
               {activeTrades.length === 0
-                ? renderEmptyState('No active trades')
+                ? renderEmptyState(t('p2pOrders.noActiveTrades'))
                 : activeTrades.map(renderTradeCard)
               }
             </TabsContent>
 
             <TabsContent value="completed" className="space-y-4">
               {completedTrades.length === 0
-                ? renderEmptyState('No completed trades')
+                ? renderEmptyState(t('p2pOrders.noCompletedTrades'))
                 : completedTrades.map(renderTradeCard)
               }
             </TabsContent>
 
             <TabsContent value="cancelled" className="space-y-4">
               {cancelledTrades.length === 0
-                ? renderEmptyState('No cancelled trades')
+                ? renderEmptyState(t('p2pOrders.noCancelledTrades'))
                 : cancelledTrades.map(renderTradeCard)
               }
             </TabsContent>

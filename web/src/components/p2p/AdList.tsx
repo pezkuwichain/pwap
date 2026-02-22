@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -23,6 +24,7 @@ interface OfferWithReputation extends P2PFiatOffer {
 }
 
 export function AdList({ type, filters }: AdListProps) {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [offers, setOffers] = useState<OfferWithReputation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -184,7 +186,7 @@ export function AdList({ type, filters }: AdListProps) {
     return (
       <div className="text-center py-12">
         <p className="text-gray-400">
-          {type === 'my-ads' ? 'You have no active offers' : 'No offers available'}
+          {type === 'my-ads' ? t('p2pAd.noActiveOffers') : t('p2pAd.noOffers')}
         </p>
       </div>
     );
@@ -212,16 +214,16 @@ export function AdList({ type, filters }: AdListProps) {
                       <MerchantTierBadge tier={offer.merchant_tier} size="sm" />
                     )}
                     {offer.seller_reputation?.verified_merchant && (
-                      <Shield className="w-4 h-4 text-blue-400" title="Verified Merchant" />
+                      <Shield className="w-4 h-4 text-blue-400" title={t('p2p.verifiedMerchant')} />
                     )}
                     {offer.seller_reputation?.fast_trader && (
-                      <Zap className="w-4 h-4 text-yellow-400" title="Fast Trader" />
+                      <Zap className="w-4 h-4 text-yellow-400" title={t('p2p.fastTrader')} />
                     )}
                   </div>
                   {offer.seller_reputation && (
                     <p className="text-sm text-gray-400">
-                      {offer.seller_reputation.completed_trades} trades • {' '}
-                      {((offer.seller_reputation.completed_trades / (offer.seller_reputation.total_trades || 1)) * 100).toFixed(0)}% completion
+                      {t('p2p.trades', { count: offer.seller_reputation.completed_trades })} • {' '}
+                      {t('p2p.completion', { percent: ((offer.seller_reputation.completed_trades / (offer.seller_reputation.total_trades || 1)) * 100).toFixed(0) })}
                     </p>
                   )}
                 </div>
@@ -229,7 +231,7 @@ export function AdList({ type, filters }: AdListProps) {
 
               {/* Price */}
               <div>
-                <p className="text-sm text-gray-400">Price</p>
+                <p className="text-sm text-gray-400">{t('p2p.price')}</p>
                 <p className="text-xl font-bold text-green-400">
                   {offer.price_per_unit.toFixed(2)} {offer.fiat_currency}
                 </p>
@@ -237,25 +239,25 @@ export function AdList({ type, filters }: AdListProps) {
 
               {/* Available */}
               <div>
-                <p className="text-sm text-gray-400">Available</p>
+                <p className="text-sm text-gray-400">{t('p2p.available')}</p>
                 <p className="text-lg font-semibold text-white">
                   {offer.remaining_amount} {offer.token}
                 </p>
                 {offer.min_order_amount && (
                   <p className="text-xs text-gray-500">
-                    Min: {offer.min_order_amount} {offer.token}
+                    {t('p2p.minLimit', { amount: offer.min_order_amount, token: offer.token })}
                   </p>
                 )}
               </div>
 
               {/* Payment Method */}
               <div>
-                <p className="text-sm text-gray-400">Payment</p>
+                <p className="text-sm text-gray-400">{t('p2p.payment')}</p>
                 <Badge variant="outline" className="mt-1">
-                  {offer.payment_method_name || 'N/A'}
+                  {offer.payment_method_name || t('p2p.na')}
                 </Badge>
                 <p className="text-xs text-gray-500 mt-1">
-                  {offer.time_limit_minutes} min limit
+                  {t('p2p.timeLimit', { minutes: offer.time_limit_minutes })}
                 </p>
               </div>
 
@@ -263,16 +265,16 @@ export function AdList({ type, filters }: AdListProps) {
               <div className="flex flex-col items-end gap-1">
                 {offer.seller_id === user?.id && type !== 'my-ads' && (
                   <Badge variant="outline" className="text-xs bg-blue-500/10 text-blue-400 border-blue-500/30">
-                    Your Ad
+                    {t('p2pAd.yourAd')}
                   </Badge>
                 )}
                 <Button
                   onClick={() => setSelectedOffer(offer)}
                   disabled={type === 'my-ads' || offer.seller_id === user?.id}
                   className="w-full md:w-auto"
-                  title={offer.seller_id === user?.id ? "You can't trade with your own ad" : ''}
+                  title={offer.seller_id === user?.id ? t('p2pAd.cantTradeOwnAd') : ''}
                 >
-                  {type === 'buy' ? 'Buy' : 'Sell'} {offer.token}
+                  {type === 'buy' ? t('p2pAd.buyToken', { token: offer.token }) : t('p2pAd.sellToken', { token: offer.token })}
                 </Button>
               </div>
             </div>
@@ -287,7 +289,7 @@ export function AdList({ type, filters }: AdListProps) {
                     {offer.status.toUpperCase()}
                   </Badge>
                   <p className="text-sm text-gray-400">
-                    Created: {new Date(offer.created_at).toLocaleDateString()}
+                    {t('p2pAd.created', { date: new Date(offer.created_at).toLocaleDateString() })}
                   </p>
                 </div>
               </div>

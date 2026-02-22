@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Clock, Users, AlertCircle, Activity } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
@@ -24,6 +25,7 @@ interface Proposal {
 }
 
 const ProposalsList: React.FC = () => {
+  const { t } = useTranslation();
   const { proposals: treasuryProposals, referenda, loading, error } = useGovernance();
 
   // Format token amounts from blockchain units (12 decimals for HEZ)
@@ -37,8 +39,8 @@ const ProposalsList: React.FC = () => {
     // Treasury proposals
     ...treasuryProposals.map(p => ({
       id: p.proposalIndex,
-      title: `Treasury Proposal #${p.proposalIndex}`,
-      description: `Requesting ${formatTokenAmount(p.value)} HEZ for ${p.beneficiary.substring(0, 10)}...`,
+      title: t('proposals.treasuryProposal', { id: p.proposalIndex }),
+      description: t('proposals.treasuryDescription', { amount: formatTokenAmount(p.value), beneficiary: `${p.beneficiary.substring(0, 10)}...` }),
       proposer: p.proposer,
       type: 'treasury' as const,
       status: p.status as 'active' | 'passed' | 'rejected' | 'pending',
@@ -46,14 +48,14 @@ const ProposalsList: React.FC = () => {
       nayVotes: 0,
       totalVotes: 0,
       quorum: 0,
-      deadline: 'Pending referendum',
+      deadline: t('proposals.pendingReferendum'),
       requestedAmount: `${formatTokenAmount(p.value)} HEZ`
     })),
     // Democracy referenda
     ...referenda.map(r => ({
       id: r.index,
-      title: `Referendum #${r.index}`,
-      description: `Voting on proposal with ${r.threshold} threshold`,
+      title: t('proposals.referendum', { id: r.index }),
+      description: t('proposals.referendumDescription', { threshold: r.threshold }),
       proposer: 'Democracy',
       type: 'executive' as const,
       status: r.status as 'active' | 'passed' | 'rejected' | 'pending',
@@ -67,24 +69,24 @@ const ProposalsList: React.FC = () => {
 
   const getStatusBadge = (status: string) => {
     switch(status) {
-      case 'active': return <Badge className="bg-blue-500/10 text-blue-400">Active</Badge>;
-      case 'passed': return <Badge className="bg-green-500/10 text-green-400">Passed</Badge>;
-      case 'rejected': return <Badge className="bg-red-500/10 text-red-400">Rejected</Badge>;
-      default: return <Badge className="bg-gray-500/10 text-gray-400">Pending</Badge>;
+      case 'active': return <Badge className="bg-blue-500/10 text-blue-400">{t('governance.status.active')}</Badge>;
+      case 'passed': return <Badge className="bg-green-500/10 text-green-400">{t('governance.status.passed')}</Badge>;
+      case 'rejected': return <Badge className="bg-red-500/10 text-red-400">{t('governance.status.rejected')}</Badge>;
+      default: return <Badge className="bg-gray-500/10 text-gray-400">{t('governance.status.pending')}</Badge>;
     }
   };
 
   const getTypeBadge = (type: string) => {
     switch(type) {
-      case 'treasury': return <Badge className="bg-yellow-500/10 text-yellow-400">Treasury</Badge>;
-      case 'executive': return <Badge className="bg-kurdish-red/10 text-kurdish-red">Executive</Badge>;
-      case 'constitutional': return <Badge className="bg-cyan-500/10 text-cyan-400">Constitutional</Badge>;
-      default: return <Badge className="bg-gray-500/10 text-gray-400">Simple</Badge>;
+      case 'treasury': return <Badge className="bg-yellow-500/10 text-yellow-400">{t('proposals.type.treasury')}</Badge>;
+      case 'executive': return <Badge className="bg-kurdish-red/10 text-kurdish-red">{t('proposals.type.executive')}</Badge>;
+      case 'constitutional': return <Badge className="bg-cyan-500/10 text-cyan-400">{t('proposals.type.constitutional')}</Badge>;
+      default: return <Badge className="bg-gray-500/10 text-gray-400">{t('proposals.type.simple')}</Badge>;
     }
   };
 
   if (loading) {
-    return <LoadingState message="Loading proposals from blockchain..." />;
+    return <LoadingState message={t('proposals.loading')} />;
   }
 
   if (error) {
@@ -92,7 +94,7 @@ const ProposalsList: React.FC = () => {
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          Failed to load proposals: {error}
+          {t('proposals.loadError', { error })}
         </AlertDescription>
       </Alert>
     );
@@ -104,17 +106,17 @@ const ProposalsList: React.FC = () => {
       <div className="flex items-center gap-2 mb-4">
         <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20">
           <Activity className="h-3 w-3 mr-1" />
-          Live Blockchain Data
+          {t('proposals.liveData')}
         </Badge>
         <span className="text-sm text-muted-foreground">
-          {proposals.length} active proposals & referenda
+          {t('proposals.count', { count: proposals.length })}
         </span>
       </div>
 
       {proposals.length === 0 ? (
         <Card className="bg-gray-900/50 border-gray-800">
           <CardContent className="pt-6 text-center text-gray-500">
-            No active proposals or referenda found on the blockchain.
+            {t('proposals.noProposals')}
           </CardContent>
         </Card>
       ) : (
@@ -152,17 +154,17 @@ const ProposalsList: React.FC = () => {
             <CardContent className="space-y-4">
               <div className="space-y-3">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-400">Voting Progress</span>
-                  <span className="text-white">{proposal.totalVotes} votes</span>
+                  <span className="text-gray-400">{t('proposals.votingProgress')}</span>
+                  <span className="text-white">{t('proposals.votes', { count: proposal.totalVotes })}</span>
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
-                    <span className="text-green-400 text-xs w-12">Aye</span>
+                    <span className="text-green-400 text-xs w-12">{t('proposals.aye')}</span>
                     <Progress value={ayePercentage} className="flex-1 h-2" />
                     <span className="text-white text-sm w-12 text-right">{ayePercentage.toFixed(0)}%</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <span className="text-red-400 text-xs w-12">Nay</span>
+                    <span className="text-red-400 text-xs w-12">{t('proposals.nay')}</span>
                     <Progress value={nayPercentage} className="flex-1 h-2" />
                     <span className="text-white text-sm w-12 text-right">{nayPercentage.toFixed(0)}%</span>
                   </div>
@@ -173,22 +175,22 @@ const ProposalsList: React.FC = () => {
                 <div className="flex items-center space-x-4 text-sm">
                   <div className="flex items-center">
                     <Users className="w-4 h-4 mr-1 text-gray-400" />
-                    <span className="text-gray-400">Proposer: {proposal.proposer}</span>
+                    <span className="text-gray-400">{t('proposals.proposer', { address: proposal.proposer })}</span>
                   </div>
                   <div className="flex items-center">
                     {quorumReached ? (
-                      <span className="text-green-400">✓ Quorum reached</span>
+                      <span className="text-green-400">&#10003; {t('proposals.quorumReached')}</span>
                     ) : (
-                      <span className="text-yellow-400">⚠ Quorum: {proposal.quorum}%</span>
+                      <span className="text-yellow-400">&#9888; {t('proposals.quorum', { percent: proposal.quorum })}</span>
                     )}
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Button size="sm" variant="outline" className="border-gray-700">
-                    View Details
+                    {t('proposals.viewDetails')}
                   </Button>
                   <Button size="sm" className="bg-kurdish-green hover:bg-kurdish-green/80">
-                    Cast Vote
+                    {t('proposals.castVote')}
                   </Button>
                 </div>
               </div>

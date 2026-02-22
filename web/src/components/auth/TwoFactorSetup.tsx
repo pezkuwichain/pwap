@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -11,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 export function TwoFactorSetup() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [isEnabled, setIsEnabled] = useState(false);
   const [secret, setSecret] = useState('');
   const [backupCodes, setBackupCodes] = useState<string[]>([]);
@@ -33,12 +35,12 @@ export function TwoFactorSetup() {
       setShowSetup(true);
       
       toast({
-        title: '2FA Setup Started',
-        description: 'Scan the QR code with your authenticator app',
+        title: t('twoFactor.setupStarted'),
+        description: t('twoFactor.scanQrDesc'),
       });
     } catch (error) {
       toast({
-        title: 'Setup Failed',
+        title: t('twoFactor.setupFailed'),
         description: error.message,
         variant: 'destructive',
       });
@@ -50,8 +52,8 @@ export function TwoFactorSetup() {
   const handleEnable = async () => {
     if (!verificationCode) {
       toast({
-        title: 'Error',
-        description: 'Please enter verification code',
+        title: t('common.error'),
+        description: t('twoFactor.enterVerification'),
         variant: 'destructive',
       });
       return;
@@ -73,12 +75,12 @@ export function TwoFactorSetup() {
       setShowSetup(false);
       
       toast({
-        title: '2FA Enabled',
-        description: 'Your account is now protected with two-factor authentication',
+        title: t('twoFactor.enabled'),
+        description: t('twoFactor.enabledDesc'),
       });
     } catch (error) {
       toast({
-        title: 'Verification Failed',
+        title: t('twoFactor.verificationFailed'),
         description: error.message,
         variant: 'destructive',
       });
@@ -101,12 +103,12 @@ export function TwoFactorSetup() {
       setBackupCodes([]);
       
       toast({
-        title: '2FA Disabled',
-        description: 'Two-factor authentication has been disabled',
+        title: t('twoFactor.disabled'),
+        description: t('twoFactor.disabledDesc'),
       });
     } catch (error) {
       toast({
-        title: 'Error',
+        title: t('common.error'),
         description: error.message,
         variant: 'destructive',
       });
@@ -126,10 +128,10 @@ export function TwoFactorSetup() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Shield className="h-5 w-5" />
-          Two-Factor Authentication
+          {t('twoFactor.title')}
         </CardTitle>
         <CardDescription>
-          Add an extra layer of security to your account
+          {t('twoFactor.description')}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -138,11 +140,11 @@ export function TwoFactorSetup() {
             <Alert>
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                Two-factor authentication adds an extra layer of security by requiring a code from your authenticator app
+                {t('twoFactor.infoAlert')}
               </AlertDescription>
             </Alert>
             <Button onClick={handleSetup} disabled={isLoading}>
-              Set Up Two-Factor Authentication
+              {t('twoFactor.setupBtn')}
             </Button>
           </div>
         )}
@@ -150,9 +152,9 @@ export function TwoFactorSetup() {
         {showSetup && (
           <div className="space-y-4">
             <div className="p-4 border rounded-lg">
-              <p className="text-sm font-medium mb-2">1. Scan QR Code</p>
+              <p className="text-sm font-medium mb-2">{t('twoFactor.scanQrTitle')}</p>
               <p className="text-xs text-muted-foreground mb-4">
-                Use your authenticator app to scan this QR code or enter the secret manually
+                {t('twoFactor.scanQrHint')}
               </p>
               <div className="bg-muted p-2 rounded font-mono text-xs break-all">
                 {secret}
@@ -160,9 +162,9 @@ export function TwoFactorSetup() {
             </div>
 
             <div className="p-4 border rounded-lg">
-              <p className="text-sm font-medium mb-2">2. Save Backup Codes</p>
+              <p className="text-sm font-medium mb-2">{t('twoFactor.saveBackup')}</p>
               <p className="text-xs text-muted-foreground mb-4">
-                Store these codes in a safe place. You can use them to access your account if you lose your device.
+                {t('twoFactor.saveBackupHint')}
               </p>
               <div className="bg-muted p-3 rounded space-y-1">
                 {backupCodes.map((code, i) => (
@@ -176,14 +178,14 @@ export function TwoFactorSetup() {
                 onClick={copyBackupCodes}
               >
                 {copiedCodes ? <Check className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
-                {copiedCodes ? 'Copied!' : 'Copy Codes'}
+                {copiedCodes ? t('twoFactor.copied') : t('twoFactor.copyCodes')}
               </Button>
             </div>
 
             <div className="p-4 border rounded-lg">
-              <p className="text-sm font-medium mb-2">3. Verify Setup</p>
+              <p className="text-sm font-medium mb-2">{t('twoFactor.verifySetup')}</p>
               <p className="text-xs text-muted-foreground mb-4">
-                Enter the 6-digit code from your authenticator app
+                {t('twoFactor.enterCode')}
               </p>
               <div className="flex gap-2">
                 <Input
@@ -193,7 +195,7 @@ export function TwoFactorSetup() {
                   maxLength={6}
                 />
                 <Button onClick={handleEnable} disabled={isLoading}>
-                  Enable 2FA
+                  {t('twoFactor.enableBtn')}
                 </Button>
               </div>
             </div>
@@ -205,11 +207,11 @@ export function TwoFactorSetup() {
             <Alert className="border-green-200 bg-green-50">
               <Check className="h-4 w-4 text-green-600" />
               <AlertDescription className="text-green-800">
-                Two-factor authentication is enabled for your account
+                {t('twoFactor.enabledAlert')}
               </AlertDescription>
             </Alert>
             <Button variant="destructive" onClick={handleDisable} disabled={isLoading}>
-              Disable Two-Factor Authentication
+              {t('twoFactor.disableBtn')}
             </Button>
           </div>
         )}

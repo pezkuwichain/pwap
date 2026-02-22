@@ -7,7 +7,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { AlertTriangle, Shield, Ban, CheckCircle, Clock, Flag, User } from 'lucide-react';
-// import { useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 
 interface Report {
   id: string;
@@ -21,6 +21,7 @@ interface Report {
 }
 
 export function ModerationPanel() {
+  const { t } = useTranslation();
   const [autoModeration, setAutoModeration] = useState(true);
   const [sentimentThreshold, setSentimentThreshold] = useState(30);
 
@@ -81,7 +82,7 @@ export function ModerationPanel() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Total Reports</p>
+                <p className="text-sm text-gray-600">{t('moderation.totalReports')}</p>
                 <p className="text-2xl font-bold">{moderationStats.totalReports}</p>
               </div>
               <Flag className="h-8 w-8 text-gray-400" />
@@ -92,7 +93,7 @@ export function ModerationPanel() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Resolved</p>
+                <p className="text-sm text-gray-600">{t('moderation.resolved')}</p>
                 <p className="text-2xl font-bold text-green-600">{moderationStats.resolved}</p>
               </div>
               <CheckCircle className="h-8 w-8 text-green-400" />
@@ -103,7 +104,7 @@ export function ModerationPanel() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Pending</p>
+                <p className="text-sm text-gray-600">{t('moderation.pending')}</p>
                 <p className="text-2xl font-bold text-yellow-600">{moderationStats.pending}</p>
               </div>
               <Clock className="h-8 w-8 text-yellow-400" />
@@ -114,7 +115,7 @@ export function ModerationPanel() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Banned Users</p>
+                <p className="text-sm text-gray-600">{t('moderation.bannedUsers')}</p>
                 <p className="text-2xl font-bold text-red-600">{moderationStats.bannedUsers}</p>
               </div>
               <Ban className="h-8 w-8 text-red-400" />
@@ -125,7 +126,7 @@ export function ModerationPanel() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Flagged Content</p>
+                <p className="text-sm text-gray-600">{t('moderation.flaggedContent')}</p>
                 <p className="text-2xl font-bold">{moderationStats.flaggedContent}</p>
               </div>
               <AlertTriangle className="h-8 w-8 text-orange-400" />
@@ -136,9 +137,9 @@ export function ModerationPanel() {
 
       <Tabs defaultValue="reports" className="space-y-4">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="reports">Reports Queue</TabsTrigger>
-          <TabsTrigger value="settings">Auto-Moderation</TabsTrigger>
-          <TabsTrigger value="users">User Management</TabsTrigger>
+          <TabsTrigger value="reports">{t('moderation.reportsQueue')}</TabsTrigger>
+          <TabsTrigger value="settings">{t('moderation.autoModeration')}</TabsTrigger>
+          <TabsTrigger value="users">{t('moderation.userManagement')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="reports" className="space-y-4">
@@ -155,16 +156,16 @@ export function ModerationPanel() {
                       <Badge variant="outline">{report.type}</Badge>
                       <span className="text-sm text-gray-500">{report.timestamp}</span>
                     </div>
-                    <p className="font-medium mb-2">Reported User: {report.reportedUser}</p>
+                    <p className="font-medium mb-2">{t('moderation.reportedUser', { user: report.reportedUser })}</p>
                     <p className="text-gray-600 mb-3">{report.reportedContent}</p>
-                    <p className="text-sm text-gray-500">Reported by: {report.reportedBy}</p>
+                    <p className="text-sm text-gray-500">{t('moderation.reportedBy', { user: report.reportedBy })}</p>
                   </div>
                   <div className="flex gap-2">
                     <Button variant="outline" size="sm">
-                      Review
+                      {t('moderation.review')}
                     </Button>
                     <Button variant="destructive" size="sm">
-                      Take Action
+                      {t('moderation.takeAction')}
                     </Button>
                   </div>
                 </div>
@@ -176,13 +177,13 @@ export function ModerationPanel() {
         <TabsContent value="settings" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Auto-Moderation Settings</CardTitle>
+              <CardTitle>{t('moderation.autoModSettings')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="auto-mod">Enable Auto-Moderation</Label>
-                  <p className="text-sm text-gray-600">Automatically flag suspicious content</p>
+                  <Label htmlFor="auto-mod">{t('moderation.enableAutoMod')}</Label>
+                  <p className="text-sm text-gray-600">{t('moderation.autoModDesc')}</p>
                 </div>
                 <Switch
                   id="auto-mod"
@@ -191,9 +192,9 @@ export function ModerationPanel() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Sentiment Threshold</Label>
+                <Label>{t('moderation.sentimentThreshold')}</Label>
                 <p className="text-sm text-gray-600">
-                  Flag comments with sentiment below {sentimentThreshold}%
+                  {t('moderation.sentimentThresholdDesc', { threshold: sentimentThreshold })}
                 </p>
                 <input
                   type="range"
@@ -207,7 +208,7 @@ export function ModerationPanel() {
               <Alert>
                 <Shield className="h-4 w-4" />
                 <AlertDescription>
-                  Auto-moderation uses AI to detect potentially harmful content and automatically flags it for review.
+                  {t('moderation.autoModInfo')}
                 </AlertDescription>
               </Alert>
             </CardContent>
@@ -217,7 +218,7 @@ export function ModerationPanel() {
         <TabsContent value="users" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>User Moderation Actions</CardTitle>
+              <CardTitle>{t('moderation.userModActions')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -226,13 +227,13 @@ export function ModerationPanel() {
                     <User className="h-8 w-8 text-gray-400" />
                     <div>
                       <p className="font-medium">BadActor456</p>
-                      <p className="text-sm text-gray-600">3 reports, 2 warnings</p>
+                      <p className="text-sm text-gray-600">{t('moderation.reportsWarnings', { reports: 3, warnings: 2 })}</p>
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm">Warn</Button>
-                    <Button variant="outline" size="sm">Suspend</Button>
-                    <Button variant="destructive" size="sm">Ban</Button>
+                    <Button variant="outline" size="sm">{t('moderation.warn')}</Button>
+                    <Button variant="outline" size="sm">{t('moderation.suspend')}</Button>
+                    <Button variant="destructive" size="sm">{t('moderation.ban')}</Button>
                   </div>
                 </div>
               </div>

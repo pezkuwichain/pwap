@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabase';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -82,12 +83,12 @@ interface Evidence {
   review_notes?: string;
 }
 
-// Decision options
-const DECISION_OPTIONS = [
-  { value: 'release_to_buyer', label: 'Release to Buyer', description: 'Release escrowed crypto to the buyer' },
-  { value: 'refund_to_seller', label: 'Refund to Seller', description: 'Return escrowed crypto to the seller' },
-  { value: 'split', label: 'Split 50/50', description: 'Split the escrowed amount between both parties' },
-  { value: 'escalate', label: 'Escalate', description: 'Escalate to higher authority for complex cases' }
+// Decision option values - labels are translated via t() in the component
+const DECISION_OPTION_KEYS = [
+  { value: 'release_to_buyer', labelKey: 'dispute.releaseToBuyer' },
+  { value: 'refund_to_seller', labelKey: 'dispute.refundToSeller' },
+  { value: 'split', labelKey: 'dispute.split' },
+  { value: 'escalate', labelKey: 'dispute.escalate' },
 ];
 
 // Status badge colors
@@ -99,18 +100,19 @@ const STATUS_COLORS: Record<string, string> = {
   closed: 'bg-gray-500/20 text-gray-400 border-gray-500/30'
 };
 
-// Category labels
-const CATEGORY_LABELS: Record<string, string> = {
-  payment_not_received: 'Payment Not Received',
-  wrong_amount: 'Wrong Amount',
-  fake_payment_proof: 'Fake Payment Proof',
-  seller_not_responding: 'Seller Not Responding',
-  buyer_not_responding: 'Buyer Not Responding',
-  fraudulent_behavior: 'Fraudulent Behavior',
-  other: 'Other'
+// Category translation keys
+const CATEGORY_KEYS: Record<string, string> = {
+  payment_not_received: 'dispute.categoryPaymentNotReceived',
+  wrong_amount: 'dispute.categoryWrongAmount',
+  fake_payment_proof: 'dispute.categoryFakePaymentProof',
+  seller_not_responding: 'dispute.categorySellerNotResponding',
+  buyer_not_responding: 'dispute.categoryBuyerNotResponding',
+  fraudulent_behavior: 'dispute.categoryFraudulentBehavior',
+  other: 'dispute.categoryOther'
 };
 
 export function DisputeResolutionPanel() {
+  const { t } = useTranslation();
   const [disputes, setDisputes] = useState<Dispute[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedDispute, setSelectedDispute] = useState<Dispute | null>(null);
@@ -164,7 +166,7 @@ export function DisputeResolutionPanel() {
       setDisputes(disputesWithEvidence);
     } catch (error) {
       console.error('Error fetching disputes:', error);
-      toast.error('Failed to load disputes');
+      toast.error(t('dispute.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -216,18 +218,18 @@ export function DisputeResolutionPanel() {
 
       if (error) throw error;
 
-      toast.success('Dispute claimed for review');
+      toast.success(t('dispute.claimedToast'));
       fetchDisputes();
     } catch (error) {
       console.error('Error claiming dispute:', error);
-      toast.error('Failed to claim dispute');
+      toast.error(t('dispute.claimFailed'));
     }
   };
 
   // Resolve dispute
   const resolveDispute = async () => {
     if (!selectedDispute || !decision || !reasoning) {
-      toast.error('Please select a decision and provide reasoning');
+      toast.error(t('dispute.noDecision'));
       return;
     }
 
@@ -265,7 +267,7 @@ export function DisputeResolutionPanel() {
             p_user_id: selectedDispute.trade.seller_id,
             p_type: 'dispute_resolved',
             p_title: 'Dispute Resolved',
-            p_message: `The dispute has been resolved: ${DECISION_OPTIONS.find(o => o.value === decision)?.label}`,
+            p_message: `The dispute has been resolved: ${t(DECISION_OPTION_KEYS.find(o => o.value === decision)?.labelKey || '')}`,
             p_reference_type: 'dispute',
             p_reference_id: selectedDispute.id
           }),
@@ -273,7 +275,7 @@ export function DisputeResolutionPanel() {
             p_user_id: selectedDispute.trade.buyer_id,
             p_type: 'dispute_resolved',
             p_title: 'Dispute Resolved',
-            p_message: `The dispute has been resolved: ${DECISION_OPTIONS.find(o => o.value === decision)?.label}`,
+            p_message: `The dispute has been resolved: ${t(DECISION_OPTION_KEYS.find(o => o.value === decision)?.labelKey || '')}`,
             p_reference_type: 'dispute',
             p_reference_id: selectedDispute.id
           })
@@ -281,7 +283,7 @@ export function DisputeResolutionPanel() {
         await Promise.all(notificationPromises);
       }
 
-      toast.success('Dispute resolved successfully');
+      toast.success(t('dispute.resolvedToast'));
       setResolveOpen(false);
       setSelectedDispute(null);
       setDecision('');
@@ -289,7 +291,7 @@ export function DisputeResolutionPanel() {
       fetchDisputes();
     } catch (error) {
       console.error('Error resolving dispute:', error);
-      toast.error('Failed to resolve dispute');
+      toast.error(t('dispute.resolveFailed'));
     } finally {
       setSubmitting(false);
     }
@@ -322,15 +324,15 @@ export function DisputeResolutionPanel() {
         <div>
           <h2 className="text-2xl font-bold flex items-center gap-2">
             <Gavel className="h-6 w-6 text-kurdish-green" />
-            Dispute Resolution
+            {t('dispute.title')}
           </h2>
           <p className="text-muted-foreground text-sm mt-1">
-            Review and resolve P2P trading disputes
+            {t('dispute.subtitle')}
           </p>
         </div>
         <Button variant="outline" onClick={fetchDisputes} disabled={loading}>
           <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-          Refresh
+          {t('dispute.refresh')}
         </Button>
       </div>
 
@@ -340,7 +342,7 @@ export function DisputeResolutionPanel() {
           <CardContent className="pt-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Open</p>
+                <p className="text-sm text-muted-foreground">{t('dispute.statsOpen')}</p>
                 <p className="text-2xl font-bold text-yellow-500">{stats.open}</p>
               </div>
               <AlertTriangle className="h-8 w-8 text-yellow-500/50" />
@@ -352,7 +354,7 @@ export function DisputeResolutionPanel() {
           <CardContent className="pt-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Under Review</p>
+                <p className="text-sm text-muted-foreground">{t('dispute.statsUnderReview')}</p>
                 <p className="text-2xl font-bold text-blue-500">{stats.under_review}</p>
               </div>
               <Clock className="h-8 w-8 text-blue-500/50" />
@@ -364,7 +366,7 @@ export function DisputeResolutionPanel() {
           <CardContent className="pt-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Resolved</p>
+                <p className="text-sm text-muted-foreground">{t('dispute.statsResolved')}</p>
                 <p className="text-2xl font-bold text-green-500">{stats.resolved}</p>
               </div>
               <CheckCircle2 className="h-8 w-8 text-green-500/50" />
@@ -376,7 +378,7 @@ export function DisputeResolutionPanel() {
           <CardContent className="pt-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Escalated</p>
+                <p className="text-sm text-muted-foreground">{t('dispute.statsEscalated')}</p>
                 <p className="text-2xl font-bold text-purple-500">{stats.escalated}</p>
               </div>
               <Scale className="h-8 w-8 text-purple-500/50" />
@@ -389,16 +391,16 @@ export function DisputeResolutionPanel() {
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid grid-cols-4 w-full max-w-md">
           <TabsTrigger value="open" className="gap-1">
-            Open
+            {t('dispute.statsOpen')}
             {stats.open > 0 && (
               <Badge variant="secondary" className="ml-1 h-5 px-1.5">
                 {stats.open}
               </Badge>
             )}
           </TabsTrigger>
-          <TabsTrigger value="under_review">In Review</TabsTrigger>
-          <TabsTrigger value="resolved">Resolved</TabsTrigger>
-          <TabsTrigger value="escalated">Escalated</TabsTrigger>
+          <TabsTrigger value="under_review">{t('dispute.tabInReview')}</TabsTrigger>
+          <TabsTrigger value="resolved">{t('dispute.statsResolved')}</TabsTrigger>
+          <TabsTrigger value="escalated">{t('dispute.statsEscalated')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value={activeTab} className="mt-4">
@@ -412,7 +414,7 @@ export function DisputeResolutionPanel() {
             <Card>
               <CardContent className="py-12 text-center">
                 <Shield className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
-                <p className="text-muted-foreground">No disputes in this category</p>
+                <p className="text-muted-foreground">{t('dispute.empty')}</p>
               </CardContent>
             </Card>
           ) : (
@@ -427,12 +429,12 @@ export function DisputeResolutionPanel() {
                             {dispute.status.replace('_', ' ').toUpperCase()}
                           </Badge>
                           <Badge variant="outline">
-                            {CATEGORY_LABELS[dispute.category] || dispute.category}
+                            {t(CATEGORY_KEYS[dispute.category] || dispute.category)}
                           </Badge>
                           {dispute.evidence && dispute.evidence.length > 0 && (
                             <Badge variant="secondary" className="gap-1">
                               <ImageIcon className="h-3 w-3" />
-                              {dispute.evidence.length} evidence
+                              {t('dispute.evidence', { count: dispute.evidence.length })}
                             </Badge>
                           )}
                         </div>
@@ -466,7 +468,7 @@ export function DisputeResolutionPanel() {
                           onClick={() => openDetails(dispute)}
                         >
                           <Eye className="h-4 w-4 mr-1" />
-                          View
+                          {t('dispute.view')}
                         </Button>
 
                         {dispute.status === 'open' && (
@@ -474,7 +476,7 @@ export function DisputeResolutionPanel() {
                             size="sm"
                             onClick={() => claimDispute(dispute.id)}
                           >
-                            Claim
+                            {t('dispute.claim')}
                           </Button>
                         )}
 
@@ -485,7 +487,7 @@ export function DisputeResolutionPanel() {
                             onClick={() => openResolve(dispute)}
                           >
                             <Gavel className="h-4 w-4 mr-1" />
-                            Resolve
+                            {t('dispute.resolve')}
                           </Button>
                         )}
                       </div>
@@ -504,10 +506,10 @@ export function DisputeResolutionPanel() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Scale className="h-5 w-5" />
-              Dispute Details
+              {t('dispute.detailsTitle')}
             </DialogTitle>
             <DialogDescription>
-              Review all information related to this dispute
+              {t('dispute.detailsDesc')}
             </DialogDescription>
           </DialogHeader>
 
@@ -520,13 +522,13 @@ export function DisputeResolutionPanel() {
                     {selectedDispute.status.replace('_', ' ').toUpperCase()}
                   </Badge>
                   <Badge variant="outline">
-                    {CATEGORY_LABELS[selectedDispute.category] || selectedDispute.category}
+                    {t(CATEGORY_KEYS[selectedDispute.category] || selectedDispute.category)}
                   </Badge>
                 </div>
 
                 {/* Reason */}
                 <div>
-                  <h4 className="font-medium mb-2">Reason</h4>
+                  <h4 className="font-medium mb-2">{t('dispute.reason')}</h4>
                   <p className="text-sm text-muted-foreground bg-muted p-3 rounded-lg">
                     {selectedDispute.reason}
                   </p>
@@ -535,22 +537,22 @@ export function DisputeResolutionPanel() {
                 {/* Trade Info */}
                 {selectedDispute.trade && (
                   <div>
-                    <h4 className="font-medium mb-2">Trade Information</h4>
+                    <h4 className="font-medium mb-2">{t('dispute.tradeInfo')}</h4>
                     <div className="bg-muted p-3 rounded-lg space-y-2 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Trade ID:</span>
+                        <span className="text-muted-foreground">{t('dispute.tradeId')}:</span>
                         <span className="font-mono">{formatAddress(selectedDispute.trade_id)}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Amount:</span>
+                        <span className="text-muted-foreground">{t('dispute.amount')}:</span>
                         <span>{selectedDispute.trade.crypto_amount} crypto</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Fiat:</span>
+                        <span className="text-muted-foreground">{t('dispute.fiat')}:</span>
                         <span>{selectedDispute.trade.fiat_amount}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Trade Status:</span>
+                        <span className="text-muted-foreground">{t('dispute.tradeStatus')}:</span>
                         <Badge variant="secondary">{selectedDispute.trade.status}</Badge>
                       </div>
                     </div>
@@ -560,12 +562,12 @@ export function DisputeResolutionPanel() {
                 {/* Parties */}
                 {selectedDispute.trade && (
                   <div>
-                    <h4 className="font-medium mb-2">Parties</h4>
+                    <h4 className="font-medium mb-2">{t('dispute.parties')}</h4>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="bg-muted p-3 rounded-lg">
                         <div className="flex items-center gap-2 mb-1">
                           <User className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm font-medium">Seller</span>
+                          <span className="text-sm font-medium">{t('dispute.seller')}</span>
                         </div>
                         <p className="text-xs font-mono text-muted-foreground">
                           {formatAddress(selectedDispute.trade.seller_id)}
@@ -574,7 +576,7 @@ export function DisputeResolutionPanel() {
                       <div className="bg-muted p-3 rounded-lg">
                         <div className="flex items-center gap-2 mb-1">
                           <User className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm font-medium">Buyer</span>
+                          <span className="text-sm font-medium">{t('dispute.buyer')}</span>
                         </div>
                         <p className="text-xs font-mono text-muted-foreground">
                           {formatAddress(selectedDispute.trade.buyer_id)}
@@ -587,7 +589,7 @@ export function DisputeResolutionPanel() {
                 {/* Evidence */}
                 <div>
                   <h4 className="font-medium mb-2">
-                    Evidence ({selectedDispute.evidence?.length || 0})
+                    {t('dispute.evidence', { count: selectedDispute.evidence?.length || 0 })}
                   </h4>
                   {selectedDispute.evidence && selectedDispute.evidence.length > 0 ? (
                     <div className="grid grid-cols-2 gap-3">
@@ -624,30 +626,30 @@ export function DisputeResolutionPanel() {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-sm text-muted-foreground">No evidence uploaded</p>
+                    <p className="text-sm text-muted-foreground">{t('dispute.noEvidence')}</p>
                   )}
                 </div>
 
                 {/* Timeline */}
                 <div>
-                  <h4 className="font-medium mb-2">Timeline</h4>
+                  <h4 className="font-medium mb-2">{t('dispute.timeline')}</h4>
                   <div className="space-y-2 text-sm">
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 rounded-full bg-yellow-500" />
-                      <span className="text-muted-foreground">Opened:</span>
+                      <span className="text-muted-foreground">{t('dispute.opened')}:</span>
                       <span>{formatDate(selectedDispute.created_at)}</span>
                     </div>
                     {selectedDispute.assigned_at && (
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-blue-500" />
-                        <span className="text-muted-foreground">Claimed:</span>
+                        <span className="text-muted-foreground">{t('dispute.claimed')}:</span>
                         <span>{formatDate(selectedDispute.assigned_at)}</span>
                       </div>
                     )}
                     {selectedDispute.resolved_at && (
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-green-500" />
-                        <span className="text-muted-foreground">Resolved:</span>
+                        <span className="text-muted-foreground">{t('dispute.resolved')}:</span>
                         <span>{formatDate(selectedDispute.resolved_at)}</span>
                       </div>
                     )}
@@ -657,10 +659,10 @@ export function DisputeResolutionPanel() {
                 {/* Resolution (if resolved) */}
                 {selectedDispute.decision && (
                   <div>
-                    <h4 className="font-medium mb-2">Resolution</h4>
+                    <h4 className="font-medium mb-2">{t('dispute.resolution')}</h4>
                     <div className="bg-green-500/10 border border-green-500/20 p-3 rounded-lg">
                       <Badge className="bg-green-500/20 text-green-500 mb-2">
-                        {DECISION_OPTIONS.find(o => o.value === selectedDispute.decision)?.label}
+                        {t(DECISION_OPTION_KEYS.find(o => o.value === selectedDispute.decision)?.labelKey || '')}
                       </Badge>
                       {selectedDispute.decision_reasoning && (
                         <p className="text-sm text-muted-foreground">
@@ -676,7 +678,7 @@ export function DisputeResolutionPanel() {
 
           <DialogFooter className="mt-4">
             <Button variant="outline" onClick={() => setDetailsOpen(false)}>
-              Close
+              {t('dispute.close')}
             </Button>
             {selectedDispute?.status === 'under_review' && (
               <Button
@@ -687,7 +689,7 @@ export function DisputeResolutionPanel() {
                 }}
               >
                 <Gavel className="h-4 w-4 mr-2" />
-                Resolve Dispute
+                {t('dispute.resolve')}
               </Button>
             )}
           </DialogFooter>
@@ -700,29 +702,26 @@ export function DisputeResolutionPanel() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Gavel className="h-5 w-5 text-kurdish-green" />
-              Resolve Dispute
+              {t('dispute.resolveTitle')}
             </DialogTitle>
             <DialogDescription>
-              Make a final decision on this dispute. This action cannot be undone.
+              {t('dispute.resolveDesc')}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
             {/* Decision */}
             <div>
-              <label className="text-sm font-medium mb-2 block">Decision</label>
+              <label className="text-sm font-medium mb-2 block">{t('dispute.decision')}</label>
               <Select value={decision} onValueChange={setDecision}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select a decision..." />
+                  <SelectValue placeholder={t('dispute.decisionPlaceholder')} />
                 </SelectTrigger>
                 <SelectContent>
-                  {DECISION_OPTIONS.map((option) => (
+                  {DECISION_OPTION_KEYS.map((option) => (
                     <SelectItem key={option.value} value={option.value}>
                       <div className="flex flex-col">
-                        <span>{option.label}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {option.description}
-                        </span>
+                        <span>{t(option.labelKey)}</span>
                       </div>
                     </SelectItem>
                   ))}
@@ -733,16 +732,16 @@ export function DisputeResolutionPanel() {
             {/* Reasoning */}
             <div>
               <label className="text-sm font-medium mb-2 block">
-                Reasoning <span className="text-muted-foreground">(required)</span>
+                {t('dispute.reasoning')} <span className="text-muted-foreground">({t('dispute.required')})</span>
               </label>
               <Textarea
                 value={reasoning}
                 onChange={(e) => setReasoning(e.target.value)}
-                placeholder="Explain your decision based on the evidence..."
+                placeholder={t('dispute.reasoningPlaceholder')}
                 rows={4}
               />
               <p className="text-xs text-muted-foreground mt-1">
-                This will be visible to both parties
+                {t('dispute.reasoningHint')}
               </p>
             </div>
 
@@ -750,10 +749,9 @@ export function DisputeResolutionPanel() {
             <div className="flex items-start gap-2 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
               <AlertTriangle className="h-5 w-5 text-yellow-500 flex-shrink-0 mt-0.5" />
               <div className="text-sm">
-                <p className="font-medium text-yellow-500">Important</p>
+                <p className="font-medium text-yellow-500">{t('dispute.warningTitle')}</p>
                 <p className="text-muted-foreground">
-                  Your decision will trigger automatic actions on the escrowed funds.
-                  Make sure you have reviewed all evidence carefully.
+                  {t('dispute.warningText')}
                 </p>
               </div>
             </div>
@@ -765,7 +763,7 @@ export function DisputeResolutionPanel() {
               onClick={() => setResolveOpen(false)}
               disabled={submitting}
             >
-              Cancel
+              {t('dispute.cancel')}
             </Button>
             <Button
               className="bg-kurdish-green hover:bg-kurdish-green-dark"
@@ -777,7 +775,7 @@ export function DisputeResolutionPanel() {
               ) : (
                 <CheckCircle2 className="h-4 w-4 mr-2" />
               )}
-              Confirm Resolution
+              {t('dispute.confirmResolution')}
             </Button>
           </DialogFooter>
         </DialogContent>

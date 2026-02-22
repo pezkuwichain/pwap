@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Code, Database, TrendingUp, Gift, Award } from 'lucide-react';
 
 interface Pallet {
@@ -51,6 +52,7 @@ const pallets: Pallet[] = [
 ];
 
 const PalletsGrid: React.FC = () => {
+  const { t } = useTranslation();
   const [selectedPallet, setSelectedPallet] = useState<Pallet | null>(null);
 
   return (
@@ -58,10 +60,10 @@ const PalletsGrid: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
-            Core Runtime Pallets
+            {t('palletsGrid.title')}
           </h2>
           <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-            Modular blockchain components powering PezkuwiChain&apos;s advanced features
+            {t('palletsGrid.description')}
           </p>
         </div>
 
@@ -93,10 +95,10 @@ const PalletsGrid: React.FC = () => {
                     
                     <div className="flex flex-wrap gap-2">
                       <span className="px-2 py-1 bg-kurdish-yellow/30 text-kurdish-yellow text-xs rounded-full">
-                        {pallet.extrinsics.length} Extrinsics
+                        {t('palletsGrid.extrinsics', { count: pallet.extrinsics.length })}
                       </span>
                       <span className="px-2 py-1 bg-cyan-900/30 text-cyan-400 text-xs rounded-full">
-                        {pallet.storage.length} Storage Items
+                        {t('palletsGrid.storageItems', { count: pallet.storage.length })}
                       </span>
                     </div>
                   </div>
@@ -130,7 +132,7 @@ const PalletsGrid: React.FC = () => {
 
               <div className="space-y-6">
                 <div>
-                  <h4 className="text-lg font-semibold text-purple-400 mb-3">Extrinsics</h4>
+                  <h4 className="text-lg font-semibold text-purple-400 mb-3">{t('palletsGrid.extrinsicsTitle')}</h4>
                   <div className="space-y-2">
                     {selectedPallet.extrinsics.map((ext) => (
                       <div key={ext} className="flex items-center p-3 bg-gray-800/50 rounded-lg">
@@ -142,7 +144,7 @@ const PalletsGrid: React.FC = () => {
                 </div>
 
                 <div>
-                  <h4 className="text-lg font-semibold text-cyan-400 mb-3">Storage Items</h4>
+                  <h4 className="text-lg font-semibold text-cyan-400 mb-3">{t('palletsGrid.storageTitle')}</h4>
                   <div className="space-y-2">
                     {selectedPallet.storage.map((item) => (
                       <div key={item} className="flex items-center p-3 bg-gray-800/50 rounded-lg">

@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -47,6 +48,7 @@ export default function Citizens() {
   const { selectedAccount } = usePezkuwi();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const { nftDetails, citizenNumber, loading } = useDashboard();
   const [currentAnnouncementIndex, setCurrentAnnouncementIndex] = useState(0);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
@@ -99,8 +101,8 @@ export default function Citizens() {
       localStorage.setItem(storageKey, JSON.stringify(data));
       setCitizenProfile(data);
       toast({
-        title: "Profîl hat tomarkirin (Profile saved)",
-        description: "Zanyariyên we bi serkeftî hatin tomarkirin (Your information has been saved successfully)"
+        title: t('citizens.profileSaved'),
+        description: t('citizens.profileSavedDesc')
       });
     }
   };
@@ -112,8 +114,8 @@ export default function Citizens() {
 
     if (!selectedAccount?.address) {
       toast({
-        title: "Cüzdan bağlı değil (Wallet not connected)",
-        description: "Ji kerema xwe wallet-ê xwe girêbide (Please connect your wallet)",
+        title: t('citizens.walletNotConnected'),
+        description: t('citizens.connectWallet'),
         variant: "destructive"
       });
       return;
@@ -124,8 +126,8 @@ export default function Citizens() {
     // Validate file type
     if (!file.type.startsWith('image/')) {
       toast({
-        title: "Dosya hatası (File error)",
-        description: "Lütfen resim dosyası yükleyin (Please upload an image file)",
+        title: t('citizens.fileError'),
+        description: t('citizens.uploadImageOnly'),
         variant: "destructive"
       });
       return;
@@ -134,8 +136,8 @@ export default function Citizens() {
     // Validate file size (max 2MB for localStorage)
     if (file.size > 2 * 1024 * 1024) {
       toast({
-        title: "Dosya çok büyük (File too large)",
-        description: "Maksimum dosya boyutu 2MB (Maximum file size is 2MB)",
+        title: t('citizens.fileTooLarge'),
+        description: t('citizens.maxFileSize'),
         variant: "destructive"
       });
       return;
@@ -163,14 +165,14 @@ export default function Citizens() {
       saveCitizenProfile(updatedProfile);
 
       toast({
-        title: "Wêne hat barkirin (Photo uploaded)",
-        description: "Wêneyê we bi serkeftî hat tomarkirin (Your photo has been saved successfully)"
+        title: t('citizens.photoUploaded'),
+        description: t('citizens.photoUploadedDesc')
       });
     } catch (error) {
       console.error('Photo upload error:', error);
       toast({
-        title: "Xeletiya barkirinê (Upload error)",
-        description: error instanceof Error ? error.message : "Wêne nehat barkirin (Could not upload photo)",
+        title: t('citizens.uploadError'),
+        description: error instanceof Error ? error.message : t('citizens.couldNotUpload'),
         variant: "destructive"
       });
     } finally {
@@ -185,14 +187,13 @@ export default function Citizens() {
         <Card className="bg-white/90 backdrop-blur max-w-md">
           <CardContent className="pt-6">
             <div className="text-center space-y-4">
-              <p className="text-xl font-bold text-red-700">Ji kerema xwe re Wallet-ê xwe girêbide</p>
-              <p className="text-lg text-gray-700">(Please connect your wallet)</p>
+              <p className="text-xl font-bold text-red-700">{t('citizens.connectWalletMsg')}</p>
               <Button
                 onClick={() => navigate('/')}
                 className="bg-red-600 hover:bg-red-700 text-white"
               >
                 <Home className="mr-2 h-4 w-4" />
-                Vegere Malê (Back to Home)
+                {t('citizens.backToHome')}
               </Button>
             </div>
           </CardContent>
@@ -205,8 +206,8 @@ export default function Citizens() {
     // Check if user has Tiki NFT
     if (!nftDetails.citizenNFT) {
       toast({
-        title: "Mafê Te Tuneye (No Access)",
-        description: "Divê hûn xwedîyê Tiki NFT bin ku vê rûpelê bigihînin (You must own a Tiki NFT to access this page)",
+        title: t('citizens.noAccess'),
+        description: t('citizens.noAccessDesc'),
         variant: "destructive"
       });
       return;
@@ -221,8 +222,8 @@ export default function Citizens() {
     // Check if user has Tiki NFT
     if (!nftDetails.citizenNFT) {
       toast({
-        title: "Mafê Te Tuneye (No Access)",
-        description: "Divê hûn xwedîyê Tiki NFT bin ku vê rûpelê bigihînin (You must own a Tiki NFT to access this page)",
+        title: t('citizens.noAccess'),
+        description: t('citizens.noAccessDesc'),
         variant: "destructive"
       });
       return;
@@ -250,21 +251,21 @@ export default function Citizens() {
 
       if (dialogType === 'gov') {
         toast({
-          title: "✅ Girêdayî Destûrdar (Authentication Successful)",
-          description: "Hûn dikarin dest bi hikûmetê bikin (You can now access government portal)",
+          title: t('citizens.authSuccess'),
+          description: t('citizens.govAuthDesc'),
         });
         navigate('/citizens/government');
       } else {
         toast({
-          title: "✅ Girêdayî Destûrdar (Authentication Successful)",
-          description: "Hûn dikarin dest bi karên welatiyên bikin (You can now access citizens issues)",
+          title: t('citizens.authSuccess'),
+          description: t('citizens.citizenAuthDesc'),
         });
         navigate('/citizens/issues');
       }
     } else {
       toast({
-        title: "❌ Hejmara Welatî Şaş e (Wrong Citizen Number)",
-        description: "Hejmara welatîbûna ku hûn nivîsandiye rast nine (The citizen number you entered is incorrect)",
+        title: t('citizens.wrongNumber'),
+        description: t('citizens.wrongNumberDesc'),
         variant: "destructive"
       });
     }
@@ -287,7 +288,7 @@ export default function Citizens() {
           <CardContent className="pt-6">
             <div className="flex items-center space-x-4">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
-              <p className="text-gray-700 font-medium">Portala Welatiyên tê barkirin... (Loading Citizens Portal...)</p>
+              <p className="text-gray-700 font-medium">{t('citizens.loading')}</p>
             </div>
           </CardContent>
         </Card>
@@ -317,17 +318,17 @@ export default function Citizens() {
             className="bg-red-600 hover:bg-red-700 border-yellow-400 border-2 text-white font-semibold shadow-lg"
           >
             <Home className="mr-2 h-4 w-4" />
-            Vegere Malê (Back to Home)
+            {t('citizens.backToHome')}
           </Button>
         </div>
 
         {/* Title Section */}
         <div className="text-center mb-8">
           <h1 className="text-5xl md:text-6xl font-bold text-red-700 mb-3 drop-shadow-lg">
-            Portala Welatiyên (Citizen Portal)
+            {t('citizens.portalTitle')}
           </h1>
           <p className="text-xl text-gray-800 font-semibold drop-shadow-md">
-            Kurdistana Dijîtal (Digital Kurdistan)
+            {t('citizens.digitalKurdistan')}
           </p>
         </div>
 
@@ -347,7 +348,7 @@ export default function Citizens() {
                 <div className="flex-1 text-center px-6">
                   <div className="flex items-center justify-center mb-3">
                     <Bell className="h-7 w-7 text-white mr-3 animate-pulse" />
-                    <h3 className="text-3xl font-bold text-white">Daxuyanî</h3>
+                    <h3 className="text-3xl font-bold text-white">{t('citizens.announcements')}</h3>
                   </div>
                   <h4 className="text-xl font-bold text-white mb-3">{currentAnnouncement.title}</h4>
                   <p className="text-white/90 text-base leading-relaxed max-w-2xl mx-auto">{currentAnnouncement.description}</p>
@@ -394,11 +395,8 @@ export default function Citizens() {
                 </div>
               </div>
               <h2 className="text-3xl font-bold text-purple-700 mb-2 text-center">
-                Karên Welatiyên
+                {t('citizens.citizenIssues')}
               </h2>
-              <p className="text-lg text-gray-600 font-medium text-center">
-                (Citizens Issues)
-              </p>
             </CardContent>
           </Card>
 
@@ -414,11 +412,8 @@ export default function Citizens() {
                 </div>
               </div>
               <h2 className="text-3xl font-bold text-green-700 mb-2 text-center">
-                Deriyê Hikûmetê
+                {t('citizens.govEntrance')}
               </h2>
-              <p className="text-lg text-gray-600 font-medium text-center">
-                (Gov. Entrance)
-              </p>
             </CardContent>
           </Card>
         </div>
@@ -501,7 +496,7 @@ export default function Citizens() {
                       ) : (
                         <>
                           <Upload className="h-4 w-4 mr-1" />
-                          Upload
+                          {t('citizens.upload')}
                         </>
                       )}
                     </Button>
@@ -525,27 +520,27 @@ export default function Citizens() {
                     setShowEditModal(true);
                   }}
                   className="absolute -top-2 right-0 bg-white/90 hover:bg-white rounded-full p-1.5 shadow-md transition-colors"
-                  title="Biguherîne (Edit)"
+                  title={t('citizens.editProfile')}
                 >
                   <Pencil className="h-3 w-3 text-gray-600" />
                 </button>
 
                 {/* Name */}
                 <div className="bg-white/80 backdrop-blur-sm rounded-lg px-3 py-2 border-l-4 border-green-600 shadow-sm">
-                  <div className="text-[10px] text-gray-500 uppercase tracking-wider font-medium">Nav / Name</div>
-                  <div className="text-sm font-bold text-gray-800 truncate">{citizenProfile.fullName || 'Biguherîne...'}</div>
+                  <div className="text-[10px] text-gray-500 uppercase tracking-wider font-medium">{t('citizens.nameLabel')}</div>
+                  <div className="text-sm font-bold text-gray-800 truncate">{citizenProfile.fullName || '...'}</div>
                 </div>
 
                 {/* Father's Name */}
                 <div className="bg-white/80 backdrop-blur-sm rounded-lg px-3 py-2 border-l-4 border-yellow-500 shadow-sm">
-                  <div className="text-[10px] text-gray-500 uppercase tracking-wider font-medium">Navê Bav / Father&apos;s Name</div>
-                  <div className="text-sm font-bold text-gray-800 truncate">{citizenProfile.fatherName || 'Biguherîne...'}</div>
+                  <div className="text-[10px] text-gray-500 uppercase tracking-wider font-medium">{t('citizens.fatherNameLabel')}</div>
+                  <div className="text-sm font-bold text-gray-800 truncate">{citizenProfile.fatherName || '...'}</div>
                 </div>
 
                 {/* Location */}
                 <div className="bg-white/80 backdrop-blur-sm rounded-lg px-3 py-2 border-l-4 border-red-600 shadow-sm">
-                  <div className="text-[10px] text-gray-500 uppercase tracking-wider font-medium">Cih / Location</div>
-                  <div className="text-sm font-bold text-gray-800 truncate">{citizenProfile.location || 'Biguherîne...'}</div>
+                  <div className="text-[10px] text-gray-500 uppercase tracking-wider font-medium">{t('citizens.locationLabel')}</div>
+                  <div className="text-sm font-bold text-gray-800 truncate">{citizenProfile.location || '...'}</div>
                 </div>
               </div>
 
@@ -607,18 +602,16 @@ export default function Citizens() {
               <div className="flex items-center justify-center mb-4">
                 <Sun className="h-16 w-16 text-yellow-500 animate-spin" style={{ animationDuration: '8s' }} />
               </div>
-              Deriyê Hikûmetê (Government Entrance)
+              {t('citizens.govDialogTitle')}
             </DialogTitle>
             <DialogDescription className="text-center text-gray-700 font-medium">
-              Ji kerema xwe hejmara welatîbûna xwe binivîse
-              <br />
-              <span className="text-sm italic">(Please enter your citizen number)</span>
+              {t('citizens.enterCitizenNumber')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <label className="text-sm font-semibold text-gray-800">
-                Hejmara Welatîbûnê (Citizen Number)
+                {t('citizens.citizenNumberLabel')}
               </label>
               <Input
                 type="text"
@@ -639,7 +632,7 @@ export default function Citizens() {
               className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3"
             >
               <ShieldCheck className="mr-2 h-5 w-5" />
-              {isVerifying ? 'Kontrolkirina... (Verifying...)' : 'Daxelbûn (Enter)'}
+              {isVerifying ? t('citizens.verifying') : t('citizens.enter')}
             </Button>
           </div>
         </DialogContent>
@@ -653,18 +646,16 @@ export default function Citizens() {
               <div className="flex items-center justify-center mb-4">
                 <Sun className="h-16 w-16 text-yellow-500 animate-spin" style={{ animationDuration: '8s' }} />
               </div>
-              Karên Welatiyên (Citizens Issues)
+              {t('citizens.citizenDialogTitle')}
             </DialogTitle>
             <DialogDescription className="text-center text-gray-700 font-medium">
-              Ji kerema xwe hejmara welatîbûna xwe binivîse
-              <br />
-              <span className="text-sm italic">(Please enter your citizen number)</span>
+              {t('citizens.enterCitizenNumber')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <label className="text-sm font-semibold text-gray-800">
-                Hejmara Welatîbûnê (Citizen Number)
+                {t('citizens.citizenNumberLabel')}
               </label>
               <Input
                 type="text"
@@ -685,7 +676,7 @@ export default function Citizens() {
               className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3"
             >
               <ShieldCheck className="mr-2 h-5 w-5" />
-              {isVerifying ? 'Kontrolkirina... (Verifying...)' : 'Daxelbûn (Enter)'}
+              {isVerifying ? t('citizens.verifying') : t('citizens.enter')}
             </Button>
           </div>
         </DialogContent>
@@ -696,21 +687,18 @@ export default function Citizens() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="text-center text-xl font-bold text-gray-800">
-              Zanyariyên Kesane Biguherîne
+              {t('citizens.editProfile')}
             </DialogTitle>
-            <DialogDescription className="text-center text-gray-600">
-              Edit Your Personal Information
-            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label htmlFor="edit-name" className="text-sm font-medium">
-                Nav / Name
+                {t('citizens.nameLabel')}
               </Label>
               <Input
                 id="edit-name"
                 type="text"
-                placeholder="Navê xwe binivîse..."
+                placeholder={t('citizens.namePlaceholder')}
                 value={editForm.fullName}
                 onChange={(e) => setEditForm({ ...editForm, fullName: e.target.value })}
                 className="border-2"
@@ -719,12 +707,12 @@ export default function Citizens() {
 
             <div className="space-y-2">
               <Label htmlFor="edit-father" className="text-sm font-medium">
-                Navê Bav / Father&apos;s Name
+                {t('citizens.fatherNameLabel')}
               </Label>
               <Input
                 id="edit-father"
                 type="text"
-                placeholder="Navê bavê xwe binivîse..."
+                placeholder={t('citizens.fatherNamePlaceholder')}
                 value={editForm.fatherName}
                 onChange={(e) => setEditForm({ ...editForm, fatherName: e.target.value })}
                 className="border-2"
@@ -733,12 +721,12 @@ export default function Citizens() {
 
             <div className="space-y-2">
               <Label htmlFor="edit-location" className="text-sm font-medium">
-                Cih / Location
+                {t('citizens.locationLabel')}
               </Label>
               <Input
                 id="edit-location"
                 type="text"
-                placeholder="Cihê xwe binivîse..."
+                placeholder={t('citizens.locationPlaceholder')}
                 value={editForm.location}
                 onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
                 className="border-2"
@@ -751,7 +739,7 @@ export default function Citizens() {
                 onClick={() => setShowEditModal(false)}
                 className="flex-1"
               >
-                Betal (Cancel)
+                {t('common.cancel')}
               </Button>
               <Button
                 onClick={() => {
@@ -760,7 +748,7 @@ export default function Citizens() {
                 }}
                 className="flex-1 bg-green-600 hover:bg-green-700"
               >
-                Tomar bike (Save)
+                {t('citizens.save')}
               </Button>
             </div>
           </div>

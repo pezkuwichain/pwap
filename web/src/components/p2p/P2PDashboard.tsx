@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -25,6 +26,7 @@ interface UserStats {
 }
 
 export function P2PDashboard() {
+  const { t } = useTranslation();
   const [showCreateAd, setShowCreateAd] = useState(false);
   const [userStats, setUserStats] = useState<UserStats>({ activeTrades: 0, completedTrades: 0, totalVolume: 0 });
   const [filters, setFilters] = useState<P2PFilters>(DEFAULT_FILTERS);
@@ -89,7 +91,7 @@ export function P2PDashboard() {
           className="text-gray-400 hover:text-white"
         >
           <Home className="w-4 h-4 mr-2" />
-          Back to Home
+          {t('p2p.backToHome')}
         </Button>
         <div className="flex items-center gap-2 flex-wrap">
           <NotificationBell />
@@ -99,7 +101,7 @@ export function P2PDashboard() {
             className="border-gray-700 hover:bg-gray-800"
           >
             <Store className="w-4 h-4 mr-2" />
-            Merchant
+            {t('p2p.merchant')}
           </Button>
           <Button
             variant="outline"
@@ -107,7 +109,7 @@ export function P2PDashboard() {
             className="border-gray-700 hover:bg-gray-800"
           >
             <ClipboardList className="w-4 h-4 mr-2" />
-            My Trades
+            {t('p2p.myTrades')}
             {userStats.activeTrades > 0 && (
               <Badge className="ml-2 bg-yellow-500 text-black">
                 {userStats.activeTrades}
@@ -138,7 +140,7 @@ export function P2PDashboard() {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-white">{userStats.activeTrades}</p>
-                  <p className="text-sm text-gray-400">Active Trades</p>
+                  <p className="text-sm text-gray-400">{t('p2p.activeTrades')}</p>
                 </div>
               </CardContent>
             </Card>
@@ -149,7 +151,7 @@ export function P2PDashboard() {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-white">{userStats.completedTrades}</p>
-                  <p className="text-sm text-gray-400">Completed</p>
+                  <p className="text-sm text-gray-400">{t('p2p.completed')}</p>
                 </div>
               </CardContent>
             </Card>
@@ -160,7 +162,7 @@ export function P2PDashboard() {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-white">${userStats.totalVolume.toLocaleString()}</p>
-                  <p className="text-sm text-gray-400">Volume</p>
+                  <p className="text-sm text-gray-400">{t('p2p.volume')}</p>
                 </div>
               </CardContent>
             </Card>
@@ -170,12 +172,12 @@ export function P2PDashboard() {
 
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-white">P2P Trading</h1>
-          <p className="text-gray-400 text-sm sm:text-base">Buy and sell crypto with your local currency.</p>
+          <h1 className="text-3xl sm:text-4xl font-bold text-white">{t('p2p.title')}</h1>
+          <p className="text-gray-400 text-sm sm:text-base">{t('p2p.subtitle')}</p>
         </div>
         <Button onClick={() => setShowCreateAd(true)} className="w-full sm:w-auto">
           <PlusCircle className="w-4 h-4 mr-2" />
-          Post a New Ad
+          {t('p2p.postNewAd')}
         </Button>
       </div>
 
@@ -190,14 +192,14 @@ export function P2PDashboard() {
             <TabsList className="grid w-full grid-cols-5 overflow-x-auto scrollbar-hide">
               <TabsTrigger value="express" className="flex items-center gap-1 text-xs sm:text-sm px-1 sm:px-3">
                 <Zap className="w-3 h-3" />
-                <span className="hidden xs:inline">Express</span>
+                <span className="hidden xs:inline">{t('p2p.tabExpress')}</span>
               </TabsTrigger>
-              <TabsTrigger value="buy" className="text-xs sm:text-sm px-1 sm:px-3">Buy</TabsTrigger>
-              <TabsTrigger value="sell" className="text-xs sm:text-sm px-1 sm:px-3">Sell</TabsTrigger>
-              <TabsTrigger value="my-ads" className="text-xs sm:text-sm px-1 sm:px-3">My Ads</TabsTrigger>
+              <TabsTrigger value="buy" className="text-xs sm:text-sm px-1 sm:px-3">{t('p2p.tabBuy')}</TabsTrigger>
+              <TabsTrigger value="sell" className="text-xs sm:text-sm px-1 sm:px-3">{t('p2p.tabSell')}</TabsTrigger>
+              <TabsTrigger value="my-ads" className="text-xs sm:text-sm px-1 sm:px-3">{t('p2p.tabMyAds')}</TabsTrigger>
               <TabsTrigger value="otc" className="flex items-center gap-1 text-xs sm:text-sm px-1 sm:px-3">
                 <Blocks className="w-3 h-3" />
-                <span className="hidden xs:inline">OTC</span>
+                <span className="hidden xs:inline">{t('p2p.tabOtc')}</span>
               </TabsTrigger>
             </TabsList>
             <TabsContent value="express">
@@ -206,23 +208,23 @@ export function P2PDashboard() {
                 <div className="space-y-4">
                   <Card className="bg-gray-900 border-gray-800">
                     <CardContent className="pt-6">
-                      <h3 className="text-lg font-semibold text-white mb-2">Why Express Mode?</h3>
+                      <h3 className="text-lg font-semibold text-white mb-2">{t('p2p.whyExpress')}</h3>
                       <ul className="space-y-2 text-sm text-gray-400">
                         <li className="flex items-center gap-2">
                           <CheckCircle2 className="w-4 h-4 text-green-400" />
-                          Instant best-rate matching
+                          {t('p2p.instantMatching')}
                         </li>
                         <li className="flex items-center gap-2">
                           <CheckCircle2 className="w-4 h-4 text-green-400" />
-                          Verified merchants only
+                          {t('p2p.verifiedMerchantsOnly')}
                         </li>
                         <li className="flex items-center gap-2">
                           <CheckCircle2 className="w-4 h-4 text-green-400" />
-                          Escrow protection
+                          {t('p2p.escrowProtection')}
                         </li>
                         <li className="flex items-center gap-2">
                           <CheckCircle2 className="w-4 h-4 text-green-400" />
-                          No manual offer selection
+                          {t('p2p.noManualSelection')}
                         </li>
                       </ul>
                     </CardContent>
@@ -245,27 +247,27 @@ export function P2PDashboard() {
                 <div className="space-y-4">
                   <Card className="bg-gray-900 border-gray-800">
                     <CardContent className="pt-6">
-                      <h3 className="text-lg font-semibold text-white mb-2">Block Trade Benefits</h3>
+                      <h3 className="text-lg font-semibold text-white mb-2">{t('p2p.blockTradeBenefits')}</h3>
                       <ul className="space-y-2 text-sm text-gray-400">
                         <li className="flex items-center gap-2">
                           <CheckCircle2 className="w-4 h-4 text-purple-400" />
-                          Custom pricing negotiation
+                          {t('p2p.customPricing')}
                         </li>
                         <li className="flex items-center gap-2">
                           <CheckCircle2 className="w-4 h-4 text-purple-400" />
-                          Dedicated OTC desk support
+                          {t('p2p.dedicatedSupport')}
                         </li>
                         <li className="flex items-center gap-2">
                           <CheckCircle2 className="w-4 h-4 text-purple-400" />
-                          Multi-tranche settlements
+                          {t('p2p.multiTranche')}
                         </li>
                         <li className="flex items-center gap-2">
                           <CheckCircle2 className="w-4 h-4 text-purple-400" />
-                          Enhanced privacy
+                          {t('p2p.enhancedPrivacy')}
                         </li>
                         <li className="flex items-center gap-2">
                           <CheckCircle2 className="w-4 h-4 text-purple-400" />
-                          Flexible payment terms
+                          {t('p2p.flexiblePayment')}
                         </li>
                       </ul>
                     </CardContent>

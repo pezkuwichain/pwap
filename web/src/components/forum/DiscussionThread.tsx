@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ThumbsUp, ThumbsDown, MessageSquare, Shield, MoreVertical, Flag, Edit, Trash2 } from 'lucide-react';
-// import { useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useWebSocket } from '@/contexts/WebSocketContext';
 import { useToast } from '@/hooks/use-toast';
@@ -27,6 +27,7 @@ interface Comment {
 }
 
 export function DiscussionThread({ proposalId }: { proposalId: string }) {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const { subscribe, unsubscribe, sendMessage, isConnected } = useWebSocket();
   const [comments, setComments] = useState<Comment[]>([
@@ -91,8 +92,8 @@ export function DiscussionThread({ proposalId }: { proposalId: string }) {
       // Show notification for mentions
       if (data.content.includes('@currentUser')) {
         toast({
-          title: "You were mentioned",
-          description: `${data.author} mentioned you in a comment`,
+          title: t('discussion.youWereMentioned'),
+          description: t('discussion.mentionedYou', { author: data.author as string }),
         });
       }
     };
@@ -226,7 +227,7 @@ export function DiscussionThread({ proposalId }: { proposalId: string }) {
                     </Badge>
                   ))}
                   <span className="text-sm text-gray-500">
-                    {comment.isLive ? 'Just now' : comment.timestamp}
+                    {comment.isLive ? t('discussion.justNow') : comment.timestamp}
                   </span>
                   {isConnected && (
                     <div className="h-2 w-2 bg-green-500 rounded-full" title="Real-time updates active" />
@@ -259,7 +260,7 @@ export function DiscussionThread({ proposalId }: { proposalId: string }) {
                     onClick={() => setReplyTo(comment.id)}
                   >
                     <MessageSquare className="h-4 w-4 mr-1" />
-                    Reply
+                    {t('discussion.reply')}
                   </Button>
                 </div>
               </div>
@@ -273,15 +274,15 @@ export function DiscussionThread({ proposalId }: { proposalId: string }) {
               <DropdownMenuContent>
                 <DropdownMenuItem>
                   <Flag className="h-4 w-4 mr-2" />
-                  Report
+                  {t('discussion.report')}
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <Edit className="h-4 w-4 mr-2" />
-                  Edit
+                  {t('discussion.edit')}
                 </DropdownMenuItem>
                 <DropdownMenuItem className="text-red-600">
                   <Trash2 className="h-4 w-4 mr-2" />
-                  Delete
+                  {t('discussion.delete')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -289,14 +290,14 @@ export function DiscussionThread({ proposalId }: { proposalId: string }) {
           {replyTo === comment.id && (
             <div className="mt-4">
               <Textarea
-                placeholder="Write your reply... @mention users to notify them"
+                placeholder={t('discussion.replyPlaceholder')}
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 className="min-h-[80px]"
               />
               <div className="flex justify-end space-x-2 mt-2">
                 <Button variant="outline" onClick={() => setReplyTo(null)}>
-                  Cancel
+                  {t('discussion.cancel')}
                 </Button>
                 <Button 
                   onClick={() => {
@@ -317,7 +318,7 @@ export function DiscussionThread({ proposalId }: { proposalId: string }) {
                   }}
                   disabled={!newComment.trim()}
                 >
-                  Post Reply
+                  {t('discussion.postReply')}
                 </Button>
               </div>
             </div>
@@ -344,12 +345,12 @@ export function DiscussionThread({ proposalId }: { proposalId: string }) {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <h3 className="text-xl font-semibold">Discussion Forum</h3>
-          <p className="text-sm text-gray-600">Share your thoughts and feedback on this proposal</p>
+          <h3 className="text-xl font-semibold">{t('discussion.title')}</h3>
+          <p className="text-sm text-gray-600">{t('discussion.subtitle')}</p>
         </CardHeader>
         <CardContent>
           <Textarea
-            placeholder="Write your comment... (Markdown supported)"
+            placeholder={t('discussion.commentPlaceholder')}
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             className="min-h-[120px]"
@@ -360,13 +361,13 @@ export function DiscussionThread({ proposalId }: { proposalId: string }) {
               size="sm"
               onClick={() => setShowMarkdownHelp(!showMarkdownHelp)}
             >
-              Markdown Help
+              {t('discussion.markdownHelp')}
             </Button>
-            <Button>Post Comment</Button>
+            <Button>{t('discussion.postComment')}</Button>
           </div>
           {showMarkdownHelp && (
             <Card className="mt-4 p-4 bg-gray-50 text-gray-900">
-              <p className="text-sm font-semibold mb-2 text-gray-900">Markdown Formatting:</p>
+              <p className="text-sm font-semibold mb-2 text-gray-900">{t('discussion.markdownFormatting')}</p>
               <ul className="text-sm space-y-1 text-gray-900">
                 <li>**bold** → <strong>bold</strong></li>
                 <li>*italic* → <em>italic</em></li>

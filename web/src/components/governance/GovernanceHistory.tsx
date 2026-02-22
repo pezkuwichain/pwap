@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -25,6 +26,7 @@ interface CompletedProposal {
 }
 
 const GovernanceHistory: React.FC = () => {
+  const { t } = useTranslation();
   const { api, isApiReady } = usePezkuwi();
   const [completedElections, setCompletedElections] = useState<ElectionResult[]>([]);
   const [completedProposals, setCompletedProposals] = useState<CompletedProposal[]>([]);
@@ -163,7 +165,7 @@ const GovernanceHistory: React.FC = () => {
     return (
       <div className="flex items-center justify-center py-12">
         <Loader2 className="w-8 h-8 animate-spin text-green-500" />
-        <span className="ml-3 text-gray-400">Loading governance history...</span>
+        <span className="ml-3 text-gray-400">{t('governance.historyTab.loading')}</span>
       </div>
     );
   }
@@ -174,7 +176,7 @@ const GovernanceHistory: React.FC = () => {
         <CardContent className="pt-6">
           <div className="flex items-center text-red-400">
             <XCircle className="w-5 h-5 mr-2" />
-            Error: {error}
+            {t('myVotes.error', { error })}
           </div>
         </CardContent>
       </Card>
@@ -192,7 +194,7 @@ const GovernanceHistory: React.FC = () => {
                 <Trophy className="w-8 h-8 text-yellow-500" />
                 <div>
                   <div className="text-2xl font-bold text-white">{stats.totalElectionsHeld}</div>
-                  <div className="text-sm text-gray-400">Elections Held</div>
+                  <div className="text-sm text-gray-400">{t('governance.historyTab.electionsHeld')}</div>
                 </div>
               </div>
             </CardContent>
@@ -203,7 +205,7 @@ const GovernanceHistory: React.FC = () => {
                 <FileText className="w-8 h-8 text-purple-500" />
                 <div>
                   <div className="text-2xl font-bold text-white">{stats.totalProposalsSubmitted}</div>
-                  <div className="text-sm text-gray-400">Total Proposals</div>
+                  <div className="text-sm text-gray-400">{t('governance.historyTab.totalProposals')}</div>
                 </div>
               </div>
             </CardContent>
@@ -214,7 +216,7 @@ const GovernanceHistory: React.FC = () => {
                 <Users className="w-8 h-8 text-cyan-500" />
                 <div>
                   <div className="text-2xl font-bold text-white">{stats.parliamentSize}</div>
-                  <div className="text-sm text-gray-400">Parliament Size</div>
+                  <div className="text-sm text-gray-400">{t('governance.historyTab.parliamentSize')}</div>
                 </div>
               </div>
             </CardContent>
@@ -225,7 +227,7 @@ const GovernanceHistory: React.FC = () => {
                 <TrendingUp className="w-8 h-8 text-green-500" />
                 <div>
                   <div className="text-2xl font-bold text-white">{stats.averageTurnout}%</div>
-                  <div className="text-sm text-gray-400">Avg Turnout</div>
+                  <div className="text-sm text-gray-400">{t('governance.historyTab.avgTurnout')}</div>
                 </div>
               </div>
             </CardContent>
@@ -237,15 +239,15 @@ const GovernanceHistory: React.FC = () => {
       <div className="flex items-center gap-2">
         <Badge variant="outline" className="bg-green-500/10 border-green-500 text-green-400">
           <Activity className="h-3 w-3 mr-1" />
-          Live Blockchain Data
+          {t('governance.historyTab.liveData')}
         </Badge>
-        <span className="text-sm text-gray-500">Block #{currentBlock.toLocaleString()}</span>
+        <span className="text-sm text-gray-500">{t('governance.historyTab.block', { number: currentBlock.toLocaleString() })}</span>
       </div>
 
       <Tabs defaultValue="elections" className="w-full">
         <TabsList className="grid w-full grid-cols-2 bg-gray-800/50">
-          <TabsTrigger value="elections">Election History</TabsTrigger>
-          <TabsTrigger value="proposals">Proposal History</TabsTrigger>
+          <TabsTrigger value="elections">{t('governance.historyTab.electionHistory')}</TabsTrigger>
+          <TabsTrigger value="proposals">{t('governance.historyTab.proposalHistory')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="elections" className="space-y-4">
@@ -253,8 +255,8 @@ const GovernanceHistory: React.FC = () => {
             <Card className="bg-gray-900/50 border-gray-800">
               <CardContent className="pt-6 text-center text-gray-400">
                 <Trophy className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>No completed elections in history</p>
-                <p className="text-sm mt-2">Election results will appear here once voting concludes</p>
+                <p>{t('governance.historyTab.noElections')}</p>
+                <p className="text-sm mt-2">{t('governance.historyTab.electionsWillAppear')}</p>
               </CardContent>
             </Card>
           ) : (
@@ -265,21 +267,21 @@ const GovernanceHistory: React.FC = () => {
                     <div>
                       <h4 className="font-medium text-white flex items-center gap-2">
                         <Trophy className="w-4 h-4 text-yellow-500" />
-                        Election #{election.electionId}
+                        {t('governance.historyTab.election', { id: election.electionId })}
                       </h4>
                       <p className="text-sm text-gray-400 mt-1 flex items-center gap-1">
                         <Calendar className="w-3 h-3" />
-                        Finalized {formatBlockTime(election.finalizedAt)}
+                        {t('governance.historyTab.finalized', { time: formatBlockTime(election.finalizedAt) })}
                       </p>
                     </div>
                     <Badge className="bg-green-500/20 text-green-400">
-                      Completed
+                      {t('governance.historyTab.completed')}
                     </Badge>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <span className="text-gray-400">Winner(s):</span>
+                      <span className="text-gray-400">{t('governance.historyTab.winners')}</span>
                       <div className="mt-1 space-y-1">
                         {election.winners.length > 0 ? (
                           election.winners.map((winner, idx) => (
@@ -288,24 +290,24 @@ const GovernanceHistory: React.FC = () => {
                             </Badge>
                           ))
                         ) : (
-                          <span className="text-gray-500">No winners</span>
+                          <span className="text-gray-500">{t('governance.historyTab.noWinners')}</span>
                         )}
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-gray-400">Total Votes</div>
+                      <div className="text-gray-400">{t('governance.historyTab.totalVotes')}</div>
                       <div className="text-white font-medium">{election.totalVotes.toLocaleString()}</div>
                     </div>
                   </div>
 
                   <div className="mt-4 pt-4 border-t border-gray-700 flex justify-between text-sm">
                     <div>
-                      <span className="text-gray-400">Turnout: </span>
+                      <span className="text-gray-400">{t('governance.historyTab.turnout')} </span>
                       <span className="text-white">{election.turnoutPercentage}%</span>
                     </div>
                     {election.runoffRequired && (
                       <Badge className="bg-yellow-500/20 text-yellow-400">
-                        Runoff Required
+                        {t('governance.historyTab.runoffRequired')}
                       </Badge>
                     )}
                   </div>
@@ -320,8 +322,8 @@ const GovernanceHistory: React.FC = () => {
             <Card className="bg-gray-900/50 border-gray-800">
               <CardContent className="pt-6 text-center text-gray-400">
                 <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>No completed proposals in history</p>
-                <p className="text-sm mt-2">Proposal outcomes will appear here once voting concludes</p>
+                <p>{t('governance.historyTab.noProposals')}</p>
+                <p className="text-sm mt-2">{t('governance.historyTab.proposalsWillAppear')}</p>
               </CardContent>
             </Card>
           ) : (
@@ -334,16 +336,16 @@ const GovernanceHistory: React.FC = () => {
                       <div>
                         <h4 className="font-medium text-white">{proposal.title}</h4>
                         <p className="text-sm text-gray-400 mt-1">
-                          Proposed by {proposal.proposer.substring(0, 8)}...
+                          {t('governance.historyTab.proposedBy', { address: `${proposal.proposer.substring(0, 8)}...` })}
                         </p>
                         <div className="flex items-center gap-4 mt-2 text-sm">
                           <span className="text-green-400">
                             <CheckCircle className="w-3 h-3 inline mr-1" />
-                            {proposal.ayeVotes} Aye
+                            {proposal.ayeVotes} {t('governance.historyTab.aye')}
                           </span>
                           <span className="text-red-400">
                             <XCircle className="w-3 h-3 inline mr-1" />
-                            {proposal.nayVotes} Nay
+                            {proposal.nayVotes} {t('governance.historyTab.nay')}
                           </span>
                           <span className="text-gray-500">
                             {formatBlockTime(proposal.finalizedAt)}

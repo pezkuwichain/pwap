@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,6 +16,7 @@ interface CourseCreatorProps {
 }
 
 export function CourseCreator({ onCourseCreated }: CourseCreatorProps) {
+  const { t } = useTranslation();
   const { api, selectedAccount } = usePezkuwi();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -23,12 +25,12 @@ export function CourseCreator({ onCourseCreated }: CourseCreatorProps) {
 
   const handleCreateCourse = async () => {
     if (!api || !selectedAccount) {
-      toast.error('Please connect your wallet first');
+      toast.error(t('courseCreator.connectWallet'));
       return;
     }
 
     if (!name || !description || !content) {
-      toast.error('Please fill in all fields');
+      toast.error(t('courseCreator.fillAllFields'));
       return;
     }
 
@@ -66,37 +68,37 @@ export function CourseCreator({ onCourseCreated }: CourseCreatorProps) {
   return (
     <Card className="bg-gray-900 border-gray-800">
       <CardHeader>
-        <CardTitle className="text-white">Create New Course</CardTitle>
-        <CardDescription>Fill in the details to create a new course on the Perwerde platform.</CardDescription>
+        <CardTitle className="text-white">{t('courseCreator.title')}</CardTitle>
+        <CardDescription>{t('courseCreator.subtitle')}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="name" className="text-white">Course Name</Label>
+          <Label htmlFor="name" className="text-white">{t('courseCreator.courseName')}</Label>
           <Input
             id="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="e.g., Introduction to Blockchain"
+            placeholder={t('courseCreator.courseNamePlaceholder')}
             className="bg-gray-800 border-gray-700 text-white"
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="description" className="text-white">Course Description</Label>
+          <Label htmlFor="description" className="text-white">{t('courseCreator.courseDesc')}</Label>
           <Textarea
             id="description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="A brief summary of the course content and objectives."
+            placeholder={t('courseCreator.courseDescPlaceholder')}
             className="bg-gray-800 border-gray-700 text-white"
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="content" className="text-white">Course Content (Markdown)</Label>
+          <Label htmlFor="content" className="text-white">{t('courseCreator.courseContent')}</Label>
           <Textarea
             id="content"
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder="Write your course material here using Markdown..."
+            placeholder={t('courseCreator.courseContentPlaceholder')}
             className="bg-gray-800 border-gray-700 text-white h-48"
           />
         </div>
@@ -108,10 +110,10 @@ export function CourseCreator({ onCourseCreated }: CourseCreatorProps) {
           {loading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Creating...
+              {t('courseCreator.creating')}
             </>
           ) : (
-            'Create Course'
+            t('courseCreator.createBtn')
           )}
         </Button>
       </CardContent>

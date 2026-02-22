@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { KNOWN_TOKENS, NATIVE_TOKEN_ID } from '@/types/dex';
 import { parseTokenInput, formatTokenBalance } from '@pezkuwi/utils/dex';
+import { useTranslation } from 'react-i18next';
 
 interface CreatePoolModalProps {
   isOpen: boolean;
@@ -23,6 +24,7 @@ export const CreatePoolModal: React.FC<CreatePoolModalProps> = ({
   // Use Asset Hub API for DEX operations (assetConversion pallet is on Asset Hub)
   const { assetHubApi, isAssetHubReady } = usePezkuwi();
   const { account, signer } = useWallet();
+  const { t } = useTranslation();
 
   const [asset1Id, setAsset1Id] = useState<number | null>(null);
   const [asset2Id, setAsset2Id] = useState<number | null>(null);
@@ -99,22 +101,22 @@ export const CreatePoolModal: React.FC<CreatePoolModalProps> = ({
 
   const validateInputs = (): string | null => {
     if (asset1Id === null || asset2Id === null) {
-      return 'Please select both tokens';
+      return t('createPool.selectBothTokens');
     }
 
     if (asset1Id === asset2Id) {
-      return 'Cannot create pool with same token';
+      return t('createPool.sameToken');
     }
 
     if (!amount1Input || !amount2Input) {
-      return 'Please enter amounts for both tokens';
+      return t('createPool.enterBothAmounts');
     }
 
     const token1 = KNOWN_TOKENS[asset1Id];
     const token2 = KNOWN_TOKENS[asset2Id];
 
     if (!token1 || !token2) {
-      return 'Invalid token selected';
+      return t('createPool.invalidToken');
     }
 
     const amount1Raw = parseTokenInput(amount1Input, token1.decimals);
@@ -134,15 +136,15 @@ export const CreatePoolModal: React.FC<CreatePoolModalProps> = ({
     });
 
     if (BigInt(amount1Raw) <= BigInt(0) || BigInt(amount2Raw) <= BigInt(0)) {
-      return 'Amounts must be greater than zero';
+      return t('common.amountGtZero');
     }
 
     if (BigInt(amount1Raw) > BigInt(balance1)) {
-      return `Insufficient ${token1.symbol} balance`;
+      return t('common.insufficientBalance', { symbol: token1.symbol });
     }
 
     if (BigInt(amount2Raw) > BigInt(balance2)) {
-      return `Insufficient ${token2.symbol} balance`;
+      return t('common.insufficientBalance', { symbol: token2.symbol });
     }
 
     return null;
@@ -150,13 +152,13 @@ export const CreatePoolModal: React.FC<CreatePoolModalProps> = ({
 
   const handleCreatePool = async () => {
     if (!assetHubApi || !isAssetHubReady || !signer || !account) {
-      setErrorMessage('Wallet not connected or Asset Hub not ready');
+      setErrorMessage(t('createPool.walletNotReady'));
       return;
     }
 
     // Check if assetConversion pallet is available on Asset Hub
     if (!assetHubApi.tx.assetConversion || !assetHubApi.tx.assetConversion.createPool) {
-      setErrorMessage('AssetConversion pallet is not available on Asset Hub. Pool creation requires this pallet.');
+      setErrorMessage(t('createPool.palletNotAvailable'));
       return;
     }
 
@@ -238,7 +240,7 @@ export const CreatePoolModal: React.FC<CreatePoolModalProps> = ({
       );
     } catch (error) {
       if (import.meta.env.DEV) console.error('Pool creation failed:', error);
-      setErrorMessage(error instanceof Error ? error.message : 'Transaction failed');
+      setErrorMessage(error instanceof Error ? error.message : t('common.txFailed'));
       setTxStatus('error');
     }
   };
@@ -259,7 +261,7 @@ export const CreatePoolModal: React.FC<CreatePoolModalProps> = ({
         <CardHeader className="border-b border-gray-800">
           <div className="flex items-center justify-between">
             <CardTitle className="text-xl font-bold text-white">
-              Create New Pool
+              {t('createPool.title')}
             </CardTitle>
             <button
               onClick={onClose}
@@ -270,21 +272,21 @@ export const CreatePoolModal: React.FC<CreatePoolModalProps> = ({
             </button>
           </div>
           <Badge className="bg-green-600/20 text-green-400 border-green-600/30 w-fit mt-2">
-            Founder Only
+            {t('createPool.founderOnly')}
           </Badge>
         </CardHeader>
 
         <CardContent className="space-y-6 pt-6">
           {/* Token 1 Selection */}
           <div className="space-y-2">
-            <label className="text-sm text-gray-400">Token 1</label>
+            <label className="text-sm text-gray-400">{t('createPool.token1')}</label>
             <select
               value={asset1Id ?? ''}
               onChange={(e) => setAsset1Id(Number(e.target.value))}
               className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-green-500"
               disabled={txStatus === 'signing' || txStatus === 'submitting'}
             >
-              <option value="">Select token...</option>
+              <option value="">{t('createPool.selectToken')}</option>
               {availableTokens.map((token) => (
                 <option key={token.id} value={token.id}>
                   {token.symbol} - {token.name}
@@ -293,7 +295,7 @@ export const CreatePoolModal: React.FC<CreatePoolModalProps> = ({
             </select>
             {token1 && (
               <div className="text-xs text-gray-500">
-                Balance: {formatTokenBalance(balance1, token1.decimals, 4)} {token1.symbol}
+                {t('common.balance')}: {formatTokenBalance(balance1, token1.decimals, 4)} {token1.symbol}
               </div>
             )}
           </div>
@@ -302,7 +304,7 @@ export const CreatePoolModal: React.FC<CreatePoolModalProps> = ({
           {token1 && (
             <div className="space-y-2">
               <label className="text-sm text-gray-400">
-                Amount of {token1.symbol}
+                {t('createPool.amountOf', { symbol: token1.symbol })}
               </label>
               <input
                 type="text"
@@ -324,14 +326,14 @@ export const CreatePoolModal: React.FC<CreatePoolModalProps> = ({
 
           {/* Token 2 Selection */}
           <div className="space-y-2">
-            <label className="text-sm text-gray-400">Token 2</label>
+            <label className="text-sm text-gray-400">{t('createPool.token2')}</label>
             <select
               value={asset2Id ?? ''}
               onChange={(e) => setAsset2Id(Number(e.target.value))}
               className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-green-500"
               disabled={txStatus === 'signing' || txStatus === 'submitting'}
             >
-              <option value="">Select token...</option>
+              <option value="">{t('createPool.selectToken')}</option>
               {availableTokens.map((token) => (
                 <option key={token.id} value={token.id} disabled={token.id === asset1Id}>
                   {token.symbol} - {token.name}
@@ -340,7 +342,7 @@ export const CreatePoolModal: React.FC<CreatePoolModalProps> = ({
             </select>
             {token2 && (
               <div className="text-xs text-gray-500">
-                Balance: {formatTokenBalance(balance2, token2.decimals, 4)} {token2.symbol}
+                {t('common.balance')}: {formatTokenBalance(balance2, token2.decimals, 4)} {token2.symbol}
               </div>
             )}
           </div>
@@ -349,7 +351,7 @@ export const CreatePoolModal: React.FC<CreatePoolModalProps> = ({
           {token2 && (
             <div className="space-y-2">
               <label className="text-sm text-gray-400">
-                Amount of {token2.symbol}
+                {t('createPool.amountOf', { symbol: token2.symbol })}
               </label>
               <input
                 type="text"
@@ -365,7 +367,7 @@ export const CreatePoolModal: React.FC<CreatePoolModalProps> = ({
           {/* Exchange Rate Preview */}
           {token1 && token2 && amount1Input && amount2Input && (
             <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-700">
-              <div className="text-sm text-gray-400 mb-2">Initial Exchange Rate</div>
+              <div className="text-sm text-gray-400 mb-2">{t('createPool.initialRate')}</div>
               <div className="text-white font-mono">
                 1 {token1.symbol} = {exchangeRate} {token2.symbol}
               </div>
@@ -385,7 +387,7 @@ export const CreatePoolModal: React.FC<CreatePoolModalProps> = ({
             <div className="flex items-start gap-2 p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
               <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
               <span className="text-sm text-green-400">
-                Pool created successfully!
+                {t('createPool.success')}
               </span>
             </div>
           )}
@@ -397,7 +399,7 @@ export const CreatePoolModal: React.FC<CreatePoolModalProps> = ({
               className="flex-1 px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors border border-gray-700"
               disabled={txStatus === 'signing' || txStatus === 'submitting'}
             >
-              Cancel
+              {t('common.cancel')}
             </button>
             <button
               onClick={handleCreatePool}
@@ -411,21 +413,21 @@ export const CreatePoolModal: React.FC<CreatePoolModalProps> = ({
               {txStatus === 'signing' && (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Signing...
+                  {t('common.signing')}
                 </>
               )}
               {txStatus === 'submitting' && (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Creating...
+                  {t('createPool.creating')}
                 </>
               )}
-              {txStatus === 'idle' && 'Create Pool'}
-              {txStatus === 'error' && 'Retry'}
+              {txStatus === 'idle' && t('createPool.createPool')}
+              {txStatus === 'error' && t('common.retry')}
               {txStatus === 'success' && (
                 <>
                   <CheckCircle className="w-4 h-4" />
-                  Success
+                  {t('common.success')}
                 </>
               )}
             </button>

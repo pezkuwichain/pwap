@@ -39,16 +39,18 @@ interface EvidenceFile {
   type: 'image' | 'document';
 }
 
-const DISPUTE_REASONS = [
-  { value: 'payment_not_received', label: 'Payment not received' },
-  { value: 'wrong_amount', label: 'Wrong amount received' },
-  { value: 'seller_not_responding', label: 'Seller not responding' },
-  { value: 'buyer_not_responding', label: 'Buyer not responding' },
-  { value: 'fraudulent_behavior', label: 'Fraudulent behavior' },
-  { value: 'fake_payment_proof', label: 'Fake payment proof' },
-  { value: 'account_mismatch', label: 'Payment account name mismatch' },
-  { value: 'other', label: 'Other' },
-];
+const DISPUTE_REASON_KEYS: Record<string, string> = {
+  payment_not_received: 'p2pDispute.paymentNotReceived',
+  wrong_amount: 'p2pDispute.wrongAmount',
+  seller_not_responding: 'p2pDispute.sellerNotResponding',
+  buyer_not_responding: 'p2pDispute.buyerNotResponding',
+  fraudulent_behavior: 'p2pDispute.fraudulentBehavior',
+  fake_payment_proof: 'p2pDispute.fakePaymentProof',
+  account_mismatch: 'p2pDispute.accountMismatch',
+  other: 'p2pDispute.other',
+};
+
+const DISPUTE_REASONS = Object.keys(DISPUTE_REASON_KEYS);
 
 export function DisputeModal({
   isOpen,
@@ -59,7 +61,7 @@ export function DisputeModal({
   counterpartyWallet,
   isBuyer,
 }: DisputeModalProps) {
-  useTranslation();
+  const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [reason, setReason] = useState('');
@@ -69,11 +71,11 @@ export function DisputeModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Filter reasons based on role
-  const availableReasons = DISPUTE_REASONS.filter((r) => {
+  const availableReasons = DISPUTE_REASONS.filter((value) => {
     if (isBuyer) {
-      return r.value !== 'buyer_not_responding' && r.value !== 'payment_not_received';
+      return value !== 'buyer_not_responding' && value !== 'payment_not_received';
     } else {
-      return r.value !== 'seller_not_responding' && r.value !== 'fake_payment_proof';
+      return value !== 'seller_not_responding' && value !== 'fake_payment_proof';
     }
   });
 
@@ -85,12 +87,12 @@ export function DisputeModal({
 
     Array.from(files).forEach((file) => {
       if (evidenceFiles.length + newFiles.length >= 5) {
-        toast.error('Maximum 5 evidence files allowed');
+        toast.error(t('p2pDispute.maxFilesError'));
         return;
       }
 
       if (file.size > 10 * 1024 * 1024) {
-        toast.error(`File ${file.name} is too large (max 10MB)`);
+        toast.error(t('p2pDispute.fileTooLarge', { name: file.name }));
         return;
       }
 
@@ -153,17 +155,17 @@ export function DisputeModal({
 
   const handleSubmit = async () => {
     if (!reason) {
-      toast.error('Please select a reason');
+      toast.error(t('p2pDispute.selectReasonError'));
       return;
     }
 
     if (!description || description.length < 20) {
-      toast.error('Please provide a detailed description (at least 20 characters)');
+      toast.error(t('p2pDispute.descriptionError'));
       return;
     }
 
     if (!termsAccepted) {
-      toast.error('Please accept the terms and conditions');
+      toast.error(t('p2pDispute.acceptTermsError'));
       return;
     }
 
@@ -237,11 +239,11 @@ export function DisputeModal({
         await supabase.from('p2p_notifications').insert(adminNotifications);
       }
 
-      toast.success('Dispute opened successfully');
+      toast.success(t('p2pDispute.disputeOpened'));
       onClose();
     } catch (error) {
       console.error('Failed to open dispute:', error);
-      toast.error('Failed to open dispute. Please try again.');
+      toast.error(t('p2pDispute.failedToOpen'));
     } finally {
       setIsSubmitting(false);
     }
@@ -265,26 +267,25 @@ export function DisputeModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-red-500">
             <AlertTriangle className="h-5 w-5" />
-            Open Dispute
+            {t('p2pDispute.title')}
           </DialogTitle>
           <DialogDescription>
-            Please provide details about the issue. Our support team will review your case
-            and contact both parties for resolution.
+            {t('p2pDispute.description')}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           {/* Reason Selection */}
           <div className="space-y-2">
-            <Label htmlFor="reason">Reason for Dispute *</Label>
+            <Label htmlFor="reason">{t('p2pDispute.reasonLabel')}</Label>
             <Select value={reason} onValueChange={setReason}>
               <SelectTrigger>
-                <SelectValue placeholder="Select a reason..." />
+                <SelectValue placeholder={t('p2pDispute.selectReason')} />
               </SelectTrigger>
               <SelectContent>
-                {availableReasons.map((r) => (
-                  <SelectItem key={r.value} value={r.value}>
-                    {r.label}
+                {availableReasons.map((value) => (
+                  <SelectItem key={value} value={value}>
+                    {t(DISPUTE_REASON_KEYS[value])}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -294,13 +295,13 @@ export function DisputeModal({
           {/* Description */}
           <div className="space-y-2">
             <Label htmlFor="description">
-              Detailed Description * <span className="text-muted-foreground text-xs">(min 20 chars)</span>
+              {t('p2pDispute.detailedDescription')} <span className="text-muted-foreground text-xs">{t('p2pDispute.minChars')}</span>
             </Label>
             <Textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Please describe the issue in detail. Include relevant transaction IDs, timestamps, and any communication with the counterparty..."
+              placeholder={t('p2pDispute.descriptionPlaceholder')}
               rows={4}
               maxLength={2000}
             />
@@ -311,7 +312,7 @@ export function DisputeModal({
 
           {/* Evidence Upload */}
           <div className="space-y-2">
-            <Label>Evidence (Optional - max 5 files, 10MB each)</Label>
+            <Label>{t('p2pDispute.evidenceLabel')}</Label>
             <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4">
               <input
                 type="file"
@@ -330,10 +331,10 @@ export function DisputeModal({
                   onClick={() => fileInputRef.current?.click()}
                   disabled={evidenceFiles.length >= 5}
                 >
-                  Upload Evidence
+                  {t('p2pDispute.uploadEvidence')}
                 </Button>
                 <p className="text-xs text-muted-foreground mt-2">
-                  Screenshots, bank statements, chat logs, receipts
+                  {t('p2pDispute.evidenceTypes')}
                 </p>
               </div>
             </div>
@@ -349,7 +350,7 @@ export function DisputeModal({
                     {evidence.type === 'image' ? (
                       <img
                         src={evidence.preview}
-                        alt="Evidence"
+                        alt={t('p2pDispute.evidenceAlt')}
                         className="w-10 h-10 object-cover rounded"
                       />
                     ) : (
@@ -376,13 +377,13 @@ export function DisputeModal({
               <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
               <div className="text-sm">
                 <p className="font-medium text-amber-800 dark:text-amber-200">
-                  Important Notice
+                  {t('p2pDispute.importantNotice')}
                 </p>
                 <ul className="text-amber-700 dark:text-amber-300 text-xs mt-1 space-y-1">
-                  <li>• False disputes may result in account restrictions</li>
-                  <li>• Resolution typically takes 1-3 business days</li>
-                  <li>• Both parties can submit evidence</li>
-                  <li>• Admin decision is final</li>
+                  <li>• {t('p2pDispute.falseDisputes')}</li>
+                  <li>• {t('p2pDispute.resolutionTime')}</li>
+                  <li>• {t('p2pDispute.bothParties')}</li>
+                  <li>• {t('p2pDispute.adminFinal')}</li>
                 </ul>
               </div>
             </div>
@@ -396,22 +397,21 @@ export function DisputeModal({
               onCheckedChange={(checked) => setTermsAccepted(checked === true)}
             />
             <Label htmlFor="terms" className="text-sm leading-tight cursor-pointer">
-              I confirm that the information provided is accurate and understand that
-              false claims may result in penalties.
+              {t('p2pDispute.termsCheckbox')}
             </Label>
           </div>
         </div>
 
         <DialogFooter className="gap-2 sm:gap-0">
           <Button variant="outline" onClick={handleClose} disabled={isSubmitting}>
-            Cancel
+            {t('cancel')}
           </Button>
           <Button
             variant="destructive"
             onClick={handleSubmit}
             disabled={isSubmitting || !reason || !description || !termsAccepted}
           >
-            {isSubmitting ? 'Submitting...' : 'Open Dispute'}
+            {isSubmitting ? t('p2pDispute.submitting') : t('p2pDispute.openDispute')}
           </Button>
         </DialogFooter>
       </DialogContent>

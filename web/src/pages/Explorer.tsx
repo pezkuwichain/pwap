@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Layout from '@/components/Layout';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -67,7 +68,8 @@ type ExplorerView = 'overview' | 'accounts' | 'assets' | 'account' | 'block' | '
 const Explorer: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { api, isApiReady } = usePezkuwi();
+  const { t } = useTranslation();
+  const { api, isApiReady, assetHubApi, isAssetHubReady } = usePezkuwi();
 
   // Parse URL to determine view
   const getViewFromPath = (): { view: ExplorerView; param?: string } => {
@@ -131,22 +133,26 @@ const Explorer: React.FC = () => {
     if (!api || !isApiReady) return;
 
     try {
-      const [header, finalizedHash, validators, currentEra] = await Promise.all([
+      const [header, finalizedHash, validators] = await Promise.all([
         api.rpc.chain.getHeader(),
         api.rpc.chain.getFinalizedHead(),
         api.query.session?.validators?.() || Promise.resolve([]),
-        api.query.staking?.currentEra?.() || Promise.resolve(null),
       ]);
 
       const finalizedHeader = await api.rpc.chain.getHeader(finalizedHash);
 
-      // Safely extract era number
+      // Era lives on Asset Hub (staking moved from RC to AH)
       let eraNumber = 0;
-      if (currentEra && currentEra.isSome) {
+      if (assetHubApi && isAssetHubReady) {
         try {
-          eraNumber = currentEra.unwrap().toNumber();
+          const activeEra = await assetHubApi.query.staking.activeEra();
+          if (activeEra && activeEra.isSome) {
+            const unwrapped = activeEra.unwrap();
+            const json = unwrapped.toJSON() as { index?: number };
+            eraNumber = json?.index ?? 0;
+          }
         } catch {
-          eraNumber = Number(currentEra.unwrap().toString()) || 0;
+          // AH staking query failed — leave era as 0
         }
       }
 
@@ -160,7 +166,7 @@ const Explorer: React.FC = () => {
     } catch (error) {
       console.error('Error fetching stats:', error);
     }
-  }, [api, isApiReady]);
+  }, [api, isApiReady, assetHubApi, isAssetHubReady]);
 
   // Fetch recent blocks
   const fetchRecentBlocks = useCallback(async () => {
@@ -381,8 +387,8 @@ const Explorer: React.FC = () => {
         <div className="min-h-screen bg-gray-950 flex items-center justify-center">
           <div className="text-center">
             <Loader2 className="w-12 h-12 text-green-500 animate-spin mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-white mb-2">Connecting to Blockchain</h2>
-            <p className="text-gray-400">Please wait while we establish connection...</p>
+            <h2 className="text-xl font-semibold text-white mb-2">{t('networkStats.connecting')}</h2>
+            <p className="text-gray-400">{t('networkStats.disconnectedDesc')}</p>
           </div>
         </div>
       </Layout>
@@ -398,12 +404,12 @@ const Explorer: React.FC = () => {
             <div>
               <h1 className="text-3xl font-bold text-white flex items-center gap-3">
                 <Blocks className="w-8 h-8 text-green-500" />
-                Block Explorer
+                {t('explorer.title')}
               </h1>
               <div className="flex items-center gap-2 mt-2">
                 <span className="flex items-center gap-1 text-green-400 text-sm">
                   <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-                  Live
+                  {t('explorer.live')}
                 </span>
                 <span className="text-gray-500 text-sm">
                   Last updated {formatDistanceToNow(lastUpdate, { addSuffix: true })}
@@ -417,7 +423,7 @@ const Explorer: React.FC = () => {
               className="border-gray-700 text-gray-300 hover:text-white"
             >
               <RefreshCw className="w-4 h-4 mr-2" />
-              Refresh
+              {t('explorer.refresh')}
             </Button>
           </div>
 
@@ -430,7 +436,7 @@ const Explorer: React.FC = () => {
               size="sm"
             >
               <Blocks className="w-4 h-4 mr-2" />
-              Overview
+              {t('explorer.overviewTab')}
             </Button>
             <Button
               variant={currentView === 'accounts' ? 'default' : 'outline'}
@@ -439,7 +445,7 @@ const Explorer: React.FC = () => {
               size="sm"
             >
               <Users className="w-4 h-4 mr-2" />
-              Accounts
+              {t('explorer.accountsTab')}
             </Button>
             <Button
               variant={currentView === 'assets' ? 'default' : 'outline'}
@@ -448,7 +454,7 @@ const Explorer: React.FC = () => {
               size="sm"
             >
               <Wallet className="w-4 h-4 mr-2" />
-              Assets
+              {t('explorer.assetsTab')}
             </Button>
           </div>
 
@@ -460,7 +466,7 @@ const Explorer: React.FC = () => {
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
                   <Input
                     type="text"
-                    placeholder="Search by Block Number / Hash / Address"
+                    placeholder={t('explorer.searchPlaceholder')}
                     value={searchQuery}
                     onChange={(e) => {
                       setSearchQuery(e.target.value);
@@ -480,7 +486,7 @@ const Explorer: React.FC = () => {
                   ) : (
                     <>
                       <Search className="w-4 h-4 mr-2" />
-                      Search
+                      {t('explorer.search')}
                     </>
                   )}
                 </Button>
@@ -500,16 +506,16 @@ const Explorer: React.FC = () => {
               <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
                   <Users className="w-5 h-5 text-blue-500" />
-                  Accounts
+                  {t('explorer.accountsTab')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-400 mb-4">
-                  Search for an account address to view details, balances, and transaction history.
+                  {t('explorer.noAccountsFound')}
                 </p>
                 <div className="bg-gray-800 rounded-lg p-6 text-center">
                   <Users className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-                  <p className="text-gray-500">Use the search bar above to find an account by address</p>
+                  <p className="text-gray-500">{t('explorer.search')}</p>
                 </div>
               </CardContent>
             </Card>
@@ -520,7 +526,7 @@ const Explorer: React.FC = () => {
               <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
                   <Wallet className="w-5 h-5 text-yellow-500" />
-                  Assets
+                  {t('explorer.assetsTab')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -528,7 +534,7 @@ const Explorer: React.FC = () => {
                   <div className="bg-gray-800 rounded-lg p-4">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-white font-semibold">HEZ</span>
-                      <Badge className="bg-green-500/20 text-green-400">Native</Badge>
+                      <Badge className="bg-green-500/20 text-green-400">{t('explorer.native')}</Badge>
                     </div>
                     <p className="text-gray-400 text-sm">Native token of PezkuwiChain</p>
                   </div>
@@ -563,12 +569,12 @@ const Explorer: React.FC = () => {
               <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
                   <Wallet className="w-5 h-5 text-purple-500" />
-                  Account Details
+                  {t('explorer.accountsTab')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="bg-gray-800 rounded-lg p-4 mb-4">
-                  <div className="text-xs text-gray-400 mb-1">Address</div>
+                  <div className="text-xs text-gray-400 mb-1">{t('explorer.address')}</div>
                   <div className="flex items-center gap-2">
                     <code className="text-white font-mono text-sm break-all">{viewParam}</code>
                     <button
@@ -580,7 +586,7 @@ const Explorer: React.FC = () => {
                   </div>
                 </div>
                 <p className="text-gray-400 text-center py-8">
-                  Account balance and transaction history loading...
+                  {t('explorer.balance')}...
                 </p>
               </CardContent>
             </Card>
@@ -606,7 +612,7 @@ const Explorer: React.FC = () => {
                 <CardContent className="p-4">
                   <div className="flex items-center gap-2 text-gray-400 text-sm mb-1">
                     <Database className="w-4 h-4" />
-                    Best Block
+                    {t('explorer.bestBlock')}
                   </div>
                   <p className="text-2xl font-bold text-white">
                     #{stats.bestBlock.toLocaleString()}
@@ -618,7 +624,7 @@ const Explorer: React.FC = () => {
                 <CardContent className="p-4">
                   <div className="flex items-center gap-2 text-gray-400 text-sm mb-1">
                     <CheckCircle className="w-4 h-4 text-green-500" />
-                    Finalized
+                    {t('explorer.finalized')}
                   </div>
                   <p className="text-2xl font-bold text-white">
                     #{stats.finalizedBlock.toLocaleString()}
@@ -630,7 +636,7 @@ const Explorer: React.FC = () => {
                 <CardContent className="p-4">
                   <div className="flex items-center gap-2 text-gray-400 text-sm mb-1">
                     <Users className="w-4 h-4 text-blue-500" />
-                    Validators
+                    {t('explorer.validators')}
                   </div>
                   <p className="text-2xl font-bold text-white">
                     {stats.activeValidators}
@@ -642,7 +648,7 @@ const Explorer: React.FC = () => {
                 <CardContent className="p-4">
                   <div className="flex items-center gap-2 text-gray-400 text-sm mb-1">
                     <Activity className="w-4 h-4 text-purple-500" />
-                    Era
+                    {t('explorer.era')}
                   </div>
                   <p className="text-2xl font-bold text-white">
                     {stats.era}
@@ -654,7 +660,7 @@ const Explorer: React.FC = () => {
                 <CardContent className="p-4">
                   <div className="flex items-center gap-2 text-gray-400 text-sm mb-1">
                     <Timer className="w-4 h-4 text-yellow-500" />
-                    Block Time
+                    {t('explorer.blockTime')}
                   </div>
                   <p className="text-2xl font-bold text-white">
                     ~{stats.avgBlockTime}s
@@ -666,7 +672,7 @@ const Explorer: React.FC = () => {
                 <CardContent className="p-4">
                   <div className="flex items-center gap-2 text-gray-400 text-sm mb-1">
                     <Zap className="w-4 h-4 text-orange-500" />
-                    TPS
+                    {t('explorer.tps')}
                   </div>
                   <p className="text-2xl font-bold text-white">
                     {stats.tps.toFixed(2)}
@@ -678,7 +684,7 @@ const Explorer: React.FC = () => {
                 <CardContent className="p-4">
                   <div className="flex items-center gap-2 text-gray-400 text-sm mb-1">
                     <ArrowRightLeft className="w-4 h-4 text-cyan-500" />
-                    Recent Extrinsics
+                    {t('explorer.recentExtrinsics')}
                   </div>
                   <p className="text-2xl font-bold text-white">
                     {recentExtrinsics.length} in last {recentBlocks.length} blocks
@@ -695,7 +701,7 @@ const Explorer: React.FC = () => {
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg text-white flex items-center gap-2">
                   <Blocks className="w-5 h-5 text-green-500" />
-                  Recent Blocks
+                  {t('explorer.recentBlocks')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -708,7 +714,7 @@ const Explorer: React.FC = () => {
                   ))
                 ) : recentBlocks.length === 0 ? (
                   <div className="text-center py-8 text-gray-400">
-                    No blocks found
+                    {t('explorer.noBlocksFound')}
                   </div>
                 ) : (
                   recentBlocks.slice(0, 8).map((block) => (
@@ -745,7 +751,7 @@ const Explorer: React.FC = () => {
                           </button>
                         </div>
                         <span className="text-sm">
-                          <span className="text-gray-500">Extrinsics:</span>{' '}
+                          <span className="text-gray-500">{t('explorer.recentExtrinsics')}:</span>{' '}
                           <span className="text-green-400 font-semibold">{block.extrinsicsCount}</span>
                         </span>
                       </div>
@@ -760,7 +766,7 @@ const Explorer: React.FC = () => {
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg text-white flex items-center gap-2">
                   <ArrowRightLeft className="w-5 h-5 text-purple-500" />
-                  Recent Extrinsics
+                  {t('explorer.recentExtrinsics')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -773,7 +779,7 @@ const Explorer: React.FC = () => {
                   ))
                 ) : recentExtrinsics.length === 0 ? (
                   <div className="text-center py-8 text-gray-400">
-                    No extrinsics found
+                    {t('explorer.noExtrinsicsFound')}
                   </div>
                 ) : (
                   recentExtrinsics.slice(0, 8).map((ext, idx) => (
@@ -801,7 +807,7 @@ const Explorer: React.FC = () => {
                           </Badge>
                         </div>
                         <span className="text-gray-400 text-sm">
-                          Block #{ext.blockNumber.toLocaleString()}
+                          {t('explorer.block')} #{ext.blockNumber.toLocaleString()}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
@@ -841,7 +847,7 @@ const Explorer: React.FC = () => {
             <CardContent className="p-6">
               <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                 <ExternalLink className="w-5 h-5 text-green-500" />
-                Quick Links
+                {t('explorer.quickLinks')}
               </h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <a
@@ -851,28 +857,28 @@ const Explorer: React.FC = () => {
                   className="flex items-center gap-2 p-3 rounded-lg bg-gray-800 hover:bg-gray-750 text-gray-300 hover:text-white transition-colors"
                 >
                   <Activity className="w-4 h-4 text-red-400" />
-                  Telemetry
+                  {t('explorer.telemetry')}
                 </a>
                 <a
                   href="/governance"
                   className="flex items-center gap-2 p-3 rounded-lg bg-gray-800 hover:bg-gray-750 text-gray-300 hover:text-white transition-colors"
                 >
                   <Users className="w-4 h-4 text-blue-400" />
-                  Governance
+                  {t('explorer.governance')}
                 </a>
                 <a
                   href="/wallet"
                   className="flex items-center gap-2 p-3 rounded-lg bg-gray-800 hover:bg-gray-750 text-gray-300 hover:text-white transition-colors"
                 >
                   <Wallet className="w-4 h-4 text-yellow-400" />
-                  Wallet
+                  {t('explorer.wallet')}
                 </a>
                 <a
                   href="/docs"
                   className="flex items-center gap-2 p-3 rounded-lg bg-gray-800 hover:bg-gray-750 text-gray-300 hover:text-white transition-colors"
                 >
                   <Blocks className="w-4 h-4 text-purple-400" />
-                  Documentation
+                  {t('explorer.documentation')}
                 </a>
               </div>
             </CardContent>

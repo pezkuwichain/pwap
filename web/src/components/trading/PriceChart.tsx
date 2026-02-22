@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {  XAxis, YAxis, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -18,6 +19,7 @@ const getDisplayName = (token: string): string => {
 };
 
 export const PriceChart: React.FC<PriceChartProps> = ({ fromToken, toToken, currentPrice }) => {
+  const { t } = useTranslation();
   const [timeframe, setTimeframe] = useState<'1H' | '24H' | '7D' | '30D'>('24H');
   const [chartData, setChartData] = useState<Array<Record<string, number>>>([]);
   const [priceChange, setPriceChange] = useState<{ value: number; percent: number }>({ value: 0, percent: 0 });
@@ -90,7 +92,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({ fromToken, toToken, curr
       <div className="flex justify-between items-center mb-4">
         <div>
           <div className="text-sm text-gray-400 mb-1">
-            {getDisplayName(fromToken)}/{getDisplayName(toToken)} Price
+            {t('priceChart.label', { from: getDisplayName(fromToken), to: getDisplayName(toToken) })}
           </div>
           <div className="flex items-center gap-3">
             <span className="text-2xl font-bold text-white">
@@ -107,10 +109,10 @@ export const PriceChart: React.FC<PriceChartProps> = ({ fromToken, toToken, curr
 
         <Tabs value={timeframe} onValueChange={(v) => setTimeframe(v as Record<string, unknown>)}>
           <TabsList className="bg-gray-800">
-            <TabsTrigger value="1H" className="text-xs">1H</TabsTrigger>
-            <TabsTrigger value="24H" className="text-xs">24H</TabsTrigger>
-            <TabsTrigger value="7D" className="text-xs">7D</TabsTrigger>
-            <TabsTrigger value="30D" className="text-xs">30D</TabsTrigger>
+            <TabsTrigger value="1H" className="text-xs">{t('priceChart.1h')}</TabsTrigger>
+            <TabsTrigger value="24H" className="text-xs">{t('priceChart.24h')}</TabsTrigger>
+            <TabsTrigger value="7D" className="text-xs">{t('priceChart.7d')}</TabsTrigger>
+            <TabsTrigger value="30D" className="text-xs">{t('priceChart.30d')}</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
@@ -160,7 +162,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({ fromToken, toToken, curr
       </ResponsiveContainer>
 
       <div className="mt-3 text-xs text-gray-500 text-center">
-        Historical price data • Updated in real-time
+        {t('priceChart.footnote')}
       </div>
     </Card>
   );

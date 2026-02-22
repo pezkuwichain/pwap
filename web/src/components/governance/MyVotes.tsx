@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -35,6 +36,7 @@ interface DelegationInfo {
 }
 
 const MyVotes: React.FC = () => {
+  const { t } = useTranslation();
   const { api, isApiReady } = usePezkuwi();
   const { account, isConnected } = useWallet();
   const [proposalVotes, setProposalVotes] = useState<ProposalVote[]>([]);
@@ -195,12 +197,12 @@ const MyVotes: React.FC = () => {
         <CardContent className="pt-6">
           <div className="text-center py-12">
             <Wallet className="w-16 h-16 mx-auto mb-4 text-gray-600" />
-            <h3 className="text-xl font-semibold text-white mb-2">Connect Your Wallet</h3>
+            <h3 className="text-xl font-semibold text-white mb-2">{t('myVotes.connectTitle')}</h3>
             <p className="text-gray-400 mb-6">
-              Connect your wallet to view your voting history and delegations
+              {t('myVotes.connectDescription')}
             </p>
             <Button className="bg-green-600 hover:bg-green-700">
-              Connect Wallet
+              {t('myVotes.connectButton')}
             </Button>
           </div>
         </CardContent>
@@ -212,7 +214,7 @@ const MyVotes: React.FC = () => {
     return (
       <div className="flex items-center justify-center py-12">
         <Loader2 className="w-8 h-8 animate-spin text-green-500" />
-        <span className="ml-3 text-gray-400">Loading your voting history...</span>
+        <span className="ml-3 text-gray-400">{t('myVotes.loading')}</span>
       </div>
     );
   }
@@ -223,7 +225,7 @@ const MyVotes: React.FC = () => {
         <CardContent className="pt-6">
           <div className="flex items-center text-red-400">
             <XCircle className="w-5 h-5 mr-2" />
-            Error: {error}
+            {t('myVotes.error', { error })}
           </div>
         </CardContent>
       </Card>
@@ -244,7 +246,7 @@ const MyVotes: React.FC = () => {
               <Vote className="w-8 h-8 text-green-500" />
               <div>
                 <div className="text-2xl font-bold text-white">{totalVotes}</div>
-                <div className="text-sm text-gray-400">Total Votes</div>
+                <div className="text-sm text-gray-400">{t('myVotes.totalVotes')}</div>
               </div>
             </div>
           </CardContent>
@@ -255,7 +257,7 @@ const MyVotes: React.FC = () => {
               <Activity className="w-8 h-8 text-blue-500" />
               <div>
                 <div className="text-2xl font-bold text-white">{activeVotes}</div>
-                <div className="text-sm text-gray-400">Active Votes</div>
+                <div className="text-sm text-gray-400">{t('myVotes.activeVotes')}</div>
               </div>
             </div>
           </CardContent>
@@ -266,7 +268,7 @@ const MyVotes: React.FC = () => {
               <FileText className="w-8 h-8 text-purple-500" />
               <div>
                 <div className="text-2xl font-bold text-white">{proposalVotes.length}</div>
-                <div className="text-sm text-gray-400">Proposal Votes</div>
+                <div className="text-sm text-gray-400">{t('myVotes.proposalVotes')}</div>
               </div>
             </div>
           </CardContent>
@@ -277,7 +279,7 @@ const MyVotes: React.FC = () => {
               <Users className="w-8 h-8 text-cyan-500" />
               <div>
                 <div className="text-2xl font-bold text-white">{electionVotes.length}</div>
-                <div className="text-sm text-gray-400">Election Votes</div>
+                <div className="text-sm text-gray-400">{t('myVotes.electionVotes')}</div>
               </div>
             </div>
           </CardContent>
@@ -288,18 +290,18 @@ const MyVotes: React.FC = () => {
       <div className="flex items-center gap-2">
         <Badge variant="outline" className="bg-green-500/10 border-green-500 text-green-400">
           <Activity className="h-3 w-3 mr-1" />
-          Live Blockchain Data
+          {t('myVotes.liveData')}
         </Badge>
         <span className="text-sm text-gray-500">
-          Connected as {account?.substring(0, 8)}...{account?.slice(-6)}
+          {t('myVotes.connectedAs', { address: `${account?.substring(0, 8)}...${account?.slice(-6)}` })}
         </span>
       </div>
 
       <Tabs defaultValue="proposals" className="w-full">
         <TabsList className="grid w-full grid-cols-3 bg-gray-800/50">
-          <TabsTrigger value="proposals">Proposal Votes</TabsTrigger>
-          <TabsTrigger value="elections">Election Votes</TabsTrigger>
-          <TabsTrigger value="delegations">My Delegations</TabsTrigger>
+          <TabsTrigger value="proposals">{t('myVotes.proposalVotesTab')}</TabsTrigger>
+          <TabsTrigger value="elections">{t('myVotes.electionVotesTab')}</TabsTrigger>
+          <TabsTrigger value="delegations">{t('myVotes.delegationsTab')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="proposals" className="space-y-4">
@@ -307,8 +309,8 @@ const MyVotes: React.FC = () => {
             <Card className="bg-gray-900/50 border-gray-800">
               <CardContent className="pt-6 text-center text-gray-400">
                 <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>You have not voted on any proposals yet</p>
-                <p className="text-sm mt-2">Check the Proposals tab to participate in governance</p>
+                <p>{t('myVotes.noProposalVotes')}</p>
+                <p className="text-sm mt-2">{t('myVotes.checkProposals')}</p>
               </CardContent>
             </Card>
           ) : (
@@ -321,8 +323,7 @@ const MyVotes: React.FC = () => {
                       <div>
                         <h4 className="font-medium text-white">{vote.proposalTitle}</h4>
                         <p className="text-sm text-gray-400 mt-1">
-                          Conviction: {vote.conviction}x •
-                          Amount: {formatTokenAmount(vote.amount)} HEZ
+                          {t('myVotes.conviction', { conviction: vote.conviction, amount: formatTokenAmount(vote.amount) })}
                         </p>
                       </div>
                     </div>
@@ -346,8 +347,8 @@ const MyVotes: React.FC = () => {
             <Card className="bg-gray-900/50 border-gray-800">
               <CardContent className="pt-6 text-center text-gray-400">
                 <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>You have not voted in any elections yet</p>
-                <p className="text-sm mt-2">Check the Elections tab to participate</p>
+                <p>{t('myVotes.noElectionVotes')}</p>
+                <p className="text-sm mt-2">{t('myVotes.checkElections')}</p>
               </CardContent>
             </Card>
           ) : (
@@ -356,10 +357,9 @@ const MyVotes: React.FC = () => {
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between">
                     <div>
-                      <h4 className="font-medium text-white">{vote.electionType} Election</h4>
+                      <h4 className="font-medium text-white">{t('myVotes.electionName', { type: vote.electionType })}</h4>
                       <p className="text-sm text-gray-400 mt-1">
-                        Election #{vote.electionId} •
-                        {vote.candidates.length} candidate(s) selected
+                        {t('myVotes.electionDetails', { id: vote.electionId, count: vote.candidates.length })}
                       </p>
                       <div className="flex flex-wrap gap-2 mt-2">
                         {vote.candidates.map((candidate, idx) => (
@@ -384,8 +384,8 @@ const MyVotes: React.FC = () => {
             <Card className="bg-gray-900/50 border-gray-800">
               <CardContent className="pt-6 text-center text-gray-400">
                 <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>You have not delegated your voting power</p>
-                <p className="text-sm mt-2">Check the Delegation tab to delegate your votes</p>
+                <p>{t('myVotes.noDelegations')}</p>
+                <p className="text-sm mt-2">{t('myVotes.checkDelegation')}</p>
               </CardContent>
             </Card>
           ) : (
@@ -395,11 +395,10 @@ const MyVotes: React.FC = () => {
                   <div className="flex items-start justify-between">
                     <div>
                       <h4 className="font-medium text-white">
-                        Delegated to {delegation.delegateAddress.substring(0, 8)}...{delegation.delegateAddress.slice(-6)}
+                        {t('myVotes.delegatedTo', { address: `${delegation.delegateAddress.substring(0, 8)}...${delegation.delegateAddress.slice(-6)}` })}
                       </h4>
                       <p className="text-sm text-gray-400 mt-1">
-                        Amount: {formatTokenAmount(delegation.amount)} HEZ •
-                        Conviction: {delegation.conviction}x
+                        {t('myVotes.delegationDetails', { amount: formatTokenAmount(delegation.amount), conviction: delegation.conviction })}
                       </p>
                       <div className="flex flex-wrap gap-2 mt-2">
                         {delegation.tracks.map((track, tidx) => (
@@ -416,7 +415,7 @@ const MyVotes: React.FC = () => {
                         {delegation.status}
                       </Badge>
                       <Button size="sm" variant="outline" className="text-xs">
-                        Revoke
+                        {t('myVotes.revoke')}
                       </Button>
                     </div>
                   </div>

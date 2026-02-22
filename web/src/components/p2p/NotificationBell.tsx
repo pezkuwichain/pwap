@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -37,6 +38,7 @@ interface Notification {
 }
 
 export function NotificationBell() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -173,13 +175,13 @@ export function NotificationBell() {
   // Format time ago
   const formatTimeAgo = (dateString: string) => {
     const seconds = Math.floor((Date.now() - new Date(dateString).getTime()) / 1000);
-    if (seconds < 60) return 'Just now';
+    if (seconds < 60) return t('p2p.justNow');
     const minutes = Math.floor(seconds / 60);
-    if (minutes < 60) return `${minutes}m ago`;
+    if (minutes < 60) return t('p2p.minutesAgo', { count: minutes });
     const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h ago`;
+    if (hours < 24) return t('p2p.hoursAgo', { count: hours });
     const days = Math.floor(hours / 24);
-    return `${days}d ago`;
+    return t('p2p.daysAgo', { count: days });
   };
 
   if (!user) return null;
@@ -206,7 +208,7 @@ export function NotificationBell() {
         className="w-80 bg-gray-900 border-gray-800"
       >
         <DropdownMenuLabel className="flex items-center justify-between">
-          <span className="text-white">Notifications</span>
+          <span className="text-white">{t('p2pNotif.title')}</span>
           {unreadCount > 0 && (
             <Button
               variant="ghost"
@@ -215,7 +217,7 @@ export function NotificationBell() {
               className="text-xs text-gray-400 hover:text-white h-auto py-1"
             >
               <CheckCheck className="w-3 h-3 mr-1" />
-              Mark all read
+              {t('p2pNotif.markAllRead')}
             </Button>
           )}
         </DropdownMenuLabel>
@@ -229,7 +231,7 @@ export function NotificationBell() {
           ) : notifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 text-gray-500">
               <Bell className="w-8 h-8 mb-2" />
-              <p className="text-sm">No notifications</p>
+              <p className="text-sm">{t('p2pNotif.noNotifications')}</p>
             </div>
           ) : (
             notifications.map((notification) => (
@@ -274,7 +276,7 @@ export function NotificationBell() {
               }}
               className="justify-center text-gray-400 hover:text-white cursor-pointer"
             >
-              View all trades
+              {t('p2pNotif.viewAllTrades')}
             </DropdownMenuItem>
           </>
         )}

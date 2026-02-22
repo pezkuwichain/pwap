@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { DollarSign, TrendingUp, Shield, AlertTriangle, RefreshCw, ExternalLink } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -18,6 +19,7 @@ export const ReservesDashboard: React.FC<ReservesDashboardProps> = ({
   specificAddresses = {},
   offChainReserveAmount = 0,
 }) => {
+  const { t } = useTranslation();
   const { api, isApiReady } = usePezkuwi();
 
   const [wusdtSupply, setWusdtSupply] = useState(0);
@@ -64,9 +66,9 @@ export const ReservesDashboard: React.FC<ReservesDashboardProps> = ({
   };
 
   const getHealthStatus = () => {
-    if (collateralRatio >= 105) return 'Healthy';
-    if (collateralRatio >= 100) return 'Warning';
-    return 'Critical';
+    if (collateralRatio >= 105) return t('reserves.healthy');
+    if (collateralRatio >= 100) return t('reserves.warning');
+    return t('reserves.critical');
   };
 
   return (
@@ -76,9 +78,9 @@ export const ReservesDashboard: React.FC<ReservesDashboardProps> = ({
         <div>
           <h2 className="text-2xl font-bold text-white flex items-center gap-2">
             <Shield className="h-6 w-6 text-blue-400" />
-            USDT Reserves Dashboard
+            {t('reserves.title')}
           </h2>
-          <p className="text-gray-400 mt-1">Real-time reserve status and multisig info</p>
+          <p className="text-gray-400 mt-1">{t('reserves.subtitle')}</p>
         </div>
         <Button
           onClick={fetchReserveData}
@@ -88,7 +90,7 @@ export const ReservesDashboard: React.FC<ReservesDashboardProps> = ({
           className="flex items-center gap-2"
         >
           <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-          Refresh
+          {t('reserves.refresh')}
         </Button>
       </div>
 
@@ -98,11 +100,11 @@ export const ReservesDashboard: React.FC<ReservesDashboardProps> = ({
         <Card className="p-4 bg-gray-800/50 border-gray-700">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm text-gray-400">Total wUSDT Supply</p>
+              <p className="text-sm text-gray-400">{t('reserves.totalSupply')}</p>
               <p className="text-2xl font-bold text-white mt-1">
                 ${formatWUSDT(wusdtSupply)}
               </p>
-              <p className="text-xs text-gray-500 mt-1">On-chain (Assets pallet)</p>
+              <p className="text-xs text-gray-500 mt-1">{t('reserves.onChainHint')}</p>
             </div>
             <DollarSign className="h-8 w-8 text-blue-400" />
           </div>
@@ -112,7 +114,7 @@ export const ReservesDashboard: React.FC<ReservesDashboardProps> = ({
         <Card className="p-4 bg-gray-800/50 border-gray-700">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm text-gray-400">Off-chain USDT Reserve</p>
+              <p className="text-sm text-gray-400">{t('reserves.offChainReserve')}</p>
               <p className="text-2xl font-bold text-white mt-1">
                 ${formatWUSDT(offChainReserve)}
               </p>
@@ -125,7 +127,7 @@ export const ReservesDashboard: React.FC<ReservesDashboardProps> = ({
                   placeholder="Amount"
                 />
                 <Button size="sm" variant="ghost" onClick={fetchReserveData} className="text-xs h-6">
-                  Update
+                  {t('reserves.update')}
                 </Button>
               </div>
             </div>
@@ -137,7 +139,7 @@ export const ReservesDashboard: React.FC<ReservesDashboardProps> = ({
         <Card className="p-4 bg-gray-800/50 border-gray-700">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm text-gray-400">Collateral Ratio</p>
+              <p className="text-sm text-gray-400">{t('reserves.collateralRatio')}</p>
               <p className={`text-2xl font-bold mt-1 ${getHealthColor()}`}>
                 {collateralRatio.toFixed(2)}%
               </p>
@@ -160,10 +162,9 @@ export const ReservesDashboard: React.FC<ReservesDashboardProps> = ({
         <Alert className="bg-red-900/20 border-red-500">
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
-            <p className="font-semibold">Under-collateralized!</p>
+            <p className="font-semibold">{t('reserves.underCollateralized')}</p>
             <p className="text-sm">
-              Reserve ratio is below 100%. Off-chain USDT reserves ({formatWUSDT(offChainReserve)})
-              are less than on-chain wUSDT supply ({formatWUSDT(wusdtSupply)}).
+              {t('reserves.underCollateralizedDesc')}
             </p>
           </AlertDescription>
         </Alert>
@@ -172,43 +173,43 @@ export const ReservesDashboard: React.FC<ReservesDashboardProps> = ({
       {/* Tabs */}
       <Tabs defaultValue="overview" className="w-full">
         <TabsList className="grid w-full grid-cols-3 bg-gray-800">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="multisig">Multisig</TabsTrigger>
-          <TabsTrigger value="proof">Proof of Reserves</TabsTrigger>
+          <TabsTrigger value="overview">{t('reserves.tabOverview')}</TabsTrigger>
+          <TabsTrigger value="multisig">{t('reserves.tabMultisig')}</TabsTrigger>
+          <TabsTrigger value="proof">{t('reserves.tabProof')}</TabsTrigger>
         </TabsList>
 
         {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-4">
           <Card className="p-6 bg-gray-800/50 border-gray-700">
-            <h3 className="text-lg font-semibold text-white mb-4">Reserve Details</h3>
+            <h3 className="text-lg font-semibold text-white mb-4">{t('reserves.detailsTitle')}</h3>
 
             <div className="space-y-4">
               <div className="flex justify-between p-3 bg-gray-900/50 rounded">
-                <span className="text-gray-300">On-chain wUSDT</span>
+                <span className="text-gray-300">{t('reserves.onChainWusdt')}</span>
                 <span className="text-white font-semibold">${formatWUSDT(wusdtSupply)}</span>
               </div>
 
               <div className="flex justify-between p-3 bg-gray-900/50 rounded">
-                <span className="text-gray-300">Off-chain USDT</span>
+                <span className="text-gray-300">{t('reserves.offChainUsdt')}</span>
                 <span className="text-white font-semibold">${formatWUSDT(offChainReserve)}</span>
               </div>
 
               <div className="flex justify-between p-3 bg-gray-900/50 rounded">
-                <span className="text-gray-300">Backing Ratio</span>
+                <span className="text-gray-300">{t('reserves.backingRatio')}</span>
                 <span className={`font-semibold ${getHealthColor()}`}>
                   {collateralRatio.toFixed(2)}%
                 </span>
               </div>
 
               <div className="flex justify-between p-3 bg-gray-900/50 rounded">
-                <span className="text-gray-300">Status</span>
+                <span className="text-gray-300">{t('reserves.status')}</span>
                 <Badge variant={isHealthy ? 'default' : 'destructive'}>
                   {getHealthStatus()}
                 </Badge>
               </div>
 
               <div className="flex justify-between p-3 bg-gray-900/50 rounded">
-                <span className="text-gray-300">Last Updated</span>
+                <span className="text-gray-300">{t('reserves.lastUpdated')}</span>
                 <span className="text-gray-400 text-sm">{lastUpdate.toLocaleTimeString()}</span>
               </div>
             </div>
@@ -216,10 +217,9 @@ export const ReservesDashboard: React.FC<ReservesDashboardProps> = ({
             <Alert className="mt-4 bg-blue-900/20 border-blue-500">
               <Shield className="h-4 w-4" />
               <AlertDescription>
-                <p className="font-semibold mb-1">1:1 Backing</p>
+                <p className="font-semibold mb-1">{t('reserves.backingTitle')}</p>
                 <p className="text-sm">
-                  Every wUSDT is backed by real USDT held in the multisig treasury.
-                  Target ratio: ≥100% (ideally 105% for safety buffer).
+                  {t('reserves.backingDesc')}
                 </p>
               </AlertDescription>
             </Alert>
@@ -237,24 +237,24 @@ export const ReservesDashboard: React.FC<ReservesDashboardProps> = ({
         {/* Proof of Reserves Tab */}
         <TabsContent value="proof" className="space-y-4">
           <Card className="p-6 bg-gray-800/50 border-gray-700">
-            <h3 className="text-lg font-semibold text-white mb-4">Proof of Reserves</h3>
+            <h3 className="text-lg font-semibold text-white mb-4">{t('reserves.proofTitle')}</h3>
 
             <div className="space-y-4">
               <Alert className="bg-green-900/20 border-green-500">
                 <Shield className="h-4 w-4" />
                 <AlertDescription>
-                  <p className="font-semibold mb-2">How to Verify Reserves:</p>
+                  <p className="font-semibold mb-2">{t('reserves.howToVerify')}</p>
                   <ol className="list-decimal list-inside space-y-1 text-sm">
-                    <li>Check on-chain wUSDT supply via Pezkuwi Explorer</li>
-                    <li>Verify multisig account balance (if reserves on-chain)</li>
-                    <li>Compare with off-chain treasury (bank/exchange account)</li>
-                    <li>Ensure ratio ≥ 100%</li>
+                    <li>{t('reserves.verifyStep1')}</li>
+                    <li>{t('reserves.verifyStep2')}</li>
+                    <li>{t('reserves.verifyStep3')}</li>
+                    <li>{t('reserves.verifyStep4')}</li>
                   </ol>
                 </AlertDescription>
               </Alert>
 
               <div className="p-4 bg-gray-900/50 rounded-lg">
-                <p className="text-sm text-gray-400 mb-3">Quick Links:</p>
+                <p className="text-sm text-gray-400 mb-3">{t('reserves.quickLinks')}</p>
                 <div className="space-y-2">
                   <a
                     href="https://pezkuwichain.io/explorer/assets"
@@ -263,7 +263,7 @@ export const ReservesDashboard: React.FC<ReservesDashboardProps> = ({
                     className="flex items-center gap-2 text-blue-400 hover:text-blue-300 text-sm"
                   >
                     <ExternalLink className="h-4 w-4" />
-                    View wUSDT Asset on Explorer
+                    {t('reserves.viewAsset')}
                   </a>
                   <a
                     href="https://pezkuwichain.io/explorer/accounts"
@@ -272,19 +272,17 @@ export const ReservesDashboard: React.FC<ReservesDashboardProps> = ({
                     className="flex items-center gap-2 text-blue-400 hover:text-blue-300 text-sm"
                   >
                     <ExternalLink className="h-4 w-4" />
-                    View Multisig Account
+                    {t('reserves.viewMultisig')}
                   </a>
                 </div>
               </div>
 
               <div className="p-4 bg-orange-900/20 border border-orange-500/30 rounded-lg">
                 <p className="text-sm font-semibold text-orange-400 mb-2">
-                  Note: Off-chain Reserves
+                  {t('reserves.noteTitle')}
                 </p>
                 <p className="text-sm text-gray-300">
-                  In this MVP implementation, off-chain USDT reserves are manually reported.
-                  For full decentralization, consider integrating with oracle services or
-                  using XCM bridge for on-chain verification.
+                  {t('reserves.noteDesc')}
                 </p>
               </div>
             </div>

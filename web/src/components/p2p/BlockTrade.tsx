@@ -26,6 +26,7 @@ import {
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import type { CryptoToken, FiatCurrency } from '@pezkuwi/lib/p2p-fiat';
 
 interface BlockTradeRequest {
@@ -78,6 +79,7 @@ export function BlockTrade() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [requests, setRequests] = useState<BlockTradeRequest[]>([]);
 
+  const { t } = useTranslation();
   const { user } = useAuth();
   const fiatSymbol = SUPPORTED_FIATS.find(f => f.code === fiat)?.symbol || '';
   const minAmount = MINIMUM_BLOCK_AMOUNTS[token];
@@ -103,13 +105,13 @@ export function BlockTrade() {
 
   const handleSubmitRequest = async () => {
     if (!user) {
-      toast.error('Please login to submit a block trade request');
+      toast.error(t('p2pBlock.loginRequired'));
       return;
     }
 
     const amountNum = parseFloat(amount);
     if (isNaN(amountNum) || amountNum < minAmount) {
-      toast.error(`Minimum amount for ${token} block trade is ${minAmount.toLocaleString()} ${token}`);
+      toast.error(t('p2pBlock.minimumError', { token, amount: minAmount.toLocaleString() }));
       return;
     }
 
@@ -132,7 +134,7 @@ export function BlockTrade() {
 
       if (error) throw error;
 
-      toast.success('Block trade request submitted! Our OTC desk will contact you within 24 hours.');
+      toast.success(t('p2pBlock.requestSubmitted'));
       setShowRequestModal(false);
       setAmount('');
       setTargetPrice('');
@@ -142,7 +144,7 @@ export function BlockTrade() {
       setRequests(prev => [data, ...prev]);
     } catch (err) {
       console.error('Block trade request error:', err);
-      toast.error('Failed to submit request');
+      toast.error(t('p2pBlock.failedToSubmit'));
     } finally {
       setIsSubmitting(false);
     }
@@ -170,14 +172,14 @@ export function BlockTrade() {
                 <Blocks className="w-5 h-5 text-purple-400" />
               </div>
               <div>
-                <CardTitle className="text-lg text-white">Block Trade (OTC)</CardTitle>
+                <CardTitle className="text-lg text-white">{t('p2pBlock.title')}</CardTitle>
                 <CardDescription className="text-gray-400">
-                  Large volume trades with custom pricing
+                  {t('p2pBlock.description')}
                 </CardDescription>
               </div>
             </div>
             <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">
-              VIP
+              {t('p2pBlock.vip')}
             </Badge>
           </div>
         </CardHeader>
@@ -186,25 +188,25 @@ export function BlockTrade() {
           <div className="grid grid-cols-2 gap-3">
             <div className="flex items-center gap-2 text-sm text-gray-400">
               <Lock className="w-4 h-4 text-purple-400" />
-              <span>Private Negotiation</span>
+              <span>{t('p2pBlock.privateNegotiation')}</span>
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-400">
               <Shield className="w-4 h-4 text-green-400" />
-              <span>Escrow Protected</span>
+              <span>{t('p2pBlock.escrowProtected')}</span>
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-400">
               <Building2 className="w-4 h-4 text-blue-400" />
-              <span>Dedicated Support</span>
+              <span>{t('p2pBlock.dedicatedSupport')}</span>
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-400">
               <Clock className="w-4 h-4 text-yellow-400" />
-              <span>Flexible Settlement</span>
+              <span>{t('p2pBlock.flexibleSettlement')}</span>
             </div>
           </div>
 
           {/* Minimum Amounts Info */}
           <div className="p-3 bg-gray-800/50 rounded-lg">
-            <p className="text-xs text-gray-500 mb-2">Minimum Block Trade Amounts:</p>
+            <p className="text-xs text-gray-500 mb-2">{t('p2pBlock.minimumAmounts')}</p>
             <div className="flex flex-wrap gap-2">
               {Object.entries(MINIMUM_BLOCK_AMOUNTS).map(([t, min]) => (
                 <Badge key={t} variant="outline" className="border-gray-700 text-gray-300">
@@ -220,14 +222,14 @@ export function BlockTrade() {
             onClick={() => setShowRequestModal(true)}
           >
             <MessageSquare className="w-4 h-4 mr-2" />
-            Request Block Trade
+            {t('p2pBlock.requestBlockTrade')}
             <ChevronRight className="w-4 h-4 ml-auto" />
           </Button>
 
           {/* Active Requests */}
           {requests.length > 0 && (
             <div className="space-y-2">
-              <p className="text-xs text-gray-500">Your Requests:</p>
+              <p className="text-xs text-gray-500">{t('p2pBlock.yourRequests')}</p>
               {requests.slice(0, 3).map(req => (
                 <div
                   key={req.id}
@@ -257,10 +259,10 @@ export function BlockTrade() {
           <DialogHeader>
             <DialogTitle className="text-white flex items-center gap-2">
               <Blocks className="w-5 h-5 text-purple-400" />
-              Block Trade Request
+              {t('p2pBlock.requestTitle')}
             </DialogTitle>
             <DialogDescription className="text-gray-400">
-              Submit a request for our OTC desk to handle your large volume trade.
+              {t('p2pBlock.requestDescription')}
             </DialogDescription>
           </DialogHeader>
 
@@ -269,10 +271,10 @@ export function BlockTrade() {
             <Tabs value={type} onValueChange={(v) => setType(v as 'buy' | 'sell')}>
               <TabsList className="grid w-full grid-cols-2 bg-gray-800">
                 <TabsTrigger value="buy" className="data-[state=active]:bg-green-600">
-                  Buy
+                  {t('p2p.buy')}
                 </TabsTrigger>
                 <TabsTrigger value="sell" className="data-[state=active]:bg-red-600">
-                  Sell
+                  {t('p2p.sell')}
                 </TabsTrigger>
               </TabsList>
             </Tabs>
@@ -280,7 +282,7 @@ export function BlockTrade() {
             {/* Token & Fiat */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label className="text-gray-400 text-xs">Token</Label>
+                <Label className="text-gray-400 text-xs">{t('p2p.token')}</Label>
                 <Select value={token} onValueChange={(v) => setToken(v as CryptoToken)}>
                   <SelectTrigger className="bg-gray-800 border-gray-700">
                     <SelectValue />
@@ -293,7 +295,7 @@ export function BlockTrade() {
                 </Select>
               </div>
               <div>
-                <Label className="text-gray-400 text-xs">Currency</Label>
+                <Label className="text-gray-400 text-xs">{t('p2p.currency')}</Label>
                 <Select value={fiat} onValueChange={(v) => setFiat(v as FiatCurrency)}>
                   <SelectTrigger className="bg-gray-800 border-gray-700">
                     <SelectValue />
@@ -311,7 +313,7 @@ export function BlockTrade() {
 
             {/* Amount */}
             <div>
-              <Label className="text-gray-400 text-xs">Amount ({token})</Label>
+              <Label className="text-gray-400 text-xs">{t('p2pBlock.amountLabel', { token })}</Label>
               <Input
                 type="number"
                 placeholder={`Min: ${minAmount.toLocaleString()}`}
@@ -320,17 +322,17 @@ export function BlockTrade() {
                 className="bg-gray-800 border-gray-700"
               />
               <p className="text-xs text-gray-500 mt-1">
-                Minimum: {minAmount.toLocaleString()} {token}
+                {t('p2pBlock.minimumLabel', { amount: minAmount.toLocaleString(), token })}
               </p>
             </div>
 
             {/* Target Price (Optional) */}
             <div>
-              <Label className="text-gray-400 text-xs">Target Price (Optional)</Label>
+              <Label className="text-gray-400 text-xs">{t('p2pBlock.targetPrice')}</Label>
               <div className="relative">
                 <Input
                   type="number"
-                  placeholder="Your desired price per unit"
+                  placeholder={t('p2pBlock.targetPricePlaceholder')}
                   value={targetPrice}
                   onChange={(e) => setTargetPrice(e.target.value)}
                   className="bg-gray-800 border-gray-700 pr-16"
@@ -343,9 +345,9 @@ export function BlockTrade() {
 
             {/* Message */}
             <div>
-              <Label className="text-gray-400 text-xs">Additional Details (Optional)</Label>
+              <Label className="text-gray-400 text-xs">{t('p2pBlock.additionalDetails')}</Label>
               <Textarea
-                placeholder="Settlement preferences, timeline, payment methods..."
+                placeholder={t('p2pBlock.detailsPlaceholder')}
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 className="bg-gray-800 border-gray-700 min-h-[80px]"
@@ -356,8 +358,7 @@ export function BlockTrade() {
             <div className="p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg flex items-start gap-2">
               <AlertTriangle className="w-4 h-4 text-yellow-400 mt-0.5" />
               <p className="text-xs text-yellow-400">
-                Block trades require KYC verification and may take 24-48 hours to process.
-                Our OTC desk will contact you via email.
+                {t('p2pBlock.kycWarning')}
               </p>
             </div>
           </div>
@@ -368,14 +369,14 @@ export function BlockTrade() {
               onClick={() => setShowRequestModal(false)}
               className="border-gray-700"
             >
-              Cancel
+              {t('p2p.cancel')}
             </Button>
             <Button
               className="bg-purple-600 hover:bg-purple-700"
               onClick={handleSubmitRequest}
               disabled={isSubmitting || !amount || parseFloat(amount) < minAmount}
             >
-              {isSubmitting ? 'Submitting...' : 'Submit Request'}
+              {isSubmitting ? t('p2p.submitting') : t('p2pBlock.submitRequest')}
             </Button>
           </DialogFooter>
         </DialogContent>

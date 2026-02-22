@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import Layout from '@/components/Layout';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
@@ -11,6 +12,7 @@ const CodeSnippet = ({ language, code }: { language: string, code: string }) => 
 );
 
 const Developers: React.FC = () => {
+  const { t } = useTranslation();
   const connectCode = `import { ApiPromise, WsProvider } from '@pezkuwi/api';
 
 // Connect to the PezkuwiChain node
@@ -38,40 +40,40 @@ const unsub = await api.tx.balances
     <Layout>
       <div className="container mx-auto px-4 py-8 text-white">
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold mb-2">Developer Portal</h1>
-          <p className="text-xl text-gray-400">Everything you need to build on PezkuwiChain.</p>
+          <h1 className="text-5xl font-bold mb-2">{t('developers.title')}</h1>
+          <p className="text-xl text-gray-400">{t('developers.subtitle')}</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {/* Quick Start Guide */}
           <div className="bg-gray-800 p-6 rounded-lg">
             <Book className="text-blue-400 mb-4" size={32} />
-            <h2 className="text-2xl font-bold mb-2">Quick Start Guide</h2>
-            <p className="text-gray-400 mb-4">Your first steps to building a dApp on PezkuwiChain.</p>
+            <h2 className="text-2xl font-bold mb-2">{t('developers.quickStart')}</h2>
+            <p className="text-gray-400 mb-4">{t('developers.quickStartDesc')}</p>
                           <ol className="list-decimal list-inside space-y-2">
-                            <li>Install the Pezkuwi.js extension.</li>
-                            <li>Get some testnet HEZ from the Faucet.</li>              <li>Clone a starter project from our GitHub.</li>
-              <li>Start building!</li>
+                            <li>{t('developers.step1')}</li>
+                            <li>{t('developers.step2')}</li>              <li>{t('developers.step3')}</li>
+              <li>{t('developers.step4')}</li>
             </ol>
           </div>
 
           {/* SDKs */}
           <div className="bg-gray-800 p-6 rounded-lg">
             <Download className="text-green-400 mb-4" size={32} />
-            <h2 className="text-2xl font-bold mb-2">SDK Downloads</h2>
-            <p className="text-gray-400 mb-4">Libraries to interact with the chain.</p>
+            <h2 className="text-2xl font-bold mb-2">{t('developers.sdkDownloads')}</h2>
+            <p className="text-gray-400 mb-4">{t('developers.sdkDesc')}</p>
             <div className="space-y-3">
               <a href="#" className="flex items-center text-blue-400 hover:text-white">
                 <Github className="mr-2" size={20} />
-                <span>Javascript/Typescript SDK</span>
+                <span>{t('developers.jsSdk')}</span>
               </a>
               <a href="#" className="flex items-center text-blue-400 hover:text-white">
                 <Github className="mr-2" size={20} />
-                <span>Rust SDK</span>
+                <span>{t('developers.rustSdk')}</span>
               </a>
                <a href="#" className="flex items-center text-blue-400 hover:text-white">
                 <Github className="mr-2" size={20} />
-                <span>Python SDK</span>
+                <span>{t('developers.pythonSdk')}</span>
               </a>
             </div>
           </div>
@@ -79,8 +81,8 @@ const unsub = await api.tx.balances
           {/* Community */}
           <div className="bg-gray-800 p-6 rounded-lg">
             <MessageCircle className="text-purple-400 mb-4" size={32} />
-            <h2 className="text-2xl font-bold mb-2">Community</h2>
-            <p className="text-gray-400 mb-4">Get help and connect with other developers.</p>
+            <h2 className="text-2xl font-bold mb-2">{t('developers.community')}</h2>
+            <p className="text-gray-400 mb-4">{t('developers.communityDesc')}</p>
              <div className="space-y-3">
               <a href="#" className="flex items-center text-blue-400 hover:text-white">
                 <Github className="mr-2" size={20} />
@@ -95,14 +97,14 @@ const unsub = await api.tx.balances
         </div>
 
         <div className="mt-12">
-          <h2 className="text-3xl font-bold text-center mb-8">Code Examples</h2>
+          <h2 className="text-3xl font-bold text-center mb-8">{t('developers.codeExamples')}</h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div>
-              <h3 className="text-xl font-semibold mb-2">Connect to the Network</h3>
+              <h3 className="text-xl font-semibold mb-2">{t('developers.connectNetwork')}</h3>
               <CodeSnippet language="javascript" code={connectCode} />
             </div>
             <div>
-              <h3 className="text-xl font-semibold mb-2">Make a Transfer</h3>
+              <h3 className="text-xl font-semibold mb-2">{t('developers.makeTransfer')}</h3>
               <CodeSnippet language="javascript" code={transferCode} />
             </div>
           </div>

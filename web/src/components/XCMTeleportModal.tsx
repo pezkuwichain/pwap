@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import {
   Dialog,
@@ -55,6 +56,7 @@ interface XCMTeleportModalProps {
 export const XCMTeleportModal: React.FC<XCMTeleportModalProps> = ({ isOpen, onClose }) => {
   const { api, assetHubApi, peopleApi, isApiReady, isAssetHubReady, isPeopleReady, selectedAccount } = usePezkuwi();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const [targetChain, setTargetChain] = useState<TargetChain>('asset-hub');
   const [amount, setAmount] = useState('');
@@ -66,6 +68,8 @@ export const XCMTeleportModal: React.FC<XCMTeleportModalProps> = ({ isOpen, onCl
   const [peopleBalance, setPeopleBalance] = useState<string>('0');
 
   const selectedChain = TARGET_CHAINS.find(c => c.id === targetChain)!;
+  const chainName = targetChain === 'asset-hub' ? t('xcm.assetHubName') : t('xcm.peopleName');
+  const chainDesc = targetChain === 'asset-hub' ? t('xcm.assetHubDesc') : t('xcm.peopleDesc');
 
   // Fetch balances
   useEffect(() => {
@@ -121,8 +125,8 @@ export const XCMTeleportModal: React.FC<XCMTeleportModalProps> = ({ isOpen, onCl
   const handleTeleport = async () => {
     if (!api || !isApiReady || !selectedAccount) {
       toast({
-        title: "Error",
-        description: "Wallet not connected",
+        title: t('common.error'),
+        description: t('xcm.walletNotConnected'),
         variant: "destructive",
       });
       return;
@@ -130,8 +134,8 @@ export const XCMTeleportModal: React.FC<XCMTeleportModalProps> = ({ isOpen, onCl
 
     if (!amount || parseFloat(amount) <= 0) {
       toast({
-        title: "Error",
-        description: "Please enter a valid amount",
+        title: t('common.error'),
+        description: t('xcm.invalidAmount'),
         variant: "destructive",
       });
       return;
@@ -142,8 +146,8 @@ export const XCMTeleportModal: React.FC<XCMTeleportModalProps> = ({ isOpen, onCl
 
     if (sendAmount > currentBalance) {
       toast({
-        title: "Error",
-        description: "Insufficient balance on Relay Chain",
+        title: t('common.error'),
+        description: t('xcm.insufficientBalance'),
         variant: "destructive",
       });
       return;
@@ -236,7 +240,7 @@ export const XCMTeleportModal: React.FC<XCMTeleportModalProps> = ({ isOpen, onCl
 
           if (status.isFinalized) {
             if (dispatchError) {
-              let errorMessage = 'Teleport failed';
+              let errorMessage = t('xcm.failed');
 
               if (dispatchError.isModule) {
                 const decoded = api.registry.findMetaError(dispatchError.asModule);
@@ -245,15 +249,15 @@ export const XCMTeleportModal: React.FC<XCMTeleportModalProps> = ({ isOpen, onCl
 
               setTxStatus('error');
               toast({
-                title: "Teleport Failed",
+                title: t('xcm.failed'),
                 description: errorMessage,
                 variant: "destructive",
               });
             } else {
               setTxStatus('success');
               toast({
-                title: "Teleport Successful!",
-                description: `${amount} HEZ teleported to ${selectedChain.name}!`,
+                title: t('xcm.success'),
+                description: t('xcm.sentTo', { amount, chain: chainName }),
               });
 
               // Reset after success
@@ -276,8 +280,8 @@ export const XCMTeleportModal: React.FC<XCMTeleportModalProps> = ({ isOpen, onCl
       setIsTransferring(false);
 
       toast({
-        title: "Teleport Failed",
-        description: error instanceof Error ? error.message : "An error occurred",
+        title: t('xcm.failed'),
+        description: error instanceof Error ? error.message : t('xcm.errorOccurred'),
         variant: "destructive",
       });
     }
@@ -306,21 +310,21 @@ export const XCMTeleportModal: React.FC<XCMTeleportModalProps> = ({ isOpen, onCl
         <DialogHeader>
           <DialogTitle className="text-white flex items-center gap-2">
             <img src="/tokens/HEZ.png" alt="HEZ" className="w-6 h-6 rounded-full" />
-            Teleport HEZ to Teyrchain
+            {t('xcm.title')}
           </DialogTitle>
           <DialogDescription className="text-gray-400">
-            Transfer HEZ from Pezkuwi (Relay Chain) to a teyrchain for transaction fees
+            {t('xcm.description')}
           </DialogDescription>
         </DialogHeader>
 
         {txStatus === 'success' ? (
           <div className="py-8 text-center">
             <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">Teleport Successful!</h3>
-            <p className="text-gray-400 mb-4">{amount} HEZ sent to {selectedChain.name}</p>
+            <h3 className="text-xl font-semibold text-white mb-2">{t('xcm.success')}</h3>
+            <p className="text-gray-400 mb-4">{t('xcm.sentTo', { amount, chain: chainName })}</p>
             {txHash && (
               <div className="bg-gray-800/50 rounded-lg p-3">
-                <div className="text-xs text-gray-400 mb-1">Transaction Hash</div>
+                <div className="text-xs text-gray-400 mb-1">{t('xcm.txHash')}</div>
                 <div className="text-white font-mono text-xs break-all">{txHash}</div>
               </div>
             )}
@@ -328,20 +332,20 @@ export const XCMTeleportModal: React.FC<XCMTeleportModalProps> = ({ isOpen, onCl
         ) : txStatus === 'error' ? (
           <div className="py-8 text-center">
             <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">Teleport Failed</h3>
-            <p className="text-gray-400">Please try again</p>
+            <h3 className="text-xl font-semibold text-white mb-2">{t('xcm.failed')}</h3>
+            <p className="text-gray-400">{t('xcm.pleaseTryAgain')}</p>
             <Button
               onClick={() => setTxStatus('idle')}
               className="mt-4 bg-gray-800 hover:bg-gray-700"
             >
-              Try Again
+              {t('xcm.tryAgain')}
             </Button>
           </div>
         ) : (
           <div className="space-y-4">
             {/* Target Chain Selection */}
             <div>
-              <Label className="text-white">Target Teyrchain</Label>
+              <Label className="text-white">{t('xcm.targetTeyrchain')}</Label>
               <Select value={targetChain} onValueChange={(v) => setTargetChain(v as TargetChain)}>
                 <SelectTrigger className="bg-gray-800 border-gray-700 text-white mt-2">
                   <SelectValue />
@@ -355,8 +359,8 @@ export const XCMTeleportModal: React.FC<XCMTeleportModalProps> = ({ isOpen, onCl
                     >
                       <div className="flex items-center gap-2">
                         <div className={`w-2 h-2 rounded-full bg-${chain.color}-500`}></div>
-                        <span>{chain.name}</span>
-                        <span className="text-gray-400 text-xs">- {chain.description}</span>
+                        <span>{chain.id === 'asset-hub' ? t('xcm.assetHubName') : t('xcm.peopleName')}</span>
+                        <span className="text-gray-400 text-xs">- {chain.id === 'asset-hub' ? t('xcm.assetHubDesc') : t('xcm.peopleDesc')}</span>
                       </div>
                     </SelectItem>
                   ))}
@@ -369,7 +373,7 @@ export const XCMTeleportModal: React.FC<XCMTeleportModalProps> = ({ isOpen, onCl
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                  <span className="text-sm text-gray-400">Pezkuwi (Relay Chain)</span>
+                  <span className="text-sm text-gray-400">{t('xcm.relayChain')}</span>
                 </div>
                 <span className="text-white font-mono">{relayBalance} HEZ</span>
               </div>
@@ -381,7 +385,7 @@ export const XCMTeleportModal: React.FC<XCMTeleportModalProps> = ({ isOpen, onCl
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
                   <div className={`w-2 h-2 rounded-full bg-${selectedChain.color}-500`}></div>
-                  <span className="text-sm text-gray-400">{selectedChain.name}</span>
+                  <span className="text-sm text-gray-400">{chainName}</span>
                 </div>
                 <span className="text-white font-mono">{getTargetBalance()} HEZ</span>
               </div>
@@ -391,13 +395,13 @@ export const XCMTeleportModal: React.FC<XCMTeleportModalProps> = ({ isOpen, onCl
             <div className={`bg-${selectedChain.color}-500/10 border border-${selectedChain.color}-500/30 rounded-lg p-3 flex gap-2`}>
               <Info className={`w-5 h-5 text-${selectedChain.color}-400 flex-shrink-0 mt-0.5`} />
               <p className={`text-${selectedChain.color}-400 text-sm`}>
-                {selectedChain.description}. Teleport at least 0.1 HEZ for fees.
+                {chainDesc}. {t('xcm.teleportMinHez')}
               </p>
             </div>
 
             {/* Amount Input */}
             <div>
-              <Label htmlFor="amount" className="text-white">Amount (HEZ)</Label>
+              <Label htmlFor="amount" className="text-white">{t('xcm.amountHez')}</Label>
               <Input
                 id="amount"
                 type="number"
@@ -428,7 +432,7 @@ export const XCMTeleportModal: React.FC<XCMTeleportModalProps> = ({ isOpen, onCl
             {txStatus === 'signing' && (
               <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3">
                 <p className="text-yellow-400 text-sm">
-                  Please sign the transaction in your wallet extension
+                  {t('xcm.signTransaction')}
                 </p>
               </div>
             )}
@@ -437,7 +441,7 @@ export const XCMTeleportModal: React.FC<XCMTeleportModalProps> = ({ isOpen, onCl
               <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3">
                 <p className="text-blue-400 text-sm flex items-center gap-2">
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  XCM Teleport in progress... This may take a moment.
+                  {t('xcm.inProgress')}
                 </p>
               </div>
             )}
@@ -451,11 +455,11 @@ export const XCMTeleportModal: React.FC<XCMTeleportModalProps> = ({ isOpen, onCl
               {isTransferring ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  {txStatus === 'signing' ? 'Waiting for signature...' : 'Processing XCM...'}
+                  {txStatus === 'signing' ? t('xcm.waitingSignature') : t('xcm.processingXcm')}
                 </>
               ) : (
                 <>
-                  Teleport HEZ to {selectedChain.name}
+                  {t('xcm.teleportTo', { chain: chainName })}
                   <ArrowDown className="w-4 h-4 ml-2" />
                 </>
               )}

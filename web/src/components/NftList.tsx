@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Award, Crown, Shield, Users } from 'lucide-react';
@@ -39,6 +40,7 @@ const getRoleBadgeColor = (role: string) => {
 };
 
 export const NftList: React.FC = () => {
+  const { t } = useTranslation();
   const { api, isApiReady, selectedAccount } = usePezkuwi();
   const [tikis, setTikis] = useState<TikiInfo[]>([]);
   const [loading, setLoading] = useState(true);
@@ -72,8 +74,8 @@ export const NftList: React.FC = () => {
     return (
       <Card className="bg-gray-900 border-gray-800">
         <CardHeader>
-          <CardTitle className="text-white">Your NFTs (Tikis)</CardTitle>
-          <CardDescription>Your Tiki collection</CardDescription>
+          <CardTitle className="text-white">{t('nftList.title')}</CardTitle>
+          <CardDescription>{t('nftList.description')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center py-12">
@@ -88,12 +90,12 @@ export const NftList: React.FC = () => {
     return (
       <Card className="bg-gray-900 border-gray-800">
         <CardHeader>
-          <CardTitle className="text-white">Your NFTs (Tikis)</CardTitle>
-          <CardDescription>Your Tiki collection</CardDescription>
+          <CardTitle className="text-white">{t('nftList.title')}</CardTitle>
+          <CardDescription>{t('nftList.description')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="text-center py-12">
-            <p className="text-red-500">{error}</p>
+            <p className="text-red-500">{t('nftList.error')}</p>
           </div>
         </CardContent>
       </Card>
@@ -104,15 +106,15 @@ export const NftList: React.FC = () => {
     return (
       <Card className="bg-gray-900 border-gray-800">
         <CardHeader>
-          <CardTitle className="text-white">Your NFTs (Tikis)</CardTitle>
-          <CardDescription>Your Tiki collection</CardDescription>
+          <CardTitle className="text-white">{t('nftList.title')}</CardTitle>
+          <CardDescription>{t('nftList.description')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="text-center py-12">
             <Award className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-            <p className="text-gray-500 mb-2">No NFTs yet</p>
+            <p className="text-gray-500 mb-2">{t('nftList.empty')}</p>
             <p className="text-gray-600 text-sm">
-              Complete your citizenship application to receive your Welati Tiki NFT
+              {t('nftList.emptyHelp')}
             </p>
           </div>
         </CardContent>
@@ -125,9 +127,9 @@ export const NftList: React.FC = () => {
       <CardHeader>
         <CardTitle className="text-white flex items-center gap-2">
           <Award className="w-5 h-5" />
-          Your NFTs (Tikiler)
+          {t('nftList.title')}
         </CardTitle>
-        <CardDescription>Your Tiki collection ({tikis.length} total)</CardDescription>
+        <CardDescription>{t('nftList.descriptionCount', { count: tikis.length })}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -146,7 +148,7 @@ export const NftList: React.FC = () => {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <h3 className="font-semibold text-white text-sm">
-                      Tiki #{tiki.id}
+                      {t('nftList.cardTitle', { id: tiki.id })}
                     </h3>
                     <Badge className={getRoleBadgeColor(tiki.role)}>
                       {tiki.role}

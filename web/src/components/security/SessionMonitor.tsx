@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -22,6 +23,7 @@ interface Session {
 }
 
 export function SessionMonitor() {
+  const { t } = useTranslation();
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -61,32 +63,32 @@ export function SessionMonitor() {
       if (error) throw error;
 
       toast({
-        title: 'Session Terminated',
-        description: 'The session has been successfully terminated.',
+        title: t('sessionMonitor.terminated'),
+        description: t('sessionMonitor.terminatedDesc'),
       });
       loadSessions();
     } catch {
       toast({
-        title: 'Error',
-        description: 'Failed to terminate session',
+        title: t('common.error'),
+        description: t('sessionMonitor.terminateFailed'),
         variant: 'destructive',
       });
     }
   };
 
   const getDeviceInfo = (userAgent: string) => {
-    if (userAgent.includes('Mobile')) return 'Mobile';
-    if (userAgent.includes('Tablet')) return 'Tablet';
-    return 'Desktop';
+    if (userAgent.includes('Mobile')) return t('sessionMonitor.mobile');
+    if (userAgent.includes('Tablet')) return t('sessionMonitor.tablet');
+    return t('sessionMonitor.desktop');
   };
 
   const getActivityStatus = (lastActivity: string) => {
     const diff = Date.now() - new Date(lastActivity).getTime();
     const minutes = Math.floor(diff / 60000);
     
-    if (minutes < 5) return { text: 'Active', variant: 'default' as const };
-    if (minutes < 30) return { text: 'Idle', variant: 'secondary' as const };
-    return { text: 'Inactive', variant: 'outline' as const };
+    if (minutes < 5) return { text: t('sessionMonitor.active'), variant: 'default' as const };
+    if (minutes < 30) return { text: t('sessionMonitor.idle'), variant: 'secondary' as const };
+    return { text: t('sessionMonitor.inactive'), variant: 'outline' as const };
   };
 
   return (
@@ -94,7 +96,7 @@ export function SessionMonitor() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Monitor className="h-5 w-5" />
-          Active Sessions
+          {t('sessionMonitor.title')}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -114,15 +116,15 @@ export function SessionMonitor() {
                       {session.is_active && (
                         <Badge variant="default">
                           <Shield className="h-3 w-3 mr-1" />
-                          Active
+                          {t('sessionMonitor.active')}
                         </Badge>
                       )}
                     </div>
                     <div className="text-sm text-muted-foreground space-y-1">
-                      <p>IP: {session.ip_address}</p>
-                      <p>Device: {getDeviceInfo(session.user_agent)}</p>
-                      <p>Started: {format(new Date(session.created_at), 'PPp')}</p>
-                      <p>Last Activity: {format(new Date(session.last_activity), 'PPp')}</p>
+                      <p>{t('sessionMonitor.ip')}: {session.ip_address}</p>
+                      <p>{t('sessionMonitor.device')}: {getDeviceInfo(session.user_agent)}</p>
+                      <p>{t('sessionMonitor.started')}: {format(new Date(session.created_at), 'PPp')}</p>
+                      <p>{t('sessionMonitor.lastActivity')}: {format(new Date(session.last_activity), 'PPp')}</p>
                     </div>
                   </div>
                   {session.is_active && (
@@ -132,7 +134,7 @@ export function SessionMonitor() {
                       onClick={() => terminateSession(session.id)}
                     >
                       <LogOut className="h-4 w-4 mr-1" />
-                      Terminate
+                      {t('sessionMonitor.terminate')}
                     </Button>
                   )}
                 </div>
@@ -142,7 +144,7 @@ export function SessionMonitor() {
           {sessions.length === 0 && !loading && (
             <div className="text-center py-8 text-muted-foreground">
               <Monitor className="h-12 w-12 mx-auto mb-2 opacity-50" />
-              <p>No active sessions</p>
+              <p>{t('sessionMonitor.empty')}</p>
             </div>
           )}
         </div>

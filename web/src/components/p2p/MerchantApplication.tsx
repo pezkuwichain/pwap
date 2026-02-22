@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabase';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -105,6 +106,7 @@ const TIER_COLORS = {
 };
 
 export function MerchantApplication() {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [requirements, setRequirements] = useState<TierRequirements[]>(DEFAULT_REQUIREMENTS);
   const [userStats, setUserStats] = useState<UserStats>({ completed_trades: 0, completion_rate: 0, volume_30d: 0 });
@@ -217,7 +219,7 @@ export function MerchantApplication() {
 
       if (data && data[0]) {
         if (data[0].success) {
-          toast.success('Application submitted successfully!');
+          toast.success(t('p2pMerchant.applicationSubmitted'));
           setApplyModalOpen(false);
           fetchData();
         } else {
@@ -226,7 +228,7 @@ export function MerchantApplication() {
       }
     } catch (error) {
       console.error('Error applying for tier:', error);
-      toast.error('Failed to submit application');
+      toast.error(t('p2pMerchant.applicationFailed'));
     } finally {
       setApplying(false);
     }
@@ -257,9 +259,9 @@ export function MerchantApplication() {
             <div>
               <CardTitle className="flex items-center gap-2">
                 <Crown className="h-5 w-5 text-kurdish-green" />
-                Your Merchant Status
+                {t('p2pMerchant.yourStatus')}
               </CardTitle>
-              <CardDescription>Current tier and application status</CardDescription>
+              <CardDescription>{t('p2pMerchant.currentTierStatus')}</CardDescription>
             </div>
             <MerchantTierBadge tier={currentTier.tier} size="lg" />
           </div>
@@ -268,15 +270,15 @@ export function MerchantApplication() {
           <div className="grid grid-cols-3 gap-4">
             <div className="text-center p-4 bg-background/50 rounded-lg">
               <p className="text-2xl font-bold">{userStats.completed_trades}</p>
-              <p className="text-sm text-muted-foreground">Completed Trades</p>
+              <p className="text-sm text-muted-foreground">{t('p2pMerchant.completedTrades')}</p>
             </div>
             <div className="text-center p-4 bg-background/50 rounded-lg">
               <p className="text-2xl font-bold">{userStats.completion_rate.toFixed(1)}%</p>
-              <p className="text-sm text-muted-foreground">Completion Rate</p>
+              <p className="text-sm text-muted-foreground">{t('p2pMerchant.completionRate')}</p>
             </div>
             <div className="text-center p-4 bg-background/50 rounded-lg">
               <p className="text-2xl font-bold">${userStats.volume_30d.toLocaleString()}</p>
-              <p className="text-sm text-muted-foreground">30-Day Volume</p>
+              <p className="text-sm text-muted-foreground">{t('p2pMerchant.thirtyDayVolume')}</p>
             </div>
           </div>
 
@@ -284,7 +286,7 @@ export function MerchantApplication() {
             <Alert className="mt-4 bg-yellow-500/10 border-yellow-500/30">
               <Clock className="h-4 w-4 text-yellow-500" />
               <AlertDescription className="text-yellow-500">
-                Your application for {currentTier.applied_for_tier?.toUpperCase()} tier is pending review.
+                {t('p2pMerchant.pendingReview', { tier: currentTier.applied_for_tier?.toUpperCase() })}
               </AlertDescription>
             </Alert>
           )}
@@ -316,7 +318,7 @@ export function MerchantApplication() {
               {/* Current tier indicator */}
               {isCurrentTier && (
                 <div className="absolute top-0 right-0 bg-kurdish-green text-white text-xs px-2 py-0.5 rounded-bl">
-                  Current
+                  {t('p2pMerchant.current')}
                 </div>
               )}
               {isPastTier && (
@@ -343,7 +345,7 @@ export function MerchantApplication() {
                   {/* Trades */}
                   <div>
                     <div className="flex justify-between text-xs mb-1">
-                      <span>Completed Trades</span>
+                      <span>{t('p2pMerchant.completedTradesReq')}</span>
                       <span>{userStats.completed_trades} / {tier.min_trades}</span>
                     </div>
                     <Progress
@@ -356,7 +358,7 @@ export function MerchantApplication() {
                   {tier.min_completion_rate > 0 && (
                     <div>
                       <div className="flex justify-between text-xs mb-1">
-                        <span>Completion Rate</span>
+                        <span>{t('p2pMerchant.completionRateReq')}</span>
                         <span>{userStats.completion_rate.toFixed(1)}% / {tier.min_completion_rate}%</span>
                       </div>
                       <Progress
@@ -370,7 +372,7 @@ export function MerchantApplication() {
                   {tier.min_volume_30d > 0 && (
                     <div>
                       <div className="flex justify-between text-xs mb-1">
-                        <span>30-Day Volume</span>
+                        <span>{t('p2pMerchant.volumeReq')}</span>
                         <span>${userStats.volume_30d.toLocaleString()} / ${tier.min_volume_30d.toLocaleString()}</span>
                       </div>
                       <Progress
@@ -383,20 +385,20 @@ export function MerchantApplication() {
 
                 {/* Benefits */}
                 <div className="pt-2 border-t border-border/50">
-                  <p className="text-xs text-muted-foreground mb-2">Benefits:</p>
+                  <p className="text-xs text-muted-foreground mb-2">{t('p2pMerchant.benefits')}</p>
                   <div className="space-y-1 text-xs">
                     <div className="flex items-center gap-1">
                       <CheckCircle2 className="h-3 w-3 text-kurdish-green" />
-                      <span>Up to {tier.max_pending_orders} pending orders</span>
+                      <span>{t('p2pMerchant.pendingOrders', { count: tier.max_pending_orders })}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <CheckCircle2 className="h-3 w-3 text-kurdish-green" />
-                      <span>Max ${tier.max_order_amount.toLocaleString()} per trade</span>
+                      <span>{t('p2pMerchant.maxPerTrade', { amount: tier.max_order_amount.toLocaleString() })}</span>
                     </div>
                     {tier.featured_ads_allowed > 0 && (
                       <div className="flex items-center gap-1">
                         <CheckCircle2 className="h-3 w-3 text-kurdish-green" />
-                        <span>{tier.featured_ads_allowed} featured ads</span>
+                        <span>{t('p2pMerchant.featuredAds', { count: tier.featured_ads_allowed })}</span>
                       </div>
                     )}
                   </div>
@@ -406,7 +408,7 @@ export function MerchantApplication() {
                 {tier.deposit_required > 0 && (
                   <div className="flex items-center gap-1 text-xs text-muted-foreground">
                     <Lock className="h-3 w-3" />
-                    <span>Requires {tier.deposit_required.toLocaleString()} {tier.deposit_token} deposit</span>
+                    <span>{t('p2pMerchant.depositRequired', { amount: tier.deposit_required.toLocaleString(), token: tier.deposit_token })}</span>
                   </div>
                 )}
 
@@ -417,7 +419,7 @@ export function MerchantApplication() {
                     size="sm"
                     onClick={() => openApplyModal(tier.tier)}
                   >
-                    Apply for Upgrade
+                    {t('p2pMerchant.applyForUpgrade')}
                     <ArrowRight className="h-4 w-4 ml-1" />
                   </Button>
                 )}
@@ -433,10 +435,10 @@ export function MerchantApplication() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-kurdish-green" />
-              Apply for {selectedTier?.toUpperCase()} Tier
+              {t('p2pMerchant.applyForTier', { tier: selectedTier?.toUpperCase() })}
             </DialogTitle>
             <DialogDescription>
-              Submit your application for tier upgrade. Our team will review it shortly.
+              {t('p2pMerchant.applyDescription')}
             </DialogDescription>
           </DialogHeader>
 
@@ -444,20 +446,20 @@ export function MerchantApplication() {
             <div className="space-y-4">
               {/* Requirements check */}
               <div className="bg-muted p-4 rounded-lg space-y-2">
-                <p className="font-medium text-sm">Requirements Met:</p>
+                <p className="font-medium text-sm">{t('p2pMerchant.requirementsMet')}</p>
                 {requirements.find(r => r.tier === selectedTier) && (
                   <>
                     <div className="flex items-center gap-2 text-sm">
                       <CheckCircle2 className="h-4 w-4 text-green-500" />
-                      <span>Completed trades requirement</span>
+                      <span>{t('p2pMerchant.completedTradesRequirement')}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <CheckCircle2 className="h-4 w-4 text-green-500" />
-                      <span>Completion rate requirement</span>
+                      <span>{t('p2pMerchant.completionRateRequirement')}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <CheckCircle2 className="h-4 w-4 text-green-500" />
-                      <span>30-day volume requirement</span>
+                      <span>{t('p2pMerchant.volumeRequirement')}</span>
                     </div>
                   </>
                 )}
@@ -468,12 +470,10 @@ export function MerchantApplication() {
                 <Alert>
                   <Info className="h-4 w-4" />
                   <AlertDescription>
-                    This tier requires a deposit of{' '}
-                    <strong>
-                      {requirements.find(r => r.tier === selectedTier)?.deposit_required.toLocaleString()}{' '}
-                      {requirements.find(r => r.tier === selectedTier)?.deposit_token}
-                    </strong>
-                    . You will be prompted to complete the deposit after approval.
+                    {t('p2pMerchant.depositInfo', {
+                      amount: requirements.find(r => r.tier === selectedTier)?.deposit_required.toLocaleString(),
+                      token: requirements.find(r => r.tier === selectedTier)?.deposit_token
+                    })}
                   </AlertDescription>
                 </Alert>
               )}
@@ -482,7 +482,7 @@ export function MerchantApplication() {
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setApplyModalOpen(false)}>
-              Cancel
+              {t('p2p.cancel')}
             </Button>
             <Button
               className="bg-kurdish-green hover:bg-kurdish-green-dark"
@@ -494,7 +494,7 @@ export function MerchantApplication() {
               ) : (
                 <Check className="h-4 w-4 mr-2" />
               )}
-              Submit Application
+              {t('p2pMerchant.submitApplication')}
             </Button>
           </DialogFooter>
         </DialogContent>

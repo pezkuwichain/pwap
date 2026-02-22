@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -35,6 +36,7 @@ import { Gavel } from 'lucide-react';
 
 export default function AdminPanel() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [users, setUsers] = useState<Array<Record<string, unknown>>>([]);
   const [adminRoles, setAdminRoles] = useState<Array<Record<string, unknown>>>([]);
   const [loading, setLoading] = useState(true);
@@ -137,7 +139,7 @@ export default function AdminPanel() {
   };
 
   if (loading) {
-    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+    return <div className="flex justify-center items-center h-screen">{t('admin.loading')}</div>;
   }
 
   return (
@@ -148,17 +150,17 @@ export default function AdminPanel() {
       >
         <ArrowLeft className="w-5 h-5" />
       </button>
-      <h1 className="text-3xl font-bold mb-8">Admin Panel</h1>
+      <h1 className="text-3xl font-bold mb-8">{t('admin.title')}</h1>
 
       <Tabs defaultValue="setup" className="space-y-4">
         <TabsList className="grid w-full grid-cols-11 h-auto">
           <TabsTrigger value="setup" className="flex-col h-auto py-3">
             <Shield className="h-4 w-4 mb-1" />
-            <span className="text-xs leading-tight">Commission<br/>Setup</span>
+            <span className="text-xs leading-tight">{t('admin.commissionSetup')}</span>
           </TabsTrigger>
           <TabsTrigger value="kyc" className="flex-col h-auto py-3">
             <Users className="h-4 w-4 mb-1" />
-            <span className="text-xs leading-tight">KYC<br/>Approvals</span>
+            <span className="text-xs leading-tight">{t('admin.kycApprovals')}</span>
           </TabsTrigger>
           <TabsTrigger value="voting" className="flex-col h-auto py-3">
             <Activity className="h-4 w-4 mb-1" />
@@ -213,17 +215,17 @@ export default function AdminPanel() {
         <TabsContent value="users">
           <Card>
             <CardHeader>
-              <CardTitle>User Management</CardTitle>
+              <CardTitle>{t('admin.userManagement')}</CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Username</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Verified</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Actions</TableHead>
+                    <TableHead>{t('admin.username')}</TableHead>
+                    <TableHead>{t('admin.email')}</TableHead>
+                    <TableHead>{t('admin.verified')}</TableHead>
+                    <TableHead>{t('admin.roleUser')}</TableHead>
+                    <TableHead>{t('admin.actions')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -233,7 +235,7 @@ export default function AdminPanel() {
                       <TableCell>{user.email}</TableCell>
                       <TableCell>
                         <Badge variant={user.email_verified ? 'default' : 'secondary'}>
-                          {user.email_verified ? 'Verified' : 'Unverified'}
+                          {user.email_verified ? t('admin.verified') : t('admin.unverified')}
                         </Badge>
                       </TableCell>
                       <TableCell>
@@ -245,10 +247,10 @@ export default function AdminPanel() {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="none">User</SelectItem>
-                            <SelectItem value="moderator">Moderator</SelectItem>
-                            <SelectItem value="admin">Admin</SelectItem>
-                            <SelectItem value="super_admin">Super Admin</SelectItem>
+                            <SelectItem value="none">{t('admin.roleUser')}</SelectItem>
+                            <SelectItem value="moderator">{t('admin.roleModerator')}</SelectItem>
+                            <SelectItem value="admin">{t('admin.roleAdmin')}</SelectItem>
+                            <SelectItem value="super_admin">{t('admin.roleSuperAdmin')}</SelectItem>
                           </SelectContent>
                         </Select>
                       </TableCell>
@@ -259,7 +261,7 @@ export default function AdminPanel() {
                           onClick={() => sendNotification(user.id)}
                         >
                           <Bell className="h-4 w-4 mr-1" />
-                          Notify
+                          {t('admin.notify')}
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -273,7 +275,7 @@ export default function AdminPanel() {
         <TabsContent value="roles">
           <Card>
             <CardHeader>
-              <CardTitle>Admin Roles</CardTitle>
+              <CardTitle>{t('admin.adminRoles')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -309,7 +311,7 @@ export default function AdminPanel() {
         <TabsContent value="activity">
           <Card>
             <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
+              <CardTitle>{t('admin.recentActivity')}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground">Activity logs will be displayed here</p>
@@ -319,32 +321,32 @@ export default function AdminPanel() {
         <TabsContent value="settings">
           <Card>
             <CardHeader>
-              <CardTitle>System Settings</CardTitle>
+              <CardTitle>{t('admin.systemSettings')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div>
-                  <Label>Maintenance Mode</Label>
+                  <Label>{t('admin.maintenanceMode')}</Label>
                   <Select defaultValue="off">
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="off">Off</SelectItem>
-                      <SelectItem value="on">On</SelectItem>
+                      <SelectItem value="off">{t('admin.off')}</SelectItem>
+                      <SelectItem value="on">{t('admin.on')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div>
-                  <Label>Registration</Label>
+                  <Label>{t('admin.registration')}</Label>
                   <Select defaultValue="open">
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="open">Open</SelectItem>
-                      <SelectItem value="closed">Closed</SelectItem>
-                      <SelectItem value="invite">Invite Only</SelectItem>
+                      <SelectItem value="open">{t('admin.on')}</SelectItem>
+                      <SelectItem value="closed">{t('admin.closed')}</SelectItem>
+                      <SelectItem value="invite">{t('admin.inviteOnly')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

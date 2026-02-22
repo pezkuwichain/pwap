@@ -1,18 +1,19 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-   
-  CheckCircle, 
-  XCircle, 
+import {
+
+  CheckCircle,
+  XCircle,
   Clock,
   Users,
   AlertTriangle,
-  
+
   DollarSign
 } from 'lucide-react';
 
@@ -36,6 +37,7 @@ interface Approval {
 }
 
 export const MultiSigApproval: React.FC = () => {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('pending');
   
   const [approvals] = useState<Approval[]>([
@@ -117,22 +119,22 @@ export const MultiSigApproval: React.FC = () => {
             </div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Clock className="h-4 w-4" />
-              <span>Deadline: {approval.deadline}</span>
+              <span>{t('msApproval.deadline', { date: approval.deadline })}</span>
             </div>
           </div>
 
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
-              <span>Approval Progress</span>
+              <span>{t('msApproval.approvalProgress')}</span>
               <span className="font-medium">
-                {approval.currentSignatures}/{approval.requiredSignatures} signatures
+                {t('msApproval.signatures', { current: approval.currentSignatures, required: approval.requiredSignatures })}
               </span>
             </div>
             <Progress value={progress} className="h-2" />
           </div>
 
           <div className="space-y-2">
-            <p className="text-sm font-medium">Signers</p>
+            <p className="text-sm font-medium">{t('msApproval.signers')}</p>
             <div className="flex flex-wrap gap-2">
               {approval.signers.map((signer, index) => (
                 <div key={index} className="flex items-center gap-2">
@@ -153,14 +155,14 @@ export const MultiSigApproval: React.FC = () => {
           <div className="flex gap-2">
             <Button className="flex-1" size="sm">
               <CheckCircle className="h-4 w-4 mr-2" />
-              Approve
+              {t('msApproval.approve')}
             </Button>
             <Button variant="outline" className="flex-1" size="sm">
               <XCircle className="h-4 w-4 mr-2" />
-              Reject
+              {t('msApproval.reject')}
             </Button>
             <Button variant="ghost" size="sm">
-              View Details
+              {t('msApproval.viewDetails')}
             </Button>
           </div>
         </CardContent>
@@ -176,7 +178,7 @@ export const MultiSigApproval: React.FC = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Pending Approvals</p>
+                <p className="text-sm text-muted-foreground">{t('msApproval.pendingApprovals')}</p>
                 <p className="text-2xl font-bold">{pendingApprovals.length}</p>
               </div>
               <Clock className="h-8 w-8 text-yellow-500" />
@@ -188,7 +190,7 @@ export const MultiSigApproval: React.FC = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Total Value</p>
+                <p className="text-sm text-muted-foreground">{t('msApproval.totalValue')}</p>
                 <p className="text-2xl font-bold">
                   ${(pendingApprovals.reduce((sum, a) => sum + a.amount, 0) / 1000).toFixed(0)}k
                 </p>
@@ -202,7 +204,7 @@ export const MultiSigApproval: React.FC = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Active Signers</p>
+                <p className="text-sm text-muted-foreground">{t('msApproval.activeSigners')}</p>
                 <p className="text-2xl font-bold">5</p>
               </div>
               <Users className="h-8 w-8 text-blue-500" />
@@ -214,7 +216,7 @@ export const MultiSigApproval: React.FC = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Expiring Soon</p>
+                <p className="text-sm text-muted-foreground">{t('msApproval.expiringSoon')}</p>
                 <p className="text-2xl font-bold">2</p>
               </div>
               <AlertTriangle className="h-8 w-8 text-orange-500" />
@@ -227,13 +229,13 @@ export const MultiSigApproval: React.FC = () => {
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="pending">
-            Pending ({pendingApprovals.length})
+            {t('msApproval.pending', { count: pendingApprovals.length })}
           </TabsTrigger>
           <TabsTrigger value="approved">
-            Approved ({approvedApprovals.length})
+            {t('msApproval.approved', { count: approvedApprovals.length })}
           </TabsTrigger>
           <TabsTrigger value="rejected">
-            Rejected ({rejectedApprovals.length})
+            {t('msApproval.rejected', { count: rejectedApprovals.length })}
           </TabsTrigger>
         </TabsList>
 
@@ -247,7 +249,7 @@ export const MultiSigApproval: React.FC = () => {
           {approvedApprovals.length === 0 ? (
             <Card>
               <CardContent className="p-6 text-center text-muted-foreground">
-                No approved proposals yet
+                {t('msApproval.noApproved')}
               </CardContent>
             </Card>
           ) : (
@@ -261,7 +263,7 @@ export const MultiSigApproval: React.FC = () => {
           {rejectedApprovals.length === 0 ? (
             <Card>
               <CardContent className="p-6 text-center text-muted-foreground">
-                No rejected proposals
+                {t('msApproval.noRejected')}
               </CardContent>
             </Card>
           ) : (

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { marked } from 'marked';
@@ -118,6 +119,7 @@ const SidebarNav: React.FC<{ structure: object, onLinkClick: () => void, onSDKCl
 
 
 const Docs: React.FC = () => {
+    const { t } = useTranslation();
     const { '*': splat } = useParams();
     const navigate = useNavigate();
     const [docStructure, setDocStructure] = useState<object | null>(null);
@@ -241,7 +243,7 @@ const Docs: React.FC = () => {
                                 }}
                             />
                         ) : (
-                            <p className="text-gray-400">Loading navigation...</p>
+                            <p className="text-gray-400">{t('docs.loadingNav')}</p>
                         )}
                     </div>
                 </aside>
@@ -258,8 +260,8 @@ const Docs: React.FC = () => {
                 {/* Main Content */}
                 <main className="w-full lg:w-3/4 lg:pl-8 flex flex-col">
                     <div className="prose prose-invert prose-headings:text-cyan-400 prose-a:text-blue-400 hover:prose-a:text-blue-300 prose-code:text-yellow-400 prose-pre:bg-gray-800 prose-pre:p-4 prose-pre:rounded-md max-w-none flex-1 min-h-0">
-                        {isLoading && <p className="text-gray-400">Loading...</p>}
-                        {error && <p className="text-red-400">Error: {error}</p>}
+                        {isLoading && <p className="text-gray-400">{t('docs.loading')}</p>}
+                        {error && <p className="text-red-400">{t('docs.error')} {error}</p>}
 
                         {/* SDK Embedded View - window in window style */}
                         {(showSDKLanding || isSDKRoute) && (
@@ -276,25 +278,25 @@ const Docs: React.FC = () => {
                             <div className="text-center py-12">
                                 <div className="mb-8">
                                     <div className="text-6xl mb-4">📖</div>
-                                    <h1 className="text-3xl font-bold text-white mb-2">PezkuwiChain Documentation</h1>
-                                    <p className="text-lg text-gray-400">Learn how to build on PezkuwiChain</p>
+                                    <h1 className="text-3xl font-bold text-white mb-2">{t('docs.title')}</h1>
+                                    <p className="text-lg text-gray-400">{t('docs.subtitle')}</p>
                                 </div>
                                 <p className="text-xl text-gray-400 mb-4">
-                                    Select a document from the sidebar to get started.
+                                    {t('docs.selectDoc')}
                                 </p>
                                 <div className="flex flex-wrap gap-4 justify-center mt-8">
                                     <Link to="/docs/GENESIS_ENGINEERING_PLAN" className="px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg transition-colors">
-                                        📋 Introduction
+                                        {t('docs.introduction')}
                                     </Link>
                                     <Link
                                         to="/docs/sdk"
                                         onClick={() => setShowSDKLanding(true)}
                                         className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
                                     >
-                                        📚 SDK Docs
+                                        {t('docs.sdkDocs')}
                                     </Link>
                                     <Link to="/docs/whitepaper/whitepaper" className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors">
-                                        📄 Whitepaper
+                                        {t('docs.whitepaper')}
                                     </Link>
                                 </div>
                             </div>

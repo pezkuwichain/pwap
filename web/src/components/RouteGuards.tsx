@@ -5,6 +5,7 @@
 
 import React, { useEffect, useState, ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -28,12 +29,152 @@ interface RouteGuardProps {
 // ========================================
 
 const LoadingGuard: React.FC = () => {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen bg-gray-950 flex items-center justify-center">
       <Card className="bg-gray-900 border-gray-800 p-8">
         <CardContent className="flex flex-col items-center gap-4">
           <Loader2 className="w-12 h-12 text-green-500 animate-spin" />
-          <p className="text-gray-400">Checking permissions...</p>
+          <p className="text-gray-400">{t('guards.checkingPermissions')}</p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+const WalletNotConnectedGuard: React.FC = () => {
+  const { t } = useTranslation();
+  return (
+    <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
+      <Card className="bg-gray-900 border-gray-800 max-w-md">
+        <CardContent className="p-8">
+          <div className="flex flex-col items-center gap-4 text-center">
+            <Users className="w-16 h-16 text-yellow-500" />
+            <h2 className="text-2xl font-bold text-white">{t('guards.walletNotConnected')}</h2>
+            <p className="text-gray-400">
+              {t('guards.connectWalletMessage')}
+            </p>
+            <Button
+              onClick={() => window.location.href = '/'}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              {t('common.goHome')}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+const ValidatorRequiredGuard: React.FC<{ fallbackPath: string }> = ({ fallbackPath }) => {
+  const { t } = useTranslation();
+  return (
+    <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
+      <Card className="bg-gray-900 border-gray-800 max-w-md">
+        <CardContent className="p-8">
+          <Alert className="bg-red-900/20 border-red-500">
+            <AlertCircle className="h-5 w-5 text-red-400" />
+            <AlertDescription className="text-gray-300">
+              <strong className="block mb-2">{t('guards.validatorRequired')}</strong>
+              {t('guards.validatorMessage')}
+              <div className="mt-4">
+                <Button
+                  onClick={() => window.location.href = fallbackPath}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  {t('common.goToStaking')}
+                </Button>
+              </div>
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+const EducatorRequiredGuard: React.FC<{ fallbackPath: string }> = ({ fallbackPath }) => {
+  const { t } = useTranslation();
+  return (
+    <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
+      <Card className="bg-gray-900 border-gray-800 max-w-md">
+        <CardContent className="p-8">
+          <Alert className="bg-red-900/20 border-red-500">
+            <GraduationCap className="h-5 w-5 text-red-400" />
+            <AlertDescription className="text-gray-300">
+              <strong className="block mb-2">{t('guards.educatorRequired')}</strong>
+              {t('guards.educatorMessage')}
+              <ul className="list-disc list-inside mt-2 text-sm">
+                <li>{t('guards.roles.perwerdekar')}</li>
+                <li>{t('guards.roles.mamoste')}</li>
+                <li>{t('guards.roles.wezirecand')}</li>
+                <li>{t('guards.roles.rewsenbir')}</li>
+              </ul>
+              <div className="mt-4">
+                <Button
+                  onClick={() => window.location.href = fallbackPath}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  {t('common.browseCourses')}
+                </Button>
+              </div>
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+const ModeratorRequiredGuard: React.FC<{ fallbackPath: string }> = ({ fallbackPath }) => {
+  const { t } = useTranslation();
+  return (
+    <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
+      <Card className="bg-gray-900 border-gray-800 max-w-md">
+        <CardContent className="p-8">
+          <Alert className="bg-red-900/20 border-red-500">
+            <Shield className="h-5 w-5 text-red-400" />
+            <AlertDescription className="text-gray-300">
+              <strong className="block mb-2">{t('guards.moderatorRequired')}</strong>
+              {t('guards.moderatorMessage')}
+              <div className="mt-4">
+                <Button
+                  onClick={() => window.location.href = fallbackPath}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  {t('common.goHome')}
+                </Button>
+              </div>
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+const AdminRequiredGuard: React.FC<{ fallbackPath: string }> = ({ fallbackPath }) => {
+  const { t } = useTranslation();
+  return (
+    <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
+      <Card className="bg-gray-900 border-gray-800 max-w-md">
+        <CardContent className="p-8">
+          <Alert className="bg-red-900/20 border-red-500">
+            <AlertCircle className="h-5 w-5 text-red-400" />
+            <AlertDescription className="text-gray-300">
+              <strong className="block mb-2">{t('guards.adminRequired')}</strong>
+              {t('guards.adminMessage')}
+              <div className="mt-4">
+                <Button
+                  onClick={() => window.location.href = fallbackPath}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  {t('common.goHome')}
+                </Button>
+              </div>
+            </AlertDescription>
+          </Alert>
         </CardContent>
       </Card>
     </div>
@@ -98,27 +239,7 @@ export const CitizenRoute: React.FC<RouteGuardProps> = ({
 
   // Not connected to wallet
   if (!selectedAccount) {
-    return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
-        <Card className="bg-gray-900 border-gray-800 max-w-md">
-          <CardContent className="p-8">
-            <div className="flex flex-col items-center gap-4 text-center">
-              <Users className="w-16 h-16 text-yellow-500" />
-              <h2 className="text-2xl font-bold text-white">Wallet Not Connected</h2>
-              <p className="text-gray-400">
-                Please connect your Pezkuwi wallet to access this feature.
-              </p>
-              <Button
-                onClick={() => window.location.href = '/'}
-                className="bg-green-600 hover:bg-green-700"
-              >
-                Go to Home
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
+    return <WalletNotConnectedGuard />;
   }
 
   // Not a citizen
@@ -192,29 +313,7 @@ export const ValidatorRoute: React.FC<RouteGuardProps> = ({
 
   // Not in validator pool
   if (isValidator === false) {
-    return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
-        <Card className="bg-gray-900 border-gray-800 max-w-md">
-          <CardContent className="p-8">
-            <Alert className="bg-red-900/20 border-red-500">
-              <AlertCircle className="h-5 w-5 text-red-400" />
-              <AlertDescription className="text-gray-300">
-                <strong className="block mb-2">Validator Access Required</strong>
-                You must be registered in the Validator Pool to access this feature.
-                <div className="mt-4">
-                  <Button
-                    onClick={() => window.location.href = fallbackPath}
-                    className="bg-green-600 hover:bg-green-700"
-                  >
-                    Go to Staking
-                  </Button>
-                </div>
-              </AlertDescription>
-            </Alert>
-          </CardContent>
-        </Card>
-      </div>
-    );
+    return <ValidatorRequiredGuard fallbackPath={fallbackPath} />;
   }
 
   // Authorized
@@ -283,35 +382,7 @@ export const EducatorRoute: React.FC<RouteGuardProps> = ({
 
   // Not an educator
   if (isEducator === false) {
-    return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
-        <Card className="bg-gray-900 border-gray-800 max-w-md">
-          <CardContent className="p-8">
-            <Alert className="bg-red-900/20 border-red-500">
-              <GraduationCap className="h-5 w-5 text-red-400" />
-              <AlertDescription className="text-gray-300">
-                <strong className="block mb-2">Educator Role Required</strong>
-                You need one of these Tiki roles to create courses:
-                <ul className="list-disc list-inside mt-2 text-sm">
-                  <li>Perwerdekar (Educator)</li>
-                  <li>Mamoste (Teacher)</li>
-                  <li>WezireCand (Education Minister)</li>
-                  <li>Rewsenbîr (Intellectual)</li>
-                </ul>
-                <div className="mt-4">
-                  <Button
-                    onClick={() => window.location.href = fallbackPath}
-                    className="bg-green-600 hover:bg-green-700"
-                  >
-                    Browse Courses
-                  </Button>
-                </div>
-              </AlertDescription>
-            </Alert>
-          </CardContent>
-        </Card>
-      </div>
-    );
+    return <EducatorRequiredGuard fallbackPath={fallbackPath} />;
   }
 
   // Authorized
@@ -380,29 +451,7 @@ export const ModeratorRoute: React.FC<RouteGuardProps> = ({
 
   // Not a moderator
   if (isModerator === false) {
-    return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
-        <Card className="bg-gray-900 border-gray-800 max-w-md">
-          <CardContent className="p-8">
-            <Alert className="bg-red-900/20 border-red-500">
-              <Shield className="h-5 w-5 text-red-400" />
-              <AlertDescription className="text-gray-300">
-                <strong className="block mb-2">Moderator Access Required</strong>
-                You need moderator privileges to access this feature.
-                <div className="mt-4">
-                  <Button
-                    onClick={() => window.location.href = fallbackPath}
-                    className="bg-green-600 hover:bg-green-700"
-                  >
-                    Go to Home
-                  </Button>
-                </div>
-              </AlertDescription>
-            </Alert>
-          </CardContent>
-        </Card>
-      </div>
-    );
+    return <ModeratorRequiredGuard fallbackPath={fallbackPath} />;
   }
 
   // Authorized
@@ -436,29 +485,7 @@ export const AdminRoute: React.FC<RouteGuardProps> = ({
 
   // Not admin
   if (!isAdmin) {
-    return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
-        <Card className="bg-gray-900 border-gray-800 max-w-md">
-          <CardContent className="p-8">
-            <Alert className="bg-red-900/20 border-red-500">
-              <AlertCircle className="h-5 w-5 text-red-400" />
-              <AlertDescription className="text-gray-300">
-                <strong className="block mb-2">Admin Access Required</strong>
-                You do not have permission to access the admin panel.
-                <div className="mt-4">
-                  <Button
-                    onClick={() => window.location.href = fallbackPath}
-                    className="bg-green-600 hover:bg-green-700"
-                  >
-                    Go to Home
-                  </Button>
-                </div>
-              </AlertDescription>
-            </Alert>
-          </CardContent>
-        </Card>
-      </div>
-    );
+    return <AdminRequiredGuard fallbackPath={fallbackPath} />;
   }
 
   // Authorized

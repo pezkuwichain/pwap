@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Checkbox } from '@/components/ui/checkbox';
 import { Loader2, AlertTriangle, CheckCircle, User, Users as UsersIcon, MapPin, Briefcase, Mail, Check, X, AlertCircle } from 'lucide-react';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
+import { useTranslation } from 'react-i18next';
 import { blake2AsHex } from '@pezkuwi/util-crypto';
 import type { CitizenshipData, Region, MaritalStatus, KycStatus } from '@pezkuwi/lib/citizenship-workflow';
 import { submitKycApplication, subscribeToKycApproval, getKycStatus, cancelApplication, confirmCitizenship } from '@pezkuwi/lib/citizenship-workflow';
@@ -25,6 +26,7 @@ type FormData = Omit<CitizenshipData, 'walletAddress' | 'timestamp'>;
 export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ onClose, referrerAddress }) => {
   // identityKyc pallet is on People Chain
   const { peopleApi, isPeopleReady, selectedAccount, connectWallet } = usePezkuwi();
+  const { t } = useTranslation();
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<FormData>();
 
   const [submitting, setSubmitting] = useState(false);
@@ -42,7 +44,7 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
 
   const handleConfirmCitizenship = async () => {
     if (!peopleApi || !isPeopleReady || !selectedAccount) {
-      setError('Please connect your wallet and wait for People Chain connection');
+      setError(t('newCitizen.connectWalletError'));
       return;
     }
 
@@ -52,7 +54,7 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
       const result = await confirmCitizenship(peopleApi, selectedAccount);
 
       if (!result.success) {
-        setError(result.error || 'Failed to confirm citizenship');
+        setError(result.error || t('newCitizen.failedToConfirm'));
         setConfirming(false);
         return;
       }
@@ -66,7 +68,7 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
       }, 2000);
     } catch (err) {
       if (import.meta.env.DEV) console.error('Confirmation error:', err);
-      setError((err as Error).message || 'Failed to confirm citizenship');
+      setError((err as Error).message || t('newCitizen.failedToConfirm'));
     } finally {
       setConfirming(false);
     }
@@ -74,7 +76,7 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
 
   const handleCancelApplication = async () => {
     if (!peopleApi || !isPeopleReady || !selectedAccount) {
-      setError('Please connect your wallet and wait for People Chain connection');
+      setError(t('newCitizen.connectWalletError'));
       return;
     }
 
@@ -84,7 +86,7 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
       const result = await cancelApplication(peopleApi, selectedAccount);
 
       if (!result.success) {
-        setError(result.error || 'Failed to cancel application');
+        setError(result.error || t('newCitizen.failedToCancel'));
         setCanceling(false);
         return;
       }
@@ -94,7 +96,7 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
       window.location.href = '/';
     } catch (err) {
       if (import.meta.env.DEV) console.error('Cancel error:', err);
-      setError((err as Error).message || 'Failed to cancel application');
+      setError((err as Error).message || t('newCitizen.failedToCancel'));
     } finally {
       setCanceling(false);
     }
@@ -168,12 +170,12 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
   const onSubmit = async (data: FormData) => {
     // identityKyc pallet is on People Chain
     if (!peopleApi || !isPeopleReady || !selectedAccount) {
-      setError('Please connect your wallet and wait for People Chain connection');
+      setError(t('newCitizen.connectWalletError'));
       return;
     }
 
     if (!agreed) {
-      setError('Please agree to the terms');
+      setError(t('newCitizen.agreeToTerms'));
       return;
     }
 
@@ -185,7 +187,7 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
       const status = await getKycStatus(peopleApi, selectedAccount.address);
 
       if (status === 'Approved') {
-        setError('Your citizenship is already approved! Redirecting to dashboard...');
+        setError(t('newCitizen.alreadyApproved'));
         setKycApproved(true);
         setTimeout(() => {
           onClose();
@@ -195,7 +197,7 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
       }
 
       if (status === 'PendingReferral' || status === 'ReferrerApproved') {
-        setError('You already have a pending citizenship application.');
+        setError(t('newCitizen.alreadyPending'));
         setCurrentStatus(status);
         return;
       }
@@ -245,7 +247,7 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
       );
 
       if (!result.success) {
-        setError(result.error || 'Failed to submit citizenship application');
+        setError(result.error || t('newCitizen.failedToSubmit'));
         setSubmitting(false);
         return;
       }
@@ -262,7 +264,7 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
 
     } catch (err) {
       if (import.meta.env.DEV) console.error('Submission error:', err);
-      setError('Failed to submit citizenship application');
+      setError(t('newCitizen.failedToSubmit'));
       setSubmitting(false);
     }
   };
@@ -271,14 +273,14 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Connect Wallet Required</CardTitle>
+          <CardTitle>{t('newCitizen.connectRequired')}</CardTitle>
           <CardDescription>
-            You need to connect your wallet to apply for citizenship
+            {t('newCitizen.connectDesc')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Button onClick={connectWallet} className="w-full">
-            Connect Wallet
+            {t('newCitizen.connectWallet')}
           </Button>
         </CardContent>
       </Card>
@@ -291,9 +293,9 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
       <Card>
         <CardContent className="pt-6 flex flex-col items-center justify-center py-8 space-y-4">
           <CheckCircle className="h-16 w-16 text-green-500 animate-pulse" />
-          <h3 className="text-lg font-semibold text-center text-green-500">KYC Approved!</h3>
+          <h3 className="text-lg font-semibold text-center text-green-500">{t('newCitizen.kycApproved')}</h3>
           <p className="text-sm text-muted-foreground text-center max-w-md">
-            Congratulations! Your citizenship application has been approved. Redirecting to citizen dashboard...
+            {t('newCitizen.kycApprovedDesc')}
           </p>
         </CardContent>
       </Card>
@@ -312,9 +314,9 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
           </div>
 
           <div className="text-center space-y-2">
-            <h3 className="text-lg font-semibold">Waiting for Referrer Approval</h3>
+            <h3 className="text-lg font-semibold">{t('newCitizen.waitingReferrer')}</h3>
             <p className="text-sm text-muted-foreground max-w-md">
-              Your application has been submitted. Your referrer needs to vouch for your identity before you can proceed.
+              {t('newCitizen.waitingReferrerDesc')}
             </p>
           </div>
 
@@ -324,8 +326,8 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
                 <Check className="h-5 w-5 text-green-600 dark:text-green-400" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-medium">Application Submitted</p>
-                <p className="text-xs text-muted-foreground">Transaction hash: {applicationHash || 'Confirmed'}</p>
+                <p className="text-sm font-medium">{t('newCitizen.appSubmitted')}</p>
+                <p className="text-xs text-muted-foreground">{t('newCitizen.txHash', { hash: applicationHash || 'Confirmed' })}</p>
               </div>
             </div>
 
@@ -334,8 +336,8 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
                 <Check className="h-5 w-5 text-green-600 dark:text-green-400" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-medium">1 HEZ Deposit Reserved</p>
-                <p className="text-xs text-muted-foreground">Deposit will be returned if you cancel</p>
+                <p className="text-sm font-medium">{t('newCitizen.depositReserved')}</p>
+                <p className="text-xs text-muted-foreground">{t('newCitizen.depositReturn')}</p>
               </div>
             </div>
 
@@ -344,8 +346,8 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
                 <Loader2 className="h-5 w-5 text-yellow-600 dark:text-yellow-400 animate-spin" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-medium">Waiting for Referrer</p>
-                <p className="text-xs text-muted-foreground">Your referrer must approve your identity</p>
+                <p className="text-sm font-medium">{t('newCitizen.waitingForReferrer')}</p>
+                <p className="text-xs text-muted-foreground">{t('newCitizen.referrerMustApprove')}</p>
               </div>
             </div>
           </div>
@@ -360,12 +362,12 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
               {canceling ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Canceling...
+                  {t('newCitizen.canceling')}
                 </>
               ) : (
                 <>
                   <X className="h-4 w-4 mr-2" />
-                  Cancel Application
+                  {t('newCitizen.cancelApplication')}
                 </>
               )}
             </Button>
@@ -379,7 +381,7 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
           )}
 
           <Button variant="outline" onClick={onClose} className="mt-2">
-            Close
+            {t('newCitizen.close')}
           </Button>
         </CardContent>
       </Card>
@@ -398,9 +400,9 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
           </div>
 
           <div className="text-center space-y-2">
-            <h3 className="text-lg font-semibold text-green-600">Referrer Approved!</h3>
+            <h3 className="text-lg font-semibold text-green-600">{t('newCitizen.referrerApproved')}</h3>
             <p className="text-sm text-muted-foreground max-w-md">
-              Your referrer has vouched for you. Confirm your citizenship to mint your Welati Tiki NFT.
+              {t('newCitizen.referrerApprovedDesc')}
             </p>
           </div>
 
@@ -410,7 +412,7 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
                 <Check className="h-5 w-5 text-green-600 dark:text-green-400" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-medium">Application Submitted</p>
+                <p className="text-sm font-medium">{t('newCitizen.appSubmitted')}</p>
               </div>
             </div>
 
@@ -419,7 +421,7 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
                 <Check className="h-5 w-5 text-green-600 dark:text-green-400" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-medium">Referrer Approved</p>
+                <p className="text-sm font-medium">{t('newCitizen.referrerApproved')}</p>
               </div>
             </div>
 
@@ -428,8 +430,8 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
                 <AlertCircle className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-medium">Confirm Citizenship</p>
-                <p className="text-xs text-muted-foreground">Click below to mint your Welati Tiki NFT</p>
+                <p className="text-sm font-medium">{t('newCitizen.confirmCitizenship')}</p>
+                <p className="text-xs text-muted-foreground">{t('newCitizen.confirmMintDesc')}</p>
               </div>
             </div>
           </div>
@@ -443,12 +445,12 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
               {confirming ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Confirming...
+                  {t('newCitizen.confirming')}
                 </>
               ) : (
                 <>
                   <Check className="h-4 w-4 mr-2" />
-                  Confirm Citizenship
+                  {t('newCitizen.confirmCitizenship')}
                 </>
               )}
             </Button>
@@ -462,7 +464,7 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
           )}
 
           <Button variant="outline" onClick={onClose} className="mt-2">
-            Close
+            {t('newCitizen.close')}
           </Button>
         </CardContent>
       </Card>
@@ -475,9 +477,9 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
       <Card>
         <CardContent className="pt-6 flex flex-col items-center justify-center py-8 space-y-4">
           <Loader2 className="h-16 w-16 text-cyan-500 animate-spin" />
-          <h3 className="text-lg font-semibold text-center">Processing Application...</h3>
+          <h3 className="text-lg font-semibold text-center">{t('newCitizen.processing')}</h3>
           <p className="text-sm text-muted-foreground text-center max-w-md">
-            Encrypting your data and submitting to the blockchain. Please wait...
+            {t('newCitizen.processingDesc')}
           </p>
         </CardContent>
       </Card>
@@ -491,32 +493,32 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <User className="h-5 w-5" />
-            Nasnameya Kesane (Personal Identity)
+            {t('newCitizen.personalIdentity')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="fullName">Navê Te (Your Full Name) *</Label>
+            <Label htmlFor="fullName">{t('newCitizen.fullName')} *</Label>
             <Input {...register('fullName', { required: true })} placeholder="e.g., Berzê Ronahî" />
-            {errors.fullName && <p className="text-xs text-red-500">Required</p>}
+            {errors.fullName && <p className="text-xs text-red-500">{t('newCitizen.required')}</p>}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="fatherName">Navê Bavê Te (Father&apos;s Name) *</Label>
+            <Label htmlFor="fatherName">{t('newCitizen.fatherName')} *</Label>
             <Input {...register('fatherName', { required: true })} placeholder="e.g., Şêrko" />
-            {errors.fatherName && <p className="text-xs text-red-500">Required</p>}
+            {errors.fatherName && <p className="text-xs text-red-500">{t('newCitizen.required')}</p>}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="grandfatherName">Navê Bavkalê Te (Grandfather&apos;s Name) *</Label>
+            <Label htmlFor="grandfatherName">{t('newCitizen.grandfatherName')} *</Label>
             <Input {...register('grandfatherName', { required: true })} placeholder="e.g., Welat" />
-            {errors.grandfatherName && <p className="text-xs text-red-500">Required</p>}
+            {errors.grandfatherName && <p className="text-xs text-red-500">{t('newCitizen.required')}</p>}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="motherName">Navê Dayika Te (Mother&apos;s Name) *</Label>
+            <Label htmlFor="motherName">{t('newCitizen.motherName')} *</Label>
             <Input {...register('motherName', { required: true })} placeholder="e.g., Gula" />
-            {errors.motherName && <p className="text-xs text-red-500">Required</p>}
+            {errors.motherName && <p className="text-xs text-red-500">{t('newCitizen.required')}</p>}
           </div>
         </CardContent>
       </Card>
@@ -524,13 +526,13 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
       {/* Tribal Affiliation */}
       <Card>
         <CardHeader>
-          <CardTitle>Eşîra Te (Tribal Affiliation)</CardTitle>
+          <CardTitle>{t('newCitizen.tribalAffiliation')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            <Label htmlFor="tribe">Eşîra Te (Your Tribe) *</Label>
+            <Label htmlFor="tribe">{t('newCitizen.yourTribe')} *</Label>
             <Input {...register('tribe', { required: true })} placeholder="e.g., Barzanî, Soran, Hewramî..." />
-            {errors.tribe && <p className="text-xs text-red-500">Required</p>}
+            {errors.tribe && <p className="text-xs text-red-500">{t('newCitizen.required')}</p>}
           </div>
         </CardContent>
       </Card>
@@ -540,23 +542,23 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <UsersIcon className="h-5 w-5" />
-            Rewşa Malbatê (Family Status)
+            {t('newCitizen.familyStatus')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label>Zewicî / Nezewicî (Married / Unmarried) *</Label>
+            <Label>{t('newCitizen.maritalStatus')} *</Label>
             <RadioGroup
               onValueChange={(value) => setValue('maritalStatus', value as MaritalStatus)}
               defaultValue="nezewici"
             >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="zewici" id="married" />
-                <Label htmlFor="married">Zewicî (Married)</Label>
+                <Label htmlFor="married">{t('newCitizen.married')}</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="nezewici" id="unmarried" />
-                <Label htmlFor="unmarried">Nezewicî (Unmarried)</Label>
+                <Label htmlFor="unmarried">{t('newCitizen.unmarried')}</Label>
               </div>
             </RadioGroup>
           </div>
@@ -564,7 +566,7 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
           {maritalStatus === 'zewici' && (
             <>
               <div className="space-y-2">
-                <Label htmlFor="childrenCount">Hejmara Zarokan (Number of Children)</Label>
+                <Label htmlFor="childrenCount">{t('newCitizen.childrenCount')}</Label>
                 <Input
                   type="number"
                   {...register('childrenCount', { valueAsNumber: true })}
@@ -575,17 +577,17 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
 
               {childrenCount && childrenCount > 0 && (
                 <div className="space-y-3">
-                  <Label>Navên Zarokan (Children&apos;s Names)</Label>
+                  <Label>{t('newCitizen.childrenNames')}</Label>
                   {Array.from({ length: childrenCount }).map((_, i) => (
                     <div key={i} className="grid grid-cols-2 gap-2">
                       <Input
                         {...register(`children.${i}.name` as const)}
-                        placeholder={`Zaroka ${i + 1} - Nav`}
+                        placeholder={t('newCitizen.childName', { number: i + 1 })}
                       />
                       <Input
                         type="number"
                         {...register(`children.${i}.birthYear` as const, { valueAsNumber: true })}
-                        placeholder="Sala Dayikbûnê"
+                        placeholder={t('newCitizen.birthYear')}
                         min="1900"
                         max={new Date().getFullYear()}
                       />
@@ -603,26 +605,26 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <MapPin className="h-5 w-5" />
-            Herêma Te (Your Region)
+            {t('newCitizen.yourRegion')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            <Label htmlFor="region">Ji Kuderê yî? (Where are you from?) *</Label>
+            <Label htmlFor="region">{t('newCitizen.whereAreYouFrom')} *</Label>
             <Select onValueChange={(value) => setValue('region', value as Region)}>
               <SelectTrigger>
-                <SelectValue placeholder="Herêmeke hilbijêre (Select a region)" />
+                <SelectValue placeholder={t('newCitizen.selectRegion')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="bakur">Bakur (North - Turkey/Türkiye)</SelectItem>
-                <SelectItem value="basur">Başûr (South - Iraq)</SelectItem>
-                <SelectItem value="rojava">Rojava (West - Syria)</SelectItem>
-                <SelectItem value="rojhelat">Rojhilat (East - Iran)</SelectItem>
-                <SelectItem value="kurdistan_a_sor">Kurdistan a Sor (Red Kurdistan - Armenia/Azerbaijan)</SelectItem>
-                <SelectItem value="diaspora">Diaspora (Living Abroad)</SelectItem>
+                <SelectItem value="bakur">{t('newCitizen.bakur')}</SelectItem>
+                <SelectItem value="basur">{t('newCitizen.basur')}</SelectItem>
+                <SelectItem value="rojava">{t('newCitizen.rojava')}</SelectItem>
+                <SelectItem value="rojhelat">{t('newCitizen.rojhelat')}</SelectItem>
+                <SelectItem value="kurdistan_a_sor">{t('newCitizen.sorKurdistan')}</SelectItem>
+                <SelectItem value="diaspora">{t('newCitizen.diaspora')}</SelectItem>
               </SelectContent>
             </Select>
-            {errors.region && <p className="text-xs text-red-500">Required</p>}
+            {errors.region && <p className="text-xs text-red-500">{t('newCitizen.required')}</p>}
           </div>
         </CardContent>
       </Card>
@@ -632,7 +634,7 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Briefcase className="h-5 w-5" />
-            Têkilî û Pîşe (Contact & Profession)
+            {t('newCitizen.contactProfession')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -646,13 +648,13 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
               {...register('email', { required: true, pattern: /^\S+@\S+$/i })}
               placeholder="example@email.com"
             />
-            {errors.email && <p className="text-xs text-red-500">Valid email required</p>}
+            {errors.email && <p className="text-xs text-red-500">{t('newCitizen.validEmailRequired')}</p>}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="profession">Pîşeya Te (Your Profession) *</Label>
+            <Label htmlFor="profession">{t('newCitizen.yourProfession')} *</Label>
             <Input {...register('profession', { required: true })} placeholder="e.g., Mamosta, Bijîşk, Xebatkar..." />
-            {errors.profession && <p className="text-xs text-red-500">Required</p>}
+            {errors.profession && <p className="text-xs text-red-500">{t('newCitizen.required')}</p>}
           </div>
         </CardContent>
       </Card>
@@ -660,15 +662,15 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
       {/* Referral */}
       <Card className="bg-purple-500/10 border-purple-500/30">
         <CardHeader>
-          <CardTitle>Koda Referral (Referral Code - Optional)</CardTitle>
+          <CardTitle>{t('newCitizen.referralCode')}</CardTitle>
           <CardDescription>
-            If you were invited by another citizen, enter their referral code
+            {t('newCitizen.referralDesc')}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Input {...register('referralCode')} placeholder="Referral code (optional)" className="placeholder:text-gray-500 placeholder:opacity-50" />
+          <Input {...register('referralCode')} placeholder={t('newCitizen.referralPlaceholder')} className="placeholder:text-gray-500 placeholder:opacity-50" />
           <p className="text-xs text-muted-foreground mt-2">
-            If empty, you will be automatically linked to the Founder (Satoshi Qazi Muhammed)
+            {t('newCitizen.referralNote')}
           </p>
         </CardContent>
       </Card>
@@ -679,9 +681,9 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
           <div className="flex items-start gap-3">
             <AlertTriangle className="h-5 w-5 text-yellow-500 mt-0.5 flex-shrink-0" />
             <div className="text-sm">
-              <p className="font-semibold text-yellow-600">1 HEZ Deposit Required</p>
+              <p className="font-semibold text-yellow-600">{t('newCitizen.depositRequired')}</p>
               <p className="text-muted-foreground mt-1">
-                A deposit of 1 HEZ will be reserved when you submit your application. It will be returned if you cancel your application.
+                {t('newCitizen.depositDesc')}
               </p>
             </div>
           </div>
@@ -694,11 +696,7 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
           <div className="flex items-start space-x-2">
             <Checkbox id="terms" checked={agreed} onCheckedChange={(checked) => setAgreed(checked as boolean)} />
             <Label htmlFor="terms" className="text-sm leading-relaxed cursor-pointer">
-              Ez pejirandim ku daneyên min bi awayekî ewle (ZK-proof) tên hilanîn û li ser blockchain-ê hash-a wan tê tomarkirin.
-              <br />
-              <span className="text-xs text-muted-foreground">
-                (I agree that my data is securely stored with ZK-proof and only its hash is recorded on the blockchain)
-              </span>
+              {t('newCitizen.termsAgree')}
             </Label>
           </div>
 
@@ -713,10 +711,10 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
             {submitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Şandina Daxwazê...
+                {t('newCitizen.submitting')}
               </>
             ) : (
-              'Şandina Daxwazê (Submit Application)'
+              t('newCitizen.submitApplication')
             )}
           </Button>
         </CardContent>

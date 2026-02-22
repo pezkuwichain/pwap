@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,6 +21,7 @@ interface MultiSigTransaction {
 }
 
 export const MultiSigWallet: React.FC = () => {
+  const { t } = useTranslation();
   const [amount, setAmount] = useState('');
   const [recipient, setRecipient] = useState('');
   const [description, setDescription] = useState('');
@@ -62,7 +64,7 @@ export const MultiSigWallet: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="bg-gray-900 border-gray-800">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm text-gray-400">Wallet Balance</CardTitle>
+            <CardTitle className="text-sm text-gray-400">{t('multisig.walletBalance')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-white">50,000 HEZ</div>
@@ -72,33 +74,33 @@ export const MultiSigWallet: React.FC = () => {
 
         <Card className="bg-gray-900 border-gray-800">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm text-gray-400">Required Signatures</CardTitle>
+            <CardTitle className="text-sm text-gray-400">{t('multisig.requiredSignatures')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-white">3 of 5</div>
-            <p className="text-xs text-gray-500 mt-1">Signers required</p>
+            <p className="text-xs text-gray-500 mt-1">{t('multisig.signersRequired')}</p>
           </CardContent>
         </Card>
 
         <Card className="bg-gray-900 border-gray-800">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm text-gray-400">Pending Transactions</CardTitle>
+            <CardTitle className="text-sm text-gray-400">{t('multisig.pendingTransactions')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-yellow-500">2</div>
-            <p className="text-xs text-gray-500 mt-1">Awaiting signatures</p>
+            <p className="text-xs text-gray-500 mt-1">{t('multisig.awaitingSignatures')}</p>
           </CardContent>
         </Card>
       </div>
 
       <Card className="bg-gray-900 border-gray-800">
         <CardHeader>
-          <CardTitle>Create Transaction</CardTitle>
+          <CardTitle>{t('multisig.createTransaction')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label>Recipient Address</Label>
+              <Label>{t('multisig.recipientAddress')}</Label>
               <Input
                 placeholder="0x..."
                 value={recipient}
@@ -107,7 +109,7 @@ export const MultiSigWallet: React.FC = () => {
               />
             </div>
             <div>
-              <Label>Amount</Label>
+              <Label>{t('multisig.amount')}</Label>
               <Input
                 type="number"
                 placeholder="0"
@@ -118,9 +120,9 @@ export const MultiSigWallet: React.FC = () => {
             </div>
           </div>
           <div>
-            <Label>Description</Label>
+            <Label>{t('multisig.description')}</Label>
             <Input
-              placeholder="Transaction purpose"
+              placeholder={t('multisig.txPurpose')}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="bg-gray-800 border-gray-700"
@@ -128,14 +130,14 @@ export const MultiSigWallet: React.FC = () => {
           </div>
           <Button onClick={handleCreateTransaction} className="bg-green-600 hover:bg-green-700">
             <Send className="w-4 h-4 mr-2" />
-            Create Transaction
+            {t('multisig.createTransaction')}
           </Button>
         </CardContent>
       </Card>
 
       <Card className="bg-gray-900 border-gray-800">
         <CardHeader>
-          <CardTitle>Pending Transactions</CardTitle>
+          <CardTitle>{t('multisig.pendingTransactions')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {transactions.map((tx) => (
@@ -155,14 +157,14 @@ export const MultiSigWallet: React.FC = () => {
                     <div className="flex items-center gap-4">
                       <Progress value={(tx.currentSignatures / tx.requiredSignatures) * 100} className="w-32" />
                       <span className="text-sm text-gray-400">
-                        {tx.currentSignatures}/{tx.requiredSignatures} signatures
+                        {t('multisig.signatures', { current: tx.currentSignatures, required: tx.requiredSignatures })}
                       </span>
                     </div>
                   </div>
                   {tx.status === 'pending' && (
                     <Button size="sm" onClick={() => handleSign(tx.id)} className="bg-blue-600 hover:bg-blue-700">
                       <Key className="w-4 h-4 mr-1" />
-                      Sign
+                      {t('multisig.sign')}
                     </Button>
                   )}
                 </div>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -9,6 +10,7 @@ import { COMMISSIONS } from '@/config/commissions';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export function CommissionSetupTab() {
+  const { t } = useTranslation();
   const { api, isApiReady, selectedAccount } = usePezkuwi();
   const { toast } = useToast();
 
@@ -50,8 +52,8 @@ export function CommissionSetupTab() {
   const handleAddMember = async () => {
     if (!api || !selectedAccount) {
       toast({
-        title: 'Wallet Not Connected',
-        description: 'Please connect your admin wallet',
+        title: t('commission.setup.walletNotConnected'),
+        description: t('commission.setup.connectWallet'),
         variant: 'destructive',
       });
       return;
@@ -59,8 +61,8 @@ export function CommissionSetupTab() {
 
     if (!newMemberAddress) {
       toast({
-        title: 'No Addresses',
-        description: 'Please enter at least one address',
+        title: t('commission.setup.noAddresses'),
+        description: t('commission.setup.enterAtLeastOne'),
         variant: 'destructive',
       });
       return;
@@ -79,8 +81,8 @@ export function CommissionSetupTab() {
 
       if (newAddresses.length === 0) {
         toast({
-          title: 'No Valid Addresses',
-          description: 'Please enter at least one valid address',
+          title: t('commission.setup.noValidAddresses'),
+          description: t('commission.setup.enterValidAddress'),
           variant: 'destructive',
         });
         setProcessing(false);
@@ -96,8 +98,8 @@ export function CommissionSetupTab() {
 
       if (newMembers.length === 0) {
         toast({
-          title: 'Already Members',
-          description: 'All addresses are already commission members',
+          title: t('commission.setup.alreadyInitialized'),
+          description: t('commission.setup.alreadyInitialized'),
           variant: 'destructive',
         });
         setProcessing(false);
@@ -125,21 +127,20 @@ export function CommissionSetupTab() {
           ({ status, dispatchError }) => {
             if (status.isInBlock || status.isFinalized) {
               if (dispatchError) {
-                let errorMessage = 'Failed to add member';
+                let errorMessage = t('commission.setup.addMemberFailed');
                 if (dispatchError.isModule) {
                   const decoded = api.registry.findMetaError(dispatchError.asModule);
                   errorMessage = `${decoded.section}.${decoded.name}`;
                 }
                 toast({
-                  title: 'Error',
+                  title: t('commission.setup.addMemberFailed'),
                   description: errorMessage,
                   variant: 'destructive',
                 });
                 reject(new Error(errorMessage));
               } else {
                 toast({
-                  title: 'Success',
-                  description: `${newMembers.length} member(s) added successfully!`,
+                  title: t('commission.setup.addMemberSuccess', { count: newMembers.length }),
                 });
                 setNewMemberAddress('');
                 setTimeout(() => checkSetup(), 2000);
@@ -152,8 +153,8 @@ export function CommissionSetupTab() {
     } catch (error) {
       if (import.meta.env.DEV) console.error('Error adding member:', error);
       toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to add member',
+        title: t('commission.setup.addMemberFailed'),
+        description: error instanceof Error ? error.message : t('commission.setup.addMemberFailed'),
         variant: 'destructive',
       });
     } finally {
@@ -164,8 +165,8 @@ export function CommissionSetupTab() {
   const handleInitializeCommission = async () => {
     if (!api || !selectedAccount) {
       toast({
-        title: 'Wallet Not Connected',
-        description: 'Please connect your admin wallet',
+        title: t('commission.setup.walletNotConnected'),
+        description: t('commission.setup.connectWallet'),
         variant: 'destructive',
       });
       return;
@@ -209,7 +210,7 @@ export function CommissionSetupTab() {
 
                 if (import.meta.env.DEV) console.error('Setup error:', errorMessage);
                 toast({
-                  title: 'Setup Failed',
+                  title: t('commission.setup.setupFailed'),
                   description: errorMessage,
                   variant: 'destructive',
                 });
@@ -225,8 +226,7 @@ export function CommissionSetupTab() {
               if (sudidEvent) {
                 if (import.meta.env.DEV) console.log('✅ KYC Commission initialized');
                 toast({
-                  title: 'Success',
-                  description: 'KYC Commission initialized successfully!',
+                  title: t('commission.setup.kycInitialized'),
                 });
                 resolve();
               } else {
@@ -238,8 +238,8 @@ export function CommissionSetupTab() {
         ).catch((error) => {
           if (import.meta.env.DEV) console.error('Failed to sign and send:', error);
           toast({
-            title: 'Transaction Error',
-            description: error instanceof Error ? error.message : 'Failed to submit transaction',
+            title: t('commission.setup.transactionError'),
+            description: error instanceof Error ? error.message : t('commission.setup.failedToSubmit'),
             variant: 'destructive',
           });
           reject(error);
@@ -252,8 +252,8 @@ export function CommissionSetupTab() {
     } catch (error) {
       if (import.meta.env.DEV) console.error('Error initializing commission:', error);
       toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to initialize commission',
+        title: t('commission.setup.setupFailed'),
+        description: error instanceof Error ? error.message : t('commission.setup.failedToInitialize'),
         variant: 'destructive',
       });
     } finally {
@@ -267,7 +267,7 @@ export function CommissionSetupTab() {
         <CardContent className="pt-6">
           <div className="flex items-center justify-center py-12">
             <Loader2 className="w-8 h-8 animate-spin text-cyan-500" />
-            <span className="ml-3 text-gray-400">Connecting to blockchain...</span>
+            <span className="ml-3 text-gray-400">{t('commission.setup.connecting')}</span>
           </div>
         </CardContent>
       </Card>
@@ -281,7 +281,7 @@ export function CommissionSetupTab() {
           <Alert>
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
-              Please connect your admin wallet to manage commission setup.
+              {t('commission.setup.connectWalletAlert')}
             </AlertDescription>
           </Alert>
         </CardContent>
@@ -296,7 +296,7 @@ export function CommissionSetupTab() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Shield className="w-5 h-5" />
-            KYC Commission Setup
+            {t('commission.setup.statusLabel')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -308,28 +308,28 @@ export function CommissionSetupTab() {
             <>
               <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg border border-gray-700">
                 <div>
-                  <p className="font-medium">Commission Status</p>
+                  <p className="font-medium">{t('commission.setup.statusLabel')}</p>
                   <p className="text-sm text-gray-400 mt-1">
                     {setupComplete
-                      ? 'Commission is initialized and ready'
-                      : 'Commission needs to be initialized'}
+                      ? t('commission.setup.initialized')
+                      : t('commission.setup.notInitialized')}
                   </p>
                 </div>
                 {setupComplete ? (
                   <Badge className="bg-green-600">
                     <CheckCircle className="w-3 h-3 mr-1" />
-                    Ready
+                    {t('commission.setup.ready')}
                   </Badge>
                 ) : (
                   <Badge variant="secondary">
                     <AlertTriangle className="w-3 h-3 mr-1" />
-                    Not Initialized
+                    {t('commission.setup.notInitializedBadge')}
                   </Badge>
                 )}
               </div>
 
               <div className="space-y-2">
-                <p className="text-sm font-medium text-gray-400">Proxy Account</p>
+                <p className="text-sm font-medium text-gray-400">{t('commission.setup.proxyAccount')}</p>
                 <div className="p-3 bg-gray-800/50 rounded border border-gray-700">
                   <p className="font-mono text-xs">{COMMISSIONS.KYC.proxyAccount}</p>
                 </div>
@@ -337,11 +337,11 @@ export function CommissionSetupTab() {
 
               <div className="space-y-2">
                 <p className="text-sm font-medium text-gray-400">
-                  Commission Members ({commissionMembers.length})
+                  {t('commission.setup.membersLabel')} ({commissionMembers.length})
                 </p>
                 {commissionMembers.length === 0 ? (
                   <div className="p-4 bg-gray-800/50 rounded border border-gray-700 text-center text-gray-500">
-                    No members yet
+                    {t('commission.setup.noMembers')}
                   </div>
                 ) : (
                   <div className="space-y-2">
@@ -352,7 +352,7 @@ export function CommissionSetupTab() {
                       >
                         <p className="font-mono text-xs">{member}</p>
                         {member === COMMISSIONS.KYC.proxyAccount && (
-                          <Badge className="mt-2 bg-cyan-600 text-xs">KYC Proxy</Badge>
+                          <Badge className="mt-2 bg-cyan-600 text-xs">{t('commission.setup.kycProxy')}</Badge>
                         )}
                       </div>
                     ))}
@@ -364,34 +364,33 @@ export function CommissionSetupTab() {
                 <Alert className="bg-yellow-500/10 border-yellow-500/30">
                   <AlertTriangle className="h-4 w-4" />
                   <AlertDescription>
-                    <strong>Required:</strong> Initialize the commission before members can join.
-                    This requires sudo privileges.
+                    {t('commission.setup.initRequired')}
                   </AlertDescription>
                 </Alert>
               )}
 
               {setupComplete && (
                 <div className="space-y-3">
-                  <p className="text-sm font-medium text-gray-400">Add Members</p>
+                  <p className="text-sm font-medium text-gray-400">{t('commission.setup.addMembersTitle')}</p>
                   <div className="flex gap-2 mb-2">
                     <Button
                       onClick={() => {
                         // Get wallet addresses from Pezkuwi.js extension
                         // For now, show instruction
                         toast({
-                          title: 'Get Addresses',
-                          description: 'Copy addresses from Pezkuwi.js and paste below',
+                          title: t('commission.setup.getAddresses'),
+                          description: t('commission.setup.getAddressesToast'),
                         });
                       }}
                       variant="outline"
                       size="sm"
                     >
-                      How to get addresses
+                      {t('commission.setup.howToGetAddresses')}
                     </Button>
                   </div>
                   <div className="flex flex-col gap-2">
                     <textarea
-                      placeholder="Member addresses, one per line"
+                      placeholder={t('commission.setup.addressPlaceholder')}
                       value={newMemberAddress}
                       onChange={(e) => setNewMemberAddress(e.target.value)}
                       className="flex-1 font-mono text-sm p-3 bg-gray-800 border border-gray-700 rounded min-h-[120px] placeholder:text-gray-500 placeholder:opacity-50"
@@ -406,7 +405,7 @@ export function CommissionSetupTab() {
                       ) : (
                         <Plus className="w-4 h-4 mr-2" />
                       )}
-                      {processing ? 'Adding Members...' : 'Add Members'}
+                      {processing ? t('commission.setup.addingMembers') : t('commission.setup.addMembersBtn')}
                     </Button>
                   </div>
                 </div>
@@ -421,17 +420,17 @@ export function CommissionSetupTab() {
                   {processing ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Initializing...
+                      {t('commission.setup.initializing')}
                     </>
                   ) : setupComplete ? (
                     <>
                       <CheckCircle className="w-4 h-4 mr-2" />
-                      Already Initialized
+                      {t('commission.setup.alreadyInitialized')}
                     </>
                   ) : (
                     <>
                       <Plus className="w-4 h-4 mr-2" />
-                      Initialize Commission
+                      {t('commission.setup.initializeBtn')}
                     </>
                   )}
                 </Button>
@@ -441,7 +440,7 @@ export function CommissionSetupTab() {
                   variant="outline"
                   disabled={loading}
                 >
-                  Refresh
+                  {t('commission.setup.refresh')}
                 </Button>
               </div>
             </>
@@ -452,22 +451,13 @@ export function CommissionSetupTab() {
       {/* Instructions */}
       <Card>
         <CardHeader>
-          <CardTitle>Setup Instructions</CardTitle>
+          <CardTitle>{t('commission.setup.instructionsTitle')}</CardTitle>
         </CardHeader>
         <CardContent>
           <ol className="list-decimal list-inside space-y-2 text-sm text-gray-400">
-            <li>
-              <strong className="text-white">Initialize Commission</strong> - Add proxy to
-              DynamicCommissionCollective (requires sudo)
-            </li>
-            <li>
-              <strong className="text-white">Join Commission</strong> - Members add proxy rights
-              via Commission Voting tab
-            </li>
-            <li>
-              <strong className="text-white">Start Voting</strong> - Create proposals and vote on
-              KYC applications
-            </li>
+            <li>{t('commission.setup.step1')}</li>
+            <li>{t('commission.setup.step2')}</li>
+            <li>{t('commission.setup.step3')}</li>
           </ol>
         </CardContent>
       </Card>

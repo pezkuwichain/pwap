@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -18,6 +19,7 @@ import { approveReferral, getPendingApprovalsForReferrer } from '@pezkuwi/lib/ci
 import type { PendingApproval } from '@pezkuwi/lib/citizenship-workflow';
 
 export function KycApprovalTab() {
+  const { t } = useTranslation();
   // identityKyc pallet is on People Chain - use peopleApi
   const { peopleApi, isPeopleReady, selectedAccount, connectWallet } = usePezkuwi();
   const { toast } = useToast();
@@ -52,8 +54,8 @@ export function KycApprovalTab() {
     } catch (error) {
       if (import.meta.env.DEV) console.error('Error loading pending applications:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to load pending applications',
+        title: t('kyc.approval.failed'),
+        description: t('kyc.approval.failedDesc'),
         variant: 'destructive',
       });
     } finally {
@@ -64,8 +66,8 @@ export function KycApprovalTab() {
   const handleApproveReferral = async (applicantAddress: string) => {
     if (!peopleApi || !selectedAccount) {
       toast({
-        title: 'Wallet Not Connected',
-        description: 'Please connect your wallet first',
+        title: t('kyc.approval.walletNotConnected'),
+        description: t('kyc.approval.connectFirst'),
         variant: 'destructive',
       });
       return;
@@ -77,16 +79,16 @@ export function KycApprovalTab() {
 
       if (!result.success) {
         toast({
-          title: 'Approval Failed',
-          description: result.error || 'Failed to approve referral',
+          title: t('kyc.approval.failed'),
+          description: result.error || t('kyc.approval.failedDesc'),
           variant: 'destructive',
         });
         return;
       }
 
       toast({
-        title: 'Referral Approved',
-        description: `Successfully vouched for ${applicantAddress.slice(0, 8)}...${applicantAddress.slice(-4)}`,
+        title: t('kyc.approval.success'),
+        description: t('kyc.approval.successDesc', { address: `${applicantAddress.slice(0, 8)}...${applicantAddress.slice(-4)}` }),
       });
 
       // Reload after approval
@@ -94,8 +96,8 @@ export function KycApprovalTab() {
     } catch (error) {
       if (import.meta.env.DEV) console.error('Error approving referral:', error);
       toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to approve referral',
+        title: t('kyc.approval.failed'),
+        description: error instanceof Error ? error.message : t('kyc.approval.failedDesc'),
         variant: 'destructive',
       });
     } finally {
@@ -109,7 +111,7 @@ export function KycApprovalTab() {
         <CardContent className="pt-6">
           <div className="flex items-center justify-center py-12">
             <Loader2 className="w-8 h-8 animate-spin text-cyan-500" />
-            <span className="ml-3 text-gray-400">Connecting to People Chain...</span>
+            <span className="ml-3 text-gray-400">{t('kyc.approval.connecting')}</span>
           </div>
         </CardContent>
       </Card>
@@ -123,9 +125,9 @@ export function KycApprovalTab() {
           <Alert>
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
-              Please connect your wallet to view referral approvals.
+              {t('kyc.approval.noWallet')}
               <Button onClick={connectWallet} variant="outline" className="ml-4">
-                Connect Wallet
+                {t('kyc.approval.connectWallet')}
               </Button>
             </AlertDescription>
           </Alert>
@@ -137,9 +139,9 @@ export function KycApprovalTab() {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Pending Referral Approvals</CardTitle>
+        <CardTitle>{t('kyc.approval.title')}</CardTitle>
         <Button onClick={loadPendingApplications} variant="outline" size="sm" disabled={loading}>
-          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Refresh'}
+          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : t('kyc.approval.refresh')}
         </Button>
       </CardHeader>
       <CardContent>
@@ -150,21 +152,21 @@ export function KycApprovalTab() {
         ) : pendingApps.length === 0 ? (
           <div className="text-center py-12">
             <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
-            <p className="text-gray-400">No pending approvals</p>
-            <p className="text-sm text-gray-600 mt-2">No one is waiting for your referral approval</p>
+            <p className="text-gray-400">{t('kyc.approval.noApprovals')}</p>
+            <p className="text-sm text-gray-600 mt-2">{t('kyc.approval.noApprovalsHelp')}</p>
           </div>
         ) : (
           <>
             <p className="text-sm text-muted-foreground mb-4">
-              These users listed you as their referrer. Approve to vouch for their identity.
+              {t('kyc.approval.helpText')}
             </p>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Applicant</TableHead>
-                  <TableHead>Identity Hash</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead>{t('kyc.approval.tableApplicant')}</TableHead>
+                  <TableHead>{t('kyc.approval.tableIdentityHash')}</TableHead>
+                  <TableHead>{t('kyc.approval.tableStatus')}</TableHead>
+                  <TableHead>{t('kyc.approval.tableActions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -186,7 +188,7 @@ export function KycApprovalTab() {
                     <TableCell>
                       <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">
                         <Clock className="w-3 h-3 mr-1" />
-                        Pending Referral
+                        {t('kyc.approval.statusPending')}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -201,7 +203,7 @@ export function KycApprovalTab() {
                         ) : (
                           <CheckCircle className="w-4 h-4 mr-2" />
                         )}
-                        Approve
+                        {t('kyc.approval.approve')}
                       </Button>
                     </TableCell>
                   </TableRow>

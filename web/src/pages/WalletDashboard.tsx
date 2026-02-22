@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { AccountBalance } from '@/components/AccountBalance';
 import { TransferModal } from '@/components/TransferModal';
@@ -26,6 +27,7 @@ interface Transaction {
 }
 
 const WalletDashboard: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { api, isApiReady, peopleApi, isPeopleReady, selectedAccount } = usePezkuwi();
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
@@ -240,14 +242,14 @@ const WalletDashboard: React.FC = () => {
       const injector = await web3FromAddress(selectedAccount.address);
       const result = await recordTrustScore(peopleApi, selectedAccount.address, injector.signer);
       if (result.success) {
-        toast.success('Trust score recorded for this epoch');
+        toast.success(t('wallet.trustScoreRecorded'));
         const rewards = await getPezRewards(peopleApi, selectedAccount.address);
         setPezRewards(rewards);
       } else {
-        toast.error(result.error || 'Failed to record trust score');
+        toast.error(result.error || t('wallet.failedToRecordScore'));
       }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to record trust score');
+      toast.error(error instanceof Error ? error.message : t('wallet.failedToRecordScore'));
     } finally {
       setIsRecordingScore(false);
     }
@@ -261,14 +263,14 @@ const WalletDashboard: React.FC = () => {
       const result = await claimPezReward(peopleApi, selectedAccount.address, epochIndex, injector.signer);
       if (result.success) {
         const rewardInfo = pezRewards?.claimableRewards.find(r => r.epoch === epochIndex);
-        toast.success(`${rewardInfo?.amount || '0'} PEZ reward claimed!`);
+        toast.success(t('wallet.rewardClaimed', { amount: rewardInfo?.amount || '0' }));
         const rewards = await getPezRewards(peopleApi, selectedAccount.address);
         setPezRewards(rewards);
       } else {
-        toast.error(result.error || 'Failed to claim reward');
+        toast.error(result.error || t('wallet.failedToClaimReward'));
       }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to claim reward');
+      toast.error(error instanceof Error ? error.message : t('wallet.failedToClaimReward'));
     } finally {
       setIsClaimingReward(false);
     }
@@ -287,8 +289,8 @@ const WalletDashboard: React.FC = () => {
     return (
       <div className="min-h-screen bg-gray-950 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-white mb-4">Wallet Not Connected</h2>
-          <p className="text-gray-400 mb-6">Please connect your wallet to view your dashboard</p>
+          <h2 className="text-2xl font-bold text-white mb-4">{t('wallet.notConnected')}</h2>
+          <p className="text-gray-400 mb-6">{t('wallet.connectToView')}</p>
         </div>
       </div>
     );
@@ -304,8 +306,8 @@ const WalletDashboard: React.FC = () => {
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">Wallet Dashboard</h1>
-          <p className="text-gray-400">Manage your HEZ and PEZ tokens</p>
+          <h1 className="text-3xl font-bold text-white mb-2">{t('wallet.dashboard')}</h1>
+          <p className="text-gray-400">{t('wallet.manageTokens')}</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -314,7 +316,7 @@ const WalletDashboard: React.FC = () => {
             {/* Recent Activity */}
             <div className="bg-gray-900 border border-gray-800 rounded-lg p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-white">Recent Activity</h3>
+                <h3 className="text-lg font-semibold text-white">{t('wallet.recentActivity')}</h3>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -329,12 +331,12 @@ const WalletDashboard: React.FC = () => {
               {isLoadingRecent ? (
                 <div className="text-center py-8">
                   <RefreshCw className="w-10 h-10 text-gray-600 mx-auto mb-3 animate-spin" />
-                  <p className="text-gray-400 text-sm">Loading...</p>
+                  <p className="text-gray-400 text-sm">{t('wallet.loading')}</p>
                 </div>
               ) : recentTransactions.length === 0 ? (
                 <div className="text-center py-8">
                   <History className="w-10 h-10 text-gray-600 mx-auto mb-3" />
-                  <p className="text-gray-500 text-sm">No recent transactions</p>
+                  <p className="text-gray-500 text-sm">{t('wallet.noRecentTx')}</p>
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -356,7 +358,7 @@ const WalletDashboard: React.FC = () => {
                           )}
                           <div>
                             <div className="text-white font-semibold text-xs">
-                              {isIncoming(tx) ? 'Received' : 'Sent'}
+                              {isIncoming(tx) ? t('wallet.received') : t('wallet.sent')}
                             </div>
                             <div className="text-xs text-gray-500">
                               #{tx.blockNumber}
@@ -380,7 +382,7 @@ const WalletDashboard: React.FC = () => {
                 size="sm"
                 className="mt-3 w-full border-gray-700 hover:bg-gray-800 text-xs"
               >
-                View All
+                {t('wallet.viewAll')}
               </Button>
             </div>
 
@@ -397,7 +399,7 @@ const WalletDashboard: React.FC = () => {
                 className="bg-gradient-to-r from-green-600 to-yellow-400 hover:from-green-700 hover:to-yellow-500 h-24 flex flex-col items-center justify-center"
               >
                 <ArrowUpRight className="w-6 h-6 mb-2" />
-                <span>Send</span>
+                <span>{t('wallet.send')}</span>
               </Button>
 
               <Button
@@ -406,7 +408,7 @@ const WalletDashboard: React.FC = () => {
                 className="border-gray-700 hover:bg-gray-800 h-24 flex flex-col items-center justify-center"
               >
                 <ArrowDownRight className="w-6 h-6 mb-2" />
-                <span>Receive</span>
+                <span>{t('wallet.receive')}</span>
               </Button>
 
               <Button
@@ -415,7 +417,7 @@ const WalletDashboard: React.FC = () => {
                 className="border-gray-700 hover:bg-gray-800 h-24 flex flex-col items-center justify-center"
               >
                 <History className="w-6 h-6 mb-2" />
-                <span>History</span>
+                <span>{t('wallet.history')}</span>
               </Button>
             </div>
 
@@ -425,7 +427,7 @@ const WalletDashboard: React.FC = () => {
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
                     <Coins className="w-5 h-5 text-orange-500" />
-                    <h3 className="text-lg font-semibold text-white">PEZ Rewards</h3>
+                    <h3 className="text-lg font-semibold text-white">{t('wallet.pezRewards')}</h3>
                   </div>
                   <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                     pezRewards.epochStatus === 'Open'
@@ -434,7 +436,7 @@ const WalletDashboard: React.FC = () => {
                       ? 'bg-orange-500/20 text-orange-400'
                       : 'bg-gray-500/20 text-gray-400'
                   }`}>
-                    Epoch {pezRewards.currentEpoch} - {pezRewards.epochStatus === 'Open' ? 'Open' : pezRewards.epochStatus === 'ClaimPeriod' ? 'Claim Period' : 'Closed'}
+                    {t('wallet.epoch', { epoch: pezRewards.currentEpoch, status: pezRewards.epochStatus === 'Open' ? t('wallet.epochOpen') : pezRewards.epochStatus === 'ClaimPeriod' ? t('wallet.epochClaimPeriod') : t('wallet.epochClosed') })}
                   </span>
                 </div>
 
@@ -442,8 +444,8 @@ const WalletDashboard: React.FC = () => {
                 {pezRewards.epochStatus === 'Open' && (
                   pezRewards.hasRecordedThisEpoch ? (
                     <div className="flex items-center gap-2 mb-3">
-                      <span className="text-green-400 font-semibold">Score: {pezRewards.userScoreCurrentEpoch}</span>
-                      <span className="text-xs text-gray-500">Recorded for this epoch</span>
+                      <span className="text-green-400 font-semibold">{t('wallet.score', { score: pezRewards.userScoreCurrentEpoch })}</span>
+                      <span className="text-xs text-gray-500">{t('wallet.recordedForEpoch')}</span>
                     </div>
                   ) : (
                     <Button
@@ -455,9 +457,9 @@ const WalletDashboard: React.FC = () => {
                       {isRecordingScore ? (
                         <>
                           <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-                          Recording...
+                          {t('wallet.recording')}
                         </>
-                      ) : 'Record Trust Score'}
+                      ) : t('wallet.recordTrustScore')}
                     </Button>
                   )
                 )}
@@ -468,24 +470,24 @@ const WalletDashboard: React.FC = () => {
                     <div className="text-2xl font-bold text-orange-500">
                       {parseFloat(pezRewards.totalClaimable).toFixed(2)} PEZ
                     </div>
-                    <p className="text-xs text-gray-500 mb-2">{pezRewards.claimableRewards.length} epoch(s) to claim</p>
+                    <p className="text-xs text-gray-500 mb-2">{t('wallet.epochsToClaim', { count: pezRewards.claimableRewards.length })}</p>
                     {pezRewards.claimableRewards.map((reward) => (
                       <div key={reward.epoch} className="flex items-center justify-between bg-gray-800/50 rounded-lg px-3 py-2">
-                        <span className="text-xs text-gray-400">Epoch {reward.epoch}: {reward.amount} PEZ</span>
+                        <span className="text-xs text-gray-400">{t('wallet.epochReward', { epoch: reward.epoch, amount: reward.amount })}</span>
                         <Button
                           size="sm"
                           onClick={() => handleClaimReward(reward.epoch)}
                           disabled={isClaimingReward}
                           className="h-6 text-xs px-3 bg-orange-600 hover:bg-orange-700"
                         >
-                          {isClaimingReward ? '...' : 'Claim'}
+                          {isClaimingReward ? '...' : t('wallet.claim')}
                         </Button>
                       </div>
                     ))}
                   </div>
                 ) : (
                   !pezRewards.hasRecordedThisEpoch && pezRewards.epochStatus !== 'Open' && (
-                    <div className="text-gray-500 text-sm">No claimable rewards</div>
+                    <div className="text-gray-500 text-sm">{t('wallet.noClaimableRewards')}</div>
                   )
                 )}
               </div>

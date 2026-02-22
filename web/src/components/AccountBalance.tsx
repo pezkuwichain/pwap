@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Wallet, TrendingUp, RefreshCw, Award, Plus, Coins, Send, Shield, Users, Fuel, Lock } from 'lucide-react';
@@ -21,6 +22,7 @@ interface TokenBalance {
 }
 
 export const AccountBalance: React.FC = () => {
+  const { t } = useTranslation();
   const { api, assetHubApi, peopleApi, isApiReady, isAssetHubReady, isPeopleReady, selectedAccount } = usePezkuwi();
   const [balance, setBalance] = useState<{
     free: string;
@@ -526,7 +528,7 @@ export const AccountBalance: React.FC = () => {
   // Add custom token handler
   const handleAddToken = async (assetId: number) => {
     if (customTokenIds.includes(assetId)) {
-      alert('Token already added!');
+      alert(t('balance.tokenAlreadyAdded'));
       return;
     }
 
@@ -683,7 +685,7 @@ export const AccountBalance: React.FC = () => {
         <CardContent className="pt-6">
           <div className="text-center text-gray-400">
             <Wallet className="w-12 h-12 mx-auto mb-3 opacity-50" />
-            <p>Connect your wallet to view balance</p>
+            <p>{t('balance.connectWallet')}</p>
           </div>
         </CardContent>
       </Card>
@@ -700,9 +702,9 @@ export const AccountBalance: React.FC = () => {
               <img src="/tokens/HEZ.png" alt="HEZ" className="w-10 h-10 rounded-full" />
               <div>
                 <CardTitle className="text-lg font-medium text-gray-300">
-                  HEZ Balance
+                  {t('balance.hezBalance')}
                 </CardTitle>
-                <div className="text-xs text-gray-500">Multi-Chain Overview</div>
+                <div className="text-xs text-gray-500">{t('balance.multiChain')}</div>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -714,9 +716,9 @@ export const AccountBalance: React.FC = () => {
                 title="Send HEZ to teyrcahins for transaction fees"
               >
                 <Fuel className="w-4 h-4 mr-1" />
-                Add Fee
+                {t('balance.addFee')}
                 <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs bg-gray-800 text-gray-200 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
-                  Send HEZ to Asset Hub / People Chain
+                  {t('balance.sendHezToTeyrcahins')}
                 </span>
               </Button>
               <Button
@@ -741,8 +743,8 @@ export const AccountBalance: React.FC = () => {
               </div>
               <div className="text-sm text-gray-400">
                 {hezUsdPrice > 0
-                  ? `≈ $${((parseFloat(balance.total) + parseFloat(assetHubHezBalance) + parseFloat(peopleHezBalance)) * hezUsdPrice).toFixed(2)} USD (Toplam)`
-                  : 'Price loading...'}
+                  ? t('balance.usdTotal', { amount: ((parseFloat(balance.total) + parseFloat(assetHubHezBalance) + parseFloat(peopleHezBalance)) * hezUsdPrice).toFixed(2) })
+                  : t('balance.priceLoading')}
               </div>
             </div>
 
@@ -753,11 +755,11 @@ export const AccountBalance: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                    <span className="text-sm text-gray-300">Pezkuwi (Relay Chain)</span>
+                    <span className="text-sm text-gray-300">{t('balance.relayChain')}</span>
                   </div>
                   <div className="text-right">
                     <div className="text-lg font-semibold text-white">{balance.free} HEZ</div>
-                    <div className="text-xs text-gray-500">Reserved: {balance.reserved}</div>
+                    <div className="text-xs text-gray-500">{t('balance.reserved', { amount: balance.reserved })}</div>
                   </div>
                 </div>
               </div>
@@ -767,13 +769,13 @@ export const AccountBalance: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                    <span className="text-sm text-gray-300">Pezkuwi Asset Hub</span>
-                    <span className="text-xs text-gray-500">(PEZ fees)</span>
+                    <span className="text-sm text-gray-300">{t('balance.assetHub')}</span>
+                    <span className="text-xs text-gray-500">{t('balance.pezFees')}</span>
                   </div>
                   <div className="text-right">
                     <div className="text-lg font-semibold text-white">{assetHubHezBalance} HEZ</div>
                     {parseFloat(assetHubHezBalance) < 0.1 && (
-                      <div className="text-xs text-yellow-400">⚠️ Low for fees</div>
+                      <div className="text-xs text-yellow-400">{`⚠️ ${t('balance.lowForFees')}`}</div>
                     )}
                   </div>
                 </div>
@@ -784,13 +786,13 @@ export const AccountBalance: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-purple-500"></div>
-                    <span className="text-sm text-gray-300">Pezkuwi People</span>
-                    <span className="text-xs text-gray-500">(Identity fees)</span>
+                    <span className="text-sm text-gray-300">{t('balance.peopleChain')}</span>
+                    <span className="text-xs text-gray-500">{t('balance.identityFees')}</span>
                   </div>
                   <div className="text-right">
                     <div className="text-lg font-semibold text-white">{peopleHezBalance} HEZ</div>
                     {parseFloat(peopleHezBalance) < 0.1 && (
-                      <div className="text-xs text-yellow-400">⚠️ Low for fees</div>
+                      <div className="text-xs text-yellow-400">{`⚠️ ${t('balance.lowForFees')}`}</div>
                     )}
                   </div>
                 </div>
@@ -807,7 +809,7 @@ export const AccountBalance: React.FC = () => {
             <div className="flex items-center gap-3 min-w-0">
               <img src="/tokens/PEZ.png" alt="PEZ" className="w-10 h-10 rounded-full flex-shrink-0" />
               <CardTitle className="text-lg font-medium text-gray-300 whitespace-nowrap">
-                PEZ Balance
+                {t('balance.pezBalance')}
               </CardTitle>
             </div>
             <Button
@@ -818,9 +820,9 @@ export const AccountBalance: React.FC = () => {
               title="Send HEZ to Asset Hub for transaction fees"
             >
               <Fuel className="w-4 h-4 mr-1" />
-              Add Fees
+              {t('balance.addFees')}
               <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs bg-gray-800 text-gray-200 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                Send HEZ for PEZ transfer fees
+                {t('balance.sendHezForPezFees')}
               </span>
             </Button>
           </div>
@@ -834,10 +836,10 @@ export const AccountBalance: React.FC = () => {
             <div className="text-sm text-gray-400">
               {pezUsdPrice > 0
                 ? `≈ $${(parseFloat(pezBalance) * pezUsdPrice).toFixed(2)} USD`
-                : 'Price loading...'}
+                : t('balance.priceLoading')}
             </div>
             <div className="text-xs text-gray-500 mt-1">
-              Governance & Rewards Token (on Asset Hub)
+              {t('balance.govRewardsToken')}
             </div>
           </div>
         </CardContent>
@@ -849,7 +851,7 @@ export const AccountBalance: React.FC = () => {
           <div className="flex items-center gap-3">
             <img src="/tokens/USDT.png" alt="USDT" className="w-10 h-10 rounded-full" />
             <CardTitle className="text-lg font-medium text-gray-300">
-              USDT Balance
+              {t('balance.usdtBalance')}
             </CardTitle>
           </div>
         </CardHeader>
@@ -860,7 +862,7 @@ export const AccountBalance: React.FC = () => {
               <span className="text-2xl text-gray-400 ml-2">USDT</span>
             </div>
             <div className="text-sm text-gray-400">
-              ≈ ${usdtBalance} USD • Stablecoin (on Asset Hub)
+              {t('balance.stablecoinOnAssetHub', { amount: usdtBalance })}
             </div>
           </div>
         </CardContent>
@@ -873,7 +875,7 @@ export const AccountBalance: React.FC = () => {
             <div className="flex items-center gap-3">
               <img src="/tokens/HEZ.png" alt="wHEZ" className="w-10 h-10 rounded-full" />
               <CardTitle className="text-lg font-medium text-gray-300">
-                wHEZ Balance
+                {t('balance.whezBalance')}
               </CardTitle>
             </div>
           </CardHeader>
@@ -886,7 +888,7 @@ export const AccountBalance: React.FC = () => {
               <div className="text-sm text-gray-400">
                 {hezUsdPrice > 0
                   ? `≈ $${(parseFloat(whezBalance) * hezUsdPrice).toFixed(2)} USD`
-                  : 'Price loading...'} • Wrapped HEZ (on Asset Hub)
+                  : t('balance.priceLoading')} • {t('balance.wrappedHezOnAssetHub')}
               </div>
             </div>
           </CardContent>
@@ -900,7 +902,7 @@ export const AccountBalance: React.FC = () => {
             <div className="flex items-center gap-3">
               <img src="/tokens/LP.png" alt="LP" className="w-10 h-10 rounded-full" />
               <CardTitle className="text-lg font-medium text-gray-300">
-                LP Token Positions
+                {t('balance.lpTokenPositions')}
               </CardTitle>
             </div>
           </CardHeader>
@@ -918,7 +920,7 @@ export const AccountBalance: React.FC = () => {
                   <div className="flex items-center gap-3">
                     <div className="text-right">
                       <div className="text-lg font-semibold text-white">{lp.balance}</div>
-                      <div className="text-xs text-gray-500">Pool Share</div>
+                      <div className="text-xs text-gray-500">{t('balance.poolShare')}</div>
                     </div>
                     <Button
                       size="sm"
@@ -929,7 +931,7 @@ export const AccountBalance: React.FC = () => {
                       className="bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium hover:from-purple-500 hover:to-pink-500 border-0"
                     >
                       <Lock className="w-3 h-3 mr-1" />
-                      Stake
+                      {t('balance.stake')}
                     </Button>
                   </div>
                 </div>
@@ -943,7 +945,7 @@ export const AccountBalance: React.FC = () => {
       <Card className="bg-gray-900 border-gray-800">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg font-medium text-gray-300">
-            Account Information
+            {t('balance.accountInfo')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -951,13 +953,13 @@ export const AccountBalance: React.FC = () => {
             {/* Account Details */}
             <div className="space-y-2 pb-4 border-b border-gray-800">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-400">Account</span>
+                <span className="text-gray-400">{t('balance.account')}</span>
                 <span className="text-white font-mono">
                   {selectedAccount.meta.name || 'Unnamed'}
                 </span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-400">Address</span>
+                <span className="text-gray-400">{t('balance.address')}</span>
                 <span className="text-white font-mono text-xs">
                   {selectedAccount.address.slice(0, 8)}...{selectedAccount.address.slice(-8)}
                 </span>
@@ -966,9 +968,9 @@ export const AccountBalance: React.FC = () => {
 
             {/* Scores from Blockchain */}
             <div>
-              <div className="text-xs text-gray-400 mb-3">Scores from Blockchain</div>
+              <div className="text-xs text-gray-400 mb-3">{t('balance.scoresFromBlockchain')}</div>
               {loadingScores ? (
-                <div className="text-sm text-gray-400">Loading scores...</div>
+                <div className="text-sm text-gray-400">{t('balance.loadingScores')}</div>
               ) : (
                 <div className="space-y-3">
                   {/* Score Grid */}
@@ -976,28 +978,28 @@ export const AccountBalance: React.FC = () => {
                     <div className="bg-gray-800/50 rounded-lg p-3">
                       <div className="flex items-center gap-1 mb-1">
                         <Shield className="h-3 w-3 text-purple-400" />
-                        <span className="text-xs text-gray-400">Trust</span>
+                        <span className="text-xs text-gray-400">{t('balance.trust')}</span>
                       </div>
                       <span className="text-base font-bold text-purple-400">{scores.trustScore}</span>
                     </div>
                     <div className="bg-gray-800/50 rounded-lg p-3">
                       <div className="flex items-center gap-1 mb-1">
                         <Users className="h-3 w-3 text-cyan-400" />
-                        <span className="text-xs text-gray-400">Referral</span>
+                        <span className="text-xs text-gray-400">{t('balance.referral')}</span>
                       </div>
                       <span className="text-base font-bold text-cyan-400">{scores.referralScore}</span>
                     </div>
                     <div className="bg-gray-800/50 rounded-lg p-3">
                       <div className="flex items-center gap-1 mb-1">
                         <TrendingUp className="h-3 w-3 text-green-400" />
-                        <span className="text-xs text-gray-400">Staking</span>
+                        <span className="text-xs text-gray-400">{t('balance.staking')}</span>
                       </div>
                       <span className="text-base font-bold text-green-400">{scores.stakingScore}</span>
                     </div>
                     <div className="bg-gray-800/50 rounded-lg p-3">
                       <div className="flex items-center gap-1 mb-1">
                         <Award className="h-3 w-3 text-pink-400" />
-                        <span className="text-xs text-gray-400">Tiki</span>
+                        <span className="text-xs text-gray-400">{t('balance.tiki')}</span>
                       </div>
                       <span className="text-base font-bold text-pink-400">{scores.tikiScore}</span>
                     </div>
@@ -1006,7 +1008,7 @@ export const AccountBalance: React.FC = () => {
                   {/* Total Score */}
                   <div className="pt-3 border-t border-gray-800">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-400">Total Score</span>
+                      <span className="text-sm text-gray-400">{t('balance.totalScore')}</span>
                       <span className="text-xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
                         {scores.totalScore}
                       </span>
@@ -1026,7 +1028,7 @@ export const AccountBalance: React.FC = () => {
             <div className="flex items-center gap-2">
               <Coins className="h-5 w-5 text-cyan-400" />
               <CardTitle className="text-lg font-medium text-gray-300">
-                Other Assets
+                {t('balance.otherAssets')}
               </CardTitle>
             </div>
             <Button
@@ -1036,7 +1038,7 @@ export const AccountBalance: React.FC = () => {
               className="text-cyan-400 hover:text-cyan-300 hover:bg-cyan-400/10"
             >
               <Plus className="h-4 w-4 mr-1" />
-              Add Token
+              {t('balance.addToken')}
             </Button>
           </div>
         </CardHeader>
@@ -1044,9 +1046,9 @@ export const AccountBalance: React.FC = () => {
           {otherTokens.length === 0 ? (
             <div className="text-center py-8">
               <Coins className="w-12 h-12 text-gray-600 mx-auto mb-3 opacity-50" />
-              <p className="text-gray-500 text-sm">No custom tokens yet</p>
+              <p className="text-gray-500 text-sm">{t('balance.noCustomTokens')}</p>
               <p className="text-gray-600 text-xs mt-1">
-                Add custom tokens to track additional assets
+                {t('balance.addCustomTokensDesc')}
               </p>
             </div>
           ) : (

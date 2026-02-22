@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
 import { Users } from 'lucide-react';
@@ -11,53 +12,54 @@ interface TeamMember {
 }
 
 const TeamSection: React.FC = () => {
+  const { t } = useTranslation();
   const teamMembers: TeamMember[] = [
     {
       name: "Satoshi Qazi Muhammed",
-      role: "Chief Architect",
-      description: "Blockchain visionary and protocol designer",
+      role: t('teamSection.chiefArchitect'),
+      description: t('teamSection.chiefArchitectDesc'),
       image: "https://d64gsuwffb70l.cloudfront.net/68ec477a0a2fa844d6f9df15_1760358016604_9ae228b4.webp"
     },
     {
       name: "Abdurrahman Qasimlo",
-      role: "Governance Lead",
-      description: "Democratic systems and consensus mechanisms",
+      role: t('teamSection.govLead'),
+      description: t('teamSection.govLeadDesc'),
       image: "https://d64gsuwffb70l.cloudfront.net/68ec477a0a2fa844d6f9df15_1760358018357_f19e128d.webp"
     },
     {
       name: "Abdusselam Barzani",
-      role: "Protocol Engineer",
-      description: "Core protocol development and optimization",
+      role: t('teamSection.protocolEngineer'),
+      description: t('teamSection.protocolEngineerDesc'),
       image: "https://d64gsuwffb70l.cloudfront.net/68ec477a0a2fa844d6f9df15_1760358020150_1ea35457.webp"
     },
     {
       name: "Ihsan Nuri",
-      role: "Security Advisor",
-      description: "Cryptography and network security expert",
+      role: t('teamSection.securityAdvisor'),
+      description: t('teamSection.securityAdvisorDesc'),
       image: "https://d64gsuwffb70l.cloudfront.net/68ec477a0a2fa844d6f9df15_1760358021872_362f1214.webp"
     },
     {
       name: "Seyh Said",
-      role: "Community Director",
-      description: "Ecosystem growth and community relations",
+      role: t('teamSection.communityDirector'),
+      description: t('teamSection.communityDirectorDesc'),
       image: "https://d64gsuwffb70l.cloudfront.net/68ec477a0a2fa844d6f9df15_1760358023648_4bb8f4c7.webp"
     },
     {
       name: "Seyyid Riza",
-      role: "Treasury Manager",
-      description: "Economic models and treasury operations",
+      role: t('teamSection.treasuryManager'),
+      description: t('teamSection.treasuryManagerDesc'),
       image: "https://d64gsuwffb70l.cloudfront.net/68ec477a0a2fa844d6f9df15_1760358025533_d9df77a9.webp"
     },
     {
       name: "Beritan",
-      role: "Developer Relations",
-      description: "Technical documentation and developer support",
+      role: t('teamSection.devRelations'),
+      description: t('teamSection.devRelationsDesc'),
       image: "https://d64gsuwffb70l.cloudfront.net/68ec477a0a2fa844d6f9df15_1760358027281_9254657a.webp"
     },
     {
       name: "Mashuk Xaznevi",
-      role: "Research Lead",
-      description: "Blockchain research and innovation",
+      role: t('teamSection.researchLead'),
+      description: t('teamSection.researchLeadDesc'),
       image: "https://d64gsuwffb70l.cloudfront.net/68ec477a0a2fa844d6f9df15_1760358029000_3ffc04bc.webp"
     }
   ];
@@ -68,13 +70,13 @@ const TeamSection: React.FC = () => {
         <div className="text-center mb-12">
           <Badge className="mb-4 bg-kurdish-green/20 text-kurdish-green border-kurdish-green/30">
             <Users className="w-4 h-4 mr-2" />
-            Our Team
+            {t('teamSection.title')}
           </Badge>
           <h2 className="text-4xl font-bold text-white mb-4">
-            Meet the Visionaries
+            {t('teamSection.subtitle')}
           </h2>
           <p className="text-gray-400 max-w-2xl mx-auto">
-            A dedicated team of blockchain experts and governance specialists building the future of decentralized democracy
+            {t('teamSection.description')}
           </p>
         </div>
 

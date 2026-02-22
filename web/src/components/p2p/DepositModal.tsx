@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -46,6 +47,7 @@ interface DepositModalProps {
 type DepositStep = 'select' | 'send' | 'verify' | 'success';
 
 export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) {
+  const { t } = useTranslation();
   const { api, selectedAccount } = usePezkuwi();
   const { balances, signTransaction } = useWallet();
 
@@ -89,10 +91,10 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
     try {
       await navigator.clipboard.writeText(platformWallet);
       setCopied(true);
-      toast.success('Address copied to clipboard');
+      toast.success(t('p2pDeposit.addressCopied'));
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error('Failed to copy address');
+      toast.error(t('p2pDeposit.failedToCopy'));
     }
   };
 
@@ -104,13 +106,13 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
 
   const handleSendDeposit = async () => {
     if (!api || !selectedAccount) {
-      toast.error('Please connect your wallet');
+      toast.error(t('p2pDeposit.connectWallet'));
       return;
     }
 
     const depositAmount = parseFloat(amount);
     if (isNaN(depositAmount) || depositAmount <= 0) {
-      toast.error('Please enter a valid amount');
+      toast.error(t('p2pDeposit.enterValidAmount'));
       return;
     }
 
@@ -131,7 +133,7 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
         tx = api.tx.assets.transfer(assetId, platformWallet, amountBN);
       }
 
-      toast.info('Please sign the transaction in your wallet...');
+      toast.info(t('p2pDeposit.signTransaction'));
 
       // Sign and send
       const hash = await signTransaction(tx);
@@ -139,11 +141,11 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
       if (hash) {
         setTxHash(hash);
         setStep('verify');
-        toast.success('Transaction sent! Please verify your deposit.');
+        toast.success(t('p2pDeposit.txSent'));
       }
     } catch (error: unknown) {
       console.error('Deposit transaction error:', error);
-      const message = error instanceof Error ? error.message : 'Transaction failed';
+      const message = error instanceof Error ? error.message : t('p2pDeposit.txFailed');
       toast.error(message);
     } finally {
       setLoading(false);
@@ -152,13 +154,13 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
 
   const handleVerifyDeposit = async () => {
     if (!txHash) {
-      toast.error('Please enter the transaction hash');
+      toast.error(t('p2pDeposit.enterTxHash'));
       return;
     }
 
     const depositAmount = parseFloat(amount);
     if (isNaN(depositAmount) || depositAmount <= 0) {
-      toast.error('Invalid amount');
+      toast.error(t('p2pDeposit.invalidAmount'));
       return;
     }
 
@@ -176,19 +178,19 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
       });
 
       if (error) {
-        throw new Error(error.message || 'Verification failed');
+        throw new Error(error.message || t('p2pDeposit.verificationFailed'));
       }
 
       if (data?.success) {
-        toast.success(`Deposit verified! ${data.amount} ${token} added to your balance.`);
+        toast.success(t('p2pDeposit.depositVerified', { amount: data.amount, token }));
         setStep('success');
         onSuccess?.();
       } else {
-        throw new Error(data?.error || 'Verification failed');
+        throw new Error(data?.error || t('p2pDeposit.verificationFailed'));
       }
     } catch (error) {
       console.error('Verify deposit error:', error);
-      const message = error instanceof Error ? error.message : 'Verification failed';
+      const message = error instanceof Error ? error.message : t('p2pDeposit.verificationFailed');
       toast.error(message);
     } finally {
       setVerifying(false);
@@ -201,20 +203,20 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
         return (
           <div className="space-y-6">
             <div className="space-y-2">
-              <Label>Select Token</Label>
+              <Label>{t('p2pDeposit.selectToken')}</Label>
               <Select value={token} onValueChange={(v) => setToken(v as CryptoToken)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="HEZ">HEZ (Native)</SelectItem>
-                  <SelectItem value="PEZ">PEZ</SelectItem>
+                  <SelectItem value="HEZ">{t('p2pDeposit.hezNative')}</SelectItem>
+                  <SelectItem value="PEZ">{t('p2pDeposit.pez')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label>Amount to Deposit</Label>
+              <Label>{t('p2pDeposit.amountToDeposit')}</Label>
               <div className="relative">
                 <Input
                   type="number"
@@ -229,27 +231,26 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
                 </div>
               </div>
               <p className="text-xs text-muted-foreground">
-                Wallet Balance: {parseFloat(getAvailableBalance()).toFixed(4)} {token}
+                {t('p2pDeposit.walletBalance', { amount: parseFloat(getAvailableBalance()).toFixed(4), token })}
               </p>
             </div>
 
             <Alert>
               <Wallet className="h-4 w-4" />
               <AlertDescription>
-                You will send {token} from your connected wallet to the P2P platform escrow.
-                After confirmation, the amount will be credited to your P2P internal balance.
+                {t('p2pDeposit.depositInfo', { token })}
               </AlertDescription>
             </Alert>
 
             <DialogFooter>
               <Button variant="outline" onClick={handleClose}>
-                Cancel
+                {t('cancel')}
               </Button>
               <Button
                 onClick={() => setStep('send')}
                 disabled={!amount || parseFloat(amount) <= 0}
               >
-                Continue
+                {t('continue')}
               </Button>
             </DialogFooter>
           </div>
@@ -263,7 +264,7 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
                 <div className="w-16 h-16 mx-auto mb-3 rounded-xl bg-primary/10 flex items-center justify-center">
                   <QrCode className="h-8 w-8 text-primary" />
                 </div>
-                <p className="text-sm font-medium">Send {amount} {token} to:</p>
+                <p className="text-sm font-medium">{t('p2pDeposit.sendAmountTo', { amount, token })}</p>
               </div>
 
               {platformWallet ? (
@@ -280,12 +281,12 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
                     {copied ? (
                       <>
                         <CheckCircle2 className="h-4 w-4 mr-2 text-green-500" />
-                        Copied!
+                        {t('p2pDeposit.copied')}
                       </>
                     ) : (
                       <>
                         <Copy className="h-4 w-4 mr-2" />
-                        Copy Address
+                        {t('p2pDeposit.copyAddress')}
                       </>
                     )}
                   </Button>
@@ -298,8 +299,7 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
             <Alert variant="destructive">
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
-                Only send {token} on the PezkuwiChain network. Sending other tokens or using
-                other networks will result in permanent loss of funds.
+                {t('p2pDeposit.networkWarning', { token })}
               </AlertDescription>
             </Alert>
 
@@ -309,7 +309,7 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
                 className="flex-1"
                 onClick={() => setStep('select')}
               >
-                Back
+                {t('back')}
               </Button>
               <Button
                 className="flex-1"
@@ -319,11 +319,11 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
                 {loading ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Sending...
+                    {t('p2pDeposit.sending')}
                   </>
                 ) : (
                   <>
-                    Send {amount} {token}
+                    {t('p2pDeposit.sendToken', { amount, token })}
                   </>
                 )}
               </Button>
@@ -337,12 +337,12 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
             <Alert>
               <CheckCircle2 className="h-4 w-4 text-green-500" />
               <AlertDescription>
-                Transaction sent! Please verify your deposit to credit your P2P balance.
+                {t('p2pDeposit.txSentVerify')}
               </AlertDescription>
             </Alert>
 
             <div className="space-y-2">
-              <Label>Transaction Hash</Label>
+              <Label>{t('p2pDeposit.txHash')}</Label>
               <div className="flex gap-2">
                 <Input
                   value={txHash}
@@ -364,11 +364,11 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
             <div className="p-4 rounded-lg bg-muted/50 border">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <p className="text-muted-foreground">Token</p>
+                  <p className="text-muted-foreground">{t('p2pDeposit.tokenLabel')}</p>
                   <p className="font-semibold">{token}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Amount</p>
+                  <p className="text-muted-foreground">{t('p2pDeposit.amountLabel')}</p>
                   <p className="font-semibold">{amount}</p>
                 </div>
               </div>
@@ -376,7 +376,7 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
 
             <DialogFooter>
               <Button variant="outline" onClick={handleClose}>
-                Cancel
+                {t('cancel')}
               </Button>
               <Button
                 onClick={handleVerifyDeposit}
@@ -385,10 +385,10 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
                 {verifying ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Verifying...
+                    {t('p2pDeposit.verifying')}
                   </>
                 ) : (
-                  'Verify Deposit'
+                  t('p2pDeposit.verifyDeposit')
                 )}
               </Button>
             </DialogFooter>
@@ -404,22 +404,21 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
 
             <div>
               <h3 className="text-xl font-semibold text-green-500">
-                Deposit Successful!
+                {t('p2pDeposit.depositSuccess')}
               </h3>
               <p className="text-muted-foreground mt-2">
-                {amount} {token} has been added to your P2P internal balance.
+                {t('p2pDeposit.addedToBalance', { amount, token })}
               </p>
             </div>
 
             <div className="p-4 rounded-lg bg-muted/50 border">
               <p className="text-sm text-muted-foreground">
-                You can now create sell offers or trade P2P using your internal balance.
-                No blockchain fees during P2P trades!
+                {t('p2pDeposit.successInfo')}
               </p>
             </div>
 
             <Button onClick={handleClose} className="w-full">
-              Done
+              {t('p2pDeposit.done')}
             </Button>
           </div>
         );
@@ -432,13 +431,13 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Wallet className="h-5 w-5" />
-            Deposit to P2P Balance
+            {t('p2pDeposit.title')}
           </DialogTitle>
           {step !== 'success' && (
             <DialogDescription>
-              {step === 'select' && 'Deposit crypto from your wallet to P2P internal balance'}
-              {step === 'send' && 'Send tokens to the platform escrow wallet'}
-              {step === 'verify' && 'Verify your transaction to credit your balance'}
+              {step === 'select' && t('p2pDeposit.selectStep')}
+              {step === 'send' && t('p2pDeposit.sendStep')}
+              {step === 'verify' && t('p2pDeposit.verifyStep')}
             </DialogDescription>
           )}
         </DialogHeader>

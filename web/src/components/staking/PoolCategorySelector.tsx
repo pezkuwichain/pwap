@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
@@ -13,6 +14,7 @@ interface PoolCategorySelectorProps {
 const POOL_CATEGORIES = Object.values(ValidatorPoolCategory);
 
 export function PoolCategorySelector({ currentCategory, onCategoryChange, disabled }: PoolCategorySelectorProps) {
+  const { t } = useTranslation();
   const [selectedCategory, setSelectedCategory] = useState<ValidatorPoolCategory>(currentCategory || POOL_CATEGORIES[0]);
 
   const handleSubmit = () => {
@@ -23,7 +25,7 @@ export function PoolCategorySelector({ currentCategory, onCategoryChange, disabl
     <div className="space-y-4">
       <Select value={selectedCategory} onValueChange={(value) => setSelectedCategory(value as ValidatorPoolCategory)} disabled={disabled}>
         <SelectTrigger className="w-full bg-gray-800 border-gray-700 text-white">
-          <SelectValue placeholder="Select a pool category..." />
+          <SelectValue placeholder={t('poolCategory.placeholder')} />
         </SelectTrigger>
         <SelectContent>
           {POOL_CATEGORIES.map(cat => (
@@ -33,7 +35,7 @@ export function PoolCategorySelector({ currentCategory, onCategoryChange, disabl
       </Select>
       <Button onClick={handleSubmit} disabled={disabled || !selectedCategory} className="w-full">
         {disabled && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-        {currentCategory ? 'Switch Category' : 'Join Pool'}
+        {currentCategory ? t('poolCategory.switchCategory') : t('poolCategory.joinPool')}
       </Button>
     </div>
   );
