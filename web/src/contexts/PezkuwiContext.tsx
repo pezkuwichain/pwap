@@ -325,8 +325,9 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
         }
       }
 
-      // Try to restore WalletConnect session first
-      try {
+      // Try to restore WalletConnect session only if one was previously saved
+      const savedWcTopic = localStorage.getItem('wc_session_topic');
+      if (savedWcTopic) try {
         const wcSession = await restoreSession();
         if (wcSession) {
           const wcAddresses = getSessionAccounts();
