@@ -1826,6 +1826,7 @@ export default {
   'walletModal.wcConnected': 'پەیوەندی کرا!',
   'walletModal.wcInstructions': 'ئەپی pezWallet بکەرەوە → ڕێکخستنەکان → WalletConnect → QR کۆد سکان بکە',
   'walletModal.wcRetry': 'دووبارە هەوڵبدەرەوە',
+  'walletModal.wcTimeout': 'کاتی پەیوەندی تەواو بوو. تکایە دووبارە هەوڵبدەرەوە.',
 
   // WalletButton
   'walletBtn.connectWallet': 'جزدان پەیوەست بکە',

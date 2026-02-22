@@ -2195,6 +2195,7 @@ export default {
   'walletModal.wcConnected': 'Connected!',
   'walletModal.wcInstructions': 'Open pezWallet app → Settings → WalletConnect → Scan QR code',
   'walletModal.wcRetry': 'Try Again',
+  'walletModal.wcTimeout': 'Connection timed out. Please try again.',
 
   // WalletButton
   'walletBtn.connectWallet': 'Connect Wallet',

@@ -11,7 +11,7 @@ import type { InjectedAccountWithMeta } from '@pezkuwi/extension-inject/types';
 import type { Signer } from '@pezkuwi/api/types';
 import { web3FromAddress } from '@pezkuwi/extension-dapp';
 import { isMobileApp, signTransactionNative, type TransactionPayload } from '@/lib/mobile-bridge';
-import { createWCSigner, isWCConnected } from '@/lib/walletconnect-service';
+import { createWCSigner, isWCConnected, validateSession } from '@/lib/walletconnect-service';
 
 interface TokenBalances {
   HEZ: string;
@@ -257,7 +257,10 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       }
 
       // WalletConnect: Use WC signer
-      if (pezkuwi.walletSource === 'walletconnect' && isWCConnected() && pezkuwi.api) {
+      if (pezkuwi.walletSource === 'walletconnect' && pezkuwi.api) {
+        if (!isWCConnected() || !validateSession()) {
+          throw new Error('WalletConnect session expired. Please reconnect your wallet.');
+        }
         if (import.meta.env.DEV) console.log('[WC] Using WalletConnect for transaction signing');
 
         const genesisHash = pezkuwi.api.genesisHash.toHex();
@@ -295,7 +298,10 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     try {
       // WalletConnect signing
-      if (pezkuwi.walletSource === 'walletconnect' && isWCConnected() && pezkuwi.api) {
+      if (pezkuwi.walletSource === 'walletconnect' && pezkuwi.api) {
+        if (!isWCConnected() || !validateSession()) {
+          throw new Error('WalletConnect session expired. Please reconnect your wallet.');
+        }
         if (import.meta.env.DEV) console.log('[WC] Using WalletConnect for message signing');
 
         const genesisHash = pezkuwi.api.genesisHash.toHex();
@@ -340,12 +346,12 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       }
 
       try {
-        if (pezkuwi.walletSource === 'walletconnect' && isWCConnected() && pezkuwi.api) {
+        if (pezkuwi.walletSource === 'walletconnect' && isWCConnected() && validateSession() && pezkuwi.api) {
           const genesisHash = pezkuwi.api.genesisHash.toHex();
           const wcSigner = createWCSigner(genesisHash, pezkuwi.selectedAccount.address);
           setSigner(wcSigner as unknown as Signer);
           if (import.meta.env.DEV) console.log('✅ WC Signer obtained for', pezkuwi.selectedAccount.address);
-        } else {
+        } else if (pezkuwi.walletSource !== 'walletconnect') {
           const injector = await web3FromAddress(pezkuwi.selectedAccount.address);
           setSigner(injector.signer);
           if (import.meta.env.DEV) console.log('✅ Extension Signer obtained for', pezkuwi.selectedAccount.address);

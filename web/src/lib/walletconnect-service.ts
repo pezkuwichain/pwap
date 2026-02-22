@@ -19,16 +19,18 @@ const POLKADOT_METHODS = ['polkadot_signTransaction', 'polkadot_signMessage'];
 const POLKADOT_EVENTS = ['chainChanged', 'accountsChanged'];
 
 let signClient: SignClient | null = null;
+let initPromise: Promise<SignClient> | null = null;
 let currentSession: SessionTypes.Struct | null = null;
 let requestId = 0;
 
 /**
- * Initialize the WalletConnect SignClient
+ * Initialize the WalletConnect SignClient (singleton with race protection)
  */
 export async function initWalletConnect(): Promise<SignClient> {
   if (signClient) return signClient;
+  if (initPromise) return initPromise;
 
-  signClient = await SignClient.init({
+  initPromise = SignClient.init({
     projectId: PROJECT_ID,
     metadata: {
       name: 'PezkuwiChain',
@@ -36,38 +38,44 @@ export async function initWalletConnect(): Promise<SignClient> {
       url: 'https://app.pezkuwichain.io',
       icons: ['https://app.pezkuwichain.io/logo.png'],
     },
+  }).then((client) => {
+    signClient = client;
+
+    // Listen for session events
+    client.on('session_delete', () => {
+      currentSession = null;
+      localStorage.removeItem(WC_SESSION_KEY);
+      window.dispatchEvent(new Event('walletconnect_disconnected'));
+    });
+
+    client.on('session_expire', () => {
+      currentSession = null;
+      localStorage.removeItem(WC_SESSION_KEY);
+      window.dispatchEvent(new Event('walletconnect_disconnected'));
+    });
+
+    client.on('session_update', ({ params }) => {
+      if (currentSession) {
+        currentSession = { ...currentSession, namespaces: params.namespaces };
+      }
+    });
+
+    return client;
+  }).catch((err) => {
+    initPromise = null;
+    throw err;
   });
 
-  // Listen for session events
-  signClient.on('session_delete', () => {
-    currentSession = null;
-    localStorage.removeItem(WC_SESSION_KEY);
-    window.dispatchEvent(new Event('walletconnect_disconnected'));
-  });
-
-  signClient.on('session_expire', () => {
-    currentSession = null;
-    localStorage.removeItem(WC_SESSION_KEY);
-    window.dispatchEvent(new Event('walletconnect_disconnected'));
-  });
-
-  signClient.on('session_update', ({ params }) => {
-    if (currentSession) {
-      currentSession = { ...currentSession, namespaces: params.namespaces };
-    }
-  });
-
-  return signClient;
+  return initPromise;
 }
 
 /**
  * Build the polkadot: chain ID from genesis hash
- * Format: polkadot:<first_32_bytes_hex_without_0x>
+ * CAIP-2 format: polkadot:<first_16_bytes_hex_without_0x>
  */
 export function buildChainId(genesisHash: string): string {
   const hash = genesisHash.startsWith('0x') ? genesisHash.slice(2) : genesisHash;
-  // WalletConnect uses first 32 bytes (64 hex chars) of genesis hash
-  return `polkadot:${hash.slice(0, 64)}`;
+  return `polkadot:${hash.slice(0, 32)}`;
 }
 
 /**
@@ -82,7 +90,7 @@ export async function connectWithQR(genesisHash: string): Promise<{
   const chainId = buildChainId(genesisHash);
 
   const { uri, approval } = await client.connect({
-    requiredNamespaces: {
+    optionalNamespaces: {
       polkadot: {
         methods: POLKADOT_METHODS,
         chains: [chainId],
@@ -140,6 +148,15 @@ export function getSessionPeerIcon(): string | null {
 }
 
 /**
+ * Check if the current WC session is still valid (not expired)
+ */
+export function validateSession(): boolean {
+  if (!currentSession) return false;
+  const now = Math.floor(Date.now() / 1000);
+  return currentSession.expiry > now;
+}
+
+/**
  * Create a Signer adapter compatible with @pezkuwi/api's Signer interface
  * Routes signPayload and signRaw through WalletConnect
  */
@@ -163,7 +180,13 @@ export function createWCSigner(genesisHash: string, address: string) {
       version: number;
     }) => {
       if (!signClient || !currentSession) {
-        throw new Error('WalletConnect session not active');
+        throw new Error('WalletConnect session not active. Please reconnect your wallet.');
+      }
+      if (!validateSession()) {
+        currentSession = null;
+        localStorage.removeItem(WC_SESSION_KEY);
+        window.dispatchEvent(new Event('walletconnect_disconnected'));
+        throw new Error('WalletConnect session expired. Please reconnect your wallet.');
       }
 
       const id = ++requestId;
@@ -192,7 +215,13 @@ export function createWCSigner(genesisHash: string, address: string) {
       type: 'bytes' | 'payload';
     }) => {
       if (!signClient || !currentSession) {
-        throw new Error('WalletConnect session not active');
+        throw new Error('WalletConnect session not active. Please reconnect your wallet.');
+      }
+      if (!validateSession()) {
+        currentSession = null;
+        localStorage.removeItem(WC_SESSION_KEY);
+        window.dispatchEvent(new Event('walletconnect_disconnected'));
+        throw new Error('WalletConnect session expired. Please reconnect your wallet.');
       }
 
       const id = ++requestId;
@@ -264,6 +293,7 @@ export async function disconnectWC(): Promise<void> {
 
   currentSession = null;
   localStorage.removeItem(WC_SESSION_KEY);
+  window.dispatchEvent(new Event('walletconnect_disconnected'));
 }
 
 /**

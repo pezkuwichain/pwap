@@ -551,6 +551,25 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
     }
   };
 
+  // Listen for remote WalletConnect disconnects (wallet side)
+  useEffect(() => {
+    const handleWcDisconnect = () => {
+      if (walletSource === 'walletconnect') {
+        setAccounts([]);
+        handleSetSelectedAccount(null);
+        setWalletSource(null);
+        setWcPeerName(null);
+        if (import.meta.env.DEV) {
+          console.log('🔌 WalletConnect session ended remotely');
+        }
+      }
+    };
+
+    window.addEventListener('walletconnect_disconnected', handleWcDisconnect);
+    return () => window.removeEventListener('walletconnect_disconnected', handleWcDisconnect);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [walletSource]);
+
   const value: PezkuwiContextType = {
     api,
     assetHubApi,

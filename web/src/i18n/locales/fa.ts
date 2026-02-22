@@ -1796,6 +1796,7 @@ export default {
   'walletModal.wcConnected': 'متصل شد!',
   'walletModal.wcInstructions': 'برنامه pezWallet را باز کنید → تنظیمات → WalletConnect → کد QR را اسکن کنید',
   'walletModal.wcRetry': 'تلاش مجدد',
+  'walletModal.wcTimeout': 'مهلت اتصال تمام شد. لطفا دوباره تلاش کنید.',
 
   // WalletButton
   'walletBtn.connectWallet': 'اتصال کیف پول',

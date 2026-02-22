@@ -1853,6 +1853,7 @@ export default {
   'walletModal.wcConnected': 'Girêdayî!',
   'walletModal.wcInstructions': 'Serlêdana pezWallet veke → Mîheng → WalletConnect → QR kodê bişopîne',
   'walletModal.wcRetry': 'Dîsa biceribîne',
+  'walletModal.wcTimeout': 'Girêdan qut bû. Ji kerema xwe dîsa biceribîne.',
 
   // WalletButton
   'walletBtn.connectWallet': 'Berîkê Girêbide',

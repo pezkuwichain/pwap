@@ -1847,6 +1847,7 @@ export default {
   'walletModal.wcConnected': 'Bağlandı!',
   'walletModal.wcInstructions': 'pezWallet uygulamasını açın → Ayarlar → WalletConnect → QR kodu tarayın',
   'walletModal.wcRetry': 'Tekrar Dene',
+  'walletModal.wcTimeout': 'Bağlantı zaman aşımına uğradı. Lütfen tekrar deneyin.',
 
   // WalletButton
   'walletBtn.connectWallet': 'Cüzdan Bağla',
