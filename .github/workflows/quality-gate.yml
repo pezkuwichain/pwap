@@ -169,7 +169,7 @@ jobs:
           echo "✅ Deployed web app v${{ env.NEW_VERSION }} to app.pezkuwichain.io"
 
   # ========================================
-  # SECURITY CHECKS (INFORMATIVE)
+  # SECURITY CHECKS (BLOCKING)
   # ========================================
   security-audit:
     name: Security Audit
@@ -185,22 +185,19 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Web - npm audit
+      - name: Web - npm audit (critical only)
         working-directory: ./web
-        continue-on-error: true
         run: |
           npm install
-          npm audit --audit-level=high
+          npm audit --audit-level=critical
 
-      - name: Mobile - npm audit
+      - name: Mobile - npm audit (critical only)
         working-directory: ./mobile
-        continue-on-error: true
         run: |
-          npm install
-          npm audit --audit-level=high
+          npm install --legacy-peer-deps
+          npm audit --audit-level=critical --production
 
       - name: TruffleHog Secret Scan
-        continue-on-error: true
         uses: trufflesecurity/trufflehog@main
         with:
           path: ./
