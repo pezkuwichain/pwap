@@ -24,6 +24,29 @@ import { createClient } from 'npm:@supabase/supabase-js@2'
 import { ApiPromise, WsProvider, Keyring } from 'npm:@pezkuwi/api@16.5.11'
 import { cryptoWaitReady } from 'npm:@pezkuwi/util-crypto@14.0.11'
 
+// Decode SS58 address to raw 32-byte public key hex
+function ss58ToHex(address: string): string {
+  const CHARS = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+  let leadingZeros = 0;
+  for (const c of address) {
+    if (c !== '1') break;
+    leadingZeros++;
+  }
+  let num = 0n;
+  for (const c of address) {
+    num = num * 58n + BigInt(CHARS.indexOf(c));
+  }
+  const hex = num.toString(16);
+  const paddedHex = hex.length % 2 ? '0' + hex : hex;
+  const decoded = new Uint8Array(leadingZeros + paddedHex.length / 2);
+  for (let i = 0; i < leadingZeros; i++) decoded[i] = 0;
+  for (let i = 0; i < paddedHex.length / 2; i++) {
+    decoded[leadingZeros + i] = parseInt(paddedHex.slice(i * 2, i * 2 + 2), 16);
+  }
+  const pubkey = decoded.slice(1, 33);
+  return '0x' + Array.from(pubkey, (b: number) => b.toString(16).padStart(2, '0')).join('');
+}
+
 // Configuration
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -68,25 +91,31 @@ async function processWithdrawal(
     // 2. Calculate amount in planck (smallest unit)
     const amountPlanck = BigInt(Math.floor(amount * Math.pow(10, DECIMALS)));
 
-    // 3. Build transaction based on token type
+    // 3. Convert addresses to hex (Deno npm shim breaks SS58 decoding in @pezkuwi/api types)
+    const destHex = ss58ToHex(wallet_address);
+    const signerHex = '0x' + Array.from(platformWallet.publicKey, (b: number) => b.toString(16).padStart(2, '0')).join('');
+    console.log(`Sending ${amount} ${token}: ${signerHex} → ${destHex}`);
+
     let tx;
     if (token === "HEZ" || ASSET_IDS[token] === null) {
-      // Native token transfer
-      tx = api.tx.balances.transferKeepAlive(wallet_address, amountPlanck);
+      tx = api.tx.balances.transferKeepAlive({ Id: destHex }, amountPlanck);
     } else {
-      // Asset transfer
       const assetId = ASSET_IDS[token];
       if (assetId === undefined) {
         throw new Error(`Unknown token: ${token}`);
       }
-      tx = api.tx.assets.transfer(assetId, wallet_address, amountPlanck);
+      tx = api.tx.assets.transfer(assetId, { Id: destHex }, amountPlanck);
     }
 
-    // 4. Sign and send transaction
+    // 4. Fetch nonce via hex pubkey to avoid SS58 → AccountId32 decoding issue
+    const accountInfo = await api.query.system.account(signerHex);
+    const nonce = accountInfo.nonce;
+
+    // 5. Sign and send transaction
     const txHash = await new Promise<string>((resolve, reject) => {
       let unsubscribe: () => void;
 
-      tx.signAndSend(platformWallet, { nonce: -1 }, ({ status, dispatchError }) => {
+      tx.signAndSend(platformWallet, { nonce }, ({ status, dispatchError }) => {
         if (dispatchError) {
           if (dispatchError.isModule) {
             const decoded = api.registry.findMetaError(dispatchError.asModule);
