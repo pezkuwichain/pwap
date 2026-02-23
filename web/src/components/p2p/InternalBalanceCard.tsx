@@ -13,6 +13,7 @@ import {
   Unlock
 } from 'lucide-react';
 import { getInternalBalances, type InternalBalance } from '@shared/lib/p2p-fiat';
+import { useP2PIdentity } from '@/contexts/P2PIdentityContext';
 
 interface InternalBalanceCardProps {
   onDeposit?: () => void;
@@ -21,13 +22,15 @@ interface InternalBalanceCardProps {
 
 export function InternalBalanceCard({ onDeposit, onWithdraw }: InternalBalanceCardProps) {
   const { t } = useTranslation();
+  const { userId } = useP2PIdentity();
   const [balances, setBalances] = useState<InternalBalance[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const fetchBalances = async () => {
+    if (!userId) return;
     try {
-      const data = await getInternalBalances();
+      const data = await getInternalBalances(userId);
       setBalances(data);
     } catch (error) {
       console.error('Failed to fetch balances:', error);
@@ -39,7 +42,7 @@ export function InternalBalanceCard({ onDeposit, onWithdraw }: InternalBalanceCa
 
   useEffect(() => {
     fetchBalances();
-  }, []);
+  }, [userId]);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);

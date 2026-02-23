@@ -16,7 +16,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Zap, ArrowRight, Shield, Clock, Star, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { useAuth } from '@/contexts/AuthContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
+import { useP2PIdentity } from '@/contexts/P2PIdentityContext';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
@@ -69,7 +70,8 @@ export function ExpressMode({ onTradeStarted }: ExpressModeProps) {
   const [isProcessing, setIsProcessing] = useState(false);
 
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { selectedAccount } = usePezkuwi();
+  const { userId } = useP2PIdentity();
   const navigate = useNavigate();
 
   // Calculate conversion
@@ -140,8 +142,8 @@ export function ExpressMode({ onTradeStarted }: ExpressModeProps) {
 
   // Handle express trade
   const handleExpressTrade = async () => {
-    if (!user) {
-      toast.error(t('p2pExpress.loginRequired'));
+    if (!userId || !selectedAccount) {
+      toast.error(t('p2p.connectWalletAndLogin'));
       return;
     }
 
@@ -160,8 +162,8 @@ export function ExpressMode({ onTradeStarted }: ExpressModeProps) {
       // Accept the best offer
       const { data: result, error } = await supabase.rpc('accept_p2p_offer', {
         p_offer_id: bestOffer.id,
-        p_buyer_id: user.id,
-        p_buyer_wallet: '', // Will be set from user profile
+        p_buyer_id: userId,
+        p_buyer_wallet: selectedAccount.address,
         p_amount: cryptoAmount
       });
 
@@ -342,7 +344,7 @@ export function ExpressMode({ onTradeStarted }: ExpressModeProps) {
           className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-semibold"
           size="lg"
           onClick={handleExpressTrade}
-          disabled={!bestOffer || isLoading || isProcessing || !user}
+          disabled={!bestOffer || isLoading || isProcessing || !userId || !selectedAccount}
         >
           {isProcessing ? (
             <>{t('p2pExpress.processing')}</>

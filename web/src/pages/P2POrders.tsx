@@ -18,7 +18,7 @@ import {
   RefreshCw,
   FileText,
 } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useP2PIdentity } from '@/contexts/P2PIdentityContext';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import { type P2PFiatTrade, type P2PFiatOffer } from '@shared/lib/p2p-fiat';
@@ -34,7 +34,7 @@ interface TradeWithOffer extends P2PFiatTrade {
 export default function P2POrders() {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { userId } = useP2PIdentity();
 
   const [trades, setTrades] = useState<TradeWithOffer[]>([]);
   const [loading, setLoading] = useState(true);
@@ -42,7 +42,7 @@ export default function P2POrders() {
 
   // Fetch user's trades
   const fetchTrades = async () => {
-    if (!user) {
+    if (!userId) {
       setLoading(false);
       return;
     }
@@ -53,7 +53,7 @@ export default function P2POrders() {
       const { data: tradesData, error } = await supabase
         .from('p2p_fiat_trades')
         .select('*')
-        .or(`seller_id.eq.${user.id},buyer_id.eq.${user.id}`)
+        .or(`seller_id.eq.${userId},buyer_id.eq.${userId}`)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -86,7 +86,7 @@ export default function P2POrders() {
   useEffect(() => {
     fetchTrades();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [userId]);
 
   // Filter trades by status
   const activeTrades = trades.filter(t =>
@@ -149,7 +149,7 @@ export default function P2POrders() {
 
   // Render trade card
   const renderTradeCard = (trade: TradeWithOffer) => {
-    const isBuyer = trade.buyer_id === user?.id;
+    const isBuyer = trade.buyer_id === userId;
     const counterpartyWallet = isBuyer
       ? trade.offer?.seller_wallet || 'Unknown'
       : trade.buyer_wallet;
@@ -245,7 +245,7 @@ export default function P2POrders() {
     </div>
   );
 
-  if (!user) {
+  if (!userId) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <Card className="bg-gray-900 border-gray-800">
@@ -253,7 +253,7 @@ export default function P2POrders() {
             <AlertTriangle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
             <h2 className="text-xl font-semibold text-white mb-2">{t('p2p.loginRequired')}</h2>
             <p className="text-gray-400 mb-6">{t('p2p.loginToView')}</p>
-            <Button onClick={() => navigate('/login')}>{t('p2p.logIn')}</Button>
+            <Button onClick={() => navigate('/p2p')}>{t('p2pTrade.backToP2P')}</Button>
           </CardContent>
         </Card>
       </div>

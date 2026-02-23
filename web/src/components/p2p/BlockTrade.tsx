@@ -24,7 +24,7 @@ import {
   Building2, AlertTriangle
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { useAuth } from '@/contexts/AuthContext';
+import { useP2PIdentity } from '@/contexts/P2PIdentityContext';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import type { CryptoToken, FiatCurrency } from '@pezkuwi/lib/p2p-fiat';
@@ -80,19 +80,19 @@ export function BlockTrade() {
   const [requests, setRequests] = useState<BlockTradeRequest[]>([]);
 
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { userId } = useP2PIdentity();
   const fiatSymbol = SUPPORTED_FIATS.find(f => f.code === fiat)?.symbol || '';
   const minAmount = MINIMUM_BLOCK_AMOUNTS[token];
 
   // Fetch user's block trade requests
   React.useEffect(() => {
-    if (!user) return;
+    if (!userId) return;
 
     const fetchRequests = async () => {
       const { data, error } = await supabase
         .from('p2p_block_trade_requests')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .order('created_at', { ascending: false });
 
       if (!error && data) {
@@ -101,10 +101,10 @@ export function BlockTrade() {
     };
 
     fetchRequests();
-  }, [user]);
+  }, [userId]);
 
   const handleSubmitRequest = async () => {
-    if (!user) {
+    if (!userId) {
       toast.error(t('p2pBlock.loginRequired'));
       return;
     }
@@ -120,7 +120,7 @@ export function BlockTrade() {
       const { data, error } = await supabase
         .from('p2p_block_trade_requests')
         .insert({
-          user_id: user.id,
+          user_id: userId,
           type,
           token,
           fiat_currency: fiat,

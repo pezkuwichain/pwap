@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Loader2, Shield, Zap } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useP2PIdentity } from '@/contexts/P2PIdentityContext';
 import { TradeModal } from './TradeModal';
 import { MerchantTierBadge } from './MerchantTierBadge';
 import { getUserReputation, type P2PFiatOffer, type P2PReputation } from '@shared/lib/p2p-fiat';
@@ -25,7 +25,7 @@ interface OfferWithReputation extends P2PFiatOffer {
 
 export function AdList({ type, filters }: AdListProps) {
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { userId } = useP2PIdentity();
   const [offers, setOffers] = useState<OfferWithReputation[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOffer, setSelectedOffer] = useState<OfferWithReputation | null>(null);
@@ -46,7 +46,7 @@ export function AdList({ type, filters }: AdListProps) {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [type, user, filters]);
+  }, [type, userId, filters]);
 
   const fetchOffers = async () => {
     setLoading(true);
@@ -62,9 +62,9 @@ export function AdList({ type, filters }: AdListProps) {
       } else if (type === 'sell') {
         // Sell tab = show BUY offers (user wants to sell to buyers)
         query = query.eq('ad_type', 'buy').eq('status', 'open').gt('remaining_amount', 0);
-      } else if (type === 'my-ads' && user) {
+      } else if (type === 'my-ads' && userId) {
         // My offers - show all of user's offers
-        query = query.eq('seller_id', user.id);
+        query = query.eq('seller_id', userId);
       }
 
       // Apply filters if provided
@@ -263,16 +263,16 @@ export function AdList({ type, filters }: AdListProps) {
 
               {/* Action */}
               <div className="flex flex-col items-end gap-1">
-                {offer.seller_id === user?.id && type !== 'my-ads' && (
+                {offer.seller_id === userId && type !== 'my-ads' && (
                   <Badge variant="outline" className="text-xs bg-blue-500/10 text-blue-400 border-blue-500/30">
                     {t('p2pAd.yourAd')}
                   </Badge>
                 )}
                 <Button
                   onClick={() => setSelectedOffer(offer)}
-                  disabled={type === 'my-ads' || offer.seller_id === user?.id}
+                  disabled={type === 'my-ads' || offer.seller_id === userId}
                   className="w-full md:w-auto"
-                  title={offer.seller_id === user?.id ? t('p2pAd.cantTradeOwnAd') : ''}
+                  title={offer.seller_id === userId ? t('p2pAd.cantTradeOwnAd') : ''}
                 >
                   {type === 'buy' ? t('p2pAd.buyToken', { token: offer.token }) : t('p2pAd.sellToken', { token: offer.token })}
                 </Button>

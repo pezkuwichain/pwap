@@ -13,7 +13,7 @@ import {
   Clock,
   Bot,
 } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useP2PIdentity } from '@/contexts/P2PIdentityContext';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabase';
@@ -43,7 +43,7 @@ export function TradeChat({
   isTradeActive,
 }: TradeChatProps) {
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { userId } = useP2PIdentity();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
@@ -72,9 +72,9 @@ export function TradeChat({
       setMessages(data || []);
 
       // Mark messages as read
-      if (user && data && data.length > 0) {
+      if (userId && data && data.length > 0) {
         const unreadIds = data
-          .filter(m => m.sender_id !== user.id && !m.is_read)
+          .filter(m => m.sender_id !== userId && !m.is_read)
           .map(m => m.id);
 
         if (unreadIds.length > 0) {
@@ -89,7 +89,7 @@ export function TradeChat({
     } finally {
       setLoading(false);
     }
-  }, [tradeId, user]);
+  }, [tradeId, userId]);
 
   // Initial fetch
   useEffect(() => {
@@ -117,7 +117,7 @@ export function TradeChat({
           });
 
           // Mark as read if from counterparty
-          if (user && newMsg.sender_id !== user.id) {
+          if (userId && newMsg.sender_id !== userId) {
             supabase
               .from('p2p_messages')
               .update({ is_read: true })
@@ -130,7 +130,7 @@ export function TradeChat({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [tradeId, user]);
+  }, [tradeId, userId]);
 
   // Scroll to bottom on new messages
   useEffect(() => {
@@ -139,7 +139,7 @@ export function TradeChat({
 
   // Send message
   const handleSendMessage = async () => {
-    if (!newMessage.trim() || !user || sending) return;
+    if (!newMessage.trim() || !userId || sending) return;
 
     const messageText = newMessage.trim();
     setNewMessage('');
@@ -148,7 +148,7 @@ export function TradeChat({
     try {
       const { error } = await supabase.from('p2p_messages').insert({
         trade_id: tradeId,
-        sender_id: user.id,
+        sender_id: userId,
         message: messageText,
         message_type: 'text',
         is_read: false,
@@ -186,7 +186,7 @@ export function TradeChat({
   // Upload image
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !user) return;
+    if (!file || !userId) return;
 
     // Validate file
     if (!file.type.startsWith('image/')) {
@@ -218,7 +218,7 @@ export function TradeChat({
       // Insert message with image
       const { error: msgError } = await supabase.from('p2p_messages').insert({
         trade_id: tradeId,
-        sender_id: user.id,
+        sender_id: userId,
         message: t('p2pChat.sentImage'),
         message_type: 'image',
         attachment_url: urlData.publicUrl,
@@ -258,7 +258,7 @@ export function TradeChat({
 
   // Render message
   const renderMessage = (message: Message) => {
-    const isOwn = message.sender_id === user?.id;
+    const isOwn = message.sender_id === userId;
     const isSystem = message.message_type === 'system';
 
     if (isSystem) {
@@ -332,9 +332,9 @@ export function TradeChat({
       <CardHeader className="py-3 px-4 border-b border-gray-800">
         <CardTitle className="text-white text-base flex items-center gap-2">
           <span>{t('p2pChat.title')}</span>
-          {messages.filter(m => m.sender_id !== user?.id && !m.is_read).length > 0 && (
+          {messages.filter(m => m.sender_id !== userId && !m.is_read).length > 0 && (
             <span className="px-1.5 py-0.5 text-xs bg-green-500 text-white rounded-full">
-              {messages.filter(m => m.sender_id !== user?.id && !m.is_read).length}
+              {messages.filter(m => m.sender_id !== userId && !m.is_read).length}
             </span>
           )}
         </CardTitle>

@@ -33,13 +33,13 @@ import {
   RefreshCw,
   Star,
 } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
-import { usePezkuwi } from '@/contexts/PezkuwiContext';
+import { useP2PIdentity } from '@/contexts/P2PIdentityContext';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import {
   markPaymentSent,
   confirmPaymentReceived,
+  cancelTrade,
   getUserReputation,
   type P2PFiatTrade,
   type P2PFiatOffer,
@@ -74,8 +74,7 @@ export default function P2PTrade() {
   const { tradeId } = useParams<{ tradeId: string }>();
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { user } = useAuth();
-  const { api, selectedAccount } = usePezkuwi();
+  const { userId } = useP2PIdentity();
 
   const [trade, setTrade] = useState<TradeWithDetails | null>(null);
   const [loading, setLoading] = useState(true);
@@ -91,8 +90,8 @@ export default function P2PTrade() {
   const [cancelReason, setCancelReason] = useState('');
 
   // Determine user role
-  const isSeller = trade?.seller_id === user?.id;
-  const isBuyer = trade?.buyer_id === user?.id;
+  const isSeller = trade?.seller_id === userId;
+  const isBuyer = trade?.buyer_id === userId;
   const isParticipant = isSeller || isBuyer;
 
   // Fetch trade details
@@ -265,7 +264,7 @@ export default function P2PTrade() {
 
   // Handle mark as paid
   const handleMarkAsPaid = async () => {
-    if (!trade || !user) return;
+    if (!trade || !userId) return;
 
     setActionLoading(true);
     try {
@@ -293,14 +292,14 @@ export default function P2PTrade() {
 
   // Handle release crypto
   const handleReleaseCrypto = async () => {
-    if (!trade || !api || !selectedAccount) {
-      toast.error(t('p2p.connectWallet'));
+    if (!trade || !userId) {
+      toast.error(t('p2p.connectWalletAndLogin'));
       return;
     }
 
     setActionLoading(true);
     try {
-      await confirmPaymentReceived(api, selectedAccount, trade.id);
+      await confirmPaymentReceived(trade.id, userId);
       toast.success(t('p2pTrade.cryptoReleasedToast'));
       fetchTrade();
     } catch (error) {
@@ -312,29 +311,11 @@ export default function P2PTrade() {
 
   // Handle cancel trade
   const handleCancelTrade = async () => {
-    if (!trade) return;
+    if (!trade || !userId) return;
 
     setActionLoading(true);
     try {
-      const { error } = await supabase
-        .from('p2p_fiat_trades')
-        .update({
-          status: 'cancelled',
-          cancelled_by: user?.id,
-          cancel_reason: cancelReason,
-        })
-        .eq('id', trade.id);
-
-      if (error) throw error;
-
-      // Restore offer remaining amount
-      await supabase
-        .from('p2p_fiat_offers')
-        .update({
-          remaining_amount: (trade.offer?.remaining_amount || 0) + trade.crypto_amount,
-          status: 'open',
-        })
-        .eq('id', trade.offer_id);
+      await cancelTrade(trade.id, userId, cancelReason || undefined);
 
       setShowCancelModal(false);
       toast.success(t('p2pTrade.tradeCancelledToast'));

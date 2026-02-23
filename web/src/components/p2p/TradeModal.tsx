@@ -14,8 +14,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, AlertTriangle, Clock } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
+import { useP2PIdentity } from '@/contexts/P2PIdentityContext';
 import { toast } from 'sonner';
 import { acceptFiatOffer, type P2PFiatOffer } from '@shared/lib/p2p-fiat';
 
@@ -27,8 +27,8 @@ interface TradeModalProps {
 export function TradeModal({ offer, onClose }: TradeModalProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const { api, selectedAccount } = usePezkuwi();
+  const { selectedAccount } = usePezkuwi();
+  const { userId } = useP2PIdentity();
   const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -41,13 +41,13 @@ export function TradeModal({ offer, onClose }: TradeModalProps) {
   const meetsMaxOrder = !offer.max_order_amount || cryptoAmount <= offer.max_order_amount;
 
   const handleInitiateTrade = async () => {
-    if (!api || !selectedAccount || !user) {
+    if (!selectedAccount || !userId) {
       toast.error(t('p2p.connectWalletAndLogin'));
       return;
     }
 
     // Prevent self-trading
-    if (offer.seller_id === user.id) {
+    if (offer.seller_id === userId) {
       toast.error(t('p2pTrade.cannotTradeOwn'));
       return;
     }
@@ -71,9 +71,9 @@ export function TradeModal({ offer, onClose }: TradeModalProps) {
 
     try {
       const tradeId = await acceptFiatOffer({
-        api,
-        account: selectedAccount,
         offerId: offer.id,
+        buyerUserId: userId,
+        buyerWallet: selectedAccount.address,
         amount: cryptoAmount
       });
 

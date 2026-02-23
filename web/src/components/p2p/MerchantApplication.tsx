@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabase';
+import { useP2PIdentity } from '@/contexts/P2PIdentityContext';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -107,6 +108,7 @@ const TIER_COLORS = {
 
 export function MerchantApplication() {
   const { t } = useTranslation();
+  const { userId } = useP2PIdentity();
   const [loading, setLoading] = useState(true);
   const [requirements, setRequirements] = useState<TierRequirements[]>(DEFAULT_REQUIREMENTS);
   const [userStats, setUserStats] = useState<UserStats>({ completed_trades: 0, completion_rate: 0, volume_30d: 0 });
@@ -123,8 +125,7 @@ export function MerchantApplication() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!userId) return;
 
       // Fetch tier requirements
       const { data: reqData } = await supabase
@@ -140,21 +141,21 @@ export function MerchantApplication() {
       const { data: repData } = await supabase
         .from('p2p_reputation')
         .select('completed_trades')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .single();
 
       // Fetch merchant stats
       const { data: statsData } = await supabase
         .from('p2p_merchant_stats')
         .select('completion_rate_30d, total_volume_30d')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .single();
 
       // Fetch current tier
       const { data: tierData } = await supabase
         .from('p2p_merchant_tiers')
         .select('tier, application_status, applied_for_tier')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .single();
 
       setUserStats({
@@ -207,11 +208,10 @@ export function MerchantApplication() {
 
     setApplying(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
+      if (!userId) throw new Error('Not authenticated');
 
       const { data, error } = await supabase.rpc('apply_for_tier_upgrade', {
-        p_user_id: user.id,
+        p_user_id: userId,
         p_target_tier: selectedTier
       });
 

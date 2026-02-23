@@ -16,7 +16,7 @@ import { WithdrawModal } from './WithdrawModal';
 import { ExpressMode } from './ExpressMode';
 import { BlockTrade } from './BlockTrade';
 import { DEFAULT_FILTERS, type P2PFilters } from './types';
-import { useAuth } from '@/contexts/AuthContext';
+import { useP2PIdentity } from '@/contexts/P2PIdentityContext';
 import { supabase } from '@/lib/supabase';
 
 interface UserStats {
@@ -34,7 +34,7 @@ export function P2PDashboard() {
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [balanceRefreshKey, setBalanceRefreshKey] = useState(0);
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { userId } = useP2PIdentity();
 
   const handleBalanceUpdated = () => {
     setBalanceRefreshKey(prev => prev + 1);
@@ -43,28 +43,28 @@ export function P2PDashboard() {
   // Fetch user stats
   useEffect(() => {
     const fetchStats = async () => {
-      if (!user) return;
+      if (!userId) return;
 
       try {
         // Count active trades
         const { count: activeCount } = await supabase
           .from('p2p_fiat_trades')
           .select('*', { count: 'exact', head: true })
-          .or(`seller_id.eq.${user.id},buyer_id.eq.${user.id}`)
+          .or(`seller_id.eq.${userId},buyer_id.eq.${userId}`)
           .in('status', ['pending', 'payment_sent']);
 
         // Count completed trades
         const { count: completedCount } = await supabase
           .from('p2p_fiat_trades')
           .select('*', { count: 'exact', head: true })
-          .or(`seller_id.eq.${user.id},buyer_id.eq.${user.id}`)
+          .or(`seller_id.eq.${userId},buyer_id.eq.${userId}`)
           .eq('status', 'completed');
 
         // Calculate total volume
         const { data: trades } = await supabase
           .from('p2p_fiat_trades')
           .select('fiat_amount')
-          .or(`seller_id.eq.${user.id},buyer_id.eq.${user.id}`)
+          .or(`seller_id.eq.${userId},buyer_id.eq.${userId}`)
           .eq('status', 'completed');
 
         const totalVolume = trades?.reduce((sum, t) => sum + (t.fiat_amount || 0), 0) || 0;
@@ -80,7 +80,7 @@ export function P2PDashboard() {
     };
 
     fetchStats();
-  }, [user]);
+  }, [userId]);
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
@@ -120,7 +120,7 @@ export function P2PDashboard() {
       </div>
 
       {/* Stats Cards and Balance Card */}
-      {user && (
+      {userId && (
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
           {/* Internal Balance Card - Takes more space */}
           <div className="lg:col-span-1">

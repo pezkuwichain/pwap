@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
+import { useP2PIdentity } from '@/contexts/P2PIdentityContext';
 import { MerchantTierBadge } from '@/components/p2p/MerchantTierBadge';
 import { MerchantApplication } from '@/components/p2p/MerchantApplication';
 import { CreateAd } from '@/components/p2p/CreateAd';
@@ -91,6 +92,7 @@ interface ChartDataPoint {
 export default function P2PMerchantDashboard() {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { userId } = useP2PIdentity();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<MerchantStats | null>(null);
   const [tierInfo, setTierInfo] = useState<MerchantTier | null>(null);
@@ -111,19 +113,18 @@ export default function P2PMerchantDashboard() {
 
   // Fetch merchant data
   const fetchData = useCallback(async () => {
+    if (!userId) {
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        navigate('/login');
-        return;
-      }
-
       // Fetch stats
       const { data: statsData } = await supabase
         .from('p2p_merchant_stats')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .single();
 
       if (statsData) {
@@ -134,7 +135,7 @@ export default function P2PMerchantDashboard() {
       const { data: tierData } = await supabase
         .from('p2p_merchant_tiers')
         .select('tier, max_pending_orders, max_order_amount, featured_ads_allowed')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .single();
 
       if (tierData) {
@@ -145,7 +146,7 @@ export default function P2PMerchantDashboard() {
       const { data: adsData } = await supabase
         .from('p2p_fiat_offers')
         .select('*')
-        .eq('seller_id', user.id)
+        .eq('seller_id', userId)
         .in('status', ['open', 'paused'])
         .order('created_at', { ascending: false });
 
@@ -160,7 +161,7 @@ export default function P2PMerchantDashboard() {
       const { data: tradesData } = await supabase
         .from('p2p_fiat_trades')
         .select('created_at, fiat_amount, status')
-        .or(`seller_id.eq.${user.id},buyer_id.eq.${user.id}`)
+        .or(`seller_id.eq.${userId},buyer_id.eq.${userId}`)
         .gte('created_at', thirtyDaysAgo.toISOString())
         .order('created_at', { ascending: true });
 
@@ -197,7 +198,7 @@ export default function P2PMerchantDashboard() {
     } finally {
       setLoading(false);
     }
-  }, [navigate]);
+  }, [userId]);
 
   useEffect(() => {
     fetchData();
@@ -290,13 +291,14 @@ export default function P2PMerchantDashboard() {
 
   // Save auto-reply message
   const saveAutoReply = async () => {
+    if (!userId) return;
     setSavingAutoReply(true);
     try {
       // Save to all active ads
       const { error } = await supabase
         .from('p2p_fiat_offers')
         .update({ auto_reply_message: autoReplyMessage })
-        .eq('seller_id', (await supabase.auth.getUser()).data.user?.id);
+        .eq('seller_id', userId);
 
       if (error) throw error;
 
