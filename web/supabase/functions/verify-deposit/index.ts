@@ -38,6 +38,7 @@ interface DepositRequest {
   txHash: string
   token: 'HEZ' | 'PEZ'
   expectedAmount: number
+  walletAddress: string
 }
 
 // Cache API connection
@@ -232,45 +233,19 @@ serve(async (req) => {
   }
 
   try {
-    // Get authorization header
-    const authHeader = req.headers.get('Authorization')
-    if (!authHeader) {
-      return new Response(
-        JSON.stringify({ success: false, error: 'Missing authorization header' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
-
-    // Create Supabase clients
+    // Create Supabase service client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-
-    // User client (to get user ID)
-    const userClient = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } }
-    })
-
-    // Service role client (to process deposit)
     const serviceClient = createClient(supabaseUrl, supabaseServiceKey)
-
-    // Get current user
-    const { data: { user }, error: userError } = await userClient.auth.getUser()
-    if (userError || !user) {
-      return new Response(
-        JSON.stringify({ success: false, error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
 
     // Parse request body
     const body: DepositRequest = await req.json()
-    const { txHash, token, expectedAmount } = body
+    const { txHash, token, expectedAmount, walletAddress } = body
 
     // Validate input
-    if (!txHash || !token || !expectedAmount) {
+    if (!txHash || !token || !expectedAmount || !walletAddress) {
       return new Response(
-        JSON.stringify({ success: false, error: 'Missing required fields: txHash, token, expectedAmount' }),
+        JSON.stringify({ success: false, error: 'Missing required fields: txHash, token, expectedAmount, walletAddress' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
@@ -313,11 +288,11 @@ serve(async (req) => {
     const { data: depositRequest, error: requestError } = await serviceClient
       .from('p2p_deposit_withdraw_requests')
       .upsert({
-        user_id: user.id,
+        user_id: walletAddress,
         request_type: 'deposit',
         token,
         amount: expectedAmount,
-        wallet_address: PLATFORM_WALLET,
+        wallet_address: walletAddress,
         blockchain_tx_hash: txHash,
         status: 'processing'
       }, {
@@ -358,10 +333,30 @@ serve(async (req) => {
       )
     }
 
+    // Verify on-chain sender matches claimed wallet address
+    if (verification.from !== walletAddress) {
+      await serviceClient
+        .from('p2p_deposit_withdraw_requests')
+        .update({
+          status: 'failed',
+          error_message: `Sender mismatch: on-chain sender ${verification.from} does not match claimed wallet ${walletAddress}`,
+          processed_at: new Date().toISOString()
+        })
+        .eq('id', depositRequest.id)
+
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'Wallet address does not match the transaction sender'
+        }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
     // Transaction verified! Process deposit using service role
     const { data: processResult, error: processError } = await serviceClient
       .rpc('process_deposit', {
-        p_user_id: user.id,
+        p_user_id: walletAddress,
         p_token: token,
         p_amount: verification.actualAmount || expectedAmount,
         p_tx_hash: txHash,
@@ -397,7 +392,7 @@ serve(async (req) => {
     }
 
     // Success!
-    console.log(`Deposit successful: User=${user.id}, Amount=${verification.actualAmount || expectedAmount} ${token}`)
+    console.log(`Deposit successful: Wallet=${walletAddress}, Amount=${verification.actualAmount || expectedAmount} ${token}`)
 
     return new Response(
       JSON.stringify({
