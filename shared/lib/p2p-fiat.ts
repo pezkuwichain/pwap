@@ -1011,7 +1011,8 @@ export async function getInternalBalance(userId: string, token: CryptoToken): Pr
 
 /**
  * Request a withdrawal from internal balance to external wallet
- * This creates a pending request that will be processed by backend service
+ * Calls the process-withdraw edge function which handles the full flow:
+ * limit check → lock balance → blockchain TX → complete withdrawal
  */
 export async function requestWithdraw(
   userId: string,
@@ -1030,31 +1031,24 @@ export async function requestWithdraw(
       throw new Error('Invalid wallet address');
     }
 
-    toast.info('Processing withdrawal request...');
+    toast.info('Processing withdrawal...');
 
-    // Call the database function
-    const { data, error } = await supabase.rpc('request_withdraw', {
-      p_user_id: userId,
-      p_token: token,
-      p_amount: amount,
-      p_wallet_address: walletAddress
+    const { data, error } = await supabase.functions.invoke('process-withdraw', {
+      body: { userId, token, amount, walletAddress }
     });
 
     if (error) throw error;
 
-    // Parse result
-    const result = typeof data === 'string' ? JSON.parse(data) : data;
-
-    if (!result.success) {
-      throw new Error(result.error || 'Withdrawal request failed');
+    if (!data?.success) {
+      throw new Error(data?.error || 'Withdrawal failed');
     }
 
-    toast.success(`Withdrawal request submitted! ${amount} ${token} will be sent to your wallet.`);
+    toast.success(`${amount} ${token} sent to your wallet! TX: ${data.txHash?.slice(0, 10)}...`);
 
-    return result.request_id;
+    return data.txHash || '';
   } catch (error: unknown) {
     console.error('Request withdraw error:', error);
-    const message = error instanceof Error ? error.message : 'Withdrawal request failed';
+    const message = error instanceof Error ? error.message : 'Withdrawal failed';
     toast.error(message);
     throw error;
   }

@@ -49,7 +49,7 @@ export function InternalBalanceCard({ onDeposit, onWithdraw }: InternalBalanceCa
     await fetchBalances();
   };
 
-  const formatBalance = (value: number, decimals: number = 4) => {
+  const formatBalance = (value: number, decimals: number = 2) => {
     return value.toLocaleString(undefined, {
       minimumFractionDigits: decimals,
       maximumFractionDigits: decimals
@@ -122,8 +122,8 @@ export function InternalBalanceCard({ onDeposit, onWithdraw }: InternalBalanceCa
 
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div className="flex items-center gap-2">
-                  <Unlock className="h-4 w-4 text-green-500" />
-                  <div>
+                  <Unlock className="h-4 w-4 text-green-500 shrink-0" />
+                  <div className="flex-1 text-right">
                     <p className="text-muted-foreground text-xs">{t('p2pBalance.available')}</p>
                     <p className="font-medium text-green-600">
                       {formatBalance(balance.available_balance)}
@@ -131,8 +131,8 @@ export function InternalBalanceCard({ onDeposit, onWithdraw }: InternalBalanceCa
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Lock className="h-4 w-4 text-yellow-500" />
-                  <div>
+                  <Lock className="h-4 w-4 text-yellow-500 shrink-0" />
+                  <div className="flex-1 text-right">
                     <p className="text-muted-foreground text-xs">{t('p2pBalance.lockedEscrow')}</p>
                     <p className="font-medium text-yellow-600">
                       {formatBalance(balance.locked_balance)}
@@ -142,13 +142,13 @@ export function InternalBalanceCard({ onDeposit, onWithdraw }: InternalBalanceCa
               </div>
 
               <div className="mt-3 pt-3 border-t grid grid-cols-2 gap-2 text-xs text-muted-foreground">
-                <div>
+                <div className="flex justify-between">
                   <span>{t('p2pBalance.totalDeposited')}</span>
-                  <span className="text-foreground">{formatBalance(balance.total_deposited, 2)}</span>
+                  <span className="text-foreground">{formatBalance(balance.total_deposited)}</span>
                 </div>
-                <div>
+                <div className="flex justify-between">
                   <span>{t('p2pBalance.totalWithdrawn')}</span>
-                  <span className="text-foreground">{formatBalance(balance.total_withdrawn, 2)}</span>
+                  <span className="text-foreground">{formatBalance(balance.total_withdrawn)}</span>
                 </div>
               </div>
             </div>
