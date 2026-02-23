@@ -19,14 +19,10 @@
  *    e. Mark as completed
  */
 
-// @ts-expect-error - Deno imports
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-// @ts-expect-error - Deno imports
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-// @ts-expect-error - Pezkuwi imports for Deno
-import { ApiPromise, WsProvider, Keyring } from "https://esm.sh/@pezkuwi/api@14.0.5";
-// @ts-expect-error - Deno imports
-import { cryptoWaitReady } from "https://esm.sh/@pezkuwi/util-crypto@14.0.5";
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { createClient } from 'npm:@supabase/supabase-js@2'
+import { ApiPromise, WsProvider, Keyring } from 'npm:@pezkuwi/api@16.5.11'
+import { cryptoWaitReady } from 'npm:@pezkuwi/util-crypto@14.0.11'
 
 // Configuration
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
