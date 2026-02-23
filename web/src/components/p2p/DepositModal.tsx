@@ -56,6 +56,7 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
   const [amount, setAmount] = useState('');
   const [platformWallet, setPlatformWallet] = useState<string>('');
   const [txHash, setTxHash] = useState('');
+  const [blockNumber, setBlockNumber] = useState<number | undefined>();
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [verifying, setVerifying] = useState(false);
@@ -77,6 +78,7 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
     setToken('HEZ');
     setAmount('');
     setTxHash('');
+    setBlockNumber(undefined);
     setLoading(false);
     setCopied(false);
     setVerifying(false);
@@ -140,6 +142,13 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
 
       if (hash) {
         setTxHash(hash);
+        // Capture approximate block number for faster verification
+        try {
+          const header = await api.rpc.chain.getHeader();
+          setBlockNumber(header.number.toNumber());
+        } catch {
+          // Non-critical - verification will still work via search
+        }
         setStep('verify');
         toast.success(t('p2pDeposit.txSent'));
       }
@@ -174,7 +183,8 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
           txHash,
           token,
           expectedAmount: depositAmount,
-          walletAddress: selectedAccount?.address
+          walletAddress: selectedAccount?.address,
+          ...(blockNumber ? { blockNumber } : {})
         }
       });
 
