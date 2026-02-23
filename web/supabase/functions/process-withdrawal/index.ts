@@ -50,7 +50,7 @@ function ss58ToHex(address: string): string {
 // Configuration
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const PLATFORM_WALLET_SEED = Deno.env.get("PLATFORM_WALLET_SEED")!;
+const PLATFORM_WALLET_MNEMONIC = Deno.env.get("PLATFORM_WALLET_MNEMONIC")!;
 const RPC_ENDPOINT = Deno.env.get("RPC_ENDPOINT") || "wss://asset-hub-rpc.pezkuwichain.io";
 
 // Asset IDs
@@ -86,7 +86,7 @@ async function processWithdrawal(
     console.log(`Processing withdrawal ${id}: ${amount} ${token} to ${wallet_address}`);
 
     // 1. Get platform wallet from keyring
-    const platformWallet = keyring.addFromUri(PLATFORM_WALLET_SEED);
+    const platformWallet = keyring.addFromUri(PLATFORM_WALLET_MNEMONIC);
 
     // 2. Calculate amount in planck (smallest unit)
     const amountPlanck = BigInt(Math.floor(amount * Math.pow(10, DECIMALS)));
