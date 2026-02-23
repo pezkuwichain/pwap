@@ -332,22 +332,28 @@ async function verifyTransactionOnChain(
       }
     }
 
-    // Check if block is finalized
-    const finalizedHash = await api.rpc.chain.getFinalizedHead()
-    const finalizedHeader = await api.rpc.chain.getHeader(finalizedHash)
-    const finalizedNumber = finalizedHeader.number.toNumber()
+    // Wait for block finalization (poll every 6s, max 60s)
+    const POLL_INTERVAL = 6000
+    const MAX_WAIT = 60000
+    const startTime = Date.now()
 
-    if (found.blockNumber > finalizedNumber) {
-      return {
-        valid: false,
-        error: 'Transaction not yet finalized. Please wait a few more blocks.'
+    while (Date.now() - startTime < MAX_WAIT) {
+      const finalizedHash = await api.rpc.chain.getFinalizedHead()
+      const finalizedHeader = await api.rpc.chain.getHeader(finalizedHash)
+      const finalizedNumber = finalizedHeader.number.toNumber()
+
+      if (found.blockNumber <= finalizedNumber) {
+        console.log(`Block #${found.blockNumber} finalized (finalized head: #${finalizedNumber})`)
+        return { valid: true, actualAmount, from }
       }
+
+      console.log(`Waiting for finalization: block #${found.blockNumber}, finalized: #${finalizedNumber}`)
+      await new Promise(r => setTimeout(r, POLL_INTERVAL))
     }
 
     return {
-      valid: true,
-      actualAmount,
-      from
+      valid: false,
+      error: 'Transaction block did not finalize within 60 seconds. Please try verifying again.'
     }
 
   } catch (error) {
