@@ -9,9 +9,9 @@ import { usePezkuwi } from './PezkuwiContext';
 import { WALLET_ERRORS, formatBalance, ASSET_IDS } from '@pezkuwi/lib/wallet';
 import type { InjectedAccountWithMeta } from '@pezkuwi/extension-inject/types';
 import type { Signer } from '@pezkuwi/api/types';
-import { web3Enable, web3FromAddress } from '@pezkuwi/extension-dapp';
 import { isMobileApp, signTransactionNative, type TransactionPayload } from '@/lib/mobile-bridge';
 import { createWCSigner, isWCConnected, validateSession } from '@/lib/walletconnect-service';
+import { getSigner as getUniversalSigner } from '@/lib/get-signer';
 
 interface TokenBalances {
   HEZ: string;
@@ -275,9 +275,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       }
 
       // Desktop / pezWallet DApps browser: Use extension signer
-      const { web3Enable: enable, web3FromAddress: fromAddress } = await import('@pezkuwi/extension-dapp');
-      await enable('PezkuwiChain');
-      const injector = await fromAddress(pezkuwi.selectedAccount.address);
+      const injector = await getUniversalSigner(pezkuwi.selectedAccount.address, pezkuwi.walletSource, pezkuwi.api);
 
       const hash = await (tx as { signAndSend: (address: string, options: { signer: unknown }) => Promise<{ toHex: () => string }> }).signAndSend(
         pezkuwi.selectedAccount.address,
@@ -318,9 +316,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       }
 
       // Extension signing
-      const { web3Enable: enable, web3FromAddress: fromAddress } = await import('@pezkuwi/extension-dapp');
-      await enable('PezkuwiChain');
-      const injector = await fromAddress(pezkuwi.selectedAccount.address);
+      const injector = await getUniversalSigner(pezkuwi.selectedAccount.address, pezkuwi.walletSource, pezkuwi.api);
 
       if (!injector.signer.signRaw) {
         throw new Error('Wallet does not support message signing');
@@ -348,17 +344,9 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       }
 
       try {
-        if (pezkuwi.walletSource === 'walletconnect' && isWCConnected() && validateSession() && pezkuwi.api) {
-          const genesisHash = pezkuwi.api.genesisHash.toHex();
-          const wcSigner = createWCSigner(genesisHash, pezkuwi.selectedAccount.address);
-          setSigner(wcSigner as unknown as Signer);
-          if (import.meta.env.DEV) console.log('✅ WC Signer obtained for', pezkuwi.selectedAccount.address);
-        } else if (pezkuwi.walletSource !== 'walletconnect') {
-          await web3Enable('PezkuwiChain');
-          const injector = await web3FromAddress(pezkuwi.selectedAccount.address);
-          setSigner(injector.signer);
-          if (import.meta.env.DEV) console.log('✅ Extension Signer obtained for', pezkuwi.selectedAccount.address);
-        }
+        const injector = await getUniversalSigner(pezkuwi.selectedAccount.address, pezkuwi.walletSource, pezkuwi.api);
+        setSigner(injector.signer as unknown as Signer);
+        if (import.meta.env.DEV) console.log('✅ Signer obtained for', pezkuwi.selectedAccount.address);
       } catch (error) {
         if (import.meta.env.DEV) console.error('Failed to get signer:', error);
         setSigner(null);

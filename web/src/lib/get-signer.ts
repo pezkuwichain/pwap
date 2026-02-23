@@ -16,6 +16,16 @@ interface SignerResult {
   signer: any; // Compatible with @pezkuwi/api Signer
 }
 
+// Cache web3Enable to avoid "Too many authorization requests" error
+let enablePromise: Promise<unknown[]> | null = null;
+
+async function ensureWeb3Enabled(): Promise<void> {
+  if (!enablePromise) {
+    enablePromise = web3Enable('PezkuwiChain');
+  }
+  await enablePromise;
+}
+
 export async function getSigner(
   address: string,
   walletSource: WalletSource,
@@ -34,7 +44,7 @@ export async function getSigner(
   }
 
   // Extension or native: use web3FromAddress
-  await web3Enable('PezkuwiChain');
+  await ensureWeb3Enabled();
   const injector = await web3FromAddress(address);
   return injector;
 }
