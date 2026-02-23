@@ -13,6 +13,7 @@ import type { ApiPromise } from '@pezkuwi/api';
 type WalletSource = 'extension' | 'walletconnect' | 'native' | null;
 
 interface SignerResult {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   signer: any; // Compatible with @pezkuwi/api Signer
 }
 
