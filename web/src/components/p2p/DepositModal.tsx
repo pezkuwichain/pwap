@@ -32,7 +32,7 @@ import {
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { toast } from 'sonner';
-import { supabase } from '@/lib/supabase';
+
 import {
   getPlatformWalletAddress,
   type CryptoToken
@@ -177,20 +177,26 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
 
     try {
       // Call the Edge Function for secure deposit verification
-      // This verifies the transaction on-chain before crediting balance
-      const { data, error } = await supabase.functions.invoke('verify-deposit', {
-        body: {
+      // Use fetch directly to read response body on all status codes
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      const res = await fetch(`${supabaseUrl}/functions/v1/verify-deposit`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${supabaseKey}`,
+          'apikey': supabaseKey,
+        },
+        body: JSON.stringify({
           txHash,
           token,
           expectedAmount: depositAmount,
           walletAddress: selectedAccount?.address,
           ...(blockNumber ? { blockNumber } : {})
-        }
+        })
       });
 
-      if (error) {
-        throw new Error(error.message || t('p2pDeposit.verificationFailed'));
-      }
+      const data = await res.json();
 
       if (data?.success) {
         toast.success(t('p2pDeposit.depositVerified', { amount: data.amount, token }));
