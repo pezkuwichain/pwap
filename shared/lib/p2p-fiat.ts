@@ -428,7 +428,6 @@ export async function createFiatOffer(params: CreateOfferParams): Promise<string
         amount_crypto: amountCrypto,
         fiat_currency: fiatCurrency,
         fiat_amount: fiatAmount,
-        price_per_unit: fiatAmount / amountCrypto,
         payment_method_id: paymentMethodId,
         payment_details_encrypted: encryptedDetails,
         min_order_amount: minOrderAmount,
