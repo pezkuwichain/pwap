@@ -154,12 +154,6 @@ export function WithdrawModal({ isOpen, onClose, onSuccess }: WithdrawModalProps
       return t('p2pWithdraw.invalidAddress');
     }
 
-    // Check for pending requests
-    const hasPendingForToken = pendingRequests.some(r => r.token === token);
-    if (hasPendingForToken) {
-      return t('p2pWithdraw.pendingForToken', { token });
-    }
-
     return null;
   };
 
@@ -291,10 +285,10 @@ export function WithdrawModal({ isOpen, onClose, onSuccess }: WithdrawModalProps
             </Alert>
           )}
 
-          {/* Pending Requests Warning */}
+          {/* Pending Requests Info */}
           {pendingRequests.length > 0 && (
-            <Alert variant="destructive">
-              <AlertTriangle className="h-4 w-4" />
+            <Alert>
+              <Info className="h-4 w-4" />
               <AlertDescription>
                 {t('p2pWithdraw.pendingWarning', { count: pendingRequests.length })}
               </AlertDescription>
