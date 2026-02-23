@@ -7,6 +7,30 @@ import { createClient } from 'npm:@supabase/supabase-js@2'
 import { ApiPromise, WsProvider, Keyring } from 'npm:@pezkuwi/api@16.5.11'
 import { cryptoWaitReady } from 'npm:@pezkuwi/util-crypto@14.0.11'
 
+// Decode SS58 address to raw 32-byte public key hex
+function ss58ToHex(address: string): string {
+  const CHARS = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
+  let leadingZeros = 0
+  for (const c of address) {
+    if (c !== '1') break
+    leadingZeros++
+  }
+  let num = 0n
+  for (const c of address) {
+    num = num * 58n + BigInt(CHARS.indexOf(c))
+  }
+  const hex = num.toString(16)
+  const paddedHex = hex.length % 2 ? '0' + hex : hex
+  const decoded = new Uint8Array(leadingZeros + paddedHex.length / 2)
+  for (let i = 0; i < leadingZeros; i++) decoded[i] = 0
+  for (let i = 0; i < paddedHex.length / 2; i++) {
+    decoded[leadingZeros + i] = parseInt(paddedHex.slice(i * 2, i * 2 + 2), 16)
+  }
+  // SS58: [1-byte prefix] [32 bytes pubkey] [2 bytes checksum]
+  const pubkey = decoded.slice(1, 33)
+  return '0x' + Array.from(pubkey, (b: number) => b.toString(16).padStart(2, '0')).join('')
+}
+
 // Allowed origins for CORS
 const ALLOWED_ORIGINS = [
   'https://app.pezkuwichain.io',
@@ -95,23 +119,29 @@ async function sendTokens(
     // Convert amount to chain units
     const amountBN = BigInt(Math.floor(amount * Math.pow(10, DECIMALS)))
 
-    // Build transaction
+    // Convert all addresses to hex (Deno npm shim breaks SS58 decoding in @pezkuwi/api types)
+    const destHex = ss58ToHex(toAddress)
+    const signerHex = '0x' + Array.from(hotWallet.publicKey, (b: number) => b.toString(16).padStart(2, '0')).join('')
+    console.log(`Sending ${amount} ${token}: ${signerHex} → ${destHex}`)
+
     let tx
     if (token === 'HEZ') {
-      // Native token transfer
-      tx = api.tx.balances.transferKeepAlive(toAddress, amountBN)
+      tx = api.tx.balances.transferKeepAlive({ Id: destHex }, amountBN)
     } else if (token === 'PEZ') {
-      // Asset transfer
-      tx = api.tx.assets.transfer(PEZ_ASSET_ID, toAddress, amountBN)
+      tx = api.tx.assets.transfer(PEZ_ASSET_ID, { Id: destHex }, amountBN)
     } else {
       return { success: false, error: 'Invalid token' }
     }
+
+    // Fetch nonce via hex pubkey to avoid SS58 → AccountId32 decoding issue
+    const accountInfo = await api.query.system.account(signerHex)
+    const nonce = accountInfo.nonce
 
     // Sign and send transaction
     return new Promise((resolve) => {
       let txHash: string
 
-      tx.signAndSend(hotWallet, { nonce: -1 }, (result) => {
+      tx.signAndSend(hotWallet, { nonce }, (result) => {
         txHash = result.txHash.toHex()
 
         if (result.status.isInBlock) {
