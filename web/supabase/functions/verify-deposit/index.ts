@@ -28,9 +28,9 @@ function getCorsHeaders(origin: string | null) {
 // Platform hot wallet address (PRODUCTION) - Treasury_3
 const PLATFORM_WALLET = '5H18ZZBU4LwPYbeEZ1JBGvibCU2edhhM8HNUtFi7GgC36CgS'
 
-// RPC endpoints for PezkuwiChain
-const RPC_HTTP = 'https://rpc.pezkuwichain.io'
-const RPC_WS = 'wss://rpc.pezkuwichain.io'
+// RPC endpoints — defaults to Asset Hub where user balances live
+const RPC_HTTP = Deno.env.get('RPC_HTTP') || 'https://asset-hub-rpc.pezkuwichain.io'
+const RPC_WS = Deno.env.get('RPC_WS') || 'wss://asset-hub-rpc.pezkuwichain.io'
 
 // Token decimals
 const DECIMALS = 12

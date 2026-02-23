@@ -26,8 +26,8 @@ function getCorsHeaders(origin: string | null) {
 // Platform hot wallet address
 const PLATFORM_WALLET = '5HN6sFM7TbPQazmfhJP1kU8itw7Tb2A9UML8TwSYRwiN9q5Z'
 
-// RPC endpoint
-const RPC_ENDPOINT = 'wss://rpc.pezkuwichain.io'
+// RPC endpoint — defaults to Asset Hub where user balances live
+const RPC_ENDPOINT = Deno.env.get('RPC_ENDPOINT') || 'wss://asset-hub-rpc.pezkuwichain.io'
 
 // Token decimals
 const DECIMALS = 12

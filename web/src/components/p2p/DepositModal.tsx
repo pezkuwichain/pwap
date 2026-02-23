@@ -49,7 +49,7 @@ type DepositStep = 'select' | 'send' | 'verify' | 'success';
 
 export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) {
   const { t } = useTranslation();
-  const { api, selectedAccount } = usePezkuwi();
+  const { assetHubApi, isAssetHubReady, selectedAccount } = usePezkuwi();
   const { balances, signTransaction } = useWallet();
   const { identityId } = useP2PIdentity();
 
@@ -109,7 +109,7 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
   };
 
   const handleSendDeposit = async () => {
-    if (!api || !selectedAccount) {
+    if (!assetHubApi || !isAssetHubReady || !selectedAccount) {
       toast.error(t('p2pDeposit.connectWallet'));
       return;
     }
@@ -129,12 +129,12 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
 
       let tx;
       if (token === 'HEZ') {
-        // Native transfer
-        tx = api.tx.balances.transferKeepAlive(platformWallet, amountBN);
+        // Native transfer on Asset Hub
+        tx = assetHubApi.tx.balances.transferKeepAlive(platformWallet, amountBN);
       } else {
         // Asset transfer (PEZ = asset ID 1)
         const assetId = token === 'PEZ' ? 1 : 0;
-        tx = api.tx.assets.transfer(assetId, platformWallet, amountBN);
+        tx = assetHubApi.tx.assets.transfer(assetId, platformWallet, amountBN);
       }
 
       toast.info(t('p2pDeposit.signTransaction'));
@@ -146,7 +146,7 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
         setTxHash(hash);
         // Capture approximate block number for faster verification
         try {
-          const header = await api.rpc.chain.getHeader();
+          const header = await assetHubApi.rpc.chain.getHeader();
           setBlockNumber(header.number.toNumber());
         } catch {
           // Non-critical - verification will still work via search
