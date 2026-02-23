@@ -173,7 +173,8 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
         body: {
           txHash,
           token,
-          expectedAmount: depositAmount
+          expectedAmount: depositAmount,
+          walletAddress: selectedAccount?.address
         }
       });
 
