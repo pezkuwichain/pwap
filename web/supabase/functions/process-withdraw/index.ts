@@ -49,6 +49,7 @@ const WITHDRAW_FEE = {
 
 interface WithdrawRequest {
   requestId?: string  // If processing specific request
+  userId: string      // Identity-based UUID (from citizen/visa number)
   token?: 'HEZ' | 'PEZ'
   amount?: number
   walletAddress?: string
@@ -197,7 +198,6 @@ serve(async (req) => {
 
     // Create Supabase clients
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 
     // Get hot wallet private key from secrets
@@ -210,26 +210,20 @@ serve(async (req) => {
       )
     }
 
-    // User client (to get user ID)
-    const userClient = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } }
-    })
-
     // Service role client
     const serviceClient = createClient(supabaseUrl, supabaseServiceKey)
 
-    // Get current user
-    const { data: { user }, error: userError } = await userClient.auth.getUser()
-    if (userError || !user) {
-      return new Response(
-        JSON.stringify({ success: false, error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
-
     // Parse request body
     const body: WithdrawRequest = await req.json()
+    const { userId } = body
     let { requestId, token, amount, walletAddress } = body
+
+    if (!userId) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Missing required field: userId' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
 
     // Mode 1: Process existing request by ID
     if (requestId) {
@@ -237,7 +231,7 @@ serve(async (req) => {
         .from('p2p_deposit_withdraw_requests')
         .select('*')
         .eq('id', requestId)
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .eq('request_type', 'withdraw')
         .eq('status', 'pending')
         .single()
@@ -292,7 +286,7 @@ serve(async (req) => {
       // Check withdrawal limits first
       const { data: limitCheck, error: limitError } = await serviceClient
         .rpc('check_withdrawal_limit', {
-          p_user_id: user.id,
+          p_user_id: userId,
           p_amount: amount
         })
 
@@ -311,7 +305,7 @@ serve(async (req) => {
       // Create withdrawal request using database function
       const { data: requestResult, error: requestError } = await serviceClient
         .rpc('request_withdraw', {
-          p_user_id: user.id,
+          p_user_id: userId,
           p_token: token,
           p_amount: amount,
           p_wallet_address: walletAddress
@@ -372,7 +366,7 @@ serve(async (req) => {
     if (!sendResult.success) {
       // Refund the locked balance
       await serviceClient.rpc('refund_escrow_internal', {
-        p_user_id: user.id,
+        p_user_id: userId,
         p_token: token,
         p_amount: amount,
         p_reference_type: 'withdraw_failed',
@@ -401,7 +395,7 @@ serve(async (req) => {
     // Success! Complete the withdrawal using database function
     const { error: completeError } = await serviceClient
       .rpc('complete_withdraw', {
-        p_user_id: user.id,
+        p_user_id: userId,
         p_token: token,
         p_amount: amount,
         p_tx_hash: sendResult.txHash,
@@ -427,7 +421,7 @@ serve(async (req) => {
 
     // Record in withdrawal limits
     await serviceClient.rpc('record_withdrawal_limit', {
-      p_user_id: user.id,
+      p_user_id: userId,
       p_amount: amount
     })
 
@@ -435,7 +429,7 @@ serve(async (req) => {
     await serviceClient
       .from('p2p_audit_log')
       .insert({
-        user_id: user.id,
+        user_id: userId,
         action: 'withdraw_completed',
         entity_type: 'withdraw_request',
         entity_id: requestId,
