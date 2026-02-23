@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Minus, AlertCircle, Info } from 'lucide-react';
-import { web3Enable, web3FromAddress } from '@pezkuwi/extension-dapp';
+import { getSigner } from '@/lib/get-signer';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { Button } from '@/components/ui/button';
@@ -63,7 +63,7 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
   asset1,
 }) => {
   // Use Asset Hub API for DEX operations (assetConversion pallet is on Asset Hub)
-  const { assetHubApi, selectedAccount } = usePezkuwi();
+  const { assetHubApi, selectedAccount, walletSource } = usePezkuwi();
   const { refreshBalances } = useWallet();
 
   const [percentage, setPercentage] = useState(100);
@@ -159,9 +159,8 @@ export const RemoveLiquidityModal: React.FC<RemoveLiquidityModalProps> = ({
     setError(null);
 
     try {
-      // Get the signer from the extension
-      await web3Enable('PezkuwiChain');
-      const injector = await web3FromAddress(selectedAccount.address);
+      // Get the signer (extension or WalletConnect)
+      const injector = await getSigner(selectedAccount.address, walletSource, assetHubApi);
 
       // Get decimals for each asset
       const asset0Decimals = getAssetDecimals(asset0);

@@ -23,7 +23,7 @@ interface InviteUserModalProps {
 
 export const InviteUserModal: React.FC<InviteUserModalProps> = ({ isOpen, onClose }) => {
   const { t } = useTranslation();
-  const { peopleApi, isPeopleReady, selectedAccount } = usePezkuwi();
+  const { peopleApi, isPeopleReady, selectedAccount, walletSource } = usePezkuwi();
   const [copied, setCopied] = useState(false);
   const [inviteeAddress, setInviteeAddress] = useState('');
   const [initiating, setInitiating] = useState(false);
@@ -81,9 +81,8 @@ export const InviteUserModal: React.FC<InviteUserModalProps> = ({ isOpen, onClos
     setInitiateSuccess(false);
 
     try {
-      const { web3Enable, web3FromAddress } = await import('@pezkuwi/extension-dapp');
-      await web3Enable('PezkuwiChain');
-      const injector = await web3FromAddress(selectedAccount.address);
+      const { getSigner } = await import('@/lib/get-signer');
+      const injector = await getSigner(selectedAccount.address, walletSource, peopleApi);
 
       if (import.meta.env.DEV) console.log(`Initiating referral from ${selectedAccount.address} to ${inviteeAddress}...`);
 

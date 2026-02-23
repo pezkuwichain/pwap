@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, ArrowDown, ArrowUp, AlertCircle, Info, Clock, CheckCircle2 } from 'lucide-react';
-import { web3Enable, web3FromAddress } from '@pezkuwi/extension-dapp';
+import { getSigner } from '@/lib/get-signer';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { Button } from '@/components/ui/button';
@@ -30,7 +30,7 @@ export const USDTBridge: React.FC<USDTBridgeProps> = ({
   specificAddresses = {},
 }) => {
   const { t } = useTranslation();
-  const { api, selectedAccount, isApiReady } = usePezkuwi();
+  const { api, selectedAccount, isApiReady, walletSource } = usePezkuwi();
   const { refreshBalances } = useWallet();
 
   const [depositAmount, setDepositAmount] = useState('');
@@ -114,8 +114,7 @@ export const USDTBridge: React.FC<USDTBridgeProps> = ({
     setSuccess(null);
 
     try {
-      await web3Enable('PezkuwiChain');
-      const injector = await web3FromAddress(selectedAccount.address);
+      const injector = await getSigner(selectedAccount.address, walletSource, api);
 
       // Burn wUSDT
       const amountBN = BigInt(Math.floor(amount * 1e6)); // 6 decimals

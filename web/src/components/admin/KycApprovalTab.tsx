@@ -21,7 +21,7 @@ import type { PendingApproval } from '@pezkuwi/lib/citizenship-workflow';
 export function KycApprovalTab() {
   const { t } = useTranslation();
   // identityKyc pallet is on People Chain - use peopleApi
-  const { peopleApi, isPeopleReady, selectedAccount, connectWallet } = usePezkuwi();
+  const { peopleApi, isPeopleReady, selectedAccount, connectWallet, walletSource } = usePezkuwi();
   const { toast } = useToast();
 
   const [loading, setLoading] = useState(true);
@@ -75,7 +75,7 @@ export function KycApprovalTab() {
 
     setProcessingAddress(applicantAddress);
     try {
-      const result = await approveReferral(peopleApi, selectedAccount, applicantAddress);
+      const result = await approveReferral(peopleApi, selectedAccount, applicantAddress, walletSource);
 
       if (!result.success) {
         toast({

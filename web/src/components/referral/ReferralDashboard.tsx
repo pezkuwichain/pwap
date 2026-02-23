@@ -14,7 +14,7 @@ import type { PendingApproval } from '@pezkuwi/lib/citizenship-workflow';
 export const ReferralDashboard: React.FC = () => {
   const { t } = useTranslation();
   const { stats, myReferrals, loading } = useReferral();
-  const { peopleApi, isPeopleReady, selectedAccount } = usePezkuwi();
+  const { peopleApi, isPeopleReady, selectedAccount, walletSource } = usePezkuwi();
   const { toast } = useToast();
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [pendingApprovals, setPendingApprovals] = useState<PendingApproval[]>([]);
@@ -45,7 +45,7 @@ export const ReferralDashboard: React.FC = () => {
 
     setProcessingAddress(applicantAddress);
     try {
-      const result = await approveReferral(peopleApi, selectedAccount, applicantAddress);
+      const result = await approveReferral(peopleApi, selectedAccount, applicantAddress, walletSource);
       if (result.success) {
         toast({
           title: 'Referral Approved',

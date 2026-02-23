@@ -4,10 +4,12 @@
 // Handles citizenship verification, status checks, and workflow logic
 
 import type { ApiPromise } from '@pezkuwi/api';
-import { web3Enable, web3FromAddress as web3FromAddressOriginal } from '@pezkuwi/extension-dapp';
+import { getSigner } from '@/lib/get-signer';
 import type { InjectedAccountWithMeta } from '@pezkuwi/extension-inject/types';
 
 import type { Signer } from '@pezkuwi/api/types';
+
+type WalletSource = 'extension' | 'walletconnect' | 'native' | null;
 
 interface SignRawPayload {
   address: string;
@@ -22,20 +24,6 @@ interface SignRawResult {
 interface InjectedSigner {
   signRaw?: (payload: SignRawPayload) => Promise<SignRawResult>;
 }
-
-interface InjectedExtension {
-  signer: Signer & InjectedSigner;
-}
-
-// Use real extension in browser, throw error in unsupported environments
-const web3FromAddress = async (address: string): Promise<InjectedExtension> => {
-  // Check if we're in a browser environment with extension support
-  if (typeof window !== 'undefined') {
-    await web3Enable('PezkuwiChain');
-    return web3FromAddressOriginal(address) as Promise<InjectedExtension>;
-  }
-  throw new Error('Pezkuwi Wallet extension not available. Please install the extension.');
-};
 
 // ========================================
 // TYPE DEFINITIONS
@@ -477,7 +465,8 @@ export async function submitKycApplication(
   api: ApiPromise,
   account: InjectedAccountWithMeta,
   identityHash: string,
-  referrerAddress?: string
+  referrerAddress?: string,
+  walletSource?: WalletSource
 ): Promise<{ success: boolean; error?: string; blockHash?: string }> {
   try {
     if (!api?.tx?.identityKyc?.applyForCitizenship) {
@@ -502,7 +491,7 @@ export async function submitKycApplication(
       };
     }
 
-    const injector = await web3FromAddress(account.address);
+    const injector = await getSigner(account.address, walletSource ?? 'extension', api);
 
     if (import.meta.env.DEV) {
       console.log('=== submitKycApplication Debug ===');
@@ -629,14 +618,15 @@ export function subscribeToKycApproval(
 export async function approveReferral(
   api: ApiPromise,
   account: InjectedAccountWithMeta,
-  applicantAddress: string
+  applicantAddress: string,
+  walletSource?: WalletSource
 ): Promise<{ success: boolean; error?: string; blockHash?: string }> {
   try {
     if (!api?.tx?.identityKyc?.approveReferral) {
       return { success: false, error: 'Identity KYC pallet not available' };
     }
 
-    const injector = await web3FromAddress(account.address);
+    const injector = await getSigner(account.address, walletSource ?? 'extension', api);
 
     const result = await new Promise<{ success: boolean; error?: string; blockHash?: string }>((resolve, reject) => {
       api.tx.identityKyc
@@ -679,14 +669,15 @@ export async function approveReferral(
  */
 export async function cancelApplication(
   api: ApiPromise,
-  account: InjectedAccountWithMeta
+  account: InjectedAccountWithMeta,
+  walletSource?: WalletSource
 ): Promise<{ success: boolean; error?: string }> {
   try {
     if (!api?.tx?.identityKyc?.cancelApplication) {
       return { success: false, error: 'Identity KYC pallet not available' };
     }
 
-    const injector = await web3FromAddress(account.address);
+    const injector = await getSigner(account.address, walletSource ?? 'extension', api);
 
     const result = await new Promise<{ success: boolean; error?: string }>((resolve, reject) => {
       api.tx.identityKyc
@@ -723,14 +714,15 @@ export async function cancelApplication(
  */
 export async function confirmCitizenship(
   api: ApiPromise,
-  account: InjectedAccountWithMeta
+  account: InjectedAccountWithMeta,
+  walletSource?: WalletSource
 ): Promise<{ success: boolean; error?: string; blockHash?: string }> {
   try {
     if (!api?.tx?.identityKyc?.confirmCitizenship) {
       return { success: false, error: 'Identity KYC pallet not available' };
     }
 
-    const injector = await web3FromAddress(account.address);
+    const injector = await getSigner(account.address, walletSource ?? 'extension', api);
 
     const result = await new Promise<{ success: boolean; error?: string; blockHash?: string }>((resolve, reject) => {
       api.tx.identityKyc
@@ -850,10 +842,12 @@ export function generateAuthChallenge(tikiNumber: string): AuthChallenge {
  */
 export async function signChallenge(
   account: InjectedAccountWithMeta,
-  challenge: AuthChallenge
+  challenge: AuthChallenge,
+  walletSource?: WalletSource,
+  api?: ApiPromise | null
 ): Promise<string> {
   try {
-    const injector = await web3FromAddress(account.address);
+    const injector = await getSigner(account.address, walletSource ?? 'extension', api);
 
     if (!injector?.signer?.signRaw) {
       throw new Error('Signer not available');

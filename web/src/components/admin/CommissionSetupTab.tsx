@@ -11,7 +11,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export function CommissionSetupTab() {
   const { t } = useTranslation();
-  const { api, isApiReady, selectedAccount } = usePezkuwi();
+  const { api, isApiReady, selectedAccount, walletSource } = usePezkuwi();
   const { toast } = useToast();
 
   const [loading, setLoading] = useState(true);
@@ -70,9 +70,8 @@ export function CommissionSetupTab() {
 
     setProcessing(true);
     try {
-      const { web3Enable, web3FromAddress } = await import('@pezkuwi/extension-dapp');
-      await web3Enable('PezkuwiChain');
-      const injector = await web3FromAddress(selectedAccount.address);
+      const { getSigner } = await import('@/lib/get-signer');
+      const injector = await getSigner(selectedAccount.address, walletSource, api);
 
       // Parse addresses (one per line, trim whitespace)
       const newAddresses = newMemberAddress
@@ -175,9 +174,8 @@ export function CommissionSetupTab() {
 
     setProcessing(true);
     try {
-      const { web3Enable, web3FromAddress } = await import('@pezkuwi/extension-dapp');
-      await web3Enable('PezkuwiChain');
-      const injector = await web3FromAddress(selectedAccount.address);
+      const { getSigner } = await import('@/lib/get-signer');
+      const injector = await getSigner(selectedAccount.address, walletSource, api);
 
       if (import.meta.env.DEV) console.log('Initializing KYC Commission...');
       if (import.meta.env.DEV) console.log('Proxy account:', COMMISSIONS.KYC.proxyAccount);

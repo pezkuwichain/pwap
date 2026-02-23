@@ -25,7 +25,7 @@ const AVAILABLE_TOKENS = [
 
 const TokenSwap = () => {
   // Use Asset Hub API for DEX operations (assetConversion pallet is on Asset Hub)
-  const { assetHubApi, isAssetHubReady, selectedAccount } = usePezkuwi();
+  const { assetHubApi, isAssetHubReady, selectedAccount, walletSource } = usePezkuwi();
   const { balances, refreshBalances } = useWallet();
   const { toast } = useToast();
   const { t } = useTranslation();
@@ -583,10 +583,9 @@ const TokenSwap = () => {
         minAmountOut: minAmountOut.toString()
       });
 
-      // Get signer from extension
-      const { web3Enable, web3FromAddress } = await import('@pezkuwi/extension-dapp');
-      await web3Enable('PezkuwiChain');
-      const injector = await web3FromAddress(selectedAccount.address);
+      // Get signer (extension or WalletConnect)
+      const { getSigner } = await import('@/lib/get-signer');
+      const injector = await getSigner(selectedAccount.address, walletSource, assetHubApi);
 
       // Build transaction based on token types
       let tx;

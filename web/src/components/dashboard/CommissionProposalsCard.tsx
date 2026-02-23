@@ -19,7 +19,7 @@ interface Proposal {
 
 export function CommissionProposalsCard() {
   const { t } = useTranslation();
-  const { api, isApiReady, selectedAccount } = usePezkuwi();
+  const { api, isApiReady, selectedAccount, walletSource } = usePezkuwi();
   const { toast } = useToast();
 
   const [loading, setLoading] = useState(true);
@@ -109,9 +109,8 @@ export function CommissionProposalsCard() {
 
     setVoting(proposal.hash);
     try {
-      const { web3Enable, web3FromAddress } = await import('@pezkuwi/extension-dapp');
-      await web3Enable('PezkuwiChain');
-      const injector = await web3FromAddress(selectedAccount.address);
+      const { getSigner } = await import('@/lib/get-signer');
+      const injector = await getSigner(selectedAccount.address, walletSource, api);
 
       const tx = api.tx.dynamicCommissionCollective.vote(
         proposal.hash,
@@ -200,9 +199,8 @@ export function CommissionProposalsCard() {
 
     setVoting(proposal.hash);
     try {
-      const { web3Enable, web3FromAddress } = await import('@pezkuwi/extension-dapp');
-      await web3Enable('PezkuwiChain');
-      const injector = await web3FromAddress(selectedAccount.address);
+      const { getSigner } = await import('@/lib/get-signer');
+      const injector = await getSigner(selectedAccount.address, walletSource, api);
 
       // Get proposal length bound
       const proposalOption = await api.query.dynamicCommissionCollective.proposalOf(proposal.hash);

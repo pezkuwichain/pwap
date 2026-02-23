@@ -54,7 +54,7 @@ interface XCMTeleportModalProps {
 }
 
 export const XCMTeleportModal: React.FC<XCMTeleportModalProps> = ({ isOpen, onClose }) => {
-  const { api, assetHubApi, peopleApi, isApiReady, isAssetHubReady, isPeopleReady, selectedAccount } = usePezkuwi();
+  const { api, assetHubApi, peopleApi, isApiReady, isAssetHubReady, isPeopleReady, selectedAccount, walletSource } = usePezkuwi();
   const { toast } = useToast();
   const { t } = useTranslation();
 
@@ -157,9 +157,8 @@ export const XCMTeleportModal: React.FC<XCMTeleportModalProps> = ({ isOpen, onCl
     setTxStatus('signing');
 
     try {
-      const { web3Enable, web3FromAddress } = await import('@pezkuwi/extension-dapp');
-      await web3Enable('PezkuwiChain');
-      const injector = await web3FromAddress(selectedAccount.address);
+      const { getSigner } = await import('@/lib/get-signer');
+      const injector = await getSigner(selectedAccount.address, walletSource, api);
 
       // Convert to smallest unit (12 decimals)
       const amountInSmallestUnit = BigInt(Math.floor(parseFloat(amount) * 1e12));

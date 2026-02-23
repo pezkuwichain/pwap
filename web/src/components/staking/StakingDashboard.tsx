@@ -11,7 +11,7 @@ import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
-import { web3FromAddress, web3Enable } from '@pezkuwi/extension-dapp';
+import { getSigner } from '@/lib/get-signer';
 import {
   getStakingInfo,
   getActiveValidators,
@@ -31,21 +31,8 @@ import { LoadingState } from '@pezkuwi/components/AsyncComponent';
 import { ValidatorPoolDashboard } from './ValidatorPoolDashboard';
 import { handleBlockchainError, handleBlockchainSuccess } from '@pezkuwi/lib/error-handler';
 
-// Get signer with auto-reconnect if extension session expired
-async function getInjectorSigner(address: string) {
-  let injector = await web3FromAddress(address);
-  if (!injector?.signer) {
-    await web3Enable('PezkuwiChain');
-    injector = await web3FromAddress(address);
-    if (!injector?.signer) {
-      throw new Error('Wallet signer not available. Please reconnect your wallet.');
-    }
-  }
-  return injector;
-}
-
 export const StakingDashboard: React.FC = () => {
-  const { assetHubApi, peopleApi, selectedAccount, isAssetHubReady, isPeopleReady } = usePezkuwi();
+  const { assetHubApi, peopleApi, selectedAccount, isAssetHubReady, isPeopleReady, walletSource } = usePezkuwi();
   const { balances, refreshBalances } = useWallet();
   const { t } = useTranslation();
 
@@ -129,7 +116,7 @@ export const StakingDashboard: React.FC = () => {
 
     setIsRecordingScore(true);
     try {
-      const injector = await getInjectorSigner(selectedAccount.address);
+      const injector = await getSigner(selectedAccount.address, walletSource, peopleApi);
       const result = await recordTrustScore(peopleApi, selectedAccount.address, injector.signer);
 
       if (result.success) {
@@ -157,7 +144,7 @@ export const StakingDashboard: React.FC = () => {
 
     setIsClaimingReward(true);
     try {
-      const injector = await getInjectorSigner(selectedAccount.address);
+      const injector = await getSigner(selectedAccount.address, walletSource, peopleApi);
       const result = await claimPezReward(peopleApi, selectedAccount.address, epochIndex, injector.signer);
 
       if (result.success) {
@@ -198,7 +185,7 @@ export const StakingDashboard: React.FC = () => {
         throw new Error(t('staking.insufficientHez'));
       }
 
-      const injector = await getInjectorSigner(selectedAccount.address);
+      const injector = await getSigner(selectedAccount.address, walletSource, assetHubApi);
 
       // If already bonded, use bondExtra, otherwise use bond
       let tx;
@@ -251,7 +238,7 @@ export const StakingDashboard: React.FC = () => {
 
     setIsLoading(true);
     try {
-      const injector = await getInjectorSigner(selectedAccount.address);
+      const injector = await getSigner(selectedAccount.address, walletSource, assetHubApi);
 
       const tx = assetHubApi.tx.staking.nominate(selectedValidators);
 
@@ -294,7 +281,7 @@ export const StakingDashboard: React.FC = () => {
         throw new Error(t('staking.insufficientStaked'));
       }
 
-      const injector = await getInjectorSigner(selectedAccount.address);
+      const injector = await getSigner(selectedAccount.address, walletSource, assetHubApi);
       const tx = assetHubApi.tx.staking.unbond(amount);
 
       await tx.signAndSend(
@@ -338,7 +325,7 @@ export const StakingDashboard: React.FC = () => {
 
     setIsLoading(true);
     try {
-      const injector = await getInjectorSigner(selectedAccount.address);
+      const injector = await getSigner(selectedAccount.address, walletSource, assetHubApi);
 
       // Number of slashing spans (usually 0)
       const tx = assetHubApi.tx.staking.withdrawUnbonded(0);
@@ -381,7 +368,7 @@ export const StakingDashboard: React.FC = () => {
 
     setIsLoading(true);
     try {
-      const injector = await getInjectorSigner(selectedAccount.address);
+      const injector = await getSigner(selectedAccount.address, walletSource, peopleApi);
       // stakingScore pallet is on People Chain - uses cached staking data from Asset Hub
       const tx = peopleApi.tx.stakingScore.startScoreTracking();
 
