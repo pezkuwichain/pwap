@@ -95,7 +95,8 @@
     "@pezkuwi/keyring": "^14.0.25",
     "@pezkuwi/util": "^14.0.25",
     "@pezkuwi/util-crypto": "^14.0.25",
-    "@isaacs/brace-expansion": "5.0.1"
+    "@isaacs/brace-expansion": "5.0.1",
+    "fast-xml-parser": "^5.3.6"
   },
   "devDependencies": {
     "@babel/plugin-transform-class-static-block": "^7.28.6",
