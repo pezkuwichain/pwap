@@ -12,7 +12,7 @@ import { User, Mail, Phone, Globe, MapPin, Calendar, Shield, AlertCircle, ArrowL
 import { useToast } from '@/hooks/use-toast';
 import { fetchUserTikis, getPrimaryRole, getTikiDisplayName, getTikiColor, getTikiEmoji, getUserRoleCategories, getAllTikiNFTDetails, generateCitizenNumber, type TikiNFTDetails } from '@pezkuwi/lib/tiki';
 import { getAllScores, getStakingScoreStatus, startScoreTracking, getPezRewards, recordTrustScore, claimPezReward, type UserScores, type StakingScoreStatus, type PezRewardInfo, formatDuration } from '@pezkuwi/lib/scores';
-import { web3Enable, web3FromAddress } from '@pezkuwi/extension-dapp';
+import { getSigner } from '@/lib/get-signer';
 import { getKycStatus } from '@pezkuwi/lib/kyc';
 import { ReferralDashboard } from '@/components/referral/ReferralDashboard';
 // Commission proposals card removed - no longer using notary system for KYC approval
@@ -21,7 +21,7 @@ import { ReferralDashboard } from '@/components/referral/ReferralDashboard';
 export default function Dashboard() {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const { api, isApiReady, peopleApi, isPeopleReady, selectedAccount } = usePezkuwi();
+  const { api, isApiReady, peopleApi, isPeopleReady, selectedAccount, walletSource } = usePezkuwi();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [profile, setProfile] = useState<Record<string, unknown> | null>(null);
@@ -157,8 +157,7 @@ export default function Dashboard() {
 
     setStartingScoreTracking(true);
     try {
-      await web3Enable('PezkuwiChain');
-      const injector = await web3FromAddress(selectedAccount.address);
+      const injector = await getSigner(selectedAccount.address, walletSource, peopleApi);
       // startScoreTracking on People Chain - staking data comes from Asset Hub via XCM
       const result = await startScoreTracking(peopleApi, selectedAccount.address, injector.signer);
 
@@ -193,8 +192,7 @@ export default function Dashboard() {
 
     setIsRecordingScore(true);
     try {
-      await web3Enable('PezkuwiChain');
-      const injector = await web3FromAddress(selectedAccount.address);
+      const injector = await getSigner(selectedAccount.address, walletSource, peopleApi);
       const result = await recordTrustScore(peopleApi, selectedAccount.address, injector.signer);
 
       if (result.success) {
@@ -215,8 +213,7 @@ export default function Dashboard() {
 
     setIsClaimingReward(true);
     try {
-      await web3Enable('PezkuwiChain');
-      const injector = await web3FromAddress(selectedAccount.address);
+      const injector = await getSigner(selectedAccount.address, walletSource, peopleApi);
       const result = await claimPezReward(peopleApi, selectedAccount.address, epochIndex, injector.signer);
 
       if (result.success) {
@@ -332,9 +329,7 @@ export default function Dashboard() {
 
     setRenouncingCitizenship(true);
     try {
-      const { web3Enable, web3FromAddress } = await import('@pezkuwi/extension-dapp');
-      await web3Enable('PezkuwiChain');
-      const injector = await web3FromAddress(selectedAccount.address);
+      const injector = await getSigner(selectedAccount.address, walletSource, peopleApi);
 
       if (import.meta.env.DEV) console.log('Renouncing citizenship...');
 

@@ -28,7 +28,7 @@ interface Proposal {
 
 export function CommissionVotingTab() {
   const { t } = useTranslation();
-  const { api, isApiReady, selectedAccount } = usePezkuwi();
+  const { api, isApiReady, selectedAccount, walletSource } = usePezkuwi();
   const { toast } = useToast();
 
   const [loading, setLoading] = useState(true);
@@ -150,9 +150,8 @@ export function CommissionVotingTab() {
 
     setVoting(proposal.hash);
     try {
-      const { web3Enable, web3FromAddress } = await import('@pezkuwi/extension-dapp');
-      await web3Enable('PezkuwiChain');
-      const injector = await web3FromAddress(selectedAccount.address);
+      const { getSigner } = await import('@/lib/get-signer');
+      const injector = await getSigner(selectedAccount.address, walletSource, api);
 
       if (import.meta.env.DEV) console.log(`Voting ${approve ? 'AYE' : 'NAY'} on proposal:`, proposal.hash);
 
@@ -258,9 +257,8 @@ export function CommissionVotingTab() {
 
     setVoting(proposal.hash);
     try {
-      const { web3Enable, web3FromAddress } = await import('@pezkuwi/extension-dapp');
-      await web3Enable('PezkuwiChain');
-      const injector = await web3FromAddress(selectedAccount.address);
+      const { getSigner } = await import('@/lib/get-signer');
+      const injector = await getSigner(selectedAccount.address, walletSource, api);
 
       if (import.meta.env.DEV) console.log('Executing proposal:', proposal.hash);
 
@@ -433,9 +431,8 @@ export function CommissionVotingTab() {
       if (!api || !selectedAccount) return;
 
       try {
-        const { web3Enable, web3FromAddress } = await import('@pezkuwi/extension-dapp');
-        await web3Enable('PezkuwiChain');
-        const injector = await web3FromAddress(selectedAccount.address);
+        const { getSigner } = await import('@/lib/get-signer');
+        const injector = await getSigner(selectedAccount.address, walletSource, api);
 
         // Get current members
         const currentMembers = await api.query.dynamicCommissionCollective.members();

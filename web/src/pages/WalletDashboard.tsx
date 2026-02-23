@@ -10,7 +10,7 @@ import { NftList } from '@/components/NftList';
 import { Button } from '@/components/ui/button';
 import { ArrowUpRight, ArrowDownRight, History, ArrowLeft, RefreshCw, Coins, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { web3Enable, web3FromAddress } from '@pezkuwi/extension-dapp';
+import { getSigner } from '@/lib/get-signer';
 import { getPezRewards, recordTrustScore, claimPezReward, type PezRewardInfo } from '@pezkuwi/lib/scores';
 
 interface Transaction {
@@ -29,7 +29,7 @@ interface Transaction {
 const WalletDashboard: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { api, isApiReady, peopleApi, isPeopleReady, selectedAccount } = usePezkuwi();
+  const { api, isApiReady, peopleApi, isPeopleReady, selectedAccount, walletSource } = usePezkuwi();
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
   const [isReceiveModalOpen, setIsReceiveModalOpen] = useState(false);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
@@ -239,8 +239,7 @@ const WalletDashboard: React.FC = () => {
     if (!peopleApi || !selectedAccount) return;
     setIsRecordingScore(true);
     try {
-      await web3Enable('PezkuwiChain');
-      const injector = await web3FromAddress(selectedAccount.address);
+      const injector = await getSigner(selectedAccount.address, walletSource, peopleApi);
       const result = await recordTrustScore(peopleApi, selectedAccount.address, injector.signer);
       if (result.success) {
         toast.success(t('wallet.trustScoreRecorded'));
@@ -260,8 +259,7 @@ const WalletDashboard: React.FC = () => {
     if (!peopleApi || !selectedAccount) return;
     setIsClaimingReward(true);
     try {
-      await web3Enable('PezkuwiChain');
-      const injector = await web3FromAddress(selectedAccount.address);
+      const injector = await getSigner(selectedAccount.address, walletSource, peopleApi);
       const result = await claimPezReward(peopleApi, selectedAccount.address, epochIndex, injector.signer);
       if (result.success) {
         const rewardInfo = pezRewards?.claimableRewards.find(r => r.epoch === epochIndex);

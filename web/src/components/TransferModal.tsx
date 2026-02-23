@@ -67,7 +67,7 @@ const TOKENS: Token[] = [
 ];
 
 export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, selectedAsset }) => {
-  const { api, assetHubApi, isApiReady, isAssetHubReady, selectedAccount } = usePezkuwi();
+  const { api, assetHubApi, isApiReady, isAssetHubReady, selectedAccount, walletSource } = usePezkuwi();
   const { toast } = useToast();
   const { t } = useTranslation();
 
@@ -129,10 +129,9 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, s
     setTxStatus('signing');
 
     try {
-      // Import web3FromAddress to get the injector
-      const { web3Enable, web3FromAddress } = await import('@pezkuwi/extension-dapp');
-      await web3Enable('PezkuwiChain');
-      const injector = await web3FromAddress(selectedAccount.address);
+      // Get signer (extension or WalletConnect)
+      const { getSigner } = await import('@/lib/get-signer');
+      const injector = await getSigner(selectedAccount.address, walletSource, isAssetHubTransfer ? assetHubApi : api);
 
       // Convert amount to smallest unit
       const amountInSmallestUnit = BigInt(parseFloat(amount) * Math.pow(10, currentToken.decimals));

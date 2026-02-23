@@ -17,7 +17,7 @@ interface ExistingCitizenAuthProps {
 
 export const ExistingCitizenAuth: React.FC<ExistingCitizenAuthProps> = ({ onClose }) => {
   const { t } = useTranslation();
-  const { peopleApi, isPeopleReady, selectedAccount, connectWallet } = usePezkuwi();
+  const { peopleApi, isPeopleReady, selectedAccount, connectWallet, walletSource } = usePezkuwi();
 
   const [citizenNumber, setCitizenNumber] = useState('');
   const [step, setStep] = useState<'input' | 'verifying' | 'signing' | 'success' | 'error'>('input');
@@ -69,7 +69,7 @@ export const ExistingCitizenAuth: React.FC<ExistingCitizenAuthProps> = ({ onClos
 
     try {
       // Sign the challenge
-      const signature = await signChallenge(selectedAccount, challenge);
+      const signature = await signChallenge(selectedAccount, challenge, walletSource, peopleApi);
 
       // Verify signature (self-verification for demonstration)
       const isValid = await verifySignature(signature, challenge, selectedAccount.address);

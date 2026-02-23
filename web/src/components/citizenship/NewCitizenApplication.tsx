@@ -25,7 +25,7 @@ type FormData = Omit<CitizenshipData, 'walletAddress' | 'timestamp'>;
 
 export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ onClose, referrerAddress }) => {
   // identityKyc pallet is on People Chain
-  const { peopleApi, isPeopleReady, selectedAccount, connectWallet } = usePezkuwi();
+  const { peopleApi, isPeopleReady, selectedAccount, connectWallet, walletSource } = usePezkuwi();
   const { t } = useTranslation();
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<FormData>();
 
@@ -51,7 +51,7 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
     setConfirming(true);
     setError(null);
     try {
-      const result = await confirmCitizenship(peopleApi, selectedAccount);
+      const result = await confirmCitizenship(peopleApi, selectedAccount, walletSource);
 
       if (!result.success) {
         setError(result.error || t('newCitizen.failedToConfirm'));
@@ -83,7 +83,7 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
     setCanceling(true);
     setError(null);
     try {
-      const result = await cancelApplication(peopleApi, selectedAccount);
+      const result = await cancelApplication(peopleApi, selectedAccount, walletSource);
 
       if (!result.success) {
         setError(result.error || t('newCitizen.failedToCancel'));
@@ -243,7 +243,8 @@ export const NewCitizenApplication: React.FC<NewCitizenApplicationProps> = ({ on
         peopleApi,
         selectedAccount,
         identityHash,
-        effectiveReferrer
+        effectiveReferrer,
+        walletSource
       );
 
       if (!result.success) {
