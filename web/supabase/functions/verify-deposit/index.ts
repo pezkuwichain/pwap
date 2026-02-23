@@ -1,6 +1,7 @@
 // verify-deposit Edge Function
 // OKX-level security: Verifies blockchain transactions before crediting balances
 // Uses HTTP RPC for block search + @pezkuwi/api for event verification
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'npm:@supabase/supabase-js@2'
@@ -101,7 +102,7 @@ async function searchBlockHttp(
   const blockHash = await rpcCall('chain_getBlockHash', [blockNumber]) as string
   if (!blockHash) return null
 
-  // deno-lint-ignore no-explicit-any
+
   const blockData = await rpcCall('chain_getBlock', [blockHash]) as any
   if (!blockData?.block?.extrinsics) return null
 
@@ -121,7 +122,7 @@ async function searchBlockHttp(
 
 // Get latest block number via HTTP RPC
 async function getLatestBlockNumber(): Promise<number> {
-  // deno-lint-ignore no-explicit-any
+
   const header = await rpcCall('chain_getHeader') as any
   return parseInt(header.number, 16)
 }
@@ -223,20 +224,20 @@ async function verifyTransactionOnChain(
     const events = await apiAt.query.system.events()
 
     // Find events for our extrinsic
-    // deno-lint-ignore no-explicit-any
+  
     const extrinsicEvents = (events as any[]).filter((event: any) => {
       const { phase } = event
       return phase.isApplyExtrinsic && phase.asApplyExtrinsic.toNumber() === found.extrinsicIndex
     })
 
     // Check for success
-    // deno-lint-ignore no-explicit-any
+  
     const successEvent = extrinsicEvents.find((event: any) =>
       api.events.system.ExtrinsicSuccess.is(event.event)
     )
 
     if (!successEvent) {
-      // deno-lint-ignore no-explicit-any
+    
       const failedEvent = extrinsicEvents.find((event: any) =>
         api.events.system.ExtrinsicFailed.is(event.event)
       )
@@ -247,14 +248,14 @@ async function verifyTransactionOnChain(
     }
 
     // Find transfer event
-    // deno-lint-ignore no-explicit-any
+  
     let transferEvent: any = null
     let from = ''
     let to = ''
     let amount = BigInt(0)
 
     if (token === 'HEZ') {
-      // deno-lint-ignore no-explicit-any
+    
       transferEvent = extrinsicEvents.find((event: any) =>
         api.events.balances.Transfer.is(event.event)
       )
@@ -265,7 +266,7 @@ async function verifyTransactionOnChain(
         amount = BigInt(value.toString())
       }
     } else if (token === 'PEZ') {
-      // deno-lint-ignore no-explicit-any
+    
       transferEvent = extrinsicEvents.find((event: any) =>
         api.events.assets.Transferred.is(event.event)
       )
