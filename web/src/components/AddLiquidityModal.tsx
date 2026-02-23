@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Plus, Info, AlertCircle } from 'lucide-react';
-import { web3FromAddress } from '@pezkuwi/extension-dapp';
+import { web3Enable, web3FromAddress } from '@pezkuwi/extension-dapp';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { Button } from '@/components/ui/button';
@@ -358,6 +358,7 @@ export const AddLiquidityModal: React.FC<AddLiquidityModalProps> = ({
       }
 
       // Get the signer from the extension
+      await web3Enable('PezkuwiChain');
       const injector = await web3FromAddress(selectedAccount.address);
 
       // Convert amounts to proper decimals

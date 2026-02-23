@@ -178,35 +178,14 @@ const AppLayout: React.FC = () => {
               <Users className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" />
               {t('nav.beCitizen')}
             </button>
-            {/* Governance (dropdown) */}
-            <div className="relative">
-              <button
-                onClick={() => setOpenMenu(openMenu === 'governance' ? null : 'governance')}
-                className="w-full flex flex-col items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2 rounded-xl bg-gray-900/70 border border-green-500/40 text-[10px] sm:text-xs font-medium transition-all hover:scale-[1.03] active:scale-95 cursor-pointer text-gray-300 hover:text-white"
-              >
-                <FileEdit className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
-                <span className="flex items-center gap-0.5">{t('nav.governance')} <ChevronDown className="w-3 h-3" /></span>
-              </button>
-              {openMenu === 'governance' && (
-                <div className="absolute left-0 top-full mt-1 w-48 bg-gray-900 border border-gray-700 rounded-lg shadow-lg z-50">
-                  <button onClick={() => { setShowProposalWizard(true); setOpenMenu(null); }} className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2 rounded-t-lg">
-                    <FileEdit className="w-4 h-4" /> {t('governance.proposals')}
-                  </button>
-                  <button onClick={() => { setShowDelegation(true); setOpenMenu(null); }} className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2">
-                    <Users2 className="w-4 h-4" /> {t('governance.delegation')}
-                  </button>
-                  <button onClick={() => { setShowForum(true); setOpenMenu(null); }} className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2">
-                    <MessageSquare className="w-4 h-4" /> {t('nav.forum')}
-                  </button>
-                  <button onClick={() => { setShowTreasury(true); setTreasuryTab('overview'); setOpenMenu(null); }} className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2">
-                    <PiggyBank className="w-4 h-4" /> {t('nav.treasury')}
-                  </button>
-                  <button onClick={() => { setShowModeration(true); setOpenMenu(null); }} className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2 rounded-b-lg">
-                    <ShieldCheck className="w-4 h-4" /> {t('nav.moderation')}
-                  </button>
-                </div>
-              )}
-            </div>
+            {/* Settings */}
+            <button
+              onClick={() => { setOpenMenu(null); navigate('/profile/settings'); }}
+              className="flex flex-col items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2 rounded-xl bg-gray-900/70 border border-gray-500/40 text-[10px] sm:text-xs font-medium transition-all hover:scale-[1.03] active:scale-95 cursor-pointer text-gray-300 hover:text-white"
+            >
+              <Settings className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
+              {t('nav.settings')}
+            </button>
             {/* Trading (dropdown) */}
             <div className="relative">
               <button
@@ -244,14 +223,35 @@ const AppLayout: React.FC = () => {
               <Award className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
               {t('nav.education')}
             </button>
-            {/* Settings */}
-            <button
-              onClick={() => { setOpenMenu(null); navigate('/profile/settings'); }}
-              className="flex flex-col items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2 rounded-xl bg-gray-900/70 border border-gray-500/40 text-[10px] sm:text-xs font-medium transition-all hover:scale-[1.03] active:scale-95 cursor-pointer text-gray-300 hover:text-white"
-            >
-              <Settings className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
-              {t('nav.settings')}
-            </button>
+            {/* Governance (dropdown) */}
+            <div className="relative">
+              <button
+                onClick={() => setOpenMenu(openMenu === 'governance' ? null : 'governance')}
+                className="w-full flex flex-col items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2 rounded-xl bg-gray-900/70 border border-green-500/40 text-[10px] sm:text-xs font-medium transition-all hover:scale-[1.03] active:scale-95 cursor-pointer text-gray-300 hover:text-white"
+              >
+                <FileEdit className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
+                <span className="flex items-center gap-0.5">{t('nav.governance')} <ChevronDown className="w-3 h-3" /></span>
+              </button>
+              {openMenu === 'governance' && (
+                <div className="absolute left-0 top-full mt-1 w-48 bg-gray-900 border border-gray-700 rounded-lg shadow-lg z-50">
+                  <button onClick={() => { setShowProposalWizard(true); setOpenMenu(null); }} className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2 rounded-t-lg">
+                    <FileEdit className="w-4 h-4" /> {t('governance.proposals')}
+                  </button>
+                  <button onClick={() => { setShowDelegation(true); setOpenMenu(null); }} className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2">
+                    <Users2 className="w-4 h-4" /> {t('governance.delegation')}
+                  </button>
+                  <button onClick={() => { setShowForum(true); setOpenMenu(null); }} className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2">
+                    <MessageSquare className="w-4 h-4" /> {t('nav.forum')}
+                  </button>
+                  <button onClick={() => { setShowTreasury(true); setTreasuryTab('overview'); setOpenMenu(null); }} className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2">
+                    <PiggyBank className="w-4 h-4" /> {t('nav.treasury')}
+                  </button>
+                  <button onClick={() => { setShowModeration(true); setOpenMenu(null); }} className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2 rounded-b-lg">
+                    <ShieldCheck className="w-4 h-4" /> {t('nav.moderation')}
+                  </button>
+                </div>
+              )}
+            </div>
             {/* Logout */}
             <button
               onClick={async () => { setOpenMenu(null); await signOut(); navigate('/login'); }}

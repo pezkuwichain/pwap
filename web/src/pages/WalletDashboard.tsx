@@ -10,7 +10,7 @@ import { NftList } from '@/components/NftList';
 import { Button } from '@/components/ui/button';
 import { ArrowUpRight, ArrowDownRight, History, ArrowLeft, RefreshCw, Coins, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { web3FromAddress } from '@pezkuwi/extension-dapp';
+import { web3Enable, web3FromAddress } from '@pezkuwi/extension-dapp';
 import { getPezRewards, recordTrustScore, claimPezReward, type PezRewardInfo } from '@pezkuwi/lib/scores';
 
 interface Transaction {
@@ -239,6 +239,7 @@ const WalletDashboard: React.FC = () => {
     if (!peopleApi || !selectedAccount) return;
     setIsRecordingScore(true);
     try {
+      await web3Enable('PezkuwiChain');
       const injector = await web3FromAddress(selectedAccount.address);
       const result = await recordTrustScore(peopleApi, selectedAccount.address, injector.signer);
       if (result.success) {
@@ -259,6 +260,7 @@ const WalletDashboard: React.FC = () => {
     if (!peopleApi || !selectedAccount) return;
     setIsClaimingReward(true);
     try {
+      await web3Enable('PezkuwiChain');
       const injector = await web3FromAddress(selectedAccount.address);
       const result = await claimPezReward(peopleApi, selectedAccount.address, epochIndex, injector.signer);
       if (result.success) {
@@ -299,20 +301,22 @@ const WalletDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-950 pt-24 pb-12">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        <button
-          onClick={() => navigate('/')}
-          className="absolute top-4 left-4 text-gray-400 hover:text-white transition-colors"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </button>
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">{t('wallet.dashboard')}</h1>
-          <p className="text-gray-400">{t('wallet.manageTokens')}</p>
+        <div className="flex items-center gap-3 mb-4 sm:mb-6">
+          <button
+            onClick={() => navigate('/')}
+            className="text-gray-400 hover:text-white transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <div>
+            <h1 className="text-3xl font-bold text-white mb-1">{t('wallet.dashboard')}</h1>
+            <p className="text-gray-400">{t('wallet.manageTokens')}</p>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column - Recent Activity & NFTs */}
-          <div className="lg:col-span-1 space-y-6">
+          {/* Left Column - Recent Activity & NFTs (hidden on mobile) */}
+          <div className="hidden md:block lg:col-span-1 space-y-6">
             {/* Recent Activity */}
             <div className="bg-gray-900 border border-gray-800 rounded-lg p-6">
               <div className="flex items-center justify-between mb-4">

@@ -50,14 +50,14 @@ export const DEXDashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
+    <div className="min-h-screen bg-gray-950 text-white pt-24 md:pt-24">
       {/* Header */}
-      <div className="bg-gradient-to-r from-green-900/30 via-yellow-900/30 to-red-900/30 border-b border-gray-800 py-8">
+      <div className="bg-gradient-to-r from-green-900/30 via-yellow-900/30 to-red-900/30 border-b border-gray-800 py-4 md:py-8">
         <div className="max-w-7xl mx-auto px-4">
-          <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-green-400 via-yellow-400 to-red-400 bg-clip-text text-transparent">
+          <h1 className="text-2xl md:text-4xl font-bold mb-1 md:mb-2 bg-gradient-to-r from-green-400 via-yellow-400 to-red-400 bg-clip-text text-transparent">
             {t('dex.title')}
           </h1>
-          <p className="text-gray-400 text-lg">
+          <p className="text-gray-400 text-sm md:text-lg">
             {t('dex.description')}
           </p>
 

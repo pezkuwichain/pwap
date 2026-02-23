@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, ArrowDown, ArrowUp, AlertCircle, Info, Clock, CheckCircle2 } from 'lucide-react';
-import { web3FromAddress } from '@pezkuwi/extension-dapp';
+import { web3Enable, web3FromAddress } from '@pezkuwi/extension-dapp';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { Button } from '@/components/ui/button';
@@ -114,6 +114,7 @@ export const USDTBridge: React.FC<USDTBridgeProps> = ({
     setSuccess(null);
 
     try {
+      await web3Enable('PezkuwiChain');
       const injector = await web3FromAddress(selectedAccount.address);
 
       // Burn wUSDT

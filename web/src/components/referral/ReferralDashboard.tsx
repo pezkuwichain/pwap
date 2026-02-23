@@ -100,8 +100,27 @@ export const ReferralDashboard: React.FC = () => {
         </Button>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* Mobile Compact Stats */}
+      <div className="grid grid-cols-3 gap-2 md:hidden">
+        <div className="bg-gray-900 border border-gray-800 rounded-lg p-3 flex flex-col items-center text-center">
+          <Users className="w-4 h-4 text-green-500 mb-1" />
+          <span className="text-[10px] text-gray-400">{t('referral.totalReferrals')}</span>
+          <span className="text-lg font-bold text-green-500">{stats?.referralCount ?? 0}</span>
+        </div>
+        <div className="bg-gray-900 border border-gray-800 rounded-lg p-3 flex flex-col items-center text-center">
+          <Trophy className="w-4 h-4 text-yellow-500 mb-1" />
+          <span className="text-[10px] text-gray-400">{t('referral.referralScore')}</span>
+          <span className="text-lg font-bold text-yellow-500">{stats?.referralScore ?? 0}</span>
+        </div>
+        <div className="bg-gray-900 border border-gray-800 rounded-lg p-3 flex flex-col items-center text-center">
+          <Clock className="w-4 h-4 text-yellow-500 mb-1" />
+          <span className="text-[10px] text-gray-400">{t('referral.pendingApprovals')}</span>
+          <span className="text-lg font-bold text-yellow-500">{loadingApprovals ? '...' : pendingApprovals.length}</span>
+        </div>
+      </div>
+
+      {/* Desktop Stats Grid */}
+      <div className="hidden md:grid md:grid-cols-3 gap-6">
         {/* Referral Count */}
         <Card className="bg-gray-900 border-gray-800">
           <CardHeader className="pb-3">
@@ -165,8 +184,8 @@ export const ReferralDashboard: React.FC = () => {
         </Card>
       </div>
 
-      {/* Score Breakdown */}
-      <Card className="bg-gray-900 border-gray-800">
+      {/* Score Breakdown - Desktop only */}
+      <Card className="bg-gray-900 border-gray-800 hidden md:block">
         <CardHeader>
           <CardTitle className="text-white">{t('referral.scoreCalc')}</CardTitle>
           <CardDescription className="text-gray-400">

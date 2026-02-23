@@ -4,7 +4,7 @@
 // Handles citizenship verification, status checks, and workflow logic
 
 import type { ApiPromise } from '@pezkuwi/api';
-import { web3FromAddress as web3FromAddressOriginal } from '@pezkuwi/extension-dapp';
+import { web3Enable, web3FromAddress as web3FromAddressOriginal } from '@pezkuwi/extension-dapp';
 import type { InjectedAccountWithMeta } from '@pezkuwi/extension-inject/types';
 
 import type { Signer } from '@pezkuwi/api/types';
@@ -30,7 +30,8 @@ interface InjectedExtension {
 // Use real extension in browser, throw error in unsupported environments
 const web3FromAddress = async (address: string): Promise<InjectedExtension> => {
   // Check if we're in a browser environment with extension support
-  if (typeof window !== 'undefined' && (window as any).injectedWeb3) {
+  if (typeof window !== 'undefined') {
+    await web3Enable('PezkuwiChain');
     return web3FromAddressOriginal(address) as Promise<InjectedExtension>;
   }
   throw new Error('Pezkuwi Wallet extension not available. Please install the extension.');

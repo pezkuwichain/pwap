@@ -130,7 +130,8 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, s
 
     try {
       // Import web3FromAddress to get the injector
-      const { web3FromAddress } = await import('@pezkuwi/extension-dapp');
+      const { web3Enable, web3FromAddress } = await import('@pezkuwi/extension-dapp');
+      await web3Enable('PezkuwiChain');
       const injector = await web3FromAddress(selectedAccount.address);
 
       // Convert amount to smallest unit

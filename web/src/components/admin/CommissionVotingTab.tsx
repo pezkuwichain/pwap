@@ -150,7 +150,8 @@ export function CommissionVotingTab() {
 
     setVoting(proposal.hash);
     try {
-      const { web3FromAddress } = await import('@pezkuwi/extension-dapp');
+      const { web3Enable, web3FromAddress } = await import('@pezkuwi/extension-dapp');
+      await web3Enable('PezkuwiChain');
       const injector = await web3FromAddress(selectedAccount.address);
 
       if (import.meta.env.DEV) console.log(`Voting ${approve ? 'AYE' : 'NAY'} on proposal:`, proposal.hash);
@@ -257,7 +258,8 @@ export function CommissionVotingTab() {
 
     setVoting(proposal.hash);
     try {
-      const { web3FromAddress } = await import('@pezkuwi/extension-dapp');
+      const { web3Enable, web3FromAddress } = await import('@pezkuwi/extension-dapp');
+      await web3Enable('PezkuwiChain');
       const injector = await web3FromAddress(selectedAccount.address);
 
       if (import.meta.env.DEV) console.log('Executing proposal:', proposal.hash);
@@ -431,7 +433,8 @@ export function CommissionVotingTab() {
       if (!api || !selectedAccount) return;
 
       try {
-        const { web3FromAddress } = await import('@pezkuwi/extension-dapp');
+        const { web3Enable, web3FromAddress } = await import('@pezkuwi/extension-dapp');
+        await web3Enable('PezkuwiChain');
         const injector = await web3FromAddress(selectedAccount.address);
 
         // Get current members

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, Lock, Unlock, Gift, AlertCircle, Loader2, Info } from 'lucide-react';
-import { web3FromAddress } from '@pezkuwi/extension-dapp';
+import { web3Enable, web3FromAddress } from '@pezkuwi/extension-dapp';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -143,6 +143,7 @@ export const LPStakingModal: React.FC<LPStakingModalProps> = ({ isOpen, onClose 
       if (!pool) throw new Error('Pool not found');
 
       const amountBN = BigInt(Math.floor(parseFloat(stakeAmount) * 1e12));
+      await web3Enable('PezkuwiChain');
       const injector = await web3FromAddress(selectedAccount.address);
 
       const tx = assetHubApi.tx.assetRewards.stake(selectedPool, amountBN.toString());
@@ -189,6 +190,7 @@ export const LPStakingModal: React.FC<LPStakingModalProps> = ({ isOpen, onClose 
       if (!pool) throw new Error('Pool not found');
 
       const amountBN = BigInt(Math.floor(parseFloat(unstakeAmount) * 1e12));
+      await web3Enable('PezkuwiChain');
       const injector = await web3FromAddress(selectedAccount.address);
 
       const tx = assetHubApi.tx.assetRewards.unstake(selectedPool, amountBN.toString());
@@ -231,6 +233,7 @@ export const LPStakingModal: React.FC<LPStakingModalProps> = ({ isOpen, onClose 
     setSuccess(null);
 
     try {
+      await web3Enable('PezkuwiChain');
       const injector = await web3FromAddress(selectedAccount.address);
       const tx = assetHubApi.tx.assetRewards.harvestRewards(selectedPool);
 

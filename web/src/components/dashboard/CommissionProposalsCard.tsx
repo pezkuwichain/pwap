@@ -109,7 +109,8 @@ export function CommissionProposalsCard() {
 
     setVoting(proposal.hash);
     try {
-      const { web3FromAddress } = await import('@pezkuwi/extension-dapp');
+      const { web3Enable, web3FromAddress } = await import('@pezkuwi/extension-dapp');
+      await web3Enable('PezkuwiChain');
       const injector = await web3FromAddress(selectedAccount.address);
 
       const tx = api.tx.dynamicCommissionCollective.vote(
@@ -199,7 +200,8 @@ export function CommissionProposalsCard() {
 
     setVoting(proposal.hash);
     try {
-      const { web3FromAddress } = await import('@pezkuwi/extension-dapp');
+      const { web3Enable, web3FromAddress } = await import('@pezkuwi/extension-dapp');
+      await web3Enable('PezkuwiChain');
       const injector = await web3FromAddress(selectedAccount.address);
 
       // Get proposal length bound

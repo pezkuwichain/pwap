@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, Lock, AlertCircle, Loader2, Clock } from 'lucide-react';
-import { web3FromAddress } from '@pezkuwi/extension-dapp';
+import { web3Enable, web3FromAddress } from '@pezkuwi/extension-dapp';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -85,6 +85,7 @@ export const LPStakeModal: React.FC<LPStakeModalProps> = ({
 
     try {
       const amountBN = BigInt(Math.floor(amount * 1e12));
+      await web3Enable('PezkuwiChain');
       const injector = await web3FromAddress(selectedAccount.address);
 
       const tx = assetHubApi.tx.assetRewards.stake(poolId, amountBN.toString());

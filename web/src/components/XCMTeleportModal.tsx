@@ -157,7 +157,8 @@ export const XCMTeleportModal: React.FC<XCMTeleportModalProps> = ({ isOpen, onCl
     setTxStatus('signing');
 
     try {
-      const { web3FromAddress } = await import('@pezkuwi/extension-dapp');
+      const { web3Enable, web3FromAddress } = await import('@pezkuwi/extension-dapp');
+      await web3Enable('PezkuwiChain');
       const injector = await web3FromAddress(selectedAccount.address);
 
       // Convert to smallest unit (12 decimals)
