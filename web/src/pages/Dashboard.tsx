@@ -12,7 +12,7 @@ import { User, Mail, Phone, Globe, MapPin, Calendar, Shield, AlertCircle, ArrowL
 import { useToast } from '@/hooks/use-toast';
 import { fetchUserTikis, getPrimaryRole, getTikiDisplayName, getTikiColor, getTikiEmoji, getUserRoleCategories, getAllTikiNFTDetails, generateCitizenNumber, type TikiNFTDetails } from '@pezkuwi/lib/tiki';
 import { getAllScores, getStakingScoreStatus, startScoreTracking, getPezRewards, recordTrustScore, claimPezReward, type UserScores, type StakingScoreStatus, type PezRewardInfo, formatDuration } from '@pezkuwi/lib/scores';
-import { web3FromAddress } from '@pezkuwi/extension-dapp';
+import { web3Enable, web3FromAddress } from '@pezkuwi/extension-dapp';
 import { getKycStatus } from '@pezkuwi/lib/kyc';
 import { ReferralDashboard } from '@/components/referral/ReferralDashboard';
 // Commission proposals card removed - no longer using notary system for KYC approval
@@ -157,6 +157,7 @@ export default function Dashboard() {
 
     setStartingScoreTracking(true);
     try {
+      await web3Enable('PezkuwiChain');
       const injector = await web3FromAddress(selectedAccount.address);
       // startScoreTracking on People Chain - staking data comes from Asset Hub via XCM
       const result = await startScoreTracking(peopleApi, selectedAccount.address, injector.signer);
@@ -192,6 +193,7 @@ export default function Dashboard() {
 
     setIsRecordingScore(true);
     try {
+      await web3Enable('PezkuwiChain');
       const injector = await web3FromAddress(selectedAccount.address);
       const result = await recordTrustScore(peopleApi, selectedAccount.address, injector.signer);
 
@@ -213,6 +215,7 @@ export default function Dashboard() {
 
     setIsClaimingReward(true);
     try {
+      await web3Enable('PezkuwiChain');
       const injector = await web3FromAddress(selectedAccount.address);
       const result = await claimPezReward(peopleApi, selectedAccount.address, epochIndex, injector.signer);
 
@@ -329,7 +332,8 @@ export default function Dashboard() {
 
     setRenouncingCitizenship(true);
     try {
-      const { web3FromAddress } = await import('@pezkuwi/extension-dapp');
+      const { web3Enable, web3FromAddress } = await import('@pezkuwi/extension-dapp');
+      await web3Enable('PezkuwiChain');
       const injector = await web3FromAddress(selectedAccount.address);
 
       if (import.meta.env.DEV) console.log('Renouncing citizenship...');
@@ -411,16 +415,19 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-6xl relative">
-      <button
-        onClick={() => navigate('/')}
-        className="absolute top-4 left-4 text-gray-400 hover:text-white transition-colors"
-      >
-        <ArrowLeft className="w-5 h-5" />
-      </button>
-      <h1 className="text-3xl font-bold mb-6">{t('dashboard.title')}</h1>
+    <div className="container mx-auto p-4 sm:p-6 max-w-6xl">
+      <div className="flex items-center gap-3 mb-4 sm:mb-6">
+        <button
+          onClick={() => navigate('/')}
+          className="text-gray-400 hover:text-white transition-colors shrink-0"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </button>
+        <h1 className="text-2xl sm:text-3xl font-bold">{t('dashboard.title')}</h1>
+      </div>
       
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-6">
+      {/* Account Status, Member Since, Role, Total Score - desktop only */}
+      <div className="hidden md:grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{t('dashboard.accountStatus')}</CardTitle>
@@ -488,7 +495,59 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-6">
+      {/* Scores - compact 2x2 grid on mobile, full cards on desktop */}
+      <div className="grid grid-cols-2 gap-2 md:hidden mb-4">
+        <div className="flex items-center gap-2 rounded-lg border p-2.5">
+          <Shield className="h-4 w-4 text-purple-500 shrink-0" />
+          <div className="min-w-0">
+            <p className="text-xs text-muted-foreground truncate">{t('dashboard.trustScore')}</p>
+            <p className="text-lg font-bold text-purple-600 leading-tight">{loadingScores ? '...' : scores.trustScore}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 rounded-lg border p-2.5">
+          <Users className="h-4 w-4 text-cyan-500 shrink-0" />
+          <div className="min-w-0">
+            <p className="text-xs text-muted-foreground truncate">{t('dashboard.referralScore')}</p>
+            <p className="text-lg font-bold text-cyan-600 leading-tight">{loadingScores ? '...' : scores.referralScore}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 rounded-lg border p-2.5">
+          <TrendingUp className="h-4 w-4 text-green-500 shrink-0" />
+          <div className="min-w-0">
+            <p className="text-xs text-muted-foreground truncate">{t('dashboard.stakingScore')}</p>
+            <p className="text-lg font-bold text-green-600 leading-tight">{loadingScores ? '...' : scores.stakingScore}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 rounded-lg border p-2.5">
+          <Award className="h-4 w-4 text-pink-500 shrink-0" />
+          <div className="min-w-0">
+            <p className="text-xs text-muted-foreground truncate">{t('dashboard.tikiScore')}</p>
+            <p className="text-lg font-bold text-pink-600 leading-tight">{loadingScores ? '...' : scores.tikiScore}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Staking Start Tracking - mobile only, separate card */}
+      {!stakingStatus?.isTracking && selectedAccount && (
+        <div className="md:hidden mb-4">
+          <Button
+            size="sm"
+            variant="outline"
+            className="w-full"
+            onClick={handleStartScoreTracking}
+            disabled={startingScoreTracking || loadingScores}
+          >
+            {startingScoreTracking ? (
+              <><Loader2 className="h-3 w-3 mr-1 animate-spin" />{t('dashboard.starting')}</>
+            ) : (
+              <><Play className="h-3 w-3 mr-1" />{t('dashboard.startTracking')}</>
+            )}
+          </Button>
+        </div>
+      )}
+
+      {/* Scores - full cards on desktop */}
+      <div className="hidden md:grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{t('dashboard.trustScore')}</CardTitle>
@@ -664,7 +723,7 @@ export default function Dashboard() {
           <TabsTrigger value="roles" className="text-xs sm:text-sm px-2 sm:px-3">{t('dashboard.rolesTab')}</TabsTrigger>
           <TabsTrigger value="referrals" className="text-xs sm:text-sm px-2 sm:px-3">{t('dashboard.referralsTab')}</TabsTrigger>
           <TabsTrigger value="security" className="text-xs sm:text-sm px-2 sm:px-3">{t('dashboard.securityTab')}</TabsTrigger>
-          <TabsTrigger value="activity" className="text-xs sm:text-sm px-2 sm:px-3">{t('dashboard.activityTab')}</TabsTrigger>
+          <TabsTrigger value="activity" className="hidden md:inline-flex text-xs sm:text-sm px-2 sm:px-3">{t('dashboard.activityTab')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile" className="space-y-4">

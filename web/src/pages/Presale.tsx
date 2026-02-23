@@ -7,11 +7,13 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, AlertCircle, CheckCircle2, Timer, TrendingUp, Users } from 'lucide-react';
+import { Loader2, AlertCircle, CheckCircle2, Timer, TrendingUp, Users, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 export default function Presale() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { api, selectedAccount, isApiReady } = usePezkuwi();
   const { balances } = useWallet();
 
@@ -163,6 +165,17 @@ export default function Presale() {
   if (!active) {
     return (
       <div className="container mx-auto py-12 px-4">
+        <div className="max-w-2xl mx-auto">
+          <div className="flex items-center gap-3 mb-4">
+            <button
+              onClick={() => navigate('/')}
+              className="text-gray-400 hover:text-white transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <span className="text-gray-400 text-sm">Back</span>
+          </div>
+        </div>
         <Card className="p-8 text-center max-w-2xl mx-auto">
           <div className="mb-6">
             <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -199,13 +212,21 @@ export default function Presale() {
   return (
     <div className="container mx-auto py-12 px-4">
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-green-500 via-yellow-400 to-red-500 bg-clip-text text-transparent">
-            PEZ Token Pre-Sale
-          </h1>
-          <p className="text-muted-foreground">
-            Contribute wUSDT and receive PEZ tokens at a special rate
-          </p>
+        <div className="flex items-center gap-3 mb-4 sm:mb-6">
+          <button
+            onClick={() => navigate('/')}
+            className="text-gray-400 hover:text-white transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <div>
+            <h1 className="text-2xl md:text-4xl font-bold mb-1 bg-gradient-to-r from-green-500 via-yellow-400 to-red-500 bg-clip-text text-transparent">
+              PEZ Token Pre-Sale
+            </h1>
+            <p className="text-muted-foreground text-sm md:text-base">
+              Contribute wUSDT and receive PEZ tokens at a special rate
+            </p>
+          </div>
         </div>
 
         {paused && (

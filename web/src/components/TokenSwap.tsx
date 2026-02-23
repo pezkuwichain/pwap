@@ -584,7 +584,8 @@ const TokenSwap = () => {
       });
 
       // Get signer from extension
-      const { web3FromAddress } = await import('@pezkuwi/extension-dapp');
+      const { web3Enable, web3FromAddress } = await import('@pezkuwi/extension-dapp');
+      await web3Enable('PezkuwiChain');
       const injector = await web3FromAddress(selectedAccount.address);
 
       // Build transaction based on token types
@@ -1134,7 +1135,7 @@ const TokenSwap = () => {
           </div>
         </Card>
 
-        <Card className="p-6">
+        <Card className="p-6 hidden md:block">
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <TrendingUp className="h-5 w-5" />
             {t('tokenSwap.liquidityPools')}
@@ -1165,7 +1166,7 @@ const TokenSwap = () => {
         </Card>
       </div>
 
-      <div>
+      <div className="hidden md:block">
         <Card className="p-6">
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <Clock className="h-5 w-5" />

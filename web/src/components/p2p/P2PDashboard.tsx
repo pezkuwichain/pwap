@@ -131,8 +131,26 @@ export function P2PDashboard() {
             />
           </div>
 
-          {/* Stats Cards */}
-          <div className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {/* Stats Cards - Compact on mobile */}
+          <div className="lg:col-span-3 grid grid-cols-3 gap-2 md:hidden">
+            <div className="bg-gray-900 border border-gray-800 rounded-lg p-3 flex flex-col items-center text-center">
+              <Clock className="w-4 h-4 text-yellow-400 mb-1" />
+              <span className="text-[10px] text-gray-400">{t('p2p.activeTrades')}</span>
+              <span className="text-lg font-bold text-white">{userStats.activeTrades}</span>
+            </div>
+            <div className="bg-gray-900 border border-gray-800 rounded-lg p-3 flex flex-col items-center text-center">
+              <CheckCircle2 className="w-4 h-4 text-green-400 mb-1" />
+              <span className="text-[10px] text-gray-400">{t('p2p.completed')}</span>
+              <span className="text-lg font-bold text-white">{userStats.completedTrades}</span>
+            </div>
+            <div className="bg-gray-900 border border-gray-800 rounded-lg p-3 flex flex-col items-center text-center">
+              <TrendingUp className="w-4 h-4 text-blue-400 mb-1" />
+              <span className="text-[10px] text-gray-400">{t('p2p.volume')}</span>
+              <span className="text-lg font-bold text-white">${userStats.totalVolume.toLocaleString()}</span>
+            </div>
+          </div>
+          {/* Stats Cards - Desktop */}
+          <div className="lg:col-span-3 hidden md:grid grid-cols-3 gap-4">
             <Card className="bg-gray-900 border-gray-800">
               <CardContent className="py-4 flex items-center gap-3">
                 <div className="p-2 bg-yellow-500/20 rounded-lg">
