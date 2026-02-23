@@ -35,10 +35,10 @@ const RPC_WS = 'wss://rpc.pezkuwichain.io'
 // Token decimals
 const DECIMALS = 12
 
-// Generate deterministic UUID v5 from wallet address
-async function walletToUUID(walletAddress: string): Promise<string> {
+// Generate deterministic UUID v5 from identity ID (citizen number or visa number)
+async function identityToUUID(identityId: string): Promise<string> {
   const NAMESPACE = '6ba7b810-9dad-11d1-80b4-00c04fd430c8'
-  const data = new TextEncoder().encode(walletAddress)
+  const data = new TextEncoder().encode(identityId)
   const namespaceBytes = new Uint8Array(16)
   const hex = NAMESPACE.replace(/-/g, '')
   for (let i = 0; i < 16; i++) {
@@ -66,6 +66,7 @@ interface DepositRequest {
   token: 'HEZ' | 'PEZ'
   expectedAmount: number
   walletAddress: string
+  identityId: string
   blockNumber?: number
 }
 
@@ -371,11 +372,11 @@ serve(async (req) => {
     const serviceClient = createClient(supabaseUrl, supabaseServiceKey)
 
     const body: DepositRequest = await req.json()
-    const { txHash, token, expectedAmount, walletAddress, blockNumber } = body
+    const { txHash, token, expectedAmount, walletAddress, identityId, blockNumber } = body
 
-    if (!txHash || !token || !expectedAmount || !walletAddress) {
+    if (!txHash || !token || !expectedAmount || !walletAddress || !identityId) {
       return new Response(
-        JSON.stringify({ success: false, error: 'Missing required fields: txHash, token, expectedAmount, walletAddress' }),
+        JSON.stringify({ success: false, error: 'Missing required fields: txHash, token, expectedAmount, walletAddress, identityId' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
@@ -414,8 +415,8 @@ serve(async (req) => {
       }
     }
 
-    // Map wallet address to deterministic UUID
-    const userId = await walletToUUID(walletAddress)
+    // Map identity (citizen/visa number) to deterministic UUID
+    const userId = await identityToUUID(identityId)
 
     // Create or update deposit request
     const { data: depositRequest, error: requestError } = await serviceClient

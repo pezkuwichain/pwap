@@ -118,6 +118,8 @@ export interface P2PReputation {
 }
 
 export interface CreateOfferParams {
+  userId: string;
+  sellerWallet: string;
   token: CryptoToken;
   amountCrypto: number;
   fiatCurrency: FiatCurrency;
@@ -127,14 +129,14 @@ export interface CreateOfferParams {
   timeLimitMinutes?: number;
   minOrderAmount?: number;
   maxOrderAmount?: number;
-  // NOTE: api and account no longer needed - uses internal ledger
+  adType?: 'buy' | 'sell';
 }
 
 export interface AcceptOfferParams {
   offerId: string;
+  buyerUserId: string;
   buyerWallet: string;
   amount?: number; // If partial order
-  // NOTE: api and account no longer needed - uses internal ledger
 }
 
 // =====================================================
@@ -375,6 +377,8 @@ async function decryptPaymentDetails(encrypted: string): Promise<Record<string, 
  */
 export async function createFiatOffer(params: CreateOfferParams): Promise<string> {
   const {
+    userId,
+    sellerWallet,
     token,
     amountCrypto,
     fiatCurrency,
@@ -383,14 +387,12 @@ export async function createFiatOffer(params: CreateOfferParams): Promise<string
     paymentDetails,
     timeLimitMinutes = DEFAULT_PAYMENT_DEADLINE_MINUTES,
     minOrderAmount,
-    maxOrderAmount
+    maxOrderAmount,
+    adType = 'sell'
   } = params;
 
   try {
-    // Get current user
-    const { data: userData } = await supabase.auth.getUser();
-    const userId = userData.user?.id;
-    if (!userId) throw new Error('Not authenticated');
+    if (!userId) throw new Error('Identity required for P2P trading');
 
     toast.info('Locking crypto from your balance...');
 
@@ -420,7 +422,8 @@ export async function createFiatOffer(params: CreateOfferParams): Promise<string
       .from('p2p_fiat_offers')
       .insert({
         seller_id: userId,
-        seller_wallet: '', // No longer needed with internal ledger
+        seller_wallet: sellerWallet,
+        ad_type: adType,
         token,
         amount_crypto: amountCrypto,
         fiat_currency: fiatCurrency,
@@ -461,7 +464,7 @@ export async function createFiatOffer(params: CreateOfferParams): Promise<string
       fiat_currency: fiatCurrency,
       fiat_amount: fiatAmount,
       escrow_type: 'internal_ledger'
-    });
+    }, userId);
 
     toast.success(`Offer created! Selling ${amountCrypto} ${token} for ${fiatAmount} ${fiatCurrency}`);
 
@@ -482,12 +485,10 @@ export async function createFiatOffer(params: CreateOfferParams): Promise<string
  * Accept a P2P fiat offer (buyer)
  */
 export async function acceptFiatOffer(params: AcceptOfferParams): Promise<string> {
-  const { offerId, amount } = params;
+  const { offerId, buyerUserId, buyerWallet, amount } = params;
 
   try {
-    // 1. Get current user
-    const { data: user } = await supabase.auth.getUser();
-    if (!user.user) throw new Error('Not authenticated');
+    if (!buyerUserId) throw new Error('Identity required for P2P trading');
 
     // 2. Get offer to determine amount if not specified
     const { data: offer, error: offerError } = await supabase
@@ -506,7 +507,7 @@ export async function acceptFiatOffer(params: AcceptOfferParams): Promise<string
       const { data: reputation } = await supabase
         .from('p2p_reputation')
         .select('completed_trades, reputation_score')
-        .eq('user_id', user.user.id)
+        .eq('user_id', buyerUserId)
         .single();
 
       if (!reputation) {
@@ -524,8 +525,8 @@ export async function acceptFiatOffer(params: AcceptOfferParams): Promise<string
     // This uses FOR UPDATE lock to ensure only one buyer can claim the amount
     const { data: result, error: rpcError } = await supabase.rpc('accept_p2p_offer', {
       p_offer_id: offerId,
-      p_buyer_id: user.user.id,
-      p_buyer_wallet: params.buyerWallet,
+      p_buyer_id: buyerUserId,
+      p_buyer_wallet: buyerWallet,
       p_amount: tradeAmount
     });
 
@@ -543,7 +544,7 @@ export async function acceptFiatOffer(params: AcceptOfferParams): Promise<string
       offer_id: offerId,
       crypto_amount: response.crypto_amount,
       fiat_amount: response.fiat_amount
-    });
+    }, buyerUserId);
 
     toast.success('Trade started! Send payment within time limit.');
 
@@ -618,12 +619,9 @@ export async function markPaymentSent(
  *
  * Buyer can later withdraw to external wallet if needed (separate blockchain tx).
  */
-export async function confirmPaymentReceived(tradeId: string): Promise<void> {
+export async function confirmPaymentReceived(tradeId: string, sellerId: string): Promise<void> {
   try {
-    // 1. Get current user (seller)
-    const { data: userData } = await supabase.auth.getUser();
-    const sellerId = userData.user?.id;
-    if (!sellerId) throw new Error('Not authenticated');
+    if (!sellerId) throw new Error('Identity required for P2P trading');
 
     // 2. Get trade details
     const { data: trade, error: tradeError } = await supabase
@@ -697,7 +695,7 @@ export async function confirmPaymentReceived(tradeId: string): Promise<void> {
       released_amount: trade.crypto_amount,
       token: offer.token,
       escrow_type: 'internal_ledger'
-    });
+    }, sellerId);
 
     toast.success('Payment confirmed! Crypto released to buyer\'s balance.');
   } catch (error: unknown) {
@@ -766,12 +764,11 @@ async function logAction(
   entityType: string,
   entityId: string,
   action: string,
-  details: Record<string, any>
+  details: Record<string, any>,
+  userId?: string
 ): Promise<void> {
-  const { data: user } = await supabase.auth.getUser();
-  
   await supabase.from('p2p_audit_log').insert({
-    user_id: user.user?.id,
+    user_id: userId || null,
     action,
     entity_type: entityType,
     entity_id: entityId,
@@ -917,7 +914,7 @@ export async function cancelTrade(
     await logAction('trade', tradeId, 'cancel_trade', {
       cancelled_by: cancelledBy,
       reason,
-    });
+    }, cancelledBy);
 
     toast.success('Trade cancelled successfully');
   } catch (error: unknown) {
@@ -985,11 +982,9 @@ export async function updateUserReputation(
 /**
  * Get user's internal balances for P2P trading
  */
-export async function getInternalBalances(): Promise<InternalBalance[]> {
+export async function getInternalBalances(userId: string): Promise<InternalBalance[]> {
   try {
-    const { data: userData } = await supabase.auth.getUser();
-    const userId = userData.user?.id;
-    if (!userId) throw new Error('Not authenticated');
+    if (!userId) throw new Error('Identity required for P2P trading');
 
     const { data, error } = await supabase.rpc('get_user_internal_balance', {
       p_user_id: userId
@@ -1009,8 +1004,8 @@ export async function getInternalBalances(): Promise<InternalBalance[]> {
 /**
  * Get user's internal balance for a specific token
  */
-export async function getInternalBalance(token: CryptoToken): Promise<InternalBalance | null> {
-  const balances = await getInternalBalances();
+export async function getInternalBalance(userId: string, token: CryptoToken): Promise<InternalBalance | null> {
+  const balances = await getInternalBalances(userId);
   return balances.find(b => b.token === token) || null;
 }
 
@@ -1019,14 +1014,13 @@ export async function getInternalBalance(token: CryptoToken): Promise<InternalBa
  * This creates a pending request that will be processed by backend service
  */
 export async function requestWithdraw(
+  userId: string,
   token: CryptoToken,
   amount: number,
   walletAddress: string
 ): Promise<string> {
   try {
-    const { data: userData } = await supabase.auth.getUser();
-    const userId = userData.user?.id;
-    if (!userId) throw new Error('Not authenticated');
+    if (!userId) throw new Error('Identity required for P2P trading');
 
     // Validate amount
     if (amount <= 0) throw new Error('Amount must be greater than 0');
@@ -1069,11 +1063,14 @@ export async function requestWithdraw(
 /**
  * Get user's deposit/withdraw request history
  */
-export async function getDepositWithdrawHistory(): Promise<DepositWithdrawRequest[]> {
+export async function getDepositWithdrawHistory(userId: string): Promise<DepositWithdrawRequest[]> {
   try {
+    if (!userId) throw new Error('Identity required for P2P trading');
+
     const { data, error } = await supabase
       .from('p2p_deposit_withdraw_requests')
       .select('*')
+      .eq('user_id', userId)
       .order('created_at', { ascending: false })
       .limit(50);
 

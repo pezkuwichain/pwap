@@ -22,7 +22,7 @@ import {
   Loader2,
   CheckCheck,
 } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useP2PIdentity } from '@/contexts/P2PIdentityContext';
 import { supabase } from '@/lib/supabase';
 
 interface Notification {
@@ -40,7 +40,7 @@ interface Notification {
 export function NotificationBell() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { userId } = useP2PIdentity();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -48,13 +48,13 @@ export function NotificationBell() {
 
   // Fetch notifications
   const fetchNotifications = useCallback(async () => {
-    if (!user) return;
+    if (!userId) return;
 
     try {
       const { data, error } = await supabase
         .from('p2p_notifications')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .order('created_at', { ascending: false })
         .limit(20);
 
@@ -67,7 +67,7 @@ export function NotificationBell() {
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [userId]);
 
   // Initial fetch
   useEffect(() => {
@@ -76,17 +76,17 @@ export function NotificationBell() {
 
   // Real-time subscription
   useEffect(() => {
-    if (!user) return;
+    if (!userId) return;
 
     const channel = supabase
-      .channel(`notifications-${user.id}`)
+      .channel(`notifications-${userId}`)
       .on(
         'postgres_changes',
         {
           event: 'INSERT',
           schema: 'public',
           table: 'p2p_notifications',
-          filter: `user_id=eq.${user.id}`,
+          filter: `user_id=eq.${userId}`,
         },
         (payload) => {
           const newNotif = payload.new as Notification;
@@ -99,7 +99,7 @@ export function NotificationBell() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user]);
+  }, [userId]);
 
   // Mark as read
   const markAsRead = async (notificationId: string) => {
@@ -120,13 +120,13 @@ export function NotificationBell() {
 
   // Mark all as read
   const markAllAsRead = async () => {
-    if (!user) return;
+    if (!userId) return;
 
     try {
       await supabase
         .from('p2p_notifications')
         .update({ is_read: true })
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .eq('is_read', false);
 
       setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
@@ -184,7 +184,7 @@ export function NotificationBell() {
     return t('p2p.daysAgo', { count: days });
   };
 
-  if (!user) return null;
+  if (!userId) return null;
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>

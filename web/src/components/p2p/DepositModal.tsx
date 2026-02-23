@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useWallet } from '@/contexts/WalletContext';
+import { useP2PIdentity } from '@/contexts/P2PIdentityContext';
 import { toast } from 'sonner';
 
 import {
@@ -50,6 +51,7 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
   const { t } = useTranslation();
   const { api, selectedAccount } = usePezkuwi();
   const { balances, signTransaction } = useWallet();
+  const { identityId } = useP2PIdentity();
 
   const [step, setStep] = useState<DepositStep>('select');
   const [token, setToken] = useState<CryptoToken>('HEZ');
@@ -192,6 +194,7 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
           token,
           expectedAmount: depositAmount,
           walletAddress: selectedAccount?.address,
+          identityId,
           ...(blockNumber ? { blockNumber } : {})
         })
       });

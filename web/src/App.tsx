@@ -10,6 +10,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { DashboardProvider } from '@/contexts/DashboardContext';
 import { ReferralProvider } from '@/contexts/ReferralContext';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { P2PLayout } from '@/components/p2p/P2PLayout';
 import { Toaster } from '@/components/ui/toaster';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { initSentry } from '@/lib/sentry';
@@ -180,27 +181,27 @@ function App() {
                               } />
                               <Route path="/p2p" element={
                                 <ProtectedRoute allowTelegramSession>
-                                  <P2PPlatform />
+                                  <P2PLayout><P2PPlatform /></P2PLayout>
                                 </ProtectedRoute>
                               } />
                               <Route path="/p2p/trade/:tradeId" element={
                                 <ProtectedRoute allowTelegramSession>
-                                  <P2PTrade />
+                                  <P2PLayout><P2PTrade /></P2PLayout>
                                 </ProtectedRoute>
                               } />
                               <Route path="/p2p/orders" element={
                                 <ProtectedRoute allowTelegramSession>
-                                  <P2POrders />
+                                  <P2PLayout><P2POrders /></P2PLayout>
                                 </ProtectedRoute>
                               } />
                               <Route path="/p2p/dispute/:disputeId" element={
                                 <ProtectedRoute allowTelegramSession>
-                                  <P2PDispute />
+                                  <P2PLayout><P2PDispute /></P2PLayout>
                                 </ProtectedRoute>
                               } />
                               <Route path="/p2p/merchant" element={
                                 <ProtectedRoute allowTelegramSession>
-                                  <P2PMerchantDashboard />
+                                  <P2PLayout><P2PMerchantDashboard /></P2PLayout>
                                 </ProtectedRoute>
                               } />
                               <Route path="/dex" element={

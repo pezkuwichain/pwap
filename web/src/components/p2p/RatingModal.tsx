@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Star, Loader2, ThumbsUp, ThumbsDown } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useP2PIdentity } from '@/contexts/P2PIdentityContext';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabase';
@@ -34,14 +34,14 @@ export function RatingModal({
   isBuyer,
 }: RatingModalProps) {
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { userId } = useP2PIdentity();
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
   const [review, setReview] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
-    if (!user || rating === 0) {
+    if (!userId || rating === 0) {
       toast.error(t('p2pRating.selectRatingError'));
       return;
     }
@@ -54,7 +54,7 @@ export function RatingModal({
         .from('p2p_ratings')
         .select('id')
         .eq('trade_id', tradeId)
-        .eq('rater_id', user.id)
+        .eq('rater_id', userId)
         .single();
 
       if (existingRating) {
@@ -66,7 +66,7 @@ export function RatingModal({
       // Insert rating
       const { error: ratingError } = await supabase.from('p2p_ratings').insert({
         trade_id: tradeId,
-        rater_id: user.id,
+        rater_id: userId,
         rated_id: counterpartyId,
         rating,
         review: review.trim() || null,

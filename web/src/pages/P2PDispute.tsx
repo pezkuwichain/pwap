@@ -30,6 +30,7 @@ import {
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { formatAddress } from '@pezkuwi/utils/formatting';
+import { useP2PIdentity } from '@/contexts/P2PIdentityContext';
 
 interface DisputeDetails {
   id: string;
@@ -105,11 +106,11 @@ export default function P2PDispute() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { userId } = useP2PIdentity();
 
   const [dispute, setDispute] = useState<DisputeDetails | null>(null);
   const [evidence, setEvidence] = useState<Evidence[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
@@ -118,10 +119,6 @@ export default function P2PDispute() {
       if (!disputeId) return;
 
       try {
-        // Get current user
-        const { data: { user } } = await supabase.auth.getUser();
-        setCurrentUserId(user?.id || null);
-
         // Fetch dispute with trade info
         const { data: disputeData, error: disputeError } = await supabase
           .from('p2p_disputes')
@@ -199,7 +196,7 @@ export default function P2PDispute() {
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (!files || files.length === 0 || !dispute || !currentUserId) return;
+    if (!files || files.length === 0 || !dispute || !userId) return;
 
     setIsUploading(true);
 
@@ -224,7 +221,7 @@ export default function P2PDispute() {
         // Insert evidence record
         await supabase.from('p2p_dispute_evidence').insert({
           dispute_id: dispute.id,
-          uploaded_by: currentUserId,
+          uploaded_by: userId,
           evidence_type: file.type.startsWith('image/') ? 'screenshot' : 'document',
           file_url: urlData.publicUrl,
           description: file.name,
@@ -244,11 +241,11 @@ export default function P2PDispute() {
   };
 
   const isParticipant = dispute?.trade &&
-    (dispute.trade.buyer_id === currentUserId || dispute.trade.seller_id === currentUserId);
+    (dispute.trade.buyer_id === userId || dispute.trade.seller_id === userId);
 
-  const isBuyer = dispute?.trade?.buyer_id === currentUserId;
-  const isSeller = dispute?.trade?.seller_id === currentUserId;
-  const isOpener = dispute?.opened_by === currentUserId;
+  const isBuyer = dispute?.trade?.buyer_id === userId;
+  const isSeller = dispute?.trade?.seller_id === userId;
+  const isOpener = dispute?.opened_by === userId;
 
   if (isLoading) {
     return (
@@ -444,7 +441,7 @@ export default function P2PDispute() {
               {evidence.map((item) => {
                 const isImage = item.evidence_type === 'screenshot' ||
                   item.file_url.match(/\.(jpg|jpeg|png|gif|webp)$/i);
-                const isMyEvidence = item.uploaded_by === currentUserId;
+                const isMyEvidence = item.uploaded_by === userId;
 
                 return (
                   <div

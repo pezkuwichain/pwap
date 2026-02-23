@@ -30,6 +30,7 @@ import {
   Info
 } from 'lucide-react';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
+import { useP2PIdentity } from '@/contexts/P2PIdentityContext';
 import { toast } from 'sonner';
 import {
   getInternalBalances,
@@ -51,6 +52,7 @@ type WithdrawStep = 'form' | 'confirm' | 'success';
 export function WithdrawModal({ isOpen, onClose, onSuccess }: WithdrawModalProps) {
   const { t } = useTranslation();
   const { selectedAccount } = usePezkuwi();
+  const { userId } = useP2PIdentity();
 
   const [step, setStep] = useState<WithdrawStep>('form');
   const [token, setToken] = useState<CryptoToken>('HEZ');
@@ -80,9 +82,10 @@ export function WithdrawModal({ isOpen, onClose, onSuccess }: WithdrawModalProps
   const fetchData = async () => {
     setLoading(true);
     try {
+      if (!userId) return;
       const [balanceData, historyData] = await Promise.all([
-        getInternalBalances(),
-        getDepositWithdrawHistory()
+        getInternalBalances(userId),
+        getDepositWithdrawHistory(userId)
       ]);
       setBalances(balanceData);
       // Filter for pending withdrawal requests
@@ -180,7 +183,8 @@ export function WithdrawModal({ isOpen, onClose, onSuccess }: WithdrawModalProps
 
     try {
       const withdrawAmount = parseFloat(amount);
-      const id = await requestWithdraw(token, withdrawAmount, walletAddress);
+      if (!userId) throw new Error('Identity required');
+      const id = await requestWithdraw(userId, token, withdrawAmount, walletAddress);
       setRequestId(id);
       setStep('success');
       onSuccess?.();

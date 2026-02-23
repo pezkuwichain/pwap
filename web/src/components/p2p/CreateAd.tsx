@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '@/contexts/AuthContext';
-import { useWallet } from '@/contexts/WalletContext';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
+import { useP2PIdentity } from '@/contexts/P2PIdentityContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,8 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
 import {
+  createFiatOffer,
   getPaymentMethods,
   validatePaymentDetails,
   type PaymentMethod,
@@ -24,8 +24,8 @@ interface CreateAdProps {
 
 export function CreateAd({ onAdCreated }: CreateAdProps) {
   const { t } = useTranslation();
-  const { user } = useAuth();
-  const { account } = useWallet();
+  const { selectedAccount } = usePezkuwi();
+  const { userId } = useP2PIdentity();
   
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod | null>(null);
@@ -77,11 +77,8 @@ export function CreateAd({ onAdCreated }: CreateAdProps) {
   };
 
   const handleCreateAd = async () => {
-    console.log('🔥 handleCreateAd called', { account, user: user?.id });
-
-    if (!account || !user) {
+    if (!selectedAccount || !userId) {
       toast.error(t('p2p.connectWalletAndLogin'));
-      console.log('❌ No account or user', { account, user });
       return;
     }
 
@@ -129,37 +126,21 @@ export function CreateAd({ onAdCreated }: CreateAdProps) {
     setLoading(true);
 
     try {
-      // Insert offer into Supabase
-      // Note: payment_details_encrypted is stored as JSON string (encryption handled server-side in prod)
-      const { data, error } = await supabase
-        .from('p2p_fiat_offers')
-        .insert({
-          seller_id: user.id,
-          seller_wallet: account,
-          ad_type: adType,
-          token,
-          amount_crypto: cryptoAmt,
-          remaining_amount: cryptoAmt,
-          fiat_currency: fiatCurrency,
-          fiat_amount: fiatAmt,
-          payment_method_id: selectedPaymentMethod.id,
-          payment_details_encrypted: JSON.stringify(paymentDetails),
-          time_limit_minutes: timeLimit,
-          min_order_amount: minOrderAmount ? parseFloat(minOrderAmount) : null,
-          max_order_amount: maxOrderAmount ? parseFloat(maxOrderAmount) : null,
-          status: 'open'
-        })
-        .select()
-        .single();
+      await createFiatOffer({
+        userId,
+        sellerWallet: selectedAccount.address,
+        token,
+        amountCrypto: cryptoAmt,
+        fiatCurrency,
+        fiatAmount: fiatAmt,
+        paymentMethodId: selectedPaymentMethod.id,
+        paymentDetails,
+        timeLimitMinutes: timeLimit,
+        minOrderAmount: minOrderAmount ? parseFloat(minOrderAmount) : undefined,
+        maxOrderAmount: maxOrderAmount ? parseFloat(maxOrderAmount) : undefined,
+        adType,
+      });
 
-      if (error) {
-        console.error('❌ Supabase error:', error);
-        toast.error(error.message || t('p2pCreate.failedToCreate'));
-        return;
-      }
-
-      console.log('✅ Offer created successfully:', data);
-      toast.success(t('p2pCreate.adCreated'));
       onAdCreated();
     } catch (error) {
       if (import.meta.env.DEV) console.error('Create ad error:', error);

@@ -22,6 +22,7 @@ import {
 import { AlertTriangle, Upload, X, FileText } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
+import { useP2PIdentity } from '@/contexts/P2PIdentityContext';
 
 interface DisputeModalProps {
   isOpen: boolean;
@@ -62,6 +63,7 @@ export function DisputeModal({
   isBuyer,
 }: DisputeModalProps) {
   const { t } = useTranslation();
+  const { userId } = useP2PIdentity();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [reason, setReason] = useState('');
@@ -172,15 +174,14 @@ export function DisputeModal({
     setIsSubmitting(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
+      if (!userId) throw new Error('Not authenticated');
 
       // Create dispute
       const { data: dispute, error: disputeError } = await supabase
         .from('p2p_disputes')
         .insert({
           trade_id: tradeId,
-          opened_by: user.id,
+          opened_by: userId,
           reason,
           description,
           status: 'open',
@@ -197,7 +198,7 @@ export function DisputeModal({
         // Insert evidence records
         const evidenceRecords = evidenceUrls.map((url, index) => ({
           dispute_id: dispute.id,
-          uploaded_by: user.id,
+          uploaded_by: userId,
           evidence_type: evidenceFiles[index].type === 'image' ? 'screenshot' : 'document',
           file_url: url,
           description: `Evidence ${index + 1}`,

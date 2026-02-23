@@ -1,4 +1,41 @@
 // Identity verification types and utilities
+
+// UUID v5 namespace (RFC 4122 DNS namespace)
+const UUID_V5_NAMESPACE = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
+
+/**
+ * Convert a Citizen Number or Visa Number to a deterministic UUID v5.
+ * Uses SHA-1 hashing per RFC 4122. Works in both browser and Deno.
+ *
+ * @param identityId - Citizen number (e.g. "#42-0-832967") or Visa number (e.g. "V-123456")
+ * @returns Deterministic UUID v5 string
+ */
+export async function identityToUUID(identityId: string): Promise<string> {
+  const namespaceHex = UUID_V5_NAMESPACE.replace(/-/g, '');
+  const namespaceBytes = new Uint8Array(16);
+  for (let i = 0; i < 16; i++) {
+    namespaceBytes[i] = parseInt(namespaceHex.substr(i * 2, 2), 16);
+  }
+
+  const nameBytes = new TextEncoder().encode(identityId);
+  const combined = new Uint8Array(namespaceBytes.length + nameBytes.length);
+  combined.set(namespaceBytes);
+  combined.set(nameBytes, namespaceBytes.length);
+
+  const hashBuffer = await crypto.subtle.digest('SHA-1', combined);
+  const h = new Uint8Array(hashBuffer);
+
+  // Set version 5 and RFC 4122 variant
+  h[6] = (h[6] & 0x0f) | 0x50;
+  h[8] = (h[8] & 0x3f) | 0x80;
+
+  const hex = Array.from(h.slice(0, 16))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`;
+}
+
 export interface IdentityProfile {
   address: string;
   verificationLevel: 'none' | 'basic' | 'advanced' | 'verified';
