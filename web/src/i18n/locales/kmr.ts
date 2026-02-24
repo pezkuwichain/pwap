@@ -1565,6 +1565,19 @@ export default {
   'p2pChat.newMessage': 'Peyama Nû',
   'p2pChat.newImage': 'Wêneya Nû',
 
+  // P2P Navigation
+  'p2pNav.orders': 'Ferman',
+  'p2pNav.ads': 'Reklam',
+  'p2pNav.messages': 'Peyam',
+
+  // P2P Messages Inbox
+  'p2pMessages.title': 'Peyam',
+  'p2pMessages.subtitle': 'Sohbetên bazirganiya we',
+  'p2pMessages.noConversations': 'Hêj sohbet tune',
+  'p2pMessages.noConversationsHint': 'Ji bo destpêkirina sohbetê bazirganiyekê bikin',
+  'p2pMessages.you': 'Tu',
+  'p2pMessages.sentImage': 'Wêneyek şand',
+
   // OrderFilters
   'p2pFilters.filters': 'Fîltre',
   'p2pFilters.filterOrders': 'Siparîşan Fîltre Bike',

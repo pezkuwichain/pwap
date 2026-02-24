@@ -1543,6 +1543,19 @@ export default {
   'p2pChat.newMessage': 'نامەی نوێ',
   'p2pChat.newImage': 'وێنەی نوێ',
 
+  // P2P Navigation
+  'p2pNav.orders': 'داواکاریەکان',
+  'p2pNav.ads': 'ڕیکلامەکان',
+  'p2pNav.messages': 'پەیامەکان',
+
+  // P2P Messages Inbox
+  'p2pMessages.title': 'پەیامەکان',
+  'p2pMessages.subtitle': 'گفتوگۆکانی بازرگانیت',
+  'p2pMessages.noConversations': 'هێشتا گفتوگۆ نییە',
+  'p2pMessages.noConversationsHint': 'بۆ دەستپێکردنی گفتوگۆ بازرگانییەک بکە',
+  'p2pMessages.you': 'تۆ',
+  'p2pMessages.sentImage': 'وێنەیەکی ناردووە',
+
   'p2pFilters.filters': 'فلتەرەکان',
   'p2pFilters.filterOrders': 'داواکارییەکان فلتەر بکە',
   'p2pFilters.reset': 'ڕیسێت',
