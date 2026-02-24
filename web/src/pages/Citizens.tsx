@@ -133,31 +133,45 @@ export default function Citizens() {
       return;
     }
 
-    // Validate file size (max 2MB for localStorage)
-    if (file.size > 2 * 1024 * 1024) {
-      toast({
-        title: t('citizens.fileTooLarge'),
-        description: t('citizens.maxFileSize'),
-        variant: "destructive"
-      });
-      return;
-    }
-
     setUploadingPhoto(true);
 
     try {
-      // Convert file to base64 data URL
+      // Load image, resize to fit ID card photo area, compress to JPEG
       const dataUrl = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          if (reader.result) {
-            resolve(reader.result as string);
-          } else {
-            reject(new Error('Failed to read file'));
+        const img = new Image();
+        img.onload = () => {
+          const MAX_DIM = 400; // max width or height in px
+          let { width, height } = img;
+
+          // Scale down if larger than MAX_DIM
+          if (width > MAX_DIM || height > MAX_DIM) {
+            const ratio = Math.min(MAX_DIM / width, MAX_DIM / height);
+            width = Math.round(width * ratio);
+            height = Math.round(height * ratio);
           }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) { reject(new Error('Canvas not supported')); return; }
+
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // Compress as JPEG, start at 0.85 quality, reduce if still too large
+          let quality = 0.85;
+          let result = canvas.toDataURL('image/jpeg', quality);
+
+          // Ensure it fits in localStorage (target < 500KB base64)
+          while (result.length > 500_000 && quality > 0.3) {
+            quality -= 0.1;
+            result = canvas.toDataURL('image/jpeg', quality);
+          }
+
+          resolve(result);
         };
-        reader.onerror = () => reject(new Error('FileReader error'));
-        reader.readAsDataURL(file);
+        img.onerror = () => reject(new Error('Failed to load image'));
+        img.src = URL.createObjectURL(file);
       });
 
       // Save to localStorage with profile
@@ -323,35 +337,35 @@ export default function Citizens() {
         </div>
 
         {/* Title Section */}
-        <div className="text-center mb-8">
-          <h1 className="text-5xl md:text-6xl font-bold text-red-700 mb-3 drop-shadow-lg">
+        <div className="text-center mb-4 sm:mb-8">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold text-red-700 mb-3 drop-shadow-lg">
             {t('citizens.portalTitle')}
           </h1>
-          <p className="text-xl text-gray-800 font-semibold drop-shadow-md">
+          <p className="text-base sm:text-xl text-gray-800 font-semibold drop-shadow-md">
             {t('citizens.digitalKurdistan')}
           </p>
         </div>
 
         {/* Announcements Widget - Modern Carousel */}
-        <div className="max-w-4xl mx-auto mb-8">
+        <div className="max-w-4xl mx-auto mb-6 sm:mb-8">
           <div className="relative bg-gradient-to-r from-red-600 via-red-500 to-yellow-500 rounded-3xl shadow-xl overflow-hidden">
             <div className="absolute inset-0 bg-black/10"></div>
-            <div className="relative p-8">
+            <div className="relative p-4 sm:p-8">
               <div className="flex items-center justify-between">
                 <button
                   onClick={prevAnnouncement}
                   className="z-10 text-white/80 hover:text-white transition-all hover:scale-110"
                 >
-                  <ChevronLeft className="h-8 w-8" />
+                  <ChevronLeft className="h-6 w-6 sm:h-8 sm:w-8" />
                 </button>
 
-                <div className="flex-1 text-center px-6">
+                <div className="flex-1 text-center px-3 sm:px-6">
                   <div className="flex items-center justify-center mb-3">
-                    <Bell className="h-7 w-7 text-white mr-3 animate-pulse" />
-                    <h3 className="text-3xl font-bold text-white">{t('citizens.announcements')}</h3>
+                    <Bell className="h-5 w-5 sm:h-7 sm:w-7 text-white mr-2 sm:mr-3 animate-pulse" />
+                    <h3 className="text-xl sm:text-3xl font-bold text-white">{t('citizens.announcements')}</h3>
                   </div>
-                  <h4 className="text-xl font-bold text-white mb-3">{currentAnnouncement.title}</h4>
-                  <p className="text-white/90 text-base leading-relaxed max-w-2xl mx-auto">{currentAnnouncement.description}</p>
+                  <h4 className="text-base sm:text-xl font-bold text-white mb-2 sm:mb-3">{currentAnnouncement.title}</h4>
+                  <p className="text-white/90 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto">{currentAnnouncement.description}</p>
                   <p className="text-white/70 text-sm mt-3">{currentAnnouncement.date}</p>
 
                   {/* Modern dots indicator */}
@@ -374,52 +388,15 @@ export default function Citizens() {
                   onClick={nextAnnouncement}
                   className="z-10 text-white/80 hover:text-white transition-all hover:scale-110"
                 >
-                  <ChevronRight className="h-8 w-8" />
+                  <ChevronRight className="h-6 w-6 sm:h-8 sm:w-8" />
                 </button>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Main Entrance Cards - Grid with exactly 2 cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto mb-12">
-          {/* LEFT: Citizens Issues */}
-          <Card
-            className="bg-white/95 backdrop-blur border-4 border-purple-400 hover:border-purple-600 transition-all shadow-2xl cursor-pointer group hover:scale-105"
-            onClick={handleCitizensIssue}
-          >
-            <CardContent className="p-8 flex flex-col items-center justify-center min-h-[300px]">
-              <div className="mb-6">
-                <div className="bg-purple-500 w-24 h-24 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-xl">
-                  <FileText className="h-12 w-12 text-white" />
-                </div>
-              </div>
-              <h2 className="text-3xl font-bold text-purple-700 mb-2 text-center">
-                {t('citizens.citizenIssues')}
-              </h2>
-            </CardContent>
-          </Card>
-
-          {/* RIGHT: Gov Entrance */}
-          <Card
-            className="bg-white/95 backdrop-blur border-4 border-green-400 hover:border-green-600 transition-all shadow-2xl cursor-pointer group hover:scale-105"
-            onClick={handleGovEntrance}
-          >
-            <CardContent className="p-8 flex flex-col items-center justify-center min-h-[300px]">
-              <div className="mb-6">
-                <div className="bg-green-600 w-24 h-24 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-xl">
-                  <Building2 className="h-12 w-12 text-white" />
-                </div>
-              </div>
-              <h2 className="text-3xl font-bold text-green-700 mb-2 text-center">
-                {t('citizens.govEntrance')}
-              </h2>
-            </CardContent>
-          </Card>
-        </div>
-
         {/* Digital Citizen ID Card - Pure HTML/CSS Design */}
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-lg sm:max-w-2xl mx-auto mb-6 sm:mb-8">
           <div
             className="relative rounded-2xl overflow-hidden shadow-2xl"
             style={{
@@ -592,6 +569,43 @@ export default function Citizens() {
             <div className="absolute bottom-8 left-2 w-6 h-6 border-l-2 border-b-2 border-green-600/30 rounded-bl-lg" />
             <div className="absolute bottom-8 right-2 w-6 h-6 border-r-2 border-b-2 border-red-600/30 rounded-br-lg" />
           </div>
+        </div>
+
+        {/* Main Entrance Cards - Compact 2-column buttons */}
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 max-w-5xl mx-auto mb-6 sm:mb-8">
+          {/* LEFT: Citizens Issues */}
+          <Card
+            className="bg-white/95 backdrop-blur border-2 border-purple-400 hover:border-purple-600 transition-all shadow-lg cursor-pointer group sm:hover:scale-105"
+            onClick={handleCitizensIssue}
+          >
+            <CardContent className="p-3 sm:p-4 flex flex-col items-center justify-center">
+              <div className="mb-2 sm:mb-3">
+                <div className="bg-purple-500 w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
+                  <FileText className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                </div>
+              </div>
+              <h2 className="text-sm sm:text-lg font-bold text-purple-700 text-center">
+                {t('citizens.citizenIssues')}
+              </h2>
+            </CardContent>
+          </Card>
+
+          {/* RIGHT: Gov Entrance */}
+          <Card
+            className="bg-white/95 backdrop-blur border-2 border-green-400 hover:border-green-600 transition-all shadow-lg cursor-pointer group sm:hover:scale-105"
+            onClick={handleGovEntrance}
+          >
+            <CardContent className="p-3 sm:p-4 flex flex-col items-center justify-center">
+              <div className="mb-2 sm:mb-3">
+                <div className="bg-green-600 w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
+                  <Building2 className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                </div>
+              </div>
+              <h2 className="text-sm sm:text-lg font-bold text-green-700 text-center">
+                {t('citizens.govEntrance')}
+              </h2>
+            </CardContent>
+          </Card>
         </div>
 
       {/* Government Entrance - Citizen Number Verification Dialog */}
