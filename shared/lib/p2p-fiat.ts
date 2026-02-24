@@ -888,7 +888,7 @@ export async function cancelTrade(
       .update({
         status: 'cancelled',
         cancelled_by: cancelledBy,
-        cancel_reason: reason,
+        cancellation_reason: reason,
       })
       .eq('id', tradeId);
 
