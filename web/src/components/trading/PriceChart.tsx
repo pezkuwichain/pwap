@@ -89,13 +89,13 @@ export const PriceChart: React.FC<PriceChartProps> = ({ fromToken, toToken, curr
 
   return (
     <Card className="p-4 bg-gray-900 border-gray-800">
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
         <div>
           <div className="text-sm text-gray-400 mb-1">
             {t('priceChart.label', { from: getDisplayName(fromToken), to: getDisplayName(toToken) })}
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-2xl font-bold text-white">
+            <span className="text-xl sm:text-2xl font-bold text-white">
               ${currentPrice.toFixed(4)}
             </span>
             <div className={`flex items-center gap-1 text-sm font-semibold ${
@@ -117,7 +117,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({ fromToken, toToken, curr
         </Tabs>
       </div>
 
-      <ResponsiveContainer width="100%" height={200}>
+      <ResponsiveContainer width="100%" height={280}>
         <AreaChart data={chartData}>
           <defs>
             <linearGradient id={`gradient-${isPositive ? 'green' : 'red'}`} x1="0" y1="0" x2="0" y2="1">
