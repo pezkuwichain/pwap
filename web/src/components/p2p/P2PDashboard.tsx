@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { PlusCircle, Home, ClipboardList, TrendingUp, CheckCircle2, Clock, Store, Zap, Blocks } from 'lucide-react';
+import { PlusCircle, Home, ClipboardList, TrendingUp, CheckCircle2, Clock, Store, Zap, Blocks, MessageSquare } from 'lucide-react';
 import { AdList } from './AdList';
 import { CreateAd } from './CreateAd';
 import { NotificationBell } from './NotificationBell';
@@ -36,9 +36,74 @@ export function P2PDashboard() {
   const navigate = useNavigate();
   const { userId } = useP2PIdentity();
 
+  const [unreadMessages, setUnreadMessages] = useState(0);
+
   const handleBalanceUpdated = () => {
     setBalanceRefreshKey(prev => prev + 1);
   };
+
+  // Fetch unread message count
+  useEffect(() => {
+    const fetchUnread = async () => {
+      if (!userId) return;
+
+      try {
+        // Get all trade IDs where user is participant
+        const { data: trades } = await supabase
+          .from('p2p_fiat_trades')
+          .select('id')
+          .or(`seller_id.eq.${userId},buyer_id.eq.${userId}`);
+
+        if (!trades || trades.length === 0) return;
+
+        const tradeIds = trades.map(t => t.id);
+
+        const { count } = await supabase
+          .from('p2p_messages')
+          .select('*', { count: 'exact', head: true })
+          .in('trade_id', tradeIds)
+          .neq('sender_id', userId)
+          .eq('is_read', false);
+
+        setUnreadMessages(count || 0);
+      } catch (error) {
+        console.error('Fetch unread count error:', error);
+      }
+    };
+
+    fetchUnread();
+
+    // Realtime subscription for new messages
+    const channel = supabase
+      .channel('p2p-unread-count')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'p2p_messages',
+        },
+        () => {
+          fetchUnread();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'p2p_messages',
+        },
+        () => {
+          fetchUnread();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [userId]);
 
   // Fetch user stats
   useEffect(() => {
@@ -93,29 +158,39 @@ export function P2PDashboard() {
           <Home className="w-4 h-4 mr-2" />
           {t('p2p.backToHome')}
         </Button>
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-1 sm:gap-3">
           <NotificationBell />
-          <Button
-            variant="outline"
-            onClick={() => navigate('/p2p/merchant')}
-            className="border-gray-700 hover:bg-gray-800"
-          >
-            <Store className="w-4 h-4 mr-2" />
-            {t('p2p.merchant')}
-          </Button>
-          <Button
-            variant="outline"
+          <button
             onClick={() => navigate('/p2p/orders')}
-            className="border-gray-700 hover:bg-gray-800"
+            className="relative flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg hover:bg-gray-800/60 transition-colors"
           >
-            <ClipboardList className="w-4 h-4 mr-2" />
-            {t('p2p.myTrades')}
+            <ClipboardList className="w-5 h-5 text-gray-300" />
+            <span className="text-[10px] text-gray-400">{t('p2pNav.orders')}</span>
             {userStats.activeTrades > 0 && (
-              <Badge className="ml-2 bg-yellow-500 text-black">
+              <Badge className="absolute -top-1 -right-1 bg-yellow-500 text-black text-[10px] px-1.5 min-w-[18px] h-[18px] flex items-center justify-center">
                 {userStats.activeTrades}
               </Badge>
             )}
-          </Button>
+          </button>
+          <button
+            onClick={() => navigate('/p2p/merchant')}
+            className="relative flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg hover:bg-gray-800/60 transition-colors"
+          >
+            <Store className="w-5 h-5 text-gray-300" />
+            <span className="text-[10px] text-gray-400">{t('p2pNav.ads')}</span>
+          </button>
+          <button
+            onClick={() => navigate('/p2p/messages')}
+            className="relative flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg hover:bg-gray-800/60 transition-colors"
+          >
+            <MessageSquare className="w-5 h-5 text-gray-300" />
+            <span className="text-[10px] text-gray-400">{t('p2pNav.messages')}</span>
+            {unreadMessages > 0 && (
+              <Badge className="absolute -top-1 -right-1 bg-green-500 text-white text-[10px] px-1.5 min-w-[18px] h-[18px] flex items-center justify-center">
+                {unreadMessages}
+              </Badge>
+            )}
+          </button>
         </div>
       </div>
 

@@ -1553,6 +1553,19 @@ export default {
   'p2pChat.newMessage': 'رسالة جديدة',
   'p2pChat.newImage': 'صورة جديدة',
 
+  // P2P Navigation
+  'p2pNav.orders': 'الطلبات',
+  'p2pNav.ads': 'الإعلانات',
+  'p2pNav.messages': 'الرسائل',
+
+  // P2P Messages Inbox
+  'p2pMessages.title': 'الرسائل',
+  'p2pMessages.subtitle': 'محادثات التداول الخاصة بك',
+  'p2pMessages.noConversations': 'لا توجد محادثات بعد',
+  'p2pMessages.noConversationsHint': 'ابدأ صفقة لبدء المحادثة',
+  'p2pMessages.you': 'أنت',
+  'p2pMessages.sentImage': 'أرسل صورة',
+
   'p2pFilters.filters': 'الفلاتر',
   'p2pFilters.filterOrders': 'فلترة الطلبات',
   'p2pFilters.reset': 'إعادة تعيين',

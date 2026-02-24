@@ -1907,6 +1907,19 @@ export default {
   'p2pChat.newMessage': 'New Message',
   'p2pChat.newImage': 'New Image',
 
+  // P2P Navigation
+  'p2pNav.orders': 'Orders',
+  'p2pNav.ads': 'Ads',
+  'p2pNav.messages': 'Messages',
+
+  // P2P Messages Inbox
+  'p2pMessages.title': 'Messages',
+  'p2pMessages.subtitle': 'Your trade conversations',
+  'p2pMessages.noConversations': 'No conversations yet',
+  'p2pMessages.noConversationsHint': 'Start a trade to begin chatting',
+  'p2pMessages.you': 'You',
+  'p2pMessages.sentImage': 'Sent an image',
+
   // OrderFilters
   'p2pFilters.filters': 'Filters',
   'p2pFilters.filterOrders': 'Filter Orders',

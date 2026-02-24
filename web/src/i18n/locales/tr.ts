@@ -1559,6 +1559,19 @@ export default {
   'p2pChat.newMessage': 'Yeni Mesaj',
   'p2pChat.newImage': 'Yeni Resim',
 
+  // P2P Navigation
+  'p2pNav.orders': 'Siparişler',
+  'p2pNav.ads': 'İlanlar',
+  'p2pNav.messages': 'Mesajlar',
+
+  // P2P Messages Inbox
+  'p2pMessages.title': 'Mesajlar',
+  'p2pMessages.subtitle': 'Trade sohbetleriniz',
+  'p2pMessages.noConversations': 'Henüz sohbet yok',
+  'p2pMessages.noConversationsHint': 'Sohbet başlatmak için bir trade başlatın',
+  'p2pMessages.you': 'Sen',
+  'p2pMessages.sentImage': 'Bir resim gönderdi',
+
   // OrderFilters
   'p2pFilters.filters': 'Filtreler',
   'p2pFilters.filterOrders': 'Siparişleri Filtrele',

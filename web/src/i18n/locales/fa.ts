@@ -1577,6 +1577,19 @@ export default {
   'p2pChat.newMessage': 'پیام جدید',
   'p2pChat.newImage': 'تصویر جدید',
 
+  // P2P Navigation
+  'p2pNav.orders': 'سفارشات',
+  'p2pNav.ads': 'آگهی‌ها',
+  'p2pNav.messages': 'پیام‌ها',
+
+  // P2P Messages Inbox
+  'p2pMessages.title': 'پیام‌ها',
+  'p2pMessages.subtitle': 'گفتگوهای معاملاتی شما',
+  'p2pMessages.noConversations': 'هنوز گفتگویی وجود ندارد',
+  'p2pMessages.noConversationsHint': 'برای شروع گفتگو یک معامله آغاز کنید',
+  'p2pMessages.you': 'شما',
+  'p2pMessages.sentImage': 'تصویری ارسال شد',
+
   // OrderFilters
   'p2pFilters.filters': 'فیلترها',
   'p2pFilters.filterOrders': 'فیلتر سفارشات',
