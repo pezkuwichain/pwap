@@ -470,7 +470,7 @@ export async function createFiatOffer(params: CreateOfferParams): Promise<string
     return offer.id;
   } catch (error: unknown) {
     console.error('Create offer error:', error);
-    const message = error instanceof Error ? error.message : 'Failed to create offer';
+    const message = error instanceof Error ? error.message : (error as any)?.message || (error as any)?.details || 'Failed to create offer';
     toast.error(message);
     throw error;
   }
@@ -550,7 +550,9 @@ export async function acceptFiatOffer(params: AcceptOfferParams): Promise<string
     return response.trade_id;
   } catch (error: unknown) {
     console.error('Accept offer error:', error);
-    const message = error instanceof Error ? error.message : 'Failed to accept offer';
+    const message = error instanceof Error
+      ? error.message
+      : (error as any)?.message || (error as any)?.details || JSON.stringify(error) || 'Failed to accept offer';
     toast.error(message);
     throw error;
   }
@@ -699,7 +701,7 @@ export async function confirmPaymentReceived(tradeId: string, sellerId: string):
     toast.success('Payment confirmed! Crypto released to buyer\'s balance.');
   } catch (error: unknown) {
     console.error('Confirm payment error:', error);
-    const message = error instanceof Error ? error.message : 'Failed to confirm payment';
+    const message = error instanceof Error ? error.message : (error as any)?.message || (error as any)?.details || 'Failed to confirm payment';
     toast.error(message);
     throw error;
   }
@@ -918,7 +920,7 @@ export async function cancelTrade(
     toast.success('Trade cancelled successfully');
   } catch (error: unknown) {
     console.error('Cancel trade error:', error);
-    const message = error instanceof Error ? error.message : 'Failed to cancel trade';
+    const message = error instanceof Error ? error.message : (error as any)?.message || (error as any)?.details || 'Failed to cancel trade';
     toast.error(message);
     throw error;
   }
@@ -1047,7 +1049,7 @@ export async function requestWithdraw(
     return data.txHash || '';
   } catch (error: unknown) {
     console.error('Request withdraw error:', error);
-    const message = error instanceof Error ? error.message : 'Withdrawal failed';
+    const message = error instanceof Error ? error.message : (error as any)?.message || (error as any)?.details || 'Withdrawal failed';
     toast.error(message);
     throw error;
   }
