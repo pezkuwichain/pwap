@@ -91,22 +91,27 @@ export function buildChainId(genesisHash: string): string {
  * Start a WalletConnect pairing session
  * Returns the URI for QR code display
  */
-export async function connectWithQR(genesisHash: string): Promise<{
+export async function connectWithQR(genesisHash: string, additionalGenesisHashes?: string[]): Promise<{
   uri: string;
   approval: () => Promise<SessionTypes.Struct>;
 }> {
   const client = await initWalletConnect();
-  const chainId = buildChainId(genesisHash);
+  const chainIds = [buildChainId(genesisHash)];
+  if (additionalGenesisHashes) {
+    for (const gh of additionalGenesisHashes) {
+      const cid = buildChainId(gh);
+      if (!chainIds.includes(cid)) chainIds.push(cid);
+    }
+  }
 
-  console.warn('[WC] Session proposal chain ID:', chainId);
-  console.warn('[WC] Genesis hash:', genesisHash);
+  console.warn('[WC] Session proposal chain IDs:', chainIds);
   console.warn('[WC] Methods:', POLKADOT_METHODS);
 
   const { uri, approval } = await client.connect({
     optionalNamespaces: {
       polkadot: {
         methods: POLKADOT_METHODS,
-        chains: [chainId],
+        chains: chainIds,
         events: POLKADOT_EVENTS,
       },
     },
@@ -182,9 +187,8 @@ export function validateSession(): boolean {
  * Create a Signer adapter compatible with @pezkuwi/api's Signer interface
  * Routes signPayload and signRaw through WalletConnect
  */
-export function createWCSigner(genesisHash: string, address: string) {
-  const chainId = buildChainId(genesisHash);
-  const wcAccount = `polkadot:${chainId.split(':')[1]}:${address}`;
+export function createWCSigner(defaultGenesisHash: string, address: string) {
+  const defaultChainId = buildChainId(defaultGenesisHash);
 
   return {
     signPayload: async (payload: {
@@ -209,6 +213,15 @@ export function createWCSigner(genesisHash: string, address: string) {
         localStorage.removeItem(WC_SESSION_KEY);
         window.dispatchEvent(new Event('walletconnect_disconnected'));
         throw new Error('WalletConnect session expired. Please reconnect your wallet.');
+      }
+
+      // Derive chainId from the payload's own genesisHash (set by the TX's API)
+      // This ensures Asset Hub TXs use Asset Hub chainId, relay TXs use relay chainId, etc.
+      const chainId = payload.genesisHash ? buildChainId(payload.genesisHash) : defaultChainId;
+      const wcAccount = `polkadot:${chainId.split(':')[1]}:${address}`;
+
+      if (import.meta.env.DEV) {
+        console.log('[WC] signPayload chainId:', chainId, 'from payload genesis:', payload.genesisHash);
       }
 
       const id = ++requestId;
@@ -246,11 +259,12 @@ export function createWCSigner(genesisHash: string, address: string) {
         throw new Error('WalletConnect session expired. Please reconnect your wallet.');
       }
 
+      const wcAccount = `polkadot:${defaultChainId.split(':')[1]}:${address}`;
       const id = ++requestId;
 
       const result = await signClient.request<{ signature: string }>({
         topic: currentSession.topic,
-        chainId,
+        chainId: defaultChainId,
         request: {
           method: 'polkadot_signMessage',
           params: {
