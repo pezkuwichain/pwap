@@ -496,10 +496,12 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
     setError(null);
     const genesisHash = api.genesisHash.toHex();
 
-    // Include Asset Hub and People Chain in WC session so cross-chain TX signing works
-    const additionalHashes: string[] = [];
-    if (assetHubApi?.isConnected) additionalHashes.push(assetHubApi.genesisHash.toHex());
-    if (peopleApi?.isConnected) additionalHashes.push(peopleApi.genesisHash.toHex());
+    // Always include Asset Hub and People Chain in WC session so cross-chain TX signing works
+    // Hardcoded because APIs may not be connected yet when WC session is established
+    const additionalHashes: string[] = [
+      '0xe7c15092dcbe3f320260ddbbc685bfceed9125a3b3d8436db2766201dec3b949', // Asset Hub
+      '0x69a8d025ab7b63363935d7d9397e0f652826c94271c1bc55c4fdfe72cccf1cfa', // People Chain
+    ];
 
     try {
       await initWalletConnect();
