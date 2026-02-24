@@ -496,9 +496,14 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
     setError(null);
     const genesisHash = api.genesisHash.toHex();
 
+    // Include Asset Hub and People Chain in WC session so cross-chain TX signing works
+    const additionalHashes: string[] = [];
+    if (assetHubApi?.isConnected) additionalHashes.push(assetHubApi.genesisHash.toHex());
+    if (peopleApi?.isConnected) additionalHashes.push(peopleApi.genesisHash.toHex());
+
     try {
       await initWalletConnect();
-      const { uri, approval } = await connectWithQR(genesisHash);
+      const { uri, approval } = await connectWithQR(genesisHash, additionalHashes);
 
       // Start approval listener in background
       approval().then((session) => {

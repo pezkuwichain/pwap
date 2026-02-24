@@ -263,6 +263,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         }
         if (import.meta.env.DEV) console.log('[WC] Using WalletConnect for transaction signing');
 
+        // Default genesis hash for signRaw; signPayload auto-detects from TX payload
         const genesisHash = pezkuwi.api.genesisHash.toHex();
         const wcSigner = createWCSigner(genesisHash, pezkuwi.selectedAccount.address);
 
