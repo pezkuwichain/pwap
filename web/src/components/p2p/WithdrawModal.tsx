@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Dialog,
@@ -68,18 +68,7 @@ export function WithdrawModal({ isOpen, onClose, onSuccess }: WithdrawModalProps
   const NETWORK_FEE = 0.01;
   const MIN_WITHDRAWAL = 0.1;
 
-  // Fetch balances and pending requests on mount
-  useEffect(() => {
-    if (isOpen) {
-      fetchData();
-      // Pre-fill wallet address from connected account
-      if (selectedAccount?.address) {
-        setWalletAddress(selectedAccount.address);
-      }
-    }
-  }, [isOpen, selectedAccount]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       if (!userId) return;
@@ -97,7 +86,18 @@ export function WithdrawModal({ isOpen, onClose, onSuccess }: WithdrawModalProps
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId]);
+
+  // Fetch balances and pending requests on mount
+  useEffect(() => {
+    if (isOpen) {
+      fetchData();
+      // Pre-fill wallet address from connected account
+      if (selectedAccount?.address) {
+        setWalletAddress(selectedAccount.address);
+      }
+    }
+  }, [isOpen, selectedAccount, fetchData]);
 
   const resetModal = () => {
     setStep('form');
