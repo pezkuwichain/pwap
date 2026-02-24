@@ -574,7 +574,6 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
 
     window.addEventListener('walletconnect_disconnected', handleWcDisconnect);
     return () => window.removeEventListener('walletconnect_disconnected', handleWcDisconnect);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletSource]);
 
   const value: PezkuwiContextType = {

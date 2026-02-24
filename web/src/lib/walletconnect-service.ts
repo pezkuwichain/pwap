@@ -31,28 +31,6 @@ let currentSession: SessionTypes.Struct | null = null;
 let requestId = 0;
 
 /**
- * Get a chainId that is approved in the current WC session.
- * The wallet determines actual signing chain from the payload's genesisHash,
- * so the WC request chainId is only for WC protocol compliance.
- */
-function getApprovedChainId(fallback: string): string {
-  if (!currentSession) return fallback;
-  const ns = currentSession.namespaces['polkadot'];
-  if (!ns) return fallback;
-
-  // Try chains array first
-  if (ns.chains && ns.chains.length > 0) return ns.chains[0];
-
-  // Derive from accounts (format: polkadot:<chain_id>:<address>)
-  if (ns.accounts && ns.accounts.length > 0) {
-    const parts = ns.accounts[0].split(':');
-    if (parts.length >= 2) return `${parts[0]}:${parts[1]}`;
-  }
-
-  return fallback;
-}
-
-/**
  * Initialize the WalletConnect SignClient (singleton with race protection)
  */
 export async function initWalletConnect(): Promise<SignClient> {
