@@ -242,7 +242,6 @@ export function createWCSigner(defaultGenesisHash: string, address: string) {
       // Always use a chainId approved in the WC session for protocol compliance.
       // The wallet determines actual signing chain from the payload's genesisHash.
       const chainId = getApprovedChainId(defaultChainId);
-      const wcAccount = `polkadot:${chainId.split(':')[1]}:${address}`;
 
       const id = ++requestId;
 
@@ -252,7 +251,7 @@ export function createWCSigner(defaultGenesisHash: string, address: string) {
         request: {
           method: 'polkadot_signTransaction',
           params: {
-            address: wcAccount,
+            address: address,
             transactionPayload: payload,
           },
         },
