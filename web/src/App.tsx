@@ -12,6 +12,7 @@ import { ReferralProvider } from '@/contexts/ReferralContext';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { P2PLayout } from '@/components/p2p/P2PLayout';
 import { Toaster } from '@/components/ui/toaster';
+import { Toaster as SonnerToaster } from '@/components/ui/sonner';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { initSentry } from '@/lib/sentry';
 import './App.css';
@@ -232,6 +233,7 @@ function App() {
           </AppProvider>
         </AuthProvider>
         <Toaster />
+        <SonnerToaster position="top-center" />
       </ErrorBoundary>
     </ThemeProvider>
   );
