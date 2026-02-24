@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Loader2, Shield, Zap } from 'lucide-react';
 import { useP2PIdentity } from '@/contexts/P2PIdentityContext';
 import { TradeModal } from './TradeModal';
-import { MerchantTierBadge } from './MerchantTierBadge';
+import { MerchantTierBadge, MerchantTierIcon } from './MerchantTierBadge';
 import { getUserReputation, type P2PFiatOffer, type P2PReputation } from '@shared/lib/p2p-fiat';
 import { supabase } from '@/lib/supabase';
 import type { P2PFilters } from './types';
@@ -193,11 +193,92 @@ export function AdList({ type, filters }: AdListProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2 md:space-y-4">
       {offers.map(offer => (
         <Card key={offer.id} className="bg-gray-900 border-gray-800 hover:border-gray-700 transition-colors">
-          <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-6 items-center">
+          {/* Mobile Compact Layout — OKX style */}
+          <CardContent className="p-2.5 md:hidden">
+            {/* Row 1: Avatar + wallet + badges | trade stats */}
+            <div className="flex items-center gap-1.5 mb-1">
+              <Avatar className="h-7 w-7">
+                <AvatarFallback className="bg-green-500/20 text-green-400 text-[10px]">
+                  {offer.seller_wallet.slice(0, 2).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex items-center gap-1 min-w-0">
+                <span className="font-medium text-xs text-white truncate">
+                  {offer.seller_wallet.slice(0, 6)}...{offer.seller_wallet.slice(-4)}
+                </span>
+                {offer.merchant_tier && (
+                  <MerchantTierIcon tier={offer.merchant_tier} size="sm" />
+                )}
+                {offer.seller_reputation?.verified_merchant && (
+                  <Shield className="w-3 h-3 text-blue-400 flex-shrink-0" />
+                )}
+                {offer.seller_reputation?.fast_trader && (
+                  <Zap className="w-3 h-3 text-yellow-400 flex-shrink-0" />
+                )}
+              </div>
+              {offer.seller_reputation && (
+                <span className="text-[10px] text-gray-500 ml-auto flex-shrink-0 whitespace-nowrap">
+                  {offer.seller_reputation.completed_trades} {t('p2p.tradesShort', { defaultValue: 'trades' })} · {((offer.seller_reputation.completed_trades / (offer.seller_reputation.total_trades || 1)) * 100).toFixed(0)}%
+                </span>
+              )}
+            </div>
+
+            {/* Row 2: Price | Available amount | Min limit */}
+            <div className="flex items-baseline justify-between mb-1">
+              <span className="text-sm font-bold text-green-400">
+                {offer.price_per_unit.toFixed(2)} {offer.fiat_currency}
+              </span>
+              <span className="text-[11px] text-gray-400">
+                {offer.remaining_amount} {offer.token}
+              </span>
+              <span className="text-[10px] text-gray-500">
+                Min: {offer.min_order_amount || 0} {offer.token}
+              </span>
+            </div>
+
+            {/* Row 3: Payment method | Time limit | Action button */}
+            <div className="flex items-center justify-between">
+              <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5">
+                {offer.payment_method_name || t('p2p.na')}
+              </Badge>
+              <span className="text-[10px] text-gray-500">
+                {offer.time_limit_minutes} min
+              </span>
+              {offer.seller_id === userId && type !== 'my-ads' ? (
+                <Badge variant="outline" className="text-[10px] bg-blue-500/10 text-blue-400 border-blue-500/30 px-1.5 py-0 h-5">
+                  {t('p2pAd.yourAd')}
+                </Badge>
+              ) : (
+                <Button
+                  size="sm"
+                  onClick={() => setSelectedOffer(offer)}
+                  disabled={type === 'my-ads' || offer.seller_id === userId}
+                  className="text-[11px] h-6 px-2.5 rounded"
+                >
+                  {type === 'buy' ? t('p2pAd.buyToken', { token: offer.token }) : t('p2pAd.sellToken', { token: offer.token })}
+                </Button>
+              )}
+            </div>
+
+            {/* Status badge for my-ads */}
+            {type === 'my-ads' && (
+              <div className="mt-1.5 pt-1.5 border-t border-gray-800 flex items-center justify-between">
+                <Badge variant={offer.status === 'open' ? 'default' : 'secondary'} className="text-[10px]">
+                  {offer.status.toUpperCase()}
+                </Badge>
+                <span className="text-[10px] text-gray-400">
+                  {new Date(offer.created_at).toLocaleDateString()}
+                </span>
+              </div>
+            )}
+          </CardContent>
+
+          {/* Desktop Layout */}
+          <CardContent className="p-6 hidden md:block">
+            <div className="grid grid-cols-5 gap-6 items-center">
               {/* Seller Info */}
               <div className="flex items-center gap-3">
                 <Avatar className="h-12 w-12">
@@ -271,7 +352,6 @@ export function AdList({ type, filters }: AdListProps) {
                 <Button
                   onClick={() => setSelectedOffer(offer)}
                   disabled={type === 'my-ads' || offer.seller_id === userId}
-                  className="w-full md:w-auto"
                   title={offer.seller_id === userId ? t('p2pAd.cantTradeOwnAd') : ''}
                 >
                   {type === 'buy' ? t('p2pAd.buyToken', { token: offer.token }) : t('p2pAd.sellToken', { token: offer.token })}
@@ -283,7 +363,7 @@ export function AdList({ type, filters }: AdListProps) {
             {type === 'my-ads' && (
               <div className="mt-4 pt-4 border-t border-gray-800">
                 <div className="flex items-center justify-between">
-                  <Badge 
+                  <Badge
                     variant={offer.status === 'open' ? 'default' : 'secondary'}
                   >
                     {offer.status.toUpperCase()}
