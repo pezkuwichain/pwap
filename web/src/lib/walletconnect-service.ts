@@ -259,7 +259,6 @@ export function createWCSigner(defaultGenesisHash: string, address: string) {
         throw new Error('WalletConnect session expired. Please reconnect your wallet.');
       }
 
-      const wcAccount = `polkadot:${defaultChainId.split(':')[1]}:${address}`;
       const id = ++requestId;
 
       const result = await signClient.request<{ signature: string }>({
@@ -268,7 +267,7 @@ export function createWCSigner(defaultGenesisHash: string, address: string) {
         request: {
           method: 'polkadot_signMessage',
           params: {
-            address: wcAccount,
+            address: address,
             message: raw.data,
           },
         },
