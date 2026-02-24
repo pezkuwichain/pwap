@@ -395,18 +395,17 @@ export default function Citizens() {
           </div>
         </div>
 
-        {/* Digital Citizen ID Card - Pure HTML/CSS Design */}
+        {/* Digital Citizen ID Card - Flow Layout */}
         <div className="max-w-lg sm:max-w-2xl mx-auto mb-6 sm:mb-8">
           <div
             className="relative rounded-2xl overflow-hidden shadow-2xl"
             style={{
               background: 'linear-gradient(135deg, #166534 0%, #16a34a 15%, #ffffff 35%, #ffffff 65%, #dc2626 85%, #991b1b 100%)',
-              aspectRatio: '1.586/1'
             }}
           >
             {/* Security Pattern Overlay */}
             <div
-              className="absolute inset-0 opacity-[0.03]"
+              className="absolute inset-0 opacity-[0.03] pointer-events-none"
               style={{
                 backgroundImage: `repeating-linear-gradient(
                   45deg,
@@ -419,138 +418,132 @@ export default function Citizens() {
             />
 
             {/* Top Header Band */}
-            <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-green-800 via-green-700 to-green-800 py-3 px-4">
+            <div className="relative bg-gradient-to-r from-green-800 via-green-700 to-green-800 py-2 sm:py-3 px-3 sm:px-4">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  {/* Sun Symbol */}
+                <div className="flex items-center gap-1.5 sm:gap-2">
                   <div className="relative">
-                    <Sun className="h-8 w-8 text-yellow-400 drop-shadow-lg" />
+                    <Sun className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-400 drop-shadow-lg" />
                     <div className="absolute inset-0 animate-pulse">
-                      <Sun className="h-8 w-8 text-yellow-300 opacity-50" />
+                      <Sun className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-300 opacity-50" />
                     </div>
                   </div>
                   <div>
-                    <div className="text-white font-bold text-sm tracking-wider">KOMARÎ KURDISTAN</div>
-                    <div className="text-green-200 text-[10px] tracking-wide">REPUBLIC OF KURDISTAN</div>
+                    <div className="text-white font-bold text-xs sm:text-sm tracking-wider">KOMARÎ KURDISTAN</div>
+                    <div className="text-green-200 text-[8px] sm:text-[10px] tracking-wide">REPUBLIC OF KURDISTAN</div>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-yellow-400 font-bold text-xs">NASNAMEYA DÎJÎTAL</div>
-                  <div className="text-green-200 text-[10px]">DIGITAL IDENTITY CARD</div>
+                  <div className="text-yellow-400 font-bold text-[10px] sm:text-xs">NASNAMEYA DÎJÎTAL</div>
+                  <div className="text-green-200 text-[8px] sm:text-[10px]">DIGITAL IDENTITY CARD</div>
                 </div>
               </div>
             </div>
 
-            {/* Main Content Area */}
-            <div className="absolute top-16 bottom-10 left-0 right-0 px-5 flex flex-col sm:flex-row">
+            {/* Main Content Area - Flow layout */}
+            <div className="relative px-3 sm:px-5 py-3 sm:py-4">
+              <div className="flex flex-row gap-3 sm:gap-4">
 
-              {/* Left Section - Photo */}
-              <div className="w-1/4 flex flex-col items-center justify-center">
-                <div className="relative w-full aspect-[3/4] max-w-[120px] group">
-                  {/* Photo Frame */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-green-600 to-red-600 rounded-lg p-[2px]">
-                    <div className="w-full h-full bg-white rounded-lg overflow-hidden flex items-center justify-center">
-                      {citizenProfile.photoUrl ? (
-                        <img src={citizenProfile.photoUrl} alt="Citizen Photo" className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                          <User className="w-12 h-12 text-gray-300" />
-                        </div>
-                      )}
+                {/* Left Section - Photo */}
+                <div className="w-20 sm:w-28 flex-shrink-0">
+                  <div className="relative w-full aspect-[3/4] group">
+                    <div className="absolute inset-0 bg-gradient-to-br from-green-600 to-red-600 rounded-lg p-[2px]">
+                      <div className="w-full h-full bg-white rounded-lg overflow-hidden flex items-center justify-center">
+                        {citizenProfile.photoUrl ? (
+                          <img src={citizenProfile.photoUrl} alt="Citizen Photo" className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                            <User className="w-8 h-8 sm:w-12 sm:h-12 text-gray-300" />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    {/* Upload Overlay */}
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={uploadingPhoto}
+                        className="text-white text-xs px-2 py-1 h-auto hover:bg-white/20"
+                      >
+                        {uploadingPhoto ? (
+                          <div className="animate-spin h-4 w-4 border-2 border-white rounded-full border-t-transparent" />
+                        ) : (
+                          <>
+                            <Upload className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                            <span className="text-[10px] sm:text-xs">{t('citizens.upload')}</span>
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handlePhotoUpload}
+                    />
+                  </div>
+                </div>
+
+                {/* Middle + Right Section */}
+                <div className="flex-1 min-w-0 flex flex-col justify-between">
+                  {/* Edit Button */}
+                  <div className="flex justify-end mb-1">
+                    <button
+                      onClick={() => {
+                        setEditForm(citizenProfile);
+                        setShowEditModal(true);
+                      }}
+                      className="bg-white/90 hover:bg-white rounded-full p-1 sm:p-1.5 shadow-md transition-colors"
+                      title={t('citizens.editProfile')}
+                    >
+                      <Pencil className="h-3 w-3 text-gray-600" />
+                    </button>
+                  </div>
+
+                  {/* Personal Info */}
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <div className="bg-white/80 backdrop-blur-sm rounded px-2 sm:px-3 py-1 sm:py-2 border-l-3 sm:border-l-4 border-green-600 shadow-sm">
+                      <div className="text-[8px] sm:text-[10px] text-gray-500 uppercase tracking-wider font-medium">{t('citizens.nameLabel')}</div>
+                      <div className="text-xs sm:text-sm font-bold text-gray-800 truncate">{citizenProfile.fullName || '...'}</div>
+                    </div>
+                    <div className="bg-white/80 backdrop-blur-sm rounded px-2 sm:px-3 py-1 sm:py-2 border-l-3 sm:border-l-4 border-yellow-500 shadow-sm">
+                      <div className="text-[8px] sm:text-[10px] text-gray-500 uppercase tracking-wider font-medium">{t('citizens.fatherNameLabel')}</div>
+                      <div className="text-xs sm:text-sm font-bold text-gray-800 truncate">{citizenProfile.fatherName || '...'}</div>
+                    </div>
+                    <div className="bg-white/80 backdrop-blur-sm rounded px-2 sm:px-3 py-1 sm:py-2 border-l-3 sm:border-l-4 border-red-600 shadow-sm">
+                      <div className="text-[8px] sm:text-[10px] text-gray-500 uppercase tracking-wider font-medium">{t('citizens.locationLabel')}</div>
+                      <div className="text-xs sm:text-sm font-bold text-gray-800 truncate">{citizenProfile.location || '...'}</div>
                     </div>
                   </div>
-                  {/* Upload Overlay */}
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={uploadingPhoto}
-                      className="text-white text-xs px-2 py-1 h-auto hover:bg-white/20"
-                    >
-                      {uploadingPhoto ? (
-                        <div className="animate-spin h-4 w-4 border-2 border-white rounded-full border-t-transparent" />
-                      ) : (
-                        <>
-                          <Upload className="h-4 w-4 mr-1" />
-                          {t('citizens.upload')}
-                        </>
-                      )}
-                    </Button>
+
+                  {/* NFT & Citizen Number Badges */}
+                  <div className="flex flex-row gap-1.5 sm:gap-2 mt-2 sm:mt-3">
+                    <div className="bg-gradient-to-br from-green-700 to-green-900 rounded-lg p-1.5 sm:p-2 text-center shadow-lg flex-1">
+                      <div className="text-[7px] sm:text-[9px] text-green-200 font-medium uppercase">NFT ID</div>
+                      <div className="text-white font-bold text-[10px] sm:text-xs mt-0.5">
+                        {nftDetails.citizenNFT ? `#${nftDetails.citizenNFT.collectionId}-${nftDetails.citizenNFT.itemId}` : 'N/A'}
+                      </div>
+                    </div>
+                    <div className="bg-gradient-to-br from-red-700 to-red-900 rounded-lg p-1.5 sm:p-2 text-center shadow-lg flex-1">
+                      <div className="text-[7px] sm:text-[9px] text-red-200 font-medium uppercase">Citizen No</div>
+                      <div className="text-white font-bold text-[9px] sm:text-[11px] mt-0.5">
+                        {nftDetails.citizenNFT ? `#${nftDetails.citizenNFT.collectionId}-${nftDetails.citizenNFT.itemId}-${citizenNumber}` : 'N/A'}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-0.5 bg-white/90 rounded-full px-1.5 sm:px-2 py-1 shadow self-center">
+                      <ShieldCheck className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-green-600" />
+                      <span className="text-[7px] sm:text-[9px] font-semibold text-green-700">VERIFIED</span>
+                    </div>
                   </div>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handlePhotoUpload}
-                  />
-                </div>
-              </div>
-
-              {/* Middle Section - Personal Info */}
-              <div className="flex-1 px-4 flex flex-col justify-center space-y-3 relative">
-                {/* Edit Button */}
-                <button
-                  onClick={() => {
-                    setEditForm(citizenProfile);
-                    setShowEditModal(true);
-                  }}
-                  className="absolute -top-2 right-0 bg-white/90 hover:bg-white rounded-full p-1.5 shadow-md transition-colors"
-                  title={t('citizens.editProfile')}
-                >
-                  <Pencil className="h-3 w-3 text-gray-600" />
-                </button>
-
-                {/* Name */}
-                <div className="bg-white/80 backdrop-blur-sm rounded-lg px-3 py-2 border-l-4 border-green-600 shadow-sm">
-                  <div className="text-[10px] text-gray-500 uppercase tracking-wider font-medium">{t('citizens.nameLabel')}</div>
-                  <div className="text-sm font-bold text-gray-800 truncate">{citizenProfile.fullName || '...'}</div>
-                </div>
-
-                {/* Father's Name */}
-                <div className="bg-white/80 backdrop-blur-sm rounded-lg px-3 py-2 border-l-4 border-yellow-500 shadow-sm">
-                  <div className="text-[10px] text-gray-500 uppercase tracking-wider font-medium">{t('citizens.fatherNameLabel')}</div>
-                  <div className="text-sm font-bold text-gray-800 truncate">{citizenProfile.fatherName || '...'}</div>
-                </div>
-
-                {/* Location */}
-                <div className="bg-white/80 backdrop-blur-sm rounded-lg px-3 py-2 border-l-4 border-red-600 shadow-sm">
-                  <div className="text-[10px] text-gray-500 uppercase tracking-wider font-medium">{t('citizens.locationLabel')}</div>
-                  <div className="text-sm font-bold text-gray-800 truncate">{citizenProfile.location || '...'}</div>
-                </div>
-              </div>
-
-              {/* Right Section - NFT & ID Numbers */}
-              <div className="w-full sm:w-1/4 flex flex-row sm:flex-col justify-center items-center gap-2 sm:space-y-2 mt-2 sm:mt-0">
-                {/* NFT Badge */}
-                <div className="bg-gradient-to-br from-green-700 to-green-900 rounded-xl p-2 sm:p-3 text-center shadow-lg flex-1 sm:w-full sm:max-w-[110px]">
-                  <div className="text-[8px] sm:text-[9px] text-green-200 font-medium uppercase tracking-wider">NFT ID</div>
-                  <div className="text-white font-bold text-xs sm:text-sm mt-1">
-                    {nftDetails.citizenNFT ? `#${nftDetails.citizenNFT.collectionId}-${nftDetails.citizenNFT.itemId}` : 'N/A'}
-                  </div>
-                </div>
-
-                {/* Citizen Number Badge */}
-                <div className="bg-gradient-to-br from-red-700 to-red-900 rounded-xl p-2 sm:p-3 text-center shadow-lg flex-1 sm:w-full sm:max-w-[110px]">
-                  <div className="text-[8px] sm:text-[9px] text-red-200 font-medium uppercase tracking-wider">Hejmara Welatî</div>
-                  <div className="text-[7px] sm:text-[8px] text-red-300 mb-1">Citizen No</div>
-                  <div className="text-white font-bold text-[10px] sm:text-[11px]">
-                    {nftDetails.citizenNFT ? `#${nftDetails.citizenNFT.collectionId}-${nftDetails.citizenNFT.itemId}-${citizenNumber}` : 'N/A'}
-                  </div>
-                </div>
-
-                {/* Verified Badge */}
-                <div className="flex items-center gap-1 bg-white/90 rounded-full px-2 py-1 shadow">
-                  <ShieldCheck className="h-3 w-3 text-green-600" />
-                  <span className="text-[8px] sm:text-[9px] font-semibold text-green-700">VERIFIED</span>
                 </div>
               </div>
             </div>
 
             {/* Bottom Footer Band */}
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-r from-red-800 via-red-700 to-red-800 py-2 px-4">
-              <div className="flex items-center justify-between text-[9px]">
+            <div className="relative bg-gradient-to-r from-red-800 via-red-700 to-red-800 py-1.5 sm:py-2 px-3 sm:px-4">
+              <div className="flex items-center justify-between text-[7px] sm:text-[9px]">
                 <div className="text-red-200">
                   <span className="font-medium">Blockchain:</span> Pezkuwichain People
                 </div>
@@ -562,12 +555,6 @@ export default function Citizens() {
                 </div>
               </div>
             </div>
-
-            {/* Corner Decorations */}
-            <div className="absolute top-14 left-2 w-6 h-6 border-l-2 border-t-2 border-green-600/30 rounded-tl-lg" />
-            <div className="absolute top-14 right-2 w-6 h-6 border-r-2 border-t-2 border-red-600/30 rounded-tr-lg" />
-            <div className="absolute bottom-8 left-2 w-6 h-6 border-l-2 border-b-2 border-green-600/30 rounded-bl-lg" />
-            <div className="absolute bottom-8 right-2 w-6 h-6 border-r-2 border-b-2 border-red-600/30 rounded-br-lg" />
           </div>
         </div>
 
