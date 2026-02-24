@@ -40,6 +40,14 @@ const BeCitizen: React.FC = () => {
           </Button>
 
           <Button
+            onClick={() => setIsModalOpen(true)}
+            className="w-full sm:w-auto bg-gradient-to-r from-red-600 to-green-700 hover:from-red-700 hover:to-green-800 border-yellow-400 border-2 text-white font-semibold shadow-lg group"
+          >
+            <span>{t('beCitizen.startProcess')}</span>
+            <ChevronRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+          </Button>
+
+          <Button
             onClick={() => setIsInviteModalOpen(true)}
             className="w-full sm:w-auto bg-green-600 hover:bg-green-700 border-yellow-400 border-2 text-white font-semibold shadow-lg"
           >
@@ -59,6 +67,39 @@ const BeCitizen: React.FC = () => {
           <p className="text-xl text-gray-800 font-semibold max-w-3xl mx-auto drop-shadow-md">
             {t('beCitizen.heroDesc')}
           </p>
+        </div>
+
+        {/* Ready to Join CTA */}
+        <div className="max-w-4xl mx-auto mb-12">
+          <Card className="bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-400 backdrop-blur-lg border-red-600 border-4 shadow-2xl">
+            <CardContent className="pt-8 pb-8">
+              <div className="text-center space-y-6">
+                <div>
+                  <h3 className="text-2xl font-bold text-red-700 mb-3">{t('beCitizen.readyToJoin')}</h3>
+                  <p className="text-gray-800 font-medium">
+                    {t('beCitizen.readyToJoinDesc')}
+                  </p>
+                </div>
+
+                <div className="flex flex-col md:flex-row gap-4 justify-center items-center text-sm text-gray-700 font-medium">
+                  <div className="flex items-center gap-2">
+                    <Shield className="h-4 w-4 text-green-700" />
+                    <span>{t('beCitizen.zkAuth')}</span>
+                  </div>
+                  <div className="hidden md:block text-red-600">•</div>
+                  <div className="flex items-center gap-2">
+                    <Award className="h-4 w-4 text-red-600" />
+                    <span>{t('beCitizen.soulboundNft')}</span>
+                  </div>
+                  <div className="hidden md:block text-red-600">•</div>
+                  <div className="flex items-center gap-2">
+                    <Globe className="h-4 w-4 text-green-700" />
+                    <span>{t('beCitizen.decentralizedId')}</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Benefits Grid */}
@@ -101,48 +142,6 @@ const BeCitizen: React.FC = () => {
                 {t('beCitizen.govDesc')}
               </CardDescription>
             </CardHeader>
-          </Card>
-        </div>
-
-        {/* CTA Section */}
-        <div className="max-w-4xl mx-auto">
-          <Card className="bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-400 backdrop-blur-lg border-red-600 border-4 shadow-2xl">
-            <CardContent className="pt-8 pb-8">
-              <div className="text-center space-y-6">
-                <div>
-                  <h3 className="text-2xl font-bold text-red-700 mb-3">{t('beCitizen.readyToJoin')}</h3>
-                  <p className="text-gray-800 font-medium mb-6">
-                    {t('beCitizen.readyToJoinDesc')}
-                  </p>
-                </div>
-
-                <Button
-                  onClick={() => setIsModalOpen(true)}
-                  size="lg"
-                  className="bg-gradient-to-r from-red-600 to-green-700 hover:from-red-700 hover:to-green-800 text-white font-bold px-8 py-6 text-lg group shadow-xl border-2 border-yellow-300"
-                >
-                  <span>{t('beCitizen.startProcess')}</span>
-                  <ChevronRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </Button>
-
-                <div className="flex flex-col md:flex-row gap-4 justify-center items-center text-sm text-gray-700 font-medium pt-4">
-                  <div className="flex items-center gap-2">
-                    <Shield className="h-4 w-4 text-green-700" />
-                    <span>{t('beCitizen.zkAuth')}</span>
-                  </div>
-                  <div className="hidden md:block text-red-600">•</div>
-                  <div className="flex items-center gap-2">
-                    <Award className="h-4 w-4 text-red-600" />
-                    <span>{t('beCitizen.soulboundNft')}</span>
-                  </div>
-                  <div className="hidden md:block text-red-600">•</div>
-                  <div className="flex items-center gap-2">
-                    <Globe className="h-4 w-4 text-green-700" />
-                    <span>{t('beCitizen.decentralizedId')}</span>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
           </Card>
         </div>
 
