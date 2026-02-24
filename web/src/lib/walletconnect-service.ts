@@ -24,6 +24,28 @@ let currentSession: SessionTypes.Struct | null = null;
 let requestId = 0;
 
 /**
+ * Get a chainId that is approved in the current WC session.
+ * The wallet determines actual signing chain from the payload's genesisHash,
+ * so the WC request chainId is only for WC protocol compliance.
+ */
+function getApprovedChainId(fallback: string): string {
+  if (!currentSession) return fallback;
+  const ns = currentSession.namespaces['polkadot'];
+  if (!ns) return fallback;
+
+  // Try chains array first
+  if (ns.chains && ns.chains.length > 0) return ns.chains[0];
+
+  // Derive from accounts (format: polkadot:<chain_id>:<address>)
+  if (ns.accounts && ns.accounts.length > 0) {
+    const parts = ns.accounts[0].split(':');
+    if (parts.length >= 2) return `${parts[0]}:${parts[1]}`;
+  }
+
+  return fallback;
+}
+
+/**
  * Initialize the WalletConnect SignClient (singleton with race protection)
  */
 export async function initWalletConnect(): Promise<SignClient> {
@@ -152,10 +174,12 @@ export function getSessionAccounts(): string[] {
   if (!polkadotNamespace?.accounts) return [];
 
   // Account format: polkadot:<chain_id>:<ss58_address>
-  return polkadotNamespace.accounts.map((account) => {
+  // Same address appears once per chain, deduplicate
+  const addresses = polkadotNamespace.accounts.map((account) => {
     const parts = account.split(':');
     return parts[parts.length - 1]; // Last part is the SS58 address
   });
+  return [...new Set(addresses)];
 }
 
 /**
@@ -215,14 +239,10 @@ export function createWCSigner(defaultGenesisHash: string, address: string) {
         throw new Error('WalletConnect session expired. Please reconnect your wallet.');
       }
 
-      // Derive chainId from the payload's own genesisHash (set by the TX's API)
-      // This ensures Asset Hub TXs use Asset Hub chainId, relay TXs use relay chainId, etc.
-      const chainId = payload.genesisHash ? buildChainId(payload.genesisHash) : defaultChainId;
+      // Always use a chainId approved in the WC session for protocol compliance.
+      // The wallet determines actual signing chain from the payload's genesisHash.
+      const chainId = getApprovedChainId(defaultChainId);
       const wcAccount = `polkadot:${chainId.split(':')[1]}:${address}`;
-
-      if (import.meta.env.DEV) {
-        console.log('[WC] signPayload chainId:', chainId, 'from payload genesis:', payload.genesisHash);
-      }
 
       const id = ++requestId;
 
