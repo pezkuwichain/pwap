@@ -199,14 +199,17 @@ export default function P2PTrade() {
 
     const deadline = new Date(trade.payment_deadline).getTime();
 
+    let expired = false;
+
     const updateTimer = () => {
       const now = Date.now();
       const remaining = Math.max(0, Math.floor((deadline - now) / 1000));
       setTimeRemaining(remaining);
 
-      if (remaining === 0 && trade.status === 'pending') {
-        // Auto-cancel logic could go here
+      if (remaining === 0 && !expired) {
+        expired = true;
         toast.warning(t('p2pTrade.paymentDeadlineExpired'));
+        clearInterval(interval);
       }
     };
 
@@ -714,8 +717,8 @@ export default function P2PTrade() {
           <CardContent className="py-6 text-center">
             <XCircle className="w-16 h-16 text-gray-500 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-400 mb-2">{t('p2pTrade.tradeCancelled')}</h3>
-            {trade.cancel_reason && (
-              <p className="text-gray-500">{t('p2pTrade.cancelReason', { reason: trade.cancel_reason })}</p>
+            {trade.cancellation_reason && (
+              <p className="text-gray-500">{t('p2pTrade.cancelReason', { reason: trade.cancellation_reason })}</p>
             )}
           </CardContent>
         </Card>

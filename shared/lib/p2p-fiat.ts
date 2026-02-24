@@ -572,20 +572,32 @@ export async function markPaymentSent(
   try {
     let paymentProofUrl: string | undefined;
 
-    // 1. Upload payment proof to IPFS if provided
+    // 1. Upload payment proof to Supabase Storage (auto-expires in 1 day)
     if (paymentProofFile) {
-      const { uploadToIPFS } = await import('./ipfs');
-      paymentProofUrl = await uploadToIPFS(paymentProofFile);
+      const fileName = `payment-proofs/${tradeId}/${Date.now()}-${paymentProofFile.name}`;
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('p2p-payment-proofs')
+        .upload(fileName, paymentProofFile);
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from('p2p-payment-proofs')
+        .getPublicUrl(uploadData.path);
+
+      paymentProofUrl = urlData.publicUrl;
     }
 
-    // 2. Update trade
+    // 2. Update trade (proof expires in 1 day unless disputed)
     const confirmationDeadline = new Date(Date.now() + DEFAULT_CONFIRMATION_DEADLINE_MINUTES * 60 * 1000);
+    const proofExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 1 day
 
     const { error } = await supabase
       .from('p2p_fiat_trades')
       .update({
         buyer_marked_paid_at: new Date().toISOString(),
         buyer_payment_proof_url: paymentProofUrl,
+        proof_expires_at: paymentProofUrl ? proofExpiresAt.toISOString() : null,
         status: 'payment_sent',
         confirmation_deadline: confirmationDeadline.toISOString()
       })
