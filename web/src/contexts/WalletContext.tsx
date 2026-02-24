@@ -284,9 +284,14 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       );
 
       return hash.toHex();
-    } catch (error) {
-      if (import.meta.env.DEV) console.error('Transaction failed:', error);
-      throw new Error(error instanceof Error ? error.message : WALLET_ERRORS.TRANSACTION_FAILED);
+    } catch (error: unknown) {
+      console.error('Transaction failed:', error);
+      // Extract actual error message from any error type (WC errors are not always Error instances)
+      const message = error instanceof Error ? error.message
+        : typeof error === 'string' ? error
+        : typeof error === 'object' && error !== null && 'message' in error ? String((error as Record<string, unknown>).message)
+        : WALLET_ERRORS.TRANSACTION_FAILED;
+      throw new Error(message);
     }
   }, [pezkuwi.api, pezkuwi.selectedAccount, pezkuwi.walletSource]);
 
