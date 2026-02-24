@@ -1046,11 +1046,22 @@ export async function requestWithdraw(
 
     toast.info('Processing withdrawal...');
 
-    const { data, error } = await supabase.functions.invoke('process-withdraw', {
+    const { data, error, response } = await supabase.functions.invoke('process-withdraw', {
       body: { userId, token, amount, walletAddress }
     });
 
-    if (error) throw error;
+    // Supabase client wraps non-2xx as generic FunctionsHttpError (data=null).
+    // Extract the actual error from the unread response body.
+    if (error) {
+      let errorMessage = 'Withdrawal failed';
+      if (response) {
+        try {
+          const body = await response.json();
+          errorMessage = body?.error || errorMessage;
+        } catch { /* response body already consumed or not JSON */ }
+      }
+      throw new Error(errorMessage);
+    }
 
     if (!data?.success) {
       throw new Error(data?.error || 'Withdrawal failed');
