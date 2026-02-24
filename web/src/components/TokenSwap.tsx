@@ -867,7 +867,7 @@ const TokenSwap = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
       {/* Kurdistan Sun Animation Overlay during swap (only after confirm dialog is closed) */}
       {isSwapping && !showConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
@@ -890,9 +890,9 @@ const TokenSwap = () => {
           />
         )}
 
-        <Card className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold">{t('tokenSwap.tokenSwap')}</h2>
+        <Card className="p-3 sm:p-6">
+          <div className="flex justify-between items-center mb-3 sm:mb-6">
+            <h2 className="text-lg sm:text-2xl font-bold">{t('tokenSwap.tokenSwap')}</h2>
             <Button variant="ghost" size="icon" onClick={() => setShowSettings(true)}>
               <Settings className="h-5 w-5" />
             </Button>
@@ -908,11 +908,11 @@ const TokenSwap = () => {
           )}
 
           <div className="space-y-4">
-            <div className="bg-gray-800 border border-gray-700 rounded-lg p-4">
+            <div className="bg-gray-800 border border-gray-700 rounded-lg p-3 sm:p-4">
               <div className="flex justify-between mb-2">
                 <span className="text-sm text-gray-400">{t('tokenSwap.from')}</span>
                 <span className="text-sm text-gray-400">
-                  {t('common.balance')}: {fromBalance} {getTokenDisplayName(fromToken)}
+                  {t('common.balance')} {fromBalance} {getTokenDisplayName(fromToken)}
                 </span>
               </div>
               <div className="flex gap-3">
@@ -921,7 +921,7 @@ const TokenSwap = () => {
                   value={fromAmount}
                   onChange={(e) => setFromAmount(e.target.value)}
                   placeholder="Amount"
-                  className="text-2xl font-bold border-0 bg-transparent text-white placeholder:text-gray-500 placeholder:opacity-50"
+                  className="text-lg sm:text-2xl font-bold border-0 bg-transparent text-white placeholder:text-gray-500 placeholder:opacity-50"
                   disabled={!selectedAccount}
                 />
                 <Select
@@ -936,7 +936,7 @@ const TokenSwap = () => {
                   }}
                   disabled={!selectedAccount}
                 >
-                  <SelectTrigger className="min-w-[140px] border-gray-600 hover:border-gray-500">
+                  <SelectTrigger className="min-w-[100px] sm:min-w-[140px] border-gray-600 hover:border-gray-500">
                     <SelectValue>
                       {(() => {
                         const token = AVAILABLE_TOKENS.find(t => t.symbol === fromToken);
@@ -979,11 +979,11 @@ const TokenSwap = () => {
               </Button>
             </div>
 
-            <div className="bg-gray-800 border border-gray-700 rounded-lg p-4">
+            <div className="bg-gray-800 border border-gray-700 rounded-lg p-3 sm:p-4">
               <div className="flex justify-between mb-2">
                 <span className="text-sm text-gray-400">{t('tokenSwap.to')}</span>
                 <span className="text-sm text-gray-400">
-                  {t('common.balance')}: {toBalance} {getTokenDisplayName(toToken)}
+                  {t('common.balance')} {toBalance} {getTokenDisplayName(toToken)}
                 </span>
               </div>
               <div className="flex gap-3">
@@ -992,7 +992,7 @@ const TokenSwap = () => {
                   value={toAmount}
                   readOnly
                   placeholder="Amount"
-                  className="text-2xl font-bold border-0 bg-transparent text-white placeholder:text-gray-500 placeholder:opacity-50"
+                  className="text-lg sm:text-2xl font-bold border-0 bg-transparent text-white placeholder:text-gray-500 placeholder:opacity-50"
                 />
                 <Select
                   value={toToken}
@@ -1006,7 +1006,7 @@ const TokenSwap = () => {
                   }}
                   disabled={!selectedAccount}
                 >
-                  <SelectTrigger className="min-w-[140px] border-gray-600 hover:border-gray-500">
+                  <SelectTrigger className="min-w-[100px] sm:min-w-[140px] border-gray-600 hover:border-gray-500">
                     <SelectValue>
                       {(() => {
                         const token = AVAILABLE_TOKENS.find(t => t.symbol === toToken);

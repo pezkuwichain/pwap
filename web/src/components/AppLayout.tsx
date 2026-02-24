@@ -554,7 +554,7 @@ const AppLayout: React.FC = () => {
         
 
         {(showDEX || showProposalWizard || showDelegation || showForum || showModeration || showTreasury || showStaking || showMultiSig || showEducation || showP2P) && (
-          <div className="fixed bottom-8 right-8 z-50">
+          <div className="fixed bottom-4 right-4 sm:bottom-8 sm:right-8 z-50">
             <button
               onClick={() => {
                 setShowDEX(false);
@@ -568,7 +568,7 @@ const AppLayout: React.FC = () => {
                 setShowEducation(false);
                 setShowP2P(false);
               }}
-              className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-full shadow-lg flex items-center gap-2 transition-all"
+              className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 sm:px-6 sm:py-3 text-sm sm:text-base rounded-full shadow-lg flex items-center gap-2 transition-all"
             >
               {`← ${t('common.backToHome')}`}
             </button>
