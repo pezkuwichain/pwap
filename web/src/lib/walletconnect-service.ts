@@ -18,6 +18,13 @@ const WC_SESSION_KEY = 'wc_session_topic';
 const POLKADOT_METHODS = ['polkadot_signTransaction', 'polkadot_signMessage'];
 const POLKADOT_EVENTS = ['chainChanged', 'accountsChanged'];
 
+// All Pezkuwi chain IDs that must be in the session for cross-chain signing
+const REQUIRED_CHAIN_IDS = [
+  'polkadot:1aa94987791a5544e9667ec249d2cef1', // Relay
+  'polkadot:e7c15092dcbe3f320260ddbbc685bfce', // Asset Hub
+  'polkadot:69a8d025ab7b63363935d7d9397e0f65', // People Chain
+];
+
 let signClient: SignClient | null = null;
 let initPromise: Promise<SignClient> | null = null;
 let currentSession: SessionTypes.Struct | null = null;
@@ -130,7 +137,7 @@ export async function connectWithQR(genesisHash: string, additionalGenesisHashes
   console.warn('[WC] Methods:', POLKADOT_METHODS);
 
   const { uri, approval } = await client.connect({
-    optionalNamespaces: {
+    requiredNamespaces: {
       polkadot: {
         methods: POLKADOT_METHODS,
         chains: chainIds,
@@ -239,9 +246,10 @@ export function createWCSigner(defaultGenesisHash: string, address: string) {
         throw new Error('WalletConnect session expired. Please reconnect your wallet.');
       }
 
-      // Always use a chainId approved in the WC session for protocol compliance.
-      // The wallet determines actual signing chain from the payload's genesisHash.
-      const chainId = getApprovedChainId(defaultChainId);
+      // Use the payload's genesisHash to derive the correct chainId.
+      // The wallet validates this matches the payload — mismatches are rejected.
+      // Session must include all chains (enforced via requiredNamespaces).
+      const chainId = payload.genesisHash ? buildChainId(payload.genesisHash) : defaultChainId;
 
       const id = ++requestId;
 
@@ -317,6 +325,22 @@ export async function restoreSession(): Promise<SessionTypes.Struct | null> {
     // Check if session is not expired
     const now = Math.floor(Date.now() / 1000);
     if (session.expiry > now) {
+      // Validate session has all required chains for cross-chain signing
+      const ns = session.namespaces['polkadot'];
+      const sessionChains = ns?.chains || ns?.accounts?.map(a => {
+        const parts = a.split(':');
+        return `${parts[0]}:${parts[1]}`;
+      }) || [];
+      const hasAllChains = REQUIRED_CHAIN_IDS.every(c => sessionChains.includes(c));
+
+      if (!hasAllChains) {
+        // Old session missing chains — discard so a new session with all chains is created
+        console.warn('[WC] Session missing required chains, discarding. Has:', sessionChains);
+        try { await client.disconnect({ topic: session.topic, reason: { code: 6000, message: 'Session missing required chains' } }); } catch {}
+        localStorage.removeItem(WC_SESSION_KEY);
+        return null;
+      }
+
       currentSession = session;
       return session;
     }
