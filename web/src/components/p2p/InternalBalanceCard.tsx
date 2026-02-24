@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -27,7 +27,7 @@ export function InternalBalanceCard({ onDeposit, onWithdraw }: InternalBalanceCa
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const fetchBalances = async () => {
+  const fetchBalances = useCallback(async () => {
     if (!userId) return;
     try {
       const data = await getInternalBalances(userId);
@@ -38,11 +38,11 @@ export function InternalBalanceCard({ onDeposit, onWithdraw }: InternalBalanceCa
       setIsLoading(false);
       setIsRefreshing(false);
     }
-  };
+  }, [userId]);
 
   useEffect(() => {
     fetchBalances();
-  }, [userId]);
+  }, [fetchBalances]);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);

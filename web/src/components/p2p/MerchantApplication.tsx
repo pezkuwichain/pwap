@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabase';
 import { useP2PIdentity } from '@/contexts/P2PIdentityContext';
@@ -117,12 +117,7 @@ export function MerchantApplication() {
   const [selectedTier, setSelectedTier] = useState<MerchantTier | null>(null);
   const [applying, setApplying] = useState(false);
 
-  // Fetch data
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       if (!userId) return;
@@ -172,7 +167,12 @@ export function MerchantApplication() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId]);
+
+  // Fetch data
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   // Calculate progress for a requirement
   const calculateProgress = (current: number, required: number): number => {
