@@ -5,7 +5,7 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'npm:@supabase/supabase-js@2'
-import { ApiPromise, WsProvider } from 'npm:@pezkuwi/api@16.5.11'
+import { ApiPromise, WsProvider } from 'npm:@pezkuwi/api@16.5.36'
 import { blake2b } from 'npm:@noble/hashes@1.7.1/blake2b'
 import { base58 } from 'npm:@scure/base@1.2.4'
 
