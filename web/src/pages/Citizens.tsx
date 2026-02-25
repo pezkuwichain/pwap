@@ -338,7 +338,7 @@ export default function Citizens() {
 
         {/* Title Section */}
         <div className="text-center mb-4 sm:mb-8">
-          <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold text-red-700 mb-3 drop-shadow-lg">
+          <h1 className="text-2xl sm:text-4xl md:text-6xl font-bold text-red-700 mb-3 drop-shadow-lg">
             {t('citizens.portalTitle')}
           </h1>
           <p className="text-base sm:text-xl text-gray-800 font-semibold drop-shadow-md">
@@ -362,7 +362,7 @@ export default function Citizens() {
                 <div className="flex-1 text-center px-3 sm:px-6">
                   <div className="flex items-center justify-center mb-3">
                     <Bell className="h-5 w-5 sm:h-7 sm:w-7 text-white mr-2 sm:mr-3 animate-pulse" />
-                    <h3 className="text-xl sm:text-3xl font-bold text-white">{t('citizens.announcements')}</h3>
+                    <h3 className="text-lg sm:text-3xl font-bold text-white">{t('citizens.announcements')}</h3>
                   </div>
                   <h4 className="text-base sm:text-xl font-bold text-white mb-2 sm:mb-3">{currentAnnouncement.title}</h4>
                   <p className="text-white/90 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto">{currentAnnouncement.description}</p>
