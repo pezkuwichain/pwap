@@ -792,10 +792,10 @@ export default function CitizensIssues() {
 
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-5xl md:text-6xl font-bold text-purple-700 mb-3 drop-shadow-lg">
+          <h1 className="text-2xl sm:text-4xl md:text-6xl font-bold text-purple-700 mb-3 drop-shadow-lg">
             Karên Welatiyên (Citizens Portal)
           </h1>
-          <p className="text-xl text-gray-800 font-semibold drop-shadow-md">
+          <p className="text-base sm:text-xl text-gray-800 font-semibold drop-shadow-md">
             Beşdarî rêveberiyê bibin (Participate in Governance)
           </p>
         </div>
@@ -803,21 +803,41 @@ export default function CitizensIssues() {
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-4 bg-white/90 backdrop-blur mb-6">
-            <TabsTrigger value="issues" className="text-gray-800 font-semibold hover:text-gray-900 hover:bg-gray-100 data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:hover:bg-purple-700">
-              <MessageSquare className="h-4 w-4 mr-2" />
-              Pirsgirêk (Issues)
+            <TabsTrigger value="issues" className="text-gray-800 font-semibold hover:text-gray-900 hover:bg-gray-100 data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:hover:bg-purple-700 px-1 sm:px-3">
+              <span className="flex flex-col sm:flex-row items-center sm:gap-1.5">
+                <MessageSquare className="h-4 w-4 mb-0.5 sm:mb-0" />
+                <span className="flex flex-col sm:flex-row items-center sm:gap-1 leading-tight">
+                  <span className="text-xs sm:text-sm">Pirsgirêk</span>
+                  <span className="text-[10px] sm:text-sm font-normal opacity-75 sm:opacity-100">(Issues)</span>
+                </span>
+              </span>
             </TabsTrigger>
-            <TabsTrigger value="parliament" className="text-gray-800 font-semibold hover:text-gray-900 hover:bg-gray-100 data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:hover:bg-blue-700">
-              <Users className="h-4 w-4 mr-2" />
-              Parleman (Parliament)
+            <TabsTrigger value="parliament" className="text-gray-800 font-semibold hover:text-gray-900 hover:bg-gray-100 data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:hover:bg-blue-700 px-1 sm:px-3">
+              <span className="flex flex-col sm:flex-row items-center sm:gap-1.5">
+                <Users className="h-4 w-4 mb-0.5 sm:mb-0" />
+                <span className="flex flex-col sm:flex-row items-center sm:gap-1 leading-tight">
+                  <span className="text-xs sm:text-sm">Parleman</span>
+                  <span className="text-[10px] sm:text-sm font-normal opacity-75 sm:opacity-100">(Parliament)</span>
+                </span>
+              </span>
             </TabsTrigger>
-            <TabsTrigger value="president" className="text-gray-800 font-semibold hover:text-gray-900 hover:bg-gray-100 data-[state=active]:bg-yellow-600 data-[state=active]:text-white data-[state=active]:hover:bg-yellow-700">
-              <Crown className="h-4 w-4 mr-2" />
-              Serok (President)
+            <TabsTrigger value="president" className="text-gray-800 font-semibold hover:text-gray-900 hover:bg-gray-100 data-[state=active]:bg-yellow-600 data-[state=active]:text-white data-[state=active]:hover:bg-yellow-700 px-1 sm:px-3">
+              <span className="flex flex-col sm:flex-row items-center sm:gap-1.5">
+                <Crown className="h-4 w-4 mb-0.5 sm:mb-0" />
+                <span className="flex flex-col sm:flex-row items-center sm:gap-1 leading-tight">
+                  <span className="text-xs sm:text-sm">Serok</span>
+                  <span className="text-[10px] sm:text-sm font-normal opacity-75 sm:opacity-100">(President)</span>
+                </span>
+              </span>
             </TabsTrigger>
-            <TabsTrigger value="legislation" className="text-gray-800 font-semibold hover:text-gray-900 hover:bg-gray-100 data-[state=active]:bg-green-600 data-[state=active]:text-white data-[state=active]:hover:bg-green-700">
-              <FileText className="h-4 w-4 mr-2" />
-              Yasa (Legislation)
+            <TabsTrigger value="legislation" className="text-gray-800 font-semibold hover:text-gray-900 hover:bg-gray-100 data-[state=active]:bg-green-600 data-[state=active]:text-white data-[state=active]:hover:bg-green-700 px-1 sm:px-3">
+              <span className="flex flex-col sm:flex-row items-center sm:gap-1.5">
+                <FileText className="h-4 w-4 mb-0.5 sm:mb-0" />
+                <span className="flex flex-col sm:flex-row items-center sm:gap-1 leading-tight">
+                  <span className="text-xs sm:text-sm">Yasa</span>
+                  <span className="text-[10px] sm:text-sm font-normal opacity-75 sm:opacity-100">(Legislation)</span>
+                </span>
+              </span>
             </TabsTrigger>
           </TabsList>
 
@@ -827,7 +847,7 @@ export default function CitizensIssues() {
             <div className="mb-6 flex justify-center">
               <Button
                 onClick={() => setShowSubmitModal(true)}
-                className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 text-lg"
+                className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 sm:py-3 sm:px-6 text-sm sm:text-lg"
               >
                 <Plus className="mr-2 h-5 w-5" />
                 Pirsgirêkeke Nû Şandin (Submit New Issue)
