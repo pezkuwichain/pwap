@@ -28,7 +28,7 @@ const GovernanceInterface: React.FC = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-3 lg:grid-cols-6 gap-2 bg-gray-900/50 p-1 rounded-lg overflow-x-auto scrollbar-hide">
+          <TabsList className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 bg-gray-900/50 p-1 rounded-lg overflow-x-auto scrollbar-hide">
             <TabsTrigger value="overview" className="flex items-center space-x-2">
               <TrendingUp className="w-4 h-4" />
               <span>{t('governance.overview')}</span>

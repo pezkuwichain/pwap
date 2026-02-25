@@ -660,10 +660,10 @@ export default function GovernmentEntrance() {
 
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-5xl md:text-6xl font-bold text-green-700 mb-3 drop-shadow-lg">
+          <h1 className="text-2xl sm:text-4xl md:text-6xl font-bold text-green-700 mb-3 drop-shadow-lg">
             Deriyê Hikûmetê (Government Entrance)
           </h1>
-          <p className="text-xl text-gray-800 font-semibold drop-shadow-md">
+          <p className="text-base sm:text-xl text-gray-800 font-semibold drop-shadow-md">
             Beşdariya Demokratîk (Democratic Participation)
           </p>
         </div>
@@ -671,16 +671,16 @@ export default function GovernmentEntrance() {
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3 mb-6 bg-white/90 backdrop-blur">
-            <TabsTrigger value="legislation" className="text-lg font-semibold text-gray-800 hover:text-gray-900 hover:bg-gray-100 data-[state=active]:bg-green-600 data-[state=active]:text-white data-[state=active]:hover:bg-green-700">
-              <FileText className="h-5 w-5 mr-2" />
+            <TabsTrigger value="legislation" className="text-xs sm:text-lg font-semibold text-gray-800 hover:text-gray-900 hover:bg-gray-100 data-[state=active]:bg-green-600 data-[state=active]:text-white data-[state=active]:hover:bg-green-700">
+              <FileText className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
               Yasalar (Legislation)
             </TabsTrigger>
-            <TabsTrigger value="parliament" className="text-lg font-semibold text-gray-800 hover:text-gray-900 hover:bg-gray-100 data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:hover:bg-blue-700">
-              <Users className="h-5 w-5 mr-2" />
+            <TabsTrigger value="parliament" className="text-xs sm:text-lg font-semibold text-gray-800 hover:text-gray-900 hover:bg-gray-100 data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:hover:bg-blue-700">
+              <Users className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
               Parleman (Parliament)
             </TabsTrigger>
-            <TabsTrigger value="president" className="text-lg font-semibold text-gray-800 hover:text-gray-900 hover:bg-gray-100 data-[state=active]:bg-yellow-600 data-[state=active]:text-white data-[state=active]:hover:bg-yellow-700">
-              <Crown className="h-5 w-5 mr-2" />
+            <TabsTrigger value="president" className="text-xs sm:text-lg font-semibold text-gray-800 hover:text-gray-900 hover:bg-gray-100 data-[state=active]:bg-yellow-600 data-[state=active]:text-white data-[state=active]:hover:bg-yellow-700">
+              <Crown className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
               Serok (President)
             </TabsTrigger>
           </TabsList>
@@ -690,7 +690,7 @@ export default function GovernmentEntrance() {
             <div className="flex justify-center mb-6">
               <Button
                 onClick={() => setShowProposeModal(true)}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 text-lg"
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 sm:py-3 sm:px-6 text-sm sm:text-lg"
               >
                 <Plus className="mr-2 h-5 w-5" />
                 Pêşniyareke Nû (New Proposal)
@@ -712,7 +712,7 @@ export default function GovernmentEntrance() {
                     <CardHeader>
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <CardTitle className="text-2xl text-gray-900 mb-2">{proposal.title}</CardTitle>
+                          <CardTitle className="text-lg sm:text-2xl text-gray-900 mb-2">{proposal.title}</CardTitle>
                           <CardDescription className="text-sm text-gray-600">
                             Proposal #{proposal.id} • Block #{proposal.blockNumber}
                           </CardDescription>
@@ -726,7 +726,7 @@ export default function GovernmentEntrance() {
                     <CardContent>
                       <p className="text-gray-800 mb-4 whitespace-pre-wrap">{proposal.description}</p>
 
-                      <div className="flex items-center gap-4">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
                         <div className="flex items-center gap-2">
                           <Button
                             size="sm"
@@ -767,7 +767,7 @@ export default function GovernmentEntrance() {
             <div className="flex justify-center mb-6">
               <Button
                 onClick={() => setShowNominateParliamentModal(true)}
-                className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 text-lg"
+                className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 sm:py-3 sm:px-6 text-sm sm:text-lg"
               >
                 <Plus className="mr-2 h-5 w-5" />
                 Berjewendî Bike (Nominate Candidate)
@@ -822,7 +822,7 @@ export default function GovernmentEntrance() {
             <div className="flex justify-center mb-6">
               <Button
                 onClick={() => setShowNominatePresidentModal(true)}
-                className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 text-lg"
+                className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 sm:py-3 sm:px-6 text-sm sm:text-lg"
               >
                 <Plus className="mr-2 h-5 w-5" />
                 Berjewendî Bike (Nominate Candidate)

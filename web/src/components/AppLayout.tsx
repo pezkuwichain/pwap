@@ -153,50 +153,50 @@ const AppLayout: React.FC = () => {
       {/* Button Grid (logged in only) */}
       {user && (
         <div ref={gridRef} className="fixed top-16 w-full z-30 bg-gray-950/95 backdrop-blur-md border-b border-gray-800">
-          <div className="max-w-5xl mx-auto grid grid-cols-4 gap-1.5 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2">
+          <div className="max-w-5xl mx-auto grid grid-cols-4 gap-1 sm:gap-2 px-1 sm:px-4 py-1 sm:py-2">
             {/* Dashboard */}
             <button
               onClick={() => { setOpenMenu(null); navigate('/dashboard'); }}
-              className="flex flex-col items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2 rounded-xl bg-gray-900/70 border border-green-500/40 text-[10px] sm:text-xs font-medium transition-all hover:scale-[1.03] active:scale-95 cursor-pointer text-gray-300 hover:text-white"
+              className="flex flex-col items-center gap-0.5 sm:gap-1 p-1 sm:p-2 rounded-xl bg-gray-900/70 border border-green-500/40 text-[9px] sm:text-xs font-medium transition-all hover:scale-[1.03] active:scale-95 cursor-pointer text-gray-300 hover:text-white"
             >
-              <LayoutDashboard className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
+              <LayoutDashboard className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-green-400" />
               {t('nav.dashboard')}
             </button>
             {/* Wallet */}
             <button
               onClick={() => { setOpenMenu(null); navigate('/wallet'); }}
-              className="flex flex-col items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2 rounded-xl bg-gray-900/70 border border-yellow-400/40 text-[10px] sm:text-xs font-medium transition-all hover:scale-[1.03] active:scale-95 cursor-pointer text-gray-300 hover:text-white"
+              className="flex flex-col items-center gap-0.5 sm:gap-1 p-1 sm:p-2 rounded-xl bg-gray-900/70 border border-yellow-400/40 text-[9px] sm:text-xs font-medium transition-all hover:scale-[1.03] active:scale-95 cursor-pointer text-gray-300 hover:text-white"
             >
-              <Wallet className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
+              <Wallet className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-yellow-400" />
               {t('nav.wallet')}
             </button>
             {/* Be Citizen */}
             <button
               onClick={() => { setOpenMenu(null); navigate('/be-citizen'); }}
-              className="flex flex-col items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2 rounded-xl bg-gray-900/70 border border-cyan-400/40 text-[10px] sm:text-xs font-medium transition-all hover:scale-[1.03] active:scale-95 cursor-pointer text-gray-300 hover:text-white"
+              className="flex flex-col items-center gap-0.5 sm:gap-1 p-1 sm:p-2 rounded-xl bg-gray-900/70 border border-cyan-400/40 text-[9px] sm:text-xs font-medium transition-all hover:scale-[1.03] active:scale-95 cursor-pointer text-gray-300 hover:text-white"
             >
-              <Users className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" />
+              <Users className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-cyan-400" />
               {t('nav.beCitizen')}
             </button>
             {/* Settings */}
             <button
               onClick={() => { setOpenMenu(null); navigate('/profile/settings'); }}
-              className="flex flex-col items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2 rounded-xl bg-gray-900/70 border border-gray-500/40 text-[10px] sm:text-xs font-medium transition-all hover:scale-[1.03] active:scale-95 cursor-pointer text-gray-300 hover:text-white"
+              className="flex flex-col items-center gap-0.5 sm:gap-1 p-1 sm:p-2 rounded-xl bg-gray-900/70 border border-gray-500/40 text-[9px] sm:text-xs font-medium transition-all hover:scale-[1.03] active:scale-95 cursor-pointer text-gray-300 hover:text-white"
             >
-              <Settings className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
+              <Settings className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-gray-400" />
               {t('nav.settings')}
             </button>
             {/* Trading (dropdown) */}
             <div className="relative">
               <button
                 onClick={() => setOpenMenu(openMenu === 'trading' ? null : 'trading')}
-                className="w-full flex flex-col items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2 rounded-xl bg-gray-900/70 border border-red-500/40 text-[10px] sm:text-xs font-medium transition-all hover:scale-[1.03] active:scale-95 cursor-pointer text-gray-300 hover:text-white"
+                className="w-full flex flex-col items-center gap-0.5 sm:gap-1 p-1 sm:p-2 rounded-xl bg-gray-900/70 border border-red-500/40 text-[9px] sm:text-xs font-medium transition-all hover:scale-[1.03] active:scale-95 cursor-pointer text-gray-300 hover:text-white"
               >
-                <ArrowRightLeft className="w-4 h-4 sm:w-5 sm:h-5 text-red-400" />
+                <ArrowRightLeft className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-red-400" />
                 <span className="flex items-center gap-0.5">{t('nav.trading')} <ChevronDown className="w-3 h-3" /></span>
               </button>
               {openMenu === 'trading' && (
-                <div className="absolute left-0 top-full mt-1 w-48 bg-gray-900 border border-gray-700 rounded-lg shadow-lg z-50">
+                <div className="absolute left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0 top-full mt-1 w-44 sm:w-48 bg-gray-900 border border-gray-700 rounded-lg shadow-lg z-50">
                   <button onClick={() => { setShowDEX(true); setOpenMenu(null); }} className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2 rounded-t-lg">
                     <Droplet className="w-4 h-4" /> {t('trading.dexPools')}
                   </button>
@@ -218,22 +218,22 @@ const AppLayout: React.FC = () => {
             {/* Education */}
             <button
               onClick={() => { setOpenMenu(null); setShowEducation(true); navigate('/education'); }}
-              className="flex flex-col items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2 rounded-xl bg-gray-900/70 border border-yellow-400/40 text-[10px] sm:text-xs font-medium transition-all hover:scale-[1.03] active:scale-95 cursor-pointer text-gray-300 hover:text-white"
+              className="flex flex-col items-center gap-0.5 sm:gap-1 p-1 sm:p-2 rounded-xl bg-gray-900/70 border border-yellow-400/40 text-[9px] sm:text-xs font-medium transition-all hover:scale-[1.03] active:scale-95 cursor-pointer text-gray-300 hover:text-white"
             >
-              <Award className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
+              <Award className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-yellow-400" />
               {t('nav.education')}
             </button>
             {/* Governance (dropdown) */}
             <div className="relative">
               <button
                 onClick={() => setOpenMenu(openMenu === 'governance' ? null : 'governance')}
-                className="w-full flex flex-col items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2 rounded-xl bg-gray-900/70 border border-green-500/40 text-[10px] sm:text-xs font-medium transition-all hover:scale-[1.03] active:scale-95 cursor-pointer text-gray-300 hover:text-white"
+                className="w-full flex flex-col items-center gap-0.5 sm:gap-1 p-1 sm:p-2 rounded-xl bg-gray-900/70 border border-green-500/40 text-[9px] sm:text-xs font-medium transition-all hover:scale-[1.03] active:scale-95 cursor-pointer text-gray-300 hover:text-white"
               >
-                <FileEdit className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
+                <FileEdit className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-green-400" />
                 <span className="flex items-center gap-0.5">{t('nav.governance')} <ChevronDown className="w-3 h-3" /></span>
               </button>
               {openMenu === 'governance' && (
-                <div className="absolute left-0 top-full mt-1 w-48 bg-gray-900 border border-gray-700 rounded-lg shadow-lg z-50">
+                <div className="absolute left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0 top-full mt-1 w-44 sm:w-48 bg-gray-900 border border-gray-700 rounded-lg shadow-lg z-50">
                   <button onClick={() => { setShowProposalWizard(true); setOpenMenu(null); }} className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2 rounded-t-lg">
                     <FileEdit className="w-4 h-4" /> {t('governance.proposals')}
                   </button>
@@ -255,9 +255,9 @@ const AppLayout: React.FC = () => {
             {/* Logout */}
             <button
               onClick={async () => { setOpenMenu(null); await signOut(); navigate('/login'); }}
-              className="flex flex-col items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2 rounded-xl bg-gray-900/70 border border-red-500/40 text-[10px] sm:text-xs font-medium transition-all hover:scale-[1.03] active:scale-95 cursor-pointer text-gray-300 hover:text-white"
+              className="flex flex-col items-center gap-0.5 sm:gap-1 p-1 sm:p-2 rounded-xl bg-gray-900/70 border border-red-500/40 text-[9px] sm:text-xs font-medium transition-all hover:scale-[1.03] active:scale-95 cursor-pointer text-gray-300 hover:text-white"
             >
-              <LogIn className="w-4 h-4 sm:w-5 sm:h-5 text-red-400 rotate-180" />
+              <LogIn className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-red-400 rotate-180" />
               {t('nav.logout')}
             </button>
           </div>
@@ -271,7 +271,7 @@ const AppLayout: React.FC = () => {
             className="fixed inset-0 bg-black/60 backdrop-blur-sm"
             onClick={() => setMobileMenuOpen(false)}
           />
-          <div className="fixed top-16 right-0 bottom-0 w-72 bg-gray-900 border-l border-gray-800 overflow-y-auto">
+          <div className="fixed top-16 right-0 bottom-0 w-64 sm:w-72 bg-gray-900 border-l border-gray-800 overflow-y-auto">
             <div className="p-4 space-y-2">
               {user ? (
                 <>
@@ -408,13 +408,13 @@ const AppLayout: React.FC = () => {
       <main>
         {/* Conditional Rendering for Features */}
         {showDEX ? (
-          <div className="pt-[8rem] sm:pt-[8.5rem] min-h-screen bg-gray-950">
+          <div className="pt-20 sm:pt-[8.5rem] min-h-screen bg-gray-950">
             <div className="max-w-full mx-auto px-4">
               <DEXDashboard />
             </div>
           </div>
         ) : showProposalWizard ? (
-          <div className="pt-[8rem] sm:pt-[8.5rem] min-h-screen bg-gray-950">
+          <div className="pt-20 sm:pt-[8.5rem] min-h-screen bg-gray-950">
             <div className="max-w-full mx-auto px-4">
               <ProposalWizard
                 onComplete={(proposal) => {
@@ -426,25 +426,25 @@ const AppLayout: React.FC = () => {
             </div>
           </div>
         ) : showDelegation ? (
-          <div className="pt-[8rem] sm:pt-[8.5rem] min-h-screen bg-gray-950">
+          <div className="pt-20 sm:pt-[8.5rem] min-h-screen bg-gray-950">
             <div className="max-w-full mx-auto px-4">
               <DelegationManager />
             </div>
           </div>
         ) : showForum ? (
-          <div className="pt-[8rem] sm:pt-[8.5rem] min-h-screen bg-gray-950">
+          <div className="pt-20 sm:pt-[8.5rem] min-h-screen bg-gray-950">
             <div className="max-w-full mx-auto px-4">
               <ForumOverview />
             </div>
           </div>
         ) : showModeration ? (
-          <div className="pt-[8rem] sm:pt-[8.5rem] min-h-screen bg-gray-950">
+          <div className="pt-20 sm:pt-[8.5rem] min-h-screen bg-gray-950">
             <div className="max-w-full mx-auto px-4">
               <ModerationPanel />
             </div>
           </div>
         ) : showTreasury ? (
-          <div className="pt-[8rem] sm:pt-[8.5rem] min-h-screen bg-gray-950">
+          <div className="pt-20 sm:pt-[8.5rem] min-h-screen bg-gray-950">
             <div className="max-w-full mx-auto px-4">
               <div className="text-center mb-12">
                 <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-green-500 via-yellow-400 to-red-500 bg-clip-text text-transparent">
@@ -494,7 +494,7 @@ const AppLayout: React.FC = () => {
             </div>
           </div>
         ) : showStaking ? (
-          <div className="pt-[8rem] sm:pt-[8.5rem] min-h-screen bg-gray-950">
+          <div className="pt-20 sm:pt-[8.5rem] min-h-screen bg-gray-950">
             <div className="max-w-full mx-auto px-4">
               <div className="text-center mb-12">
                 <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-green-500 via-yellow-400 to-red-500 bg-clip-text text-transparent">
@@ -508,7 +508,7 @@ const AppLayout: React.FC = () => {
             </div>
           </div>
         ) : showMultiSig ? (
-          <div className="pt-[8rem] sm:pt-[8.5rem] min-h-screen bg-gray-950">
+          <div className="pt-20 sm:pt-[8.5rem] min-h-screen bg-gray-950">
             <div className="max-w-full mx-auto px-4">
               <div className="text-center mb-12">
                 <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-green-500 via-yellow-400 to-red-500 bg-clip-text text-transparent">
@@ -522,11 +522,11 @@ const AppLayout: React.FC = () => {
             </div>
           </div>
         ) : showEducation ? (
-          <div className="pt-[8rem] sm:pt-[8.5rem] min-h-screen bg-gray-950">
+          <div className="pt-20 sm:pt-[8.5rem] min-h-screen bg-gray-950">
             <EducationPlatform />
           </div>
         ) : showP2P ? (
-          <div className="pt-[8rem] sm:pt-[8.5rem] min-h-screen bg-gray-950">
+          <div className="pt-20 sm:pt-[8.5rem] min-h-screen bg-gray-950">
             <P2PDashboard />
           </div>
         ) : (
