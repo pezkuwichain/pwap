@@ -1253,6 +1253,10 @@ export default {
   'p2pDeposit.tokenLabel': 'Token',
   'p2pDeposit.amountLabel': 'Miqdar',
   'p2pDeposit.done': 'Temam',
+  'p2pDeposit.autoVerifying': 'Danîn tê piştrastkirin...',
+  'p2pDeposit.autoVerifyingDesc': 'Li blockchain kirrûbirê te tê lêgerîn...',
+  'p2pDeposit.verifyFailed': 'Piştrastkirin bi ser neket',
+  'p2pDeposit.retry': 'Dîsa Biceribîne',
 
   // WithdrawModal
   'p2pWithdraw.title': 'Ji Hesabê P2P Vekişîne',

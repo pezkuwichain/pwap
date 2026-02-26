@@ -1591,6 +1591,10 @@ export default {
   'p2pDeposit.tokenLabel': 'Token',
   'p2pDeposit.amountLabel': 'Amount',
   'p2pDeposit.done': 'Done',
+  'p2pDeposit.autoVerifying': 'Verifying deposit...',
+  'p2pDeposit.autoVerifyingDesc': 'Searching for your transaction on blockchain...',
+  'p2pDeposit.verifyFailed': 'Verification failed',
+  'p2pDeposit.retry': 'Try Again',
 
   // WithdrawModal
   'p2pWithdraw.title': 'Withdraw from P2P Balance',

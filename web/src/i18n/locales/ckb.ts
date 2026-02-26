@@ -1238,6 +1238,10 @@ export default {
   'p2pDeposit.tokenLabel': 'تۆکن',
   'p2pDeposit.amountLabel': 'بڕ',
   'p2pDeposit.done': 'تەواو',
+  'p2pDeposit.autoVerifying': 'دانان لە پشتڕاستکردنەوەدایە...',
+  'p2pDeposit.autoVerifyingDesc': 'لە بلۆکچەین بۆ مامەڵەکەت دەگەڕێت...',
+  'p2pDeposit.verifyFailed': 'پشتڕاستکردنەوە سەرکەوتوو نەبوو',
+  'p2pDeposit.retry': 'دووبارە هەوڵ بدەوە',
 
   'p2pWithdraw.title': 'دەرهێنان لە باڵانسی P2P',
   'p2pWithdraw.formStep': 'لە باڵانسی P2P کریپتۆ دەربهێنە بۆ جزدانی دەرەکی',

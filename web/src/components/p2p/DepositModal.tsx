@@ -25,7 +25,6 @@ import {
   Copy,
   CheckCircle2,
   AlertTriangle,
-  ExternalLink,
   QrCode,
   Wallet
 } from 'lucide-react';
@@ -45,7 +44,7 @@ interface DepositModalProps {
   onSuccess?: () => void;
 }
 
-type DepositStep = 'select' | 'send' | 'verify' | 'success';
+type DepositStep = 'select' | 'send' | 'verifying' | 'success';
 
 export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) {
   const { t } = useTranslation();
@@ -61,7 +60,7 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
   const [blockNumber, setBlockNumber] = useState<number | undefined>();
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [verifying, setVerifying] = useState(false);
+  const [verifyError, setVerifyError] = useState('');
 
   // Fetch platform wallet address on mount
   useEffect(() => {
@@ -83,7 +82,7 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
     setBlockNumber(undefined);
     setLoading(false);
     setCopied(false);
-    setVerifying(false);
+    setVerifyError('');
   };
 
   const handleClose = () => {
@@ -145,14 +144,18 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
       if (hash) {
         setTxHash(hash);
         // Capture approximate block number for faster verification
+        let blockNum: number | undefined;
         try {
           const header = await assetHubApi.rpc.chain.getHeader();
-          setBlockNumber(header.number.toNumber());
+          blockNum = header.number.toNumber();
+          setBlockNumber(blockNum);
         } catch {
           // Non-critical - verification will still work via search
         }
-        setStep('verify');
+        setStep('verifying');
         toast.success(t('p2pDeposit.txSent'));
+        // Auto-verify immediately — fire and forget
+        handleVerifyDeposit(hash, blockNum);
       }
     } catch (error: unknown) {
       console.error('Deposit transaction error:', error);
@@ -163,8 +166,11 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
     }
   };
 
-  const handleVerifyDeposit = async () => {
-    if (!txHash) {
+  const handleVerifyDeposit = async (hash?: string, blockNum?: number) => {
+    const verifyHash = hash || txHash;
+    const verifyBlockNumber = blockNum !== undefined ? blockNum : blockNumber;
+
+    if (!verifyHash) {
       toast.error(t('p2pDeposit.enterTxHash'));
       return;
     }
@@ -175,11 +181,10 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
       return;
     }
 
-    setVerifying(true);
+    setVerifyError('');
+    setStep('verifying');
 
     try {
-      // Call the Edge Function for secure deposit verification
-      // Use fetch directly to read response body on all status codes
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
       const res = await fetch(`${supabaseUrl}/functions/v1/verify-deposit`, {
@@ -190,12 +195,12 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
           'apikey': supabaseKey,
         },
         body: JSON.stringify({
-          txHash,
+          txHash: verifyHash,
           token,
           expectedAmount: depositAmount,
           walletAddress: selectedAccount?.address,
           identityId,
-          ...(blockNumber ? { blockNumber } : {})
+          ...(verifyBlockNumber ? { blockNumber: verifyBlockNumber } : {})
         })
       });
 
@@ -211,9 +216,7 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
     } catch (error) {
       console.error('Verify deposit error:', error);
       const message = error instanceof Error ? error.message : t('p2pDeposit.verificationFailed');
-      toast.error(message);
-    } finally {
-      setVerifying(false);
+      setVerifyError(message);
     }
   };
 
@@ -351,67 +354,80 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
           </div>
         );
 
-      case 'verify':
+      case 'verifying':
         return (
           <div className="space-y-6">
-            <Alert>
-              <CheckCircle2 className="h-4 w-4 text-green-500" />
-              <AlertDescription>
-                {t('p2pDeposit.txSentVerify')}
-              </AlertDescription>
-            </Alert>
-
-            <div className="space-y-2">
-              <Label>{t('p2pDeposit.txHash')}</Label>
-              <div className="flex gap-2">
-                <Input
-                  value={txHash}
-                  onChange={(e) => setTxHash(e.target.value)}
-                  placeholder="0x..."
-                  className="font-mono text-xs"
-                />
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => window.open(`https://explorer.pezkuwichain.io/tx/${txHash}`, '_blank')}
-                  disabled={!txHash}
-                >
-                  <ExternalLink className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-
-            <div className="p-4 rounded-lg bg-muted/50 border">
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <p className="text-muted-foreground">{t('p2pDeposit.tokenLabel')}</p>
-                  <p className="font-semibold">{token}</p>
+            {verifyError ? (
+              <>
+                <div className="text-center space-y-4">
+                  <div className="w-16 h-16 mx-auto rounded-full bg-destructive/10 flex items-center justify-center">
+                    <AlertTriangle className="h-8 w-8 text-destructive" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-destructive">
+                      {t('p2pDeposit.verifyFailed')}
+                    </h3>
+                    <p className="text-sm text-muted-foreground mt-2">{verifyError}</p>
+                  </div>
                 </div>
+
+                <div className="p-4 rounded-lg bg-muted/50 border">
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <p className="text-muted-foreground">{t('p2pDeposit.tokenLabel')}</p>
+                      <p className="font-semibold">{token}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">{t('p2pDeposit.amountLabel')}</p>
+                      <p className="font-semibold">{amount}</p>
+                    </div>
+                  </div>
+                  {txHash && (
+                    <div className="mt-3 pt-3 border-t">
+                      <p className="text-muted-foreground text-xs">TX</p>
+                      <p className="font-mono text-xs break-all">{txHash}</p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex gap-2">
+                  <Button variant="outline" className="flex-1" onClick={handleClose}>
+                    {t('cancel')}
+                  </Button>
+                  <Button className="flex-1" onClick={() => handleVerifyDeposit()}>
+                    {t('p2pDeposit.retry')}
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <div className="text-center space-y-4 py-4">
+                <Loader2 className="h-12 w-12 animate-spin mx-auto text-primary" />
                 <div>
-                  <p className="text-muted-foreground">{t('p2pDeposit.amountLabel')}</p>
-                  <p className="font-semibold">{amount}</p>
+                  <h3 className="text-lg font-semibold">{t('p2pDeposit.autoVerifying')}</h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {t('p2pDeposit.autoVerifyingDesc')}
+                  </p>
+                </div>
+                <div className="p-4 rounded-lg bg-muted/50 border">
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <p className="text-muted-foreground">{t('p2pDeposit.tokenLabel')}</p>
+                      <p className="font-semibold">{token}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">{t('p2pDeposit.amountLabel')}</p>
+                      <p className="font-semibold">{amount}</p>
+                    </div>
+                  </div>
+                  {txHash && (
+                    <div className="mt-3 pt-3 border-t">
+                      <p className="text-muted-foreground text-xs">TX</p>
+                      <p className="font-mono text-xs break-all">{txHash}</p>
+                    </div>
+                  )}
                 </div>
               </div>
-            </div>
-
-            <DialogFooter>
-              <Button variant="outline" onClick={handleClose}>
-                {t('cancel')}
-              </Button>
-              <Button
-                onClick={handleVerifyDeposit}
-                disabled={verifying || !txHash}
-              >
-                {verifying ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    {t('p2pDeposit.verifying')}
-                  </>
-                ) : (
-                  t('p2pDeposit.verifyDeposit')
-                )}
-              </Button>
-            </DialogFooter>
+            )}
           </div>
         );
 
@@ -457,7 +473,7 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
             <DialogDescription>
               {step === 'select' && t('p2pDeposit.selectStep')}
               {step === 'send' && t('p2pDeposit.sendStep')}
-              {step === 'verify' && t('p2pDeposit.verifyStep')}
+              {step === 'verifying' && t('p2pDeposit.autoVerifying')}
             </DialogDescription>
           )}
         </DialogHeader>
