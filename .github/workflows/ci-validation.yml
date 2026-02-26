@@ -1,0 +1,132 @@
+name: Dev Quality Gate & Deploy
+
+on:
+  push:
+    branches: [ dev, main ]
+  pull_request:
+    branches: [ dev ]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  # ========================================
+  # FAST FAILURE LAYER
+  # ========================================
+  sanity-check:
+    name: Sanity Checks (Fail Fast)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate env template
+        run: |
+          if [ ! -f .env.example ]; then
+            echo ".env.example missing"
+            exit 1
+          fi
+
+      - name: Validate lockfiles
+        run: |
+          if [ ! -f web/package-lock.json ]; then exit 1; fi
+          if [ ! -f mobile/package-lock.json ]; then exit 1; fi
+
+  # ========================================
+  # WEB VALIDATION
+  # ========================================
+  web:
+    name: Web Validation
+    runs-on: ubuntu-latest
+    needs: sanity-check
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install deps
+        working-directory: ./web
+        run: npm ci
+
+      - name: TypeScript Check
+        working-directory: ./web
+        run: npx tsc --noEmit
+
+      - name: ESLint Check
+        working-directory: ./web
+        run: npm run lint -- --max-warnings 0
+
+      - name: Jest Tests
+        working-directory: ./web
+        run: npm test -- --ci
+
+      - name: Build Check
+        working-directory: ./web
+        run: npm run build
+
+  # ========================================
+  # MOBILE VALIDATION (FAST FAIL FOCUSED)
+  # ========================================
+  mobile:
+    name: Mobile Validation
+    runs-on: ubuntu-latest
+    needs: sanity-check
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      # ---- VERY IMPORTANT CACHE ----
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('mobile/android/**/*.gradle*') }}
+
+      # ---- EXPO FAILURE DETECTION (BIG WIN) ----
+      - name: Expo Config Validation
+        working-directory: ./mobile
+        run: npx expo config --json > /dev/null
+
+      - name: Install deps
+        working-directory: ./mobile
+        run: npm ci --legacy-peer-deps
+
+      - name: Lint Check
+        working-directory: ./mobile
+        run: npm run lint
+
+      - name: Jest Tests
+        working-directory: ./mobile
+        run: npm test -- --ci
+
+      # ---- FAST GRADLE VALIDATION ----
+      - name: Gradle Health Check
+        working-directory: ./mobile/android
+        run: ./gradlew tasks
+
+  # ========================================
+  # DEPLOYMENT (PRODUCTION ONLY)
+  # ========================================
+  deploy:
+    name: Deploy Production
+    runs-on: ubuntu-latest
+    needs: [web, mobile]
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Deploy logic here
+        run: echo "Deploying validated build..."
