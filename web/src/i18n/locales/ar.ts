@@ -1248,6 +1248,10 @@ export default {
   'p2pDeposit.tokenLabel': 'الرمز',
   'p2pDeposit.amountLabel': 'المبلغ',
   'p2pDeposit.done': 'تم',
+  'p2pDeposit.autoVerifying': 'جاري التحقق من الإيداع...',
+  'p2pDeposit.autoVerifyingDesc': 'جاري البحث عن معاملتك في البلوكتشين...',
+  'p2pDeposit.verifyFailed': 'فشل التحقق',
+  'p2pDeposit.retry': 'حاول مرة أخرى',
 
   'p2pWithdraw.title': 'سحب من رصيد P2P',
   'p2pWithdraw.formStep': 'اسحب عملة رقمية من رصيد P2P إلى محفظة خارجية',

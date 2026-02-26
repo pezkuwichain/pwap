@@ -1247,6 +1247,10 @@ export default {
   'p2pDeposit.tokenLabel': 'Token',
   'p2pDeposit.amountLabel': 'Miktar',
   'p2pDeposit.done': 'Tamam',
+  'p2pDeposit.autoVerifying': 'Yatırım doğrulanıyor...',
+  'p2pDeposit.autoVerifyingDesc': "Blockchain'de işleminiz aranıyor...",
+  'p2pDeposit.verifyFailed': 'Doğrulama başarısız oldu',
+  'p2pDeposit.retry': 'Tekrar Dene',
 
   // WithdrawModal
   'p2pWithdraw.title': 'P2P Bakiyeden Çekim',

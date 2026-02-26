@@ -1261,6 +1261,10 @@ export default {
   'p2pDeposit.tokenLabel': 'توکن',
   'p2pDeposit.amountLabel': 'مقدار',
   'p2pDeposit.done': 'انجام شد',
+  'p2pDeposit.autoVerifying': 'واریز در حال تأیید...',
+  'p2pDeposit.autoVerifyingDesc': 'در حال جستجوی تراکنش شما در بلاکچین...',
+  'p2pDeposit.verifyFailed': 'تأیید ناموفق بود',
+  'p2pDeposit.retry': 'تلاش مجدد',
 
   // WithdrawModal
   'p2pWithdraw.title': 'برداشت از موجودی P2P',
