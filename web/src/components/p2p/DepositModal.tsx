@@ -154,8 +154,8 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
         }
         setStep('verifying');
         toast.success(t('p2pDeposit.txSent'));
-        // Auto-verify immediately — fire and forget
-        handleVerifyDeposit(hash, blockNum);
+        // Wait for TX to be included in a block before verifying (~12s block time)
+        setTimeout(() => handleVerifyDeposit(hash, blockNum), 12000);
       }
     } catch (error: unknown) {
       console.error('Deposit transaction error:', error);
