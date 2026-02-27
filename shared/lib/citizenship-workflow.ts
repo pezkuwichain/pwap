@@ -790,7 +790,8 @@ export async function getPendingApprovalsForReferrer(
       let referrerSS58 = '';
       try {
         if (appData.referrer) {
-          referrerSS58 = encodeAddress(appData.referrer as string, 42);
+          const ss58Prefix = api.registry.chainSS58 ?? 42;
+          referrerSS58 = encodeAddress(appData.referrer as string, ss58Prefix);
         }
       } catch {
         referrerSS58 = appData.referrer?.toString() ?? '';

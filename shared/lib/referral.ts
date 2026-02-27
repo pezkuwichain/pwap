@@ -166,7 +166,7 @@ export async function getReferralInfo(
     // toJSON() returns hex for AccountId, convert to SS58
     let referrerSS58 = data.referrer ?? '';
     try {
-      if (data.referrer) referrerSS58 = encodeAddress(data.referrer, 42);
+      if (data.referrer) referrerSS58 = encodeAddress(data.referrer, api.registry.chainSS58 ?? 42);
     } catch { /* keep hex as fallback */ }
     return {
       referrer: referrerSS58,
@@ -274,7 +274,7 @@ export async function getMyReferrals(
         // toJSON() returns hex for AccountId, convert to SS58 for comparison
         let refSS58 = '';
         try {
-          if (data.referrer) refSS58 = encodeAddress(data.referrer, 42);
+          if (data.referrer) refSS58 = encodeAddress(data.referrer, api.registry.chainSS58 ?? 42);
         } catch {
           refSS58 = data.referrer ?? '';
         }
