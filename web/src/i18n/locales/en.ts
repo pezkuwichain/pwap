@@ -3191,6 +3191,8 @@ export default {
   'invite.subtitle': "Share your referral link. When your friends complete KYC, you'll earn trust score points!",
   'invite.yourLink': 'Your Referral Link',
   'invite.linkDesc': 'Anyone who signs up with this link will be counted as your referral',
+  'invite.shareMessage': 'Dear friend, Digital Kurdistan has been established, take your place!',
+  'invite.referralInstruction': 'Paste this address in the referral field:',
   'invite.preRegister': 'Or Pre-Register a Friend (Advanced)',
   'invite.preRegisterDesc': "If you know your friend's wallet address, you can pre-register them on-chain...",
   'invite.friendAddress': "Friend's wallet address",

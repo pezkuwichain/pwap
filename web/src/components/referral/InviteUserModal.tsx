@@ -39,8 +39,9 @@ export const InviteUserModal: React.FC<InviteUserModalProps> = ({ isOpen, onClos
 
   // Share text for social media
   const shareText = useMemo(() => {
-    return `Join me on Digital Kurdistan (PezkuwiChain)! 🏛️\n\nBecome a citizen and get your Welati Tiki NFT.\n\nUse my referral link:\n${referralLink}`;
-  }, [referralLink]);
+    const addr = selectedAccount?.address || '';
+    return `${t('invite.shareMessage')}\n\n${referralLink}\n\n${t('invite.referralInstruction')}\n${addr}`;
+  }, [referralLink, selectedAccount?.address, t]);
 
   const handleCopy = async () => {
     try {
@@ -58,7 +59,7 @@ export const InviteUserModal: React.FC<InviteUserModalProps> = ({ isOpen, onClos
 
     const urls: Record<string, string> = {
       whatsapp: `https://wa.me/?text=${encodedText}`,
-      telegram: `https://t.me/share/url?url=${encodedUrl}&text=${encodeURIComponent('Join me on Digital Kurdistan! 🏛️')}`,
+      telegram: `https://t.me/share/url?url=${encodedUrl}&text=${encodeURIComponent(t('invite.shareMessage'))}`,
       twitter: `https://twitter.com/intent/tweet?text=${encodedText}`,
       facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
       linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,

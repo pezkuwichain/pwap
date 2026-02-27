@@ -2891,6 +2891,8 @@ export default {
   'invite.subtitle': 'Girêdana referansa xwe parve bikin. Dema hevalên we KYC temam bikin, hûn ê puana pêbaweriyê bi dest bixin!',
   'invite.yourLink': 'Girêdana Referansa We',
   'invite.linkDesc': 'Her kesê ku bi vê girêdanê qeyd bibe wek referansa we tê hesibandin',
+  'invite.shareMessage': 'Hevalê min ê hêja, Kurdistanê Dîjîtal hat ava kirin, tu jî cîhê xwe bigire!',
+  'invite.referralInstruction': 'Vê navnîşanê li beşa referralê bileqîne:',
   'invite.preRegister': 'An Hevalekî Pêşqeyd Bikin (Pêşketî)',
   'invite.preRegisterDesc': 'Eger hûn navnîşana cîzdanê hevalê xwe dizanin, hûn dikarin wî/wê li ser zincîrê pêşqeyd bikin...',
   'invite.friendAddress': 'Navnîşana cîzdanê hevalê we',

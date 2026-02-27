@@ -2874,6 +2874,8 @@ export default {
   'invite.subtitle': 'شارك رابط الإحالة الخاص بك. عندما يكمل أصدقاؤك KYC، ستربح نقاط الثقة!',
   'invite.yourLink': 'رابط الإحالة الخاص بك',
   'invite.linkDesc': 'أي شخص يسجل عبر هذا الرابط سيُحتسب كإحالتك',
+  'invite.shareMessage': 'صديقي العزيز، كردستان الرقمية تأسست، خذ مكانك!',
+  'invite.referralInstruction': 'الصق هذا العنوان في حقل الإحالة:',
   'invite.preRegister': 'أو سجّل صديقاً مسبقاً (متقدم)',
   'invite.preRegisterDesc': 'إذا كنت تعرف عنوان محفظة صديقك، يمكنك تسجيله مسبقاً على السلسلة...',
   'invite.friendAddress': 'عنوان محفظة صديقك',
