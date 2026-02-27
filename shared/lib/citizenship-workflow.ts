@@ -4,6 +4,7 @@
 // Handles citizenship verification, status checks, and workflow logic
 
 import type { ApiPromise } from '@pezkuwi/api';
+import { encodeAddress } from '@pezkuwi/util-crypto';
 import { getSigner } from '@/lib/get-signer';
 import type { InjectedAccountWithMeta } from '@pezkuwi/extension-inject/types';
 
@@ -785,16 +786,30 @@ export async function getPendingApprovalsForReferrer(
       // An application is "pending" if it exists in applications but is NOT yet
       // approved in kycStatuses. Check referrer matches current user, or current
       // user is the founder (can approve any application).
-      const isReferrer = appData.referrer?.toString() === referrerAddress;
+      // Note: toJSON() returns hex for AccountId fields, convert to SS58 for comparison
+      let referrerSS58 = '';
+      try {
+        if (appData.referrer) {
+          referrerSS58 = encodeAddress(appData.referrer as string, 42);
+        }
+      } catch {
+        referrerSS58 = appData.referrer?.toString() ?? '';
+      }
+      const isReferrer = referrerSS58 === referrerAddress;
       const isFounder = referrerAddress === FOUNDER_ADDRESS;
 
       if (isReferrer || isFounder) {
         // Check if already approved via kycStatuses
         const kycStatus = await api.query.identityKyc.kycStatuses(applicantAddress);
-        const statusStr = kycStatus.isEmpty ? null : kycStatus.toString();
+        const statusJson = kycStatus.isEmpty ? null : kycStatus.toJSON?.() ?? kycStatus.toString();
+        const statusStr = typeof statusJson === 'string' ? statusJson : null;
 
         // Pending = not yet approved (no status or PendingReferral)
-        if (!statusStr || statusStr === 'PendingReferral') {
+        // Check both PascalCase and camelCase variants for safety
+        const isPending = !statusStr ||
+          statusStr === 'PendingReferral' ||
+          statusStr === 'pendingReferral';
+        if (isPending) {
           pending.push({
             applicantAddress,
             identityHash: (appData.identityHash as string) || ''
