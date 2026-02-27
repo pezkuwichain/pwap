@@ -801,14 +801,33 @@ export async function getPendingApprovalsForReferrer(
       if (isReferrer || isFounder) {
         // Check if already approved via kycStatuses
         const kycStatus = await api.query.identityKyc.kycStatuses(applicantAddress);
-        const statusJson = kycStatus.isEmpty ? null : kycStatus.toJSON?.() ?? kycStatus.toString();
-        const statusStr = typeof statusJson === 'string' ? statusJson : null;
 
-        // Pending = not yet approved (no status or PendingReferral)
-        // Check both PascalCase and camelCase variants for safety
-        const isPending = !statusStr ||
-          statusStr === 'PendingReferral' ||
-          statusStr === 'pendingReferral';
+        if (kycStatus.isEmpty) {
+          // No status at all — truly pending
+          pending.push({
+            applicantAddress,
+            identityHash: (appData.identityHash as string) || ''
+          });
+          continue;
+        }
+
+        // Parse status — toJSON() can return string, object, or number:
+        //   string: "PendingReferral" / "pendingReferral"
+        //   object: { "pendingReferral": null }
+        //   number: enum index (0=PendingReferral, 1=ReferrerApproved, 2=Approved, 3=Revoked)
+        const statusJson = kycStatus.toJSON?.() ?? kycStatus.toString();
+        let statusKey = '';
+        if (typeof statusJson === 'string') {
+          statusKey = statusJson.toLowerCase();
+        } else if (typeof statusJson === 'object' && statusJson !== null) {
+          statusKey = Object.keys(statusJson)[0]?.toLowerCase() ?? '';
+        } else if (typeof statusJson === 'number') {
+          const enumMap: Record<number, string> = { 0: 'pendingreferral', 1: 'referrerapproved', 2: 'approved', 3: 'revoked' };
+          statusKey = enumMap[statusJson] ?? '';
+        }
+
+        // Only show as pending if status is actually PendingReferral
+        const isPending = statusKey === 'pendingreferral';
         if (isPending) {
           pending.push({
             applicantAddress,
