@@ -1,4 +1,5 @@
 import type { ApiPromise } from '@pezkuwi/api';
+import { encodeAddress } from '@pezkuwi/util-crypto';
 import type { InjectedAccountWithMeta } from '@pezkuwi/extension-inject/types';
 import type { Signer } from '@pezkuwi/api/types';
 
@@ -162,8 +163,13 @@ export async function getReferralInfo(
     }
 
     const data = result.toJSON() as any;
+    // toJSON() returns hex for AccountId, convert to SS58
+    let referrerSS58 = data.referrer ?? '';
+    try {
+      if (data.referrer) referrerSS58 = encodeAddress(data.referrer, 42);
+    } catch { /* keep hex as fallback */ }
     return {
-      referrer: data.referrer,
+      referrer: referrerSS58,
       createdAt: parseInt(data.createdAt),
     };
   } catch (error) {
@@ -265,7 +271,14 @@ export async function getMyReferrals(
       .filter(([_key, value]) => {
         if (value.isEmpty) return false;
         const data = value.toJSON() as any;
-        return data.referrer === referrerAddress;
+        // toJSON() returns hex for AccountId, convert to SS58 for comparison
+        let refSS58 = '';
+        try {
+          if (data.referrer) refSS58 = encodeAddress(data.referrer, 42);
+        } catch {
+          refSS58 = data.referrer ?? '';
+        }
+        return refSS58 === referrerAddress;
       })
       .map(([key]) => {
         // Extract the referred address from the storage key
