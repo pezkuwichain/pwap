@@ -2894,6 +2894,8 @@ export default {
   'invite.subtitle': 'Referans bağlantınızı paylaşın. Arkadaşlarınız KYC\'yi tamamladığında güven puanı kazanacaksınız!',
   'invite.yourLink': 'Referans Bağlantınız',
   'invite.linkDesc': 'Bu bağlantıyla kaydolan herkes sizin referansınız olarak sayılacaktır',
+  'invite.shareMessage': 'Sevgili dostum, Dijital Kurdistan kuruldu, sen de yerini al!',
+  'invite.referralInstruction': 'Referral kısmına bu adresi yapıştır:',
   'invite.preRegister': 'Veya Arkadaşınızı Ön Kayıt Edin (Gelişmiş)',
   'invite.preRegisterDesc': 'Arkadaşınızın cüzdan adresini biliyorsanız, onu zincir üzerinde ön kayıt edebilirsiniz...',
   'invite.friendAddress': 'Arkadaşınızın cüzdan adresi',
