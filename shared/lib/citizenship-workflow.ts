@@ -798,8 +798,9 @@ export async function getPendingApprovalsForReferrer(
       }
       const isReferrer = referrerSS58 === referrerAddress;
       const isFounder = referrerAddress === FOUNDER_ADDRESS;
+      const hasNoReferrer = !appData.referrer || referrerSS58 === '';
 
-      if (isReferrer || isFounder) {
+      if (isReferrer || (isFounder && hasNoReferrer)) {
         // Check if already approved via kycStatuses
         const kycStatus = await api.query.identityKyc.kycStatuses(applicantAddress);
 
@@ -815,7 +816,7 @@ export async function getPendingApprovalsForReferrer(
         // Parse status — toJSON() can return string, object, or number:
         //   string: "PendingReferral" / "pendingReferral"
         //   object: { "pendingReferral": null }
-        //   number: enum index (0=PendingReferral, 1=ReferrerApproved, 2=Approved, 3=Revoked)
+        //   number: enum index (0=NotStarted, 1=PendingReferral, 2=ReferrerApproved, 3=Approved, 4=Revoked)
         const statusJson = kycStatus.toJSON?.() ?? kycStatus.toString();
         let statusKey = '';
         if (typeof statusJson === 'string') {
@@ -823,7 +824,7 @@ export async function getPendingApprovalsForReferrer(
         } else if (typeof statusJson === 'object' && statusJson !== null) {
           statusKey = Object.keys(statusJson)[0]?.toLowerCase() ?? '';
         } else if (typeof statusJson === 'number') {
-          const enumMap: Record<number, string> = { 0: 'pendingreferral', 1: 'referrerapproved', 2: 'approved', 3: 'revoked' };
+          const enumMap: Record<number, string> = { 0: 'notstarted', 1: 'pendingreferral', 2: 'referrerapproved', 3: 'approved', 4: 'revoked' };
           statusKey = enumMap[statusJson] ?? '';
         }
 
