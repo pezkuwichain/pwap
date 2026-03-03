@@ -9,6 +9,19 @@ export interface EncryptedMessage {
   ciphertext: Uint8Array;
 }
 
+/**
+ * Check if the messaging pallet exists in the runtime metadata.
+ * Must be called before any other chain function.
+ */
+export function isPalletAvailable(api: ApiPromise): boolean {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return !!(api.query as any).messaging;
+  } catch {
+    return false;
+  }
+}
+
 // --- Storage queries ---
 
 export async function getEncryptionKey(
@@ -16,7 +29,9 @@ export async function getEncryptionKey(
   address: string
 ): Promise<Uint8Array | null> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const result = await (api.query as any).messaging.encryptionKeys(address);
+  const messaging = (api.query as any).messaging;
+  if (!messaging?.encryptionKeys) return null;
+  const result = await messaging.encryptionKeys(address);
   if (result.isNone || result.isEmpty) return null;
   const hex = result.unwrap().toHex();
   return hexToBytes(hex);
@@ -24,7 +39,9 @@ export async function getEncryptionKey(
 
 export async function getCurrentEra(api: ApiPromise): Promise<number> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const era = await (api.query as any).messaging.currentEra();
+  const messaging = (api.query as any).messaging;
+  if (!messaging?.currentEra) return 0;
+  const era = await messaging.currentEra();
   return era.toNumber();
 }
 
@@ -34,7 +51,9 @@ export async function getInbox(
   address: string
 ): Promise<EncryptedMessage[]> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const result = await (api.query as any).messaging.inbox([era, address]);
+  const messaging = (api.query as any).messaging;
+  if (!messaging?.inbox) return [];
+  const result = await messaging.inbox([era, address]);
   if (result.isEmpty || result.length === 0) return [];
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -55,7 +74,9 @@ export async function getSendCount(
   address: string
 ): Promise<number> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const count = await (api.query as any).messaging.sendCount([era, address]);
+  const messaging = (api.query as any).messaging;
+  if (!messaging?.sendCount) return 0;
+  const count = await messaging.sendCount([era, address]);
   return count.toNumber();
 }
 

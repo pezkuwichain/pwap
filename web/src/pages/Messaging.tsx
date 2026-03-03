@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useMessaging } from '@/hooks/useMessaging';
@@ -14,12 +15,15 @@ import {
   Loader2,
   Wallet,
   Inbox,
+  AlertTriangle,
 } from 'lucide-react';
 
 export default function Messaging() {
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const { peopleApi, isPeopleReady, selectedAccount } = usePezkuwi();
   const {
+    palletReady,
     isKeyRegistered,
     isKeyUnlocked,
     decryptedMessages,
@@ -130,7 +134,20 @@ export default function Messaging() {
           </div>
         </div>
 
+        {/* Pallet not available banner */}
+        {!loading && !palletReady && (
+          <Card className="border-orange-500/30 bg-orange-500/5 mb-4">
+            <CardContent className="flex items-center gap-3 p-4">
+              <AlertTriangle className="w-5 h-5 text-orange-400 flex-shrink-0" />
+              <p className="text-sm text-orange-300">
+                {t('messaging.palletNotReady', 'Messaging pallet is not yet available on People Chain. A runtime upgrade is required.')}
+              </p>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Key Setup Banner */}
+        {palletReady && (
         <div className="mb-4">
           <KeySetup
             isKeyRegistered={isKeyRegistered}
@@ -140,6 +157,7 @@ export default function Messaging() {
             onUnlockKey={unlockKey}
           />
         </div>
+        )}
 
         {/* Era / Stats bar */}
         <div className="flex items-center gap-3 text-xs text-gray-500 mb-4 px-1">
@@ -196,6 +214,16 @@ export default function Messaging() {
         onSend={sendMessage}
         sending={sending}
       />
+
+      {/* Back to Home */}
+      <div className="fixed bottom-4 right-4 sm:bottom-8 sm:right-8 z-50">
+        <button
+          onClick={() => navigate('/')}
+          className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 sm:px-6 sm:py-3 text-sm sm:text-base rounded-full shadow-lg flex items-center gap-2 transition-all"
+        >
+          {`← ${t('common.backToHome')}`}
+        </button>
+      </div>
     </div>
   );
 }
