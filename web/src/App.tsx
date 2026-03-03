@@ -61,6 +61,7 @@ const Forum = lazy(() => import('@/pages/Forum'));
 const ForumTopic = lazy(() => import('@/pages/ForumTopic'));
 const Telemetry = lazy(() => import('@/pages/Telemetry'));
 const Subdomains = lazy(() => import('@/pages/Subdomains'));
+const Messaging = lazy(() => import('@/pages/Messaging'));
 
 // Network pages
 const Mainnet = lazy(() => import('@/pages/networks/Mainnet'));
@@ -134,6 +135,7 @@ function App() {
                               <Route path="/forum/:id" element={<ForumTopic />} />
                               <Route path="/telemetry" element={<Telemetry />} />
                               <Route path="/subdomains" element={<Subdomains />} />
+                              <Route path="/message" element={<Messaging />} />
                               {/* Network pages */}
                               <Route path="/mainnet" element={<Mainnet />} />
                               <Route path="/staging" element={<Staging />} />
