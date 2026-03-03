@@ -3,6 +3,7 @@ import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { useWallet } from '@/contexts/WalletContext';
 import { deriveKeypair, encryptMessage, decryptMessage } from '@/lib/messaging/crypto';
 import {
+  isPalletAvailable,
   getEncryptionKey,
   getCurrentEra,
   getInbox,
@@ -23,6 +24,7 @@ export interface DecryptedMessage {
 }
 
 interface MessagingState {
+  palletReady: boolean;
   isKeyRegistered: boolean;
   isKeyUnlocked: boolean;
   inbox: EncryptedMessage[];
@@ -39,6 +41,7 @@ export function useMessaging() {
   const { signMessage } = useWallet();
 
   const [state, setState] = useState<MessagingState>({
+    palletReady: false,
     isKeyRegistered: false,
     isKeyUnlocked: false,
     inbox: [],
@@ -55,9 +58,18 @@ export function useMessaging() {
   const publicKeyRef = useRef<Uint8Array | null>(null);
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Check if messaging pallet exists on chain
+  const checkPalletAvailability = useCallback((): boolean => {
+    if (!peopleApi || !isPeopleReady) return false;
+    const available = isPalletAvailable(peopleApi);
+    setState(prev => ({ ...prev, palletReady: available }));
+    return available;
+  }, [peopleApi, isPeopleReady]);
+
   // Check if user has a registered encryption key on-chain
   const checkKeyRegistration = useCallback(async () => {
     if (!peopleApi || !isPeopleReady || !selectedAccount) return;
+    if (!isPalletAvailable(peopleApi)) return;
 
     try {
       const key = await getEncryptionKey(peopleApi, selectedAccount.address);
@@ -74,19 +86,27 @@ export function useMessaging() {
       return;
     }
 
+    // Check pallet BEFORE asking for signature
+    if (!isPalletAvailable(peopleApi)) {
+      toast.error('Messaging pallet is not yet available on this chain. Runtime upgrade required.');
+      return;
+    }
+
     setState(prev => ({ ...prev, registering: true }));
 
     try {
-      // 1. Sign deterministic message to derive keys
+      // 1. Check if key is already registered on-chain (no signing needed)
+      const existingKey = await getEncryptionKey(peopleApi, selectedAccount.address);
+
+      // 2. Now sign to derive keys
       const signature = await signMessage('PEZMessage:v1');
       const { publicKey, privateKey } = deriveKeypair(signature);
 
-      // 2. Store keys in memory
+      // 3. Store keys in memory
       privateKeyRef.current = privateKey;
       publicKeyRef.current = publicKey;
 
-      // 3. Check if key is already registered on-chain
-      const existingKey = await getEncryptionKey(peopleApi, selectedAccount.address);
+      // 4. If key already matches, just unlock
       const alreadyRegistered = existingKey !== null &&
         existingKey.length === publicKey.length &&
         existingKey.every((b, i) => b === publicKey[i]);
@@ -102,7 +122,7 @@ export function useMessaging() {
         return;
       }
 
-      // 4. Register key on-chain
+      // 5. Register key on-chain
       const tx = buildRegisterKeyTx(peopleApi, publicKey);
       const injector = await getSigner(selectedAccount.address, walletSource, peopleApi);
 
@@ -163,6 +183,7 @@ export function useMessaging() {
   // Refresh inbox from chain
   const refreshInbox = useCallback(async () => {
     if (!peopleApi || !isPeopleReady || !selectedAccount) return;
+    if (!isPalletAvailable(peopleApi)) return;
 
     try {
       const era = await getCurrentEra(peopleApi);
@@ -212,6 +233,10 @@ export function useMessaging() {
   const sendEncryptedMessage = useCallback(async (recipient: string, text: string) => {
     if (!peopleApi || !isPeopleReady || !selectedAccount) {
       toast.error('Wallet not connected');
+      return;
+    }
+    if (!isPalletAvailable(peopleApi)) {
+      toast.error('Messaging pallet is not available on this chain');
       return;
     }
 
@@ -267,6 +292,7 @@ export function useMessaging() {
   // Acknowledge messages (optional, feeless)
   const acknowledge = useCallback(async () => {
     if (!peopleApi || !selectedAccount) return;
+    if (!isPalletAvailable(peopleApi)) return;
 
     try {
       const tx = buildAcknowledgeTx(peopleApi);
@@ -284,14 +310,21 @@ export function useMessaging() {
     setState(prev => ({ ...prev, loading: true }));
 
     const init = async () => {
-      await checkKeyRegistration();
-      await refreshInbox();
+      const available = checkPalletAvailability();
+      if (available) {
+        await checkKeyRegistration();
+        await refreshInbox();
+      }
       setState(prev => ({ ...prev, loading: false }));
     };
     init();
 
-    // Poll every 12 seconds (1 block interval)
-    pollIntervalRef.current = setInterval(refreshInbox, 12000);
+    // Poll every 12 seconds (1 block interval) - only if pallet exists
+    pollIntervalRef.current = setInterval(() => {
+      if (isPalletAvailable(peopleApi)) {
+        refreshInbox();
+      }
+    }, 12000);
 
     return () => {
       if (pollIntervalRef.current) {
@@ -299,7 +332,7 @@ export function useMessaging() {
         pollIntervalRef.current = null;
       }
     };
-  }, [peopleApi, isPeopleReady, selectedAccount, checkKeyRegistration, refreshInbox]);
+  }, [peopleApi, isPeopleReady, selectedAccount, checkPalletAvailability, checkKeyRegistration, refreshInbox]);
 
   // Clear private key when account changes
   useEffect(() => {
