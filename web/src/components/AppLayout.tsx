@@ -143,6 +143,15 @@ const AppLayout: React.FC = () => {
 
                 <NotificationBell />
                 <LanguageSwitcher />
+                {user && (
+                  <button
+                    onClick={() => navigate('/profile/settings')}
+                    className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
+                    title={t('nav.settings')}
+                  >
+                    <Settings className="w-4 h-4" />
+                  </button>
+                )}
                 <PezkuwiWalletButton />
               </div>
             </div>
@@ -178,13 +187,13 @@ const AppLayout: React.FC = () => {
               <Users className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-cyan-400" />
               {t('nav.beCitizen')}
             </button>
-            {/* Settings */}
+            {/* PEZMessage */}
             <button
-              onClick={() => { setOpenMenu(null); navigate('/profile/settings'); }}
-              className="flex flex-col items-center gap-0.5 sm:gap-1 p-1 sm:p-2 rounded-xl bg-gray-900/70 border border-gray-500/40 text-[9px] sm:text-xs font-medium transition-all hover:scale-[1.03] active:scale-95 cursor-pointer text-gray-300 hover:text-white"
+              onClick={() => { setOpenMenu(null); navigate('/message'); }}
+              className="flex flex-col items-center gap-0.5 sm:gap-1 p-1 sm:p-2 rounded-xl bg-gray-900/70 border border-purple-500/40 text-[9px] sm:text-xs font-medium transition-all hover:scale-[1.03] active:scale-95 cursor-pointer text-gray-300 hover:text-white"
             >
-              <Settings className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-gray-400" />
-              {t('nav.settings')}
+              <MessageSquare className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-purple-400" />
+              {t('nav.message')}
             </button>
             {/* Trading (dropdown) */}
             <div className="relative">
@@ -288,6 +297,13 @@ const AppLayout: React.FC = () => {
                   >
                     <Wallet className="w-5 h-5" />
                     {t('nav.wallet')}
+                  </button>
+                  <button
+                    onClick={() => { navigate('/message'); setMobileMenuOpen(false); }}
+                    className="w-full text-left px-4 py-3 rounded-lg text-purple-400 hover:bg-gray-800 flex items-center gap-3"
+                  >
+                    <MessageSquare className="w-5 h-5" />
+                    {t('nav.message')}
                   </button>
                   <button
                     onClick={() => { navigate('/citizens'); setMobileMenuOpen(false); }}

@@ -3763,5 +3763,36 @@ export default {
   'proposalCard.proposalClosedDesc': 'Proposal has been closed',
   'proposalCard.executeFailed': 'Execution Failed',
   'proposalCard.executeSuccess': 'Proposal Executed!',
-  'proposalCard.executeKycApproved': 'KYC approved and NFT minted successfully!'
+  'proposalCard.executeKycApproved': 'KYC approved and NFT minted successfully!',
+
+  // Navigation - Messaging
+  'nav.message': 'Message',
+
+  // Messaging
+  'messaging.title': 'PEZMessage',
+  'messaging.connectWallet': 'Connect Wallet',
+  'messaging.connectWalletDesc': 'Connect your wallet to use encrypted messaging.',
+  'messaging.setupTitle': 'Set Up Encryption Key',
+  'messaging.setupDesc': 'Register your encryption key on-chain to start sending and receiving encrypted messages.',
+  'messaging.unlockTitle': 'Unlock Your Messages',
+  'messaging.unlockDesc': 'Sign with your wallet to unlock message decryption for this session.',
+  'messaging.setupKey': 'Setup Key',
+  'messaging.unlock': 'Unlock',
+  'messaging.signing': 'Signing...',
+  'messaging.newMessage': 'New',
+  'messaging.messages': 'messages',
+  'messaging.sent': 'sent',
+  'messaging.emptyInbox': 'No messages yet.',
+  'messaging.sendFirst': 'Send your first message',
+  'messaging.encrypted': '[Encrypted]',
+  'messaging.compose': 'New Message',
+  'messaging.composeDesc': 'Send an end-to-end encrypted message on-chain.',
+  'messaging.recipient': 'Recipient Address',
+  'messaging.message': 'Message',
+  'messaging.typePlaceholder': 'Type your message...',
+  'messaging.tooLong': 'Message exceeds maximum size (512 bytes)',
+  'messaging.noRecipientKey': 'Recipient has no encryption key registered',
+  'messaging.checkingKey': 'Checking encryption key...',
+  'messaging.send': 'Send',
+  'messaging.sending': 'Sending...',
 }
