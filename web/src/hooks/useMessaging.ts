@@ -79,6 +79,73 @@ export function useMessaging() {
     }
   }, [peopleApi, isPeopleReady, selectedAccount]);
 
+  // Decrypt a list of EncryptedMessages using the current private key
+  const decryptInbox = useCallback((inbox: EncryptedMessage[]): DecryptedMessage[] => {
+    if (privateKeyRef.current) {
+      return inbox.map(msg => {
+        try {
+          const plaintext = decryptMessage(
+            privateKeyRef.current!,
+            msg.ephemeralPublicKey,
+            msg.nonce,
+            msg.ciphertext
+          );
+          return { sender: msg.sender, blockNumber: msg.blockNumber, plaintext, raw: msg };
+        } catch (err) {
+          const errText = err instanceof Error ? err.message : String(err);
+          const toHx = (u: Uint8Array) => Array.from(u.slice(0, 4)).map(b => b.toString(16).padStart(2, '0')).join('');
+          const dbg = `e:${toHx(msg.ephemeralPublicKey)} n:${toHx(msg.nonce)} c:${toHx(msg.ciphertext)} L:${msg.ephemeralPublicKey?.length}/${msg.nonce?.length}/${msg.ciphertext?.length}`;
+          return { sender: msg.sender, blockNumber: msg.blockNumber, plaintext: `[${errText}] ${dbg}`, raw: msg };
+        }
+      });
+    }
+    return inbox.map(msg => ({
+      sender: msg.sender,
+      blockNumber: msg.blockNumber,
+      plaintext: null,
+      raw: msg,
+    }));
+  }, []);
+
+  // Refresh inbox from chain (queries current + previous era)
+  const refreshInbox = useCallback(async () => {
+    if (!peopleApi || !isPeopleReady || !selectedAccount) return;
+    if (!isPalletAvailable(peopleApi)) return;
+
+    try {
+      const era = await getCurrentEra(peopleApi);
+      const addr = selectedAccount.address;
+
+      // Query current era + previous era (messages purge at era boundary)
+      const queries: Promise<EncryptedMessage[]>[] = [
+        getInbox(peopleApi, era, addr),
+      ];
+      if (era > 0) {
+        queries.push(getInbox(peopleApi, era - 1, addr));
+      }
+
+      const [currentInbox, prevInbox = []] = await Promise.all(queries);
+      const sendCount = await getSendCount(peopleApi, era, addr);
+
+      // Merge: previous era messages first, then current era
+      const allMessages = [...prevInbox, ...currentInbox];
+
+      console.log(`[PEZMessage] refreshInbox era=${era} addr=${addr.slice(0, 8)}… current=${currentInbox.length} prev=${prevInbox.length} total=${allMessages.length} keyUnlocked=${!!privateKeyRef.current}`);
+
+      const decrypted = decryptInbox(allMessages);
+
+      setState(prev => ({
+        ...prev,
+        era,
+        inbox: allMessages,
+        sendCount,
+        decryptedMessages: decrypted,
+      }));
+    } catch (err) {
+      console.error('[PEZMessage] Failed to refresh inbox:', err);
+    }
+  }, [peopleApi, isPeopleReady, selectedAccount, decryptInbox]);
+
   // Derive encryption keys from wallet signature and register on-chain
   const setupKey = useCallback(async () => {
     if (!peopleApi || !isPeopleReady || !selectedAccount) {
@@ -119,6 +186,8 @@ export function useMessaging() {
           registering: false,
         }));
         toast.success('Encryption key unlocked');
+        // Refresh inbox now that we have the private key for decryption
+        refreshInbox();
         return;
       }
 
@@ -155,12 +224,13 @@ export function useMessaging() {
         registering: false,
       }));
       toast.success('Encryption key registered');
+      refreshInbox();
     } catch (err) {
       setState(prev => ({ ...prev, registering: false }));
       const msg = err instanceof Error ? err.message : 'Failed to setup key';
       toast.error(msg);
     }
-  }, [peopleApi, isPeopleReady, selectedAccount, walletSource, signMessage]);
+  }, [peopleApi, isPeopleReady, selectedAccount, walletSource, signMessage, refreshInbox]);
 
   // Unlock existing key (re-derive from signature without registering)
   const unlockKey = useCallback(async () => {
@@ -184,64 +254,13 @@ export function useMessaging() {
       publicKeyRef.current = publicKey;
       setState(prev => ({ ...prev, isKeyUnlocked: true, registering: false }));
       toast.success('Encryption key unlocked');
+      // Refresh inbox now that we have the private key for decryption
+      refreshInbox();
     } catch {
       setState(prev => ({ ...prev, registering: false }));
       toast.error('Failed to unlock key');
     }
-  }, [peopleApi, selectedAccount, signMessage]);
-
-  // Refresh inbox from chain
-  const refreshInbox = useCallback(async () => {
-    if (!peopleApi || !isPeopleReady || !selectedAccount) return;
-    if (!isPalletAvailable(peopleApi)) return;
-
-    try {
-      const era = await getCurrentEra(peopleApi);
-      const [inbox, sendCount] = await Promise.all([
-        getInbox(peopleApi, era, selectedAccount.address),
-        getSendCount(peopleApi, era, selectedAccount.address),
-      ]);
-
-      // Auto-decrypt if private key is available
-      let decrypted: DecryptedMessage[] = [];
-      if (privateKeyRef.current) {
-        decrypted = inbox.map(msg => {
-          try {
-            const plaintext = decryptMessage(
-              privateKeyRef.current!,
-              msg.ephemeralPublicKey,
-              msg.nonce,
-              msg.ciphertext
-            );
-            return { sender: msg.sender, blockNumber: msg.blockNumber, plaintext, raw: msg };
-          } catch (err) {
-            const errText = err instanceof Error ? err.message : String(err);
-            // Show first 8 hex chars of each field for comparison with raw SCALE
-            const toHx = (u: Uint8Array) => Array.from(u.slice(0, 4)).map(b => b.toString(16).padStart(2, '0')).join('');
-            const dbg = `e:${toHx(msg.ephemeralPublicKey)} n:${toHx(msg.nonce)} c:${toHx(msg.ciphertext)} L:${msg.ephemeralPublicKey?.length}/${msg.nonce?.length}/${msg.ciphertext?.length}`;
-            return { sender: msg.sender, blockNumber: msg.blockNumber, plaintext: `[${errText}] ${dbg}`, raw: msg };
-          }
-        });
-      } else {
-        decrypted = inbox.map(msg => ({
-          sender: msg.sender,
-          blockNumber: msg.blockNumber,
-          plaintext: null,
-          raw: msg,
-        }));
-      }
-
-      setState(prev => ({
-        ...prev,
-        era,
-        inbox,
-        sendCount,
-        decryptedMessages: decrypted,
-      }));
-    } catch (err) {
-      if (import.meta.env.DEV) console.error('Failed to refresh inbox:', err);
-    }
-  }, [peopleApi, isPeopleReady, selectedAccount]);
+  }, [peopleApi, selectedAccount, signMessage, refreshInbox]);
 
   // Send an encrypted message
   const sendEncryptedMessage = useCallback(async (recipient: string, text: string) => {
