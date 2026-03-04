@@ -53,7 +53,7 @@ export async function getInbox(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const messaging = (api.query as any).messaging;
   if (!messaging?.inbox) return [];
-  const result = await messaging.inbox([era, address]);
+  const result = await messaging.inbox(era, address);
   if (result.isEmpty || result.length === 0) return [];
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -76,7 +76,7 @@ export async function getSendCount(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const messaging = (api.query as any).messaging;
   if (!messaging?.sendCount) return 0;
-  const count = await messaging.sendCount([era, address]);
+  const count = await messaging.sendCount(era, address);
   return count.toNumber();
 }
 
