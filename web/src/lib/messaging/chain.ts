@@ -58,9 +58,10 @@ export async function getInbox(
   if (result.isEmpty || result.length === 0) return [];
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return result.map((msg: Record<string, any>) => {
+  return result.map((msg: any) => {
     console.log('[PEZMessage] msg keys:', Object.keys(msg.toJSON?.() ?? msg));
     return msg;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   }).map((msg: Record<string, any>) => ({
     sender: msg.sender.toString(),
     blockNumber: msg.blockNumber?.toNumber?.() ?? msg.block_number?.toNumber?.() ?? 0,
