@@ -204,8 +204,13 @@ export function useMessaging() {
               msg.ciphertext
             );
             return { sender: msg.sender, blockNumber: msg.blockNumber, plaintext, raw: msg };
-          } catch {
-            return { sender: msg.sender, blockNumber: msg.blockNumber, plaintext: null, raw: msg };
+          } catch (err) {
+            console.error('[PEZMessage] decrypt failed:', err,
+              'ephPubKey len:', msg.ephemeralPublicKey?.length,
+              'nonce len:', msg.nonce?.length,
+              'ct len:', msg.ciphertext?.length);
+            const errText = err instanceof Error ? err.message : String(err);
+            return { sender: msg.sender, blockNumber: msg.blockNumber, plaintext: `[ERR: ${errText}]`, raw: msg };
           }
         });
       } else {
