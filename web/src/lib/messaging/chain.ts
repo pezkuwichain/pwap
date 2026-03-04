@@ -33,7 +33,11 @@ export async function getEncryptionKey(
   if (!messaging?.encryptionKeys) return null;
   const result = await messaging.encryptionKeys(address);
   if (result.isNone || result.isEmpty) return null;
-  const hex = result.unwrap().toHex();
+  // Handle both Option<[u8;32]> (needs unwrap) and direct [u8;32]
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const inner = typeof (result as any).unwrap === 'function' ? (result as any).unwrap() : result;
+  const hex = inner.toHex();
+  console.log(`[PEZMessage] getEncryptionKey(${address.slice(0, 8)}…) = ${hex.slice(0, 18)}…`);
   return hexToBytes(hex);
 }
 
@@ -54,30 +58,63 @@ export async function getInbox(
   const messaging = (api.query as any).messaging;
   if (!messaging?.inbox) return [];
   const result = await messaging.inbox(era, address);
-  console.log('[PEZMessage] raw inbox result:', JSON.stringify(result.toHuman?.() ?? result));
+
+  // Debug: log raw result type and content
+  const human = result.toHuman?.() ?? result;
+  console.log(`[PEZMessage] getInbox(era=${era}, addr=${address.slice(0, 8)}…) isEmpty=${result.isEmpty} length=${result.length} raw:`, JSON.stringify(human));
+
   if (result.isEmpty || result.length === 0) return [];
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const first = result[0];
   if (first) {
-    const keys = Object.getOwnPropertyNames(first).filter(k => !k.startsWith('_'));
+    // Log all available field access patterns
+    const ownKeys = Object.getOwnPropertyNames(first).filter(k => !k.startsWith('_'));
     const json = first.toJSON?.() ?? {};
     const jsonKeys = Object.keys(json);
-    console.log('[PEZMessage] field names:', keys, 'json keys:', jsonKeys, 'json:', JSON.stringify(json));
+    console.log('[PEZMessage] struct field names (own):', ownKeys, '(json):', jsonKeys);
+    console.log('[PEZMessage] first message json:', JSON.stringify(json));
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return result.map((msg: Record<string, any>) => {
-    // Try multiple field name patterns
-    const eph = msg.ephemeralPublicKey ?? msg.ephemeral_public_key ?? msg.ephemeralPubKey ?? msg.ephemeral_pub_key;
-    const blk = msg.blockNumber ?? msg.block_number ?? msg.blockNum;
-    const ct = msg.ciphertext ?? msg.cipher_text;
+  return result.map((msg: Record<string, any>, idx: number) => {
+    // Try codec accessors first (camelCase), then snake_case, then toJSON fallback
+    let eph = msg.ephemeralPublicKey ?? msg.ephemeral_public_key;
+    let blk = msg.blockNumber ?? msg.block_number;
+    let ct = msg.ciphertext ?? msg.cipher_text;
+    const nonce = msg.nonce;
+    const sender = msg.sender;
+
+    // Fallback: use toJSON() if codec accessors returned undefined
+    if (!eph || !nonce || !ct) {
+      const json = msg.toJSON?.() ?? {};
+      console.warn(`[PEZMessage] msg[${idx}] codec accessors incomplete, using toJSON fallback:`, JSON.stringify(json));
+      if (!eph) eph = json.ephemeralPublicKey ?? json.ephemeral_public_key;
+      if (!blk && blk !== 0) blk = json.blockNumber ?? json.block_number;
+      if (!ct) ct = json.ciphertext ?? json.cipher_text;
+    }
+
+    // Convert to bytes - handle both codec objects (.toHex()) and raw hex strings
+    const toBytes = (val: unknown, label: string, expectedLen?: number): Uint8Array => {
+      if (!val) {
+        console.error(`[PEZMessage] msg[${idx}].${label} is null/undefined`);
+        return new Uint8Array(expectedLen ?? 0);
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const hex = typeof (val as any).toHex === 'function' ? (val as any).toHex() : typeof val === 'string' ? val : '0x';
+      const bytes = hexToBytes(hex);
+      if (expectedLen && bytes.length !== expectedLen) {
+        console.warn(`[PEZMessage] msg[${idx}].${label} expected ${expectedLen} bytes, got ${bytes.length}`);
+      }
+      return bytes;
+    };
+
     return {
-      sender: msg.sender.toString(),
-      blockNumber: blk?.toNumber?.() ?? 0,
-      ephemeralPublicKey: hexToBytes(eph?.toHex?.() ?? '0x'),
-      nonce: hexToBytes(msg.nonce?.toHex?.() ?? '0x'),
-      ciphertext: hexToBytes(ct?.toHex?.() ?? '0x'),
+      sender: sender?.toString?.() ?? '',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      blockNumber: typeof blk === 'number' ? blk : (blk as any)?.toNumber?.() ?? 0,
+      ephemeralPublicKey: toBytes(eph, 'ephemeralPublicKey', 32),
+      nonce: toBytes(nonce, 'nonce', 24),
+      ciphertext: toBytes(ct, 'ciphertext'),
     };
   });
 }
