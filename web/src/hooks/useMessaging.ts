@@ -216,7 +216,9 @@ export function useMessaging() {
             return { sender: msg.sender, blockNumber: msg.blockNumber, plaintext, raw: msg };
           } catch (err) {
             const errText = err instanceof Error ? err.message : String(err);
-            const dbg = `eph:${msg.ephemeralPublicKey?.length} n:${msg.nonce?.length} ct:${msg.ciphertext?.length}`;
+            // Show first 8 hex chars of each field for comparison with raw SCALE
+            const toHx = (u: Uint8Array) => Array.from(u.slice(0, 4)).map(b => b.toString(16).padStart(2, '0')).join('');
+            const dbg = `e:${toHx(msg.ephemeralPublicKey)} n:${toHx(msg.nonce)} c:${toHx(msg.ciphertext)} L:${msg.ephemeralPublicKey?.length}/${msg.nonce?.length}/${msg.ciphertext?.length}`;
             return { sender: msg.sender, blockNumber: msg.blockNumber, plaintext: `[${errText}] ${dbg}`, raw: msg };
           }
         });
