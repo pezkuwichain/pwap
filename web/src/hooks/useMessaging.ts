@@ -205,12 +205,9 @@ export function useMessaging() {
             );
             return { sender: msg.sender, blockNumber: msg.blockNumber, plaintext, raw: msg };
           } catch (err) {
-            console.error('[PEZMessage] decrypt failed:', err,
-              'ephPubKey len:', msg.ephemeralPublicKey?.length,
-              'nonce len:', msg.nonce?.length,
-              'ct len:', msg.ciphertext?.length);
             const errText = err instanceof Error ? err.message : String(err);
-            return { sender: msg.sender, blockNumber: msg.blockNumber, plaintext: `[ERR: ${errText}]`, raw: msg };
+            const dbg = `eph:${msg.ephemeralPublicKey?.length} n:${msg.nonce?.length} ct:${msg.ciphertext?.length}`;
+            return { sender: msg.sender, blockNumber: msg.blockNumber, plaintext: `[${errText}] ${dbg}`, raw: msg };
           }
         });
       } else {

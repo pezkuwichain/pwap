@@ -58,19 +58,28 @@ export async function getInbox(
   if (result.isEmpty || result.length === 0) return [];
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return result.map((msg: any) => {
-    console.log('[PEZMessage] msg keys:', Object.keys(msg.toJSON?.() ?? msg));
-    return msg;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  }).map((msg: Record<string, any>) => ({
-    sender: msg.sender.toString(),
-    blockNumber: msg.blockNumber?.toNumber?.() ?? msg.block_number?.toNumber?.() ?? 0,
-    ephemeralPublicKey: hexToBytes(
-      msg.ephemeralPublicKey?.toHex?.() ?? msg.ephemeral_public_key?.toHex?.() ?? '0x'
-    ),
-    nonce: hexToBytes(msg.nonce.toHex()),
-    ciphertext: hexToBytes(msg.ciphertext.toHex()),
-  }));
+  const first = result[0];
+  if (first) {
+    const keys = Object.getOwnPropertyNames(first).filter(k => !k.startsWith('_'));
+    const json = first.toJSON?.() ?? {};
+    const jsonKeys = Object.keys(json);
+    console.log('[PEZMessage] field names:', keys, 'json keys:', jsonKeys, 'json:', JSON.stringify(json));
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return result.map((msg: Record<string, any>) => {
+    // Try multiple field name patterns
+    const eph = msg.ephemeralPublicKey ?? msg.ephemeral_public_key ?? msg.ephemeralPubKey ?? msg.ephemeral_pub_key;
+    const blk = msg.blockNumber ?? msg.block_number ?? msg.blockNum;
+    const ct = msg.ciphertext ?? msg.cipher_text;
+    return {
+      sender: msg.sender.toString(),
+      blockNumber: blk?.toNumber?.() ?? 0,
+      ephemeralPublicKey: hexToBytes(eph?.toHex?.() ?? '0x'),
+      nonce: hexToBytes(msg.nonce?.toHex?.() ?? '0x'),
+      ciphertext: hexToBytes(ct?.toHex?.() ?? '0x'),
+    };
+  });
 }
 
 export async function getSendCount(
