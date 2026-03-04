@@ -170,6 +170,16 @@ export function useMessaging() {
     try {
       const signature = await signMessage('PEZMessage:v1');
       const { publicKey, privateKey } = deriveKeypair(signature);
+
+      // Verify derived key matches on-chain key
+      const onChainKey = await getEncryptionKey(peopleApi, selectedAccount.address);
+      if (onChainKey && (onChainKey.length !== publicKey.length || !onChainKey.every((b, i) => b === publicKey[i]))) {
+        console.error('[PEZMessage] Key mismatch! on-chain:', Array.from(onChainKey.slice(0, 4)), 'derived:', Array.from(publicKey.slice(0, 4)));
+        toast.error('Derived key does not match on-chain key. Try re-registering.');
+        setState(prev => ({ ...prev, registering: false }));
+        return;
+      }
+
       privateKeyRef.current = privateKey;
       publicKeyRef.current = publicKey;
       setState(prev => ({ ...prev, isKeyUnlocked: true, registering: false }));
