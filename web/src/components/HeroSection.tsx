@@ -156,7 +156,7 @@ const HeroSection: React.FC = () => {
           </button>
           <button
             onClick={() => document.getElementById('governance')?.scrollIntoView({ behavior: 'smooth' })}
-            className="px-5 py-3 sm:px-8 sm:py-4 bg-gray-900/80 backdrop-blur-sm text-white font-semibold rounded-lg border border-gray-700 hover:bg-gray-800 hover:border-gray-600 transition-all"
+            className="hidden sm:inline-flex px-5 py-3 sm:px-8 sm:py-4 bg-gray-900/80 backdrop-blur-sm text-white font-semibold rounded-lg border border-gray-700 hover:bg-gray-800 hover:border-gray-600 transition-all"
           >
             {t('hero.learnMore', 'Learn More')}
           </button>

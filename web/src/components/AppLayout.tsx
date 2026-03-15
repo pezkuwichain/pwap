@@ -548,15 +548,20 @@ const AppLayout: React.FC = () => {
         ) : (
           <>
             <HeroSection />
+            {/* ChainSpecs (Mainnet card) - show right after hero on mobile */}
+            <div id="chain-specs" className="block sm:hidden">
+              <ChainSpecs />
+            </div>
             <NetworkStats key="network-stats-live" />
             <PalletsGrid />
             <TokenomicsSection />
-            
-            
+
+
             <div id="trust-calculator">
               <TrustScoreCalculator />
             </div>
-            <div id="chain-specs">
+            {/* ChainSpecs - original position for desktop */}
+            <div id="chain-specs-desktop" className="hidden sm:block">
               <ChainSpecs />
             </div>
             <div id="governance">
