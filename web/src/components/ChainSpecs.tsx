@@ -134,7 +134,8 @@ const ChainSpecs: React.FC = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {/* Chain cards grid - hidden on mobile, visible on md+ */}
+        <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {chainSpecs.map((spec) => (
             <div
               key={spec.id}
@@ -157,9 +158,9 @@ const ChainSpecs: React.FC = () => {
                   {spec.type}
                 </span>
               </div>
-              
+
               <h3 className="text-white font-semibold mb-2">{spec.name}</h3>
-              
+
               <div className="flex items-center text-sm text-gray-400">
                 <Server className="w-3 h-3 mr-1" />
                 <span>{spec.validators} validators</span>
