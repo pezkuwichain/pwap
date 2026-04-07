@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useIsMobile } from '@/hooks/use-mobile';
 import MobileShell from '@/components/MobileShell';
-import { useAuth } from '@/contexts/AuthContext';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { Save, CreditCard, BookOpen, Camera } from 'lucide-react';
 
@@ -57,21 +56,11 @@ const issueDate = today.toLocaleDateString('en-GB', { day: '2-digit', month: '2-
 const expiryDate = new Date(today.getFullYear() + 10, today.getMonth(), today.getDate())
   .toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
-// Avatar from profile
-const AVATAR_POOL: Record<string, string> = {
-  avatar1: '👨🏻', avatar2: '👨🏼', avatar3: '👨🏽', avatar4: '👨🏾',
-  avatar5: '👩🏻', avatar6: '👩🏼', avatar7: '👩🏽', avatar8: '👩🏾',
-  avatar9: '🧔🏻', avatar10: '🧔🏼', avatar11: '🧔🏽', avatar12: '🧔🏾',
-  avatar13: '👳🏻‍♂️', avatar14: '👳🏼‍♂️', avatar15: '👳🏽‍♂️', avatar16: '🧕🏻',
-  avatar17: '🧕🏼', avatar18: '🧕🏽',
-};
-
 // ── Main Component ──
 export default function Identity() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const { user } = useAuth();
   const { selectedAccount } = usePezkuwi();
   const [tab, setTab] = useState<'id' | 'passport'>('id');
   const [data, setData] = useState<IdentityData>(DEFAULT_DATA);
