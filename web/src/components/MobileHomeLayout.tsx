@@ -48,58 +48,58 @@ interface AppSection {
 
 const APP_SECTIONS: AppSection[] = [
   {
-    titleKey: 'FINANCE',
+    titleKey: 'mobile.section.finance',
     emoji: '💰',
     borderColor: 'border-l-green-500',
     apps: [
-      { title: 'Wallet', icon: '👛', route: '/wallet' },
-      { title: 'Bank', icon: '🏦', route: '/wallet', comingSoon: true },
-      { title: 'Exchange', icon: '💱', route: '/dex', requiresAuth: true },
-      { title: 'P2P', icon: '🤝', route: '/p2p', requiresAuth: true },
-      { title: 'B2B', icon: '🤖', route: '/wallet', comingSoon: true },
-      { title: 'Bac/Zekat', icon: '💰', route: '/wallet', comingSoon: true },
-      { title: 'Launchpad', icon: '🚀', route: '/launchpad' },
+      { title: 'mobile.app.wallet', icon: '👛', route: '/wallet' },
+      { title: 'mobile.app.bank', icon: '🏦', route: '/wallet', comingSoon: true },
+      { title: 'mobile.app.exchange', icon: '💱', route: '/dex', requiresAuth: true },
+      { title: 'mobile.app.p2p', icon: '🤝', route: '/p2p', requiresAuth: true },
+      { title: 'mobile.app.b2b', icon: '🤖', route: '/wallet', comingSoon: true },
+      { title: 'mobile.app.bacZekat', icon: '💰', route: '/wallet', comingSoon: true },
+      { title: 'mobile.app.launchpad', icon: '🚀', route: '/launchpad' },
     ],
   },
   {
-    titleKey: 'GOVERNANCE',
+    titleKey: 'mobile.section.governance',
     emoji: '🏛️',
     borderColor: 'border-l-red-500',
     apps: [
-      { title: 'President', icon: '👑', route: '/elections', requiresAuth: true },
-      { title: 'Assembly', icon: '🏛️', route: '/citizens/government', comingSoon: true },
-      { title: 'Vote', icon: '🗳️', route: '/elections', requiresAuth: true },
-      { title: 'Validators', icon: '🛡️', route: '/wallet' },
-      { title: 'Justice', icon: '⚖️', route: '/citizens/government', comingSoon: true },
-      { title: 'Proposals', icon: '📜', route: '/citizens/government' },
-      { title: 'Polls', icon: '📊', route: '/citizens/government', comingSoon: true },
-      { title: 'Identity', icon: '🆔', route: '/identity' },
+      { title: 'mobile.app.president', icon: '👑', route: '/elections', requiresAuth: true },
+      { title: 'mobile.app.assembly', icon: '🏛️', route: '/citizens/government', comingSoon: true },
+      { title: 'mobile.app.vote', icon: '🗳️', route: '/elections', requiresAuth: true },
+      { title: 'mobile.app.validators', icon: '🛡️', route: '/wallet' },
+      { title: 'mobile.app.justice', icon: '⚖️', route: '/citizens/government', comingSoon: true },
+      { title: 'mobile.app.proposals', icon: '📜', route: '/citizens/government' },
+      { title: 'mobile.app.polls', icon: '📊', route: '/citizens/government', comingSoon: true },
+      { title: 'mobile.app.identity', icon: '🆔', route: '/identity' },
     ],
   },
   {
-    titleKey: 'SOCIAL',
+    titleKey: 'mobile.section.social',
     emoji: '💬',
     borderColor: 'border-l-blue-500',
     apps: [
-      { title: 'whatsKURD', icon: '💬', route: '/message', comingSoon: true },
-      { title: 'Forum', icon: '📰', route: '/forum' },
-      { title: 'KurdMedia', icon: '📺', route: '/forum', comingSoon: true },
-      { title: 'Events', icon: '📅', route: '/forum', comingSoon: true },
-      { title: 'Help', icon: '❓', route: '/docs' },
-      { title: 'Music', icon: '🎵', route: '/forum', comingSoon: true },
-      { title: 'VPN', icon: '🛡️', route: '/forum', comingSoon: true },
-      { title: 'Referral', icon: '👥', route: '/dashboard', requiresAuth: true },
+      { title: 'mobile.app.whatsKurd', icon: '💬', route: '/message', comingSoon: true },
+      { title: 'mobile.app.forum', icon: '📰', route: '/forum' },
+      { title: 'mobile.app.kurdMedia', icon: '📺', route: '/forum', comingSoon: true },
+      { title: 'mobile.app.events', icon: '📅', route: '/forum', comingSoon: true },
+      { title: 'mobile.app.help', icon: '❓', route: '/docs' },
+      { title: 'mobile.app.music', icon: '🎵', route: '/forum', comingSoon: true },
+      { title: 'mobile.app.vpn', icon: '🛡️', route: '/forum', comingSoon: true },
+      { title: 'mobile.app.referral', icon: '👥', route: '/dashboard', requiresAuth: true },
     ],
   },
   {
-    titleKey: 'EDUCATION',
+    titleKey: 'mobile.section.education',
     emoji: '📚',
     borderColor: 'border-l-yellow-500',
     apps: [
-      { title: 'University', icon: '🎓', route: '/education', comingSoon: true },
-      { title: 'Perwerde', icon: '📖', route: '/education', requiresAuth: true },
-      { title: 'Certificates', icon: '🏆', route: '/education', comingSoon: true },
-      { title: 'Research', icon: '🔬', route: '/education', comingSoon: true },
+      { title: 'mobile.app.university', icon: '🎓', route: '/education', comingSoon: true },
+      { title: 'mobile.app.perwerde', icon: '📖', route: '/education', requiresAuth: true },
+      { title: 'mobile.app.certificates', icon: '🏆', route: '/education', comingSoon: true },
+      { title: 'mobile.app.research', icon: '🔬', route: '/education', comingSoon: true },
     ],
   },
 ];
@@ -284,7 +284,7 @@ const MobileHomeLayout: React.FC = () => {
             {/* Section header */}
             <div className={`flex items-center justify-between px-4 py-2.5 border-l-4 ${section.borderColor}`}>
               <h3 className="text-sm font-bold text-white tracking-wide">
-                {section.titleKey} {section.emoji}
+                {t(section.titleKey)} {section.emoji}
               </h3>
             </div>
             {/* App grid - 4 per row */}
@@ -312,7 +312,7 @@ const MobileHomeLayout: React.FC = () => {
                       )}
                     </div>
                     <span className="text-[10px] text-gray-300 font-medium text-center leading-tight">
-                      {app.title}
+                      {t(app.title)}
                     </span>
                   </button>
                 );
