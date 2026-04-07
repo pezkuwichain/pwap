@@ -3757,4 +3757,23 @@ export default {
   'messaging.checkingKey': 'جاري التحقق من مفتاح التشفير...',
   'messaging.send': 'إرسال',
   'messaging.sending': 'جاري الإرسال...',
+
+  // Mobile Home Layout
+  'mobile.greeting': 'مرحباً',
+  'mobile.home': 'الرئيسية',
+  'mobile.citizen': 'مواطن',
+  'mobile.referral': 'إحالة',
+  'mobile.memberSince': 'عضو منذ',
+  'mobile.role': 'الدور',
+  'mobile.totalScore': 'النقاط الإجمالية',
+  'mobile.trustScore': 'نقاط الثقة',
+  'mobile.referralScore': 'نقاط الإحالة',
+  'mobile.stakingScore': 'نقاط الستاكينغ',
+  'mobile.tikiScore': 'نقاط التيكي',
+  'mobile.kycStatus': 'حالة KYC',
+  'mobile.connectWallet': 'ربط المحفظة',
+  'mobile.apply': 'تقديم',
+  'mobile.joinUs': 'انضم إلينا',
+  'mobile.signInUp': 'تسجيل الدخول / التسجيل',
+  'mobile.loginToSeeRoles': 'سجل الدخول لرؤية الأدوار',
 };

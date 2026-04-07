@@ -3791,4 +3791,23 @@ export default {
   'messaging.checkingKey': 'بررسی کلید رمزنگاری...',
   'messaging.send': 'ارسال',
   'messaging.sending': 'در حال ارسال...',
+
+  // Mobile Home Layout
+  'mobile.greeting': 'سلام',
+  'mobile.home': 'خانه',
+  'mobile.citizen': 'شهروند',
+  'mobile.referral': 'ارجاع',
+  'mobile.memberSince': 'عضو از',
+  'mobile.role': 'نقش',
+  'mobile.totalScore': 'امتیاز کل',
+  'mobile.trustScore': 'امتیاز اعتماد',
+  'mobile.referralScore': 'امتیاز ارجاع',
+  'mobile.stakingScore': 'امتیاز استیکینگ',
+  'mobile.tikiScore': 'امتیاز تیکی',
+  'mobile.kycStatus': 'وضعیت KYC',
+  'mobile.connectWallet': 'اتصال کیف پول',
+  'mobile.apply': 'درخواست',
+  'mobile.joinUs': 'به ما بپیوندید',
+  'mobile.signInUp': 'ورود / ثبت نام',
+  'mobile.loginToSeeRoles': 'برای دیدن نقش‌ها وارد شوید',
 };

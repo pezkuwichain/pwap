@@ -3747,4 +3747,23 @@ export default {
   'messaging.checkingKey': 'کلیلی شفرکردن پشکنین دەکرێت...',
   'messaging.send': 'بنێرە',
   'messaging.sending': 'دەنێردرێت...',
+
+  // Mobile Home Layout
+  'mobile.greeting': 'ڕۆژباش',
+  'mobile.home': 'ماڵەوە',
+  'mobile.citizen': 'هاوڵاتی',
+  'mobile.referral': 'ئاماژە',
+  'mobile.memberSince': 'ئەندام لە',
+  'mobile.role': 'ڕۆڵ',
+  'mobile.totalScore': 'کۆی خاڵ',
+  'mobile.trustScore': 'خاڵی متمانە',
+  'mobile.referralScore': 'خاڵی ئاماژە',
+  'mobile.stakingScore': 'خاڵی ستەیکینگ',
+  'mobile.tikiScore': 'خاڵی تیکی',
+  'mobile.kycStatus': 'بارودۆخی KYC',
+  'mobile.connectWallet': 'جزدان ببەستە',
+  'mobile.apply': 'داواکاری',
+  'mobile.joinUs': 'پەیوەست ببە',
+  'mobile.signInUp': 'چوونەژوورەوە / تۆمارکردن',
+  'mobile.loginToSeeRoles': 'بۆ بینینی ڕۆڵەکان بچۆ ژوورەوە',
 };

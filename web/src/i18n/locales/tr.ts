@@ -3777,4 +3777,23 @@ export default {
   'messaging.checkingKey': 'Şifreleme anahtarı kontrol ediliyor...',
   'messaging.send': 'Gönder',
   'messaging.sending': 'Gönderiliyor...',
+
+  // Mobile Home Layout
+  'mobile.greeting': 'Rojbaş',
+  'mobile.home': 'Ana Sayfa',
+  'mobile.citizen': 'Vatandaş',
+  'mobile.referral': 'Referans',
+  'mobile.memberSince': 'Üyelik Tarihi',
+  'mobile.role': 'Rol',
+  'mobile.totalScore': 'Toplam Puan',
+  'mobile.trustScore': 'Güven Puanı',
+  'mobile.referralScore': 'Referans Puanı',
+  'mobile.stakingScore': 'Staking Puanı',
+  'mobile.tikiScore': 'Tiki Puanı',
+  'mobile.kycStatus': 'KYC Durumu',
+  'mobile.connectWallet': 'Cüzdan bağla',
+  'mobile.apply': 'Başvur',
+  'mobile.joinUs': 'Bize Katil',
+  'mobile.signInUp': 'Giris / Kayit',
+  'mobile.loginToSeeRoles': 'Rolleri gormek icin giris yap',
 };

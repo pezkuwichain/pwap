@@ -3795,4 +3795,23 @@ export default {
   'messaging.checkingKey': 'Checking encryption key...',
   'messaging.send': 'Send',
   'messaging.sending': 'Sending...',
+
+  // Mobile Home Layout
+  'mobile.greeting': 'Rojbaş',
+  'mobile.home': 'Home',
+  'mobile.citizen': 'Citizen',
+  'mobile.referral': 'Referral',
+  'mobile.memberSince': 'Member Since',
+  'mobile.role': 'Role',
+  'mobile.totalScore': 'Total Score',
+  'mobile.trustScore': 'Trust Score',
+  'mobile.referralScore': 'Referral Score',
+  'mobile.stakingScore': 'Staking Score',
+  'mobile.tikiScore': 'Tiki Score',
+  'mobile.kycStatus': 'KYC Status',
+  'mobile.connectWallet': 'Connect wallet',
+  'mobile.apply': 'Apply',
+  'mobile.joinUs': 'Join Us',
+  'mobile.signInUp': 'Sign In / Up',
+  'mobile.loginToSeeRoles': 'Login to see roles',
 }

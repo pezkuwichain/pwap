@@ -31,6 +31,8 @@ import { PezkuwiWalletButton } from './PezkuwiWalletButton';
 import { DEXDashboard } from './dex/DEXDashboard';
 import { P2PDashboard } from './p2p/P2PDashboard';
 import EducationPlatform from '../pages/EducationPlatform';
+import { useIsMobile } from '@/hooks/use-mobile';
+import MobileHomeLayout from './MobileHomeLayout';
 
 const AppLayout: React.FC = () => {
   const navigate = useNavigate();
@@ -52,6 +54,7 @@ const AppLayout: React.FC = () => {
   const { t } = useTranslation();
   const { isConnected } = useWebSocket();
   useWallet();
+  const isMobile = useIsMobile();
   const [, _setIsAdmin] = useState(false);
 
   // Close dropdown on outside click
@@ -72,6 +75,13 @@ const AppLayout: React.FC = () => {
   React.useEffect(() => {
     _setIsAdmin(false); // Admin status managed by AuthContext
   }, [user]);
+  // On mobile, when no feature panel is active, show the mobile home layout
+  const isFeaturePanelOpen = showDEX || showProposalWizard || showDelegation || showForum || showModeration || showTreasury || showStaking || showMultiSig || showEducation || showP2P;
+
+  if (isMobile && !isFeaturePanelOpen) {
+    return <MobileHomeLayout />;
+  }
+
   return (
     <div className="min-h-screen bg-gray-950 text-white">
       {/* Navigation */}

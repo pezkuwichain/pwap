@@ -3774,4 +3774,23 @@ export default {
   'messaging.checkingKey': 'Mifteya şîfrekirinê tê kontrol kirin...',
   'messaging.send': 'Bişîne',
   'messaging.sending': 'Tê şandin...',
+
+  // Mobile Home Layout
+  'mobile.greeting': 'Rojbaş',
+  'mobile.home': 'Mal',
+  'mobile.citizen': 'Welatî',
+  'mobile.referral': 'Referans',
+  'mobile.memberSince': 'Endam ji',
+  'mobile.role': 'Rol',
+  'mobile.totalScore': 'Pûana Giştî',
+  'mobile.trustScore': 'Pûana Pêbaweriyê',
+  'mobile.referralScore': 'Pûana Referansê',
+  'mobile.stakingScore': 'Pûana Stakingê',
+  'mobile.tikiScore': 'Pûana Tikiyê',
+  'mobile.kycStatus': 'Rewşa KYC',
+  'mobile.connectWallet': 'Cîzdanê girêde',
+  'mobile.apply': 'Serlêdan',
+  'mobile.joinUs': 'Tevlî me bibe',
+  'mobile.signInUp': 'Têkeve / Tomar bibe',
+  'mobile.loginToSeeRoles': 'Ji bo rolan têkeve',
 };

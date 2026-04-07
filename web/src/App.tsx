@@ -33,6 +33,7 @@ const AdminPanel = lazy(() => import('@/pages/AdminPanel'));
 const WalletDashboard = lazy(() => import('./pages/WalletDashboard'));
 const ReservesDashboardPage = lazy(() => import('./pages/ReservesDashboardPage'));
 const BeCitizen = lazy(() => import('./pages/BeCitizen'));
+const Identity = lazy(() => import('./pages/Identity'));
 const Citizens = lazy(() => import('./pages/Citizens'));
 const CitizensIssues = lazy(() => import('./pages/citizens/CitizensIssues'));
 const GovernmentEntrance = lazy(() => import('./pages/citizens/GovernmentEntrance'));
@@ -145,6 +146,7 @@ function App() {
                               <Route path="/development" element={<Development />} />
                               <Route path="/local" element={<Local />} />
                               <Route path="/be-citizen" element={<BeCitizen />} />
+                              <Route path="/identity" element={<Identity />} />
                               <Route path="/citizens" element={<Citizens />} />
                               <Route path="/citizens/issues" element={<CitizensIssues />} />
                               <Route path="/citizens/government" element={<GovernmentEntrance />} />
