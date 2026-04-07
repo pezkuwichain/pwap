@@ -12,7 +12,7 @@ import { ENV } from '../config/environment';
 
 // Hardcoded fallbacks for production builds where ENV may not be available
 const FALLBACK_SUPABASE_URL = 'https://vsyrpfiwhjvahofxwytr.supabase.co';
-const FALLBACK_SUPABASE_KEY = 'REDACTED_SUPABASE_ANON_KEY';
+const FALLBACK_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZzeXJwZml3aGp2YWhvZnh3eXRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwMjYxNTgsImV4cCI6MjA3NTYwMjE1OH0.dO2c8YWIph2D95X7jFdlGYJ8MXyuyorkLcjQ6onH-HE';
 
 // Initialize Supabase client from environment variables with fallbacks
 const supabaseUrl = ENV.supabaseUrl || FALLBACK_SUPABASE_URL;
