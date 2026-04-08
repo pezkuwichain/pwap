@@ -106,7 +106,7 @@ export default function Bereketli() {
   }, [exchangeToken]);
 
   const content = (
-    <div className="flex flex-col h-full bg-gray-950">
+    <div className="flex flex-col bg-gray-950" style={{ height: 'calc(100vh - 108px)' }}>
       {loading ? (
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center space-y-3">
