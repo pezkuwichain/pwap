@@ -130,7 +130,7 @@ export default function Bereketli() {
       ) : (
         <iframe
           ref={iframeRef}
-          src={BEREKETLI_URL}
+          src={`${BEREKETLI_URL}/?embed=1`}
           onLoad={handleIframeLoad}
           allow="camera; geolocation"
           className="flex-1 w-full border-0"
