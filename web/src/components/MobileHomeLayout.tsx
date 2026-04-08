@@ -108,7 +108,7 @@ const MobileHomeLayout: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const { peopleApi, isPeopleReady, selectedAccount } = usePezkuwi();
 
   // Profile state
@@ -222,9 +222,10 @@ const MobileHomeLayout: React.FC = () => {
         {/* ── SCORE CARDS (horizontal scroll) ── */}
         <div className="-mx-3 px-3">
           <div className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-hide">
-            {/* Card 1: Member Since OR Login/Sign Up */}
+            {/* Card 1: Member Since + Logout OR Login/Sign Up */}
             {user ? (
-              <ScoreCard icon="📅" label={t('mobile.memberSince', 'Member Since')} value={memberSince} color="border-l-green-500" />
+              <ScoreCard icon="📅" label={t('mobile.memberSince', 'Member Since')} value={memberSince} color="border-l-green-500"
+                action={{ label: `🚪 ${t('nav.logout', 'Logout')}`, onClick: async () => { await signOut(); navigate('/'); } }} />
             ) : (
               <ScoreCard
                 icon="🔑"
