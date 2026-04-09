@@ -295,8 +295,8 @@ function IDCardPreview({ data, onPhotoClick }: { data: IdentityData; onPhotoClic
           <p className="text-[7px] text-gray-500">KURDISTAN REPUBLIC</p>
         </div>
         {/* Sun emblem */}
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center shadow-md">
-          <span className="text-sm">☀️</span>
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center shadow-md overflow-hidden">
+          <img src="/kurdistan_sun_light.svg" alt="Kurdistan Sun" className="w-7 h-7 object-contain" />
         </div>
         <div className="text-right">
           <p className="text-[8px] font-bold text-gray-600 tracking-wider">کۆماری کوردستان</p>
@@ -373,8 +373,8 @@ function PassportPreview({ data, mrzLine1, mrzLine2, onPhotoClick }: {
         <p className="text-[8px] text-yellow-400/70 tracking-wider">KURDISTAN REPUBLIC</p>
 
         {/* Emblem */}
-        <div className="w-14 h-14 mx-auto my-2 rounded-full bg-gradient-to-br from-yellow-300 to-yellow-600 flex items-center justify-center shadow-lg border-2 border-yellow-300/50">
-          <span className="text-2xl">☀️</span>
+        <div className="w-14 h-14 mx-auto my-2 rounded-full bg-gradient-to-br from-yellow-300 to-yellow-600 flex items-center justify-center shadow-lg border-2 border-yellow-300/50 overflow-hidden">
+          <img src="/kurdistan_sun_light.svg" alt="Kurdistan Sun" className="w-12 h-12 object-contain" />
         </div>
 
         <p className="text-[9px] font-bold text-yellow-400/80 tracking-[0.3em]">پاسپۆرت</p>
