@@ -98,7 +98,7 @@ export default function JusticePage() {
             Sîstema dadweriya dijîtal a Kurdistanê nakokiyên di navbera welatiyên dijîtal de bi awayekî adil û zelal çareser dike. Hemû biryar li ser blockchain tên tomarkirin.
           </p>
           <p className="text-xs text-gray-500 mt-2 leading-relaxed italic">
-            Kurdistan's digital justice system resolves disputes between digital citizens fairly and transparently. All decisions are recorded on the blockchain.
+            Kurdistan&apos;s digital justice system resolves disputes between digital citizens fairly and transparently. All decisions are recorded on the blockchain.
           </p>
         </div>
 
