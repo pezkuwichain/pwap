@@ -11,8 +11,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ENV } from '../config/environment';
 
 // Hardcoded fallbacks for production builds where ENV may not be available
-const FALLBACK_SUPABASE_URL = 'https://vsyrpfiwhjvahofxwytr.supabase.co';
-const FALLBACK_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZzeXJwZml3aGp2YWhvZnh3eXRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwMjYxNTgsImV4cCI6MjA3NTYwMjE1OH0.dO2c8YWIph2D95X7jFdlGYJ8MXyuyorkLcjQ6onH-HE';
+const FALLBACK_SUPABASE_URL = 'https://supabase.pezkuwichain.io';
+const FALLBACK_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzc1NzQxMTU5LCJleHAiOjIwOTExMDExNTl9.zOQZ7r58BFQjuSPO318XqWt6dsDF5lJ4_3S5_yX4u8o';
 
 // Initialize Supabase client from environment variables with fallbacks
 const supabaseUrl = ENV.supabaseUrl || FALLBACK_SUPABASE_URL;
