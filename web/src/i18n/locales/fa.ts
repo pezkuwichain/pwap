@@ -3791,6 +3791,7 @@ export default {
   'messaging.checkingKey': 'بررسی کلید رمزنگاری...',
   'messaging.send': 'ارسال',
   'messaging.sending': 'در حال ارسال...',
+  'messaging.palletNotReady': 'پالت پیام‌رسانی هنوز در People Chain موجود نیست. یک به‌روزرسانی runtime لازم است.',
 
   // Mobile Home Layout
   'mobile.greeting': 'سلام',
@@ -3938,4 +3939,37 @@ export default {
   'taxZekat.confirm.cancel': 'لغو',
   'taxZekat.confirm.confirm': 'تأیید',
   'taxZekat.success': '{{amount}} HEZ با موفقیت ارسال شد. ممنون!',
+
+  // Messaging
+  'messaging.palletNotReady': 'پالت پیام‌رسانی هنوز در People Chain موجود نیست. یک به‌روزرسانی runtime لازم است.',
+
+  // KurdMedia page
+  'kurdMedia.title': 'KurdMedia',
+  'kurdMedia.subtitle': 'رسانه دیجیتال کردی',
+  'kurdMedia.channels.title': 'رسانه کردی',
+  'kurdMedia.channels.subtitle': 'رسانه کردی',
+  'kurdMedia.channels.desc': 'پخش رسمی دولت دیجیتال کردستان.',
+  'kurdMedia.channels.descEn': 'پخش رسمی DKS. تلویزیون، رادیو، اخبار و بیشتر.',
+  'kurdMedia.soon': 'به‌زودی',
+  'kurdMedia.social.title': 'حمایت از PezkuwiChain',
+  'kurdMedia.social.subtitle': 'حمایت از PezkuwiChain',
+  'kurdMedia.social.desc': 'در شبکه‌های اجتماعی با ما در ارتباط باشید.',
+  'kurdMedia.social.descEn': 'سوالات خود را بپرسید، اخبار را دنبال کنید و به جامعه ما بپیوندید.',
+  'kurdMedia.stats.kurds': 'کرد در جهان',
+  'kurdMedia.stats.hope': 'امید',
+  'kurdMedia.banner': 'PezkuwiChain - اولین بلاک‌چین ملی کردها',
+  'kurdMedia.bannerEn': 'PezkuwiChain - اولین بلاک‌چین ملی کردها',
+
+  // Help page
+  'help.title': 'کمک و پشتیبانی',
+  'help.breadcrumb': 'کمک و پشتیبانی',
+  'help.desc': 'سیستم کمک و پشتیبانی به‌زودی راه‌اندازی می‌شود.',
+  'help.descEn': 'The help and support system will be launched soon.',
+  'help.planned.title': 'ویژگی‌های برنامه‌ریزی‌شده',
+  'help.feature.faq': 'سوالات متداول (FAQ)',
+  'help.feature.live': 'پشتیبانی زنده',
+  'help.feature.guides': 'راهنمای کاربران',
+  'help.feature.community': 'ارتباط با جامعه',
+  'help.whatskurd.title': 'پیام‌رسانی WhatsKURD',
+  'help.whatskurd.desc': 'از طریق سیستم پیام‌رسانی بلاک‌چین با ما تماس بگیرید',
 };

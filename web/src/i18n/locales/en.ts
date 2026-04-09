@@ -3037,11 +3037,25 @@ export default {
   'docs.loading': 'Loading...',
   'docs.error': 'Error:',
   'docs.title': 'PezkuwiChain Documentation',
-  'docs.subtitle': 'Learn how to build on PezkuwiChain',
+  'docs.subtitle': 'Everything you need to build on the Kurdish national blockchain',
   'docs.selectDoc': 'Select a document from the sidebar to get started.',
   'docs.introduction': 'Introduction',
   'docs.sdkDocs': 'SDK Docs',
   'docs.whitepaper': 'Whitepaper',
+  'docs.fullDocsNote': 'For complete and up-to-date documentation, visit the official documentation portal.',
+  'docs.visitFullDocs': 'Visit docs.pezkuwichain.io',
+  'docs.section.whitepaper': 'Whitepaper',
+  'docs.section.whitepaper.desc': 'The foundational document describing the PezkuwiChain vision, architecture, and tokenomics.',
+  'docs.section.architecture': 'Architecture',
+  'docs.section.architecture.desc': 'Technical deep-dive into the blockchain architecture, consensus, pallets, and relay chain.',
+  'docs.section.gettingStarted': 'Getting Started',
+  'docs.section.gettingStarted.desc': 'Set up your wallet, get test tokens from the faucet, and make your first transaction.',
+  'docs.section.nodeSetup': 'Node Setup',
+  'docs.section.nodeSetup.desc': 'Run a validator or full node on PezkuwiChain mainnet, testnet or local environment.',
+  'docs.section.sdk': 'SDK Reference',
+  'docs.section.sdk.desc': 'JavaScript/TypeScript SDK for building dApps on PezkuwiChain — API reference and examples.',
+  'docs.section.contributing': 'Contributor Guide',
+  'docs.section.contributing.desc': 'How to contribute to PezkuwiChain — code, documentation, translations, and governance.',
 
   // Wiki
   'wiki.title': 'Community Wiki',
@@ -3795,6 +3809,7 @@ export default {
   'messaging.checkingKey': 'Checking encryption key...',
   'messaging.send': 'Send',
   'messaging.sending': 'Sending...',
+  'messaging.palletNotReady': 'Messaging pallet is not yet available on People Chain. A runtime upgrade is required.',
 
   // Mobile Home Layout
   'mobile.greeting': 'Rojbaş',
@@ -3942,4 +3957,37 @@ export default {
   'taxZekat.confirm.cancel': 'Cancel',
   'taxZekat.confirm.confirm': 'Confirm',
   'taxZekat.success': '{{amount}} HEZ sent successfully. Thank you!',
+
+  // Messaging
+  'messaging.palletNotReady': 'Messaging pallet is not yet available on People Chain. A runtime upgrade is required.',
+
+  // KurdMedia page
+  'kurdMedia.title': 'KurdMedia',
+  'kurdMedia.subtitle': 'Kurdish Digital Media',
+  'kurdMedia.channels.title': 'Medyaya Kurdî',
+  'kurdMedia.channels.subtitle': 'Kurdish Media',
+  'kurdMedia.channels.desc': 'Weşanên fermî yên Dewleta Dijîtal a Kurdistanê.',
+  'kurdMedia.channels.descEn': 'Official broadcasts of Digital Kurdistan State. TV, radio, news and more.',
+  'kurdMedia.soon': 'Soon',
+  'kurdMedia.social.title': 'Piştgirî PezkuwiChain',
+  'kurdMedia.social.subtitle': 'Support PezkuwiChain',
+  'kurdMedia.social.desc': 'Bi me re têkildar bin li ser platformên civakî.',
+  'kurdMedia.social.descEn': 'Connect with us on social platforms. Ask questions, follow news and join our community.',
+  'kurdMedia.stats.kurds': 'Kurds worldwide',
+  'kurdMedia.stats.hope': 'Hope',
+  'kurdMedia.banner': "PezkuwiChain - Blockchain'a yekem a netewî ya Kurdan",
+  'kurdMedia.bannerEn': 'PezkuwiChain - The first national blockchain of the Kurds',
+
+  // Help page
+  'help.title': 'Help & Support',
+  'help.breadcrumb': 'Help & Support',
+  'help.desc': 'Sîstema arîkariyê dê di demeke nêzîk de were destpêkirin.',
+  'help.descEn': 'The help and support system will be launched soon.',
+  'help.planned.title': 'Planned Features',
+  'help.feature.faq': 'Frequently Asked Questions (FAQ)',
+  'help.feature.live': 'Live Support',
+  'help.feature.guides': 'User Guides',
+  'help.feature.community': 'Community Contact',
+  'help.whatskurd.title': 'WhatsKURD Messaging',
+  'help.whatskurd.desc': 'Contact us via the blockchain messaging system',
 }

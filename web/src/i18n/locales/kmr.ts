@@ -3774,6 +3774,7 @@ export default {
   'messaging.checkingKey': 'Mifteya şîfrekirinê tê kontrol kirin...',
   'messaging.send': 'Bişîne',
   'messaging.sending': 'Tê şandin...',
+  'messaging.palletNotReady': 'Pergala peyamgehê hîn li ser People Chain tune ye. Nûvekirina runtime lazim e.',
 
   // Mobile Home Layout
   'mobile.greeting': 'Rojbaş',
@@ -3921,4 +3922,37 @@ export default {
   'taxZekat.confirm.cancel': 'Betal',
   'taxZekat.confirm.confirm': 'Piştrast',
   'taxZekat.success': '{{amount}} HEZ bi serfirazî hate şandin. Spas!',
+
+  // Messaging
+  'messaging.palletNotReady': 'Pergala peyamgehê hîn li ser People Chain tune ye. Nûvekirina runtime lazim e.',
+
+  // KurdMedia page
+  'kurdMedia.title': 'KurdMedia',
+  'kurdMedia.subtitle': 'Medyaya Dîjîtal a Kurdî',
+  'kurdMedia.channels.title': 'Medyaya Kurdî',
+  'kurdMedia.channels.subtitle': 'Medyaya Kurdî',
+  'kurdMedia.channels.desc': 'Weşanên fermî yên Dewleta Dijîtal a Kurdistanê.',
+  'kurdMedia.channels.descEn': 'Weşanên fermî yên DKS. TV, radyo, nûçe û zêdetir.',
+  'kurdMedia.soon': 'Zû tê',
+  'kurdMedia.social.title': 'Piştgirî PezkuwiChain',
+  'kurdMedia.social.subtitle': 'Piştgirî PezkuwiChain',
+  'kurdMedia.social.desc': 'Bi me re têkildar bin li ser platformên civakî.',
+  'kurdMedia.social.descEn': 'Bi pirsên xwe, nûçeyan bişopînin û tevlî civaka me bibin.',
+  'kurdMedia.stats.kurds': 'Kurd li cîhanê',
+  'kurdMedia.stats.hope': 'Hêvî',
+  'kurdMedia.banner': "PezkuwiChain - Blockchain'a yekem a netewî ya Kurdan",
+  'kurdMedia.bannerEn': 'PezkuwiChain - Yekem blockchain netewî ya Kurdan',
+
+  // Help page
+  'help.title': 'Arîkarî û Piştgirî',
+  'help.breadcrumb': 'Arîkarî û Piştgirî',
+  'help.desc': 'Sîstema arîkariyê dê di demeke nêzîk de were destpêkirin.',
+  'help.descEn': 'The help and support system will be launched soon.',
+  'help.planned.title': 'Taybetmendiyên Plankirin',
+  'help.feature.faq': 'Pirsên pir tên pirsîn (FAQ)',
+  'help.feature.live': 'Piştgiriya zindî',
+  'help.feature.guides': 'Rêberên bikarhêner',
+  'help.feature.community': 'Têkiliya civakê',
+  'help.whatskurd.title': 'WhatsKURD Peyamgeh',
+  'help.whatskurd.desc': 'Bi pergala peyamgehê ya blockchain re bi me re têkildar bibe',
 };

@@ -83,9 +83,9 @@ const APP_SECTIONS: AppSection[] = [
     apps: [
       { title: 'mobile.app.whatsKurd', icon: '💬', route: '/social/whatskurd' },
       { title: 'mobile.app.forum', icon: '📰', route: '/forum' },
-      { title: 'mobile.app.kurdMedia', icon: '📺', route: '/forum', comingSoon: true },
+      { title: 'mobile.app.kurdMedia', icon: '📺', route: '/social/kurdmedia' },
       { title: 'mobile.app.events', icon: '📅', route: '/forum', comingSoon: true },
-      { title: 'mobile.app.help', icon: '❓', route: '/docs' },
+      { title: 'mobile.app.help', icon: '❓', route: '/help' },
       { title: 'mobile.app.music', icon: '🎵', route: '/forum', comingSoon: true },
       { title: 'mobile.app.vpn', icon: '🛡️', route: '/forum', comingSoon: true },
       { title: 'mobile.app.referral', icon: '👥', route: '/dashboard', requiresAuth: true },

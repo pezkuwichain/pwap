@@ -3747,6 +3747,7 @@ export default {
   'messaging.checkingKey': 'کلیلی شفرکردن پشکنین دەکرێت...',
   'messaging.send': 'بنێرە',
   'messaging.sending': 'دەنێردرێت...',
+  'messaging.palletNotReady': 'پاڵێتی پەیامگێڕی هێشتا لەسەر People Chain بەردەست نییە. نوێکردنەوەی ڕانتایم پێویستە.',
 
   // Mobile Home Layout
   'mobile.greeting': 'ڕۆژباش',
@@ -3894,4 +3895,37 @@ export default {
   'taxZekat.confirm.cancel': 'هەڵوەشاندنەوە',
   'taxZekat.confirm.confirm': 'پشتڕاست',
   'taxZekat.success': '{{amount}} HEZ بە سەرکەوتوویی نێردرا. سوپاس!',
+
+  // Messaging
+  'messaging.palletNotReady': 'پاڵێتی پەیامگێڕی هێشتا لەسەر People Chain بەردەست نییە. نوێکردنەوەی ڕانتایم پێویستە.',
+
+  // KurdMedia page
+  'kurdMedia.title': 'KurdMedia',
+  'kurdMedia.subtitle': 'میدیای دیجیتاڵی کوردی',
+  'kurdMedia.channels.title': 'میدیای کوردی',
+  'kurdMedia.channels.subtitle': 'میدیای کوردی',
+  'kurdMedia.channels.desc': 'وەشانە فەرمییەکانی دەوڵەتی دیجیتاڵی کوردستان.',
+  'kurdMedia.channels.descEn': 'وەشانە فەرمییەکانی DKS. TV، ڕادیۆ، هەواڵ و زیاتر.',
+  'kurdMedia.soon': 'بەزووی',
+  'kurdMedia.social.title': 'پشتیوانی PezkuwiChain',
+  'kurdMedia.social.subtitle': 'پشتیوانی PezkuwiChain',
+  'kurdMedia.social.desc': 'پەیوەندیمان پێوە بکەن لەسەر پلاتفۆرمە کۆمەڵایەتییەکان.',
+  'kurdMedia.social.descEn': 'پرسیارەکانتان بپرسن، هەواڵ بشوێنەوە و بەشداری کۆمەڵگەمان بکەن.',
+  'kurdMedia.stats.kurds': 'کورد لە جیهاندا',
+  'kurdMedia.stats.hope': 'هیوا',
+  'kurdMedia.banner': 'PezkuwiChain - یەکەم بلۆکچێینی نەتەوەیی کوردان',
+  'kurdMedia.bannerEn': 'PezkuwiChain - یەکەم بلۆکچێینی نەتەوەیی کوردان',
+
+  // Help page
+  'help.title': 'یارمەتی و پشتیوانی',
+  'help.breadcrumb': 'یارمەتی و پشتیوانی',
+  'help.desc': 'سیستەمی یارمەتی بەم زووییە دەستی پێدەکات.',
+  'help.descEn': 'The help and support system will be launched soon.',
+  'help.planned.title': 'تایبەتمەندییە پلانکراوەکان',
+  'help.feature.faq': 'پرسیارە زۆرپرسراوەکان (FAQ)',
+  'help.feature.live': 'پشتیوانی زیندوو',
+  'help.feature.guides': 'ڕێنماییەکانی بەکارهێنەر',
+  'help.feature.community': 'پەیوەندی کۆمەڵگە',
+  'help.whatskurd.title': 'WhatsKURD پەیامگێڕ',
+  'help.whatskurd.desc': 'لەڕێگەی سیستەمی پەیامگێڕی بلۆکچێیندا پەیوەندیمان پێوە بکە',
 };

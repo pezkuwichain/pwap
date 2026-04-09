@@ -3757,6 +3757,7 @@ export default {
   'messaging.checkingKey': 'جاري التحقق من مفتاح التشفير...',
   'messaging.send': 'إرسال',
   'messaging.sending': 'جاري الإرسال...',
+  'messaging.palletNotReady': 'حزمة المراسلة غير متاحة بعد على People Chain. يلزم تحديث وقت التشغيل.',
 
   // Mobile Home Layout
   'mobile.greeting': 'مرحباً',
@@ -3904,4 +3905,37 @@ export default {
   'taxZekat.confirm.cancel': 'إلغاء',
   'taxZekat.confirm.confirm': 'تأكيد',
   'taxZekat.success': 'تم إرسال {{amount}} HEZ بنجاح. شكراً!',
+
+  // Messaging
+  'messaging.palletNotReady': 'حزمة المراسلة غير متاحة بعد على People Chain. يلزم تحديث وقت التشغيل.',
+
+  // KurdMedia page
+  'kurdMedia.title': 'KurdMedia',
+  'kurdMedia.subtitle': 'الإعلام الرقمي الكردي',
+  'kurdMedia.channels.title': 'الإعلام الكردي',
+  'kurdMedia.channels.subtitle': 'الإعلام الكردي',
+  'kurdMedia.channels.desc': 'البث الرسمي لدولة كردستان الرقمية.',
+  'kurdMedia.channels.descEn': 'البث الرسمي لـ DKS. تلفزيون، راديو، أخبار والمزيد.',
+  'kurdMedia.soon': 'قريباً',
+  'kurdMedia.social.title': 'دعم PezkuwiChain',
+  'kurdMedia.social.subtitle': 'دعم PezkuwiChain',
+  'kurdMedia.social.desc': 'تواصل معنا على منصات التواصل الاجتماعي.',
+  'kurdMedia.social.descEn': 'اطرح أسئلتك، تابع الأخبار وانضم إلى مجتمعنا.',
+  'kurdMedia.stats.kurds': 'كردي في العالم',
+  'kurdMedia.stats.hope': 'أمل',
+  'kurdMedia.banner': 'PezkuwiChain - أول بلوك تشين وطني للأكراد',
+  'kurdMedia.bannerEn': 'PezkuwiChain - أول بلوك تشين وطني للأكراد',
+
+  // Help page
+  'help.title': 'المساعدة والدعم',
+  'help.breadcrumb': 'المساعدة والدعم',
+  'help.desc': 'سيتم إطلاق نظام المساعدة والدعم قريباً.',
+  'help.descEn': 'The help and support system will be launched soon.',
+  'help.planned.title': 'الميزات المخططة',
+  'help.feature.faq': 'الأسئلة الشائعة (FAQ)',
+  'help.feature.live': 'الدعم المباشر',
+  'help.feature.guides': 'أدلة المستخدم',
+  'help.feature.community': 'التواصل مع المجتمع',
+  'help.whatskurd.title': 'مراسلة WhatsKURD',
+  'help.whatskurd.desc': 'تواصل معنا عبر نظام المراسلة على البلوك تشين',
 };

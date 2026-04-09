@@ -3777,6 +3777,7 @@ export default {
   'messaging.checkingKey': 'Şifreleme anahtarı kontrol ediliyor...',
   'messaging.send': 'Gönder',
   'messaging.sending': 'Gönderiliyor...',
+  'messaging.palletNotReady': 'Mesajlaşma paleti henüz People Chain üzerinde mevcut değil. Bir runtime güncellemesi gerekiyor.',
 
   // Mobile Home Layout
   'mobile.greeting': 'Rojbaş',
@@ -3924,4 +3925,37 @@ export default {
   'taxZekat.confirm.cancel': 'İptal',
   'taxZekat.confirm.confirm': 'Onayla',
   'taxZekat.success': '{{amount}} HEZ başarıyla gönderildi. Teşekkürler!',
+
+  // Messaging
+  'messaging.palletNotReady': 'Mesajlaşma paleti henüz People Chain üzerinde mevcut değil. Bir runtime güncellemesi gerekiyor.',
+
+  // KurdMedia page
+  'kurdMedia.title': 'KurdMedia',
+  'kurdMedia.subtitle': 'Kürt Dijital Medyası',
+  'kurdMedia.channels.title': 'Kürt Medyası',
+  'kurdMedia.channels.subtitle': 'Kürt Medyası',
+  'kurdMedia.channels.desc': 'Dijital Kürdistan Devleti\'nin resmi yayınları.',
+  'kurdMedia.channels.descEn': 'DKS\'nin resmi yayınları. TV, radyo, haberler ve daha fazlası.',
+  'kurdMedia.soon': 'Yakında',
+  'kurdMedia.social.title': 'PezkuwiChain\'i Destekle',
+  'kurdMedia.social.subtitle': 'PezkuwiChain\'i Destekle',
+  'kurdMedia.social.desc': 'Sosyal platformlarda bizimle iletişime geçin.',
+  'kurdMedia.social.descEn': 'Sorularınızı sorun, haberleri takip edin ve topluluğumuza katılın.',
+  'kurdMedia.stats.kurds': 'Dünyada Kürt',
+  'kurdMedia.stats.hope': 'Umut',
+  'kurdMedia.banner': 'PezkuwiChain - Kürtlerin ilk ulusal blockchain\'i',
+  'kurdMedia.bannerEn': 'PezkuwiChain - Kürtlerin ilk ulusal blockchain\'i',
+
+  // Help page
+  'help.title': 'Yardım ve Destek',
+  'help.breadcrumb': 'Yardım ve Destek',
+  'help.desc': 'Yardım ve destek sistemi yakında başlatılacak.',
+  'help.descEn': 'The help and support system will be launched soon.',
+  'help.planned.title': 'Planlanan Özellikler',
+  'help.feature.faq': 'Sıkça Sorulan Sorular (SSS)',
+  'help.feature.live': 'Canlı Destek',
+  'help.feature.guides': 'Kullanıcı Rehberleri',
+  'help.feature.community': 'Topluluk İletişimi',
+  'help.whatskurd.title': 'WhatsKURD Mesajlaşma',
+  'help.whatskurd.desc': 'Blockchain mesajlaşma sistemi aracılığıyla bizimle iletişime geçin',
 };
