@@ -72,6 +72,9 @@ const PollsPage = lazy(() => import('@/pages/governance/PollsPage'));
 const WhatsKURDPage = lazy(() => import('@/pages/social/WhatsKURDPage'));
 const KurdMediaPage = lazy(() => import('@/pages/social/KurdMediaPage'));
 const HelpPage = lazy(() => import('@/pages/HelpPage'));
+const UniversityPage = lazy(() => import('@/pages/education/UniversityPage'));
+const CertificatesPage = lazy(() => import('@/pages/education/CertificatesPage'));
+const ResearchPage = lazy(() => import('@/pages/education/ResearchPage'));
 
 // Network pages
 const Mainnet = lazy(() => import('@/pages/networks/Mainnet'));
@@ -242,6 +245,9 @@ function App() {
                               <Route path="/social/whatskurd" element={<WhatsKURDPage />} />
                               <Route path="/social/kurdmedia" element={<KurdMediaPage />} />
                               <Route path="/help" element={<HelpPage />} />
+                              <Route path="/education/university" element={<UniversityPage />} />
+                              <Route path="/education/certificates" element={<CertificatesPage />} />
+                              <Route path="/education/research" element={<ResearchPage />} />
                               <Route path="/presale" element={<Presale />} />
                               <Route path="/launchpad" element={<PresaleList />} />
                               <Route path="/launchpad/:id" element={<PresaleDetail />} />

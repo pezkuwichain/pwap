@@ -96,10 +96,10 @@ const APP_SECTIONS: AppSection[] = [
     emoji: '📚',
     borderColor: 'border-l-yellow-500',
     apps: [
-      { title: 'mobile.app.university', icon: '🎓', route: '/education', comingSoon: true },
+      { title: 'mobile.app.university', icon: '🎓', route: '/education/university' },
       { title: 'mobile.app.perwerde', icon: '📖', route: '/education', requiresAuth: true },
-      { title: 'mobile.app.certificates', icon: '🏆', route: '/education', comingSoon: true },
-      { title: 'mobile.app.research', icon: '🔬', route: '/education', comingSoon: true },
+      { title: 'mobile.app.certificates', icon: '🏆', route: '/education/certificates' },
+      { title: 'mobile.app.research', icon: '🔬', route: '/education/research' },
     ],
   },
 ];
