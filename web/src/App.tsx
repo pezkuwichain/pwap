@@ -64,6 +64,8 @@ const ForumTopic = lazy(() => import('@/pages/ForumTopic'));
 const Telemetry = lazy(() => import('@/pages/Telemetry'));
 const Subdomains = lazy(() => import('@/pages/Subdomains'));
 const Messaging = lazy(() => import('@/pages/Messaging'));
+const TaxZekatPage = lazy(() => import('@/pages/finance/TaxZekatPage'));
+const BankPage = lazy(() => import('@/pages/finance/BankPage'));
 
 // Network pages
 const Mainnet = lazy(() => import('@/pages/networks/Mainnet'));
@@ -226,6 +228,8 @@ function App() {
                                   <DEXDashboard />
                                 </ProtectedRoute>
                               } />
+                              <Route path="/finance/zekat" element={<TaxZekatPage />} />
+                              <Route path="/finance/bank" element={<BankPage />} />
                               <Route path="/presale" element={<Presale />} />
                               <Route path="/launchpad" element={<PresaleList />} />
                               <Route path="/launchpad/:id" element={<PresaleDetail />} />

@@ -53,11 +53,11 @@ const APP_SECTIONS: AppSection[] = [
     borderColor: 'border-l-green-500',
     apps: [
       { title: 'mobile.app.wallet', icon: '👛', route: '/wallet' },
-      { title: 'mobile.app.bank', icon: '🏦', route: '/wallet', comingSoon: true },
+      { title: 'mobile.app.bank', icon: '🏦', route: '/finance/bank' },
       { title: 'mobile.app.exchange', icon: '💱', route: '/dex', requiresAuth: true },
       { title: 'mobile.app.p2p', icon: '🤝', route: '/p2p', requiresAuth: true },
       { title: 'mobile.app.b2b', icon: '🤖', route: '/bereketli', requiresAuth: true },
-      { title: 'mobile.app.bacZekat', icon: '💰', route: '/wallet', comingSoon: true },
+      { title: 'mobile.app.bacZekat', icon: '💰', route: '/finance/zekat' },
       { title: 'mobile.app.launchpad', icon: '🚀', route: '/launchpad' },
     ],
   },
