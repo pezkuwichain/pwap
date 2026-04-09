@@ -66,6 +66,9 @@ const Subdomains = lazy(() => import('@/pages/Subdomains'));
 const Messaging = lazy(() => import('@/pages/Messaging'));
 const TaxZekatPage = lazy(() => import('@/pages/finance/TaxZekatPage'));
 const BankPage = lazy(() => import('@/pages/finance/BankPage'));
+const AssemblyPage = lazy(() => import('@/pages/governance/AssemblyPage'));
+const JusticePage = lazy(() => import('@/pages/governance/JusticePage'));
+const PollsPage = lazy(() => import('@/pages/governance/PollsPage'));
 
 // Network pages
 const Mainnet = lazy(() => import('@/pages/networks/Mainnet'));
@@ -230,6 +233,9 @@ function App() {
                               } />
                               <Route path="/finance/zekat" element={<TaxZekatPage />} />
                               <Route path="/finance/bank" element={<BankPage />} />
+                              <Route path="/governance/assembly" element={<AssemblyPage />} />
+                              <Route path="/governance/justice" element={<JusticePage />} />
+                              <Route path="/governance/polls" element={<PollsPage />} />
                               <Route path="/presale" element={<Presale />} />
                               <Route path="/launchpad" element={<PresaleList />} />
                               <Route path="/launchpad/:id" element={<PresaleDetail />} />
