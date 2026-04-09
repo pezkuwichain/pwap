@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 interface Member {
   id: string;
@@ -37,17 +38,24 @@ const SESSIONS: Session[] = [
   { id: 's4', titleKu: 'Civîna Yasadanînê #11',       title: 'Legislative Session #11',     date: '2026-03-15', status: 'completed', agenda: 'Citizenship criteria, NFT standards, community grants.' },
 ];
 
-const STATUS_CONFIG = {
-  upcoming:   { label: 'Tê / Upcoming',    cls: 'bg-blue-900/50 text-blue-400' },
-  'in-session': { label: 'Niha / In Session', cls: 'bg-green-900/50 text-green-400' },
-  completed:  { label: 'Qediya / Completed', cls: 'bg-gray-800 text-gray-400' },
-};
-
 type Tab = 'members' | 'sessions';
 
 export default function AssemblyPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<Tab>('members');
+
+  const sessionStatusLabel = (status: Session['status']) => {
+    if (status === 'upcoming')   return t('assembly.session.upcoming', 'Upcoming');
+    if (status === 'in-session') return t('assembly.session.inSession', 'In Session');
+    return t('assembly.session.completed', 'Completed');
+  };
+
+  const sessionStatusCls = (status: Session['status']) => {
+    if (status === 'upcoming')   return 'bg-blue-900/50 text-blue-400';
+    if (status === 'in-session') return 'bg-green-900/50 text-green-400';
+    return 'bg-gray-800 text-gray-400';
+  };
 
   return (
     <div className="min-h-screen bg-gray-950 text-white">
@@ -55,18 +63,18 @@ export default function AssemblyPage() {
       <div className="bg-green-700 px-4 pt-4 pb-6">
         <div className="flex items-center gap-3 mb-4">
           <button onClick={() => navigate(-1)} className="text-white/80 hover:text-white text-xl">←</button>
-          <span className="text-sm text-white/70">Governance</span>
+          <span className="text-sm text-white/70">{t('assembly.breadcrumb', 'Governance')}</span>
         </div>
         <div className="text-center">
           <span className="text-5xl block mb-2">🏛️</span>
-          <h1 className="text-2xl font-bold">Meclîsa Kurdistanê</h1>
-          <p className="text-white/70 text-sm mt-0.5">Kurdistan Digital Assembly</p>
+          <h1 className="text-2xl font-bold">{t('assembly.title', 'Kurdistan Digital Assembly')}</h1>
+          <p className="text-white/70 text-sm mt-0.5">{t('assembly.subtitle', 'Kurdistan Digital Assembly')}</p>
         </div>
         <div className="mt-4 flex bg-white/10 rounded-2xl overflow-hidden">
           {[
-            { val: MEMBERS.length, label: 'Endam / Members' },
-            { val: 4,              label: 'Komîte / Committees' },
-            { val: 12,             label: 'Civîn / Sessions' },
+            { val: MEMBERS.length, label: t('assembly.stats.members', 'Members') },
+            { val: 4,              label: t('assembly.stats.committees', 'Committees') },
+            { val: 12,             label: t('assembly.stats.sessions', 'Sessions') },
           ].map((stat, i) => (
             <div key={i} className={`flex-1 py-3 text-center ${i > 0 ? 'border-l border-white/20' : ''}`}>
               <p className="text-xl font-bold text-white">{stat.val}</p>
@@ -87,7 +95,7 @@ export default function AssemblyPage() {
                 activeTab === tab ? 'bg-green-600 text-white' : 'text-gray-400'
               }`}
             >
-              {tab === 'members' ? 'Endam / Members' : 'Civîn / Sessions'}
+              {tab === 'members' ? t('assembly.tab.members', 'Members') : t('assembly.tab.sessions', 'Sessions')}
             </button>
           ))}
         </div>
@@ -103,28 +111,25 @@ export default function AssemblyPage() {
               <p className="text-gray-500 text-xs">{m.role}</p>
               <div className="flex gap-3 mt-1.5 text-xs text-gray-500">
                 <span>📍 {m.region}</span>
-                <span>Ji {m.since}</span>
+                <span>{t('assembly.member.since', 'Since')} {m.since}</span>
               </div>
             </div>
           </div>
         ))}
 
-        {activeTab === 'sessions' && SESSIONS.map(s => {
-          const cfg = STATUS_CONFIG[s.status];
-          return (
-            <div key={s.id} className="bg-gray-900 rounded-xl p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${cfg.cls}`}>
-                  {cfg.label}
-                </span>
-                <span className="text-xs text-gray-500">{s.date}</span>
-              </div>
-              <p className="font-bold text-white">{s.titleKu}</p>
-              <p className="text-gray-400 text-sm mb-2">{s.title}</p>
-              <p className="text-gray-500 text-xs leading-relaxed">{s.agenda}</p>
+        {activeTab === 'sessions' && SESSIONS.map(s => (
+          <div key={s.id} className="bg-gray-900 rounded-xl p-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${sessionStatusCls(s.status)}`}>
+                {sessionStatusLabel(s.status)}
+              </span>
+              <span className="text-xs text-gray-500">{s.date}</span>
             </div>
-          );
-        })}
+            <p className="font-bold text-white">{s.titleKu}</p>
+            <p className="text-gray-400 text-sm mb-2">{s.title}</p>
+            <p className="text-gray-500 text-xs leading-relaxed">{s.agenda}</p>
+          </div>
+        ))}
       </div>
       <div className="h-10" />
     </div>

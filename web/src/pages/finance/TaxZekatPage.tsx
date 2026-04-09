@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 
 type ContributionType = 'zekat' | 'tax';
@@ -25,6 +26,7 @@ const DEFAULT_ALLOCATIONS: AllocationItem[] = [
 
 export default function TaxZekatPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { api, selectedAccount, getKeyPair } = usePezkuwi();
 
   const [contributionType, setContributionType] = useState<ContributionType>('zekat');
@@ -96,7 +98,7 @@ export default function TaxZekatPage() {
           .catch(reject);
       });
 
-      setResult({ ok: true, msg: `${amount} HEZ başarıyla gönderildi. Spas!` });
+      setResult({ ok: true, msg: t('taxZekat.success', '{{amount}} HEZ sent successfully. Thank you!', { amount }) });
       setAmount('');
       setAllocations(DEFAULT_ALLOCATIONS);
       setTermsAccepted(false);
@@ -117,9 +119,9 @@ export default function TaxZekatPage() {
         <button onClick={() => navigate(-1)} className="text-white/80 hover:text-white text-xl leading-none">←</button>
         <div>
           <h1 className="font-bold text-lg">
-            {isZekat ? '🤲 Zekat' : '📜 Bac / Tax'}
+            {isZekat ? '🤲 Zekat' : `📜 ${t('taxZekat.title', 'Tax & Zekat')}`}
           </h1>
-          <p className="text-white/70 text-xs">Komara Dijîtal a Kurdistanê</p>
+          <p className="text-white/70 text-xs">{t('taxZekat.subtitle', 'Digital Kurdistan Republic')}</p>
         </div>
       </div>
 
@@ -135,31 +137,28 @@ export default function TaxZekatPage() {
         {/* Description */}
         <div className="bg-gray-900 rounded-xl p-4 border-l-4" style={{ borderColor: accentColor }}>
           <p className="text-sm text-gray-200 leading-relaxed">
-            Beşdariya xwe ya bi dilxwazî ji Komara Dijîtaliya Kurdistanê re bişînin.
-          </p>
-          <p className="text-xs text-gray-400 mt-1 italic">
-            Send your voluntary contribution to the Digital Kurdistan Republic.
+            {t('taxZekat.desc', 'Send your voluntary contribution to the Digital Kurdistan Republic.')}
           </p>
         </div>
 
         {/* Type selector */}
         <div className="bg-gray-900 rounded-xl p-4">
-          <p className="text-sm font-bold text-gray-300 mb-3">Cureyê Beşdariyê / Contribution Type</p>
+          <p className="text-sm font-bold text-gray-300 mb-3">{t('taxZekat.type.label', 'Contribution Type')}</p>
           <div className="grid grid-cols-2 gap-3">
             {(['zekat', 'tax'] as ContributionType[]).map(type => (
               <button
                 key={type}
                 onClick={() => setContributionType(type)}
                 className={`rounded-xl p-4 text-center border-2 transition-all ${
-                  contributionType === type
-                    ? 'border-current bg-white/5'
-                    : 'border-gray-700 bg-gray-800/50'
+                  contributionType === type ? 'border-current bg-white/5' : 'border-gray-700 bg-gray-800/50'
                 }`}
                 style={{ borderColor: contributionType === type ? accentColor : undefined }}
               >
                 <div className="text-3xl mb-1">{type === 'zekat' ? '🤲' : '📜'}</div>
                 <p className="font-bold text-white">{type === 'zekat' ? 'Zekat' : 'Bac'}</p>
-                <p className="text-xs text-gray-400">{type === 'zekat' ? 'Islamic Zekat' : 'Vergi / Tax'}</p>
+                <p className="text-xs text-gray-400">
+                  {type === 'zekat' ? t('taxZekat.type.zekatSub', 'Islamic Zekat') : t('taxZekat.type.taxSub', 'Tax')}
+                </p>
               </button>
             ))}
           </div>
@@ -167,7 +166,7 @@ export default function TaxZekatPage() {
 
         {/* Amount */}
         <div className="bg-gray-900 rounded-xl p-4">
-          <p className="text-sm font-bold text-gray-300 mb-3">Miqdar / Amount</p>
+          <p className="text-sm font-bold text-gray-300 mb-3">{t('taxZekat.amount.label', 'Amount')}</p>
           <div className="flex items-center bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
             <input
               type="number"
@@ -179,14 +178,14 @@ export default function TaxZekatPage() {
             <span className="pr-4 text-lg font-bold" style={{ color: accentColor }}>HEZ</span>
           </div>
           {!selectedAccount && (
-            <p className="text-xs text-amber-400 mt-2">⚠️ Cüzdan bağlı değil / Wallet not connected</p>
+            <p className="text-xs text-amber-400 mt-2">{t('taxZekat.walletNotConnected', '⚠️ Wallet not connected')}</p>
           )}
         </div>
 
         {/* Allocation */}
         <div className="bg-gray-900 rounded-xl p-4">
           <div className="flex items-center justify-between mb-1">
-            <p className="text-sm font-bold text-gray-300">Dabeşkirina Fonê / Fund Allocation</p>
+            <p className="text-sm font-bold text-gray-300">{t('taxZekat.allocation.title', 'Fund Allocation')}</p>
             <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
               totalPercentage === 100 ? 'bg-green-900 text-green-400' :
               totalPercentage > 100 ? 'bg-red-900 text-red-400' : 'bg-gray-800 text-gray-400'
@@ -194,7 +193,7 @@ export default function TaxZekatPage() {
               {totalPercentage}%
             </span>
           </div>
-          <p className="text-xs text-gray-500 mb-3">Divê bêkêmasî %100 be / Must equal exactly 100%</p>
+          <p className="text-xs text-gray-500 mb-3">{t('taxZekat.allocation.desc', 'Must equal exactly 100%')}</p>
 
           <div className="space-y-2">
             {allocations.map(item => (
@@ -231,31 +230,23 @@ export default function TaxZekatPage() {
           style={{ borderColor: isZekat ? '#00A94F30' : '#D4A01730' }}>
           <div className="text-center mb-3">
             <span className="text-4xl">{isZekat ? '🤲' : '📜'}</span>
-            <p className="font-bold text-white mt-2">SOZNAME / COMMITMENT</p>
+            <p className="font-bold text-white mt-2">{t('taxZekat.commitment.title', 'COMMITMENT')}</p>
           </div>
-          {isZekat ? (
-            <p className="text-xs text-gray-400 leading-relaxed">
-              Komara Dîjîtal a Kurdistanê SOZ DIDE ku zekata we BI TEMAMÎ li gorî rêjeyên ku we destnîşan kirine dê bê xerckirin, li gorî rêgez û qaîdeyên Îslamî.
-              <br /><br />
-              <span className="text-gray-500">The Digital Republic of Kurdistan COMMITS to spending your zekat EXACTLY according to the ratios you specify, in accordance with Islamic principles.</span>
-            </p>
-          ) : (
-            <p className="text-xs text-gray-400 leading-relaxed">
-              Komara Dîjîtal a Kurdistanê SOZ DIDE ku beşdariyên baca we BI QASÎ KU MIMKUN BE li gorî rêjeyên ku we destnîşan kirine dê bê xerckirin. Hemû lêçûn dê bi şefafî li ser blockchain werin tomar kirin.
-              <br /><br />
-              <span className="text-gray-500">The Digital Republic of Kurdistan COMMITS to using your tax contributions AS CLOSELY AS POSSIBLE according to the ratios you specify. All expenses will be transparently recorded on the blockchain.</span>
-            </p>
-          )}
+          <p className="text-xs text-gray-400 leading-relaxed">
+            {isZekat
+              ? t('taxZekat.commitment.zekat', 'The Digital Republic of Kurdistan COMMITS to spending your zekat EXACTLY according to the ratios you specify, in accordance with Islamic principles.')
+              : t('taxZekat.commitment.tax', 'The Digital Republic of Kurdistan COMMITS to using your tax contributions AS CLOSELY AS POSSIBLE according to the ratios you specify. All expenses will be transparently recorded on the blockchain.')}
+          </p>
 
           <button
             onClick={() => setTermsAccepted(!termsAccepted)}
             className="flex items-center gap-3 mt-4 w-full bg-gray-800 rounded-xl p-3"
           >
-            <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-colors`}
+            <div className="w-6 h-6 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-colors"
               style={{ borderColor: accentColor, backgroundColor: termsAccepted ? accentColor : 'transparent' }}>
               {termsAccepted && <span className="text-white text-xs font-bold">✓</span>}
             </div>
-            <span className="text-sm text-gray-300 text-left">Min xwend û qebûl dikim / I have read and accept</span>
+            <span className="text-sm text-gray-300 text-left">{t('taxZekat.accept', 'I have read and accept')}</span>
           </button>
         </div>
 
@@ -267,8 +258,10 @@ export default function TaxZekatPage() {
           style={{ backgroundColor: accentColor }}
         >
           {isSubmitting
-            ? '⏳ Tê şandin...'
-            : isZekat ? '🤲 ZEKAT BIŞÎNE' : '📤 BAC BIŞÎNE'}
+            ? t('taxZekat.submitting', '⏳ Sending...')
+            : isZekat
+              ? t('taxZekat.submit.zekat', '🤲 SEND ZEKAT')
+              : t('taxZekat.submit.tax', '📤 SEND TAX')}
         </button>
 
         <div className="h-6" />
@@ -278,19 +271,19 @@ export default function TaxZekatPage() {
       {showConfirm && (
         <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
           <div className="bg-gray-900 rounded-2xl p-6 w-full max-w-sm border border-gray-700">
-            <h3 className="text-lg font-bold text-white text-center mb-4">Piştrast bike / Confirm</h3>
+            <h3 className="text-lg font-bold text-white text-center mb-4">{t('taxZekat.confirm.title', 'Confirm')}</h3>
 
             <div className="bg-gray-800 rounded-xl p-4 space-y-2 mb-4 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-400">Cure / Type:</span>
+                <span className="text-gray-400">{t('taxZekat.confirm.type', 'Type')}:</span>
                 <span className="text-white font-semibold">{isZekat ? 'Zekat' : 'Bac / Tax'}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">Miqdar / Amount:</span>
+                <span className="text-gray-400">{t('taxZekat.confirm.amount', 'Amount')}:</span>
                 <span className="font-bold" style={{ color: accentColor }}>{amount} HEZ</span>
               </div>
               <div className="border-t border-gray-700 pt-2 mt-2">
-                <p className="text-gray-400 text-xs mb-2">Dabeşkirin / Allocation:</p>
+                <p className="text-gray-400 text-xs mb-2">{t('taxZekat.confirm.allocation', 'Allocation')}:</p>
                 {allocations.filter(a => a.percentage > 0).map(a => (
                   <div key={a.id} className="flex justify-between text-xs py-0.5">
                     <span className="text-gray-300">{a.icon} {a.nameKu}</span>
@@ -305,14 +298,14 @@ export default function TaxZekatPage() {
                 onClick={() => setShowConfirm(false)}
                 className="py-3 rounded-xl bg-gray-800 text-gray-300 font-semibold"
               >
-                Betal / Cancel
+                {t('taxZekat.confirm.cancel', 'Cancel')}
               </button>
               <button
                 onClick={confirmAndSend}
                 className="py-3 rounded-xl text-white font-bold"
                 style={{ backgroundColor: accentColor }}
               >
-                ✓ Piştrast
+                ✓ {t('taxZekat.confirm.confirm', 'Confirm')}
               </button>
             </div>
           </div>

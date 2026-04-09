@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 interface DisputeCase {
   id: string;
@@ -45,14 +46,9 @@ const CASES: DisputeCase[] = [
   },
 ];
 
-const STATUS_CONFIG = {
-  'open':      { label: 'Vekirî / Open',               cls: 'bg-red-900/50 text-red-400',    dot: 'bg-red-400' },
-  'in-review': { label: 'Di lêkolînê de / In Review',  cls: 'bg-yellow-900/50 text-yellow-400', dot: 'bg-yellow-400' },
-  'resolved':  { label: 'Çareserkirî / Resolved',      cls: 'bg-green-900/50 text-green-400', dot: 'bg-green-400' },
-};
-
 export default function JusticePage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [expanded, setExpanded] = useState<string | null>(null);
 
   const counts = {
@@ -61,18 +57,30 @@ export default function JusticePage() {
     resolved: CASES.filter(c => c.status === 'resolved').length,
   };
 
+  const statusLabel = (status: DisputeCase['status']) => {
+    if (status === 'open')      return t('justice.status.open', 'Open');
+    if (status === 'in-review') return t('justice.status.inReview', 'In Review');
+    return t('justice.status.resolved', 'Resolved');
+  };
+
+  const statusCls = (status: DisputeCase['status']) => {
+    if (status === 'open')      return 'bg-red-900/50 text-red-400';
+    if (status === 'in-review') return 'bg-yellow-900/50 text-yellow-400';
+    return 'bg-green-900/50 text-green-400';
+  };
+
   return (
     <div className="min-h-screen bg-gray-950 text-white">
       {/* Header */}
       <div className="bg-green-700 px-4 pt-4 pb-5">
         <div className="flex items-center gap-3 mb-4">
           <button onClick={() => navigate(-1)} className="text-white/80 hover:text-white text-xl">←</button>
-          <span className="text-sm text-white/70">Governance</span>
+          <span className="text-sm text-white/70">{t('justice.breadcrumb', 'Governance')}</span>
         </div>
         <div className="text-center">
           <span className="text-5xl block mb-2">⚖️</span>
-          <h1 className="text-2xl font-bold">Dadwerî</h1>
-          <p className="text-white/70 text-sm mt-0.5">Justice & Dispute Resolution</p>
+          <h1 className="text-2xl font-bold">{t('justice.title', 'Justice & Dispute Resolution')}</h1>
+          <p className="text-white/70 text-sm mt-0.5">{t('justice.subtitle', 'Justice & Dispute Resolution')}</p>
         </div>
       </div>
 
@@ -80,39 +88,35 @@ export default function JusticePage() {
         {/* Stats */}
         <div className="grid grid-cols-3 gap-3">
           {[
-            { label: 'Vekirî\nOpen',        val: counts['open'],      color: 'border-l-red-500' },
-            { label: 'Lêkolîn\nIn Review',  val: counts['in-review'], color: 'border-l-yellow-500' },
-            { label: 'Çareser\nResolved',   val: counts['resolved'],  color: 'border-l-green-500' },
+            { label: t('justice.stats.open', 'Open'),      val: counts['open'],      color: 'border-l-red-500' },
+            { label: t('justice.stats.inReview', 'In Review'), val: counts['in-review'], color: 'border-l-yellow-500' },
+            { label: t('justice.stats.resolved', 'Resolved'),  val: counts['resolved'],  color: 'border-l-green-500' },
           ].map((s, i) => (
             <div key={i} className={`bg-gray-900 rounded-xl p-4 text-center border-l-4 ${s.color}`}>
               <p className="text-2xl font-bold text-white">{s.val}</p>
-              <p className="text-[10px] text-gray-400 mt-1 whitespace-pre-line leading-tight">{s.label}</p>
+              <p className="text-[10px] text-gray-400 mt-1 leading-tight">{s.label}</p>
             </div>
           ))}
         </div>
 
         {/* Info */}
         <div className="bg-gray-900 rounded-xl p-4 border-l-4 border-l-green-600">
-          <p className="font-bold text-white text-sm mb-2">Çareserkirina Nakokiyan / Dispute Resolution</p>
+          <p className="font-bold text-white text-sm mb-2">{t('justice.info.title', 'Dispute Resolution')}</p>
           <p className="text-xs text-gray-400 leading-relaxed">
-            Sîstema dadweriya dijîtal a Kurdistanê nakokiyên di navbera welatiyên dijîtal de bi awayekî adil û zelal çareser dike. Hemû biryar li ser blockchain tên tomarkirin.
-          </p>
-          <p className="text-xs text-gray-500 mt-2 leading-relaxed italic">
-            Kurdistan&apos;s digital justice system resolves disputes between digital citizens fairly and transparently. All decisions are recorded on the blockchain.
+            {t('justice.info.body', "Kurdistan's digital justice system resolves disputes between digital citizens fairly and transparently. All decisions are recorded on the blockchain.")}
           </p>
         </div>
 
         {/* Cases */}
-        <h2 className="font-bold text-white text-base pt-1">Dozên Dawî / Recent Cases</h2>
+        <h2 className="font-bold text-white text-base pt-1">{t('justice.cases.title', 'Recent Cases')}</h2>
         {CASES.map(c => {
-          const cfg = STATUS_CONFIG[c.status];
           const isOpen = expanded === c.id;
           return (
             <div key={c.id} className="bg-gray-900 rounded-xl p-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-blue-400 text-xs font-semibold">{c.caseNumber}</span>
-                <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${cfg.cls}`}>
-                  {cfg.label}
+                <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${statusCls(c.status)}`}>
+                  {statusLabel(c.status)}
                 </span>
               </div>
               <p className="font-bold text-white">{c.titleKu}</p>
@@ -127,9 +131,9 @@ export default function JusticePage() {
                   <p className="text-sm text-gray-300 leading-relaxed">{c.description}</p>
                   {c.resolution && (
                     <div className="bg-green-900/20 border border-green-800/50 rounded-xl p-3">
-                      <p className="text-green-400 text-xs font-bold mb-1">Biryar / Resolution:</p>
+                      <p className="text-green-400 text-xs font-bold mb-1">{t('justice.case.resolution', 'Resolution')}:</p>
                       <p className="text-gray-300 text-xs leading-relaxed">{c.resolution}</p>
-                      <p className="text-gray-500 text-xs mt-2">Dîroka çareseriyê: {c.resolvedDate}</p>
+                      <p className="text-gray-500 text-xs mt-2">{t('justice.case.resolvedDate', 'Resolution date')}: {c.resolvedDate}</p>
                     </div>
                   )}
                 </div>
@@ -139,7 +143,7 @@ export default function JusticePage() {
                 onClick={() => setExpanded(isOpen ? null : c.id)}
                 className="mt-2 text-green-400 text-xs font-medium w-full text-center"
               >
-                {isOpen ? '▲ Kêmtir' : '▼ Bêtir'}
+                {isOpen ? t('justice.case.less', '▲ Less') : t('justice.case.more', '▼ More')}
               </button>
             </div>
           );

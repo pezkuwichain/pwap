@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 interface PollOption {
   id: string;
@@ -41,9 +42,9 @@ const INITIAL_POLLS: Poll[] = [
     description: 'Proposal to reduce transaction fees by 50% for the next quarter.',
     status: 'active', totalVotes: 521, endsAt: '2026-04-15',
     options: [
-      { id: '2a', text: 'Ere / Yes',        votes: 389 },
-      { id: '2b', text: 'Na / No',          votes: 87 },
-      { id: '2c', text: 'Bêalî / Abstain',  votes: 45 },
+      { id: '2a', text: 'Yes',     votes: 389 },
+      { id: '2b', text: 'No',      votes: 87 },
+      { id: '2c', text: 'Abstain', votes: 45 },
     ],
     userVoted: null,
   },
@@ -54,10 +55,10 @@ const INITIAL_POLLS: Poll[] = [
     description: 'Allocate 5% of treasury funds for a community education scholarship.',
     status: 'active', totalVotes: 198, endsAt: '2026-04-25',
     options: [
-      { id: '3a', text: 'Ere, 5% / Yes, 5%', votes: 112 },
-      { id: '3b', text: 'Ere, 3% / Yes, 3%', votes: 48 },
-      { id: '3c', text: 'Na / No',            votes: 23 },
-      { id: '3d', text: 'Bêalî / Abstain',    votes: 15 },
+      { id: '3a', text: 'Yes, 5%', votes: 112 },
+      { id: '3b', text: 'Yes, 3%', votes: 48 },
+      { id: '3c', text: 'No',      votes: 23 },
+      { id: '3d', text: 'Abstain', votes: 15 },
     ],
     userVoted: null,
   },
@@ -78,6 +79,7 @@ const INITIAL_POLLS: Poll[] = [
 
 export default function PollsPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [polls, setPolls] = useState<Poll[]>(INITIAL_POLLS);
 
   const handleVote = (pollId: string, optionId: string) => {
@@ -112,9 +114,9 @@ export default function PollsPage() {
           <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
             poll.status === 'active' ? 'bg-green-900/50 text-green-400' : 'bg-gray-800 text-gray-400'
           }`}>
-            {poll.status === 'active' ? 'Çalak / Active' : 'Qediya / Ended'}
+            {poll.status === 'active' ? t('polls.status.active', 'Active') : t('polls.status.ended', 'Ended')}
           </span>
-          <span className="text-xs text-gray-500">{poll.totalVotes} deng</span>
+          <span className="text-xs text-gray-500">{poll.totalVotes} {t('polls.votes', 'votes')}</span>
         </div>
 
         <p className="font-bold text-white mb-0.5">{poll.titleKu}</p>
@@ -164,7 +166,9 @@ export default function PollsPage() {
         </div>
 
         <p className="text-xs text-gray-600 mt-3 text-right">
-          {poll.status === 'active' ? `Dawî: ${poll.endsAt}` : `Qediya: ${poll.endsAt}`}
+          {poll.status === 'active'
+            ? `${t('polls.ends', 'Ends')}: ${poll.endsAt}`
+            : `${t('polls.ended', 'Ended')}: ${poll.endsAt}`}
         </p>
       </div>
     );
@@ -176,26 +180,28 @@ export default function PollsPage() {
       <div className="bg-green-700 px-4 pt-4 pb-5">
         <div className="flex items-center gap-3 mb-4">
           <button onClick={() => navigate(-1)} className="text-white/80 hover:text-white text-xl">←</button>
-          <span className="text-sm text-white/70">Governance</span>
+          <span className="text-sm text-white/70">{t('polls.breadcrumb', 'Governance')}</span>
         </div>
         <div className="text-center">
           <span className="text-5xl block mb-2">📊</span>
-          <h1 className="text-2xl font-bold">Rapirsî</h1>
-          <p className="text-white/70 text-sm mt-0.5">Community Polls</p>
-          <p className="text-yellow-400 text-sm font-semibold mt-2">{activePolls.length} çalak / active</p>
+          <h1 className="text-2xl font-bold">{t('polls.title', 'Community Polls')}</h1>
+          <p className="text-white/70 text-sm mt-0.5">{t('polls.subtitle', 'Community Polls')}</p>
+          <p className="text-yellow-400 text-sm font-semibold mt-2">
+            {t('polls.active.count', '{{count}} active', { count: activePolls.length })}
+          </p>
         </div>
       </div>
 
       <div className="px-4 py-4 space-y-4 max-w-lg mx-auto">
         {activePolls.length > 0 && (
           <div className="space-y-3">
-            <h2 className="font-bold text-white text-base">Rapirsiyên Çalak / Active Polls</h2>
+            <h2 className="font-bold text-white text-base">{t('polls.section.active', 'Active Polls')}</h2>
             {activePolls.map(renderPoll)}
           </div>
         )}
         {endedPolls.length > 0 && (
           <div className="space-y-3">
-            <h2 className="font-bold text-white text-base">Rapirsiyên Qediyayî / Ended Polls</h2>
+            <h2 className="font-bold text-white text-base">{t('polls.section.ended', 'Ended Polls')}</h2>
             {endedPolls.map(renderPoll)}
           </div>
         )}
