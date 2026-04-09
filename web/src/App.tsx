@@ -69,6 +69,7 @@ const BankPage = lazy(() => import('@/pages/finance/BankPage'));
 const AssemblyPage = lazy(() => import('@/pages/governance/AssemblyPage'));
 const JusticePage = lazy(() => import('@/pages/governance/JusticePage'));
 const PollsPage = lazy(() => import('@/pages/governance/PollsPage'));
+const WhatsKURDPage = lazy(() => import('@/pages/social/WhatsKURDPage'));
 
 // Network pages
 const Mainnet = lazy(() => import('@/pages/networks/Mainnet'));
@@ -236,6 +237,7 @@ function App() {
                               <Route path="/governance/assembly" element={<AssemblyPage />} />
                               <Route path="/governance/justice" element={<JusticePage />} />
                               <Route path="/governance/polls" element={<PollsPage />} />
+                              <Route path="/social/whatskurd" element={<WhatsKURDPage />} />
                               <Route path="/presale" element={<Presale />} />
                               <Route path="/launchpad" element={<PresaleList />} />
                               <Route path="/launchpad/:id" element={<PresaleDetail />} />

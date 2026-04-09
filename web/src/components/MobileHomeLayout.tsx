@@ -81,7 +81,7 @@ const APP_SECTIONS: AppSection[] = [
     emoji: '💬',
     borderColor: 'border-l-blue-500',
     apps: [
-      { title: 'mobile.app.whatsKurd', icon: '💬', route: '/message', comingSoon: true },
+      { title: 'mobile.app.whatsKurd', icon: '💬', route: '/social/whatskurd' },
       { title: 'mobile.app.forum', icon: '📰', route: '/forum' },
       { title: 'mobile.app.kurdMedia', icon: '📺', route: '/forum', comingSoon: true },
       { title: 'mobile.app.events', icon: '📅', route: '/forum', comingSoon: true },
