@@ -3774,6 +3774,7 @@ export default {
   'mobile.app.wallet': 'جزدان',
   'mobile.app.bank': 'بانک',
   'mobile.app.exchange': 'ئاڵوگۆڕ',
+  'mobile.app.dex': 'Pez-DEX',
   'mobile.app.p2p': 'P2P',
   'mobile.app.b2b': 'B2B',
   'mobile.app.bacZekat': 'باج/زەکات',

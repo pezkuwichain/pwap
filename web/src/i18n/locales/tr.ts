@@ -3804,6 +3804,7 @@ export default {
   'mobile.app.wallet': 'Cüzdan',
   'mobile.app.bank': 'Banka',
   'mobile.app.exchange': 'Borsa',
+  'mobile.app.dex': 'Pez-DEX',
   'mobile.app.p2p': 'P2P',
   'mobile.app.b2b': 'B2B',
   'mobile.app.bacZekat': 'Vergi/Zekat',

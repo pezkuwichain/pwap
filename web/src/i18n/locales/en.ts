@@ -3836,6 +3836,7 @@ export default {
   'mobile.app.wallet': 'Wallet',
   'mobile.app.bank': 'Bank',
   'mobile.app.exchange': 'Exchange',
+  'mobile.app.dex': 'Pez-DEX',
   'mobile.app.p2p': 'P2P',
   'mobile.app.b2b': 'B2B',
   'mobile.app.bacZekat': 'Bac/Zekat',

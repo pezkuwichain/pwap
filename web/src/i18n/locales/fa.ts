@@ -3818,6 +3818,7 @@ export default {
   'mobile.app.wallet': 'کیف پول',
   'mobile.app.bank': 'بانک',
   'mobile.app.exchange': 'صرافی',
+  'mobile.app.dex': 'Pez-DEX',
   'mobile.app.p2p': 'P2P',
   'mobile.app.b2b': 'B2B',
   'mobile.app.bacZekat': 'مالیات/زکات',
