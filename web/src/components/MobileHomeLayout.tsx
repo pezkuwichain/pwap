@@ -33,7 +33,9 @@ const getEmojiFromAvatarId = (avatarId: string): string => {
 interface AppItem {
   title: string;
   icon: string;
+  imgIcon?: string;      // image path instead of emoji
   route: string;
+  href?: string;         // external URL (opens in new tab)
   comingSoon?: boolean;
   requiresAuth?: boolean;
 }
@@ -54,7 +56,7 @@ const APP_SECTIONS: AppSection[] = [
     apps: [
       { title: 'mobile.app.wallet', icon: '👛', route: '/wallet' },
       { title: 'mobile.app.bank', icon: '🏦', route: '/finance/bank' },
-      { title: 'mobile.app.exchange', icon: '💱', route: '/dex', requiresAuth: true },
+      { title: 'mobile.app.exchange', icon: '💱', imgIcon: '/PezkuwiExchange.png', route: '/dex', href: 'https://exchange.pezkuwichain.io' },
       { title: 'mobile.app.p2p', icon: '🤝', route: '/p2p', requiresAuth: true },
       { title: 'mobile.app.b2b', icon: '🤖', route: '/bereketli', requiresAuth: true },
       { title: 'mobile.app.bacZekat', icon: '💰', route: '/finance/zekat' },
@@ -292,19 +294,31 @@ const MobileHomeLayout: React.FC = () => {
             <div className="grid grid-cols-4 gap-1 px-3 py-3">
               {section.apps.map((app) => {
                 const needsLogin = app.requiresAuth && !user;
+
+                function handleClick() {
+                  if (app.comingSoon) return;
+                  if (needsLogin) { navigate('/login'); return; }
+                  if (app.href) { window.open(app.href, '_blank', 'noopener,noreferrer'); return; }
+                  navigate(app.route);
+                }
+
                 return (
                   <button
                     key={app.title}
-                    onClick={() => {
-                      if (app.comingSoon) return;
-                      if (needsLogin) { navigate('/login'); return; }
-                      navigate(app.route);
-                    }}
+                    onClick={handleClick}
                     className={`flex flex-col items-center gap-1 py-2 px-1 rounded-xl transition-all active:scale-95
                       ${app.comingSoon ? 'opacity-50' : 'hover:bg-gray-800/60'}`}
                   >
                     <div className="relative">
-                      <span className="text-2xl">{app.icon}</span>
+                      {app.imgIcon ? (
+                        <img
+                          src={app.imgIcon}
+                          alt={t(app.title)}
+                          className="w-8 h-8 object-contain rounded-lg"
+                        />
+                      ) : (
+                        <span className="text-2xl">{app.icon}</span>
+                      )}
                       {app.comingSoon && (
                         <span className="absolute -top-1 -right-2 text-[10px]">🔒</span>
                       )}
