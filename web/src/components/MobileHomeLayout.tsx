@@ -7,7 +7,7 @@ import { supabase } from '@/lib/supabase';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { PezkuwiWalletButton } from './PezkuwiWalletButton';
 import NotificationBell from './notifications/NotificationBell';
-import { fetchUserTikis, getPrimaryRole, getTikiDisplayName, getTikiEmoji } from '@pezkuwi/lib/tiki';
+import { fetchUserTikis, getPrimaryRole, getTikiDisplayName, getTikiEmoji, getCitizenNFTDetails, generateCitizenNumber } from '@pezkuwi/lib/tiki';
 import { getAllScores, type UserScores } from '@pezkuwi/lib/scores';
 import { getKycStatus } from '@pezkuwi/lib/kyc';
 
@@ -127,6 +127,7 @@ const MobileHomeLayout: React.FC = () => {
     trustScore: 0, referralScore: 0, stakingScore: 0, tikiScore: 0, totalScore: 0,
   });
   const [kycStatus, setKycStatus] = useState<string>('NotStarted');
+  const [citizenId, setCitizenId] = useState<string | null>(null);
   const [loadingScores, setLoadingScores] = useState(false);
 
   const fetchProfile = useCallback(async () => {
@@ -153,6 +154,13 @@ const MobileHomeLayout: React.FC = () => {
       setTikis(userTikis);
       setScores(allScores);
       setKycStatus(status);
+      if (userTikis.includes('Welati')) {
+        const nft = await getCitizenNFTDetails(peopleApi, selectedAccount.address);
+        if (nft) {
+          const sixDigit = generateCitizenNumber(selectedAccount.address, nft.collectionId, nft.itemId);
+          setCitizenId(`#${nft.collectionId}-${nft.itemId}-${sixDigit}`);
+        }
+      }
     } catch { /* blockchain fetch is best-effort */ }
     finally { setLoadingScores(false); }
   }, [selectedAccount, peopleApi, isPeopleReady]);
@@ -240,7 +248,7 @@ const MobileHomeLayout: React.FC = () => {
             )}
             {/* Role - always visible, shows Visitor for guests */}
             <ScoreCard icon={getTikiEmoji(primaryRole)} label={t('mobile.role', 'Role')} value={getTikiDisplayName(primaryRole)}
-              sub={!user ? t('mobile.loginToSeeRoles', 'Login to see roles') : selectedAccount ? `${tikis.length} ${tikis.length === 1 ? 'role' : 'roles'}` : t('mobile.connectWallet', 'Connect wallet')}
+              sub={!user ? t('mobile.loginToSeeRoles', 'Login to see roles') : citizenId ? citizenId : selectedAccount ? `${tikis.length} ${tikis.length === 1 ? 'role' : 'roles'}` : t('mobile.connectWallet', 'Connect wallet')}
               color="border-l-orange-500" />
             {/* Total Score */}
             <ScoreCard icon="🏆" label={t('mobile.totalScore', 'Total Score')}
@@ -269,13 +277,13 @@ const MobileHomeLayout: React.FC = () => {
               action={!user ? { label: t('nav.login', 'Login'), onClick: () => navigate('/login') } : undefined} />
             {/* KYC Status */}
             <ScoreCard
-              icon={!user ? '📝' : kycStatus === 'Approved' ? '✅' : kycStatus === 'Pending' ? '⏳' : '📝'}
+              icon={!user ? '📝' : tikis.includes('Welati') ? '🌿' : kycStatus === 'Approved' ? '✅' : kycStatus === 'Pending' ? '⏳' : '📝'}
               label={t('mobile.kycStatus', 'KYC Status')}
-              value={!user ? '—' : kycStatus}
-              color={kycStatus === 'Approved' ? 'border-l-green-500' : 'border-l-yellow-500'}
+              value={!user ? '—' : tikis.includes('Welati') ? 'Welati' : kycStatus}
+              color={tikis.includes('Welati') ? 'border-l-green-500' : kycStatus === 'Approved' ? 'border-l-green-500' : 'border-l-yellow-500'}
               action={!user
                 ? { label: t('nav.login', 'Login'), onClick: () => navigate('/login') }
-                : kycStatus === 'NotStarted'
+                : !tikis.includes('Welati') && kycStatus === 'NotStarted'
                   ? { label: t('mobile.apply', 'Apply'), onClick: () => navigate('/be-citizen') }
                   : undefined}
             />
