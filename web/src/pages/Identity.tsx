@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useIsMobile } from '@/hooks/use-mobile';
 import MobileShell from '@/components/MobileShell';
-import { usePezkuwi } from '@/contexts/PezkuwiContext';
+import { useDashboard } from '@/contexts/DashboardContext';
 import { Save, CreditCard, BookOpen, Camera } from 'lucide-react';
 
 // ── Types ──
@@ -61,7 +61,7 @@ export default function Identity() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const { selectedAccount } = usePezkuwi();
+  const { citizenNumber: nftCitizenNumber } = useDashboard();
   const [tab, setTab] = useState<'id' | 'passport'>('id');
   const [data, setData] = useState<IdentityData>(DEFAULT_DATA);
   const [saved, setSaved] = useState(false);
@@ -74,17 +74,16 @@ export default function Identity() {
     } catch { /* ignore */ }
   }, []);
 
-  // Auto-fill citizen number from wallet
+  // Sync citizen number from role card NFT
   useEffect(() => {
-    if (selectedAccount && !data.citizenNumber) {
-      const short = selectedAccount.address.slice(-8).toUpperCase();
+    if (nftCitizenNumber && nftCitizenNumber !== 'N/A') {
       setData(prev => ({
         ...prev,
-        citizenNumber: short,
-        passportNumber: generatePassportNo(short),
+        citizenNumber: nftCitizenNumber,
+        passportNumber: generatePassportNo(nftCitizenNumber),
       }));
     }
-  }, [selectedAccount, data.citizenNumber]);
+  }, [nftCitizenNumber]);
 
   const photoInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -230,7 +229,8 @@ export default function Identity() {
           </div>
 
           <FormField label={t('identity.citizenNo', 'Citizen Number')} value={data.citizenNumber}
-            onChange={v => handleChange('citizenNumber', v)} placeholder="KRD-000000" />
+            onChange={v => handleChange('citizenNumber', v)} placeholder="KRD-000000"
+            readOnly={!!(nftCitizenNumber && nftCitizenNumber !== 'N/A')} />
 
           {/* Save button */}
           <button
@@ -454,8 +454,8 @@ function PassField({ label, value, bold, mono }: { label: string; value: string;
   );
 }
 
-function FormField({ label, value, onChange, placeholder, type = 'text' }: {
-  label: string; value: string; onChange: (v: string) => void; placeholder?: string; type?: string;
+function FormField({ label, value, onChange, placeholder, type = 'text', readOnly }: {
+  label: string; value: string; onChange: (v: string) => void; placeholder?: string; type?: string; readOnly?: boolean;
 }) {
   return (
     <div>
@@ -465,7 +465,9 @@ function FormField({ label, value, onChange, placeholder, type = 'text' }: {
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:border-green-500 focus:outline-none transition-colors"
+        readOnly={readOnly}
+        className={`w-full bg-gray-800 border rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none transition-colors
+          ${readOnly ? 'border-gray-600 text-gray-400 cursor-default' : 'border-gray-700 focus:border-green-500'}`}
       />
     </div>
   );
