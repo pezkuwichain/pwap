@@ -1,0 +1,28 @@
+appId: io.pezkuwichain.wallet
+name: "E2E: Settings & Network Switch"
+---
+# From wallet screen
+- assertVisible: "HEZ"
+
+# Tap network selector
+- tapOn:
+    text: "Pezkuwi Mainnet"
+    optional: true
+
+# Network selector modal should open
+- assertVisible:
+    text: "Select Network"
+    optional: true
+
+# Networks should be listed
+- assertVisible:
+    text: "Pezkuwi Mainnet"
+    optional: true
+- assertVisible:
+    text: "Dicle Testnet"
+    optional: true
+
+# Close without changing
+- tapOn:
+    text: "Close"
+    optional: true

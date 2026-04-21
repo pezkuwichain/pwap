@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["pezpallet_for_origin","pezpallet_with_custom_origin","pezpallet_with_external_origin","runtime_for_external_origin","runtime_for_origin"]};

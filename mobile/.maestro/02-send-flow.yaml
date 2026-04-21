@@ -1,0 +1,35 @@
+appId: io.pezkuwichain.wallet
+name: "E2E: Send Transaction Flow"
+---
+# Wallet Screen
+- assertVisible: "HEZ"
+
+# Tap Send button
+- tapOn:
+    text: "Send"
+    index: 0
+
+# Send Screen
+- assertVisible: "Recipient Address"
+- assertVisible: "Amount"
+
+# Enter recipient address
+- tapOn:
+    id: "Recipient wallet address"
+- inputText: "5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty"
+
+# Enter amount
+- tapOn:
+    id: "Amount of HEZ to send"
+- inputText: "0.001"
+
+# Fee should appear
+- assertVisible:
+    text: "Estimated Fee"
+    optional: true
+
+# Send button should be enabled
+- assertVisible: "Send HEZ"
+
+# Go back (don't actually send in E2E test)
+- back

@@ -31,7 +31,8 @@ import { getKycStatus } from '../../shared/lib/kyc';
 
 // Existing Quick Action Images (Reused)
 import qaEducation from '../../../shared/images/quick-actions/qa_education.png';
-import qaExchange from '../../../shared/images/quick-actions/qa_exchange.png';
+import qaExchange from '../../../shared/images/quick-actions/qa_exchange.png'; // pez-DEX (Swap) için kullanılmaya devam
+import { LinearGradient as ExchangeGradient } from 'expo-linear-gradient';
 import qaForum from '../../../shared/images/quick-actions/qa_forum.jpg';
 import qaGovernance from '../../../shared/images/quick-actions/qa_governance.jpg';
 import qaTrading from '../../../shared/images/quick-actions/qa_trading.jpg';
@@ -244,6 +245,68 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
       avatar_url: avatarUrl,
     }));
   };
+
+  /**
+   * Pezkuwi Exchange (CEX) için özel ikon — tasarlanmış logo
+   * Lacivert zemin + altın kandlestick grafik + güneş aksi
+   */
+  const renderExchangeIcon = () => (
+    <TouchableOpacity
+      style={styles.appIconContainer}
+      onPress={() => navigation.navigate('Exchange')}
+      activeOpacity={0.7}
+    >
+      <ExchangeGradient
+        colors={['#0B1120', '#111827']}
+        style={styles.exchangeIconBox}
+      >
+        {/* Güneş ışınları — ufak noktalar çember üzerinde */}
+        {[0, 45, 90, 135, 180, 225, 270, 315].map((deg) => {
+          const rad = (deg * Math.PI) / 180;
+          return (
+            <View
+              key={deg}
+              style={[
+                styles.sunRay,
+                {
+                  transform: [
+                    { translateX: Math.cos(rad) * 19 },
+                    { translateY: Math.sin(rad) * 19 },
+                  ],
+                },
+              ]}
+            />
+          );
+        })}
+
+        {/* Merkez güneş diski */}
+        <View style={styles.sunCore} />
+
+        {/* Kandlestick çubuklar — altın borsa grafiği */}
+        <View style={styles.candlesRow}>
+          {/* Çubuk 1 — düşen (kırmızı) */}
+          <View style={styles.candleWrap}>
+            <View style={[styles.candleWick, { backgroundColor: '#FF4D4F' }]} />
+            <View style={[styles.candleBody, { height: 10, backgroundColor: '#FF4D4F' }]} />
+          </View>
+          {/* Çubuk 2 — yükselen (yeşil) */}
+          <View style={styles.candleWrap}>
+            <View style={[styles.candleWick, { backgroundColor: '#52C41A' }]} />
+            <View style={[styles.candleBody, { height: 14, backgroundColor: '#52C41A' }]} />
+          </View>
+          {/* Çubuk 3 — yükselen büyük (altın) */}
+          <View style={styles.candleWrap}>
+            <View style={[styles.candleWick, { backgroundColor: '#F0A500' }]} />
+            <View style={[styles.candleBody, { height: 18, backgroundColor: '#F0A500' }]} />
+          </View>
+        </View>
+
+        {/* Altın çizgi kenarlık */}
+        <View style={styles.exchangeIconBorder} />
+      </ExchangeGradient>
+      <Text style={styles.appIconTitle} numberOfLines={1}>Borsa</Text>
+    </TouchableOpacity>
+  );
 
   const renderAppIcon = (title: string, icon: string | ImageSourcePropType, onPress: () => void, isEmoji = false, comingSoon = false) => (
     <TouchableOpacity 
@@ -503,7 +566,8 @@ const DashboardScreen: React.FC<DashboardScreenProps> = () => {
             {renderAppIcon('Wallet', '👛', () => navigation.navigate('Wallet'), true)}
 
             {renderAppIcon('Bank', qaBank, () => navigation.navigate('Bank'), false, true)}
-            {renderAppIcon('Exchange', qaExchange, () => navigation.navigate('Swap'), false)}
+            {renderExchangeIcon()}
+            {renderAppIcon('pez-DEX', qaExchange, () => navigation.navigate('Swap'), false)}
             {renderAppIcon('P2P', qaTrading, () => navigation.navigate('P2P'), false)}
             {renderAppIcon('B2B', qaB2B, () => navigation.navigate('B2B'), false, true)}
             {renderAppIcon('Bac/Zekat', '📊', () => navigation.navigate('TaxZekat'), true)}
@@ -761,6 +825,64 @@ const styles = StyleSheet.create({
   appIconDisabled: {
     opacity: 0.5,
     backgroundColor: '#F0F0F0',
+  },
+  // Pezkuwi Exchange (CEX) özel ikon stilleri
+  exchangeIconBox: {
+    width: 56,
+    height: 56,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 6,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  exchangeIconBorder: {
+    position: 'absolute',
+    top: 0, left: 0, right: 0, bottom: 0,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    borderColor: '#F0A500',
+    opacity: 0.6,
+  },
+  sunRay: {
+    position: 'absolute',
+    width: 3,
+    height: 3,
+    borderRadius: 1.5,
+    backgroundColor: '#F0A500',
+    opacity: 0.35,
+  },
+  sunCore: {
+    position: 'absolute',
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#F0A500',
+    opacity: 0.5,
+    top: 9,
+    left: 23,
+  },
+  candlesRow: {
+    position: 'absolute',
+    bottom: 7,
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: 3,
+    left: 10,
+  },
+  candleWrap: {
+    alignItems: 'center',
+    gap: 1,
+  },
+  candleWick: {
+    width: 1,
+    height: 5,
+    borderRadius: 1,
+  },
+  candleBody: {
+    width: 7,
+    borderRadius: 2,
   },
   imageIcon: {
     width: 32,

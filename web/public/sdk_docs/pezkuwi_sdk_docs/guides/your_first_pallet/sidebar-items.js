@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["pezpallet","pezpallet_v2","shell_pallet"]};

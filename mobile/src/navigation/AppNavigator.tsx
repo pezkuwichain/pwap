@@ -44,6 +44,7 @@ import VPNScreen from '../screens/VPNScreen';
 import UniversityScreen from '../screens/UniversityScreen';
 import CertificatesScreen from '../screens/CertificatesScreen';
 import ResearchScreen from '../screens/ResearchScreen';
+import ExchangeScreen from '../screens/ExchangeScreen';
 
 export type RootStackParamList = {
   Welcome: undefined;
@@ -82,6 +83,7 @@ export type RootStackParamList = {
   University: undefined;
   Certificates: undefined;
   Research: undefined;
+  Exchange: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -431,6 +433,11 @@ const AppNavigator: React.FC = () => {
                 headerTitle: 'Research',
                 header: (props) => <SimpleHeader {...props} />,
               }}
+            />
+            <Stack.Screen
+              name="Exchange"
+              component={ExchangeScreen}
+              options={{ headerShown: false }}
             />
           </>
         )}

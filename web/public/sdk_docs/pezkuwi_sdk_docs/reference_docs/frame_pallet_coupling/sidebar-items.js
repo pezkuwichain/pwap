@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["pezpallet_author","pezpallet_foo","pezpallet_foo_loose","pezpallet_foo_tight","runtime"],"struct":["OtherAuthorProvider"],"trait":["AuthorProvider"]};

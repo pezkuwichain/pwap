@@ -1,0 +1,32 @@
+appId: io.pezkuwichain.wallet
+name: "E2E: Onboarding Flow"
+---
+# Welcome Screen
+- assertVisible: "Pezkuwi"
+- assertVisible: "Create Wallet"
+
+# Language Selection (if visible)
+- tapOn:
+    text: "English"
+    optional: true
+
+# Navigate to Wallet Setup
+- tapOn: "Create Wallet"
+
+# Wallet Setup Screen
+- assertVisible: "Create"
+- assertVisible: "Import"
+
+# Create a new wallet
+- tapOn:
+    text: "Create New Wallet"
+
+# Mnemonic should be shown
+- assertVisible: "Recovery Phrase"
+
+# Confirm mnemonic
+- tapOn: "I've saved it"
+
+# Should reach wallet screen
+- assertVisible: "HEZ"
+- assertVisible: "PEZ"

@@ -9,6 +9,7 @@ import {
   Platform,
   Alert,
 } from 'react-native';
+import * as Location from 'expo-location';
 import { WebView, WebViewMessageEvent } from 'react-native-webview';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NavigationProp } from '@react-navigation/native';
@@ -75,13 +76,67 @@ const PezkuwiWebView: React.FC<PezkuwiWebViewProps> = ({
     getSession();
   }, [user]);
 
+  // Runs BEFORE any page JS — sets the mobile flag and overrides geolocation
+  // so React's useEffect sees them on first render
+  const injectedJavaScriptBeforeContentLoaded = `
+    (function() {
+      window.PEZKUWI_MOBILE = true;
+      window.PEZKUWI_PLATFORM = '${Platform.OS}';
+
+      // Override navigator.geolocation before React mounts
+      var _pendingLocationCallbacks = {};
+      var _locationCallbackId = 0;
+
+      var _overrideGeo = {
+        getCurrentPosition: function(success, error, options) {
+          var id = ++_locationCallbackId;
+          _pendingLocationCallbacks[id] = { success: success, error: error };
+          window.ReactNativeWebView.postMessage(JSON.stringify({
+            type: 'REQUEST_LOCATION',
+            payload: { id: id }
+          }));
+          setTimeout(function() {
+            if (_pendingLocationCallbacks[id]) {
+              delete _pendingLocationCallbacks[id];
+              if (error) error({ code: 3, message: 'Timeout' });
+            }
+          }, 15000);
+        },
+        watchPosition: function() { return 0; },
+        clearWatch: function() {}
+      };
+
+      try {
+        Object.defineProperty(navigator, 'geolocation', {
+          get: function() { return _overrideGeo; },
+          configurable: true
+        });
+      } catch(e) {}
+
+      window.__resolveLocation = function(id, lat, lon, accuracy) {
+        var cb = _pendingLocationCallbacks[id];
+        if (cb) {
+          delete _pendingLocationCallbacks[id];
+          cb.success({ coords: { latitude: lat, longitude: lon, accuracy: accuracy || 50, altitude: null, altitudeAccuracy: null, heading: null, speed: null }, timestamp: Date.now() });
+        }
+      };
+
+      window.__rejectLocation = function(id, code, msg) {
+        var cb = _pendingLocationCallbacks[id];
+        if (cb) {
+          delete _pendingLocationCallbacks[id];
+          if (cb.error) cb.error({ code: code || 1, message: msg || 'Permission denied' });
+        }
+      };
+
+      true;
+    })();
+  `;
+
   // JavaScript to inject into the WebView
   // This creates a bridge between the web app and native app
   const injectedJavaScript = `
     (function() {
-      // Mark this as mobile app
-      window.PEZKUWI_MOBILE = true;
-      window.PEZKUWI_PLATFORM = '${Platform.OS}';
 
       // Inject wallet address if connected
       ${selectedAccount ? `window.PEZKUWI_ADDRESS = '${selectedAccount.address}';` : ''}
@@ -348,6 +403,30 @@ const PezkuwiWebView: React.FC<PezkuwiWebViewProps> = ({
           }
           break;
 
+        case 'REQUEST_LOCATION': {
+          const locId = (message.payload as { id: number }).id;
+          try {
+            const { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+              webViewRef.current?.injectJavaScript(
+                `window.__rejectLocation(${locId}, 1, 'Permission denied'); true;`
+              );
+              break;
+            }
+            const pos = await Location.getCurrentPositionAsync({
+              accuracy: Location.Accuracy.Balanced,
+            });
+            webViewRef.current?.injectJavaScript(
+              `window.__resolveLocation(${locId}, ${pos.coords.latitude}, ${pos.coords.longitude}, ${pos.coords.accuracy}); true;`
+            );
+          } catch (locErr) {
+            webViewRef.current?.injectJavaScript(
+              `window.__rejectLocation(${locId}, 2, 'Location unavailable'); true;`
+            );
+          }
+          break;
+        }
+
         case 'GO_BACK':
           // Handle back navigation from web
           if (canGoBack && webViewRef.current) {
@@ -462,6 +541,7 @@ const PezkuwiWebView: React.FC<PezkuwiWebViewProps> = ({
         ref={webViewRef}
         source={{ uri: fullUrl }}
         style={styles.webView}
+        injectedJavaScriptBeforeContentLoaded={injectedJavaScriptBeforeContentLoaded}
         injectedJavaScript={injectedJavaScript}
         onMessage={handleMessage}
         onLoadStart={() => setLoading(true)}
@@ -484,6 +564,7 @@ const PezkuwiWebView: React.FC<PezkuwiWebViewProps> = ({
         // Security settings
         javaScriptEnabled={true}
         domStorageEnabled={true}
+        geolocationEnabled={true}
         sharedCookiesEnabled={true}
         thirdPartyCookiesEnabled={true}
         // Performance settings

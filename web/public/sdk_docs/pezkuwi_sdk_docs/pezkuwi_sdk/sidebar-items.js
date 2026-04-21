@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["bizinikiwi","frame_runtime","pezcumulus","pezkuwi","smart_contracts","templates","xcm"]};

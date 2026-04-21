@@ -1,0 +1,24 @@
+appId: io.pezkuwichain.wallet
+name: "E2E: DApp Browser"
+---
+# Navigate to Apps tab
+- tapOn: "Apps"
+
+# Apps Screen
+- assertVisible: "DApp Browser"
+
+# Open DApp Browser
+- tapOn: "DApp Browser"
+
+# DApp Browser Screen
+- assertVisible: "DApp Browser"
+- assertVisible:
+    text: "Search or enter URL"
+    optional: true
+
+# Bookmarked DApps should be visible
+- assertVisible: "Polkadot.js Apps"
+- assertVisible: "Pezkuwi Portal"
+
+# Go back
+- back

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Call","Origin"],"mod":["dispatchables","storage_types"],"struct":["Pezpallet"],"trait":["Config"],"type":["Module"]};

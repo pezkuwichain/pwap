@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["pezpallet_bar","pezpallet_foo","pezpallet_with_specific_runtime_call","runtime","runtime_with_specific_runtime_call"]};
