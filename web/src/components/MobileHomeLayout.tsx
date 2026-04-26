@@ -56,7 +56,7 @@ const APP_SECTIONS: AppSection[] = [
     apps: [
       { title: 'mobile.app.wallet', icon: '👛', route: '/wallet' },
       { title: 'mobile.app.bank', icon: '🏦', route: '/finance/bank' },
-      { title: 'mobile.app.exchange', icon: '💱', imgIcon: '/PezkuwiExchange.png', route: '/dex', href: 'https://exchange.pezkuwichain.io' },
+      { title: 'mobile.app.exchange', icon: '💱', imgIcon: '/PezkuwiExchange.png', route: '/dex', href: 'https://pex.network' },
       { title: 'mobile.app.dex', icon: '🔄', route: '/dex', requiresAuth: true },
       { title: 'mobile.app.p2p', icon: '🤝', route: '/p2p', requiresAuth: true },
       { title: 'mobile.app.b2b', icon: '🤖', route: '/bereketli', requiresAuth: true },
