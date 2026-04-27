@@ -54,6 +54,21 @@ export function P2PIdentityProvider({ children }: { children: ReactNode }) {
           const uuid = await identityToUUID(fullCitizenNumber);
           setUserId(uuid);
           setVisaNumber(null);
+
+          // If this wallet is linked to a Telegram account and p2p_user_id not set yet,
+          // backfill it so mini app users see the same P2P identity
+          if (walletAddress) {
+            supabase
+              .from('tg_users')
+              .select('id, p2p_user_id')
+              .eq('wallet_address', walletAddress)
+              .maybeSingle()
+              .then(({ data: tgUser }) => {
+                if (tgUser && !tgUser.p2p_user_id) {
+                  supabase.from('tg_users').update({ p2p_user_id: uuid }).eq('id', tgUser.id);
+                }
+              });
+          }
         } else if (walletAddress) {
           // Non-citizen: check for existing visa
           const { data: visa } = await supabase

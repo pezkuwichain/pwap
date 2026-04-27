@@ -6,6 +6,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
+import { identityToUUID } from '@shared/lib/identity';
 import { Loader2, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -51,8 +52,8 @@ export default function TelegramConnect() {
 
         // Find user by telegram_id
         const { data: userData, error: userError } = await supabase
-          .from('users')
-          .select('id, telegram_id, wallet_address, username, first_name')
+          .from('tg_users')
+          .select('id, telegram_id, wallet_address, p2p_user_id')
           .eq('telegram_id', parseInt(telegramId, 10))
           .single();
 
@@ -62,11 +63,32 @@ export default function TelegramConnect() {
           return;
         }
 
-        // Update wallet address if provided and different
+        // Update wallet address and resolve p2p_user_id if not already set
+        const updates: Record<string, unknown> = {};
         if (walletAddress && walletAddress !== userData.wallet_address) {
+          updates.wallet_address = walletAddress;
+        }
+
+        if (!userData.p2p_user_id && walletAddress) {
+          // Try to find visa linked to this wallet (non-citizen users)
+          const { data: visa } = await supabase
+            .from('p2p_visa')
+            .select('visa_number')
+            .eq('wallet_address', walletAddress)
+            .eq('status', 'active')
+            .maybeSingle();
+
+          if (visa?.visa_number) {
+            updates.p2p_user_id = await identityToUUID(visa.visa_number);
+          }
+          // Welati (citizen) users: p2p_user_id will be set when they visit pwap/web P2P
+          // with their wallet connected (see P2PIdentityContext → linkTelegramP2PIdentity)
+        }
+
+        if (Object.keys(updates).length > 0) {
           await supabase
-            .from('users')
-            .update({ wallet_address: walletAddress })
+            .from('tg_users')
+            .update(updates)
             .eq('id', userData.id);
         }
 
