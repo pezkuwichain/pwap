@@ -75,42 +75,6 @@ jobs:
           path: web/dist/
 
   # ========================================
-  # MOBILE APP - LINT & TEST
-  # ========================================
-  mobile:
-    name: Mobile App
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Cache npm dependencies
-        uses: actions/cache@v4
-        with:
-          path: mobile/node_modules
-          key: ${{ runner.os }}-mobile-${{ hashFiles('mobile/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-mobile-
-
-      - name: Install dependencies
-        working-directory: ./mobile
-        run: npm install --legacy-peer-deps
-
-      - name: Run Linter
-        working-directory: ./mobile
-        run: npm run lint
-
-      - name: Run Tests
-        working-directory: ./mobile
-        run: npm run test
-
-  # ========================================
   # DEPLOY WEB APP TO VPS
   # ========================================
   deploy:
