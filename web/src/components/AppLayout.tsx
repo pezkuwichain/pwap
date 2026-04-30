@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
+import LandingPageDesktop from './landing/LandingPageDesktop';
 import HeroSection from './HeroSection';
 import TokenomicsSection from './TokenomicsSection';
 import PalletsGrid from './PalletsGrid';
@@ -80,6 +81,10 @@ const AppLayout: React.FC = () => {
 
   if (isMobile && !isFeaturePanelOpen) {
     return <MobileHomeLayout />;
+  }
+
+  if (!user) {
+    return <LandingPageDesktop />;
   }
 
   return (
