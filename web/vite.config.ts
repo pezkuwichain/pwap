@@ -5,7 +5,7 @@ import path from "path";
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
 // https://vitejs.dev/config/
-export default defineConfig(() => ({
+export default defineConfig(({ command }) => ({
   test: {
     globals: true,
     environment: 'jsdom',
@@ -32,37 +32,21 @@ export default defineConfig(() => ({
     react(),
     nodePolyfills({
       globals: {
-        Buffer: false,
-        global: false,
-        process: false,
+        Buffer: true,
+        global: true,
+        process: true,
       },
       protocolImports: true,
     }),
-    {
-      name: 'node-globals-shim',
-      transformIndexHtml() {
-        return [
-          {
-            tag: 'script',
-            children: `
-              window.global = window.global || window;
-              window.process = window.process || { env: {}, browser: true, version: "" };
-            `,
-            injectTo: 'head-prepend',
-          },
-          {
-            tag: 'script',
-            attrs: { type: 'module' },
-            children: `import { Buffer } from 'buffer'; window.Buffer = window.Buffer || Buffer;`,
-            injectTo: 'head-prepend',
-          },
-        ];
-      },
-    },
   ].filter(Boolean),
   resolve: {
     mainFields: ['browser', 'module', 'main', 'exports'],
     alias: {
+      // Rollup cannot resolve virtual shim modules in production — alias to real file.
+      // Dev mode: the plugin's own virtual module handles it; do NOT override it here.
+      ...(command === 'build' ? {
+        'vite-plugin-node-polyfills/shims/process': path.resolve(__dirname, './src/lib/process-shim.ts'),
+      } : {}),
       "@": path.resolve(__dirname, "./src"),
       "@pezkuwi/i18n": path.resolve(__dirname, "../shared/i18n"),
       "@pezkuwi/lib": path.resolve(__dirname, "../shared/lib"),
@@ -71,10 +55,6 @@ export default defineConfig(() => ({
       "@local/types": path.resolve(__dirname, "../shared/types"),
       "@pezkuwi/components": path.resolve(__dirname, "../shared/components"),
       "@shared": path.resolve(__dirname, "../shared"),
-      // Node polyfill shims for shared folder (outside web workspace)
-      'vite-plugin-node-polyfills/shims/buffer': path.resolve(__dirname, './src/polyfills/buffer-shim.ts'),
-      'vite-plugin-node-polyfills/shims/global': path.resolve(__dirname, './src/polyfills/global-shim.ts'),
-      'vite-plugin-node-polyfills/shims/process': path.resolve(__dirname, './src/polyfills/process-shim.ts'),
     },
     dedupe: ['react', 'lucide-react', 'sonner', '@pezkuwi/util-crypto', '@pezkuwi/util', '@pezkuwi/api', '@pezkuwi/extension-dapp', '@pezkuwi/keyring'],
   },

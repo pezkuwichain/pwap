@@ -10,8 +10,7 @@
   "General Docs": {
     "AUDIT": "AUDIT.md",
     "BACKPORT": "BACKPORT.md",
-    "RELEASE": "RELEASE.md",
-    "Workflow Rebranding": "workflow_rebranding.md"
+    "RELEASE": "RELEASE.md"
   },
   "Contributor": {
     "CODE OF CONDUCT": "contributor/CODE_OF_CONDUCT.md",

@@ -133,18 +133,99 @@ const Login: React.FC = () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
-        options: {
-          redirectTo: window.location.origin + '/',
-        },
+        options: { redirectTo: window.location.origin + '/' },
       });
-      if (error) {
-        setError(error.message);
-      }
+      if (error) setError(error.message);
     } catch {
       setError('Google sign-in failed. Please try again.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleXSignIn = async () => {
+    setError('');
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'twitter',
+        options: { redirectTo: window.location.origin + '/' },
+      });
+      if (error) setError(error.message);
+    } catch {
+      setError('X sign-in failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleTelegramSignIn = () => {
+    setError('');
+    setLoading(true);
+
+    const BOT_ID = '8690398980';
+    const origin = window.location.origin;
+    const popup = window.open(
+      `https://oauth.telegram.org/auth?bot_id=${BOT_ID}&origin=${encodeURIComponent(origin)}&embed=1&request_access=write`,
+      'TelegramLogin',
+      'width=550,height=470,left=400,top=200'
+    );
+
+    if (!popup) {
+      setError('Popup blocked. Please allow popups for this site.');
+      setLoading(false);
+      return;
+    }
+
+    const onMessage = async (event: MessageEvent) => {
+      if (event.origin !== 'https://oauth.telegram.org') return;
+      if (!event.data || event.data.event !== 'auth_result') return;
+
+      window.removeEventListener('message', onMessage);
+      popup.close();
+
+      try {
+        const tgData = event.data.result;
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+        const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+        const res = await fetch(`${supabaseUrl}/functions/v1/telegram-auth`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': supabaseKey,
+            'Authorization': `Bearer ${supabaseKey}`,
+          },
+          body: JSON.stringify(tgData),
+        });
+
+        const json = await res.json();
+        if (!res.ok) throw new Error(json.error || 'Telegram auth failed');
+
+        const { error: otpError } = await supabase.auth.verifyOtp({
+          token_hash: json.token_hash,
+          type: 'magiclink',
+        });
+
+        if (otpError) throw otpError;
+        navigate('/');
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Telegram sign-in failed.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    window.addEventListener('message', onMessage);
+
+    // Cleanup if popup is closed without completing auth
+    const pollClosed = setInterval(() => {
+      if (popup.closed) {
+        clearInterval(pollClosed);
+        window.removeEventListener('message', onMessage);
+        setLoading(false);
+      }
+    }, 500);
   };
 
   return (
@@ -403,6 +484,30 @@ const Login: React.FC = () => {
                 {t('login.googleSignIn', 'Continue with Google')}
               </Button>
             )}
+
+            <Button
+              variant="outline"
+              className="w-full border-gray-700 bg-gray-800 hover:bg-gray-700 text-white"
+              onClick={handleXSignIn}
+              disabled={loading}
+            >
+              <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+              </svg>
+              {t('login.xSignIn', 'Continue with X')}
+            </Button>
+
+            <Button
+              variant="outline"
+              className="w-full border-gray-700 bg-gray-800 hover:bg-gray-700 text-white"
+              onClick={handleTelegramSignIn}
+              disabled={loading}
+            >
+              <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24" fill="#26A5E4">
+                <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L6.12 14.26l-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.696.326z"/>
+              </svg>
+              {t('login.telegramSignIn', 'Continue with Telegram')}
+            </Button>
 
             <Button
               variant="outline"

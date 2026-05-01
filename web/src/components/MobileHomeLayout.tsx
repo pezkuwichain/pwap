@@ -90,7 +90,7 @@ const APP_SECTIONS: AppSection[] = [
       { title: 'mobile.app.events', icon: '📅', route: '/forum', comingSoon: true },
       { title: 'mobile.app.help', icon: '❓', route: '/help' },
       { title: 'mobile.app.music', icon: '🎵', route: '/forum', comingSoon: true },
-      { title: 'mobile.app.vpn', icon: '🛡️', route: '/forum', comingSoon: true },
+      { title: 'mobile.app.rewshenbir', icon: '📡', imgIcon: '/rewshenbir-icon.png', route: '/rewshenbir', href: 'https://rewshenbir.pezkuwi.app' },
       { title: 'mobile.app.referral', icon: '👥', route: '/dashboard', requiresAuth: true },
     ],
   },

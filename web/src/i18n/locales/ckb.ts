@@ -3898,7 +3898,6 @@ export default {
   'taxZekat.success': '{{amount}} HEZ بە سەرکەوتوویی نێردرا. سوپاس!',
 
   // Messaging
-  'messaging.palletNotReady': 'پاڵێتی پەیامگێڕی هێشتا لەسەر People Chain بەردەست نییە. نوێکردنەوەی ڕانتایم پێویستە.',
 
   // KurdMedia page
   'kurdMedia.title': 'KurdMedia',

@@ -3942,7 +3942,6 @@ export default {
   'taxZekat.success': '{{amount}} HEZ با موفقیت ارسال شد. ممنون!',
 
   // Messaging
-  'messaging.palletNotReady': 'پالت پیام‌رسانی هنوز در People Chain موجود نیست. یک به‌روزرسانی runtime لازم است.',
 
   // KurdMedia page
   'kurdMedia.title': 'KurdMedia',

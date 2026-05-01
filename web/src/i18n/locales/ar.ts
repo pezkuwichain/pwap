@@ -3908,7 +3908,6 @@ export default {
   'taxZekat.success': 'تم إرسال {{amount}} HEZ بنجاح. شكراً!',
 
   // Messaging
-  'messaging.palletNotReady': 'حزمة المراسلة غير متاحة بعد على People Chain. يلزم تحديث وقت التشغيل.',
 
   // KurdMedia page
   'kurdMedia.title': 'KurdMedia',
