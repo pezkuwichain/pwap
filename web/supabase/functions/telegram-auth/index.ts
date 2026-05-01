@@ -42,11 +42,13 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const botToken = Deno.env.get('TELEGRAM_BOT_TOKEN_PEZMOM')
-    if (!botToken) throw new Error('TELEGRAM_BOT_TOKEN_PEZMOM not configured')
-
     const body = await req.json()
-    const { id, first_name, last_name, username, photo_url, auth_date, hash } = body
+    const { id, first_name, last_name, username, photo_url, auth_date, hash, bot_id } = body
+
+    const botToken = bot_id === '8690398980'
+      ? Deno.env.get('TELEGRAM_BOT_TOKEN_PEZMOM')
+      : Deno.env.get('TELEGRAM_BOT_TOKEN_PEXSEC')
+    if (!botToken) throw new Error('Bot token not configured for bot_id: ' + bot_id)
 
     if (!id || !hash || !auth_date) {
       return new Response(JSON.stringify({ error: 'Missing required fields' }), {

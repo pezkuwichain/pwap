@@ -163,7 +163,7 @@ const Login: React.FC = () => {
     setError('');
     setLoading(true);
 
-    const BOT_ID = '8690398980';
+    const BOT_ID = window.location.hostname === 'pex.mom' ? '8690398980' : '8754021997';
     const origin = window.location.origin;
     const popup = window.open(
       `https://oauth.telegram.org/auth?bot_id=${BOT_ID}&origin=${encodeURIComponent(origin)}&embed=1&request_access=write`,
@@ -196,7 +196,7 @@ const Login: React.FC = () => {
             'apikey': supabaseKey,
             'Authorization': `Bearer ${supabaseKey}`,
           },
-          body: JSON.stringify(tgData),
+          body: JSON.stringify({ ...tgData, bot_id: BOT_ID }),
         });
 
         const json = await res.json();
