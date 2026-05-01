@@ -14,16 +14,8 @@ async function verifyTelegramHash(data: Record<string, string>, botToken: string
     .map(([k, v]) => `${k}=${v}`)
     .join('\n')
 
-  // secret_key = SHA-256(bot_token)
+  // Telegram Login Widget: secret_key = SHA-256(bot_token), used as HMAC key
   const encoder = new TextEncoder()
-  const keyMaterial = await crypto.subtle.importKey(
-    'raw',
-    encoder.encode(botToken),
-    { name: 'HMAC', hash: 'SHA-256' },
-    false,
-    ['sign']
-  )
-  // Telegram Login Widget uses SHA-256(bot_token) as HMAC key — import as raw bytes
   const secretKeyBytes = await crypto.subtle.digest('SHA-256', encoder.encode(botToken))
   const hmacKey = await crypto.subtle.importKey(
     'raw',

@@ -40,7 +40,6 @@ const SPRITE_STYLES = `
 const Sprite: React.FC = () => (
   <svg className="lp-sprite" aria-hidden="true">
     <defs>
-      {/* eslint-disable-next-line react/no-danger */}
       <style dangerouslySetInnerHTML={{ __html: SPRITE_STYLES }} />
       {/* Finance */}
       <symbol id="lp-i-wallet" viewBox="0 0 32 32">
