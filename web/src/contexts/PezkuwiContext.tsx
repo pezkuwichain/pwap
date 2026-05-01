@@ -19,7 +19,7 @@ if (typeof window !== 'undefined' && !import.meta.env.DEV) {
   };
 }
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef, ReactNode } from 'react';
 import { ApiPromise, WsProvider } from '@pezkuwi/api';
 import { web3Accounts, web3Enable } from '@pezkuwi/extension-dapp';
 import type { InjectedAccountWithMeta } from '@pezkuwi/extension-inject/types';
@@ -49,6 +49,7 @@ interface PezkuwiContextType {
   assetHubApi: ApiPromise | null;
   peopleApi: ApiPromise | null;
   isApiReady: boolean;
+  isApiInitializing: boolean;
   isAssetHubReady: boolean;
   isPeopleReady: boolean;
   isConnected: boolean;
@@ -79,6 +80,8 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
   const [assetHubApi, setAssetHubApi] = useState<ApiPromise | null>(null);
   const [peopleApi, setPeopleApi] = useState<ApiPromise | null>(null);
   const [isApiReady, setIsApiReady] = useState(false);
+  const isApiReadyRef = useRef(false);
+  const [isApiInitializing, setIsApiInitializing] = useState(true);
   const [isAssetHubReady, setIsAssetHubReady] = useState(false);
   const [isPeopleReady, setIsPeopleReady] = useState(false);
   const [accounts, setAccounts] = useState<InjectedAccountWithMeta[]>([]);
@@ -120,6 +123,7 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
 
     const initApi = async () => {
       let lastError: unknown = null;
+      setIsApiInitializing(true);
 
       for (const currentEndpoint of FALLBACK_ENDPOINTS) {
         try {
@@ -146,7 +150,9 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
           await apiInstance.isReady;
 
           setApi(apiInstance);
+          isApiReadyRef.current = true;
           setIsApiReady(true);
+          setIsApiInitializing(false);
           setError(null);
 
           if (import.meta.env.DEV) {
@@ -200,6 +206,7 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
       }
       setError('Failed to connect to blockchain network. Please try again later.');
       setIsApiReady(false);
+      setIsApiInitializing(false);
     };
 
     // Initialize Asset Hub API for PEZ token
@@ -489,8 +496,20 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
 
   // Connect via WalletConnect v2 - returns pairing URI for QR code
   const connectWalletConnect = async (): Promise<string> => {
+    // Wait up to 30s for API to finish initializing instead of failing immediately
+    if (!isApiReady) {
+      await new Promise<void>((resolve, reject) => {
+        const deadline = Date.now() + 30_000;
+        const check = () => {
+          if (isApiReadyRef.current) return resolve();
+          if (Date.now() >= deadline) return reject(new Error('Blockchain connection timed out. Please refresh and try again.'));
+          setTimeout(check, 300);
+        };
+        check();
+      });
+    }
     if (!api || !isApiReady) {
-      throw new Error('API not ready. Please wait for blockchain connection.');
+      throw new Error('Blockchain connection failed. Please refresh and try again.');
     }
 
     setError(null);
@@ -581,6 +600,7 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
     assetHubApi,
     peopleApi,
     isApiReady,
+    isApiInitializing,
     isAssetHubReady,
     isPeopleReady,
     isConnected: isApiReady,

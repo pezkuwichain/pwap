@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Wallet, Chrome, ExternalLink, Copy, Check, LogOut, Award, Users, TrendingUp, Shield, Smartphone } from 'lucide-react';
+import { Wallet, Chrome, ExternalLink, Copy, Check, LogOut, Award, Users, TrendingUp, Shield, Smartphone, Loader2 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
   Dialog,
@@ -29,6 +29,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
     disconnectWallet,
     api,
     isApiReady,
+    isApiInitializing,
     peopleApi,
     walletSource,
     wcPeerName,
@@ -350,9 +351,19 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                     onClick={handleConnect}
                     className="w-full bg-gradient-to-r from-purple-600 to-cyan-400 hover:from-purple-700 hover:to-cyan-500"
                     size="sm"
+                    disabled={isApiInitializing}
                   >
-                    <Wallet className="mr-2 h-4 w-4" />
-                    {t('walletModal.extensionConnect')}
+                    {isApiInitializing ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        {t('walletModal.connectingBlockchain', 'Connecting to blockchain...')}
+                      </>
+                    ) : (
+                      <>
+                        <Wallet className="mr-2 h-4 w-4" />
+                        {t('walletModal.extensionConnect')}
+                      </>
+                    )}
                   </Button>
                   <a
                     href="https://chromewebstore.google.com/search/pezkuwi%7B.js%7D%20extension?hl=en-GB&utm_source=ext_sidebar"
@@ -380,9 +391,19 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                     variant="outline"
                     className="w-full border-purple-500/30 hover:border-purple-500/60 hover:bg-purple-500/10"
                     size="sm"
+                    disabled={isApiInitializing}
                   >
-                    <Smartphone className="mr-2 h-4 w-4" />
-                    {t('walletModal.mobileConnect')}
+                    {isApiInitializing ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        {t('walletModal.connectingBlockchain', 'Connecting to blockchain...')}
+                      </>
+                    ) : (
+                      <>
+                        <Smartphone className="mr-2 h-4 w-4" />
+                        {t('walletModal.mobileConnect')}
+                      </>
+                    )}
                   </Button>
                   <div className="flex items-center justify-center gap-1 text-xs text-gray-400">
                     {t('walletModal.mobileComingSoon')}
