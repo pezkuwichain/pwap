@@ -299,7 +299,6 @@ const AppLayout: React.FC = () => {
                   onClick={(e) => { e.stopPropagation(); setOpenMenu(openMenu === 'hdr-trading' ? null : 'hdr-trading'); }}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-900/70 border border-red-500/30 text-sm text-gray-300 hover:text-white transition-colors whitespace-nowrap"
                 >
-                  <ArrowRightLeft className="w-3.5 h-3.5 text-red-400" />
                   {t('nav.trading')}
                   <ChevronDown className="w-3 h-3" />
                 </button>
@@ -633,8 +632,8 @@ const AppLayout: React.FC = () => {
       </main>
 
       {/* ── BOTTOM TAB BAR ── */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-gray-950/95 backdrop-blur-md border-t border-gray-800">
-        <div className="flex items-center justify-around h-16">
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-gray-950/95 backdrop-blur-md border-t border-gray-800">
+        <div className="flex items-center justify-around h-16 max-w-md mx-auto">
           <BottomTabBtn icon="🏠" label={t('mobile.home', 'Home')} active={currentTab === 'home'} onClick={() => navigate('/')} />
           <BottomTabBtn icon="🏛️" label={t('mobile.citizen', 'Citizen')} active={currentTab === 'citizen'} onClick={() => navigate('/be-citizen')} accent />
           <BottomTabBtn icon="👥" label={t('mobile.referral', 'Referral')} active={currentTab === 'referral'} onClick={() => navigate('/dashboard')} />
