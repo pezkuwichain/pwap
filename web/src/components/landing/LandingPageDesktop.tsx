@@ -315,7 +315,7 @@ const PalletItem: React.FC<{
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-const LandingPageDesktop: React.FC = () => {
+const LandingPageDesktop: React.FC<{ bodyOnly?: boolean }> = ({ bodyOnly = false }) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { api, assetHubApi, peopleApi, isApiReady, isAssetHubReady, isPeopleReady, selectedAccount, disconnectWallet, connectWallet } = usePezkuwi();

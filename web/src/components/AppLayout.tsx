@@ -8,6 +8,11 @@ import { fetchUserTikis, getPrimaryRole, getTikiDisplayName, getTikiEmoji, getCi
 import { getAllScores, type UserScores } from '@pezkuwi/lib/scores';
 import { getKycStatus } from '@pezkuwi/lib/kyc';
 import LandingPageDesktop from './landing/LandingPageDesktop';
+import HeroSection from './HeroSection';
+import { NetworkStats } from './NetworkStats';
+import TrustScoreCalculator from './TrustScoreCalculator';
+import ChainSpecs from './ChainSpecs';
+import RewardDistribution from './RewardDistribution';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import NotificationBell from './notifications/NotificationBell';
 import ProposalWizard from './proposals/ProposalWizard';
@@ -56,11 +61,18 @@ interface AppItem {
   title: string; icon: string; imgIcon?: string;
   route: string; href?: string; comingSoon?: boolean; requiresAuth?: boolean;
 }
-interface AppSection { titleKey: string; emoji: string; borderColor: string; apps: AppItem[]; }
+interface AppSection {
+  titleKey: string; emoji: string;
+  headerBg: string; cardBg: string; iconBg: string;
+  apps: AppItem[];
+}
 
 const APP_SECTIONS: AppSection[] = [
   {
-    titleKey: 'mobile.section.finance', emoji: '💰', borderColor: 'border-l-green-500',
+    titleKey: 'mobile.section.finance', emoji: '💰',
+    headerBg: 'bg-gradient-to-r from-green-900/80 to-green-800/60',
+    cardBg: 'bg-green-950/40 border border-green-700/30',
+    iconBg: 'hover:bg-green-900/40',
     apps: [
       { title: 'mobile.app.wallet',    icon: '👛', route: '/wallet' },
       { title: 'mobile.app.bank',      icon: '🏦', route: '/finance/bank' },
@@ -73,7 +85,10 @@ const APP_SECTIONS: AppSection[] = [
     ],
   },
   {
-    titleKey: 'mobile.section.governance', emoji: '🏛️', borderColor: 'border-l-red-500',
+    titleKey: 'mobile.section.governance', emoji: '🏛️',
+    headerBg: 'bg-gradient-to-r from-red-900/80 to-red-800/60',
+    cardBg: 'bg-red-950/40 border border-red-700/30',
+    iconBg: 'hover:bg-red-900/40',
     apps: [
       { title: 'mobile.app.president', icon: '👑', route: '/elections',           requiresAuth: true },
       { title: 'mobile.app.assembly',  icon: '🏛️', route: '/governance/assembly' },
@@ -86,7 +101,10 @@ const APP_SECTIONS: AppSection[] = [
     ],
   },
   {
-    titleKey: 'mobile.section.social', emoji: '💬', borderColor: 'border-l-blue-500',
+    titleKey: 'mobile.section.social', emoji: '💬',
+    headerBg: 'bg-gradient-to-r from-blue-900/80 to-blue-800/60',
+    cardBg: 'bg-blue-950/40 border border-blue-700/30',
+    iconBg: 'hover:bg-blue-900/40',
     apps: [
       { title: 'mobile.app.whatsKurd', icon: '💬', route: '/social/whatskurd' },
       { title: 'mobile.app.forum',     icon: '📰', route: '/forum' },
@@ -99,7 +117,10 @@ const APP_SECTIONS: AppSection[] = [
     ],
   },
   {
-    titleKey: 'mobile.section.education', emoji: '📚', borderColor: 'border-l-yellow-500',
+    titleKey: 'mobile.section.education', emoji: '📚',
+    headerBg: 'bg-gradient-to-r from-amber-900/80 to-amber-800/60',
+    cardBg: 'bg-amber-950/40 border border-amber-700/30',
+    iconBg: 'hover:bg-amber-900/40',
     apps: [
       { title: 'mobile.app.university',   icon: '🎓', route: '/education/university' },
       { title: 'mobile.app.perwerde',     icon: '📖', route: '/education', requiresAuth: true },
@@ -477,7 +498,8 @@ const AppLayout: React.FC = () => {
           <div className="pt-20 min-h-screen bg-gray-950"><P2PDashboard /></div>
         ) : (
           /* ── LOGGED-IN DESKTOP HOME ── */
-          <div className="pt-20 pb-20 min-h-screen bg-gray-950">
+          <>
+          <div className="pt-20 bg-gray-950">
             <div className="max-w-7xl mx-auto px-4 py-6">
 
               {/* Greeting row */}
@@ -534,12 +556,17 @@ const AppLayout: React.FC = () => {
               {/* Section cards — 2-column grid */}
               <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
                 {APP_SECTIONS.map((section, sectionIdx) => (
-                  <div key={section.titleKey} className="bg-gray-900/60 rounded-2xl border border-gray-800/60 overflow-hidden">
-                    <div className={`flex items-center px-5 py-3 border-l-4 ${section.borderColor} bg-gray-900/40`}>
-                      <h3 className="text-sm font-bold text-white tracking-wide">
-                        {t(section.titleKey)} {section.emoji}
+                  <div key={section.titleKey} className={`${section.cardBg} rounded-2xl overflow-hidden shadow-lg`}>
+                    {/* Colored header */}
+                    <div className={`flex items-center justify-between px-5 py-3.5 ${section.headerBg}`}>
+                      <h3 className="text-sm font-bold text-white tracking-wide drop-shadow">
+                        {section.emoji} {t(section.titleKey)}
                       </h3>
+                      <span className="text-[11px] text-white/60 font-medium">
+                        {section.apps.length + (sectionIdx === 1 ? govExtras.length : 0)} apps
+                      </span>
                     </div>
+                    {/* App icon grid */}
                     <div className="grid grid-cols-4 gap-1 px-3 py-3">
                       {section.apps.map((app) => {
                         const needsLogin = app.requiresAuth && !user;
@@ -548,7 +575,7 @@ const AppLayout: React.FC = () => {
                             key={app.title}
                             onClick={getAppClickHandler(app)}
                             className={`flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl transition-all active:scale-95
-                              ${app.comingSoon ? 'opacity-50' : 'hover:bg-gray-800/60'}`}
+                              ${app.comingSoon ? 'opacity-40 cursor-default' : section.iconBg}`}
                           >
                             <div className="relative">
                               {app.imgIcon ? (
@@ -559,7 +586,7 @@ const AppLayout: React.FC = () => {
                               {app.comingSoon && <span className="absolute -top-1 -right-2 text-[10px]">🔒</span>}
                               {needsLogin && !app.comingSoon && <span className="absolute -top-1 -right-2 text-[10px]">🔑</span>}
                             </div>
-                            <span className="text-[11px] text-gray-300 font-medium text-center leading-tight">
+                            <span className="text-[11px] text-gray-200 font-medium text-center leading-tight">
                               {t(app.title)}
                             </span>
                           </button>
@@ -570,10 +597,10 @@ const AppLayout: React.FC = () => {
                         <button
                           key={ex.title}
                           onClick={ex.onAction}
-                          className="flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl transition-all active:scale-95 hover:bg-gray-800/60"
+                          className={`flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl transition-all active:scale-95 ${section.iconBg}`}
                         >
                           <span className="text-3xl">{ex.icon}</span>
-                          <span className="text-[11px] text-gray-300 font-medium text-center leading-tight">
+                          <span className="text-[11px] text-gray-200 font-medium text-center leading-tight">
                             {t(ex.title)}
                           </span>
                         </button>
@@ -584,6 +611,12 @@ const AppLayout: React.FC = () => {
               </div>
             </div>
           </div>
+          <HeroSection />
+          <NetworkStats key="network-stats-live" />
+          <div id="trust-calculator"><TrustScoreCalculator /></div>
+          <div id="chain-specs"><ChainSpecs /></div>
+          <div id="rewards"><RewardDistribution /></div>
+          </>
         )}
 
         {/* Back-to-home button */}
@@ -599,9 +632,9 @@ const AppLayout: React.FC = () => {
         )}
       </main>
 
-      {/* ── BOTTOM TAB BAR (mirrors MobileHomeLayout) ── */}
+      {/* ── BOTTOM TAB BAR ── */}
       <div className="fixed bottom-0 left-0 right-0 z-40 bg-gray-950/95 backdrop-blur-md border-t border-gray-800">
-        <div className="flex items-center justify-around h-16 max-w-md mx-auto">
+        <div className="flex items-center justify-around h-16">
           <BottomTabBtn icon="🏠" label={t('mobile.home', 'Home')} active={currentTab === 'home'} onClick={() => navigate('/')} />
           <BottomTabBtn icon="🏛️" label={t('mobile.citizen', 'Citizen')} active={currentTab === 'citizen'} onClick={() => navigate('/be-citizen')} accent />
           <BottomTabBtn icon="👥" label={t('mobile.referral', 'Referral')} active={currentTab === 'referral'} onClick={() => navigate('/dashboard')} />
@@ -685,7 +718,7 @@ function DesktopScoreCard({ icon, label, value, sub, color, onClick, actionLabel
 }) {
   return (
     <div
-      className={`flex-shrink-0 w-36 bg-gray-900/80 rounded-xl border border-gray-800/60 border-l-4 ${color} p-3 space-y-1
+      className={`flex-shrink-0 w-36 bg-gray-800/70 rounded-xl border border-gray-700/50 border-l-4 ${color} p-3 space-y-1
         ${onClick ? 'cursor-pointer hover:bg-gray-800/60 transition-colors' : ''}`}
       onClick={onClick}
     >
