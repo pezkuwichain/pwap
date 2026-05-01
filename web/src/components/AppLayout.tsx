@@ -8,6 +8,7 @@ import { fetchUserTikis, getPrimaryRole, getTikiDisplayName, getTikiEmoji, getCi
 import { getAllScores, type UserScores } from '@pezkuwi/lib/scores';
 import { getKycStatus } from '@pezkuwi/lib/kyc';
 import LandingPageDesktop from './landing/LandingPageDesktop';
+import './landing/landing.css';
 import HeroSection from './HeroSection';
 import { NetworkStats } from './NetworkStats';
 import TrustScoreCalculator from './TrustScoreCalculator';
@@ -27,7 +28,7 @@ import {
   ExternalLink, FileEdit, Users2, MessageSquare, Wifi, WifiOff,
   Wallet, DollarSign, PiggyBank, History, Key, TrendingUp,
   ArrowRightLeft, Lock, LogIn, LayoutDashboard, Settings, Users,
-  Droplet, Mail, Coins, Menu, X, ChevronDown,
+  Droplet, Coins, Menu, X, ChevronDown,
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useWebSocket } from '@/contexts/WebSocketContext';
@@ -633,7 +634,7 @@ const AppLayout: React.FC = () => {
 
       {/* ── BOTTOM TAB BAR ── */}
       <div className="fixed bottom-0 left-0 right-0 z-50 bg-gray-950/95 backdrop-blur-md border-t border-gray-800">
-        <div className="flex items-center justify-around h-16 max-w-md mx-auto">
+        <div className="flex items-center justify-around h-16">
           <BottomTabBtn icon="🏠" label={t('mobile.home', 'Home')} active={currentTab === 'home'} onClick={() => navigate('/')} />
           <BottomTabBtn icon="🏛️" label={t('mobile.citizen', 'Citizen')} active={currentTab === 'citizen'} onClick={() => navigate('/be-citizen')} accent />
           <BottomTabBtn icon="👥" label={t('mobile.referral', 'Referral')} active={currentTab === 'referral'} onClick={() => navigate('/dashboard')} />
@@ -641,44 +642,63 @@ const AppLayout: React.FC = () => {
       </div>
 
       {/* ── FOOTER ── */}
-      <footer className="bg-gray-950 border-t border-gray-800 py-12 pb-28">
-        <div className="max-w-full mx-auto px-4">
-          <div className="mb-8 space-y-2 text-sm text-gray-400 text-center">
-            <p className="flex items-center justify-center gap-2"><Mail className="w-4 h-4" />info@pezkuwichain.io</p>
-            <p className="flex items-center justify-center gap-2"><Mail className="w-4 h-4" />info@pezkuwichain.app</p>
+      <footer className="lp-footer pb-20">
+        <div className="lp-container">
+          <div className="lp-foot-grid">
+            <div className="lp-foot-brand">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+                <div className="lp-logo-mark" style={{ width: 28, height: 28 }} />
+                <h4>PezkuwiChain</h4>
+              </div>
+              <p>{t('landing.footer.desc')}</p>
+              <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                <span className="lp-status-dot" />
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--fg-2)' }}>{t('landing.footer.mainnet')}</span>
+              </div>
+            </div>
+            <div className="lp-foot-col">
+              <h5>{t('landing.footer.network')}</h5>
+              <ul>
+                <li><a href="/network">{t('landing.footer.explorer')}</a></li>
+                <li><a href="/telemetry">{t('landing.footer.telemetry')}</a></li>
+                <li><a href="/network">{t('landing.footer.validators')}</a></li>
+                <li><a href="/faucet">{t('landing.footer.faucet')}</a></li>
+              </ul>
+            </div>
+            <div className="lp-foot-col">
+              <h5>{t('landing.footer.use')}</h5>
+              <ul>
+                <li><a href="/wallet">{t('landing.footer.wallet')}</a></li>
+                <li><a href="/p2p">{t('landing.footer.trade')}</a></li>
+                <li><a href="/">{t('landing.footer.vote')}</a></li>
+                <li><a href="/grants">{t('landing.footer.grants')}</a></li>
+              </ul>
+            </div>
+            <div className="lp-foot-col">
+              <h5>{t('landing.footer.build')}</h5>
+              <ul>
+                <li><a href="/docs">{t('landing.footer.docs')}</a></li>
+                <li><a href="/api">{t('landing.footer.api')}</a></li>
+                <li><a href="/developers">{t('landing.footer.sdk')}</a></li>
+                <li><a href="https://github.com/pezkuwichain" target="_blank" rel="noopener noreferrer">{t('landing.footer.github')}</a></li>
+              </ul>
+            </div>
+            <div className="lp-foot-col">
+              <h5>{t('landing.footer.community')}</h5>
+              <ul>
+                <li><a href="/forum">{t('landing.footer.forum')}</a></li>
+                <li><a href="https://discord.gg/pezkuwichain" target="_blank" rel="noopener noreferrer">{t('landing.footer.discord')}</a></li>
+                <li><a href="https://t.me/PezkuwiApp" target="_blank" rel="noopener noreferrer">{t('landing.footer.telegram')}</a></li>
+                <li><a href="https://x.com/PezkuwiChain" target="_blank" rel="noopener noreferrer">{t('landing.footer.twitter')}</a></li>
+              </ul>
+            </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-left">
-            <div>
-              <h3 className="text-lg font-semibold mb-4 bg-gradient-to-r from-green-500 to-yellow-400 bg-clip-text text-transparent">PezkuwiChain</h3>
-              <p className="text-gray-400 text-sm">{t('footer.platform')}</p>
+          <div className="lp-foot-bottom">
+            <span>{t('landing.footer.copyright')}</span>
+            <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+              <span className="lp-foot-flag" title="Kurdish flag" />
+              <span className="lp-foot-kurdish-text">{t('landing.footer.builtBy')}</span>
             </div>
-            <div>
-              <h4 className="text-white font-semibold mb-4">{t('footer.about')}</h4>
-              <ul className="space-y-2">
-                <li><a href="https://raw.githubusercontent.com/pezkuwichain/DKSweb/main/public/Whitepaper.pdf" download="Pezkuwi_Whitepaper.pdf" className="text-gray-400 hover:text-white text-sm inline-flex items-center">{t('footer.whitepaper')}<ExternalLink className="w-3 h-3 ml-1" /></a></li>
-                <li><a href="https://github.com/pezkuwichain" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white text-sm inline-flex items-center">{t('footer.github')}<ExternalLink className="w-3 h-3 ml-1" /></a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-white font-semibold mb-4">{t('footer.developers')}</h4>
-              <ul className="space-y-2">
-                <li><a href="/api" className="text-gray-400 hover:text-white text-sm inline-flex items-center">{t('footer.api')}<ExternalLink className="w-3 h-3 ml-1" /></a></li>
-                <li><a href="/developers" className="text-gray-400 hover:text-white text-sm inline-flex items-center">{t('footer.sdk')}<ExternalLink className="w-3 h-3 ml-1" /></a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-white font-semibold mb-4">{t('footer.community')}</h4>
-              <ul className="space-y-2">
-                <li><a href="https://discord.gg/pezkuwichain" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white text-sm inline-flex items-center">{t('footer.discord')}<ExternalLink className="w-3 h-3 ml-1" /></a></li>
-                <li><a href="https://x.com/PezkuwiChain" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white text-sm inline-flex items-center">{t('footer.twitter')}<ExternalLink className="w-3 h-3 ml-1" /></a></li>
-                <li><a href="https://t.me/PezkuwiApp" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white text-sm inline-flex items-center">{t('footer.telegram')}<ExternalLink className="w-3 h-3 ml-1" /></a></li>
-                <li><a href="https://www.youtube.com/@SatoshiQazi" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white text-sm inline-flex items-center">{t('footer.youtube')}<ExternalLink className="w-3 h-3 ml-1" /></a></li>
-                <li><a href="https://facebook.com/profile.php?id=61582484611719" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white text-sm inline-flex items-center">{t('footer.facebook')}<ExternalLink className="w-3 h-3 ml-1" /></a></li>
-              </ul>
-            </div>
-          </div>
-          <div className="mt-8 pt-8 border-t border-gray-800 text-center">
-            <p className="text-gray-400 text-sm">{t('footer.copyright')}</p>
           </div>
         </div>
       </footer>
