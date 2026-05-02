@@ -2909,7 +2909,7 @@ export default {
 
   // Network Stats
   'networkStats.disconnected': 'Girêdana Torê Qut Bû',
-  'networkStats.disconnectedDesc': 'Piştrast bikin ku girêka piştrastkirina we li ws://127.0.0.1:9944 dixebite',
+  'networkStats.disconnectedDesc': 'Girêdana bi torê re çênebû. Ji kerema xwe paşê dîsa biceribîne.',
   'networkStats.connecting': 'Bi Torê ve Tê Girêdan...',
   'networkStats.title': 'Rewşa Torê',
   'networkStats.connected': 'Girêdayî',

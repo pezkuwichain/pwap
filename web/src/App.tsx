@@ -113,7 +113,7 @@ function ReferralHandler() {
 }
 
 function App() {
-  const endpoint = import.meta.env.VITE_WS_ENDPOINT || 'ws://127.0.0.1:9944';
+  const endpoint = import.meta.env.VITE_WS_ENDPOINT || 'wss://rpc.pezkuwichain.io';
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">

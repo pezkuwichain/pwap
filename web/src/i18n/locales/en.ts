@@ -3223,7 +3223,7 @@ export default {
 
   // Network Stats
   'networkStats.disconnected': 'Network Disconnected',
-  'networkStats.disconnectedDesc': 'Make sure your validator node is running at ws://127.0.0.1:9944',
+  'networkStats.disconnectedDesc': 'Unable to connect to the network. Please try again later.',
   'networkStats.connecting': 'Connecting to Network...',
   'networkStats.title': 'Network Status',
   'networkStats.connected': 'Connected',

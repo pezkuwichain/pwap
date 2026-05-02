@@ -2912,7 +2912,7 @@ export default {
 
   // Network Stats
   'networkStats.disconnected': 'Ağ Bağlantısı Kesildi',
-  'networkStats.disconnectedDesc': 'Doğrulayıcı düğümünüzün ws://127.0.0.1:9944 adresinde çalıştığından emin olun',
+  'networkStats.disconnectedDesc': 'Ağa bağlanılamadı. Lütfen daha sonra tekrar deneyin.',
   'networkStats.connecting': 'Ağa Bağlanılıyor...',
   'networkStats.title': 'Ağ Durumu',
   'networkStats.connected': 'Bağlandı',

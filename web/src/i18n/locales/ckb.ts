@@ -2882,7 +2882,7 @@ export default {
 
   // Network Stats
   'networkStats.disconnected': 'تۆڕ پچڕاوە',
-  'networkStats.disconnectedDesc': 'دڵنیابەرەوە کە گرێی پشتڕاستکەرەوەکەت لە ws://127.0.0.1:9944 کاردەکات',
+  'networkStats.disconnectedDesc': 'پەیوەندی بە تۆڕەکە نەکرا. تکایە دواتر هەوڵبدەرەوە.',
   'networkStats.connecting': 'پەیوەستبوون بە تۆڕ...',
   'networkStats.title': 'بارودۆخی تۆڕ',
   'networkStats.connected': 'پەیوەستە',

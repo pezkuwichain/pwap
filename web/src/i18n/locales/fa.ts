@@ -2926,7 +2926,7 @@ export default {
 
   // Network Stats
   'networkStats.disconnected': 'شبکه قطع شده',
-  'networkStats.disconnectedDesc': 'مطمئن شوید که نود اعتبارسنج شما در ws://127.0.0.1:9944 در حال اجرا است',
+  'networkStats.disconnectedDesc': 'اتصال به شبکه برقرار نشد. لطفاً بعداً دوباره امتحان کنید.',
   'networkStats.connecting': 'در حال اتصال به شبکه...',
   'networkStats.title': 'وضعیت شبکه',
   'networkStats.connected': 'متصل',

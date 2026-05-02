@@ -2892,7 +2892,7 @@ export default {
 
   // Network Stats
   'networkStats.disconnected': 'الشبكة غير متصلة',
-  'networkStats.disconnectedDesc': 'تأكد من تشغيل عقدة المدقق على ws://127.0.0.1:9944',
+  'networkStats.disconnectedDesc': 'تعذر الاتصال بالشبكة. يرجى المحاولة لاحقاً.',
   'networkStats.connecting': 'جاري الاتصال بالشبكة...',
   'networkStats.title': 'حالة الشبكة',
   'networkStats.connected': 'متصل',
