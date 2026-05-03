@@ -1,3 +1,6 @@
+# Internal resources (never commit)
+res/
+
 # Logs
 logs
 *.log
