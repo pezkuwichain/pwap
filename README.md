@@ -167,7 +167,8 @@ RTL support for CKB, AR, FA.
 ## Links
 
 - **Website:** https://app.pezkuwichain.io
-- **Exchange:** https://pex.mom
+- **Website (alt):** https://pex.mom
+- **Exchange:** https://pex.network
 - **Documentation:** https://docs.pezkuwichain.io
 
 ## License
