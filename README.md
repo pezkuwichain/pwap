@@ -26,7 +26,7 @@ pwap/
 
 **Status:** ✅ Production Ready
 
-The primary web interface for Pezkuwi blockchain at [pezkuwichain.app](https://pezkuwichain.app)
+The primary web interface for Pezkuwi blockchain at [app.pezkuwichain.io](https://app.pezkuwichain.io)
 
 **Tech Stack:**
 - React 18 + TypeScript
@@ -166,9 +166,9 @@ RTL support for CKB, AR, FA.
 
 ## Links
 
-- **Website:** https://pezkuwichain.app
-- **SDK UI:** https://pezkuwichain.app/sdk
-- **Documentation:** https://docs.pezkuwichain.app
+- **Website:** https://app.pezkuwichain.io
+- **Exchange:** https://pex.mom
+- **Documentation:** https://docs.pezkuwichain.io
 
 ## License
 
