@@ -165,9 +165,14 @@ export const WalletConnectModal: React.FC<WalletConnectModalProps> = ({ isOpen, 
                     <ExternalLink className="mr-2 h-4 w-4" />
                     {t('walletModal.wcOpenApp', 'Open pezWallet')}
                   </Button>
-                  <p className="text-xs text-gray-500 text-center">
-                    {t('walletModal.wcInstallHint', "Don't have pezWallet? It will be available on Play Store soon.")}
-                  </p>
+                  <a
+                    href="https://play.google.com/store/apps/details?id=io.pezkuwichain.wallet"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-gray-500 text-center hover:text-purple-400 transition-colors"
+                  >
+                    {t('walletModal.wcInstallHint', "Don't have pezWallet? Download it on Play Store.")}
+                  </a>
                 </div>
               ) : (
                 // Desktop: QR code

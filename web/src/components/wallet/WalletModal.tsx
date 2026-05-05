@@ -40,6 +40,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
   const isMobile = useIsMobile();
   const [copied, setCopied] = useState(false);
   const [showWCModal, setShowWCModal] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
   const [scores, setScores] = useState<UserScores>({
     trustScore: 0,
     referralScore: 0,
@@ -58,7 +59,12 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
   };
 
   const handleConnect = async () => {
-    await connectWallet();
+    setIsConnecting(true);
+    try {
+      await connectWallet();
+    } finally {
+      setIsConnecting(false);
+    }
   };
 
   const handleSelectAccount = (account: typeof accounts[0]) => {
@@ -166,6 +172,32 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
             <p className="text-xs text-gray-400 text-center">
               {t('walletModal.afterInstall')}
             </p>
+          </div>
+        )}
+
+        {/* Generic Error - any error not caught above */}
+        {error && !error.includes('authorize') && !error.includes('not found') && (
+          <div className="space-y-4">
+            <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
+              <p className="text-sm text-red-300">{error}</p>
+            </div>
+            <Button
+              onClick={handleConnect}
+              className="w-full bg-gradient-to-r from-purple-600 to-cyan-400 hover:from-purple-700 hover:to-cyan-500"
+              disabled={isConnecting}
+            >
+              {isConnecting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {t('walletModal.connectingExtension', 'Approve in extension...')}
+                </>
+              ) : (
+                <>
+                  <Wallet className="mr-2 h-4 w-4" />
+                  {t('walletModal.tryAgain')}
+                </>
+              )}
+            </Button>
           </div>
         )}
 
@@ -351,12 +383,17 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                     onClick={handleConnect}
                     className="w-full bg-gradient-to-r from-purple-600 to-cyan-400 hover:from-purple-700 hover:to-cyan-500"
                     size="sm"
-                    disabled={isApiInitializing}
+                    disabled={isApiInitializing || isConnecting}
                   >
                     {isApiInitializing ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         {t('walletModal.connectingBlockchain', 'Connecting to blockchain...')}
+                      </>
+                    ) : isConnecting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        {t('walletModal.connectingExtension', 'Approve in extension...')}
                       </>
                     ) : (
                       <>
@@ -405,9 +442,15 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                       </>
                     )}
                   </Button>
-                  <div className="flex items-center justify-center gap-1 text-xs text-gray-400">
-                    {t('walletModal.mobileComingSoon')}
-                  </div>
+                  <a
+                    href="https://play.google.com/store/apps/details?id=io.pezkuwichain.wallet"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-1 text-xs text-gray-400 hover:text-purple-400 transition-colors"
+                  >
+                    <ExternalLink className="h-3 w-3" />
+                    {t('walletModal.mobilePlayStore', 'Download on Play Store')}
+                  </a>
                 </div>
               </div>
             )}
