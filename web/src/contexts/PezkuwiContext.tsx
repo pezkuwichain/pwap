@@ -22,6 +22,14 @@ if (typeof window !== 'undefined' && !import.meta.env.DEV) {
 import React, { createContext, useContext, useEffect, useState, useRef, ReactNode } from 'react';
 import { ApiPromise, WsProvider } from '@pezkuwi/api';
 import { web3Accounts, web3Enable } from '@pezkuwi/extension-dapp';
+
+const web3EnableWithTimeout = (origin: string, timeoutMs = 20_000): Promise<Awaited<ReturnType<typeof web3Enable>>> =>
+  Promise.race([
+    web3Enable(origin),
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('Extension connection timed out. Please check if the extension popup is blocked by your browser, then click Authorize and try again.')), timeoutMs)
+    )
+  ]);
 import type { InjectedAccountWithMeta } from '@pezkuwi/extension-inject/types';
 import { DEFAULT_ENDPOINT } from '../../../shared/blockchain/pezkuwi';
 import { getCurrentNetworkConfig } from '../../../shared/blockchain/endpoints';
@@ -371,7 +379,7 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
 
       try {
         // Enable extension (works for both desktop extension and pezWallet DApps browser)
-        const extensions = await web3Enable('PezkuwiChain');
+        const extensions = await web3EnableWithTimeout('PezkuwiChain');
         if (extensions.length === 0) return;
 
         // Get accounts
@@ -449,7 +457,7 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
       // Desktop / pezWallet DApps browser: Try extension (injected provider)
       const hasExtension = !!(window as unknown as { injectedWeb3?: Record<string, unknown> }).injectedWeb3;
 
-      const extensions = await web3Enable('PezkuwiChain');
+      const extensions = await web3EnableWithTimeout('PezkuwiChain');
 
       if (extensions.length === 0) {
         if (hasExtension) {
@@ -490,7 +498,7 @@ export const PezkuwiProvider: React.FC<PezkuwiProviderProps> = ({
       if (import.meta.env.DEV) {
         console.error('❌ Wallet connection failed:', err);
       }
-      setError('Failed to connect wallet');
+      setError(err instanceof Error ? err.message : 'Failed to connect wallet');
     }
   };
 
