@@ -46,7 +46,7 @@ RUN npm run build
 # if the image were ever exposed.
 FROM busybox:musl
 WORKDIR /dist
-COPY --from=builder /build/dist /dist
+COPY --from=builder /build/web/dist /dist
 LABEL org.opencontainers.image.source="https://github.com/pezkuwichain/pwap"
 LABEL org.opencontainers.image.description="pwap/web static SPA — Pezkuwi wallet/exchange frontend"
 LABEL org.opencontainers.image.licenses="proprietary"
