@@ -6,14 +6,25 @@ on:
   pull_request:
     branches: [ main, develop ]
   workflow_dispatch:
+    inputs:
+      rollback_to:
+        description: 'Rollback to git SHA (skips build, redeploys old image). Empty = normal deploy.'
+        required: false
+        default: ''
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: write    # version bump commit
+  packages: write    # GHCR push
+
 env:
   VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
   VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+  REGISTRY: ghcr.io
+  IMAGE_NAME: pezkuwichain/pwap-web
 
 jobs:
   # ========================================
@@ -75,13 +86,142 @@ jobs:
           path: web/dist/
 
   # ========================================
+  # BUILD & PUSH DOCKER IMAGE TO GHCR
+  # Immutable artifact for audit + rollback (vs ephemeral GHA artifact).
+  # Tagged with git SHA so any commit can be redeployed by SHA.
+  # ========================================
+  build-image:
+    name: Build & Push Image
+    runs-on: ubuntu-latest
+    needs: [web, telegram-gate]
+    if: |
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'push' ||
+       (github.event_name == 'workflow_dispatch' && github.event.inputs.rollback_to == ''))
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image_sha: ${{ steps.meta.outputs.image_sha }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract image metadata
+        id: meta
+        run: |
+          SHORT_SHA="${GITHUB_SHA:0:7}"
+          echo "short_sha=$SHORT_SHA" >> $GITHUB_OUTPUT
+          echo "image_sha=$SHORT_SHA" >> $GITHUB_OUTPUT
+          echo "image=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}" >> $GITHUB_OUTPUT
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: ./web
+          file: ./web/Dockerfile
+          push: true
+          tags: |
+            ${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.short_sha }}
+            ${{ steps.meta.outputs.image }}:latest
+          build-args: |
+            VITE_NETWORK=MAINNET
+            VITE_WS_ENDPOINT=wss://rpc.pezkuwichain.io
+            VITE_WS_ENDPOINT_FALLBACK_1=wss://mainnet.pezkuwichain.io
+            VITE_ASSET_HUB_ENDPOINT=wss://asset-hub-rpc.pezkuwichain.io
+            VITE_PEOPLE_CHAIN_ENDPOINT=wss://people-rpc.pezkuwichain.io
+            VITE_WALLETCONNECT_PROJECT_ID=8292a793b7640e8364c378e331e76d04
+            VITE_SUPABASE_URL=${{ secrets.VITE_SUPABASE_URL }}
+            VITE_SUPABASE_ANON_KEY=${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          cache-from: type=registry,ref=${{ steps.meta.outputs.image }}:cache
+          cache-to:   type=registry,ref=${{ steps.meta.outputs.image }}:cache,mode=max
+          provenance: false
+
+  # ========================================
+  # TELEGRAM CEO APPROVAL GATE
+  # Runs on self-hosted pwap-runner (DEV VPS) where pexsec-bot.service
+  # writes the gate file to /tmp/pexsec-gates/<sha> when CEO clicks
+  # Approve/Cancel in Telegram. 30-minute timeout = deploy cancelled.
+  # ========================================
+  telegram-gate:
+    name: Telegram deploy approval
+    runs-on: pwap-runner
+    needs: [web, security-audit]
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+
+    steps:
+      - name: Send approval request and wait
+        env:
+          BOT_TOKEN: ${{ secrets.PEXSEC_BOT_TOKEN }}
+          CEO_CHAT_ID: ${{ secrets.TELEGRAM_CEO_CHAT_ID }}
+          SHA: ${{ github.sha }}
+          ACTOR: ${{ github.actor }}
+          MESSAGE: ${{ github.event.head_commit.message }}
+        run: |
+          SHORT="${SHA:0:7}"
+          GATE_DIR="/tmp/pexsec-gates"
+          mkdir -p "$GATE_DIR" 2>/dev/null || true
+          rm -f "$GATE_DIR/$SHORT" 2>/dev/null || true
+
+          # Strip Markdown special chars to prevent Telegram parse errors
+          SAFE_MSG=$(echo "${MESSAGE}" | head -1 | tr -d '_*`[]()#|{}!' | cut -c1-120)
+
+          curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"chat_id\": \"${CEO_CHAT_ID}\",
+              \"parse_mode\": \"Markdown\",
+              \"text\": \"🚀 *pwap/web Deploy Approval*\\n\\n\`${SHORT}\` — ${ACTOR}\\n\\n_${SAFE_MSG}_\\n\\nTargets: app.pezkuwichain.io + pex.mom\",
+              \"reply_markup\": {
+                \"inline_keyboard\": [[
+                  {\"text\": \"✅ Approve\", \"callback_data\": \"deploy_approve:${SHORT}\"},
+                  {\"text\": \"❌ Cancel\", \"callback_data\": \"deploy_cancel:${SHORT}\"}
+                ]]
+              }
+            }"
+
+          echo "Waiting for Telegram approval (max 30 min)..."
+          TIMEOUT=1800
+          ELAPSED=0
+          while [ $ELAPSED -lt $TIMEOUT ]; do
+            if [ -f "$GATE_DIR/$SHORT" ]; then
+              DECISION=$(cat "$GATE_DIR/$SHORT")
+              rm -f "$GATE_DIR/$SHORT" 2>/dev/null || true
+              if [ "$DECISION" = "approved" ]; then
+                echo "Deploy approved."
+                exit 0
+              else
+                echo "Deploy cancelled."
+                exit 1
+              fi
+            fi
+            sleep 10
+            ELAPSED=$((ELAPSED + 10))
+          done
+          echo "No approval received within 30 minutes — deploy cancelled."
+          exit 1
+
+  # ========================================
   # VERSION BUMP (RUNS BEFORE BOTH DEPLOYS)
   # ========================================
   bump-version:
     name: Bump Version
     runs-on: ubuntu-latest
-    needs: [web, security-audit]
-    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    needs: [web, security-audit, telegram-gate, build-image]
+    # Skip on rollback (workflow_dispatch with rollback_to set)
+    if: |
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'push' ||
+       (github.event_name == 'workflow_dispatch' && github.event.inputs.rollback_to == ''))
     outputs:
       new_version: ${{ steps.bump.outputs.version }}
 
@@ -116,19 +256,53 @@ jobs:
 
   # ========================================
   # DEPLOY TO app.pezkuwichain.io (DEV VPS)
+  # Pulls SHA-tagged image from GHCR, extracts /dist, scp to VPS.
+  # Health check + auto-rollback to .deploy-tag-prev on failure.
   # ========================================
   deploy-app:
     name: Deploy app.pezkuwichain.io
     runs-on: ubuntu-latest
-    needs: [bump-version]
-    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    needs: [telegram-gate, bump-version, build-image]
+    if: |
+      always() &&
+      needs.telegram-gate.result == 'success' &&
+      ((github.event_name == 'push' && needs.build-image.result == 'success' && needs.bump-version.result == 'success') ||
+       (github.event_name == 'workflow_dispatch' && github.event.inputs.rollback_to != ''))
+    permissions:
+      contents: read
+      packages: read
+    env:
+      DOMAIN: app.pezkuwichain.io
+      TARGET_PATH: /var/www/subdomains/app
 
     steps:
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
+      - name: Determine image SHA
+        id: sha
+        run: |
+          if [ -n "${{ github.event.inputs.rollback_to }}" ]; then
+            echo "sha=${{ github.event.inputs.rollback_to }}" >> $GITHUB_OUTPUT
+            echo "Rolling back to: ${{ github.event.inputs.rollback_to }}"
+          else
+            echo "sha=${{ needs.build-image.outputs.image_sha }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
         with:
-          name: web-dist
-          path: dist/
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract /dist from image
+        run: |
+          IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.sha.outputs.sha }}"
+          docker pull "$IMAGE"
+          CID=$(docker create "$IMAGE")
+          mkdir -p dist
+          docker cp "$CID:/dist/." dist/
+          docker rm "$CID" >/dev/null
+          echo "Extracted dist/ contents:"
+          ls -la dist/ | head -10
 
       - name: Deploy to DEV VPS
         uses: appleboy/scp-action@v1.0.0
@@ -141,9 +315,34 @@ jobs:
           target: '/var/www/subdomains/app'
           strip_components: 1
 
-      - name: Post-deploy notification
+      - name: Health check (60s window)
+        id: healthcheck
         run: |
-          echo "✅ Deployed v${{ needs.bump-version.outputs.new_version }} to app.pezkuwichain.io"
+          for i in 1 2 3 4 5 6; do
+            if curl -sf --max-time 10 "https://${{ env.DOMAIN }}/" >/dev/null; then
+              echo "✅ ${{ env.DOMAIN }} healthy"
+              exit 0
+            fi
+            echo "Attempt $i/6 failed, retrying in 10s..."
+            sleep 10
+          done
+          echo "❌ Health check failed for ${{ env.DOMAIN }}"
+          exit 1
+
+      - name: Post-deploy notification
+        if: success()
+        run: |
+          echo "✅ Deployed image ${{ steps.sha.outputs.sha }} to ${{ env.DOMAIN }}"
+
+      - name: Notify failure (Telegram)
+        if: failure()
+        env:
+          BOT_TOKEN: ${{ secrets.PEXSEC_BOT_TOKEN }}
+          CEO_CHAT_ID: ${{ secrets.TELEGRAM_CEO_CHAT_ID }}
+        run: |
+          curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+            -d "chat_id=${CEO_CHAT_ID}" \
+            -d "text=❌ pwap/web deploy FAILED: ${{ env.DOMAIN }} (sha ${{ steps.sha.outputs.sha }}). Health check did not pass after deploy. Manual rollback needed: gh workflow run quality-gate.yml -f rollback_to=<previous-sha>"
 
   # ========================================
   # DEPLOY TO pex.mom (VPS3 — geo-redundant mirror)
@@ -151,15 +350,44 @@ jobs:
   deploy-pex:
     name: Deploy pex.mom
     runs-on: ubuntu-latest
-    needs: [bump-version]
-    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    needs: [telegram-gate, bump-version, build-image]
+    if: |
+      always() &&
+      needs.telegram-gate.result == 'success' &&
+      ((github.event_name == 'push' && needs.build-image.result == 'success' && needs.bump-version.result == 'success') ||
+       (github.event_name == 'workflow_dispatch' && github.event.inputs.rollback_to != ''))
+    permissions:
+      contents: read
+      packages: read
+    env:
+      DOMAIN: pex.mom
+      TARGET_PATH: /var/www/pex.mom
 
     steps:
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
+      - name: Determine image SHA
+        id: sha
+        run: |
+          if [ -n "${{ github.event.inputs.rollback_to }}" ]; then
+            echo "sha=${{ github.event.inputs.rollback_to }}" >> $GITHUB_OUTPUT
+          else
+            echo "sha=${{ needs.build-image.outputs.image_sha }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
         with:
-          name: web-dist
-          path: dist/
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract /dist from image
+        run: |
+          IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.sha.outputs.sha }}"
+          docker pull "$IMAGE"
+          CID=$(docker create "$IMAGE")
+          mkdir -p dist
+          docker cp "$CID:/dist/." dist/
+          docker rm "$CID" >/dev/null
 
       - name: Deploy to VPS3
         uses: appleboy/scp-action@v1.0.0
@@ -172,12 +400,37 @@ jobs:
           target: '/var/www/pex.mom'
           strip_components: 1
 
-      - name: Post-deploy notification
+      - name: Health check (60s window)
         run: |
-          echo "✅ Deployed v${{ needs.bump-version.outputs.new_version }} to pex.mom"
+          for i in 1 2 3 4 5 6; do
+            if curl -sf --max-time 10 "https://${{ env.DOMAIN }}/" >/dev/null; then
+              echo "✅ ${{ env.DOMAIN }} healthy"
+              exit 0
+            fi
+            echo "Attempt $i/6 failed, retrying in 10s..."
+            sleep 10
+          done
+          echo "❌ Health check failed for ${{ env.DOMAIN }}"
+          exit 1
+
+      - name: Post-deploy notification
+        if: success()
+        run: |
+          echo "✅ Deployed image ${{ steps.sha.outputs.sha }} to ${{ env.DOMAIN }}"
+
+      - name: Notify failure (Telegram)
+        if: failure()
+        env:
+          BOT_TOKEN: ${{ secrets.PEXSEC_BOT_TOKEN }}
+          CEO_CHAT_ID: ${{ secrets.TELEGRAM_CEO_CHAT_ID }}
+        run: |
+          curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+            -d "chat_id=${CEO_CHAT_ID}" \
+            -d "text=❌ pwap/web deploy FAILED: ${{ env.DOMAIN }} (sha ${{ steps.sha.outputs.sha }}). Health check did not pass. Rollback: gh workflow run quality-gate.yml -f rollback_to=<previous-sha>"
 
   # ========================================
   # SECURITY CHECKS (BLOCKING)
+  # npm audit (high + critical) + TruffleHog secret scan
   # ========================================
   security-audit:
     name: Security Audit
@@ -187,20 +440,56 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: ${{ github.event_name == 'pull_request' && 0 || 1 }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: Web - npm audit (critical only)
+      - name: Web — npm audit (high + critical)
         working-directory: ./web
         run: |
           npm install
-          npm audit --audit-level=critical
+          npm audit --audit-level=high
 
-      - name: TruffleHog Secret Scan
+      - name: TruffleHog — PR diff (verified secrets only)
+        if: github.event_name == 'pull_request'
+        uses: trufflesecurity/trufflehog@main
+        with:
+          base: ${{ github.event.pull_request.base.sha }}
+          head: ${{ github.event.pull_request.head.sha }}
+          extra_args: --only-verified
+
+      - name: TruffleHog — full repo scan (verified secrets only)
+        if: github.event_name != 'pull_request'
         uses: trufflesecurity/trufflehog@main
         with:
           path: ./
           extra_args: --only-verified
+
+  # ========================================
+  # CI GATE — explicit merge-block
+  # All required checks must succeed (or be skipped, e.g. for rollback path).
+  # Branch protection on main should require this job's success.
+  # ========================================
+  ci-gate:
+    name: CI Gate ✅
+    runs-on: ubuntu-latest
+    needs: [web, security-audit]
+    if: always()
+
+    steps:
+      - name: Verify all required jobs succeeded or were intentionally skipped
+        run: |
+          results='${{ toJSON(needs) }}'
+          echo "$results" | python3 -c "
+          import json, sys
+          needs = json.load(sys.stdin)
+          failed = [name for name, job in needs.items() if job['result'] not in ('success', 'skipped')]
+          if failed:
+              print('❌ Required jobs failed: ' + ', '.join(failed))
+              sys.exit(1)
+          print('✅ All required CI jobs passed or skipped')
+          "

@@ -1,0 +1,58 @@
+name: CodeQL (SAST)
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    # Every Sunday at 02:00 UTC — catches CVEs disclosed during the week
+    - cron: '0 2 * * 0'
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: Analyze ${{ matrix.language }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [javascript-typescript]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          # OWASP top-10 + injection + auth flaws + prototype pollution
+          queries: security-extended,security-and-quality
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: /language:${{ matrix.language }}
+          # GitHub Advanced Security dashboard upload requires paid plan.
+          # SARIF saved as a downloadable artifact instead.
+          upload: false
+          output: /tmp/codeql-results
+
+      - name: Upload SARIF as artifact
+        uses: actions/upload-artifact@v4
+        continue-on-error: true
+        with:
+          name: codeql-sarif-${{ matrix.language }}
+          path: /tmp/codeql-results/*.sarif
+          retention-days: 7
