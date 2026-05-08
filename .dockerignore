@@ -1,0 +1,41 @@
+# pwap/web Docker build context (root) — exclude everything not needed
+# for `web/` build. Other monorepo subprojects stay out of the image.
+
+# Other monorepo dirs (we only need web/ + shared/)
+exchange/
+mobile/
+pwap-mobile/
+docs/
+res/
+
+# All node_modules everywhere
+**/node_modules/
+**/dist/
+**/build/
+
+# Git, GitHub
+.git/
+.github/
+
+# Env files (built-in vars are passed as build-args from CI)
+**/.env
+**/.env.*
+!**/.env.example
+
+# Editor / OS
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+*.log
+
+# Cache
+**/.eslintcache
+**/coverage/
+
+# Already-built artifacts (we rebuild fresh inside container)
+web/dist/
+shared/**/dist/

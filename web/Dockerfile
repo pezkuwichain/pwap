@@ -1,4 +1,7 @@
 # pwap/web — Static SPA build for distribution.
+# Build context is the pwap repo ROOT (not web/) because vite aliases like
+# @pezkuwi/utils, @shared/* resolve to ../shared/* — both web/ and shared/
+# must be in the build context.
 # Stage 1: build with Node. Stage 2: pure dist/ in busybox (smallest possible
 # attacker surface — no shell, no package manager, no node runtime).
 # Tag the resulting image with the git SHA in CI so rollback is just
@@ -6,14 +9,15 @@
 
 # ─── Stage 1: Build ────────────────────────────────────────────
 FROM node:20-alpine AS builder
-WORKDIR /build
+WORKDIR /build/web
 
 # Copy package files first to leverage Docker layer cache when only src changes
-COPY package.json package-lock.json ./
+COPY web/package.json web/package-lock.json ./
 RUN npm ci
 
-# Copy source after dependencies — invalidates only on code change
-COPY . .
+# Copy shared/ first (less frequently changed), then web/ source
+COPY shared/ /build/shared/
+COPY web/ /build/web/
 
 # Build args for environment-specific values (passed from CI)
 ARG VITE_NETWORK=MAINNET
