@@ -121,8 +121,7 @@
     "@pezkuwi/x-textencoder": "^14.0.25",
     "@pezkuwi/x-ws": "^14.0.25",
     "@pezkuwi/networks": "^14.0.25",
-    "elliptic": "^6.6.1",
-    "create-ecdh": "^5.0.1"
+    "elliptic": "^6.6.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
