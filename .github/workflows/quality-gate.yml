@@ -32,7 +32,7 @@ jobs:
   # ========================================
   web:
     name: Web App
-    runs-on: ubuntu-latest
+    runs-on: pwap-runner
 
     steps:
       - name: Checkout code
@@ -92,7 +92,7 @@ jobs:
   # ========================================
   build-image:
     name: Build & Push Image
-    runs-on: ubuntu-latest
+    runs-on: pwap-runner
     needs: [web, telegram-gate]
     if: |
       github.ref == 'refs/heads/main' &&
@@ -101,13 +101,20 @@ jobs:
     permissions:
       contents: read
       packages: write
+      id-token: write   # cosign keyless signing via Sigstore OIDC
     outputs:
       image_sha: ${{ steps.meta.outputs.image_sha }}
+      image_digest: ${{ steps.build.outputs.digest }}
 
     steps:
       - uses: actions/checkout@v4
 
       - uses: docker/setup-buildx-action@v3
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@v3
+        with:
+          cosign-release: 'v2.4.1'
 
       - name: Log in to GHCR
         uses: docker/login-action@v3
@@ -125,6 +132,7 @@ jobs:
           echo "image=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}" >> $GITHUB_OUTPUT
 
       - name: Build and push
+        id: build
         uses: docker/build-push-action@v6
         with:
           context: ./
@@ -145,6 +153,15 @@ jobs:
           cache-from: type=registry,ref=${{ steps.meta.outputs.image }}:cache
           cache-to:   type=registry,ref=${{ steps.meta.outputs.image }}:cache,mode=max
           provenance: false
+
+      - name: Sign image with cosign (keyless, Sigstore Fulcio)
+        env:
+          COSIGN_EXPERIMENTAL: '1'
+        run: |
+          IMAGE_DIGEST="${{ steps.meta.outputs.image }}@${{ steps.build.outputs.digest }}"
+          echo "Signing $IMAGE_DIGEST"
+          cosign sign --yes "$IMAGE_DIGEST"
+          echo "✅ Image signed (transparency log: rekor.sigstore.dev)"
 
   # ========================================
   # TELEGRAM CEO APPROVAL GATE
@@ -215,7 +232,7 @@ jobs:
   # ========================================
   bump-version:
     name: Bump Version
-    runs-on: ubuntu-latest
+    runs-on: pwap-runner
     needs: [web, security-audit, telegram-gate, build-image]
     # Skip on rollback (workflow_dispatch with rollback_to set)
     if: |
@@ -261,7 +278,7 @@ jobs:
   # ========================================
   deploy-app:
     name: Deploy app.pezkuwichain.io
-    runs-on: ubuntu-latest
+    runs-on: pwap-runner
     needs: [telegram-gate, bump-version, build-image]
     if: |
       always() &&
@@ -286,12 +303,38 @@ jobs:
             echo "sha=${{ needs.build-image.outputs.image_sha }}" >> $GITHUB_OUTPUT
           fi
 
+      - name: Capture currently-live SHA (for auto-rollback)
+        id: prev
+        run: |
+          # /.deploy-sha is written into every deploy; read what's live now
+          PREV=$(curl -sf --max-time 5 "https://${{ env.DOMAIN }}/.deploy-sha" | head -c 40 | tr -dc 'a-f0-9' || echo "")
+          echo "Previous live SHA: ${PREV:-unknown}"
+          echo "prev=$PREV" >> $GITHUB_OUTPUT
+
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install cosign (for verify)
+        uses: sigstore/cosign-installer@v3
+        with:
+          cosign-release: 'v2.4.1'
+
+      - name: Verify image signature (cosign keyless)
+        env:
+          COSIGN_EXPERIMENTAL: '1'
+        run: |
+          IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.sha.outputs.sha }}"
+          echo "Verifying signature for $IMAGE"
+          # Identity = workflow that built this image (build-image job in this repo)
+          cosign verify "$IMAGE" \
+            --certificate-identity-regexp "^https://github.com/pezkuwichain/pwap/.github/workflows/quality-gate.yml@" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+            > /dev/null
+          echo "✅ Signature valid — image was built by trusted CI"
 
       - name: Extract /dist from image
         run: |
@@ -301,7 +344,8 @@ jobs:
           mkdir -p dist
           docker cp "$CID:/dist/." dist/
           docker rm "$CID" >/dev/null
-          echo "Extracted dist/ contents:"
+          # Stamp this build's SHA into dist so future deploys can read PREV
+          echo "${{ steps.sha.outputs.sha }}" > dist/.deploy-sha
           ls -la dist/ | head -10
 
       - name: Deploy to DEV VPS
@@ -329,6 +373,48 @@ jobs:
           echo "❌ Health check failed for ${{ env.DOMAIN }}"
           exit 1
 
+      # ── Automatic rollback: pull PREV SHA image, redeploy, recheck ──
+      - name: Auto-rollback to previous SHA
+        id: rollback
+        if: failure() && steps.healthcheck.conclusion == 'failure' && steps.prev.outputs.prev != ''
+        run: |
+          PREV="${{ steps.prev.outputs.prev }}"
+          echo "🔄 Rolling back ${{ env.DOMAIN }} to $PREV"
+          IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$PREV"
+          docker pull "$IMAGE"
+          CID=$(docker create "$IMAGE")
+          rm -rf dist && mkdir dist
+          docker cp "$CID:/dist/." dist/
+          docker rm "$CID" >/dev/null
+          echo "$PREV" > dist/.deploy-sha
+          echo "rollback_sha=$PREV" >> $GITHUB_OUTPUT
+
+      - name: SCP rollback artifact
+        if: steps.rollback.outcome == 'success'
+        uses: appleboy/scp-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_SSH_PORT || 2222 }}
+          source: 'dist/*'
+          target: '/var/www/subdomains/app'
+          strip_components: 1
+
+      - name: Re-health-check after rollback
+        if: steps.rollback.outcome == 'success'
+        id: healthcheck_rb
+        run: |
+          for i in 1 2 3 4 5 6; do
+            if curl -sf --max-time 10 "https://${{ env.DOMAIN }}/" >/dev/null; then
+              echo "✅ Rolled back successfully — ${{ env.DOMAIN }} healthy on ${{ steps.rollback.outputs.rollback_sha }}"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "❌ Rollback also failed!"
+          exit 1
+
       - name: Post-deploy notification
         if: success()
         run: |
@@ -339,17 +425,29 @@ jobs:
         env:
           BOT_TOKEN: ${{ secrets.PEXSEC_BOT_TOKEN }}
           CEO_CHAT_ID: ${{ secrets.TELEGRAM_CEO_CHAT_ID }}
+          NEW_SHA: ${{ steps.sha.outputs.sha }}
+          PREV_SHA: ${{ steps.prev.outputs.prev }}
+          ROLLBACK_OUTCOME: ${{ steps.rollback.outcome }}
+          RECHECK_OUTCOME: ${{ steps.healthcheck_rb.outcome }}
         run: |
+          if [ "$RECHECK_OUTCOME" = "success" ]; then
+            MSG="⚠️ pwap/web ${{ env.DOMAIN }}: deploy ($NEW_SHA) failed health check, AUTO-ROLLED-BACK to $PREV_SHA. Site healthy."
+          elif [ "$ROLLBACK_OUTCOME" = "success" ]; then
+            MSG="🚨 pwap/web ${{ env.DOMAIN }}: deploy ($NEW_SHA) failed AND rollback to $PREV_SHA also failed. Manual intervention needed."
+          elif [ -z "$PREV_SHA" ]; then
+            MSG="❌ pwap/web ${{ env.DOMAIN }}: deploy ($NEW_SHA) failed. No previous SHA available (first deploy?). Manual rollback: gh workflow run quality-gate.yml -f rollback_to=<sha>"
+          else
+            MSG="❌ pwap/web ${{ env.DOMAIN }}: deploy ($NEW_SHA) failed. Auto-rollback was not attempted. Manual: gh workflow run quality-gate.yml -f rollback_to=$PREV_SHA"
+          fi
           curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
-            -d "chat_id=${CEO_CHAT_ID}" \
-            -d "text=❌ pwap/web deploy FAILED: ${{ env.DOMAIN }} (sha ${{ steps.sha.outputs.sha }}). Health check did not pass after deploy. Manual rollback needed: gh workflow run quality-gate.yml -f rollback_to=<previous-sha>"
+            -d "chat_id=${CEO_CHAT_ID}" --data-urlencode "text=$MSG"
 
   # ========================================
   # DEPLOY TO pex.mom (VPS3 — geo-redundant mirror)
   # ========================================
   deploy-pex:
     name: Deploy pex.mom
-    runs-on: ubuntu-latest
+    runs-on: pwap-runner
     needs: [telegram-gate, bump-version, build-image]
     if: |
       always() &&
@@ -373,12 +471,36 @@ jobs:
             echo "sha=${{ needs.build-image.outputs.image_sha }}" >> $GITHUB_OUTPUT
           fi
 
+      - name: Capture currently-live SHA (for auto-rollback)
+        id: prev
+        run: |
+          PREV=$(curl -sf --max-time 5 "https://${{ env.DOMAIN }}/.deploy-sha" | head -c 40 | tr -dc 'a-f0-9' || echo "")
+          echo "Previous live SHA: ${PREV:-unknown}"
+          echo "prev=$PREV" >> $GITHUB_OUTPUT
+
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install cosign (for verify)
+        uses: sigstore/cosign-installer@v3
+        with:
+          cosign-release: 'v2.4.1'
+
+      - name: Verify image signature (cosign keyless)
+        env:
+          COSIGN_EXPERIMENTAL: '1'
+        run: |
+          IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.sha.outputs.sha }}"
+          echo "Verifying signature for $IMAGE"
+          cosign verify "$IMAGE" \
+            --certificate-identity-regexp "^https://github.com/pezkuwichain/pwap/.github/workflows/quality-gate.yml@" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+            > /dev/null
+          echo "✅ Signature valid — image was built by trusted CI"
 
       - name: Extract /dist from image
         run: |
@@ -388,6 +510,7 @@ jobs:
           mkdir -p dist
           docker cp "$CID:/dist/." dist/
           docker rm "$CID" >/dev/null
+          echo "${{ steps.sha.outputs.sha }}" > dist/.deploy-sha
 
       - name: Deploy to VPS3
         uses: appleboy/scp-action@v1.0.0
@@ -401,6 +524,7 @@ jobs:
           strip_components: 1
 
       - name: Health check (60s window)
+        id: healthcheck
         run: |
           for i in 1 2 3 4 5 6; do
             if curl -sf --max-time 10 "https://${{ env.DOMAIN }}/" >/dev/null; then
@@ -413,6 +537,47 @@ jobs:
           echo "❌ Health check failed for ${{ env.DOMAIN }}"
           exit 1
 
+      - name: Auto-rollback to previous SHA
+        id: rollback
+        if: failure() && steps.healthcheck.conclusion == 'failure' && steps.prev.outputs.prev != ''
+        run: |
+          PREV="${{ steps.prev.outputs.prev }}"
+          echo "🔄 Rolling back ${{ env.DOMAIN }} to $PREV"
+          IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$PREV"
+          docker pull "$IMAGE"
+          CID=$(docker create "$IMAGE")
+          rm -rf dist && mkdir dist
+          docker cp "$CID:/dist/." dist/
+          docker rm "$CID" >/dev/null
+          echo "$PREV" > dist/.deploy-sha
+          echo "rollback_sha=$PREV" >> $GITHUB_OUTPUT
+
+      - name: SCP rollback artifact
+        if: steps.rollback.outcome == 'success'
+        uses: appleboy/scp-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_PEX_HOST }}
+          username: ${{ secrets.VPS_PEX_USER }}
+          key: ${{ secrets.VPS_PEX_SSH_KEY }}
+          port: ${{ secrets.VPS_PEX_SSH_PORT || 22 }}
+          source: 'dist/*'
+          target: '/var/www/pex.mom'
+          strip_components: 1
+
+      - name: Re-health-check after rollback
+        if: steps.rollback.outcome == 'success'
+        id: healthcheck_rb
+        run: |
+          for i in 1 2 3 4 5 6; do
+            if curl -sf --max-time 10 "https://${{ env.DOMAIN }}/" >/dev/null; then
+              echo "✅ Rolled back successfully — ${{ env.DOMAIN }} healthy on ${{ steps.rollback.outputs.rollback_sha }}"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "❌ Rollback also failed!"
+          exit 1
+
       - name: Post-deploy notification
         if: success()
         run: |
@@ -423,10 +588,22 @@ jobs:
         env:
           BOT_TOKEN: ${{ secrets.PEXSEC_BOT_TOKEN }}
           CEO_CHAT_ID: ${{ secrets.TELEGRAM_CEO_CHAT_ID }}
+          NEW_SHA: ${{ steps.sha.outputs.sha }}
+          PREV_SHA: ${{ steps.prev.outputs.prev }}
+          ROLLBACK_OUTCOME: ${{ steps.rollback.outcome }}
+          RECHECK_OUTCOME: ${{ steps.healthcheck_rb.outcome }}
         run: |
+          if [ "$RECHECK_OUTCOME" = "success" ]; then
+            MSG="⚠️ pwap/web ${{ env.DOMAIN }}: deploy ($NEW_SHA) failed health check, AUTO-ROLLED-BACK to $PREV_SHA. Site healthy."
+          elif [ "$ROLLBACK_OUTCOME" = "success" ]; then
+            MSG="🚨 pwap/web ${{ env.DOMAIN }}: deploy ($NEW_SHA) failed AND rollback to $PREV_SHA also failed. Manual intervention needed."
+          elif [ -z "$PREV_SHA" ]; then
+            MSG="❌ pwap/web ${{ env.DOMAIN }}: deploy ($NEW_SHA) failed. No previous SHA available (first deploy?). Manual rollback: gh workflow run quality-gate.yml -f rollback_to=<sha>"
+          else
+            MSG="❌ pwap/web ${{ env.DOMAIN }}: deploy ($NEW_SHA) failed. Auto-rollback was not attempted. Manual: gh workflow run quality-gate.yml -f rollback_to=$PREV_SHA"
+          fi
           curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
-            -d "chat_id=${CEO_CHAT_ID}" \
-            -d "text=❌ pwap/web deploy FAILED: ${{ env.DOMAIN }} (sha ${{ steps.sha.outputs.sha }}). Health check did not pass. Rollback: gh workflow run quality-gate.yml -f rollback_to=<previous-sha>"
+            -d "chat_id=${CEO_CHAT_ID}" --data-urlencode "text=$MSG"
 
   # ========================================
   # SECURITY CHECKS (BLOCKING)
@@ -434,7 +611,7 @@ jobs:
   # ========================================
   security-audit:
     name: Security Audit
-    runs-on: ubuntu-latest
+    runs-on: pwap-runner
     needs: [web]
 
     steps:
@@ -476,7 +653,7 @@ jobs:
   # ========================================
   ci-gate:
     name: CI Gate ✅
-    runs-on: ubuntu-latest
+    runs-on: pwap-runner
     needs: [web, security-audit]
     if: always()
 

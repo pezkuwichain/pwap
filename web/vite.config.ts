@@ -3,6 +3,7 @@ import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
+import subresourceIntegrity from 'vite-plugin-subresource-integrity';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command }) => ({
@@ -38,6 +39,10 @@ export default defineConfig(({ command }) => ({
       },
       protocolImports: true,
     }),
+    // SRI: production build sırasında <script>/<link> tag'lerine
+    // sha384 integrity hash ekle. CDN/proxy compromise olsa bile
+    // tampered asset browser tarafından load edilmez.
+    command === 'build' ? subresourceIntegrity({ algorithm: 'sha384' }) : null,
   ].filter(Boolean),
   resolve: {
     mainFields: ['browser', 'module', 'main', 'exports'],

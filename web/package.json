@@ -120,7 +120,9 @@
     "@pezkuwi/x-textdecoder": "^14.0.25",
     "@pezkuwi/x-textencoder": "^14.0.25",
     "@pezkuwi/x-ws": "^14.0.25",
-    "@pezkuwi/networks": "^14.0.25"
+    "@pezkuwi/networks": "^14.0.25",
+    "elliptic": "^6.6.1",
+    "create-ecdh": "^5.0.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
@@ -147,6 +149,7 @@
     "typescript-eslint": "^8.0.1",
     "vite": "^7.3.1",
     "vite-plugin-node-polyfills": "^0.25.0",
+    "vite-plugin-subresource-integrity": "^0.0.12",
     "vitest": "^4.0.10"
   }
 }
