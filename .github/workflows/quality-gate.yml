@@ -159,6 +159,9 @@ jobs:
           COSIGN_EXPERIMENTAL: '1'
         run: |
           IMAGE_DIGEST="${{ steps.meta.outputs.image }}@${{ steps.build.outputs.digest }}"
+          # cosign needs its own registry auth — docker/login-action only writes
+          # ~/.docker/config.json which cosign on self-hosted runner can't read
+          echo "${{ secrets.GITHUB_TOKEN }}" | cosign login ghcr.io -u "${{ github.actor }}" --password-stdin
           echo "Signing $IMAGE_DIGEST"
           cosign sign --yes "$IMAGE_DIGEST"
           echo "✅ Image signed (transparency log: rekor.sigstore.dev)"
@@ -328,8 +331,8 @@ jobs:
           COSIGN_EXPERIMENTAL: '1'
         run: |
           IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.sha.outputs.sha }}"
+          echo "${{ secrets.GITHUB_TOKEN }}" | cosign login ghcr.io -u "${{ github.actor }}" --password-stdin
           echo "Verifying signature for $IMAGE"
-          # Identity = workflow that built this image (build-image job in this repo)
           cosign verify "$IMAGE" \
             --certificate-identity-regexp "^https://github.com/pezkuwichain/pwap/.github/workflows/quality-gate.yml@" \
             --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
