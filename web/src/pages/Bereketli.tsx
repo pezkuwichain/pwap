@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabase';
 import { Loader2 } from 'lucide-react';
@@ -12,7 +12,6 @@ const BEREKETLI_API = `${BEREKETLI_URL}/v1`;
  */
 export default function Bereketli() {
   const { t } = useTranslation();
-  const [error, setError] = useState('');
 
   useEffect(() => {
     (async () => {
@@ -20,8 +19,10 @@ export default function Bereketli() {
         const {
           data: { session },
         } = await supabase.auth.getSession();
+        // Not signed in: skip SSO and send the user to the Bereketli site,
+        // which handles its own login. Never dead-end on this interstitial.
         if (!session?.access_token) {
-          setError(t('bereketli.noSession', 'Lütfen önce giriş yapın'));
+          window.location.href = BEREKETLI_URL;
           return;
         }
 
@@ -46,26 +47,13 @@ export default function Bereketli() {
         });
         window.location.href = `${BEREKETLI_URL}/app?auth=${btoa(params.toString())}`;
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Bağlantı hatası');
+        // SSO failed (expired token, network, etc.) — fall back to the public
+        // Bereketli site instead of stranding the user on app.pezkuwichain.io.
+        if (import.meta.env.DEV) console.warn('Bereketli SSO failed, falling back:', err);
+        window.location.href = BEREKETLI_URL;
       }
     })();
   }, [t]);
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center px-6">
-        <div className="text-center space-y-4">
-          <p className="text-red-400 text-sm">{error}</p>
-          <a
-            href="/"
-            className="inline-block px-4 py-2 bg-green-600 text-white rounded-lg text-sm"
-          >
-            {t('common.backToHome', 'Ana Sayfaya Dön')}
-          </a>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gray-950 flex items-center justify-center">

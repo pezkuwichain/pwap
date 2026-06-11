@@ -15,6 +15,8 @@ interface ChainStats {
   validators: number;
   nominators: number;
   collators: number;
+  collatorsAH: number;
+  collatorsPeople: number;
   activeProposals: number;
   totalVoters: number;
   citizenCount: number;
@@ -325,6 +327,7 @@ const LandingPageDesktop: React.FC = () => {
   const [stats, setStats] = useState<ChainStats>({
     latestBlock: 0, finalizedBlock: 0, blockHash: '',
     peers: 0, validators: 0, nominators: 0, collators: 0,
+    collatorsAH: 0, collatorsPeople: 0,
     activeProposals: 0, totalVoters: 0, citizenCount: 0,
     tokensStakedPct: '—',
   });
@@ -417,12 +420,7 @@ const LandingPageDesktop: React.FC = () => {
         const validators = sessionVals.length;
         setStats(prev => ({ ...prev, activeProposals, totalVoters, validators }));
       } catch {}
-
-      try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const nomCount = await (api.query.staking as any).counterForNominators?.();
-        if (nomCount != null) setStats(prev => ({ ...prev, nominators: nomCount.toNumber() }));
-      } catch {}
+      // Nominators/staking migrated to Asset Hub — counted in the Asset Hub effect below.
     })();
   }, [api, isApiReady]);
 
@@ -448,10 +446,18 @@ const LandingPageDesktop: React.FC = () => {
         }
       } catch {}
 
+      // Nominators live on Asset Hub after the staking migration (AHM).
       try {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const collCount = await (assetHubApi.query.collatorSelection as any)?.candidates?.();
-        if (collCount != null) setStats(prev => ({ ...prev, collators: collCount.length }));
+        const nomCount = await (assetHubApi.query.staking as any)?.counterForNominators?.();
+        if (nomCount != null) setStats(prev => ({ ...prev, nominators: nomCount.toNumber() }));
+      } catch {}
+
+      // Collators are the invulnerable set (not staking candidates, which are empty).
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const inv = await (assetHubApi.query.collatorSelection as any)?.invulnerables?.();
+        if (inv != null) setStats(prev => ({ ...prev, collatorsAH: inv.length, collators: inv.length + prev.collatorsPeople }));
       } catch {}
     })();
   }, [assetHubApi, isAssetHubReady]);
@@ -464,6 +470,13 @@ const LandingPageDesktop: React.FC = () => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const entries = await (peopleApi.query as any).tiki?.citizenNft?.entries?.();
         if (entries) setStats(prev => ({ ...prev, citizenCount: entries.length }));
+      } catch {}
+
+      // People Chain also runs invulnerable collators — add them to the total.
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const inv = await (peopleApi.query.collatorSelection as any)?.invulnerables?.();
+        if (inv != null) setStats(prev => ({ ...prev, collatorsPeople: inv.length, collators: prev.collatorsAH + inv.length }));
       } catch {}
     })();
   }, [peopleApi, isPeopleReady]);
