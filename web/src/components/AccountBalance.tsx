@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Wallet, TrendingUp, RefreshCw, Award, Plus, Coins, Send, Shield, Users, Fuel, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ASSET_IDS, getAssetSymbol } from '@pezkuwi/lib/wallet';
+import { Pez20Badge } from './Pez20Badge';
 import { AddTokenModal } from './AddTokenModal';
 import { TransferModal } from './TransferModal';
 import { XCMTeleportModal } from './XCMTeleportModal';
@@ -811,6 +812,7 @@ export const AccountBalance: React.FC = () => {
               <CardTitle className="text-lg font-medium text-gray-300 whitespace-nowrap">
                 {t('balance.pezBalance')}
               </CardTitle>
+              <Pez20Badge className="flex-shrink-0" />
             </div>
             <Button
               size="sm"
@@ -853,6 +855,7 @@ export const AccountBalance: React.FC = () => {
             <CardTitle className="text-lg font-medium text-gray-300">
               {t('balance.usdtBalance')}
             </CardTitle>
+            <Pez20Badge className="flex-shrink-0" />
           </div>
         </CardHeader>
         <CardContent>
