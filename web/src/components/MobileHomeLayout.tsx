@@ -87,7 +87,7 @@ const APP_SECTIONS: AppSection[] = [
       { title: 'mobile.app.whatsKurd', icon: '💬', route: '/social/whatskurd' },
       { title: 'mobile.app.forum', icon: '📰', route: '/forum' },
       { title: 'mobile.app.kurdMedia', icon: '📺', route: '/social/kurdmedia' },
-      { title: 'mobile.app.events', icon: '📅', route: '/forum', comingSoon: true },
+      { title: 'mobile.app.events', icon: '📅', route: '/forum', href: 'https://kurdishtts.pezkiwi.app' },
       { title: 'mobile.app.help', icon: '❓', route: '/help' },
       { title: 'mobile.app.music', icon: '🎵', route: '/forum', comingSoon: true },
       { title: 'mobile.app.rewshenbir', icon: '📡', imgIcon: '/rewshenbir-icon.png', route: '/rewshenbir', href: 'https://rewshenbir.pezkuwi.app' },

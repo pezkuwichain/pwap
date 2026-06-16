@@ -1099,7 +1099,7 @@ const LandingPageDesktop: React.FC = () => {
                 <PalletItem icon="lp-i-chat"   label={t('landing.pallets.whatskurd')}  to="/social/whatskurd" requiresLogin />
                 <PalletItem icon="lp-i-forum"  label={t('landing.pallets.forum')}      to="/forum" />
                 <PalletItem icon="lp-i-media"  label={t('landing.pallets.kurdmedia')}  to="/social/kurdmedia" requiresLogin />
-                <PalletItem icon="lp-i-cal"    label={t('landing.pallets.events')}     locked />
+                <PalletItem icon="lp-i-cal"    label={t('landing.pallets.events')}     external="https://kurdishtts.pezkiwi.app" />
                 <PalletItem icon="lp-i-help"   label={t('landing.pallets.help')}       to="/help" />
                 <PalletItem icon="lp-i-music"  label={t('landing.pallets.music')}      locked />
                 <PalletItem imgSrc="/rewshenbir-icon.png" label={t('landing.pallets.rewshenbir')} external="https://rewshenbir.pezkuwi.app" />

@@ -9,6 +9,7 @@ interface MediaChannel {
   descriptionKu: string;
   description: string;
   color: string;
+  url?: string;
 }
 
 interface SocialPlatform {
@@ -21,7 +22,7 @@ interface SocialPlatform {
 
 const MEDIA_CHANNELS: MediaChannel[] = [
   { id: 'dkstv',     nameKu: 'DKS TV',          name: 'DKS TV',          icon: '📺', descriptionKu: 'Televizyona Dewleta Dijîtal a Kurdistanê', description: 'Digital Kurdistan State Television', color: '#E53935' },
-  { id: 'dksgzt',    nameKu: 'DKS Rojname',      name: 'DKS Gazette',     icon: '📰', descriptionKu: 'Nûçe û Daxuyaniyên Fermî',               description: 'Official News & Announcements',      color: '#1E88E5' },
+  { id: 'dksgzt',    nameKu: 'DKS Rojname',      name: 'DKS Gazette',     icon: '📰', descriptionKu: 'Nûçe û Daxuyaniyên Fermî',               description: 'Official News & Announcements',      color: '#1E88E5', url: 'https://news.pex.mom' },
   { id: 'dksradio',  nameKu: 'DKS Radyo',        name: 'DKS Radio',       icon: '📻', descriptionKu: 'Radyoya Dewleta Dijîtal a Kurdistanê',    description: 'Digital Kurdistan State Radio',       color: '#7B1FA2' },
   { id: 'dksmusic',  nameKu: 'DKS Muzîk',        name: 'DKS Music',       icon: '🎵', descriptionKu: 'Weşana Muzîka Kurdî',                    description: 'Kurdish Music Streaming',             color: '#00897B' },
   { id: 'dkspodcast',nameKu: 'DKS Podcast',      name: 'DKS Podcast',     icon: '🎙️', descriptionKu: 'Podcast û Gotûbêjên Kurdî',             description: 'Kurdish Podcasts & Talks',            color: '#F4511E' },
@@ -71,20 +72,38 @@ export default function KurdMediaPage() {
             <p className="text-sm text-gray-300 mb-1">{t('kurdMedia.channels.desc', 'Weşanên fermî yên Dewleta Dijîtal a Kurdistanê.')}</p>
             <p className="text-xs text-gray-500 mb-4">{t('kurdMedia.channels.descEn', 'Official broadcasts of Digital Kurdistan State. TV, radio, news and more.')}</p>
             <div className="space-y-3">
-              {MEDIA_CHANNELS.map(ch => (
-                <div key={ch.id} className="flex items-center gap-3 bg-gray-800 rounded-xl p-3">
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0" style={{ backgroundColor: ch.color }}>
-                    {ch.icon}
+              {MEDIA_CHANNELS.map(ch => {
+                const inner = (
+                  <>
+                    <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0" style={{ backgroundColor: ch.color }}>
+                      {ch.icon}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-white text-sm">{ch.nameKu}</p>
+                      <p className="text-xs text-gray-400 truncate">{ch.descriptionKu}</p>
+                    </div>
+                    {ch.url ? (
+                      <span className="text-[10px] font-bold text-green-400 bg-green-400/10 px-2 py-1 rounded-full flex-shrink-0">
+                        {t('kurdMedia.open', 'Open')} ↗
+                      </span>
+                    ) : (
+                      <span className="text-[10px] font-bold text-yellow-400 bg-yellow-400/10 px-2 py-1 rounded-full flex-shrink-0">
+                        {t('kurdMedia.soon', 'Soon')}
+                      </span>
+                    )}
+                  </>
+                );
+                return ch.url ? (
+                  <a key={ch.id} href={ch.url} target="_blank" rel="noopener noreferrer"
+                     className="flex items-center gap-3 bg-gray-800 rounded-xl p-3 hover:bg-gray-700 transition-colors">
+                    {inner}
+                  </a>
+                ) : (
+                  <div key={ch.id} className="flex items-center gap-3 bg-gray-800 rounded-xl p-3">
+                    {inner}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-white text-sm">{ch.nameKu}</p>
-                    <p className="text-xs text-gray-400 truncate">{ch.descriptionKu}</p>
-                  </div>
-                  <span className="text-[10px] font-bold text-yellow-400 bg-yellow-400/10 px-2 py-1 rounded-full flex-shrink-0">
-                    {t('kurdMedia.soon', 'Soon')}
-                  </span>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
