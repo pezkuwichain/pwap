@@ -162,3 +162,11 @@ mobile/credentials.json
 
 # Backup files
 *.bak
+
+# Generated docs artifacts — the in-app /docs route now redirects to the
+# external docs.pezkuwichain.io (see web/src/pages/Docs.tsx, since c56e021a).
+# These are (re)built from Pezkuwi-SDK by web/generate-docs-structure.cjs on
+# pre(dev|build); they are NOT served at runtime, so we don't track them.
+/web/public/docs/
+/web/public/sdk_docs/
+/web/public/docs-structure.json

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["mint_unsafe","transfer"]};
