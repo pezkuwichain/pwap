@@ -1561,6 +1561,7 @@ export default {
   'p2pNav.orders': 'الطلبات',
   'p2pNav.ads': 'الإعلانات',
   'p2pNav.messages': 'الرسائل',
+  'p2pNav.buyVisa': 'اشترِ بفيزا',
 
   // P2P Messages Inbox
   'p2pMessages.title': 'الرسائل',
@@ -3787,7 +3788,7 @@ export default {
   'mobile.app.bank': 'البنك',
   'mobile.app.exchange': 'البورصة',
   'mobile.app.dex': 'Pez-DEX',
-  'mobile.app.p2p': 'P2P',
+  'mobile.app.p2p': 'P2P/Buy-Sell',
   'mobile.app.b2b': 'B2B',
   'mobile.app.bacZekat': 'الضريبة/الزكاة',
   'mobile.app.launchpad': 'منصة الإطلاق',

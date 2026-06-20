@@ -1573,6 +1573,7 @@ export default {
   'p2pNav.orders': 'Ferman',
   'p2pNav.ads': 'Reklam',
   'p2pNav.messages': 'Peyam',
+  'p2pNav.buyVisa': 'Bi Visa bikire',
 
   // P2P Messages Inbox
   'p2pMessages.title': 'Peyam',
@@ -3804,7 +3805,7 @@ export default {
   'mobile.app.bank': 'Bank',
   'mobile.app.exchange': 'Danûstandin',
   'mobile.app.dex': 'Pez-DEX',
-  'mobile.app.p2p': 'P2P',
+  'mobile.app.p2p': 'P2P/Buy-Sell',
   'mobile.app.b2b': 'B2B',
   'mobile.app.bacZekat': 'Bac/Zekat',
   'mobile.app.launchpad': 'Destpêk',

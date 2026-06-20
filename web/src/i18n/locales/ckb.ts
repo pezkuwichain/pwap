@@ -1551,6 +1551,7 @@ export default {
   'p2pNav.orders': 'داواکاریەکان',
   'p2pNav.ads': 'ڕیکلامەکان',
   'p2pNav.messages': 'پەیامەکان',
+  'p2pNav.buyVisa': 'بە ڤیزا بکڕە',
 
   // P2P Messages Inbox
   'p2pMessages.title': 'پەیامەکان',
@@ -3777,7 +3778,7 @@ export default {
   'mobile.app.bank': 'بانک',
   'mobile.app.exchange': 'ئاڵوگۆڕ',
   'mobile.app.dex': 'Pez-DEX',
-  'mobile.app.p2p': 'P2P',
+  'mobile.app.p2p': 'P2P/Buy-Sell',
   'mobile.app.b2b': 'B2B',
   'mobile.app.bacZekat': 'باج/زەکات',
   'mobile.app.launchpad': 'دەستپێکردن',

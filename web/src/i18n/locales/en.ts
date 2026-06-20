@@ -1915,6 +1915,7 @@ export default {
   'p2pNav.orders': 'Orders',
   'p2pNav.ads': 'Ads',
   'p2pNav.messages': 'Messages',
+  'p2pNav.buyVisa': 'Buy with Visa',
 
   // P2P Messages Inbox
   'p2pMessages.title': 'Messages',
@@ -3839,7 +3840,7 @@ export default {
   'mobile.app.bank': 'Bank',
   'mobile.app.exchange': 'Exchange',
   'mobile.app.dex': 'Pez-DEX',
-  'mobile.app.p2p': 'P2P',
+  'mobile.app.p2p': 'P2P/Buy-Sell',
   'mobile.app.b2b': 'B2B',
   'mobile.app.bacZekat': 'Bac/Zekat',
   'mobile.app.launchpad': 'Launchpad',

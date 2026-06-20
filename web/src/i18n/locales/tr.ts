@@ -1567,6 +1567,7 @@ export default {
   'p2pNav.orders': 'Siparişler',
   'p2pNav.ads': 'İlanlar',
   'p2pNav.messages': 'Mesajlar',
+  'p2pNav.buyVisa': 'Visa ile Al',
 
   // P2P Messages Inbox
   'p2pMessages.title': 'Mesajlar',
@@ -3807,7 +3808,7 @@ export default {
   'mobile.app.bank': 'Banka',
   'mobile.app.exchange': 'Borsa',
   'mobile.app.dex': 'Pez-DEX',
-  'mobile.app.p2p': 'P2P',
+  'mobile.app.p2p': 'P2P/Buy-Sell',
   'mobile.app.b2b': 'B2B',
   'mobile.app.bacZekat': 'Vergi/Zekat',
   'mobile.app.launchpad': 'Launchpad',

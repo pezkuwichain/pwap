@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { PlusCircle, Home, ClipboardList, TrendingUp, CheckCircle2, Clock, Store, Zap, Blocks, MessageSquare } from 'lucide-react';
+import { PlusCircle, Home, ClipboardList, TrendingUp, CheckCircle2, Clock, Store, Zap, Blocks, MessageSquare, CreditCard } from 'lucide-react';
 import { AdList } from './AdList';
 import { CreateAd } from './CreateAd';
 import { NotificationBell } from './NotificationBell';
@@ -191,6 +191,15 @@ export function P2PDashboard() {
               </Badge>
             )}
           </button>
+          <a
+            href="https://buy-sell.pezkiwi.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="relative flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg hover:bg-amber-900/30 transition-colors"
+          >
+            <CreditCard className="w-5 h-5 text-amber-400" />
+            <span className="text-[10px] text-amber-300">{t('p2pNav.buyVisa')}</span>
+          </a>
         </div>
       </div>
 
