@@ -3804,6 +3804,7 @@ export default {
   'mobile.app.kurdMedia': 'كورد ميديا',
   'mobile.app.events': 'الفعاليات',
   'mobile.app.help': 'المساعدة',
+  'mobile.app.loto': 'لوتو',
   'mobile.app.music': 'الموسيقى',
   'mobile.app.vpn': 'VPN',
   'mobile.app.referral': 'الإحالة',

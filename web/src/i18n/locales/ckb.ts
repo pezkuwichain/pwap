@@ -3794,6 +3794,7 @@ export default {
   'mobile.app.kurdMedia': 'کوردمیدیا',
   'mobile.app.events': 'چالاکی',
   'mobile.app.help': 'یارمەتی',
+  'mobile.app.loto': 'لۆتۆ',
   'mobile.app.music': 'مۆسیقا',
   'mobile.app.vpn': 'VPN',
   'mobile.app.referral': 'ئاماژە',

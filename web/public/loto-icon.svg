@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    
+    <linearGradient id="fireGradient" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" style="stop-color:#1B5E20;stop-opacity:1"></stop> 
+      <stop offset="30%" style="stop-color:#FF6F00;stop-opacity:1"></stop> 
+      <stop offset="60%" style="stop-color:#FFD600;stop-opacity:1"></stop> 
+      <stop offset="100%" style="stop-color:#D32F2F;stop-opacity:1"></stop> 
+    </linearGradient>
+
+    
+    <linearGradient id="innerFlame" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" style="stop-color:#FFD600;stop-opacity:1"></stop>
+      <stop offset="50%" style="stop-color:#FF8F00;stop-opacity:1"></stop>
+      <stop offset="100%" style="stop-color:#FF5722;stop-opacity:1"></stop>
+    </linearGradient>
+
+    
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="8" result="coloredBlur"></feGaussianBlur>
+      <feMerge>
+        <feMergeNode in="coloredBlur"></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+
+    
+    <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#FFD600;stop-opacity:0.6"></stop>
+      <stop offset="100%" style="stop-color:#FFD600;stop-opacity:0"></stop>
+    </radialGradient>
+  </defs>
+
+  
+  <circle cx="256" cy="256" r="240" fill="#1a1a2e" opacity="0.9"></circle>
+
+  
+  <circle cx="256" cy="280" r="180" fill="url(#sunGlow)" filter="url(#glow)"></circle>
+
+  
+  <path d="M256 60&#xA;           C280 120 340 160 360 220&#xA;           C380 280 360 340 340 380&#xA;           C320 420 280 460 256 470&#xA;           C232 460 192 420 172 380&#xA;           C152 340 132 280 152 220&#xA;           C172 160 232 120 256 60Z" fill="url(#fireGradient)" filter="url(#glow)">
+    
+  </path>
+
+  
+  <path d="M256 140&#xA;           C270 180 310 210 320 260&#xA;           C330 310 320 350 300 380&#xA;           C280 410 268 430 256 440&#xA;           C244 430 232 410 212 380&#xA;           C192 350 182 310 192 260&#xA;           C202 210 242 180 256 140Z" fill="url(#innerFlame)" opacity="0.95">
+    
+  </path>
+
+  
+  <ellipse cx="256" cy="320" rx="50" ry="80" fill="#FFFDE7" opacity="0.8">
+    
+    
+  </ellipse>
+
+  
+  <circle cx="200" cy="180" r="8" fill="#4CAF50" opacity="0.8">
+    
+    
+  </circle>
+  <circle cx="312" cy="200" r="6" fill="#4CAF50" opacity="0.7">
+    
+    
+  </circle>
+  <circle cx="230" cy="150" r="5" fill="#81C784" opacity="0.6">
+    
+  </circle>
+  <circle cx="280" cy="165" r="7" fill="#66BB6A" opacity="0.7">
+    
+  </circle>
+</svg>

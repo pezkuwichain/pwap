@@ -3856,6 +3856,7 @@ export default {
   'mobile.app.kurdMedia': 'KurdMedia',
   'mobile.app.events': 'Events',
   'mobile.app.help': 'Help',
+  'mobile.app.loto': 'Loto',
   'mobile.app.music': 'Music',
   'mobile.app.vpn': 'VPN',
   'mobile.app.rewshenbir': 'Rewshenbir',

@@ -3838,6 +3838,7 @@ export default {
   'mobile.app.kurdMedia': 'کوردمدیا',
   'mobile.app.events': 'رویدادها',
   'mobile.app.help': 'کمک',
+  'mobile.app.loto': 'لاتاری',
   'mobile.app.music': 'موسیقی',
   'mobile.app.vpn': 'VPN',
   'mobile.app.referral': 'ارجاع',

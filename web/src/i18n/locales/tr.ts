@@ -3824,6 +3824,7 @@ export default {
   'mobile.app.kurdMedia': 'KurdMedya',
   'mobile.app.events': 'Etkinlikler',
   'mobile.app.help': 'Yardım',
+  'mobile.app.loto': 'Loto',
   'mobile.app.music': 'Müzik',
   'mobile.app.vpn': 'VPN',
   'mobile.app.rewshenbir': 'Rewshenbir',
