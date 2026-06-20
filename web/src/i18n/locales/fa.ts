@@ -3822,7 +3822,7 @@ export default {
   'mobile.app.bank': 'بانک',
   'mobile.app.exchange': 'صرافی',
   'mobile.app.dex': 'Pez-DEX',
-  'mobile.app.p2p': 'P2P/Buy-Sell',
+  'mobile.app.p2p': 'P2P/خرید-فروش',
   'mobile.app.b2b': 'B2B',
   'mobile.app.bacZekat': 'مالیات/زکات',
   'mobile.app.launchpad': 'سکوی پرتاب',

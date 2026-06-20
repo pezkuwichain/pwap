@@ -3778,7 +3778,7 @@ export default {
   'mobile.app.bank': 'بانک',
   'mobile.app.exchange': 'ئاڵوگۆڕ',
   'mobile.app.dex': 'Pez-DEX',
-  'mobile.app.p2p': 'P2P/Buy-Sell',
+  'mobile.app.p2p': 'P2P/کڕین-فرۆشتن',
   'mobile.app.b2b': 'B2B',
   'mobile.app.bacZekat': 'باج/زەکات',
   'mobile.app.launchpad': 'دەستپێکردن',

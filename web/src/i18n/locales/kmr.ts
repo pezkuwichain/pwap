@@ -3805,7 +3805,7 @@ export default {
   'mobile.app.bank': 'Bank',
   'mobile.app.exchange': 'Danûstandin',
   'mobile.app.dex': 'Pez-DEX',
-  'mobile.app.p2p': 'P2P/Buy-Sell',
+  'mobile.app.p2p': 'P2P/Kirîn-Firotin',
   'mobile.app.b2b': 'B2B',
   'mobile.app.bacZekat': 'Bac/Zekat',
   'mobile.app.launchpad': 'Destpêk',
