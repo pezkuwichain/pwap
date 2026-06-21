@@ -56,7 +56,6 @@ function formatMRZ(data: IdentityData): [string, string] {
 }
 
 const today = new Date();
-const issueDate = today.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
 const expiryDate = new Date(today.getFullYear() + 10, today.getMonth(), today.getDate())
   .toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
