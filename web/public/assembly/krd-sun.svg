@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  
+  <circle cx="100" cy="100" r="100" fill="#161A1E"></circle>
+
+  
+  <g opacity="0.92">
+    <line x1="100" y1="100" x2="100" y2="30" stroke="rgba(255,215,0,0.95)" stroke-width="3.5" stroke-linecap="round" transform="rotate(0 100 100)"></line>
+    <line x1="100" y1="100" x2="100" y2="30" stroke="rgba(255,215,0,0.95)" stroke-width="3.5" stroke-linecap="round" transform="rotate(17.14 100 100)"></line>
+    <line x1="100" y1="100" x2="100" y2="30" stroke="rgba(255,215,0,0.95)" stroke-width="3.5" stroke-linecap="round" transform="rotate(34.28 100 100)"></line>
+    <line x1="100" y1="100" x2="100" y2="30" stroke="rgba(255,215,0,0.95)" stroke-width="3.5" stroke-linecap="round" transform="rotate(51.43 100 100)"></line>
+    <line x1="100" y1="100" x2="100" y2="30" stroke="rgba(255,215,0,0.95)" stroke-width="3.5" stroke-linecap="round" transform="rotate(68.57 100 100)"></line>
+    <line x1="100" y1="100" x2="100" y2="30" stroke="rgba(255,215,0,0.95)" stroke-width="3.5" stroke-linecap="round" transform="rotate(85.71 100 100)"></line>
+    <line x1="100" y1="100" x2="100" y2="30" stroke="rgba(255,215,0,0.95)" stroke-width="3.5" stroke-linecap="round" transform="rotate(102.86 100 100)"></line>
+    <line x1="100" y1="100" x2="100" y2="30" stroke="rgba(255,215,0,0.95)" stroke-width="3.5" stroke-linecap="round" transform="rotate(120 100 100)"></line>
+    <line x1="100" y1="100" x2="100" y2="30" stroke="rgba(255,215,0,0.95)" stroke-width="3.5" stroke-linecap="round" transform="rotate(137.14 100 100)"></line>
+    <line x1="100" y1="100" x2="100" y2="30" stroke="rgba(255,215,0,0.95)" stroke-width="3.5" stroke-linecap="round" transform="rotate(154.28 100 100)"></line>
+    <line x1="100" y1="100" x2="100" y2="30" stroke="rgba(255,215,0,0.95)" stroke-width="3.5" stroke-linecap="round" transform="rotate(171.43 100 100)"></line>
+    <line x1="100" y1="100" x2="100" y2="30" stroke="rgba(255,215,0,0.95)" stroke-width="3.5" stroke-linecap="round" transform="rotate(188.57 100 100)"></line>
+    <line x1="100" y1="100" x2="100" y2="30" stroke="rgba(255,215,0,0.95)" stroke-width="3.5" stroke-linecap="round" transform="rotate(205.71 100 100)"></line>
+    <line x1="100" y1="100" x2="100" y2="30" stroke="rgba(255,215,0,0.95)" stroke-width="3.5" stroke-linecap="round" transform="rotate(222.86 100 100)"></line>
+    <line x1="100" y1="100" x2="100" y2="30" stroke="rgba(255,215,0,0.95)" stroke-width="3.5" stroke-linecap="round" transform="rotate(240 100 100)"></line>
+    <line x1="100" y1="100" x2="100" y2="30" stroke="rgba(255,215,0,0.95)" stroke-width="3.5" stroke-linecap="round" transform="rotate(257.14 100 100)"></line>
+    <line x1="100" y1="100" x2="100" y2="30" stroke="rgba(255,215,0,0.95)" stroke-width="3.5" stroke-linecap="round" transform="rotate(274.28 100 100)"></line>
+    <line x1="100" y1="100" x2="100" y2="30" stroke="rgba(255,215,0,0.95)" stroke-width="3.5" stroke-linecap="round" transform="rotate(291.43 100 100)"></line>
+    <line x1="100" y1="100" x2="100" y2="30" stroke="rgba(255,215,0,0.95)" stroke-width="3.5" stroke-linecap="round" transform="rotate(308.57 100 100)"></line>
+    <line x1="100" y1="100" x2="100" y2="30" stroke="rgba(255,215,0,0.95)" stroke-width="3.5" stroke-linecap="round" transform="rotate(325.71 100 100)"></line>
+    <line x1="100" y1="100" x2="100" y2="30" stroke="rgba(255,215,0,0.95)" stroke-width="3.5" stroke-linecap="round" transform="rotate(342.86 100 100)"></line>
+  </g>
+
+  
+  <circle cx="100" cy="100" r="74" fill="none" stroke="#00CC00" stroke-width="3" stroke-dasharray="116 116" stroke-dashoffset="0"></circle>
+  <circle cx="100" cy="100" r="74" fill="none" stroke="#FF2222" stroke-width="3" stroke-dasharray="116 116" stroke-dashoffset="116"></circle>
+
+  
+  <circle cx="100" cy="100" r="32" fill="#FFD700"></circle>
+  <circle cx="100" cy="100" r="26" fill="white"></circle>
+  <circle cx="100" cy="100" r="20" fill="#FFD700"></circle>
+</svg>

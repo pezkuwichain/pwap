@@ -1,137 +1,108 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { languages } from '@/i18n/config';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { ASSEMBLY_CSS } from './assembly/_css';
 
-interface Member {
-  id: string;
-  name: string;
-  role: string;
-  roleKu: string;
-  emoji: string;
-  region: string;
-  since: string;
-}
-
-interface Session {
-  id: string;
-  titleKu: string;
-  title: string;
-  date: string;
-  status: 'upcoming' | 'completed' | 'in-session';
-  agenda: string;
-}
-
-const MEMBERS: Member[] = [
-  { id: '1', name: 'Azad Kurdo',       role: 'Speaker',              roleKu: 'Serokê Meclîsê',          emoji: '👨‍⚖️', region: 'Amed',       since: '2025-06' },
-  { id: '2', name: 'Rozerin Xan',      role: 'Deputy Speaker',       roleKu: 'Cîgirê Serokê Meclîsê',  emoji: '👩‍⚖️', region: 'Hewler',     since: '2025-06' },
-  { id: '3', name: 'Serhat Demirtash', role: 'Finance Committee',    roleKu: 'Komîteya Darayî',         emoji: '👨‍💼', region: 'Diyarbekir', since: '2025-08' },
-  { id: '4', name: 'Jîn Bakir',        role: 'Technology Committee', roleKu: 'Komîteya Teknolojiyê',   emoji: '👩‍💻', region: 'Silêmanî',   since: '2025-07' },
-  { id: '5', name: 'Kawa Zana',        role: 'Education Committee',  roleKu: 'Komîteya Perwerdê',       emoji: '👨‍🎓', region: 'Wan',        since: '2025-09' },
-  { id: '6', name: 'Berfîn Shêx',      role: 'Social Affairs',       roleKu: 'Karên Civakî',            emoji: '👩‍🏫', region: 'Kerkûk',     since: '2025-08' },
-  { id: '7', name: 'Dilovan Ehmed',    role: 'Foreign Relations',    roleKu: 'Têkiliyên Derve',         emoji: '🧑‍💼', region: 'Qamişlo',   since: '2025-10' },
-];
-
-const SESSIONS: Session[] = [
-  { id: 's1', titleKu: 'Civîna Budceya Q2 2026',      title: 'Q2 2026 Budget Session',      date: '2026-04-15', status: 'upcoming',  agenda: 'Treasury allocation, staking rewards adjustment, education fund.' },
-  { id: 's2', titleKu: 'Civîna Yasadanînê #12',       title: 'Legislative Session #12',     date: '2026-04-10', status: 'upcoming',  agenda: 'Cross-chain bridge proposal, fee structure revision.' },
-  { id: 's3', titleKu: 'Civîna Awarte ya Ewlehiyê',   title: 'Emergency Security Session',  date: '2026-03-28', status: 'completed', agenda: 'Network security audit results, validator requirements update.' },
-  { id: 's4', titleKu: 'Civîna Yasadanînê #11',       title: 'Legislative Session #11',     date: '2026-03-15', status: 'completed', agenda: 'Citizenship criteria, NFT standards, community grants.' },
-];
-
-type Tab = 'members' | 'sessions';
+// Pro design ported from "Kurdistan Parliament" — on-chain governance landing.
+// Content is fully localized into the app's 6 standard languages; each variant is
+// lazy-loaded so only the active language ships. Hemicycle seat tooltip wired below.
+const LOADERS: Record<string, () => Promise<{ HTML: string }>> = {
+  en: () => import('./assembly/en'),
+  tr: () => import('./assembly/tr'),
+  kmr: () => import('./assembly/kmr'),
+  ckb: () => import('./assembly/ckb'),
+  fa: () => import('./assembly/fa'),
+  ar: () => import('./assembly/ar'),
+};
+// i18n language code -> assembly variant file
+const MAP: Record<string, string> = {
+  en: 'en', tr: 'tr', 'ku-kurmanji': 'kmr', 'ku-sorani': 'ckb', ar: 'ar', fa: 'fa',
+};
 
 export default function AssemblyPage() {
   const navigate = useNavigate();
-  const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState<Tab>('members');
+  const { i18n } = useTranslation();
+  const fkey = MAP[i18n.language] || 'en';
+  const dir = (languages as Record<string, { dir: string }>)[i18n.language]?.dir || 'ltr';
+  const [html, setHtml] = useState('');
 
-  const sessionStatusLabel = (status: Session['status']) => {
-    if (status === 'upcoming')   return t('assembly.session.upcoming', 'Upcoming');
-    if (status === 'in-session') return t('assembly.session.inSession', 'In Session');
-    return t('assembly.session.completed', 'Completed');
-  };
+  useEffect(() => {
+    let alive = true;
+    (LOADERS[fkey] || LOADERS.en)().then((m) => { if (alive) setHtml(m.HTML); });
+    return () => { alive = false; };
+  }, [fkey]);
 
-  const sessionStatusCls = (status: Session['status']) => {
-    if (status === 'upcoming')   return 'bg-blue-900/50 text-blue-400';
-    if (status === 'in-session') return 'bg-green-900/50 text-green-400';
-    return 'bg-gray-800 text-gray-400';
-  };
+  // hemicycle seat tooltip (ported from the design's support.js _wire)
+  useEffect(() => {
+    if (!html) return;
+    const root = document.getElementById('khemi');
+    const tip = document.getElementById('khemi-tip');
+    if (!root || !tip) return;
+    const dot = tip.querySelector('[data-tdot]') as HTMLElement | null;
+    const nm = tip.querySelector('[data-tname]') as HTMLElement | null;
+    const bl = tip.querySelector('[data-tbloc]') as HTMLElement | null;
+    const rg = tip.querySelector('[data-tregion]') as HTMLElement | null;
+    const onMove = (e: MouseEvent) => {
+      const el = (e.target as HTMLElement).closest('[data-mp]') as HTMLElement | null;
+      if (!el) { tip.style.display = 'none'; return; }
+      if (nm) nm.textContent = el.getAttribute('data-name');
+      if (bl) bl.textContent = el.getAttribute('data-bloc');
+      if (rg) rg.textContent = el.getAttribute('data-region');
+      if (dot) dot.style.background = el.getAttribute('data-color') || '#888';
+      const r = root.getBoundingClientRect();
+      tip.style.display = 'block';
+      let x = e.clientX - r.left;
+      x = Math.max(90, Math.min(x, r.width - 90));
+      tip.style.left = x + 'px';
+      tip.style.top = (e.clientY - r.top - 14) + 'px';
+    };
+    const onLeave = () => { tip.style.display = 'none'; };
+    root.addEventListener('mousemove', onMove);
+    root.addEventListener('mouseleave', onLeave);
+    return () => {
+      root.removeEventListener('mousemove', onMove);
+      root.removeEventListener('mouseleave', onLeave);
+    };
+  }, [html]);
+
+  const startSide = dir === 'rtl' ? { right: 14 } : { left: 14 };
+  const navPad = dir === 'rtl'
+    ? '.kp-root header{padding-right:72px !important;padding-left:120px !important;}'
+    : '.kp-root header{padding-left:72px !important;padding-right:120px !important;}';
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
-      {/* Header */}
-      <div className="bg-green-700 px-4 pt-4 pb-6">
-        <div className="flex items-center gap-3 mb-4">
-          <button onClick={() => navigate(-1)} className="text-white/80 hover:text-white text-xl">←</button>
-          <span className="text-sm text-white/70">{t('assembly.breadcrumb', 'Governance')}</span>
-        </div>
-        <div className="text-center">
-          <span className="text-5xl block mb-2">🏛️</span>
-          <h1 className="text-2xl font-bold">{t('assembly.title', 'Kurdistan Digital Assembly')}</h1>
-          <p className="text-white/70 text-sm mt-0.5">{t('assembly.subtitle', 'Kurdistan Digital Assembly')}</p>
-        </div>
-        <div className="mt-4 flex bg-white/10 rounded-2xl overflow-hidden">
-          {[
-            { val: MEMBERS.length, label: t('assembly.stats.members', 'Members') },
-            { val: 4,              label: t('assembly.stats.committees', 'Committees') },
-            { val: 12,             label: t('assembly.stats.sessions', 'Sessions') },
-          ].map((stat, i) => (
-            <div key={i} className={`flex-1 py-3 text-center ${i > 0 ? 'border-l border-white/20' : ''}`}>
-              <p className="text-xl font-bold text-white">{stat.val}</p>
-              <p className="text-[10px] text-white/60 mt-0.5">{stat.label}</p>
-            </div>
-          ))}
-        </div>
+    <div className="kp-root" dir={dir} style={{ position: 'relative' }}>
+      <style dangerouslySetInnerHTML={{ __html: ASSEMBLY_CSS + '\n' + navPad }} />
+
+      {/* back to governance */}
+      <button
+        onClick={() => navigate(-1)}
+        aria-label="Back"
+        style={{
+          position: 'fixed', top: 13, zIndex: 101, width: 40, height: 40, borderRadius: 10,
+          background: 'rgba(15,19,24,.92)', border: '1px solid #2D3540', color: '#E8ECF0',
+          fontSize: 18, lineHeight: '38px', cursor: 'pointer', backdropFilter: 'blur(8px)',
+          ...startSide,
+        }}
+      >{dir === 'rtl' ? '→' : '←'}</button>
+
+      {/* language switcher (6-language standard) */}
+      <div
+        style={{
+          position: 'fixed', top: 11, zIndex: 101,
+          background: 'rgba(15,19,24,.92)', border: '1px solid #2D3540', borderRadius: 10,
+          backdropFilter: 'blur(8px)', color: '#E8ECF0',
+          ...(dir === 'rtl' ? { left: 14 } : { right: 14 }),
+        }}
+      >
+        <LanguageSwitcher />
       </div>
 
-      {/* Tabs */}
-      <div className="px-4 pt-4">
-        <div className="flex bg-gray-900 rounded-xl p-1">
-          {(['members', 'sessions'] as Tab[]).map(tab => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all ${
-                activeTab === tab ? 'bg-green-600 text-white' : 'text-gray-400'
-              }`}
-            >
-              {tab === 'members' ? t('assembly.tab.members', 'Members') : t('assembly.tab.sessions', 'Sessions')}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="px-4 py-4 space-y-3">
-        {activeTab === 'members' && MEMBERS.map(m => (
-          <div key={m.id} className="bg-gray-900 rounded-xl p-4 flex items-center gap-4">
-            <span className="text-4xl">{m.emoji}</span>
-            <div className="flex-1 min-w-0">
-              <p className="font-bold text-white">{m.name}</p>
-              <p className="text-green-400 text-sm font-medium">{m.roleKu}</p>
-              <p className="text-gray-500 text-xs">{m.role}</p>
-              <div className="flex gap-3 mt-1.5 text-xs text-gray-500">
-                <span>📍 {m.region}</span>
-                <span>{t('assembly.member.since', 'Since')} {m.since}</span>
-              </div>
-            </div>
-          </div>
-        ))}
-
-        {activeTab === 'sessions' && SESSIONS.map(s => (
-          <div key={s.id} className="bg-gray-900 rounded-xl p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${sessionStatusCls(s.status)}`}>
-                {sessionStatusLabel(s.status)}
-              </span>
-              <span className="text-xs text-gray-500">{s.date}</span>
-            </div>
-            <p className="font-bold text-white">{s.titleKu}</p>
-            <p className="text-gray-400 text-sm mb-2">{s.title}</p>
-            <p className="text-gray-500 text-xs leading-relaxed">{s.agenda}</p>
-          </div>
-        ))}
-      </div>
-      <div className="h-10" />
+      {html
+        ? <div dangerouslySetInnerHTML={{ __html: html }} />
+        : <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', color: '#5A6475' }}>…</div>}
     </div>
   );
 }
