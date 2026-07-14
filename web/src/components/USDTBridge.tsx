@@ -14,9 +14,10 @@ import {
   getWithdrawalTier,
   formatDelay,
   formatWUSDT,
+  createWithdrawalInitiationTx,
+  deriveWithdrawalDestination,
 } from '@pezkuwi/lib/usdt';
 import { isMultisigMember } from '@pezkuwi/lib/multisig';
-import { ASSET_IDS } from '@pezkuwi/lib/wallet';
 
 interface USDTBridgeProps {
   isOpen: boolean;
@@ -35,7 +36,6 @@ export const USDTBridge: React.FC<USDTBridgeProps> = ({
 
   const [depositAmount, setDepositAmount] = useState('');
   const [withdrawAmount, setWithdrawAmount] = useState('');
-  const [withdrawAddress, setWithdrawAddress] = useState(''); // Bank account or crypto address
   const [wusdtBalance, setWusdtBalance] = useState(0);
   const [isMultisigMemberState, setIsMultisigMemberState] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -88,7 +88,14 @@ export const USDTBridge: React.FC<USDTBridgeProps> = ({
     }
   };
 
-  // Handle withdrawal (burn wUSDT)
+  // Handle withdrawal - the user transfers their OWN wUSDT to the multisig custody account.
+  // This used to call `assets.burn` directly, signed by the user - but burn requires Admin
+  // origin (the multisig), so that call has always failed on-chain with NoPermission. The bug
+  // went unnoticed because the callback only checked `status.isFinalized`, and a FAILED
+  // dispatch is still included/finalized as a valid extrinsic - so every withdrawal reported
+  // "success" while silently doing nothing. usdt-bridge's relayer (listen_withdrawals) actually
+  // watches for exactly this transfer-to-custody event and records it as pending_multisig
+  // approval; burning happens later, once the multisig actually releases real USDT.
   const handleWithdrawal = async () => {
     if (!api || !selectedAccount) return;
 
@@ -104,34 +111,40 @@ export const USDTBridge: React.FC<USDTBridgeProps> = ({
       return;
     }
 
-    if (!withdrawAddress) {
-      setError(t('bridge.noAddress'));
-      return;
-    }
-
     setIsLoading(true);
     setError(null);
     setSuccess(null);
 
     try {
       const injector = await getSigner(selectedAccount.address, walletSource, api);
+      const transferTx = createWithdrawalInitiationTx(api, amount);
 
-      // Burn wUSDT
-      const amountBN = BigInt(Math.floor(amount * 1e6)); // 6 decimals
-      const burnTx = api.tx.assets.burn(ASSET_IDS.WUSDT, selectedAccount.address, amountBN.toString());
-
-      await burnTx.signAndSend(selectedAccount.address, { signer: injector.signer }, ({ status }) => {
-        if (status.isFinalized) {
-          const delay = calculateWithdrawalDelay(amount);
-          setSuccess(
-            t('bridge.withdrawSuccess', { address: withdrawAddress, delay: formatDelay(delay) })
-          );
-          setWithdrawAmount('');
-          setWithdrawAddress('');
-          refreshBalances();
-          setIsLoading(false);
-        }
+      await new Promise<void>((resolve, reject) => {
+        transferTx
+          .signAndSend(selectedAccount.address, { signer: injector.signer }, ({ status, dispatchError }) => {
+            if (status.isInBlock || status.isFinalized) {
+              if (dispatchError) {
+                if (dispatchError.isModule) {
+                  const decoded = api.registry.findMetaError(dispatchError.asModule);
+                  reject(new Error(`${decoded.section}.${decoded.name}: ${decoded.docs.join(' ')}`));
+                } else {
+                  reject(new Error(dispatchError.toString()));
+                }
+              } else {
+                resolve();
+              }
+            }
+          })
+          .catch(reject);
       });
+
+      const delay = calculateWithdrawalDelay(amount);
+      setSuccess(
+        t('bridge.withdrawSuccess', { address: withdrawDestination, delay: formatDelay(delay) })
+      );
+      setWithdrawAmount('');
+      refreshBalances();
+      setIsLoading(false);
     } catch (err) {
       if (import.meta.env.DEV) console.error('Withdrawal error:', err);
       setError(err instanceof Error ? err.message : 'Withdrawal failed');
@@ -143,6 +156,7 @@ export const USDTBridge: React.FC<USDTBridgeProps> = ({
 
   const withdrawalTier = withdrawAmount ? getWithdrawalTier(parseFloat(withdrawAmount)) : null;
   const withdrawalDelay = withdrawAmount ? calculateWithdrawalDelay(parseFloat(withdrawAmount)) : 0;
+  const withdrawDestination = selectedAccount ? deriveWithdrawalDestination(selectedAccount.address) : '';
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -299,14 +313,10 @@ export const USDTBridge: React.FC<USDTBridgeProps> = ({
               <label className="block text-sm font-medium text-gray-300 mb-2">
                 {t('bridge.withdrawAddress')}
               </label>
-              <input
-                type="text"
-                value={withdrawAddress}
-                onChange={(e) => setWithdrawAddress(e.target.value)}
-                placeholder={t('bridge.addressPlaceholder')}
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 placeholder:text-gray-500 placeholder:opacity-50"
-                disabled={isLoading}
-              />
+              <div className="w-full bg-gray-800/60 border border-gray-700 rounded-lg px-4 py-3">
+                <code className="text-sm text-gray-300 font-mono break-all">{withdrawDestination}</code>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">{t('bridge.withdrawAddressAutoNote')}</p>
             </div>
 
             {withdrawAmount && parseFloat(withdrawAmount) > 0 && (
@@ -333,7 +343,7 @@ export const USDTBridge: React.FC<USDTBridgeProps> = ({
 
             <Button
               onClick={handleWithdrawal}
-              disabled={isLoading || !withdrawAmount || !withdrawAddress}
+              disabled={isLoading || !withdrawAmount || !selectedAccount}
               className="w-full bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 h-12"
             >
               {isLoading ? (

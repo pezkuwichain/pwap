@@ -32,6 +32,7 @@ const ProfileSettings = lazy(() => import('@/pages/ProfileSettings'));
 const AdminPanel = lazy(() => import('@/pages/AdminPanel'));
 const WalletDashboard = lazy(() => import('./pages/WalletDashboard'));
 const ReservesDashboardPage = lazy(() => import('./pages/ReservesDashboardPage'));
+const MultisigOperationsPage = lazy(() => import('./pages/MultisigOperationsPage'));
 const BeCitizen = lazy(() => import('./pages/BeCitizen'));
 const Identity = lazy(() => import('./pages/Identity'));
 const Bereketli = lazy(() => import('./pages/Bereketli'));
@@ -190,6 +191,11 @@ function App() {
                               <Route path="/reserves" element={
                                 <ProtectedRoute>
                                   <ReservesDashboardPage />
+                                </ProtectedRoute>
+                              } />
+                              <Route path="/multisig/pending" element={
+                                <ProtectedRoute requireMultisigMember>
+                                  <MultisigOperationsPage />
                                 </ProtectedRoute>
                               } />
                               <Route path="/elections" element={

@@ -4,6 +4,7 @@
 // Handles wUSDT minting, burning, and reserve management
 
 import type { ApiPromise } from '@pezkuwi/api';
+import { encodeAddress } from '@pezkuwi/util-crypto';
 import { ASSET_IDS, ASSET_CONFIGS } from './wallet';
 import { getMultisigMembers, createMultisigTx } from './multisig';
 
@@ -13,6 +14,27 @@ import { getMultisigMembers, createMultisigTx } from './multisig';
 
 export const WUSDT_ASSET_ID = ASSET_CONFIGS.WUSDT.id;
 export const WUSDT_DECIMALS = ASSET_CONFIGS.WUSDT.decimals;
+
+// ========================================
+// BRIDGE CUSTODY (3-of-5 multisig)
+// ========================================
+// See res/validators-tiki.md "USDT Bridge Custody Multisig" and the
+// usdt-bridge-multisig-migration memory for how these were derived/verified on-chain.
+// Deliberately NOT env-overridable like the constants in wallet.ts - these are fixed,
+// security-critical addresses, not per-deployment config; an env misconfiguration must
+// never be able to silently point this UI at the wrong custody account.
+
+/** The 3-of-5 multisig's own account on Pezkuwi Asset Hub - owns/issues wUSDT (asset 1000). */
+export const WUSDT_BRIDGE_CUSTODY_PEZKUWI = '5GvwxmCDp3PC33KHoeWSgj3S7ocE7nzk1jiCCZMPSDBFeNcj';
+
+/** Delegate key the multisig grants a bounded, auto-renewing Assets.approve_transfer allowance
+ *  to (see pezkuwi-DKS/tools/usdt-bridge/src/bin/pezbridge_bot.rs) so small/routine deposits
+ *  don't need a live 3-of-5 signature every time. */
+export const WUSDT_AUTOMATION_KEY_ADDRESS = '5GQu4PFUb1f3MTJ7i7c1CtLgDk3TVvpSW1VbQCRmfkMoC8cM';
+
+/** The standard top-up amount the multisig renews the automation key's allowance to (6
+ *  decimals) - used to reconstruct and auto-describe that one deterministic pending call. */
+export const STANDARD_RENEWAL_TOPUP = 10_000_000_000n; // 10,000 wUSDT
 
 // Withdrawal limits and timeouts
 export const WITHDRAWAL_LIMITS = {
@@ -161,6 +183,36 @@ export async function createBurnWUSDTTx(
 // ========================================
 // WITHDRAWAL HELPERS
 // ========================================
+
+/**
+ * Builds the plain, single-signer transfer a user submits THEMSELVES to initiate a withdrawal:
+ * sending their own wUSDT to the multisig custody account. This is what usdt-bridge's
+ * listen_withdrawals() actually watches for (an Assets.Transferred event targeting the custody
+ * account) - the user never calls Assets.burn directly. Burning is the multisig's job, later,
+ * once real USDT has actually been released on the Polkadot side; burn requires Admin origin
+ * (the multisig), so a user-submitted burn call has always failed on-chain with NoPermission -
+ * see the fixed bug in USDTBridge.tsx's handleWithdrawal, which used to call burn directly and
+ * report success purely from `status.isFinalized` without checking whether the extrinsic
+ * actually succeeded (a failed dispatch is still included/finalized, so it always "succeeded").
+ * @param api - Polkadot API instance
+ * @param amount - Amount in human-readable format (e.g., 100.50 USDT)
+ * @returns Plain (non-multisig) transfer extrinsic the user signs with their own key
+ */
+export function createWithdrawalInitiationTx(api: ApiPromise, amount: number) {
+  const amountBN = parseWUSDT(amount);
+  return api.tx.assets.transfer(WUSDT_ASSET_ID, WUSDT_BRIDGE_CUSTODY_PEZKUWI, amountBN.toString());
+}
+
+/**
+ * Where real USDT actually gets released to on Polkadot Asset Hub: usdt-bridge's relayer
+ * (listen_withdrawals in main.rs) derives it by re-encoding the SENDER's own address under
+ * Polkadot's SS58 prefix (0) - the same underlying sr25519/ed25519 key, just a different
+ * network's address format. It does NOT read a separately user-specified destination, so the
+ * UI must show this derived address rather than pretend an arbitrary one can be entered.
+ */
+export function deriveWithdrawalDestination(pezkuwiAddress: string): string {
+  return encodeAddress(pezkuwiAddress, 0);
+}
 
 /**
  * Calculate withdrawal delay based on amount

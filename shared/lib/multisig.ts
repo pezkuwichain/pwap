@@ -6,7 +6,7 @@
 import type { ApiPromise } from '@pezkuwi/api';
 import type { SubmittableExtrinsic } from '@pezkuwi/api/types';
 import { Tiki } from './tiki';
-import { encodeAddress, sortAddresses } from '@pezkuwi/util-crypto';
+import { encodeMultiAddress, sortAddresses } from '@pezkuwi/util-crypto';
 
 // ========================================
 // MULTISIG CONFIGURATION
@@ -28,6 +28,21 @@ export const USDT_MULTISIG_CONFIG = {
     { role: 'Notary', tiki: Tiki.Noter, isUnique: false, address: '' }, // Will be set at runtime
     { role: 'Spokesperson', tiki: Tiki.Berdevk, isUnique: false, address: '' },
   ] as MultisigMember[],
+};
+
+/**
+ * Addresses for the two non-unique Tiki roles (Noter, Berdevk are held by all 21 validators,
+ * so which specific validator sits on THIS multisig has to be pinned manually - it can't be
+ * derived from the Tiki on-chain lookup alone). This is the single source of truth: it MUST
+ * match the real 5 signatories the on-chain bridge multisig was actually derived from (see
+ * res/validators-tiki.md "USDT Bridge Custody Multisig" and the usdt-bridge-multisig-migration
+ * memory). Centralized here instead of copy-pasted per-page - a stale copy of these two
+ * addresses previously sat in ReservesDashboardPage.tsx and didn't match any real signer,
+ * which silently made every derived multisig address wrong.
+ */
+export const BRIDGE_MULTISIG_SPECIFIC_ADDRESSES: Record<string, string> = {
+  Noter: '5ELgySrX5ZyK7EWXjj6bAedyTCcTNWDANbiiipsT5gnpoCEp', // Validator_04
+  Berdevk: '5HWFZbhkZuTUySXu6ZXYKrTHBnWXHvWRKLozE22zhnwXGGxk', // Validator_02
 };
 
 // ========================================
@@ -87,21 +102,15 @@ export function calculateMultisigAddress(
   threshold: number = USDT_MULTISIG_CONFIG.threshold,
   ss58Format: number = 42
 ): string {
-  // Sort members (multisig requires sorted order)
-  const sortedMembers = sortAddresses(members);
-
-  // Create multisig address
-  // Formula: blake2(b"modlpy/utilisuba" + concat(sorted_members) + threshold)
-  const multisigId = encodeAddress(
-    new Uint8Array([
-      ...Buffer.from('modlpy/utilisuba'),
-      ...sortedMembers.flatMap((addr) => Array.from(Buffer.from(addr, 'hex'))),
-      threshold,
-    ]),
-    ss58Format
-  );
-
-  return multisigId;
+  // Delegates to @pezkuwi/util-crypto's own createKeyMulti/encodeMultiAddress, which correctly
+  // implements pallet_multisig's derivation (blake2_256 of
+  // SCALE-encode(b"modlpy/utilisuba" ++ compact-len ++ sorted pubkeys ++ u16 threshold)). A
+  // previous hand-rolled version here decoded each address with `Buffer.from(addr, 'hex')` -
+  // treating an SS58 string as hex, which is simply wrong - and never hashed the preimage at
+  // all, so it silently produced an address with no relationship to the real multisig account.
+  // Caught by directly testing this function against the known real 5 bridge signatories,
+  // which threw immediately instead of quietly returning a bogus address.
+  return encodeMultiAddress(members, threshold, ss58Format);
 }
 
 /**

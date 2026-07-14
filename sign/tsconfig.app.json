@@ -7,7 +7,6 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
 
-    /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "isolatedModules": true,
@@ -15,7 +14,6 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
-    /* Linting */
     "strict": false,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
@@ -25,16 +23,10 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@pezkuwi/i18n": ["../shared/i18n"],
       "@pezkuwi/lib": ["../shared/lib"],
-      "@pezkuwi/lib/*": ["../shared/lib/*"],
-      "@pezkuwi/utils": ["../shared/utils"],
-      "@pezkuwi/theme": ["../shared/theme"],
-      "@pezkuwi/types": ["../shared/types"],
-      "@pezkuwi/components/*": ["../shared/components/*"],
-      "@shared/*": ["../shared/*"]
+      "@pezkuwi/lib/*": ["../shared/lib/*"]
     },
     "types": ["vite/client"]
   },
-  "include": ["src", "../shared"]
+  "include": ["src"]
 }

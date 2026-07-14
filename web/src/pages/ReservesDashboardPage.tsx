@@ -4,13 +4,7 @@ import { ArrowLeft, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ReservesDashboard } from '@/components/ReservesDashboard';
 import { USDTBridge } from '@/components/USDTBridge';
-
-// USDT Treasury Multisig Member Addresses
-const SPECIFIC_ADDRESSES = {
-  // Non-unique roles - manually specified
-  Noter: '5DFwqK698vL4gXHEcanaewnAqhxJ2rjhAogpSTHw3iwGDwd3',
-  Berdevk: '5F4V6dzpe72dE2C7YN3y7VGznMTWPFeSKL3ANhp4XasXjfvj',
-};
+import { BRIDGE_MULTISIG_SPECIFIC_ADDRESSES } from '@pezkuwi/lib/multisig';
 
 const ReservesDashboardPage = () => {
   const navigate = useNavigate();
@@ -42,7 +36,7 @@ const ReservesDashboardPage = () => {
 
         {/* Main Content */}
         <ReservesDashboard
-          specificAddresses={SPECIFIC_ADDRESSES}
+          specificAddresses={BRIDGE_MULTISIG_SPECIFIC_ADDRESSES}
           offChainReserveAmount={offChainReserve}
         />
 
@@ -50,7 +44,7 @@ const ReservesDashboardPage = () => {
         <USDTBridge
           isOpen={isBridgeOpen}
           onClose={() => setIsBridgeOpen(false)}
-          specificAddresses={SPECIFIC_ADDRESSES}
+          specificAddresses={BRIDGE_MULTISIG_SPECIFIC_ADDRESSES}
         />
       </div>
     </div>
