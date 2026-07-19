@@ -33,8 +33,13 @@ export const WUSDT_BRIDGE_CUSTODY_PEZKUWI = '5GvwxmCDp3PC33KHoeWSgj3S7ocE7nzk1ji
 export const WUSDT_AUTOMATION_KEY_ADDRESS = '5GQu4PFUb1f3MTJ7i7c1CtLgDk3TVvpSW1VbQCRmfkMoC8cM';
 
 /** The standard top-up amount the multisig renews the automation key's allowance to (6
- *  decimals) - used to reconstruct and auto-describe that one deterministic pending call. */
-export const STANDARD_RENEWAL_TOPUP = 10_000_000_000n; // 10,000 wUSDT
+ *  decimals) - used to reconstruct and auto-describe that one deterministic pending call.
+ *  MUST match pezbridge_bot_config.json's topup_amount AND the Android wallet's
+ *  BridgeMultisigConstants.TOPUP_AMOUNT: all three signing channels build the SAME on-chain
+ *  call, so a different amount here computes a different call hash - real renewals would
+ *  show as "Unknown call" instead of auto-matching. 10,000 (the bot's old built-in default)
+ *  was stale; the live config renews to 200,000 (renewal_threshold 40,000). */
+export const STANDARD_RENEWAL_TOPUP = 200_000_000_000n; // 200,000 wUSDT
 
 // Withdrawal limits and timeouts
 export const WITHDRAWAL_LIMITS = {
