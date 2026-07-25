@@ -29,11 +29,14 @@ export default function NotificationBell() {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    if (user) {
-      loadNotifications();
+    if (!user) return;
 
-      subscribeToNotifications();
-    }
+    loadNotifications();
+    // Return the unsubscribe callback so the realtime channel is torn down
+    // on unmount / when the user changes — otherwise channels leak and
+    // setState fires after unmount.
+    const unsubscribe = subscribeToNotifications();
+    return unsubscribe;
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
@@ -55,7 +58,7 @@ export default function NotificationBell() {
 
   const subscribeToNotifications = () => {
     const channel = supabase
-      .channel('notifications')
+      .channel(`notifications-${user?.id}`)
       .on(
         'postgres_changes',
         {

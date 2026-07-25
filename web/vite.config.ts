@@ -66,6 +66,9 @@ export default defineConfig(({ command }) => ({
   optimizeDeps: {
     include: ['@pezkuwi/util-crypto', '@pezkuwi/util', '@pezkuwi/api', '@pezkuwi/extension-dapp', '@pezkuwi/keyring', 'buffer'],
   },
+  // Strip all console.* and debugger statements from production bundles so the
+  // 600+ dev-time console calls never ship. Dev keeps full logging.
+  esbuild: command === 'build' ? { drop: ['console', 'debugger'] } : {},
   build: {
     rollupOptions: {
       external: [],

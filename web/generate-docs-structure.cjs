@@ -17,8 +17,23 @@ const rustdocDestPath = path.join(publicPath, 'sdk_docs'); // Destination for BU
 const structureOutputPath = path.join(publicPath, 'docs-structure.json');
 const rustdocBuildOutputPath = path.join(pezkuwiSdkRoot, 'target', 'doc'); // Output of cargo doc
 
-// Absolute path to rustup (used to build rustdoc)
-const rustupPath = '/home/mamostehp/.cargo/bin/rustup';
+// Path to rustup (used to build rustdoc). Resolve dynamically instead of
+// hardcoding a per-machine absolute path: prefer $RUSTUP_PATH, then whatever
+// is on PATH, then the conventional ~/.cargo/bin/rustup, then bare 'rustup'.
+function resolveRustupPath() {
+    if (process.env.RUSTUP_PATH) return process.env.RUSTUP_PATH;
+    try {
+        const which = spawnSync('bash', ['-lc', 'command -v rustup'], { encoding: 'utf8' });
+        if (which.status === 0 && which.stdout && which.stdout.trim()) {
+            return which.stdout.trim();
+        }
+    } catch { /* fall through */ }
+    const home = process.env.HOME || require('os').homedir();
+    const cargoRustup = path.join(home, '.cargo', 'bin', 'rustup');
+    if (fs.existsSync(cargoRustup)) return cargoRustup;
+    return 'rustup';
+}
+const rustupPath = resolveRustupPath();
 
 // Path to the rebranding script (now .cjs)
 const rebrandScriptPath = path.join(__dirname, 'rebrand-rustdoc.cjs');

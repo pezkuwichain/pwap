@@ -58,11 +58,19 @@ jobs:
 
       - name: Install dependencies
         working-directory: ./web
-        run: npm install
+        run: npm ci
 
       - name: Run Linter
         working-directory: ./web
         run: npm run lint
+
+      # Typecheck gate. Currently non-blocking (continue-on-error) because the
+      # existing codebase still has pre-existing type errors. Once the count
+      # reaches zero, remove `continue-on-error` to make this a hard merge block.
+      - name: Typecheck
+        working-directory: ./web
+        continue-on-error: true
+        run: npm run typecheck
 
       - name: Run Tests
         working-directory: ./web
@@ -84,6 +92,48 @@ jobs:
         with:
           name: web-dist
           path: web/dist/
+
+  # ========================================
+  # BACKEND - INDEXER SERVICE (lint/smoke/audit)
+  # No build step exists (plain ESM node service); we lockfile-enforce install,
+  # syntax-check the entry point, and audit. The audit is currently non-blocking
+  # because the express@5 + sqlite3(node-gyp) trees carry transitive advisories
+  # that need a broader dependency upgrade; flip continue-on-error off once the
+  # tree is clean.
+  # ========================================
+  backend:
+    name: Backend Indexer
+    runs-on: pwap-runner
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Cache npm dependencies
+        uses: actions/cache@v4
+        with:
+          path: backend/node_modules
+          key: ${{ runner.os }}-backend-${{ hashFiles('backend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-backend-
+
+      - name: Install dependencies
+        working-directory: ./backend
+        run: npm ci
+
+      - name: Syntax check (entry point)
+        working-directory: ./backend
+        run: node --check src/index.js
+
+      - name: npm audit (high + critical, production deps)
+        working-directory: ./backend
+        continue-on-error: true
+        run: npm audit --audit-level=high --omit=dev
 
   # ========================================
   # BUILD & PUSH DOCKER IMAGE TO GHCR
@@ -631,7 +681,7 @@ jobs:
       - name: Web — npm audit (high + critical, production deps only)
         working-directory: ./web
         run: |
-          npm install
+          npm ci
           # Audit only production dependencies. Build tooling (vite, esbuild,
           # vite-plugin-node-polyfills → elliptic, etc.) ships to no user, and
           # advisories on those dev deps kept blocking production deploys.
