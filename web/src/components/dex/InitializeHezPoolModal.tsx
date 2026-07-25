@@ -10,6 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from 'react-i18next';
+import { parseTokenInput } from '@pezkuwi/utils/dex';
 
 interface InitializeHezPoolModalProps {
   isOpen: boolean;
@@ -131,7 +132,7 @@ export const InitializeHezPoolModal: React.FC<InitializeHezPoolModalProps> = ({
       return;
     }
 
-    const amountRaw = BigInt(parseFloat(amount) * 10 ** 12);
+    const amountRaw = BigInt(parseTokenInput(amount, 12));
 
     if (amountRaw <= BigInt(0)) {
       setErrorMessage(t('common.amountGtZero'));
