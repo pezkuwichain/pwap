@@ -1,0 +1,6 @@
+# Stateful indexer DB — never commit (lives on a mounted volume in prod)
+transactions.db
+*.db
+*.db-journal
+*.sqlite
+node_modules/

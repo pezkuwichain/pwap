@@ -1,0 +1,16 @@
+node_modules
+npm-debug.log
+# Never bake stateful DB or secrets into the image
+transactions.db
+*.db
+.env
+.env.*
+!.env.example
+# Tests + docs are not needed at runtime
+test
+integration-tests
+jest.config.js
+.eslintrc.cjs
+*.md
+.git
+.github

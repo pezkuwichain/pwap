@@ -25,6 +25,7 @@ env:
   VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
   REGISTRY: ghcr.io
   IMAGE_NAME: pezkuwichain/pwap-web
+  BACKEND_IMAGE_NAME: pezkuwichain/pwap-indexer
 
 jobs:
   # ========================================
@@ -130,6 +131,15 @@ jobs:
         working-directory: ./backend
         run: node --check src/index.js
 
+      # Real, offline test suite (node:test). Uses in-memory sqlite and a
+      # mocked chain/Supabase — NO live node, NO network. The integration-tests/
+      # *.live.test.js suites are intentionally EXCLUDED (they require a live
+      # chain + Supabase and are not run in CI); the `test` script scopes to
+      # test/*.test.js only.
+      - name: Run tests (offline)
+        working-directory: ./backend
+        run: npm test
+
       - name: npm audit (high + critical, production deps)
         working-directory: ./backend
         continue-on-error: true
@@ -215,6 +225,77 @@ jobs:
           echo "Signing $IMAGE_DIGEST"
           cosign sign --yes "$IMAGE_DIGEST"
           echo "✅ Image signed (transparency log: rekor.sigstore.dev)"
+
+  # ========================================
+  # BUILD & PUSH BACKEND (INDEXER) IMAGE TO GHCR
+  # Runnable Node service image (vs the web static-dist image). SHA-tagged +
+  # cosign-signed for the same audit/rollback discipline as the web image.
+  # Gated to main/tags, never fork PRs (needs packages:write + the telegram gate).
+  # ========================================
+  build-image-backend:
+    name: Build & Push Backend Image
+    runs-on: pwap-runner
+    needs: [backend, telegram-gate]
+    if: |
+      (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')) &&
+      (github.event_name == 'push' ||
+       (github.event_name == 'workflow_dispatch' && github.event.inputs.rollback_to == ''))
+    permissions:
+      contents: read
+      packages: write
+      id-token: write   # cosign keyless signing via Sigstore OIDC
+    outputs:
+      image_sha: ${{ steps.meta.outputs.image_sha }}
+      image_digest: ${{ steps.build.outputs.digest }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@v3
+        with:
+          cosign-release: 'v2.4.1'
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract image metadata
+        id: meta
+        run: |
+          SHORT_SHA="${GITHUB_SHA:0:7}"
+          echo "short_sha=$SHORT_SHA" >> $GITHUB_OUTPUT
+          echo "image_sha=$SHORT_SHA" >> $GITHUB_OUTPUT
+          echo "image=${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}" >> $GITHUB_OUTPUT
+
+      - name: Build and push
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: true
+          tags: |
+            ${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.short_sha }}
+            ${{ steps.meta.outputs.image }}:latest
+          cache-from: type=registry,ref=${{ steps.meta.outputs.image }}:cache
+          cache-to:   type=registry,ref=${{ steps.meta.outputs.image }}:cache,mode=max
+          provenance: false
+
+      - name: Sign image with cosign (keyless, Sigstore Fulcio)
+        env:
+          COSIGN_EXPERIMENTAL: '1'
+        run: |
+          IMAGE_DIGEST="${{ steps.meta.outputs.image }}@${{ steps.build.outputs.digest }}"
+          echo "${{ secrets.GITHUB_TOKEN }}" | cosign login ghcr.io -u "${{ github.actor }}" --password-stdin
+          echo "Signing $IMAGE_DIGEST"
+          cosign sign --yes "$IMAGE_DIGEST"
+          echo "✅ Backend image signed (transparency log: rekor.sigstore.dev)"
 
   # ========================================
   # TELEGRAM CEO APPROVAL GATE
@@ -659,6 +740,163 @@ jobs:
             -d "chat_id=${CEO_CHAT_ID}" --data-urlencode "text=$MSG"
 
   # ========================================
+  # DEPLOY BACKEND (INDEXER) TO ITS HOST
+  # Runs a container from the SHA-tagged GHCR image on the backend VPS.
+  # Same discipline as the web deploy: cosign verify → deploy → health check →
+  # auto-rollback to previous SHA → Telegram notify. Gated behind the SAME
+  # telegram-gate approval as the web deploy. Only main/tags, never fork PRs.
+  #
+  # STATEFUL DB: the sqlite file lives in the named docker volume
+  # `pwap-indexer-db` (mounted at /data). Deploy replaces the container/image
+  # but NEVER the volume — indexer state survives every deploy and rollback.
+  #
+  # Host param via secret BACKEND_VPS_HOST (no hardcoded IP). If the backend
+  # shares the web DEV VPS, set BACKEND_VPS_HOST = VPS_HOST (see backend/DEPLOY.md).
+  # ========================================
+  deploy-backend:
+    name: Deploy Backend (indexer)
+    runs-on: pwap-runner
+    needs: [telegram-gate, build-image-backend]
+    if: |
+      always() &&
+      (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')) &&
+      needs.telegram-gate.result == 'success' &&
+      ((github.event_name == 'push' && needs.build-image-backend.result == 'success') ||
+       (github.event_name == 'workflow_dispatch' && github.event.inputs.rollback_to != ''))
+    permissions:
+      contents: read
+      packages: read
+
+    steps:
+      - name: Determine image SHA
+        id: sha
+        run: |
+          if [ -n "${{ github.event.inputs.rollback_to }}" ]; then
+            echo "sha=${{ github.event.inputs.rollback_to }}" >> $GITHUB_OUTPUT
+            echo "Rolling back backend to: ${{ github.event.inputs.rollback_to }}"
+          else
+            echo "sha=${{ needs.build-image-backend.outputs.image_sha }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install cosign (for verify)
+        uses: sigstore/cosign-installer@v3
+        with:
+          cosign-release: 'v2.4.1'
+
+      - name: Log in to GHCR (runner-side, for verify)
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify image signature (cosign keyless)
+        env:
+          COSIGN_EXPERIMENTAL: '1'
+        run: |
+          IMAGE="${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:${{ steps.sha.outputs.sha }}"
+          echo "${{ secrets.GITHUB_TOKEN }}" | cosign login ghcr.io -u "${{ github.actor }}" --password-stdin
+          echo "Verifying signature for $IMAGE"
+          cosign verify "$IMAGE" \
+            --certificate-identity-regexp "^https://github.com/pezkuwichain/pwap/.github/workflows/quality-gate.yml@" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+            > /dev/null
+          echo "✅ Signature valid — backend image was built by trusted CI"
+
+      - name: Deploy container to backend host (health-checked, auto-rollback)
+        id: deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.BACKEND_VPS_HOST }}
+          username: ${{ secrets.BACKEND_VPS_USER }}
+          key: ${{ secrets.BACKEND_VPS_SSH_KEY }}
+          port: ${{ secrets.BACKEND_VPS_SSH_PORT || 22 }}
+          envs: IMAGE_REF,NEW_SHA,GHCR_USER,GHCR_TOKEN
+          command_timeout: 10m
+          script_stop: true
+          script: |
+            set -e
+            REGISTRY_IMAGE="ghcr.io/pezkuwichain/pwap-indexer"
+            IMAGE="$REGISTRY_IMAGE:$NEW_SHA"
+            STATE_DIR="/opt/pwap-indexer"
+            NAME="pwap-indexer"
+            mkdir -p "$STATE_DIR"
+            PREV="$(cat "$STATE_DIR/.deploy-sha" 2>/dev/null || echo "")"
+            echo "Deploying $IMAGE (previous: ${PREV:-none})"
+
+            echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
+            docker pull "$IMAGE"
+
+            run_container () {
+              local img="$1"
+              docker rm -f "$NAME" >/dev/null 2>&1 || true
+              # Named volume pwap-indexer-db = stateful sqlite DB. NEVER removed
+              # by this script — it is created on first run and reused forever.
+              docker run -d --name "$NAME" --restart unless-stopped \
+                -p 3001:3001 \
+                -v pwap-indexer-db:/data \
+                -e DB_PATH=/data/transactions.db \
+                -e PORT=3001 \
+                --env-file "$STATE_DIR/.env" \
+                "$img"
+            }
+
+            healthy () {
+              for i in $(seq 1 12); do
+                if curl -fsS --max-time 5 "http://localhost:3001/health" >/dev/null 2>&1; then
+                  return 0
+                fi
+                echo "health attempt $i/12 failed, retry in 5s..."
+                sleep 5
+              done
+              return 1
+            }
+
+            run_container "$IMAGE"
+            if healthy; then
+              echo "$NEW_SHA" > "$STATE_DIR/.deploy-sha"
+              echo "✅ Backend healthy on $NEW_SHA"
+              docker image prune -f >/dev/null 2>&1 || true
+              exit 0
+            fi
+
+            echo "❌ Health check failed for $NEW_SHA"
+            if [ -n "$PREV" ]; then
+              echo "🔄 Rolling back to $PREV"
+              docker pull "$REGISTRY_IMAGE:$PREV"
+              run_container "$REGISTRY_IMAGE:$PREV"
+              if healthy; then
+                echo "$PREV" > "$STATE_DIR/.deploy-sha"
+                echo "✅ Rolled back to $PREV — backend healthy"
+                exit 1   # still fail the job: the new SHA did not deploy
+              fi
+              echo "🚨 Rollback to $PREV ALSO failed"
+              exit 1
+            fi
+            echo "No previous SHA to roll back to."
+            exit 1
+        env:
+          IMAGE_REF: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:${{ steps.sha.outputs.sha }}
+          NEW_SHA: ${{ steps.sha.outputs.sha }}
+          GHCR_USER: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Post-deploy notification
+        if: success()
+        run: echo "✅ Deployed backend image ${{ steps.sha.outputs.sha }} to backend host"
+
+      - name: Notify failure (Telegram)
+        if: failure()
+        env:
+          BOT_TOKEN: ${{ secrets.PEXSEC_BOT_TOKEN }}
+          CEO_CHAT_ID: ${{ secrets.TELEGRAM_CEO_CHAT_ID }}
+          NEW_SHA: ${{ steps.sha.outputs.sha }}
+        run: |
+          MSG="❌ pwap/backend indexer: deploy ($NEW_SHA) failed. If a previous SHA existed the host auto-rolled-back to it (DB volume untouched). Manual: gh workflow run quality-gate.yml -f rollback_to=<sha>"
+          curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+            -d "chat_id=${CEO_CHAT_ID}" --data-urlencode "text=$MSG"
+
+  # ========================================
   # SECURITY CHECKS (BLOCKING)
   # npm audit (high + critical) + TruffleHog secret scan
   # ========================================
@@ -710,7 +948,7 @@ jobs:
   ci-gate:
     name: CI Gate ✅
     runs-on: pwap-runner
-    needs: [web, security-audit]
+    needs: [web, backend, security-audit]
     if: always()
 
     steps:
