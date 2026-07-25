@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useWebSocket } from '@/contexts/WebSocketContext';
 import { useToast } from '@/hooks/use-toast';
+import DOMPurify from 'dompurify';
 
 interface Comment {
   id: string;
@@ -329,8 +330,18 @@ export function DiscussionThread({ proposalId }: { proposalId: string }) {
     </div>
   );
 
+  // SECURITY: user-supplied comment content. Escape all HTML FIRST so raw markup
+  // (e.g. <img src=x onerror=...>) becomes inert text, THEN apply the markdown
+  // transforms, THEN run the result through DOMPurify restricted to a safe tag/attr
+  // allow-list with http(s)-only hrefs. This blocks stored XSS (script/onerror/
+  // javascript: URLs) while keeping basic markdown rendering.
   const parseMarkdown = (text: string): string => {
-    return text
+    const escaped = (text || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+    const html = escaped
       .replace(/^### (.*$)/gim, '<h3>$1</h3>')
       .replace(/^## (.*$)/gim, '<h2>$1</h2>')
       .replace(/^# (.*$)/gim, '<h1>$1</h1>')
@@ -339,6 +350,11 @@ export function DiscussionThread({ proposalId }: { proposalId: string }) {
       .replace(/\[([^\]]+)\]\(([^)]+)\)/gim, '<a href="$2" class="text-blue-600 hover:underline">$1</a>')
       .replace(/^> (.*$)/gim, '<blockquote class="border-l-4 border-gray-300 pl-4 italic">$1</blockquote>')
       .replace(/\n/gim, '<br>');
+    return DOMPurify.sanitize(html, {
+      ALLOWED_TAGS: ['h1', 'h2', 'h3', 'strong', 'em', 'a', 'blockquote', 'br', 'p'],
+      ALLOWED_ATTR: ['href', 'class'],
+      ALLOWED_URI_REGEXP: /^https?:\/\//i,
+    });
   };
 
   return (

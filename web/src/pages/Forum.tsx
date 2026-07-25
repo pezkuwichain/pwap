@@ -429,7 +429,7 @@ const Forum: React.FC = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  <a href="/governance" className="block text-gray-400 hover:text-green-400 text-sm transition-colors">
+                  <a href="/governance/assembly" className="block text-gray-400 hover:text-green-400 text-sm transition-colors">
                     → {t('forum.govDashboard')}
                   </a>
                   <a href="/docs" className="block text-gray-400 hover:text-green-400 text-sm transition-colors">
