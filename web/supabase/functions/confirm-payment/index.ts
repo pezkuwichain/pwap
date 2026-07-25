@@ -116,21 +116,13 @@ serve(async (req) => {
       return json(401, { success: false, error: 'Authorization already used (replay detected)' })
     }
 
-    // 6) Release escrow (service role) + mark trade completed
-    const { data: releaseRes, error: releaseErr } = await serviceClient.rpc('release_escrow_internal', {
-      p_from_user_id: trade.seller_id,
-      p_to_user_id: trade.buyer_id,
-      p_token: offer.token,
-      p_amount: trade.crypto_amount,
-      p_reference_type: 'trade',
-      p_reference_id: tradeId,
-    })
-    if (releaseErr) return json(500, { success: false, error: releaseErr.message || 'Release failed' })
-    const parsed = typeof releaseRes === 'string' ? JSON.parse(releaseRes) : releaseRes
-    if (!parsed?.success) return json(400, { success: false, error: parsed?.error || 'Release failed' })
-
+    // 6) Atomically CLAIM the payment_sent -> completed transition BEFORE moving
+    //    any funds. This is the concurrency lock: only one caller can flip the
+    //    row out of 'payment_sent', so two concurrent (differently-nonced) release
+    //    requests for the same trade cannot both reach release_escrow_internal and
+    //    double-spend escrow that was locked for other trades on the same offer.
     const nowIso = new Date().toISOString()
-    const { error: updErr } = await serviceClient
+    const { data: claimed, error: claimErr } = await serviceClient
       .from('p2p_fiat_trades')
       .update({
         seller_confirmed_at: nowIso,
@@ -139,9 +131,34 @@ serve(async (req) => {
         completed_at: nowIso,
       })
       .eq('id', tradeId)
-    if (updErr) {
-      // Funds released but status update failed — log for reconciliation.
-      console.error('Trade status update failed after release:', updErr)
+      .eq('status', 'payment_sent') // compare-and-swap guard
+      .select('id')
+    if (claimErr) return json(500, { success: false, error: 'Failed to claim trade for release' })
+    if (!claimed || claimed.length === 0) {
+      // Someone (or a concurrent request) already moved it out of payment_sent.
+      return json(409, { success: false, error: 'Trade is no longer awaiting confirmation (already released?)' })
+    }
+
+    // 7) Release escrow (service role). If it fails, revert the claim so the trade
+    //    can be retried / disputed rather than being stuck "completed" with no move.
+    const { data: releaseRes, error: releaseErr } = await serviceClient.rpc('release_escrow_internal', {
+      p_from_user_id: trade.seller_id,
+      p_to_user_id: trade.buyer_id,
+      p_token: offer.token,
+      p_amount: trade.crypto_amount,
+      p_reference_type: 'trade',
+      p_reference_id: tradeId,
+    })
+    const parsed = typeof releaseRes === 'string' ? JSON.parse(releaseRes) : releaseRes
+    if (releaseErr || !parsed?.success) {
+      await serviceClient
+        .from('p2p_fiat_trades')
+        .update({ status: 'payment_sent', seller_confirmed_at: null, escrow_released_at: null, completed_at: null })
+        .eq('id', tradeId)
+      return json(releaseErr ? 500 : 400, {
+        success: false,
+        error: releaseErr?.message || parsed?.error || 'Release failed',
+      })
     }
 
     return json(200, {
