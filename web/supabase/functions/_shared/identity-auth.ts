@@ -142,6 +142,50 @@ export function buildDepositChallenge(p: {
 }
 
 /**
+ * Canonical challenge for a seller confirming payment / releasing escrow.
+ * MUST be byte-identical to the client (shared/lib/p2p-fiat.ts).
+ */
+export function buildConfirmPaymentChallenge(p: {
+  tradeId: string
+  sellerIdentity: string
+  signerAddress: string
+  timestamp: number
+  nonce: string
+}): string {
+  return [
+    'Pezkuwi P2P Confirm Payment',
+    `trade:${p.tradeId}`,
+    `identity:${p.sellerIdentity}`,
+    `signer:${p.signerAddress}`,
+    `timestamp:${p.timestamp}`,
+    `nonce:${p.nonce}`,
+  ].join('\n')
+}
+
+/**
+ * Canonical challenge for locking one's OWN balance into escrow (offer create).
+ * MUST be byte-identical to the client (shared/lib/p2p-fiat.ts).
+ */
+export function buildLockEscrowChallenge(p: {
+  identityId: string
+  token: string
+  amount: number
+  signerAddress: string
+  timestamp: number
+  nonce: string
+}): string {
+  return [
+    'Pezkuwi P2P Lock Escrow',
+    `identity:${p.identityId}`,
+    `token:${p.token}`,
+    `amount:${p.amount}`,
+    `signer:${p.signerAddress}`,
+    `timestamp:${p.timestamp}`,
+    `nonce:${p.nonce}`,
+  ].join('\n')
+}
+
+/**
  * Canonical challenge string for a privileged admin action (dispute claim /
  * resolve). MUST be byte-identical to the client (DisputeResolutionPanel).
  */

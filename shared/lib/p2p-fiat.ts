@@ -119,6 +119,8 @@ export interface P2PReputation {
 
 export interface CreateOfferParams {
   userId: string;
+  /** Citizen/visa identity id (needed to authorize the escrow lock) */
+  identityId: string;
   sellerWallet: string;
   token: CryptoToken;
   amountCrypto: number;
@@ -130,6 +132,8 @@ export interface CreateOfferParams {
   minOrderAmount?: number;
   maxOrderAmount?: number;
   adType?: 'buy' | 'sell';
+  /** Signs a message with the wallet that owns `identityId` (signRaw) */
+  signMessage: (message: string) => Promise<string>;
 }
 
 export interface AcceptOfferParams {
@@ -375,9 +379,54 @@ async function decryptPaymentDetails(encrypted: string): Promise<Record<string, 
  *
  * NOTE: Blockchain transactions only occur at deposit/withdraw
  */
+/**
+ * Canonical lock-escrow challenge. MUST be byte-identical to the server
+ * buildLockEscrowChallenge (web/supabase/functions/_shared/identity-auth.ts).
+ */
+export function buildLockEscrowChallenge(p: {
+  identityId: string;
+  token: string;
+  amount: number;
+  signerAddress: string;
+  timestamp: number;
+  nonce: string;
+}): string {
+  return [
+    'Pezkuwi P2P Lock Escrow',
+    `identity:${p.identityId}`,
+    `token:${p.token}`,
+    `amount:${p.amount}`,
+    `signer:${p.signerAddress}`,
+    `timestamp:${p.timestamp}`,
+    `nonce:${p.nonce}`,
+  ].join('\n');
+}
+
+/**
+ * Canonical confirm-payment challenge. MUST be byte-identical to the server
+ * buildConfirmPaymentChallenge (web/supabase/functions/_shared/identity-auth.ts).
+ */
+export function buildConfirmPaymentChallenge(p: {
+  tradeId: string;
+  sellerIdentity: string;
+  signerAddress: string;
+  timestamp: number;
+  nonce: string;
+}): string {
+  return [
+    'Pezkuwi P2P Confirm Payment',
+    `trade:${p.tradeId}`,
+    `identity:${p.sellerIdentity}`,
+    `signer:${p.signerAddress}`,
+    `timestamp:${p.timestamp}`,
+    `nonce:${p.nonce}`,
+  ].join('\n');
+}
+
 export async function createFiatOffer(params: CreateOfferParams): Promise<string> {
   const {
     userId,
+    identityId,
     sellerWallet,
     token,
     amountCrypto,
@@ -388,19 +437,42 @@ export async function createFiatOffer(params: CreateOfferParams): Promise<string
     timeLimitMinutes = DEFAULT_PAYMENT_DEADLINE_MINUTES,
     minOrderAmount,
     maxOrderAmount,
-    adType = 'sell'
+    adType = 'sell',
+    signMessage
   } = params;
 
   try {
     if (!userId) throw new Error('Identity required for P2P trading');
+    if (!identityId) throw new Error('Identity required for P2P trading');
+    if (!sellerWallet) throw new Error('Connect a wallet to create an offer');
 
-    toast.info('Locking crypto from your balance...');
+    // 1. Lock crypto from internal balance via the authorized edge function.
+    //    lock_escrow_internal is no longer callable with the anon key; the
+    //    seller must sign a challenge proving they own the identity being locked.
+    const lockTimestamp = Date.now();
+    const lockNonce = `lk-${lockTimestamp}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`;
+    const lockChallenge = buildLockEscrowChallenge({
+      identityId,
+      token,
+      amount: amountCrypto,
+      signerAddress: sellerWallet,
+      timestamp: lockTimestamp,
+      nonce: lockNonce,
+    });
 
-    // 1. Lock crypto from internal balance (NO blockchain tx!)
-    const { data: lockResult, error: lockError } = await supabase.rpc('lock_escrow_internal', {
-      p_user_id: userId,
-      p_token: token,
-      p_amount: amountCrypto
+    toast.info('Sign to lock crypto from your balance...');
+    const lockSignature = await signMessage(lockChallenge);
+
+    const { data: lockResult, error: lockError } = await supabase.functions.invoke('lock-escrow', {
+      body: {
+        identityId,
+        token,
+        amount: amountCrypto,
+        signerAddress: sellerWallet,
+        signature: lockSignature,
+        timestamp: lockTimestamp,
+        nonce: lockNonce,
+      },
     });
 
     if (lockError) throw lockError;
@@ -408,8 +480,8 @@ export async function createFiatOffer(params: CreateOfferParams): Promise<string
     // Parse result
     const lockResponse = typeof lockResult === 'string' ? JSON.parse(lockResult) : lockResult;
 
-    if (!lockResponse.success) {
-      throw new Error(lockResponse.error || 'Failed to lock balance');
+    if (!lockResponse?.success) {
+      throw new Error(lockResponse?.error || 'Failed to lock balance');
     }
 
     toast.success('Balance locked successfully');
@@ -443,18 +515,9 @@ export async function createFiatOffer(params: CreateOfferParams): Promise<string
 
     if (offerError) throw offerError;
 
-    // 4. Update the lock with offer reference
-    try {
-      await supabase.rpc('lock_escrow_internal', {
-        p_user_id: userId,
-        p_token: token,
-        p_amount: 0, // Just updating reference, not locking more
-        p_reference_type: 'offer',
-        p_reference_id: offer.id
-      });
-    } catch {
-      // Non-critical, just for tracking
-    }
+    // (Removed) The previous amount=0 lock_escrow_internal "reference update" call
+    // was a no-op that only logged a zero-amount ledger row. lock_escrow_internal
+    // is now service-role only, so this cosmetic call is dropped entirely.
 
     // 5. Audit log
     await logAction('offer', offer.id, 'create_offer', {
@@ -632,83 +695,54 @@ export async function markPaymentSent(
  *
  * Buyer can later withdraw to external wallet if needed (separate blockchain tx).
  */
-export async function confirmPaymentReceived(tradeId: string, sellerId: string): Promise<void> {
+export async function confirmPaymentReceived(
+  tradeId: string,
+  sellerIdentity: string,
+  signerAddress: string,
+  signMessage: (message: string) => Promise<string>
+): Promise<void> {
   try {
-    if (!sellerId) throw new Error('Identity required for P2P trading');
+    if (!sellerIdentity) throw new Error('Identity required for P2P trading');
+    if (!signerAddress) throw new Error('Connect a wallet to release escrow');
 
-    // 2. Get trade details
-    const { data: trade, error: tradeError } = await supabase
-      .from('p2p_fiat_trades')
-      .select('*')
-      .eq('id', tradeId)
-      .single();
-
-    if (tradeError) throw tradeError;
-    if (!trade) throw new Error('Trade not found');
-
-    // Verify caller is the seller
-    if (trade.seller_id !== sellerId) {
-      throw new Error('Only seller can confirm payment');
-    }
-
-    if (trade.status !== 'payment_sent') {
-      throw new Error('Payment has not been marked as sent');
-    }
-
-    // 3. Get offer to get token type
-    const { data: offer } = await supabase
-      .from('p2p_fiat_offers')
-      .select('token')
-      .eq('id', trade.offer_id)
-      .single();
-
-    if (!offer) throw new Error('Offer not found');
-
-    toast.info('Releasing crypto to buyer...');
-
-    // 4. Release escrow internally (NO blockchain tx!)
-    // This transfers from seller's locked_balance to buyer's available_balance
-    const { data: releaseResult, error: releaseError } = await supabase.rpc('release_escrow_internal', {
-      p_from_user_id: trade.seller_id,
-      p_to_user_id: trade.buyer_id,
-      p_token: offer.token,
-      p_amount: trade.crypto_amount,
-      p_reference_type: 'trade',
-      p_reference_id: tradeId
+    // Release is a money-OUT action: it is authorized ONLY via the confirm-payment
+    // edge function, which verifies the seller's wallet signature + identity
+    // ownership before calling release_escrow_internal with the service role.
+    // release_escrow_internal is no longer callable with the anon key.
+    const timestamp = Date.now();
+    const nonce = `cp-${timestamp}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`;
+    const challenge = buildConfirmPaymentChallenge({
+      tradeId,
+      sellerIdentity,
+      signerAddress,
+      timestamp,
+      nonce,
     });
 
-    if (releaseError) throw releaseError;
+    toast.info('Sign to release crypto to the buyer...');
+    const signature = await signMessage(challenge);
 
-    // Parse result
-    const releaseResponse = typeof releaseResult === 'string' ? JSON.parse(releaseResult) : releaseResult;
+    const { data, error } = await supabase.functions.invoke('confirm-payment', {
+      body: { tradeId, sellerIdentity, signerAddress, signature, timestamp, nonce },
+    });
 
-    if (!releaseResponse.success) {
-      throw new Error(releaseResponse.error || 'Failed to release escrow');
+    if (error) throw error;
+    if (!data?.success) {
+      throw new Error(data?.error || 'Failed to release escrow');
     }
 
-    // 5. Update trade status
-    const { error: updateError } = await supabase
-      .from('p2p_fiat_trades')
-      .update({
-        seller_confirmed_at: new Date().toISOString(),
-        escrow_released_at: new Date().toISOString(),
-        status: 'completed',
-        completed_at: new Date().toISOString()
-        // NOTE: No escrow_release_tx_hash - internal ledger doesn't use blockchain during trades
-      })
-      .eq('id', tradeId);
-
-    if (updateError) throw updateError;
-
-    // 6. Update reputations
-    await updateReputations(trade.seller_id, trade.buyer_id, tradeId);
-
-    // 7. Audit log
-    await logAction('trade', tradeId, 'confirm_payment', {
-      released_amount: trade.crypto_amount,
-      token: offer.token,
-      escrow_type: 'internal_ledger'
-    }, sellerId);
+    // Non-financial follow-ups (best effort). The escrow move + trade status
+    // change already happened atomically server-side.
+    try {
+      await updateReputations(data.sellerId, data.buyerId, tradeId);
+      await logAction('trade', tradeId, 'confirm_payment', {
+        released_amount: data.amount,
+        token: data.token,
+        escrow_type: 'internal_ledger'
+      }, data.sellerId);
+    } catch (followupErr) {
+      console.error('Post-release follow-up failed (non-critical):', followupErr);
+    }
 
     toast.success('Payment confirmed! Crypto released to buyer\'s balance.');
   } catch (error: unknown) {

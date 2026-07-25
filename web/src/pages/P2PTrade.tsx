@@ -34,6 +34,7 @@ import {
   Star,
 } from 'lucide-react';
 import { useP2PIdentity } from '@/contexts/P2PIdentityContext';
+import { useWallet } from '@/contexts/WalletContext';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import {
@@ -74,7 +75,8 @@ export default function P2PTrade() {
   const { tradeId } = useParams<{ tradeId: string }>();
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { userId } = useP2PIdentity();
+  const { userId, identityId, walletAddress } = useP2PIdentity();
+  const { signMessage } = useWallet();
 
   const [trade, setTrade] = useState<TradeWithDetails | null>(null);
   const [loading, setLoading] = useState(true);
@@ -295,14 +297,14 @@ export default function P2PTrade() {
 
   // Handle release crypto
   const handleReleaseCrypto = async () => {
-    if (!trade || !userId) {
+    if (!trade || !userId || !identityId || !walletAddress) {
       toast.error(t('p2p.connectWalletAndLogin'));
       return;
     }
 
     setActionLoading(true);
     try {
-      await confirmPaymentReceived(trade.id, userId);
+      await confirmPaymentReceived(trade.id, identityId, walletAddress, signMessage);
       toast.success(t('p2pTrade.cryptoReleasedToast'));
       fetchTrade();
     } catch (error) {
