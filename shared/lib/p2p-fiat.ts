@@ -1023,18 +1023,53 @@ export async function getInternalBalance(userId: string, token: CryptoToken): Pr
 }
 
 /**
- * Request a withdrawal from internal balance to external wallet
- * Calls the process-withdraw edge function which handles the full flow:
- * limit check → lock balance → blockchain TX → complete withdrawal
+ * Canonical withdrawal challenge string. MUST be byte-identical to the server's
+ * buildWithdrawChallenge (web/supabase/functions/_shared/identity-auth.ts).
+ */
+export function buildWithdrawChallenge(p: {
+  identityId: string;
+  token: string;
+  amount: number;
+  destination: string;
+  signerAddress: string;
+  timestamp: number;
+  nonce: string;
+}): string {
+  return [
+    'Pezkuwi P2P Withdrawal',
+    `identity:${p.identityId}`,
+    `token:${p.token}`,
+    `amount:${p.amount}`,
+    `destination:${p.destination}`,
+    `signer:${p.signerAddress}`,
+    `timestamp:${p.timestamp}`,
+    `nonce:${p.nonce}`,
+  ].join('\n');
+}
+
+/**
+ * Request a withdrawal from internal balance to external wallet.
+ *
+ * AUTHORIZATION: the caller must prove ownership of the P2P identity by signing
+ * a challenge with the wallet that owns it (citizen NFT / visa). The edge
+ * function derives the user_id server-side from `identityId` after verifying the
+ * signature and identity ownership — a client-supplied user_id is never trusted.
+ *
+ * @param identityId    Citizen number (#42-<item>-<6d>) or visa number (V-XXXXXX)
+ * @param signerAddress The connected wallet (must own the identity)
+ * @param signMessage   Signs a message with the connected wallet (signRaw)
  */
 export async function requestWithdraw(
-  userId: string,
+  identityId: string,
   token: CryptoToken,
   amount: number,
-  walletAddress: string
+  walletAddress: string,
+  signerAddress: string,
+  signMessage: (message: string) => Promise<string>
 ): Promise<string> {
   try {
-    if (!userId) throw new Error('Identity required for P2P trading');
+    if (!identityId) throw new Error('Identity required for P2P trading');
+    if (!signerAddress) throw new Error('Connect a wallet to withdraw');
 
     // Validate amount
     if (amount <= 0) throw new Error('Amount must be greater than 0');
@@ -1044,10 +1079,26 @@ export async function requestWithdraw(
       throw new Error('Invalid wallet address');
     }
 
+    // Build + sign the authorization challenge binding the full withdrawal intent.
+    const timestamp = Date.now();
+    const nonce = `wd-${timestamp}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`;
+    const challenge = buildWithdrawChallenge({
+      identityId,
+      token,
+      amount,
+      destination: walletAddress,
+      signerAddress,
+      timestamp,
+      nonce,
+    });
+
+    toast.info('Sign the request in your wallet to authorize the withdrawal...');
+    const signature = await signMessage(challenge);
+
     toast.info('Processing withdrawal...');
 
     const { data, error, response } = await supabase.functions.invoke('process-withdraw', {
-      body: { userId, token, amount, walletAddress }
+      body: { identityId, token, amount, walletAddress, signerAddress, signature, timestamp, nonce }
     });
 
     // Supabase client wraps non-2xx as generic FunctionsHttpError (data=null).
@@ -1085,15 +1136,14 @@ export async function getDepositWithdrawHistory(userId: string): Promise<Deposit
   try {
     if (!userId) throw new Error('Identity required for P2P trading');
 
-    const { data, error } = await supabase
-      .from('p2p_deposit_withdraw_requests')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
-      .limit(50);
+    // Scoped SECURITY DEFINER RPC (direct table SELECT is no longer world-open).
+    const { data, error } = await supabase.rpc('get_user_deposit_withdraw_requests', {
+      p_user_id: userId,
+      p_limit: 50,
+    });
 
     if (error) throw error;
-    return data || [];
+    return (data as DepositWithdrawRequest[]) || [];
   } catch (error) {
     console.error('Get deposit/withdraw history error:', error);
     return [];
@@ -1103,16 +1153,19 @@ export async function getDepositWithdrawHistory(userId: string): Promise<Deposit
 /**
  * Get user's balance transaction history
  */
-export async function getBalanceTransactionHistory(limit: number = 50): Promise<BalanceTransaction[]> {
+export async function getBalanceTransactionHistory(userId: string, limit: number = 50): Promise<BalanceTransaction[]> {
   try {
-    const { data, error } = await supabase
-      .from('p2p_balance_transactions')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(limit);
+    if (!userId) throw new Error('Identity required for P2P trading');
+
+    // Scoped SECURITY DEFINER RPC — returns only this user's ledger rows
+    // (the previous unfiltered SELECT * exposed every user's transactions).
+    const { data, error } = await supabase.rpc('get_user_balance_transactions', {
+      p_user_id: userId,
+      p_limit: limit,
+    });
 
     if (error) throw error;
-    return data || [];
+    return (data as BalanceTransaction[]) || [];
   } catch (error) {
     console.error('Get balance transaction history error:', error);
     return [];

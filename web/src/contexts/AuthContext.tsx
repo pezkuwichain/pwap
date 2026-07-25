@@ -115,6 +115,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 
   const checkAdminStatus = useCallback(async () => {
+    // ============================================================
+    // COSMETIC ONLY — NOT an authorization boundary.
+    // ------------------------------------------------------------
+    // This flag is derived from a localStorage wallet value and can be trivially
+    // forged in DevTools. It ONLY controls whether admin UI is shown. Every
+    // privileged operation MUST be verified server-side:
+    //   - Dispute claim/resolve -> `resolve-dispute` edge function verifies a
+    //     wallet SIGNATURE against the server-side admin wallet set before doing
+    //     anything (see supabase/functions/resolve-dispute + _shared/identity-auth).
+    // Do NOT add fund-moving or state-changing logic gated solely on isAdmin.
+    // ============================================================
     // Admin wallet whitelist (blockchain-based auth)
     const ADMIN_WALLETS = [
       '5CyuFfbF95rzBxru7c9yEsX4XmQXUxpLUcbj9RLg9K1cGiiF', // Founder

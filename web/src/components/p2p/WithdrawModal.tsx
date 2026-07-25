@@ -30,6 +30,7 @@ import {
   Info
 } from 'lucide-react';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
+import { useWallet } from '@/contexts/WalletContext';
 import { useP2PIdentity } from '@/contexts/P2PIdentityContext';
 import { toast } from 'sonner';
 import {
@@ -52,7 +53,8 @@ type WithdrawStep = 'form' | 'confirm' | 'success';
 export function WithdrawModal({ isOpen, onClose, onSuccess }: WithdrawModalProps) {
   const { t } = useTranslation();
   const { selectedAccount } = usePezkuwi();
-  const { userId } = useP2PIdentity();
+  const { signMessage } = useWallet();
+  const { userId, identityId } = useP2PIdentity();
 
   const [step, setStep] = useState<WithdrawStep>('form');
   const [token, setToken] = useState<CryptoToken>('HEZ');
@@ -177,8 +179,18 @@ export function WithdrawModal({ isOpen, onClose, onSuccess }: WithdrawModalProps
 
     try {
       const withdrawAmount = parseFloat(amount);
-      if (!userId) throw new Error('Identity required');
-      const id = await requestWithdraw(userId, token, withdrawAmount, walletAddress);
+      if (!identityId) throw new Error('Identity required');
+      if (!selectedAccount?.address) throw new Error('Connect a wallet to withdraw');
+      // Authorization: sign a challenge with the wallet that owns the identity.
+      // The edge function derives user_id from identityId after verifying this.
+      const id = await requestWithdraw(
+        identityId,
+        token,
+        withdrawAmount,
+        walletAddress,
+        selectedAccount.address,
+        signMessage
+      );
       setRequestId(id);
       setStep('success');
       onSuccess?.();

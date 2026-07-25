@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabase';
+import { usePezkuwi } from '@/contexts/PezkuwiContext';
+import { useWallet } from '@/contexts/WalletContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -111,8 +113,35 @@ const CATEGORY_KEYS: Record<string, string> = {
   other: 'dispute.categoryOther'
 };
 
+/**
+ * Canonical admin-action challenge. MUST be byte-identical to the server
+ * buildAdminChallenge (web/supabase/functions/_shared/identity-auth.ts).
+ */
+function buildAdminChallenge(p: {
+  action: string;
+  disputeId: string;
+  tradeId: string;
+  decision: string;
+  adminAddress: string;
+  timestamp: number;
+  nonce: string;
+}): string {
+  return [
+    'Pezkuwi P2P Admin Action',
+    `action:${p.action}`,
+    `dispute:${p.disputeId}`,
+    `trade:${p.tradeId}`,
+    `decision:${p.decision}`,
+    `admin:${p.adminAddress}`,
+    `timestamp:${p.timestamp}`,
+    `nonce:${p.nonce}`,
+  ].join('\n');
+}
+
 export function DisputeResolutionPanel() {
   const { t } = useTranslation();
+  const { selectedAccount } = usePezkuwi();
+  const { signMessage } = useWallet();
   const [disputes, setDisputes] = useState<Dispute[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedDispute, setSelectedDispute] = useState<Dispute | null>(null);
@@ -202,28 +231,46 @@ export function DisputeResolutionPanel() {
     return true;
   });
 
-  // Claim dispute for review
-  const claimDispute = async (disputeId: string) => {
+  // Sign an admin-action challenge with the connected wallet. The server
+  // (resolve-dispute edge function) verifies the signature AND that the wallet
+  // is in the admin set — this is the real authorization, not the client flag.
+  const signAdminAction = async (
+    action: 'claim' | 'resolve',
+    disputeId: string,
+    tradeId: string,
+    decision: string
+  ) => {
+    if (!selectedAccount?.address) throw new Error('Connect an admin wallet');
+    const timestamp = Date.now();
+    const nonce = `adm-${timestamp}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`;
+    const challenge = buildAdminChallenge({
+      action,
+      disputeId,
+      tradeId,
+      decision,
+      adminAddress: selectedAccount.address,
+      timestamp,
+      nonce,
+    });
+    const signature = await signMessage(challenge);
+    return { adminAddress: selectedAccount.address, signature, timestamp, nonce };
+  };
+
+  // Claim dispute for review (server-verified admin action)
+  const claimDispute = async (disputeId: string, tradeId: string) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
-
-      const { error } = await supabase
-        .from('p2p_fiat_disputes')
-        .update({
-          status: 'under_review',
-          assigned_moderator_id: user.id,
-          assigned_at: new Date().toISOString()
-        })
-        .eq('id', disputeId);
-
-      if (error) throw error;
+      toast.info(t('dispute.claimSignPrompt', 'Sign to claim this dispute...'));
+      const auth = await signAdminAction('claim', disputeId, tradeId, '');
+      const { data, error } = await supabase.functions.invoke('resolve-dispute', {
+        body: { action: 'claim', disputeId, tradeId, ...auth },
+      });
+      if (error || !data?.success) throw new Error(data?.error || error?.message || 'Claim failed');
 
       toast.success(t('dispute.claimedToast'));
       fetchDisputes();
     } catch (error) {
       console.error('Error claiming dispute:', error);
-      toast.error(t('dispute.claimFailed'));
+      toast.error(error instanceof Error ? error.message : t('dispute.claimFailed'));
     }
   };
 
@@ -236,52 +283,26 @@ export function DisputeResolutionPanel() {
 
     setSubmitting(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
+      // Server-verified admin action. The edge function verifies the admin
+      // signature, then atomically MOVES ESCROW (release/refund/split) and
+      // updates trade + dispute status in one transaction. The client no longer
+      // relabels rows directly (which previously moved no funds).
+      toast.info(t('dispute.resolveSignPrompt', 'Sign to authorize the resolution...'));
+      const auth = await signAdminAction('resolve', selectedDispute.id, selectedDispute.trade_id, decision);
 
-      // Update dispute
-      const { error: disputeError } = await supabase
-        .from('p2p_fiat_disputes')
-        .update({
-          status: decision === 'escalate' ? 'escalated' : 'resolved',
+      const { data, error } = await supabase.functions.invoke('resolve-dispute', {
+        body: {
+          action: 'resolve',
+          disputeId: selectedDispute.id,
+          tradeId: selectedDispute.trade_id,
           decision,
-          decision_reasoning: reasoning,
-          resolved_at: new Date().toISOString()
-        })
-        .eq('id', selectedDispute.id);
+          reasoning,
+          ...auth,
+        },
+      });
 
-      if (disputeError) throw disputeError;
-
-      // Update trade status based on decision
-      if (decision !== 'escalate' && selectedDispute.trade) {
-        const tradeStatus = decision === 'release_to_buyer' ? 'completed' : 'refunded';
-        await supabase
-          .from('p2p_fiat_trades')
-          .update({ status: tradeStatus })
-          .eq('id', selectedDispute.trade_id);
-      }
-
-      // Create notifications for both parties
-      if (selectedDispute.trade) {
-        const notificationPromises = [
-          supabase.rpc('create_p2p_notification', {
-            p_user_id: selectedDispute.trade.seller_id,
-            p_type: 'dispute_resolved',
-            p_title: 'Dispute Resolved',
-            p_message: `The dispute has been resolved: ${t(DECISION_OPTION_KEYS.find(o => o.value === decision)?.labelKey || '')}`,
-            p_reference_type: 'dispute',
-            p_reference_id: selectedDispute.id
-          }),
-          supabase.rpc('create_p2p_notification', {
-            p_user_id: selectedDispute.trade.buyer_id,
-            p_type: 'dispute_resolved',
-            p_title: 'Dispute Resolved',
-            p_message: `The dispute has been resolved: ${t(DECISION_OPTION_KEYS.find(o => o.value === decision)?.labelKey || '')}`,
-            p_reference_type: 'dispute',
-            p_reference_id: selectedDispute.id
-          })
-        ];
-        await Promise.all(notificationPromises);
+      if (error || !data?.success) {
+        throw new Error(data?.error || error?.message || 'Resolution failed');
       }
 
       toast.success(t('dispute.resolvedToast'));
@@ -292,7 +313,7 @@ export function DisputeResolutionPanel() {
       fetchDisputes();
     } catch (error) {
       console.error('Error resolving dispute:', error);
-      toast.error(t('dispute.resolveFailed'));
+      toast.error(error instanceof Error ? error.message : t('dispute.resolveFailed'));
     } finally {
       setSubmitting(false);
     }
@@ -475,7 +496,7 @@ export function DisputeResolutionPanel() {
                         {dispute.status === 'open' && (
                           <Button
                             size="sm"
-                            onClick={() => claimDispute(dispute.id)}
+                            onClick={() => claimDispute(dispute.id, dispute.trade_id)}
                           >
                             {t('dispute.claim')}
                           </Button>

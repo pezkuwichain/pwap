@@ -151,6 +151,12 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/login" replace />;
   }
 
+  // NOTE: `isAdmin` here is a COSMETIC UX gate only (derived from a localStorage
+  // wallet and forgeable in DevTools). It prevents casual access to the admin UI
+  // but is NOT a security boundary. All privileged operations behind this route
+  // (e.g. dispute resolution) independently verify admin authority server-side
+  // via a wallet signature (resolve-dispute edge function). Never rely on this
+  // check alone to protect funds or state.
   if (requireAdmin && !isAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-900">

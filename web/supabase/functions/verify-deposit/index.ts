@@ -8,6 +8,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2'
 import { ApiPromise, WsProvider } from 'npm:@pezkuwi/api@16.5.36'
 import { blake2b } from 'npm:@noble/hashes@1.7.1/blake2b'
 import { base58 } from 'npm:@scure/base@1.2.4'
+import { assertIdentityOwnedByWallet } from '../_shared/identity-auth.ts'
 
 // Allowed origins for CORS
 const ALLOWED_ORIGINS = [
@@ -60,6 +61,17 @@ async function identityToUUID(identityId: string): Promise<string> {
 
 // PEZ asset ID
 const PEZ_ASSET_ID = 1
+
+// People Chain endpoint — required to verify citizen NFT ownership server-side
+const PEOPLE_RPC_ENDPOINT = Deno.env.get('PEOPLE_RPC_ENDPOINT') || 'wss://people-rpc.pezkuwichain.io'
+
+let peopleApiInstance: ApiPromise | null = null
+async function getPeopleApi(): Promise<ApiPromise> {
+  if (peopleApiInstance && peopleApiInstance.isConnected) return peopleApiInstance
+  const provider = new WsProvider(PEOPLE_RPC_ENDPOINT)
+  peopleApiInstance = await ApiPromise.create({ provider })
+  return peopleApiInstance
+}
 
 interface DepositRequest {
   txHash: string
@@ -496,6 +508,30 @@ serve(async (req) => {
         JSON.stringify({
           success: false,
           error: 'Wallet address does not match the transaction sender'
+        }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Bind the crediting identity to the depositing wallet. The on-chain sender
+    // has just been proven to equal `walletAddress`; requiring that wallet to
+    // OWN `identityId` prevents crediting a balance the depositor does not own
+    // (citizen NFT / active visa binding).
+    const depositOwnership = await assertIdentityOwnedByWallet(serviceClient, identityId, walletAddress, getPeopleApi)
+    if (!depositOwnership.ok) {
+      await serviceClient
+        .from('p2p_deposit_withdraw_requests')
+        .update({
+          status: 'failed',
+          error_message: `Identity ownership check failed: ${depositOwnership.error}`,
+          processed_at: new Date().toISOString()
+        })
+        .eq('id', depositRequest.id)
+
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: depositOwnership.error || 'Depositing wallet does not own this identity'
         }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
