@@ -14,7 +14,7 @@ import { toast } from 'sonner';
 export default function Presale() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { api, selectedAccount, isApiReady } = usePezkuwi();
+  const { api, selectedAccount, isApiReady, walletSource } = usePezkuwi();
   const { balances } = useWallet();
 
   const [wusdtAmount, setWusdtAmount] = useState('');
@@ -107,9 +107,13 @@ export default function Presale() {
     try {
       const amountWithDecimals = Math.floor(amount * 1_000_000); // 6 decimals
 
+      // Get signer (extension or WalletConnect) — no global api.setSigner exists
+      const { getSigner } = await import('@/lib/get-signer');
+      const injector = await getSigner(selectedAccount.address, walletSource, api);
+
       const tx = api.tx.presale.contribute(amountWithDecimals);
 
-      await tx.signAndSend(selectedAccount.address, ({ status, events }) => {
+      await tx.signAndSend(selectedAccount.address, { signer: injector.signer }, ({ status, events }) => {
         if (status.isInBlock) {
           if (import.meta.env.DEV) {
             console.log(`Transaction included in block: ${status.asInBlock}`);

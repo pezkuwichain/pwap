@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from 'react-i18next';
+import { parseTokenInput } from '@pezkuwi/utils/dex';
 import {
   checkBridgeStatus,
   fetchAssetHubUsdtInfo,
@@ -160,8 +161,8 @@ export const XCMBridgeSetupModal: React.FC<XCMBridgeSetupModalProps> = ({
 
     try {
       // Convert amounts to raw values (6 decimals for wUSDT, 12 for HEZ)
-      const wusdtRaw = BigInt(parseFloat(wusdtAmount) * 10 ** 6).toString();
-      const hezRaw = BigInt(parseFloat(hezAmount) * 10 ** 12).toString();
+      const wusdtRaw = parseTokenInput(wusdtAmount, 6);
+      const hezRaw = parseTokenInput(hezAmount, 12);
 
       await createWUsdtHezPool(
         assetHubApi,

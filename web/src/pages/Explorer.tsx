@@ -860,7 +860,7 @@ const Explorer: React.FC = () => {
                   {t('explorer.telemetry')}
                 </a>
                 <a
-                  href="/governance"
+                  href="/governance/assembly"
                   className="flex items-center gap-2 p-3 rounded-lg bg-gray-800 hover:bg-gray-750 text-gray-300 hover:text-white transition-colors"
                 >
                   <Users className="w-4 h-4 text-blue-400" />

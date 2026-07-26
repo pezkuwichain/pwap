@@ -20,6 +20,8 @@ import {
 } from '@/components/ui/select';
 import { ArrowRight, Loader2, CheckCircle, XCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { MINTABLE_ASSETS } from './dex/mintableAssets';
+import { parseTokenInput } from '@pezkuwi/utils/dex';
 
 interface TokenBalance {
   assetId: number;
@@ -36,7 +38,7 @@ interface TransferModalProps {
   selectedAsset?: TokenBalance | null;
 }
 
-type TokenType = 'HEZ' | 'PEZ' | 'USDT' | 'BTC' | 'ETH' | 'DOT';
+type TokenType = 'HEZ' | 'PEZ' | 'wUSDT' | 'wDOT' | 'wETH' | 'wBTC';
 
 interface Token {
   symbol: TokenType;
@@ -51,19 +53,26 @@ const TOKEN_LOGOS: Record<string, string> = {
   HEZ: '/tokens/HEZ.png',
   PEZ: '/tokens/PEZ.png',
   USDT: '/tokens/USDT.png',
+  wUSDT: '/tokens/USDT.png',
+  wDOT: '/tokens/DOT.png',
+  wETH: '/tokens/ETH.png',
+  wBTC: '/tokens/BTC.png',
   BTC: '/tokens/BTC.png',
   ETH: '/tokens/ETH.png',
   DOT: '/tokens/DOT.png',
   BNB: '/tokens/BNB.png',
 };
 
+// Wrapped assets (id + decimals) are sourced from the single source of truth
+// (MINTABLE_ASSETS in dex/mintableAssets.ts): wUSDT=1000, wDOT=1001, wETH=1002, wBTC=1003.
+// All of these live on Asset Hub (assets pallet). Only native HEZ is on the relay chain.
 const TOKENS: Token[] = [
   { symbol: 'HEZ', name: 'Hez Token', decimals: 12, color: 'from-green-600 to-yellow-400' },
   { symbol: 'PEZ', name: 'Pez Token', assetId: 1, decimals: 12, color: 'from-blue-600 to-purple-400' },
-  { symbol: 'USDT', name: 'Tether USD', assetId: 1000, decimals: 6, color: 'from-green-500 to-green-600' },
-  { symbol: 'BTC', name: 'Bitcoin', assetId: 3, decimals: 8, color: 'from-orange-500 to-yellow-500' },
-  { symbol: 'ETH', name: 'Ethereum', assetId: 4, decimals: 18, color: 'from-purple-500 to-blue-500' },
-  { symbol: 'DOT', name: 'Polkadot', assetId: 5, decimals: 10, color: 'from-pink-500 to-red-500' },
+  { symbol: 'wUSDT', name: MINTABLE_ASSETS.wUSDT.name, assetId: MINTABLE_ASSETS.wUSDT.id, decimals: MINTABLE_ASSETS.wUSDT.decimals, color: 'from-green-500 to-green-600' },
+  { symbol: 'wDOT', name: MINTABLE_ASSETS.wDOT.name, assetId: MINTABLE_ASSETS.wDOT.id, decimals: MINTABLE_ASSETS.wDOT.decimals, color: 'from-pink-500 to-red-500' },
+  { symbol: 'wETH', name: MINTABLE_ASSETS.wETH.name, assetId: MINTABLE_ASSETS.wETH.id, decimals: MINTABLE_ASSETS.wETH.decimals, color: 'from-purple-500 to-blue-500' },
+  { symbol: 'wBTC', name: MINTABLE_ASSETS.wBTC.name, assetId: MINTABLE_ASSETS.wBTC.id, decimals: MINTABLE_ASSETS.wBTC.decimals, color: 'from-orange-500 to-yellow-500' },
 ];
 
 export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, selectedAsset }) => {
@@ -99,14 +108,11 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, s
       return;
     }
 
-    // Check if Asset Hub transfer (PEZ, wUSDT, wHEZ are on Asset Hub)
-    const isAssetHubTransfer = currentToken.symbol === 'PEZ' ||
-                               currentToken.symbol === 'USDT' ||
-                               currentToken.symbol === 'wUSDT' ||
-                               currentToken.symbol === 'wHEZ' ||
-                               currentToken.assetId === 1 ||    // PEZ
-                               currentToken.assetId === 2 ||    // wHEZ
-                               currentToken.assetId === 1000;   // wUSDT
+    // Native HEZ (no assetId, or assetId 0) transfers on the relay chain.
+    // Every other token is an Asset Hub assets-pallet asset (PEZ, wHEZ, wUSDT,
+    // wDOT, wETH, wBTC and any custom token), so it must route through Asset Hub.
+    const isNativeHez = currentToken.assetId === undefined || currentToken.assetId === 0;
+    const isAssetHubTransfer = !isNativeHez;
     if (isAssetHubTransfer && (!assetHubApi || !isAssetHubReady)) {
       toast({
         title: t('transfer.error'),
@@ -133,25 +139,24 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, s
       const { getSigner } = await import('@/lib/get-signer');
       const injector = await getSigner(selectedAccount.address, walletSource, isAssetHubTransfer ? assetHubApi : api);
 
-      // Convert amount to smallest unit
-      const amountInSmallestUnit = BigInt(parseFloat(amount) * Math.pow(10, currentToken.decimals));
+      // Convert amount to smallest unit using string-based BigInt parsing.
+      // (BigInt(parseFloat(amount) * 10**decimals) throws a RangeError on
+      // fractional amounts because the intermediate double is non-integer.)
+      const amountInSmallestUnit = parseTokenInput(amount, currentToken.decimals);
 
       let transfer;
       let targetApi = api; // Default to main chain API
 
-      // Create appropriate transfer transaction based on token type
-      // HEZ uses native token transfer (balances pallet on main chain)
-      // PEZ, wHEZ, wUSDT use assets pallet on Asset Hub
-      if (currentToken.assetId === undefined || (selectedToken === 'HEZ' && !selectedAsset)) {
-        // Native HEZ token transfer on main chain
-        transfer = api.tx.balances.transferKeepAlive(recipient, amountInSmallestUnit.toString());
-      } else if (isAssetHubTransfer) {
-        // Asset Hub transfer (PEZ, wHEZ, wUSDT)
-        targetApi = assetHubApi!;
-        transfer = assetHubApi!.tx.assets.transfer(currentToken.assetId, recipient, amountInSmallestUnit.toString());
+      // Create appropriate transfer transaction based on token type.
+      // HEZ uses native token transfer (balances pallet on the relay chain).
+      // Every asset (PEZ, wHEZ, wUSDT, wDOT, wETH, wBTC, custom) is on Asset Hub.
+      if (isNativeHez) {
+        // Native HEZ token transfer on the relay chain
+        transfer = api.tx.balances.transferKeepAlive(recipient, amountInSmallestUnit);
       } else {
-        // Other asset token transfers on main chain
-        transfer = api.tx.assets.transfer(currentToken.assetId, recipient, amountInSmallestUnit.toString());
+        // Asset Hub transfer (assets pallet)
+        targetApi = assetHubApi!;
+        transfer = assetHubApi!.tx.assets.transfer(currentToken.assetId, recipient, amountInSmallestUnit);
       }
 
       setTxStatus('pending');

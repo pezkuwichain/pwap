@@ -445,6 +445,10 @@ export async function contribute(
           if (status.isInBlock) {
             onStatus?.('Transaction in block...');
           }
+          if (status.isDropped || status.isInvalid || status.isUsurped || status.isRetracted) {
+            resolve({ success: false, error: 'Transaction was dropped or invalidated by the network. Please try again.' });
+            return;
+          }
           if (status.isFinalized) {
             if (dispatchError) {
               let errorMessage = 'Transaction failed';
@@ -489,6 +493,10 @@ export async function refund(
           if (status.isInBlock) {
             onStatus?.('Refund in block...');
           }
+          if (status.isDropped || status.isInvalid || status.isUsurped || status.isRetracted) {
+            resolve({ success: false, error: 'Refund was dropped or invalidated by the network. Please try again.' });
+            return;
+          }
           if (status.isFinalized) {
             if (dispatchError) {
               let errorMessage = 'Refund failed';
@@ -532,6 +540,10 @@ export async function claimVested(
         ({ status, dispatchError, txHash }) => {
           if (status.isInBlock) {
             onStatus?.('Claim in block...');
+          }
+          if (status.isDropped || status.isInvalid || status.isUsurped || status.isRetracted) {
+            resolve({ success: false, error: 'Claim was dropped or invalidated by the network. Please try again.' });
+            return;
           }
           if (status.isFinalized) {
             if (dispatchError) {

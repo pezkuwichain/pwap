@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from 'react-i18next';
+import { parseTokenInput } from '@pezkuwi/utils/dex';
 
 interface InitializeUsdtModalProps {
   isOpen: boolean;
@@ -86,7 +87,7 @@ export const InitializeUsdtModal: React.FC<InitializeUsdtModalProps> = ({
       return;
     }
 
-    const usdtAmountRaw = BigInt(parseFloat(usdtAmount) * 10 ** USDT_DECIMALS);
+    const usdtAmountRaw = BigInt(parseTokenInput(usdtAmount, USDT_DECIMALS));
 
     if (usdtAmountRaw <= BigInt(0)) {
       setErrorMessage(t('common.amountGtZero'));

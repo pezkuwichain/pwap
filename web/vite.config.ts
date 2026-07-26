@@ -1,5 +1,5 @@
 /// <reference types="vitest" />
-import { defineConfig } from "vitest/config";
+import { defineConfig, configDefaults } from "vitest/config";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
@@ -11,6 +11,9 @@ export default defineConfig(({ command }) => ({
     globals: true,
     environment: 'jsdom',
     setupFiles: './src/tests/setup.ts',
+    // supabase/** holds Deno tests (Deno.test + pglite) run via `deno test`,
+    // not vitest — exclude them from the web (node/jsdom) test sweep.
+    exclude: [...configDefaults.exclude, 'supabase/**'],
     alias: {
       'vite-plugin-node-polyfills/shims/buffer': path.resolve(__dirname, './src/tests/mocks/buffer-shim.ts'),
       'vite-plugin-node-polyfills/shims/global': path.resolve(__dirname, './src/tests/mocks/global-shim.ts'),
@@ -66,6 +69,9 @@ export default defineConfig(({ command }) => ({
   optimizeDeps: {
     include: ['@pezkuwi/util-crypto', '@pezkuwi/util', '@pezkuwi/api', '@pezkuwi/extension-dapp', '@pezkuwi/keyring', 'buffer'],
   },
+  // Strip all console.* and debugger statements from production bundles so the
+  // 600+ dev-time console calls never ship. Dev keeps full logging.
+  esbuild: command === 'build' ? { drop: ['console', 'debugger'] } : {},
   build: {
     rollupOptions: {
       external: [],

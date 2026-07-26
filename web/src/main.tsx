@@ -26,6 +26,10 @@ if (typeof window !== 'undefined' && import.meta.env.PROD) {
   };
 }
 
+// Augment @pezkuwi/api types so api.query/tx/rpc return typed values
+// instead of the generic `Codec`. Must be imported before any api usage.
+import '@pezkuwi/api-augment';
+
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'

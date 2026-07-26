@@ -6,10 +6,12 @@
   "type": "module",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "node --watch src/index.js"
+    "dev": "node --watch src/index.js",
+    "test": "node --test test/*.test.js"
   },
   "overrides": {
-    "tar": "^7.4.3",
+    "tar": "^7.5.22",
+    "ws": "^8.21.1",
     "@pezkuwi/api": "^16.5.23",
     "@pezkuwi/api-augment": "^16.5.23",
     "@pezkuwi/api-base": "^16.5.23",
@@ -34,10 +36,18 @@
     "@pezkuwi/api": "^16.5.23",
     "@pezkuwi/util": "^14.0.13",
     "@pezkuwi/util-crypto": "^14.0.13",
+    "@supabase/supabase-js": "^2.45.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
+    "pino": "^9.5.0",
+    "pino-http": "^10.3.0",
+    "pino-pretty": "^11.3.0",
     "sqlite": "^5.1.1",
     "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "@pezkuwi/keyring": "^14.0.13",
+    "supertest": "^7.0.0"
   }
 }

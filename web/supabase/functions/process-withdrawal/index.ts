@@ -199,11 +199,16 @@ serve(async (req: Request) => {
   }
 
   try {
-    // Verify authorization (should be called with service role key or admin JWT)
+    // Authorization: this batch processor drains ALL pending withdrawal requests
+    // to their destination wallets, so it MUST be restricted to the backend
+    // service role (cron / admin tooling). Merely having *any* bearer token
+    // (e.g. the public anon key) is NOT sufficient — previously that let anyone
+    // trigger mass processing.
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
+    const bearer = authHeader?.replace(/^Bearer\s+/i, "").trim();
+    if (!bearer || bearer !== SUPABASE_SERVICE_ROLE_KEY) {
       return new Response(
-        JSON.stringify({ error: "Unauthorized" }),
+        JSON.stringify({ error: "Unauthorized: service role required" }),
         { status: 401, headers }
       );
     }

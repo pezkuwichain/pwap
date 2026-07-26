@@ -659,9 +659,9 @@ const AppLayout: React.FC = () => {
             <div className="lp-foot-col">
               <h5>{t('landing.footer.network')}</h5>
               <ul>
-                <li><a href="/network">{t('landing.footer.explorer')}</a></li>
+                <li><a href="/explorer">{t('landing.footer.explorer')}</a></li>
                 <li><a href="/telemetry">{t('landing.footer.telemetry')}</a></li>
-                <li><a href="/network">{t('landing.footer.validators')}</a></li>
+                <li><a href="/explorer">{t('landing.footer.validators')}</a></li>
                 <li><a href="/faucet">{t('landing.footer.faucet')}</a></li>
               </ul>
             </div>
@@ -670,7 +670,7 @@ const AppLayout: React.FC = () => {
               <ul>
                 <li><a href="/wallet">{t('landing.footer.wallet')}</a></li>
                 <li><a href="/p2p">{t('landing.footer.trade')}</a></li>
-                <li><a href="/">{t('landing.footer.vote')}</a></li>
+                <li><a href="/elections">{t('landing.footer.vote')}</a></li>
                 <li><a href="/grants">{t('landing.footer.grants')}</a></li>
               </ul>
             </div>
@@ -689,7 +689,7 @@ const AppLayout: React.FC = () => {
                 <li><a href="/forum">{t('landing.footer.forum')}</a></li>
                 <li><a href="https://discord.gg/pezkuwichain" target="_blank" rel="noopener noreferrer">{t('landing.footer.discord')}</a></li>
                 <li><a href="https://t.me/PezkuwiApp" target="_blank" rel="noopener noreferrer">{t('landing.footer.telegram')}</a></li>
-                <li><a href="https://x.com/PezkuwiChain" target="_blank" rel="noopener noreferrer">{t('landing.footer.twitter')}</a></li>
+                <li><a href="https://x.com/bizinikiwi" target="_blank" rel="noopener noreferrer">{t('landing.footer.twitter')}</a></li>
               </ul>
             </div>
           </div>

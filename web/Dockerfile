@@ -49,5 +49,5 @@ WORKDIR /dist
 COPY --from=builder /build/web/dist /dist
 LABEL org.opencontainers.image.source="https://github.com/pezkuwichain/pwap"
 LABEL org.opencontainers.image.description="pwap/web static SPA — Pezkuwi wallet/exchange frontend"
-LABEL org.opencontainers.image.licenses="proprietary"
+LABEL org.opencontainers.image.licenses="MIT"
 CMD ["sh", "-c", "echo 'pwap-web image — extract /dist via: docker create + docker cp'; sleep infinity"]

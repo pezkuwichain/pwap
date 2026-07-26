@@ -398,8 +398,8 @@ export default function ProfileSettings() {
                     <SelectItem value="en">English</SelectItem>
                     <SelectItem value="tr">Türkçe</SelectItem>
                     <SelectItem value="ar">العربية</SelectItem>
-                    <SelectItem value="kmr">Kurdî</SelectItem>
-                    <SelectItem value="ckb">کوردی</SelectItem>
+                    <SelectItem value="ku-kurmanji">Kurdî (Kurmancî)</SelectItem>
+                    <SelectItem value="ku-sorani">کوردی (سۆرانی)</SelectItem>
                     <SelectItem value="fa">فارسی</SelectItem>
                   </SelectContent>
                 </Select>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
+import { useWallet } from '@/contexts/WalletContext';
 import { useP2PIdentity } from '@/contexts/P2PIdentityContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,7 +26,8 @@ interface CreateAdProps {
 export function CreateAd({ onAdCreated }: CreateAdProps) {
   const { t } = useTranslation();
   const { selectedAccount } = usePezkuwi();
-  const { userId } = useP2PIdentity();
+  const { signMessage } = useWallet();
+  const { userId, identityId } = useP2PIdentity();
   
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod | null>(null);
@@ -77,7 +79,7 @@ export function CreateAd({ onAdCreated }: CreateAdProps) {
   };
 
   const handleCreateAd = async () => {
-    if (!selectedAccount || !userId) {
+    if (!selectedAccount || !userId || !identityId) {
       toast.error(t('p2p.connectWalletAndLogin'));
       return;
     }
@@ -128,6 +130,8 @@ export function CreateAd({ onAdCreated }: CreateAdProps) {
     try {
       await createFiatOffer({
         userId,
+        identityId: identityId!,
+        signMessage,
         sellerWallet: selectedAccount.address,
         token,
         amountCrypto: cryptoAmt,

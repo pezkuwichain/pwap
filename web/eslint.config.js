@@ -8,6 +8,8 @@ export default tseslint.config(
   {
     ignores: [
       "dist/**",
+      "supabase/functions/**",
+      "supabase/migrations/**",
       "node_modules/**",
       "eslint.config.js",
       "postcss.config.js",

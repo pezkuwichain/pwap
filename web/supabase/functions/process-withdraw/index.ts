@@ -6,6 +6,14 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { ApiPromise, WsProvider, Keyring } from 'npm:@pezkuwi/api@16.5.36'
 import { cryptoWaitReady } from 'npm:@pezkuwi/util-crypto@14.0.25'
+import {
+  identityToUUID,
+  verifyWalletSignature,
+  buildWithdrawChallenge,
+  assertIdentityOwnedByWallet,
+  consumeNonce,
+  isFreshTimestamp,
+} from '../_shared/identity-auth.ts'
 
 // Allowed origins for CORS
 const ALLOWED_ORIGINS = [
@@ -35,6 +43,9 @@ const DECIMALS = 12
 // PEZ asset ID
 const PEZ_ASSET_ID = 1
 
+// People Chain endpoint — required to verify citizen NFT ownership server-side
+const PEOPLE_RPC_ENDPOINT = Deno.env.get('PEOPLE_RPC_ENDPOINT') || 'wss://people-rpc.pezkuwichain.io'
+
 // Minimum withdrawal amounts
 const MIN_WITHDRAW = {
   HEZ: 1,
@@ -49,10 +60,19 @@ const WITHDRAW_FEE = {
 
 interface WithdrawRequest {
   requestId?: string  // If processing specific request
-  userId: string      // Identity-based UUID (from citizen/visa number)
+
+  // ---- Authorization (all required) ----
+  // The caller proves control of a wallet that OWNS `identityId`. The user_id
+  // is derived server-side from identityId; a client-supplied user_id is IGNORED.
+  identityId?: string      // Citizen number (#42-<item>-<6d>) or visa (V-XXXXXX)
+  signerAddress?: string   // Wallet that signed the challenge
+  signature?: string       // Signature over the canonical withdraw challenge
+  timestamp?: number       // ms epoch, must be fresh
+  nonce?: string           // single-use, replay-protected
+
   token?: 'HEZ' | 'PEZ'
   amount?: number
-  walletAddress?: string
+  walletAddress?: string   // Withdrawal destination (bound into the signature)
 }
 
 // Cache API connection
@@ -66,6 +86,18 @@ async function getApi(): Promise<ApiPromise> {
   const provider = new WsProvider(RPC_ENDPOINT)
   apiInstance = await ApiPromise.create({ provider })
   return apiInstance
+}
+
+// Cache People Chain connection (citizen NFT ownership verification)
+let peopleApiInstance: ApiPromise | null = null
+
+async function getPeopleApi(): Promise<ApiPromise> {
+  if (peopleApiInstance && peopleApiInstance.isConnected) {
+    return peopleApiInstance
+  }
+  const provider = new WsProvider(PEOPLE_RPC_ENDPOINT)
+  peopleApiInstance = await ApiPromise.create({ provider })
+  return peopleApiInstance
 }
 
 // Send tokens from hot wallet
@@ -190,7 +222,8 @@ serve(async (req) => {
   }
 
   try {
-    // Get authorization header
+    // Get authorization header (transport-level only — NOT the authz boundary).
+    // Real authorization is the wallet signature + identity-ownership proof below.
     const authHeader = req.headers.get('Authorization')
     if (!authHeader) {
       return new Response(
@@ -218,15 +251,73 @@ serve(async (req) => {
 
     // Parse request body
     const body: WithdrawRequest = await req.json()
-    const { userId } = body
+    const { identityId, signerAddress, signature, timestamp, nonce } = body
     let { requestId, token, amount, walletAddress } = body
 
-    if (!userId) {
+    // =====================================================
+    // OBJECT-LEVEL AUTHORIZATION (the security boundary)
+    // =====================================================
+    // 1) Require a complete signed challenge.
+    if (!identityId || !signerAddress || !signature || !nonce || typeof timestamp !== 'number') {
       return new Response(
-        JSON.stringify({ success: false, error: 'Missing required field: userId' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ success: false, error: 'Missing authorization (identityId, signerAddress, signature, timestamp, nonce required)' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
+
+    // 2) The signature covers the full withdrawal intent, incl. destination and
+    //    amount. Determine the values that will be bound into the challenge.
+    //    - Mode 1 (requestId): destination/amount/token come from the stored
+    //      request; the client still signs them (fetched before submit).
+    //    - Mode 2: destination/amount/token come from the (signed) body.
+    if (!isFreshTimestamp(timestamp)) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Authorization challenge expired. Please retry.' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // 3) Verify the wallet signature over the canonical challenge. For Mode 1 the
+    //    signed destination/amount/token are supplied alongside requestId and are
+    //    re-checked against the stored request after lookup.
+    const challenge = buildWithdrawChallenge({
+      identityId,
+      token: String(token ?? ''),
+      amount: Number(amount ?? 0),
+      destination: String(walletAddress ?? ''),
+      signerAddress,
+      timestamp,
+      nonce,
+    })
+    const sigOk = await verifyWalletSignature(challenge, signature, signerAddress)
+    if (!sigOk) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Invalid signature' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // 4) Prove the signing wallet OWNS the claimed identity (citizen NFT / visa).
+    const ownership = await assertIdentityOwnedByWallet(serviceClient, identityId, signerAddress, getPeopleApi)
+    if (!ownership.ok) {
+      return new Response(
+        JSON.stringify({ success: false, error: ownership.error || 'Identity ownership verification failed' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // 5) Consume the nonce (single-use) to block replay of a captured signature.
+    const nonceOk = await consumeNonce(serviceClient, nonce, 'withdraw')
+    if (!nonceOk) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Authorization already used (replay detected)' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // 6) Derive user_id SERVER-SIDE from the verified identity. Any client-supplied
+    //    user_id is intentionally ignored.
+    const userId = await identityToUUID(identityId)
 
     // Mode 1: Process existing request by ID
     if (requestId) {
@@ -246,8 +337,23 @@ serve(async (req) => {
         )
       }
 
+      // The signed challenge (built from body values) must match the stored
+      // request, so the signature authorizes exactly this withdrawal.
+      const storedAmount = parseFloat(request.amount)
+      const bodyAmount = Number(amount ?? 0)
+      if (
+        String(token ?? '') !== String(request.token) ||
+        String(walletAddress ?? '') !== String(request.wallet_address) ||
+        Math.abs(bodyAmount - storedAmount) > 1e-9
+      ) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Signed withdrawal does not match the stored request' }),
+          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+
       token = request.token as 'HEZ' | 'PEZ'
-      amount = parseFloat(request.amount)
+      amount = storedAmount
       walletAddress = request.wallet_address
     }
     // Mode 2: Create new withdrawal request
