@@ -897,6 +897,118 @@ jobs:
             -d "chat_id=${CEO_CHAT_ID}" --data-urlencode "text=$MSG"
 
   # ========================================
+  # DEPLOY - SUPABASE (edge functions + migrations)
+  # Same Telegram-gated cutover as the frontend/backend: syncs the edge functions
+  # into the self-hosted edge-runtime volume (hot-reloaded, no restart) and applies
+  # any un-recorded migrations transactionally against the fund-custody Postgres.
+  # Runs in parallel with deploy-app so functions, migrations and the new frontend
+  # go live in the same post-approval window (minimal fail-closed gap).
+  # ========================================
+  deploy-supabase:
+    name: Deploy Supabase (functions + migrations)
+    runs-on: pwap-runner
+    needs: [telegram-gate]
+    if: |
+      always() &&
+      needs.telegram-gate.result == 'success' &&
+      github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Pack supabase tree
+        run: |
+          # __tests__ are Deno tests — kept out of the runtime bundle entirely.
+          tar czf supabase-deploy.tgz -C web/supabase \
+            --exclude='__tests__' functions migrations deploy
+
+      - name: Upload bundle to staging
+        uses: appleboy/scp-action@v1.0.0
+        with:
+          host: ${{ secrets.SUPABASE_VPS_HOST }}
+          username: ${{ secrets.SUPABASE_VPS_USER }}
+          key: ${{ secrets.SUPABASE_VPS_SSH_KEY }}
+          port: ${{ secrets.SUPABASE_VPS_SSH_PORT || 22 }}
+          source: "supabase-deploy.tgz"
+          target: /opt/supabase-self-hosted/deploy-staging
+
+      - name: Sync edge functions + apply migrations (health-checked)
+        id: apply
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SUPABASE_VPS_HOST }}
+          username: ${{ secrets.SUPABASE_VPS_USER }}
+          key: ${{ secrets.SUPABASE_VPS_SSH_KEY }}
+          port: ${{ secrets.SUPABASE_VPS_SSH_PORT || 22 }}
+          command_timeout: 15m
+          script: |
+            set -euo pipefail
+            BASE=/opt/supabase-self-hosted/deploy-staging
+            STAGING="$BASE/tree"
+            VOL=/opt/supabase-self-hosted/docker/volumes/functions
+            DB=supabase-db
+
+            echo "── 0. Unpack bundle ──"
+            rm -rf "$STAGING" && mkdir -p "$STAGING"
+            tar xzf "$BASE/supabase-deploy.tgz" -C "$STAGING"
+
+            echo "── 1. Sync edge functions (additive, no --delete: telegram-* preserved) ──"
+            # __tests__ are Deno test dirs — never ship them into the runtime volume.
+            rsync -a --exclude='__tests__' "$STAGING/functions/" "$VOL/"
+            echo "   synced: $(ls "$STAGING/functions" | grep -v __tests__ | tr '\n' ' ')"
+
+            echo "── 2. Pre-flight: required edge-runtime secrets ──"
+            EF_ENV="$(docker exec supabase-edge-functions env 2>/dev/null || true)"
+            miss=""
+            for k in SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY PLATFORM_PRIVATE_KEY; do
+              grep -q "^$k=" <<<"$EF_ENV" || miss="$miss $k"
+            done
+            if [ -n "$miss" ]; then
+              echo "::warning::edge-runtime missing secrets:$miss (fund functions may fail until set)"
+            fi
+
+            echo "── 3. Apply pending migrations (transactional, tracked) ──"
+            bash "$STAGING/deploy/apply-migrations.sh" "$STAGING/migrations" "$DB"
+
+            echo "── 4. Verify the fund-custody guards actually took effect ──"
+            q() { docker exec -i "$DB" psql -U postgres -tAq -c "$1"; }
+            fail=0
+            for fn in "release_escrow_internal" "lock_escrow_internal" "refund_escrow_internal" "request_withdraw"; do
+              # any signature match; expect NO anon EXECUTE
+              oid="$(q "SELECT oid FROM pg_proc WHERE proname='$fn' LIMIT 1;")"
+              if [ -n "$oid" ]; then
+                priv="$(q "SELECT has_function_privilege('anon', $oid, 'EXECUTE');")"
+                echo "   anon EXECUTE $fn = $priv"
+                [ "$priv" = "f" ] || { echo "::error::anon still has EXECUTE on $fn"; fail=1; }
+              fi
+            done
+            trg="$(q "SELECT tgname FROM pg_trigger WHERE tgname IN ('trg_freeze_trade_financials','trg_freeze_offer_financials');")"
+            n_trg="$(printf '%s' "$trg" | grep -c . || true)"
+            echo "   freeze triggers present: ${trg:-<none>} (count=$n_trg)"
+            [ "$n_trg" = "2" ] || { echo "::error::trade/offer freeze triggers missing (expected 2, got $n_trg)"; fail=1; }
+
+            rm -rf "$BASE"
+            [ "$fail" = "0" ] && echo "✅ Supabase deploy verified" || { echo "❌ post-deploy verification failed"; exit 1; }
+
+      - name: Telegram notify
+        if: always()
+        env:
+          BOT_TOKEN: ${{ secrets.PEXSEC_BOT_TOKEN }}
+          CEO_CHAT_ID: ${{ secrets.TELEGRAM_CEO_CHAT_ID }}
+          OUTCOME: ${{ steps.apply.outcome }}
+        run: |
+          if [ "$OUTCOME" = "success" ]; then
+            MSG="✅ pwap Supabase: edge functions synced + migrations applied & verified (${{ github.sha }})."
+          else
+            MSG="🚨 pwap Supabase deploy FAILED (${{ github.sha }}) — functions/migrations may be partially applied. Check the run."
+          fi
+          curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+            -d chat_id="${CEO_CHAT_ID}" -d text="$MSG" >/dev/null || true
+
+  # ========================================
   # SECURITY CHECKS (BLOCKING)
   # npm audit (high + critical) + TruffleHog secret scan
   # ========================================
