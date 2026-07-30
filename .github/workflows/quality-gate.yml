@@ -307,6 +307,9 @@ jobs:
     name: Telegram deploy approval
     runs-on: pwap-runner
     needs: [web, security-audit]
+    # Must exceed the in-script wait below, otherwise the job is killed first and
+    # the approval window is silently shorter than advertised.
+    timeout-minutes: 370
     if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
 
     steps:
@@ -331,7 +334,7 @@ jobs:
             -d "{
               \"chat_id\": \"${CEO_CHAT_ID}\",
               \"parse_mode\": \"Markdown\",
-              \"text\": \"🚀 *pwap/web Deploy Approval*\\n\\n\`${SHORT}\` — ${ACTOR}\\n\\n_${SAFE_MSG}_\\n\\nTargets: app.pezkuwichain.io + pex.mom\",
+              \"text\": \"🚀 *pwap/web Deploy Approval*\\n\\n\`${SHORT}\` — ${ACTOR}\\n\\n_${SAFE_MSG}_\\n\\nTargets: app.pezkuwichain.io + pex.mom\\n\\n_Approve within 6 hours or the deploy is cancelled._\",
               \"reply_markup\": {
                 \"inline_keyboard\": [[
                   {\"text\": \"✅ Approve\", \"callback_data\": \"deploy_approve:${SHORT}\"},
@@ -340,8 +343,16 @@ jobs:
               }
             }"
 
-          echo "Waiting for Telegram approval (max 30 min)..."
-          TIMEOUT=1800
+          # 30 minutes meant an approval request sent at a bad moment expired
+          # unseen and the deploy cancelled itself with nothing shipped.
+          #
+          # NOTE: this job holds a pwap-runner slot for the whole wait. Six hours
+          # of waiting is six hours that runner cannot do anything else. The
+          # proper fix is a GitHub Environment with required reviewers, which
+          # holds no runner at all while it waits; this loop is a hand-rolled
+          # stand-in for that.
+          echo "Waiting for Telegram approval (max 6 hours)..."
+          TIMEOUT=21600
           ELAPSED=0
           while [ $ELAPSED -lt $TIMEOUT ]; do
             if [ -f "$GATE_DIR/$SHORT" ]; then
@@ -358,7 +369,7 @@ jobs:
             sleep 10
             ELAPSED=$((ELAPSED + 10))
           done
-          echo "No approval received within 30 minutes — deploy cancelled."
+          echo "No approval received within 6 hours — deploy cancelled."
           exit 1
 
   # ========================================
