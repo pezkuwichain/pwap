@@ -1660,6 +1660,7 @@ export default {
   'wallet.send': 'إرسال',
   'wallet.receive': 'استقبال',
   'wallet.history': 'السجل',
+  'wallet.multisigOperations': 'عمليات التوقيع المتعدد',
   'wallet.pezRewards': 'مكافآت PEZ',
   'wallet.epochOpen': 'مفتوح',
   'wallet.epochClaimPeriod': 'فترة المطالبة',
@@ -3331,6 +3332,22 @@ export default {
   'multisigMembers.allVisible': 'جميع المعاملات مرئية على البلوكتشين',
   'multisigMembers.viewExplorer': 'عرض في المستكشف',
 
+  // عمليات التوقيع المتعدد (واجهة الموافقة/الرفض المعلّقة)
+  'multisigOps.title': 'عمليات التوقيع المتعدد المعلّقة',
+  'multisigOps.subtitle': '{{count}} عملية معلّقة بانتظار التوقيعات',
+  'multisigOps.refresh': 'تحديث',
+  'multisigOps.empty': 'لا توجد عمليات معلّقة حالياً.',
+  'multisigOps.approvals': 'موافقات',
+  'multisigOps.proposedBy': 'اقترحها',
+  'multisigOps.youApproved': 'لقد وافقت على هذه العملية بالفعل',
+  'multisigOps.unknownCallHint': 'تعذّر تحديد هذا الاستدعاء تلقائياً من التجزئة وحدها - الصق بيانات الاستدعاء المعروفة أدناه لفك ترميزها والتحقق منها.',
+  'multisigOps.pasteCallData': 'الصق بيانات الاستدعاء (0x...)',
+  'multisigOps.decode': 'فك الترميز',
+  'multisigOps.approve': 'موافقة',
+  'multisigOps.reject': 'رفض',
+  'multisigOps.thresholdNote': 'يلزم {{threshold}} توقيعاً من أصل {{total}} لتنفيذ أي عملية - لا يمكن لأي موقّع منفرد، بما في ذلك هذا التطبيق، تحريك الأموال بمفرده.',
+  'multisigOps.backToWallet': 'العودة إلى المحفظة',
+
   // Batch 12: Pallets Grid
   'palletsGrid.title': 'باليتات Runtime الأساسية',
   'palletsGrid.description': 'مكونات بلوكتشين معيارية تدعم ميزات PezkuwiChain المتقدمة',
@@ -3405,7 +3422,8 @@ export default {
   'bridge.withdrawStep4': 'استلم USDT على عنوانك المحدد',
   'bridge.wusdtAmount': 'مبلغ wUSDT',
   'bridge.max': 'الحد الأقصى:',
-  'bridge.withdrawAddress': 'عنوان السحب (حساب بنكي أو عنوان كريبتو)',
+  'bridge.withdrawAddress': 'وجهة USDT (Polkadot Asset Hub)',
+  'bridge.withdrawAddressAutoNote': 'مشتقّة تلقائياً من حسابك المتصل - يُطلق USDT دائماً إلى المفتاح نفسه بعد إعادة ترميزه لشبكة Polkadot.',
   'bridge.addressPlaceholder': 'حساب بنكي أو عنوان كريبتو',
   'bridge.withdrawTier': 'مستوى السحب:',
   'bridge.securityDelay': 'تأخير الأمان:',
@@ -3414,7 +3432,7 @@ export default {
   'bridge.insufficientBalance': 'رصيد wUSDT غير كافٍ',
   'bridge.noAddress': 'يرجى إدخال عنوان السحب',
   'bridge.depositSuccess': 'تم إنشاء طلب إيداع {{amount}} USDT. اتبع التعليمات لإكمال الإيداع.',
-  'bridge.withdrawSuccess': 'تم إرسال طلب السحب! تم حرق wUSDT. سيتم إرسال USDT إلى {{address}} بعد {{delay}}.',
+  'bridge.withdrawSuccess': 'تم إرسال طلب السحب! أُرسل wUSDT الخاص بك إلى الجسر للمراجعة. بعد موافقة موقّعي التوقيع المتعدد، سيُطلق USDT إلى {{address}} (متوقّع خلال {{delay}}).',
 
   // Batch 12: Add Token
   'addToken.title': 'إضافة رمز مخصص',

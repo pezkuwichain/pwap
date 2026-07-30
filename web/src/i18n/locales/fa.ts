@@ -1882,6 +1882,7 @@ export default {
   'wallet.send': 'ارسال',
   'wallet.receive': 'دریافت',
   'wallet.history': 'تاریخچه',
+  'wallet.multisigOperations': 'عملیات چندامضایی',
   'wallet.pezRewards': 'پاداش‌های PEZ',
   'wallet.epochOpen': 'باز',
   'wallet.epochClaimPeriod': 'دوره مطالبه',
@@ -3365,6 +3366,22 @@ export default {
   'multisigMembers.allVisible': 'تمام تراکنش‌ها روی بلاکچین قابل مشاهده هستند',
   'multisigMembers.viewExplorer': 'مشاهده در مرورگر',
 
+  // عملیات چندامضایی (رابط تأیید/رد در انتظار)
+  'multisigOps.title': 'عملیات چندامضایی در انتظار',
+  'multisigOps.subtitle': '{{count}} عملیات در انتظار امضا',
+  'multisigOps.refresh': 'بازخوانی',
+  'multisigOps.empty': 'در حال حاضر عملیاتی در انتظار نیست.',
+  'multisigOps.approvals': 'تأیید',
+  'multisigOps.proposedBy': 'پیشنهاددهنده',
+  'multisigOps.youApproved': 'شما قبلاً این عملیات را تأیید کرده‌اید',
+  'multisigOps.unknownCallHint': 'این فراخوان تنها از روی هش قابل شناسایی خودکار نبود - داده فراخوان شناخته‌شده را در زیر بچسبانید تا رمزگشایی و راستی‌آزمایی شود.',
+  'multisigOps.pasteCallData': 'داده فراخوان را بچسبانید (0x...)',
+  'multisigOps.decode': 'رمزگشایی',
+  'multisigOps.approve': 'تأیید',
+  'multisigOps.reject': 'رد',
+  'multisigOps.thresholdNote': 'برای اجرای هر عملیات {{threshold}} امضا از {{total}} امضا لازم است - هیچ امضاکننده‌ای به‌تنهایی، از جمله همین برنامه، نمی‌تواند وجوه را جابه‌جا کند.',
+  'multisigOps.backToWallet': 'بازگشت به کیف پول',
+
   // Batch 12: Pallets Grid
   'palletsGrid.title': 'پالت‌های اصلی Runtime',
   'palletsGrid.description': 'اجزای ماژولار بلاکچین که ویژگی‌های پیشرفته PezkuwiChain را تقویت می‌کنند',
@@ -3439,7 +3456,8 @@ export default {
   'bridge.withdrawStep4': 'USDT را در آدرس مشخص شده خود دریافت کنید',
   'bridge.wusdtAmount': 'مبلغ wUSDT',
   'bridge.max': 'حداکثر:',
-  'bridge.withdrawAddress': 'آدرس برداشت (حساب بانکی یا آدرس کریپتو)',
+  'bridge.withdrawAddress': 'مقصد USDT (Polkadot Asset Hub)',
+  'bridge.withdrawAddressAutoNote': 'به‌طور خودکار از حساب متصل شما استخراج شده است - USDT همیشه به همان کلید، با رمزگذاری مجدد برای Polkadot، آزاد می‌شود.',
   'bridge.addressPlaceholder': 'حساب بانکی یا آدرس کریپتو',
   'bridge.withdrawTier': 'سطح برداشت:',
   'bridge.securityDelay': 'تأخیر امنیتی:',
@@ -3448,7 +3466,7 @@ export default {
   'bridge.insufficientBalance': 'موجودی wUSDT کافی نیست',
   'bridge.noAddress': 'لطفاً آدرس برداشت وارد کنید',
   'bridge.depositSuccess': 'درخواست واریز {{amount}} USDT ایجاد شد. دستورالعمل‌ها را برای تکمیل واریز دنبال کنید.',
-  'bridge.withdrawSuccess': 'درخواست برداشت ارسال شد! wUSDT سوزانده شد. USDT بعد از {{delay}} به {{address}} ارسال خواهد شد.',
+  'bridge.withdrawSuccess': 'درخواست برداشت ثبت شد! wUSDT شما برای بررسی به پل ارسال شد. پس از تأیید امضاکنندگان چندامضایی، USDT به {{address}} آزاد خواهد شد (تخمینی طی {{delay}}).',
 
   // Batch 12: Add Token
   'addToken.title': 'افزودن توکن سفارشی',
