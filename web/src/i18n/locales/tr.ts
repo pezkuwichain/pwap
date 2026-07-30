@@ -1671,6 +1671,7 @@ export default {
   'wallet.send': 'Gönder',
   'wallet.receive': 'Al',
   'wallet.history': 'Geçmiş',
+  'wallet.multisigOperations': 'Multisig İşlemleri',
   'wallet.pezRewards': 'PEZ Ödülleri',
   'wallet.epochOpen': 'Açık',
   'wallet.epochClaimPeriod': 'Talep Dönemi',
@@ -3351,6 +3352,22 @@ export default {
   'multisigMembers.allVisible': 'Tüm işlemler blokzincirde görünür',
   'multisigMembers.viewExplorer': 'Explorer\'da Görüntüle',
 
+  // Multisig Operations (bekleyen onay/red arayüzü)
+  'multisigOps.title': 'Bekleyen Multisig İşlemleri',
+  'multisigOps.subtitle': '{{count}} işlem imza bekliyor',
+  'multisigOps.refresh': 'Yenile',
+  'multisigOps.empty': 'Şu anda bekleyen işlem yok.',
+  'multisigOps.approvals': 'onay',
+  'multisigOps.proposedBy': 'Öneren',
+  'multisigOps.youApproved': 'Bu işlemi zaten onayladın',
+  'multisigOps.unknownCallHint': 'Bu çağrı sadece hash\'inden otomatik tespit edilemedi - çözmek ve doğrulamak için bilinen çağrı verisini aşağıya yapıştır.',
+  'multisigOps.pasteCallData': 'Çağrı verisini yapıştır (0x...)',
+  'multisigOps.decode': 'Çöz',
+  'multisigOps.approve': 'Onayla',
+  'multisigOps.reject': 'Reddet',
+  'multisigOps.thresholdNote': 'Herhangi bir işlemin yürütülmesi için {{total}} imzacıdan {{threshold}} tanesinin onayı gerekir - bu uygulama dahil hiçbir tek imzacı tek başına fon hareket ettiremez.',
+  'multisigOps.backToWallet': 'Cüzdana Dön',
+
   // Batch 12: Pallets Grid
   'palletsGrid.title': 'Çekirdek Runtime Palet\'leri',
   'palletsGrid.description': 'PezkuwiChain\'in gelişmiş özelliklerini destekleyen modüler blokzincir bileşenleri',
@@ -3425,7 +3442,8 @@ export default {
   'bridge.withdrawStep4': 'Belirttiğiniz adrese USDT alın',
   'bridge.wusdtAmount': 'wUSDT Miktarı',
   'bridge.max': 'Maks:',
-  'bridge.withdrawAddress': 'Çekim Adresi (Banka Hesabı veya Kripto Adresi)',
+  'bridge.withdrawAddress': 'USDT Hedef Adresi (Polkadot Asset Hub)',
+  'bridge.withdrawAddressAutoNote': 'Bağlı hesabından otomatik türetildi - USDT her zaman aynı anahtarın Polkadot için yeniden kodlanmış haline gönderilir.',
   'bridge.addressPlaceholder': 'Banka hesabı veya kripto adresi',
   'bridge.withdrawTier': 'Çekim kademesi:',
   'bridge.securityDelay': 'Güvenlik gecikmesi:',
@@ -3434,7 +3452,7 @@ export default {
   'bridge.insufficientBalance': 'Yetersiz wUSDT bakiyesi',
   'bridge.noAddress': 'Lütfen çekim adresi girin',
   'bridge.depositSuccess': '{{amount}} USDT yatırma talebi oluşturuldu. Yatırmayı tamamlamak için talimatları takip edin.',
-  'bridge.withdrawSuccess': 'Çekim talebi gönderildi! wUSDT yakıldı. USDT {{delay}} sonra {{address}} adresine gönderilecek.',
+  'bridge.withdrawSuccess': 'Çekim talebi gönderildi! wUSDT\'niz köprüye incelenmek üzere gönderildi. Multisig imzacıları onayladıktan sonra USDT {{address}} adresine (tahmini {{delay}} içinde) gönderilecek.',
 
   // Batch 12: Add Token
   'addToken.title': 'Özel Token Ekle',
