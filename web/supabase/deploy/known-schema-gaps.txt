@@ -1,0 +1,41 @@
+# Functions declared in migrations that are knowingly absent from the database.
+#
+# Six migrations were recorded as applied but only ran partway: their tables
+# exist, their function bodies never ran. Those files carry "Run this in Supabase
+# SQL Editor" headers — they were pasted in by hand before apply-migrations.sh
+# existed, and a run that stopped midway still got recorded.
+#
+# Nothing in the app calls any function listed here, and several are trigger
+# bodies whose triggers were never created either. Creating them now would switch
+# on behaviour that has never been live (P2P notification triggers, fraud
+# counters, stats updaters) rather than restore something that broke — a product
+# decision, not a repair. They stay listed until someone deliberately enables them.
+#
+# The three the app does reach were repaired in 20260730150000 and are not here:
+#   apply_for_tier_upgrade, check_tier_eligibility, update_p2p_reputation
+#
+# Remove a line when you actually create the function. Anything missing that is
+# NOT listed here is new drift and the deploy will say so.
+
+approve_tier_application
+calculate_merchant_stats
+calculate_user_risk_score
+cancel_expired_offers
+check_trade_allowed
+decrement_escrow_balance
+generate_referral_code
+get_payment_method_details
+increment_escrow_balance
+log_suspicious_activity
+notify_on_dispute_opened
+notify_on_new_message
+notify_on_new_trade
+notify_on_payment_sent
+notify_on_trade_completed
+reset_daily_fraud_counters
+reset_weekly_fraud_counters
+update_discussion_activity
+update_fraud_indicators_on_trade
+update_merchant_stats_on_trade
+update_rating_stats_trigger
+update_user_rating_stats
