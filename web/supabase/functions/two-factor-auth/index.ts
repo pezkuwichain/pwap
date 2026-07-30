@@ -1,10 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-
-export const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-};
+import { getCaller, getCorsHeaders, unauthorized } from "../_shared/caller-auth.ts";
 
 function generateSecret(): string {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
@@ -45,6 +40,8 @@ function generateTOTP(secret: string, window: number = 0): string {
 }
 
 Deno.serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req.headers.get("origin"));
+
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
@@ -54,7 +51,14 @@ Deno.serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { action, userId, code, backupCode } = await req.json();
+    // Every action below touches one account's 2FA state, so the account is
+    // taken from the caller's token. The body used to name it, which let an
+    // anon-key request read or disable anyone's 2FA.
+    const caller = await getCaller(req, supabase);
+    if (!caller) return unauthorized(corsHeaders);
+    const userId = caller.id;
+
+    const { action, code, backupCode } = await req.json();
 
     switch (action) {
       case "setup": {

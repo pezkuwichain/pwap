@@ -1,10 +1,14 @@
-export const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-};
+import {
+  forbidden,
+  getCaller,
+  getCorsHeaders,
+  isAdmin,
+  unauthorized,
+} from "../_shared/caller-auth.ts";
 
 Deno.serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req.headers.get("origin"));
+
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
@@ -12,7 +16,7 @@ Deno.serve(async (req) => {
   try {
     const {
       action,
-      userId,
+      userId: requestedUserId,
       notificationId,
       title,
       message,
@@ -27,6 +31,22 @@ Deno.serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Read the account from the caller's token, not the body. Reading it from
+    // the body let an anon-key request list, delete or forge anyone's
+    // notifications.
+    const caller = await getCaller(req, supabase);
+    if (!caller) return unauthorized(corsHeaders);
+
+    // AdminPanel legitimately notifies other users, so create is the one action
+    // allowed to target someone else - and only for an admin.
+    let userId = caller.id;
+    if (action === "create" && requestedUserId && requestedUserId !== caller.id) {
+      if (!(await isAdmin(supabase, caller.id))) {
+        return forbidden(corsHeaders, "Only admins can notify other users");
+      }
+      userId = requestedUserId;
+    }
 
     let result;
 
