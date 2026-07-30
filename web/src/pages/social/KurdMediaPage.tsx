@@ -30,9 +30,9 @@ const MEDIA_CHANNELS: MediaChannel[] = [
 ];
 
 const SOCIAL_PLATFORMS: SocialPlatform[] = [
-  { id: 'telegram', name: 'Telegram', icon: '✈️', url: 'https://t.me/pezkuwichain',                                       color: '#0088CC' },
+  { id: 'telegram', name: 'Telegram', icon: '✈️', url: 'https://t.me/kurdishmedya',                                       color: '#0088CC' },
   { id: 'discord',  name: 'Discord',  icon: '💬', url: 'https://discord.gg/Y3VyEC6h8W',                                   color: '#5865F2' },
-  { id: 'twitter',  name: 'X',        icon: '🐦', url: 'https://twitter.com/pezkuwichain',                                 color: '#1DA1F2' },
+  { id: 'twitter',  name: 'X',        icon: '🐦', url: 'https://x.com/bizinikiwi',                                 color: '#1DA1F2' },
   { id: 'facebook', name: 'Facebook', icon: '📘', url: 'https://www.facebook.com/profile.php?id=61582484611719',           color: '#1877F2' },
   { id: 'medium',   name: 'Medium',   icon: '📝', url: 'https://medium.com/@pezkuwichain',                                 color: '#555555' },
   { id: 'github',   name: 'GitHub',   icon: '💻', url: 'https://github.com/pezkuwichain',                                  color: '#333333' },
