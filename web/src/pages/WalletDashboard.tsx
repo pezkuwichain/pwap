@@ -12,6 +12,8 @@ import { ArrowUpRight, ArrowDownRight, History, ArrowLeft, RefreshCw, Coins, Loa
 import { toast } from 'sonner';
 import { getSigner } from '@/lib/get-signer';
 import { getPezRewards, recordTrustScore, claimPezReward, type PezRewardInfo } from '@pezkuwi/lib/scores';
+import { isMultisigMember, BRIDGE_MULTISIG_SPECIFIC_ADDRESSES } from '@pezkuwi/lib/multisig';
+import { ShieldCheck } from 'lucide-react';
 
 interface Transaction {
   blockNumber: number;
@@ -38,6 +40,27 @@ const WalletDashboard: React.FC = () => {
   const [pezRewards, setPezRewards] = useState<PezRewardInfo | null>(null);
   const [isRecordingScore, setIsRecordingScore] = useState(false);
   const [isClaimingReward, setIsClaimingReward] = useState(false);
+  const [isMultisigSigner, setIsMultisigSigner] = useState(false);
+
+  // Only show the multisig operations shortcut to the 5 real USDT bridge signatories - a
+  // decorative check here (the route itself is the real gate via ProtectedRoute).
+  useEffect(() => {
+    if (!api || !isApiReady || !selectedAccount) {
+      setIsMultisigSigner(false);
+      return;
+    }
+    let cancelled = false;
+    isMultisigMember(api, selectedAccount.address, BRIDGE_MULTISIG_SPECIFIC_ADDRESSES)
+      .then((result) => {
+        if (!cancelled) setIsMultisigSigner(result);
+      })
+      .catch(() => {
+        if (!cancelled) setIsMultisigSigner(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [api, isApiReady, selectedAccount]);
 
   // Fetch recent transactions (limited to last 10 blocks for performance)
   const fetchRecentTransactions = async () => {
@@ -422,6 +445,19 @@ const WalletDashboard: React.FC = () => {
                 <span>{t('wallet.history')}</span>
               </Button>
             </div>
+
+            {/* Multisig Operations shortcut - only visible to the 5 real USDT bridge
+                signatories (route itself is the real gate; this is just discoverability) */}
+            {isMultisigSigner && (
+              <Button
+                onClick={() => navigate('/multisig/pending')}
+                variant="outline"
+                className="w-full border-blue-700 hover:bg-blue-900/30 flex items-center justify-center gap-2"
+              >
+                <ShieldCheck className="w-5 h-5" />
+                <span>{t('wallet.multisigOperations')}</span>
+              </Button>
+            )}
 
             {/* PEZ Rewards Card */}
             {pezRewards && (

@@ -2019,6 +2019,7 @@ export default {
   'wallet.send': 'Send',
   'wallet.receive': 'Receive',
   'wallet.history': 'History',
+  'wallet.multisigOperations': 'Multisig Operations',
   'wallet.pezRewards': 'PEZ Rewards',
   'wallet.epochOpen': 'Open',
   'wallet.epochClaimPeriod': 'Claim Period',
@@ -3616,6 +3617,22 @@ export default {
   'multisigMembers.allVisible': 'All transactions visible on blockchain',
   'multisigMembers.viewExplorer': 'View on Explorer',
 
+  // Multisig Operations (pending approve/reject UI)
+  'multisigOps.title': 'Pending Multisig Operations',
+  'multisigOps.subtitle': '{{count}} pending operations awaiting signatures',
+  'multisigOps.refresh': 'Refresh',
+  'multisigOps.empty': 'No pending operations right now.',
+  'multisigOps.approvals': 'approvals',
+  'multisigOps.proposedBy': 'Proposed by',
+  'multisigOps.youApproved': 'You already approved this operation',
+  'multisigOps.unknownCallHint': "This call couldn't be automatically identified from its hash alone - paste the known call data below to decode and verify it.",
+  'multisigOps.pasteCallData': 'Paste call data (0x...)',
+  'multisigOps.decode': 'Decode',
+  'multisigOps.approve': 'Approve',
+  'multisigOps.reject': 'Reject',
+  'multisigOps.thresholdNote': '{{threshold}} of {{total}} signatures are required to execute any operation - no single signer, including this app, can move funds alone.',
+  'multisigOps.backToWallet': 'Back to Wallet',
+
   // Batch 12: Pallets Grid
   'palletsGrid.title': 'Core Runtime Pallets',
   'palletsGrid.description': "Modular blockchain components powering PezkuwiChain's advanced features",
@@ -3690,7 +3707,8 @@ export default {
   'bridge.withdrawStep4': 'Receive USDT to your specified address',
   'bridge.wusdtAmount': 'wUSDT Amount',
   'bridge.max': 'Max:',
-  'bridge.withdrawAddress': 'Withdrawal Address (Bank Account or Crypto Address)',
+  'bridge.withdrawAddress': 'USDT Destination (Polkadot Asset Hub)',
+  'bridge.withdrawAddressAutoNote': 'Automatically derived from your connected account - USDT is always released to the same underlying key, re-encoded for Polkadot.',
   'bridge.addressPlaceholder': 'Bank account or crypto address',
   'bridge.withdrawTier': 'Withdrawal tier:',
   'bridge.securityDelay': 'Security delay:',
@@ -3699,7 +3717,7 @@ export default {
   'bridge.insufficientBalance': 'Insufficient wUSDT balance',
   'bridge.noAddress': 'Please enter withdrawal address',
   'bridge.depositSuccess': 'Deposit request for {{amount}} USDT created. Please follow the instructions to complete the deposit.',
-  'bridge.withdrawSuccess': 'Withdrawal request submitted! wUSDT burned. USDT will be sent to {{address}} after {{delay}}.',
+  'bridge.withdrawSuccess': 'Withdrawal request submitted! Your wUSDT has been sent to the bridge for review. Once the multisig signers approve, USDT will be released to {{address}} (expected within {{delay}}).',
 
   // Batch 12: Add Token Modal
   'addToken.title': 'Add Custom Token',

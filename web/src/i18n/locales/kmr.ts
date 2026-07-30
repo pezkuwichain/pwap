@@ -1677,6 +1677,7 @@ export default {
   'wallet.send': 'Bişîne',
   'wallet.receive': 'Werbigire',
   'wallet.history': 'Dîrok',
+  'wallet.multisigOperations': 'Operasyonên Multisig',
   'wallet.pezRewards': 'Xelatên PEZ',
   'wallet.epochOpen': 'Vekirî',
   'wallet.epochClaimPeriod': 'Dema Daxwazê',
@@ -3348,6 +3349,22 @@ export default {
   'multisigMembers.allVisible': 'Hemû danûstendin li ser blokzincîrê xuya ne',
   'multisigMembers.viewExplorer': 'Li Explorer Bibîne',
 
+  // Operasyonên Multisig (navrûya erêkirin/redkirinê ya li bendê)
+  'multisigOps.title': 'Operasyonên Multisig ên Li Bendê',
+  'multisigOps.subtitle': '{{count}} operasyon li benda îmzeyan in',
+  'multisigOps.refresh': 'Nû bike',
+  'multisigOps.empty': 'Niha operasyonek li bendê tune.',
+  'multisigOps.approvals': 'erêkirin',
+  'multisigOps.proposedBy': 'Pêşniyar kir',
+  'multisigOps.youApproved': 'Te ev operasyon berê erê kiriye',
+  'multisigOps.unknownCallHint': 'Ev bang tenê ji hasha wê nehat naskirin - ji bo vekodkirin û piştrastkirinê daneya bangê ya naskirî li jêr pêve bike.',
+  'multisigOps.pasteCallData': 'Daneya bangê pêve bike (0x...)',
+  'multisigOps.decode': 'Vekode',
+  'multisigOps.approve': 'Erê bike',
+  'multisigOps.reject': 'Red bike',
+  'multisigOps.thresholdNote': 'Ji bo pêkanîna her operasyonê {{threshold}} ji {{total}} îmzeyan pêwîst e - tu îmzekar bi tenê, tevî vê sepanê jî, nikare fonan bilivîne.',
+  'multisigOps.backToWallet': 'Vegere Berîkê',
+
   // Batch 12: Pallets Grid
   'palletsGrid.title': 'Paletên Bingehîn ên Runtime',
   'palletsGrid.description': 'Hêmanên blokzincîrê yên modular ku taybetmendiyên pêşketî yên PezkuwiChain hêz didin',
@@ -3422,7 +3439,8 @@ export default {
   'bridge.withdrawStep4': 'USDT li navnîşana xwe ya diyarkirî bistînin',
   'bridge.wusdtAmount': 'Mîqdara wUSDT',
   'bridge.max': 'Herî zêde:',
-  'bridge.withdrawAddress': 'Navnîşana Derxistinê (Hesabê Bankê an Navnîşana Krîpto)',
+  'bridge.withdrawAddress': 'Cihê USDT (Polkadot Asset Hub)',
+  'bridge.withdrawAddressAutoNote': 'Bixweber ji hesabê te yê girêdayî hat wergirtin - USDT her tim ji heman mifteyê re, ku ji bo Polkadot ji nû ve hatiye kodkirin, tê şandin.',
   'bridge.addressPlaceholder': 'Hesabê bankê an navnîşana krîpto',
   'bridge.withdrawTier': 'Kademeya derxistinê:',
   'bridge.securityDelay': 'Derengiya ewlehiyê:',
@@ -3431,7 +3449,7 @@ export default {
   'bridge.insufficientBalance': 'Balansa wUSDT têr nake',
   'bridge.noAddress': 'Ji kerema xwe navnîşana derxistinê binivîsin',
   'bridge.depositSuccess': 'Daxwaza depokirinê ya {{amount}} USDT hat afirandin. Ji bo temamkirina depokirinê rêwerzan bişopînin.',
-  'bridge.withdrawSuccess': 'Daxwaza derxistinê hat şandin! wUSDT hat şewitandin. USDT dê piştî {{delay}} ji {{address}} re bê şandin.',
+  'bridge.withdrawSuccess': 'Daxwaza derxistinê hat şandin! wUSDTya te ji bo lêkolînê ji pirê re hat şandin. Piştî ku îmzekarên multisig erê bikin, USDT dê ji {{address}} re bê şandin (texmînî di nav {{delay}} de).',
 
   // Batch 12: Add Token
   'addToken.title': 'Tokenê Taybet Zêde Bike',

@@ -1650,6 +1650,7 @@ export default {
   'wallet.send': 'ناردن',
   'wallet.receive': 'وەرگرتن',
   'wallet.history': 'مێژوو',
+  'wallet.multisigOperations': 'کردارەکانی مەڵتیسیگ',
   'wallet.pezRewards': 'خەڵاتەکانی PEZ',
   'wallet.epochOpen': 'کراوە',
   'wallet.epochClaimPeriod': 'ماوەی داواکاری',
@@ -3321,6 +3322,22 @@ export default {
   'multisigMembers.allVisible': 'هەموو مامەڵەکان لەسەر بلۆکچەین دەردەکەون',
   'multisigMembers.viewExplorer': 'بینین لە Explorer',
 
+  // کردارەکانی مەڵتیسیگ (ڕووکاری پەسەندکردن/ڕەتکردنەوەی چاوەڕوان)
+  'multisigOps.title': 'کردارە چاوەڕوانەکانی مەڵتیسیگ',
+  'multisigOps.subtitle': '{{count}} کردار چاوەڕوانی واژوون',
+  'multisigOps.refresh': 'نوێکردنەوە',
+  'multisigOps.empty': 'لە ئێستادا هیچ کردارێکی چاوەڕوان نییە.',
+  'multisigOps.approvals': 'پەسەندکردن',
+  'multisigOps.proposedBy': 'پێشنیارکراوە لەلایەن',
+  'multisigOps.youApproved': 'تۆ پێشتر ئەم کردارەت پەسەند کردووە',
+  'multisigOps.unknownCallHint': 'ئەم بانگە تەنها لە هاشەکەیەوە بە خۆکاری نەناسرایەوە - بۆ لێکدانەوە و پشتڕاستکردنەوە داتای بانگی ناسراو لە خوارەوە بلکێنە.',
+  'multisigOps.pasteCallData': 'داتای بانگ بلکێنە (0x...)',
+  'multisigOps.decode': 'لێکدانەوە',
+  'multisigOps.approve': 'پەسەندکردن',
+  'multisigOps.reject': 'ڕەتکردنەوە',
+  'multisigOps.thresholdNote': 'بۆ جێبەجێکردنی هەر کردارێک {{threshold}} واژوو لە {{total}} پێویستە - هیچ واژووکارێک بە تەنها، ئەم ئەپەش لەوانەیە، ناتوانێت سامان بجوڵێنێت.',
+  'multisigOps.backToWallet': 'گەڕانەوە بۆ جزدان',
+
   // Batch 12: Pallets Grid
   'palletsGrid.title': 'پالێتە سەرەکیەکانی Runtime',
   'palletsGrid.description': 'پێکهاتەکانی مۆدیولاری بلۆکچەین کە تایبەتمەندیە پێشکەوتووەکانی PezkuwiChain هێز دەدەن',
@@ -3395,7 +3412,8 @@ export default {
   'bridge.withdrawStep4': 'USDT لە ناونیشانی دیاریکراوت وەربگرە',
   'bridge.wusdtAmount': 'بڕی wUSDT',
   'bridge.max': 'زۆرترین:',
-  'bridge.withdrawAddress': 'ناونیشانی دەرهێنان (هەژماری بانک یان ناونیشانی کریپتۆ)',
+  'bridge.withdrawAddress': 'مەبەستی USDT (Polkadot Asset Hub)',
+  'bridge.withdrawAddressAutoNote': 'بە خۆکاری لە هەژماری بەستراوتەوە وەرگیراوە - USDT هەمیشە بۆ هەمان کلیل، کە بۆ Polkadot دووبارە کۆدکراوە، دەنێردرێت.',
   'bridge.addressPlaceholder': 'هەژماری بانک یان ناونیشانی کریپتۆ',
   'bridge.withdrawTier': 'ئاستی دەرهێنان:',
   'bridge.securityDelay': 'درەنگکەوتنی ئاسایش:',
@@ -3404,7 +3422,7 @@ export default {
   'bridge.insufficientBalance': 'باڵانسی wUSDT بەس نییە',
   'bridge.noAddress': 'تکایە ناونیشانی دەرهێنان بنووسە',
   'bridge.depositSuccess': 'داواکاری پارەخستنی {{amount}} USDT دروستکرا. بۆ تەواوکردنی پارەخستن ڕێنماییەکان بشوێنە.',
-  'bridge.withdrawSuccess': 'داواکاری دەرهێنان نێردرا! wUSDT سووتێنرا. USDT دوای {{delay}} بۆ {{address}} دەنێردرێت.',
+  'bridge.withdrawSuccess': 'داواکاری دەرهێنان نێردرا! wUSDTەکەت بۆ پێداچوونەوە بۆ پردەکە نێردرا. دوای پەسەندکردنی واژووکارانی مەڵتیسیگ، USDT بۆ {{address}} دەنێردرێت (بە نزیکەیی لە ماوەی {{delay}}).',
 
   // Batch 12: Add Token
   'addToken.title': 'زیادکردنی تۆکنی تایبەت',

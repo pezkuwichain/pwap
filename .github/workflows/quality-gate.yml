@@ -982,17 +982,20 @@ jobs:
             set -euo pipefail
             BASE=/opt/supabase-self-hosted/deploy-staging
             STAGING="$BASE/tree"
-            VOL=/opt/supabase-self-hosted/docker/volumes/functions
             DB=supabase-db
 
             echo "── 0. Unpack bundle ──"
             rm -rf "$STAGING" && mkdir -p "$STAGING"
             tar xzf "$BASE/supabase-deploy.tgz" -C "$STAGING"
 
-            echo "── 1. Sync edge functions (additive, no --delete: telegram-* preserved) ──"
-            # __tests__ are Deno test dirs — never ship them into the runtime volume.
-            rsync -a --exclude='__tests__' "$STAGING/functions/" "$VOL/"
-            echo "   synced: $(ls "$STAGING/functions" | grep -v __tests__ | tr '\n' ' ')"
+            echo "── 1. Sync edge functions (through the ownership gate) ──"
+            # The runtime volume is shared with pezkuwi-telegram-miniapp. A plain
+            # rsync here silently replaced that project's telegram-auth on
+            # 2026-06-28 and broke its sign-in for a month, so writes now go
+            # through a gate that refuses any name this project does not own.
+            # Ownership: /opt/supabase-self-hosted/functions-registry.json
+            # __tests__ are Deno test dirs — the gate skips __-prefixed dirs.
+            supabase-deploy-functions --project pwap-web --src "$STAGING/functions"
 
             echo "── 2. Pre-flight: required edge-runtime secrets ──"
             EF_ENV="$(docker exec supabase-edge-functions env 2>/dev/null || true)"
