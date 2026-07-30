@@ -76,3 +76,48 @@ if [[ $pending -eq 0 ]]; then
 else
   echo "✔ applied $done migration(s)"
 fi
+
+# ── Drift check ───────────────────────────────────────────────────────────────
+# Being recorded as applied is not proof of having been applied. Six migrations
+# carry "Run this in Supabase SQL Editor" headers and were pasted in by hand
+# before this runner existed; at least one run stopped partway — the tables
+# landed, the function bodies did not — and the version was recorded anyway.
+# This runner then skipped them forever, so the gap stayed invisible until a
+# user hit "Could not find the function ..." in production.
+#
+# So after applying, compare what the migrations declare against what the
+# database actually has. Known, accepted gaps live in known-schema-gaps.txt;
+# anything outside that list is new drift and gets surfaced loudly.
+echo "▶ drift check: declared functions vs database"
+
+gaps_file="$MIGRATIONS_DIR/../deploy/known-schema-gaps.txt"
+declared="$(grep -rhoiE 'create (or replace )?function (public\.)?[a-z0-9_]+' "$MIGRATIONS_DIR"/*.sql 2>/dev/null \
+  | awk '{print tolower($NF)}' | sed 's/^public\.//' | sort -u)"
+present="$("${PSQL_Q[@]}" -c \
+  "SELECT p.proname FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace WHERE n.nspname = 'public';" \
+  | sort -u)"
+
+missing="$(comm -23 <(echo "$declared") <(echo "$present") || true)"
+
+if [[ -n "$missing" ]]; then
+  if [[ -f "$gaps_file" ]]; then
+    known="$(grep -vE '^\s*(#|$)' "$gaps_file" | tr -d ' \t' | sort -u)"
+    unexpected="$(comm -23 <(echo "$missing") <(echo "$known") || true)"
+  else
+    unexpected="$missing"
+  fi
+
+  known_count="$(echo "$missing" | grep -c . || true)"
+  new_count="$(echo "$unexpected" | grep -c . || true)"
+
+  if [[ -n "$unexpected" ]]; then
+    echo "::warning::schema drift — $new_count function(s) declared in migrations but absent from the database:"
+    echo "$unexpected" | sed 's/^/    ✗ /'
+    echo "    A migration is recorded as applied but its functions are not there."
+    echo "    Fix with a forward-only repair migration, or add to known-schema-gaps.txt if intentional."
+  else
+    echo "  ✔ no new drift ($known_count known gap(s), see known-schema-gaps.txt)"
+  fi
+else
+  echo "  ✔ every declared function is present"
+fi
