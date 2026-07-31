@@ -10,7 +10,6 @@ export default function EmailVerification() {
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const [verifying, setVerifying] = useState(false);
   const [verified, setVerified] = useState(false);
   const [error, setError] = useState('');
   const [resending, setResending] = useState(false);
@@ -19,7 +18,6 @@ export default function EmailVerification() {
 
   // Get email from navigation state (after sign up)
   const email = location.state?.email;
-  const token = searchParams.get('token');
   const type = searchParams.get('type');
 
   useEffect(() => {
@@ -32,29 +30,8 @@ export default function EmailVerification() {
           setVerified(true);
         }
       });
-    } else if (token) {
-      verifyEmail(token);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token, type]);
-
-  const verifyEmail = async (verifyToken: string) => {
-    setVerifying(true);
-    try {
-      const { error } = await supabase.functions.invoke('email-verification', {
-        body: { action: 'verify', token: verifyToken }
-      });
-
-      if (error) throw error;
-
-      setVerified(true);
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : t('emailVerify.failedToVerify');
-      setError(errorMessage);
-    } finally {
-      setVerifying(false);
-    }
-  };
+  }, [type]);
 
   const handleResendEmail = async () => {
     if (!email) return;
@@ -80,7 +57,7 @@ export default function EmailVerification() {
   };
 
   // Show "check your email" screen after sign up
-  if (email && !token && !type) {
+  if (email && !type) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex items-center justify-center p-4">
         <Card className="w-full max-w-md relative bg-gray-900/90 backdrop-blur-xl border-gray-800">
@@ -162,18 +139,11 @@ export default function EmailVerification() {
         <CardHeader>
           <CardTitle className="text-white">{t('emailVerify.title')}</CardTitle>
           <CardDescription className="text-gray-400">
-            {verifying ? t('emailVerify.verifyingEmail') : t('emailVerify.verificationStatus')}
+            {t('emailVerify.verificationStatus')}
           </CardDescription>
         </CardHeader>
         <CardContent className="text-center space-y-4">
-          {verifying && (
-            <div className="flex flex-col items-center space-y-4">
-              <Loader2 className="h-12 w-12 animate-spin text-green-500" />
-              <p className="text-gray-300">{t('emailVerify.pleaseWait')}</p>
-            </div>
-          )}
-
-          {!verifying && verified && (
+          {verified && (
             <div className="flex flex-col items-center space-y-4">
               <CheckCircle className="h-12 w-12 text-green-500" />
               <h3 className="text-lg font-semibold text-white">{t('emailVerify.success')}</h3>
@@ -189,7 +159,7 @@ export default function EmailVerification() {
             </div>
           )}
 
-          {!verifying && !verified && error && (
+          {!verified && error && (
             <div className="flex flex-col items-center space-y-4">
               <XCircle className="h-12 w-12 text-red-500" />
               <h3 className="text-lg font-semibold text-white">{t('emailVerify.failed')}</h3>
@@ -205,7 +175,7 @@ export default function EmailVerification() {
             </div>
           )}
 
-          {!verifying && !verified && !error && !token && !type && (
+          {!verified && !error && !type && (
             <div className="flex flex-col items-center space-y-4">
               <Mail className="h-12 w-12 text-gray-500" />
               <h3 className="text-lg font-semibold text-white">{t('emailVerify.noToken')}</h3>
