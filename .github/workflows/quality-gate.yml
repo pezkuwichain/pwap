@@ -153,7 +153,7 @@ jobs:
   build-image:
     name: Build & Push Image
     runs-on: pwap-runner
-    needs: [web, telegram-gate]
+    needs: [web, notify-deploy-pending]
     if: |
       github.ref == 'refs/heads/main' &&
       (github.event_name == 'push' ||
@@ -235,7 +235,7 @@ jobs:
   build-image-backend:
     name: Build & Push Backend Image
     runs-on: pwap-runner
-    needs: [backend, telegram-gate]
+    needs: [backend, notify-deploy-pending]
     if: |
       (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')) &&
       (github.event_name == 'push' ||
@@ -298,31 +298,35 @@ jobs:
           echo "✅ Backend image signed (transparency log: rekor.sigstore.dev)"
 
   # ========================================
-  # TELEGRAM CEO APPROVAL GATE
-  # Runs on self-hosted pwap-runner (DEV VPS) where pexsec-bot.service
-  # writes the gate file to /tmp/pexsec-gates/<sha> when CEO clicks
-  # Approve/Cancel in Telegram. 30-minute timeout = deploy cancelled.
+  # DEPLOY APPROVAL
+  # The approval is a GitHub Environment protection rule on `production`, not
+  # something implemented here. No runner is held while it waits, the window is
+  # 30 days instead of minutes, and who approved which SHA is recorded in the
+  # deployment history.
+  #
+  # This job only notifies; it sends one message and exits in seconds and cannot
+  # block anything. It replaces a loop that polled /tmp/pexsec-gates for 30
+  # minutes while occupying a pwap-runner slot — on 2026-07-30 that window
+  # expired unseen and cancelled a deploy with nothing shipped.
   # ========================================
-  telegram-gate:
-    name: Telegram deploy approval
+  notify-deploy-pending:
+    name: Notify approver
     runs-on: pwap-runner
     needs: [web, security-audit]
     if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    timeout-minutes: 5
 
     steps:
-      - name: Send approval request and wait
+      - name: Send Telegram notification
         env:
           BOT_TOKEN: ${{ secrets.PEXSEC_BOT_TOKEN }}
           CEO_CHAT_ID: ${{ secrets.TELEGRAM_CEO_CHAT_ID }}
           SHA: ${{ github.sha }}
           ACTOR: ${{ github.actor }}
           MESSAGE: ${{ github.event.head_commit.message }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           SHORT="${SHA:0:7}"
-          GATE_DIR="/tmp/pexsec-gates"
-          mkdir -p "$GATE_DIR" 2>/dev/null || true
-          rm -f "$GATE_DIR/$SHORT" 2>/dev/null || true
-
           # Strip Markdown special chars to prevent Telegram parse errors
           SAFE_MSG=$(echo "${MESSAGE}" | head -1 | tr -d '_*`[]()#|{}!' | cut -c1-120)
 
@@ -331,35 +335,15 @@ jobs:
             -d "{
               \"chat_id\": \"${CEO_CHAT_ID}\",
               \"parse_mode\": \"Markdown\",
-              \"text\": \"🚀 *pwap/web Deploy Approval*\\n\\n\`${SHORT}\` — ${ACTOR}\\n\\n_${SAFE_MSG}_\\n\\nTargets: app.pezkuwichain.io + pex.mom\",
+              \"text\": \"🚀 *pwap/web Deploy Approval*\\n\\n\`${SHORT}\` — ${ACTOR}\\n\\n_${SAFE_MSG}_\\n\\nTargets: app.pezkuwichain.io + pex.mom\\n\\nApprove in GitHub — the deploy waits until you do.\",
               \"reply_markup\": {
                 \"inline_keyboard\": [[
-                  {\"text\": \"✅ Approve\", \"callback_data\": \"deploy_approve:${SHORT}\"},
-                  {\"text\": \"❌ Cancel\", \"callback_data\": \"deploy_cancel:${SHORT}\"}
+                  {\"text\": \"🔎 Review \& Approve\", \"url\": \"${RUN_URL}\"}
                 ]]
               }
-            }"
+            }" > /dev/null
 
-          echo "Waiting for Telegram approval (max 30 min)..."
-          TIMEOUT=1800
-          ELAPSED=0
-          while [ $ELAPSED -lt $TIMEOUT ]; do
-            if [ -f "$GATE_DIR/$SHORT" ]; then
-              DECISION=$(cat "$GATE_DIR/$SHORT")
-              rm -f "$GATE_DIR/$SHORT" 2>/dev/null || true
-              if [ "$DECISION" = "approved" ]; then
-                echo "Deploy approved."
-                exit 0
-              else
-                echo "Deploy cancelled."
-                exit 1
-              fi
-            fi
-            sleep 10
-            ELAPSED=$((ELAPSED + 10))
-          done
-          echo "No approval received within 30 minutes — deploy cancelled."
-          exit 1
+          echo "Approver notified; deployment waits on the 'production' environment."
 
   # ========================================
   # VERSION BUMP (RUNS BEFORE BOTH DEPLOYS)
@@ -367,7 +351,7 @@ jobs:
   bump-version:
     name: Bump Version
     runs-on: pwap-runner
-    needs: [web, security-audit, telegram-gate, build-image]
+    needs: [web, security-audit, notify-deploy-pending, build-image]
     # Skip on rollback (workflow_dispatch with rollback_to set)
     if: |
       github.ref == 'refs/heads/main' &&
@@ -413,10 +397,11 @@ jobs:
   deploy-app:
     name: Deploy app.pezkuwichain.io
     runs-on: pwap-runner
-    needs: [telegram-gate, bump-version, build-image]
+    environment: production
+    needs: [notify-deploy-pending, bump-version, build-image]
     if: |
       always() &&
-      needs.telegram-gate.result == 'success' &&
+      needs.notify-deploy-pending.result == 'success' &&
       ((github.event_name == 'push' && needs.build-image.result == 'success' && needs.bump-version.result == 'success') ||
        (github.event_name == 'workflow_dispatch' && github.event.inputs.rollback_to != ''))
     permissions:
@@ -582,10 +567,11 @@ jobs:
   deploy-pex:
     name: Deploy pex.mom
     runs-on: pwap-runner
-    needs: [telegram-gate, bump-version, build-image]
+    environment: production
+    needs: [notify-deploy-pending, bump-version, build-image]
     if: |
       always() &&
-      needs.telegram-gate.result == 'success' &&
+      needs.notify-deploy-pending.result == 'success' &&
       ((github.event_name == 'push' && needs.build-image.result == 'success' && needs.bump-version.result == 'success') ||
        (github.event_name == 'workflow_dispatch' && github.event.inputs.rollback_to != ''))
     permissions:
@@ -744,7 +730,7 @@ jobs:
   # Runs a container from the SHA-tagged GHCR image on the backend VPS.
   # Same discipline as the web deploy: cosign verify → deploy → health check →
   # auto-rollback to previous SHA → Telegram notify. Gated behind the SAME
-  # telegram-gate approval as the web deploy. Only main/tags, never fork PRs.
+  # same environment approval as the web deploy. Only main/tags, never fork PRs.
   #
   # STATEFUL DB: the sqlite file lives in the named docker volume
   # `pwap-indexer-db` (mounted at /data). Deploy replaces the container/image
@@ -777,12 +763,13 @@ jobs:
   deploy-backend:
     name: Deploy Backend (indexer)
     runs-on: pwap-runner
-    needs: [telegram-gate, build-image-backend, backend-cfg]
+    environment: production
+    needs: [notify-deploy-pending, build-image-backend, backend-cfg]
     if: |
       always() &&
       needs.backend-cfg.outputs.configured == 'true' &&
       (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')) &&
-      needs.telegram-gate.result == 'success' &&
+      needs.notify-deploy-pending.result == 'success' &&
       ((github.event_name == 'push' && needs.build-image-backend.result == 'success') ||
        (github.event_name == 'workflow_dispatch' && github.event.inputs.rollback_to != ''))
     permissions:
@@ -941,10 +928,11 @@ jobs:
   deploy-supabase:
     name: Deploy Supabase (functions + migrations)
     runs-on: pwap-runner
-    needs: [telegram-gate]
+    environment: production
+    needs: [notify-deploy-pending]
     if: |
       always() &&
-      needs.telegram-gate.result == 'success' &&
+      needs.notify-deploy-pending.result == 'success' &&
       github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
       contents: read
