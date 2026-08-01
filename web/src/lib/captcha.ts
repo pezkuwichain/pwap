@@ -66,16 +66,76 @@ function loadScript(): Promise<void> {
   return scriptPromise;
 }
 
+// How long to wait for a token before giving the caller an error. Generous,
+// because it covers a human reading and clicking a challenge — but finite, so a
+// challenge that is never answered ends as a message instead of a button stuck
+// on "Signing in..." forever.
+const TOKEN_TIMEOUT_MS = 90_000;
+
 function ensureContainer(): HTMLElement {
   if (container?.isConnected) return container;
   container = document.createElement('div');
   container.id = CONTAINER_ID;
   container.style.position = 'fixed';
-  container.style.bottom = '1rem';
-  container.style.right = '1rem';
   container.style.zIndex = '2147483647';
   document.body.appendChild(container);
+  parkWidget(container);
   return container;
+}
+
+/** Out of the way: nothing is being asked of the user. */
+function parkWidget(el: HTMLElement) {
+  el.style.inset = 'auto 1rem 1rem auto';
+  el.style.transform = 'none';
+  el.style.boxShadow = 'none';
+  el.style.borderRadius = '0';
+}
+
+/**
+ * Centre the challenge over a dimmed backdrop.
+ *
+ * A challenge in the corner is a challenge people miss: the submit button sits
+ * on "Signing in..." while an unnoticed checkbox waits at the edge of the
+ * screen. Verified in a real browser — that is exactly what it looked like.
+ * When Cloudflare decides it needs a click, put the click where the user is
+ * already looking.
+ */
+function highlightWidget(el: HTMLElement) {
+  el.style.inset = '50% auto auto 50%';
+  el.style.transform = 'translate(-50%, -50%)';
+  el.style.boxShadow = '0 0 0 100vmax rgba(0,0,0,.6), 0 10px 40px rgba(0,0,0,.5)';
+  el.style.borderRadius = '4px';
+}
+
+/**
+ * Watch for the widget becoming visible and centre it when it does.
+ *
+ * Turnstile has callbacks that fire around interactive challenges, but they are
+ * not in the documentation this was written against, and a callback name that
+ * turns out to be wrong fails silently — leaving the challenge in the corner,
+ * which is the bug being fixed. Measuring the element is checkable: with
+ * `interaction-only` the container has no size until there is something to
+ * click.
+ */
+function watchVisibility(el: HTMLElement): () => void {
+  const apply = () => {
+    const visible = el.getBoundingClientRect().height > 0;
+    if (visible) highlightWidget(el);
+    else parkWidget(el);
+  };
+
+  if (typeof ResizeObserver !== 'undefined') {
+    const observer = new ResizeObserver(apply);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }
+
+  // No ResizeObserver: poll instead of doing nothing. Returning a no-op here
+  // would leave the challenge in the corner on those browsers — the exact bug
+  // this function exists to fix — and it would do so without any error, which
+  // is the worst way for a fix to be missing.
+  const poll = setInterval(apply, 400);
+  return () => clearInterval(poll);
 }
 
 /**
@@ -111,14 +171,29 @@ export async function getCaptchaToken(): Promise<string | undefined> {
   }
 
   return new Promise<string>((resolve, reject) => {
+    let stopWatching = () => {};
+
+    const settle = (fn: () => void) => {
+      clearTimeout(timer);
+      stopWatching();
+      parkWidget(el);
+      fn();
+    };
+
+    const timer = setTimeout(
+      () => settle(() => reject(new Error('Captcha timed out'))),
+      TOKEN_TIMEOUT_MS
+    );
+
+    stopWatching = watchVisibility(el);
+
     widgetId = turnstile.render(el, {
       sitekey: SITE_KEY,
       execution: 'execute',
       appearance: 'interaction-only',
       action: 'turnstile-spin-v2',
-      callback: (token: string) => resolve(token),
-      'error-callback': () => reject(new Error('Captcha failed')),
-      'timeout-callback': () => reject(new Error('Captcha timed out')),
+      callback: (token: string) => settle(() => resolve(token)),
+      'error-callback': () => settle(() => reject(new Error('Captcha failed'))),
     });
 
     turnstile.execute(el);
