@@ -28,7 +28,7 @@ Requires `gh` authenticated with admin rights on the repo.
 |---|---|---|
 | required check | `CI Gate ✅` | aggregate job — fails if web, backend or security-audit did not succeed |
 | strict | true | branch must be up to date with `main` before merging |
-| approvals | 1 | no unreviewed code on `main` |
+| approvals | 0 | the PR is the gate, not a second reader — see below |
 | dismiss stale reviews | true | an approval does not carry over to new commits |
 | force pushes | blocked | history cannot be rewritten |
 | deletions | blocked | `main` cannot be deleted |
@@ -39,6 +39,21 @@ Only `CI Gate ✅` is listed as a required check, deliberately. It runs with
 covers them. Listing each job here as well would mean editing this file whenever
 one is renamed — and a rename would then quietly drop a requirement instead of
 failing loudly.
+
+### Why zero required approvals
+
+Requiring an approval on a four-person team means every change waits on somebody
+else being awake. That cost buys less than it looks like: the thing worth
+protecting here is not code review — it is that nothing reaches production
+unnoticed, and that funds cannot move on one person's say-so. Those live
+elsewhere. Production deploys wait on the `production` environment, and
+fund-moving operations are being put behind on-chain multisig, where a stolen
+account or a compromised host cannot forge a second signature the way a
+collected token can forge a second approval.
+
+What the branch rule still buys, at zero waiting: nothing lands on `main`
+without a PR, and nothing merges with red CI. That is the part a four-person
+team actually gets value from.
 
 `enforce_admins` stays `false` on purpose: an admin needs a way through during a
 real incident. It is an escape hatch, not the normal path — rare, visible, and
