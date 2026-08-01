@@ -1082,10 +1082,96 @@ jobs:
   # All required checks must succeed (or be skipped, e.g. for rollback path).
   # Branch protection on main should require this job's success.
   # ========================================
+  # Applies every migration to an empty Postgres, so a migration that cannot run
+  # from scratch fails here rather than on the production host.
+  #
+  # This was not possible before 2026-08-01: the old set could not be replayed at
+  # all. Five migrations failed on an empty database, partly because the legacy
+  # 0NN filenames sort before the 14-digit timestamps they depend on
+  # ("013" < "20241117054600"), and the schema they produced did not match
+  # production anyway. The baseline replaced them with a dump of the live schema,
+  # which is what makes this check meaningful.
+  migration-test:
+    name: Migration test
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: migration_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install psql
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client
+
+      # Stand-ins for auth.uid(), auth.users, storage.objects and the Supabase
+      # roles. Without them the run would fail on the environment rather than on
+      # anything a migration got wrong.
+      - name: Apply Supabase stubs
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h localhost -U postgres -d migration_test -v ON_ERROR_STOP=1 -q \
+            -f web/supabase/deploy/test-bootstrap.sql
+          echo "stubs applied"
+
+      - name: Apply migrations in order
+        env:
+          PGPASSWORD: postgres
+        run: |
+          set -euo pipefail
+          failed=0
+          for f in $(ls web/supabase/migrations/*.sql | sort); do
+            base="$(basename "$f")"
+            case "$base" in COMBINED*) echo "  skip $base"; continue;; esac
+            # --single-transaction so a failure leaves nothing half-applied,
+            # matching how apply-migrations.sh runs them in production
+            if psql -h localhost -U postgres -d migration_test \
+                 -v ON_ERROR_STOP=1 --single-transaction -q -f "$f" 2>/tmp/err.log; then
+              echo "  ✔ $base"
+            else
+              failed=$((failed+1))
+              echo "  ✗ $base"
+              grep -E "ERROR" /tmp/err.log | head -3 | sed 's/^/      /'
+            fi
+          done
+          if [ $failed -gt 0 ]; then
+            echo "::error::$failed migration(s) cannot be applied to an empty database"
+            exit 1
+          fi
+          echo "all migrations applied from scratch"
+
+      # A migration set that applies cleanly but produces nothing is still broken.
+      - name: Verify the schema was actually built
+        env:
+          PGPASSWORD: postgres
+        run: |
+          set -euo pipefail
+          read -r tables functions <<<"$(psql -h localhost -U postgres -d migration_test -tAq -c \
+            "SELECT (SELECT count(*) FROM pg_tables WHERE schemaname='public'),
+                    (SELECT count(*) FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
+                     WHERE n.nspname='public')" | tr '|' ' ')"
+          echo "built: $tables tables, $functions functions"
+          if [ "$tables" -lt 50 ] || [ "$functions" -lt 20 ]; then
+            echo "::error::schema looks incomplete — expected the full public schema"
+            exit 1
+          fi
+
   ci-gate:
     name: CI Gate ✅
     runs-on: pwap-runner
-    needs: [web, backend, security-audit]
+    needs: [web, backend, security-audit, migration-test]
     if: always()
 
     steps:
