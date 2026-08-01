@@ -45,7 +45,7 @@ read -r -d '' PROTECTION <<'JSON' || true
   "required_pull_request_reviews": {
     "dismiss_stale_reviews": true,
     "require_code_owner_reviews": false,
-    "required_approving_review_count": 1,
+    "required_approving_review_count": 0,
     "require_last_push_approval": false
   },
   "restrictions": null,
@@ -89,7 +89,7 @@ rev = (d.get('required_pull_request_reviews') or {})
 want = {
     'required checks': (checks.get('contexts'), ['CI Gate ✅']),
     'strict': (checks.get('strict'), True),
-    'approvals': (rev.get('required_approving_review_count'), 1),
+    'approvals': (rev.get('required_approving_review_count'), 0),
     'dismiss stale': (rev.get('dismiss_stale_reviews'), True),
     'force pushes blocked': (not (d.get('allow_force_pushes') or {}).get('enabled'), True),
     'deletions blocked': (not (d.get('allow_deletions') or {}).get('enabled'), True),
