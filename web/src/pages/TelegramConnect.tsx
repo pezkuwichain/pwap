@@ -9,6 +9,7 @@ import { supabase } from '@/lib/supabase';
 import { identityToUUID } from '@shared/lib/identity';
 import { Loader2, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { getCaptchaToken } from '@/lib/captcha';
 
 type Status = 'loading' | 'connecting' | 'success' | 'error';
 
@@ -111,6 +112,7 @@ export default function TelegramConnect() {
         const { error: signInError } = await supabase.auth.signInWithOtp({
           email: telegramEmail,
           options: {
+            captchaToken: await getCaptchaToken(),
             shouldCreateUser: true,
             data: {
               telegram_id: parseInt(telegramId, 10),

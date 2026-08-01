@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState, useCallback } fr
 import { supabase } from '@/lib/supabase';
 import { User } from '@supabase/supabase-js';
 import { isMobileApp, getNativeWalletAddress, getNativeAccountName } from '@/lib/mobile-bridge';
+import { getCaptchaToken } from '@/lib/captcha';
 
 // Session timeout configuration
 const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
@@ -287,9 +288,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signIn = async (email: string, password: string, rememberMe: boolean = false) => {
     try {
+      // GoTrue enforces the captcha on /token with grant_type=password, so a
+      // password login needs a token like signup does. Refresh-token calls are
+      // exempt, which is why existing sessions keep working on their own.
+      const captchaToken = await getCaptchaToken();
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
+        options: { captchaToken },
       });
 
       if (!error && data.user) {
@@ -314,10 +320,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signUp = async (email: string, password: string, username: string, referralCode?: string) => {
     try {
+      const captchaToken = await getCaptchaToken();
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
+          captchaToken,
           data: {
             username,
             referral_code: referralCode || null,
