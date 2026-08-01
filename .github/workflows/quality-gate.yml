@@ -324,22 +324,34 @@ jobs:
           SHA: ${{ github.sha }}
           ACTOR: ${{ github.actor }}
           MESSAGE: ${{ github.event.head_commit.message }}
+          RUN_ID: ${{ github.run_id }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           SHORT="${SHA:0:7}"
           # Strip Markdown special chars to prevent Telegram parse errors
           SAFE_MSG=$(echo "${MESSAGE}" | head -1 | tr -d '_*`[]()#|{}!' | cut -c1-120)
 
+          # The buttons answer the environment's pending deployment through
+          # @pexsecBot, so approving is one tap from a phone. The environment rule
+          # is still what holds the deploy — the bot only presses the button on the
+          # reviewer's behalf, and the GitHub link stays as the fallback for when
+          # the bot or its host is down.
           curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
             -H "Content-Type: application/json" \
             -d "{
               \"chat_id\": \"${CEO_CHAT_ID}\",
               \"parse_mode\": \"Markdown\",
-              \"text\": \"🚀 *pwap/web Deploy Approval*\\n\\n\`${SHORT}\` — ${ACTOR}\\n\\n_${SAFE_MSG}_\\n\\nTargets: app.pezkuwichain.io + pex.mom\\n\\nApprove in GitHub — the deploy waits until you do.\",
+              \"text\": \"🚀 *pwap/web Deploy Approval*\\n\\n\`${SHORT}\` — ${ACTOR}\\n\\n_${SAFE_MSG}_\\n\\nTargets: app.pezkuwichain.io + pex.mom\\n\\nOnaylayana kadar deploy bekler.\",
               \"reply_markup\": {
-                \"inline_keyboard\": [[
-                  {\"text\": \"🔎 Review \& Approve\", \"url\": \"${RUN_URL}\"}
-                ]]
+                \"inline_keyboard\": [
+                  [
+                    {\"text\": \"✅ Onayla\", \"callback_data\": \"pwap_approve:${RUN_ID}\"},
+                    {\"text\": \"🛑 Reddet\", \"callback_data\": \"pwap_reject:${RUN_ID}\"}
+                  ],
+                  [
+                    {\"text\": \"🔎 GitHub'da incele\", \"url\": \"${RUN_URL}\"}
+                  ]
+                ]
               }
             }" > /dev/null
 
