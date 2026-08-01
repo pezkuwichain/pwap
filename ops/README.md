@@ -54,7 +54,8 @@ implements. GitHub holds the run until a reviewer approves it:
 - who approved which SHA is recorded in the deployment history
 - approval state survives a runner restart
 
-The deploy jobs in `quality-gate.yml` opt in with `environment: production`.
+Exactly one job in `quality-gate.yml` opts in with `environment: production`:
+`approve-deploy`. The four deploy jobs are held by depending on it.
 `notify-deploy-pending` only sends a Telegram message pointing at the run; it
 cannot block anything.
 
@@ -62,6 +63,58 @@ This replaced a job that polled `/tmp/pexsec-gates` for 30 minutes while holding
 a runner slot. On 2026-07-30 that window expired unseen and cancelled a deploy —
 a merged migration never reached the database and the only trace was a failed
 job.
+
+### Why one gate job and not `environment:` on each deploy
+
+The first version put `environment: production` on all four deploy jobs, which
+reads as the more direct design — GitHub itself holds each one. It does not
+behave that way.
+
+GitHub opens an approval request for the jobs that are *eligible at that moment*,
+and these four never are. `deploy-supabase` waits only on the notification;
+the rest wait on image builds that take minutes. So a run asks twice. On
+2026-07-31 the first approval shipped the Supabase functions and migrations, and
+the run then went back to waiting — unnoticed, because the notification had
+already been sent and answered. The schema had moved and the app serving it had
+not. Nobody is told about the second round; you have to be looking at the run.
+
+One gate job removes the split by construction: everything that deploys hangs off
+a single approval, so there is only ever one to give.
+
+The cost is that approval is now enforced by a dependency edge rather than by
+GitHub. `ops/check-deploy-gate.py` restores the guarantee — it fails CI if a
+`deploy-*` job does not depend on `approve-deploy`, if a second job declares the
+environment (which brings the split back), or if a job uses `always()` without
+asserting the gate succeeded, which silently un-holds it. The `Deploy gate
+wiring` job runs it on every PR.
+
+```bash
+python3 ops/check-deploy-gate.py
+```
+
+### Known: the version bump lands before approval
+
+`bump-version` commits `web/package.json` to `main` and pushes it before the gate
+— so rejecting a deploy leaves a bumped version for a release that never shipped.
+It is a number in a file, `[skip ci]`, and touches no server. Left as is rather
+than changed quietly; moving it behind `approve-deploy` is a one-line change if
+that is preferred.
+
+### Stopping a run that is waiting for approval
+
+`gh run cancel` does not work on a run held at an environment gate — it reports
+success and the run stays `waiting`, still holding the queue behind it. The
+pending deployment has to be **rejected**:
+
+```bash
+gh api repos/:owner/:repo/actions/runs/<RUN_ID>/pending_deployments \
+  -X POST -f state=rejected -f comment='superseded' \
+  -F 'environment_ids[]=<ENV_ID>'
+```
+
+Get `<ENV_ID>` from `gh api repos/:owner/:repo/actions/runs/<RUN_ID>/pending_deployments`.
+This came up on 2026-07-31: a stale run sat in `waiting` and blocked the deploy
+of the run behind it until it was rejected.
 
 ### Reviewer
 
