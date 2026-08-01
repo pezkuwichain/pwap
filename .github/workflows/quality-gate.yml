@@ -346,6 +346,38 @@ jobs:
           echo "Approver notified; deployment waits on the 'production' environment."
 
   # ========================================
+  # APPROVAL GATE — ONE JOB, ONE APPROVAL
+  # ========================================
+  # Every deploy hangs off this job. It exists so that a run needs exactly one
+  # approval, not several.
+  #
+  # It used to be that all four deploy jobs carried `environment: production`
+  # themselves. GitHub opens an approval request for whichever jobs are eligible
+  # at that moment, and these four are not eligible at the same moment —
+  # deploy-supabase only waits on the notification, while the rest wait on image
+  # builds that take minutes. So the run asked twice, several minutes apart. On
+  # 2026-07-31 the first approval shipped Supabase and the run then sat waiting
+  # again, unnoticed: the schema had moved and the app serving it had not.
+  #
+  # Deployment protection lives here now and nowhere else, so approving once
+  # releases the whole set. The deploy jobs are held by their dependency on this
+  # job instead of by their own environment — workflow-guard enforces that edge
+  # so a new deploy job cannot quietly skip the gate.
+  #
+  # Waiting for approval costs no runner: GitHub holds the job before dispatch.
+  approve-deploy:
+    name: Await deploy approval
+    runs-on: pwap-runner
+    environment: production
+    needs: [notify-deploy-pending]
+    timeout-minutes: 5
+
+    steps:
+      - name: Record approval
+        run: |
+          echo "Deploy of ${GITHUB_SHA:0:7} approved. Releasing deploy jobs."
+
+  # ========================================
   # VERSION BUMP (RUNS BEFORE BOTH DEPLOYS)
   # ========================================
   bump-version:
@@ -397,10 +429,10 @@ jobs:
   deploy-app:
     name: Deploy app.pezkuwichain.io
     runs-on: pwap-runner
-    environment: production
-    needs: [notify-deploy-pending, bump-version, build-image]
+    needs: [approve-deploy, notify-deploy-pending, bump-version, build-image]
     if: |
       always() &&
+      needs.approve-deploy.result == 'success' &&
       needs.notify-deploy-pending.result == 'success' &&
       ((github.event_name == 'push' && needs.build-image.result == 'success' && needs.bump-version.result == 'success') ||
        (github.event_name == 'workflow_dispatch' && github.event.inputs.rollback_to != ''))
@@ -567,10 +599,10 @@ jobs:
   deploy-pex:
     name: Deploy pex.mom
     runs-on: pwap-runner
-    environment: production
-    needs: [notify-deploy-pending, bump-version, build-image]
+    needs: [approve-deploy, notify-deploy-pending, bump-version, build-image]
     if: |
       always() &&
+      needs.approve-deploy.result == 'success' &&
       needs.notify-deploy-pending.result == 'success' &&
       ((github.event_name == 'push' && needs.build-image.result == 'success' && needs.bump-version.result == 'success') ||
        (github.event_name == 'workflow_dispatch' && github.event.inputs.rollback_to != ''))
@@ -763,10 +795,10 @@ jobs:
   deploy-backend:
     name: Deploy Backend (indexer)
     runs-on: pwap-runner
-    environment: production
-    needs: [notify-deploy-pending, build-image-backend, backend-cfg]
+    needs: [approve-deploy, notify-deploy-pending, build-image-backend, backend-cfg]
     if: |
       always() &&
+      needs.approve-deploy.result == 'success' &&
       needs.backend-cfg.outputs.configured == 'true' &&
       (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')) &&
       needs.notify-deploy-pending.result == 'success' &&
@@ -928,10 +960,10 @@ jobs:
   deploy-supabase:
     name: Deploy Supabase (functions + migrations)
     runs-on: pwap-runner
-    environment: production
-    needs: [notify-deploy-pending]
+    needs: [approve-deploy, notify-deploy-pending]
     if: |
       always() &&
+      needs.approve-deploy.result == 'success' &&
       needs.notify-deploy-pending.result == 'success' &&
       github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
@@ -1168,10 +1200,24 @@ jobs:
             exit 1
           fi
 
+  # Deploy approval is enforced by a dependency edge (see approve-deploy), and an
+  # edge can be dropped by a later edit without anyone noticing until a deploy
+  # goes out unapproved. This job is what keeps that from being possible: it
+  # fails the PR, not production.
+  workflow-guard:
+    name: Deploy gate wiring
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Every deploy job must sit behind the approval gate
+        run: python3 ops/check-deploy-gate.py
+
   ci-gate:
     name: CI Gate ✅
     runs-on: pwap-runner
-    needs: [web, backend, security-audit, migration-test]
+    needs: [web, backend, security-audit, migration-test, workflow-guard]
     if: always()
 
     steps:
