@@ -27,6 +27,7 @@ const Login = lazy(() => import('@/pages/Login'));
 const TelegramConnect = lazy(() => import('@/pages/TelegramConnect'));
 const Dashboard = lazy(() => import('@/pages/Dashboard'));
 const EmailVerification = lazy(() => import('@/pages/EmailVerification'));
+const TwoFactorChallenge = lazy(() => import('@/pages/TwoFactorChallenge'));
 const PasswordReset = lazy(() => import('@/pages/PasswordReset'));
 const ProfileSettings = lazy(() => import('@/pages/ProfileSettings'));
 const AdminPanel = lazy(() => import('@/pages/AdminPanel'));
@@ -134,6 +135,9 @@ function App() {
                               <Route path="/login" element={<Login />} />
                               <Route path="/auth/telegram-connect" element={<TelegramConnect />} />
                               <Route path="/email-verification" element={<EmailVerification />} />
+                              {/* Not wrapped in ProtectedRoute: that route redirects here
+                                  whenever a challenge is pending, which would loop. */}
+                              <Route path="/two-factor" element={<TwoFactorChallenge />} />
                               <Route path="/reset-password" element={<PasswordReset />} />
                               <Route path="/" element={<Index />} />
                               <Route path="/explorer" element={<Explorer />} />

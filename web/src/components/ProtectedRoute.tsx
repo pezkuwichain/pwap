@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePezkuwi } from '@/contexts/PezkuwiContext';
 import { Loader2, Wallet } from 'lucide-react';
@@ -40,7 +40,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   allowTelegramSession = false,
   requireMultisigMember = false
 }) => {
-  const { user, loading, isAdmin } = useAuth();
+  const { user, loading, isAdmin, twoFactorPending } = useAuth();
+  const location = useLocation();
   const { api, isApiReady, selectedAccount, connectWallet } = usePezkuwi();
   const [walletRestoreChecked, setWalletRestoreChecked] = useState(false);
   const [forceUpdate, setForceUpdate] = useState(0);
@@ -149,6 +150,16 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   // Allow access if user is logged in OR has valid telegram session
   if (!user && !telegramSession) {
     return <Navigate to="/login" replace />;
+  }
+
+  // A correct password is not enough once 2FA is enabled. This is checked here
+  // rather than only at login so that a deep link or a restored tab cannot walk
+  // straight past the challenge.
+  //
+  // Telegram sessions are exempt: they authenticate through signed initData from
+  // Telegram, not a password, so there is no password to second-factor.
+  if (user && twoFactorPending) {
+    return <Navigate to="/two-factor" state={{ from: location.pathname }} replace />;
   }
 
   // NOTE: `isAdmin` here is a COSMETIC UX gate only (derived from a localStorage

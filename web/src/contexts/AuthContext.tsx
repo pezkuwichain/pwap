@@ -8,11 +8,15 @@ const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
 const ACTIVITY_CHECK_INTERVAL_MS = 60 * 1000; // Check every 1 minute
 const LAST_ACTIVITY_KEY = 'last_activity_timestamp';
 const REMEMBER_ME_KEY = 'remember_me';
+const TWO_FACTOR_VERIFIED_KEY = 'two_factor_verified_user';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   isAdmin: boolean;
+  /** Signed in, has 2FA enabled, and has not passed it yet in this browser session. */
+  twoFactorPending: boolean;
+  markTwoFactorVerified: () => void;
   signIn: (email: string, password: string, rememberMe?: boolean) => Promise<{ error: Error | null }>;
   signUp: (email: string, password: string, username: string, referralCode?: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
@@ -33,6 +37,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [twoFactorPending, setTwoFactorPending] = useState(false);
 
   // ========================================
   // SESSION TIMEOUT MANAGEMENT
@@ -44,9 +49,63 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem(LAST_ACTIVITY_KEY, Date.now().toString());
   }, []);
 
+  // sessionStorage, not localStorage: 2FA is asked once per browser session and
+  // again after the tab is closed. Persisting it would mean enabling 2FA once and
+  // never being challenged again on that device.
+  const clearTwoFactorVerification = () => {
+    try {
+      sessionStorage.removeItem(TWO_FACTOR_VERIFIED_KEY);
+    } catch {
+      // private mode / storage disabled — the pending flag simply stays in memory
+    }
+  };
+
+  /**
+   * Whether this user still owes a 2FA challenge.
+   *
+   * 2FA is optional, so a user without it enabled is never blocked. A failure to
+   * ask is treated as "not required": a transient error while checking must not
+   * turn into a login wall for people who never enabled 2FA in the first place.
+   */
+  const refreshTwoFactorState = useCallback(async (currentUser: User | null) => {
+    if (!currentUser) {
+      setTwoFactorPending(false);
+      return;
+    }
+
+    try {
+      if (sessionStorage.getItem(TWO_FACTOR_VERIFIED_KEY) === currentUser.id) {
+        setTwoFactorPending(false);
+        return;
+      }
+    } catch {
+      // storage unavailable; fall through and ask again
+    }
+
+    try {
+      const { data, error } = await supabase.functions.invoke('two-factor-auth', {
+        body: { action: 'check' },
+      });
+      setTwoFactorPending(!error && Boolean(data?.enabled));
+    } catch {
+      setTwoFactorPending(false);
+    }
+  }, []);
+
+  const markTwoFactorVerified = useCallback(() => {
+    try {
+      if (user) sessionStorage.setItem(TWO_FACTOR_VERIFIED_KEY, user.id);
+    } catch {
+      // storage unavailable — the in-memory flag below still unblocks this session
+    }
+    setTwoFactorPending(false);
+  }, [user]);
+
   const signOut = useCallback(async () => {
     setIsAdmin(false);
     setUser(null);
+    setTwoFactorPending(false);
+    clearTwoFactorVerification();
     localStorage.removeItem(LAST_ACTIVITY_KEY);
     localStorage.removeItem(REMEMBER_ME_KEY);
     await supabase.auth.signOut();
@@ -187,6 +246,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       checkAdminStatus(); // Check admin status regardless of Supabase session
+      refreshTwoFactorState(session?.user ?? null);
       setLoading(false);
     }).catch(() => {
       // If Supabase is not available, still check wallet-based admin
@@ -197,6 +257,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Listen for changes on auth state
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
+      refreshTwoFactorState(session?.user ?? null);
       checkAdminStatus(); // Check admin status on auth change
       setLoading(false);
     });
@@ -222,7 +283,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       window.removeEventListener('walletChanged', handleWalletChange);
       window.removeEventListener('pezkuwi-native-ready', handleNativeReady);
     };
-  }, [checkAdminStatus, setupMobileWallet]);
+  }, [checkAdminStatus, setupMobileWallet, refreshTwoFactorState]);
 
   const signIn = async (email: string, password: string, rememberMe: boolean = false) => {
     try {
@@ -296,6 +357,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       user,
       loading,
       isAdmin,
+      twoFactorPending,
+      markTwoFactorVerified,
       signIn,
       signUp,
       signOut,
