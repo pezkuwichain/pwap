@@ -15,6 +15,7 @@ import { getAllScores, getStakingScoreStatus, startScoreTracking, getPezRewards,
 import { getSigner } from '@/lib/get-signer';
 import { getKycStatus } from '@pezkuwi/lib/kyc';
 import { ReferralDashboard } from '@/components/referral/ReferralDashboard';
+import { getCaptchaToken } from '@/lib/captcha';
 // Commission proposals card removed - no longer using notary system for KYC approval
 // import { CommissionProposalsCard } from '@/components/dashboard/CommissionProposalsCard';
 
@@ -256,6 +257,7 @@ export default function Dashboard() {
       const { error: resendError } = await supabase.auth.resend({
         type: 'signup',
         email: user.email,
+        options: { captchaToken: await getCaptchaToken() },
       });
 
       if (resendError) {
@@ -272,6 +274,7 @@ export default function Dashboard() {
         // This will send an email if the account exists
         const { error: resetError } = await supabase.auth.resetPasswordForEmail(user.email, {
           redirectTo: `${window.location.origin}/email-verification`,
+          captchaToken: await getCaptchaToken(),
         });
 
         if (resetError) throw resetError;

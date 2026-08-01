@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/supabase';
 import { CheckCircle, XCircle, Loader2, ArrowLeft, Mail, RefreshCw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { getCaptchaToken } from '@/lib/captcha';
 
 export default function EmailVerification() {
   const [searchParams] = useSearchParams();
@@ -42,6 +43,7 @@ export default function EmailVerification() {
       const { error } = await supabase.auth.resend({
         type: 'signup',
         email: email,
+        options: { captchaToken: await getCaptchaToken() },
       });
 
       if (error) throw error;

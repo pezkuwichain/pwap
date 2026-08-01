@@ -8,6 +8,7 @@ import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, ArrowLeft } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { getCaptchaToken } from '@/lib/captcha';
 
 export default function PasswordReset() {
   const navigate = useNavigate();
@@ -35,7 +36,10 @@ export default function PasswordReset() {
     setLoading(true);
     try {
       const redirectTo = `${window.location.origin}/reset-password`;
-      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo });
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo,
+        captchaToken: await getCaptchaToken(),
+      });
       if (error) throw error;
 
       // Generic success message regardless of whether the email exists
