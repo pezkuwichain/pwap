@@ -338,7 +338,12 @@ jobs:
           # is still what holds the deploy — the bot only presses the button on the
           # reviewer's behalf, and the GitHub link stays as the fallback for when
           # the bot or its host is down.
-          curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+          # Capture the reply. A notification step that discards it cannot fail:
+          # a stale token, a wrong chat id or a rejected message all end with
+          # the step printing success and the approver never hearing about the
+          # deploy. That happened on 2026-08-01 — the run sat waiting and the
+          # log said "Approver notified".
+          RESP=$(curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
             -H "Content-Type: application/json" \
             -d "{
               \"chat_id\": \"${CEO_CHAT_ID}\",
@@ -355,7 +360,12 @@ jobs:
                   ]
                 ]
               }
-            }" > /dev/null
+            }")
+
+          if ! echo "$RESP" | grep -q '"ok":true'; then
+            echo "::error::Telegram rejected the approval prompt: ${RESP:0:300}"
+            exit 1
+          fi
 
           echo "Approver notified; deployment waits on the 'production' environment."
 
