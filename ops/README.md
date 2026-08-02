@@ -131,6 +131,20 @@ Get `<ENV_ID>` from `gh api repos/:owner/:repo/actions/runs/<RUN_ID>/pending_dep
 This came up on 2026-07-31: a stale run sat in `waiting` and blocked the deploy
 of the run behind it until it was rejected.
 
+### Two layers, one branch
+
+A branch can be governed by classic protection **and** a repository ruleset at
+the same time, independently, and the stricter of the two wins. That is how
+`main` here spent months unmergeable without anyone knowing why: classic
+protection asked for `CI Gate ✅`, while a ruleset on the same branch asked for
+`Build, Lint & Test` and `All checks passed` — two names no workflow has
+produced since the jobs were renamed. Every merge went through `--admin`, and
+the habit read as "review is slow" rather than "the gate is broken".
+
+`--check` now reports both, and flags a required check that nothing reports.
+A rule demanding a check that never arrives does not slow a branch down; it
+closes it, silently, and the drift report will say everything is fine.
+
 ### Reviewer
 
 `REVIEWER_ID` is a numeric user id rather than a login, because the API takes ids

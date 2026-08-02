@@ -102,6 +102,62 @@ for label, (got, exp) in want.items():
 PY
   fi
 
+  # Rulesets are a second, independent layer over the same branch — and this
+  # script was blind to them. On 2026-08-01 it reported branch protection fully
+  # green while a repository ruleset on the same branch demanded two status
+  # checks that no workflow produces ("Build, Lint & Test", "All checks
+  # passed"). Nothing could merge without --admin, and the drift report said
+  # everything was fine. Two layers that disagree are worse than one, so the
+  # check has to see both.
+  echo "── rulesets ($BRANCH)"
+  rs="$(gh api "repos/$REPO/rulesets" 2>/dev/null || echo '[]')"
+  python3 - "$REPO" "$rs" <<'PY2'
+import json, subprocess, sys
+repo, raw = sys.argv[1], sys.argv[2]
+try:
+    sets = json.loads(raw)
+except Exception:
+    sets = []
+active = [r for r in sets if r.get('enforcement') == 'active']
+if not active:
+    print('  \033[32m✔\033[0m no active ruleset (branch protection is the only layer)')
+    raise SystemExit
+
+# Every check a ruleset demands must be a check something actually reports,
+# otherwise the branch is permanently unmergeable and the reason is invisible.
+# Sample recent pull request heads, not main. Required checks are the ones that
+# gate a PR, and several of them (the aggregate gate especially) only run on
+# pull_request — looking at main's head would report them as never seen.
+reported = set()
+try:
+    prs = json.loads(subprocess.run(
+        ['gh', 'api', f'repos/{repo}/pulls?state=all&per_page=5'],
+        capture_output=True, text=True).stdout)
+    for pr in prs[:5]:
+        runs = json.loads(subprocess.run(
+            ['gh', 'api', f"repos/{repo}/commits/{pr['head']['sha']}/check-runs"],
+            capture_output=True, text=True).stdout)
+        reported |= {c['name'] for c in runs.get('check_runs', [])}
+except Exception:
+    pass
+
+for r in active:
+    detail = json.loads(subprocess.run(
+        ['gh', 'api', f"repos/{repo}/rulesets/{r['id']}"], capture_output=True, text=True).stdout)
+    for rule in detail.get('rules', []):
+        if rule['type'] == 'required_status_checks':
+            want = [c['context'] for c in rule['parameters'].get('required_status_checks', [])]
+            missing = [c for c in want if reported and c not in reported]
+            mark = '\033[31m✗\033[0m' if missing else '\033[32m✔\033[0m'
+            note = f"  (never reported: {missing})" if missing else ''
+            print(f"  {mark} '{r['name']}' requires {want}{note}")
+        if rule['type'] == 'pull_request':
+            n = rule['parameters'].get('required_approving_review_count')
+            mark = '\033[32m✔\033[0m' if n == 0 else '\033[31m✗\033[0m'
+            extra = '' if n == 0 else '  (expected 0 — see README)'
+            print(f"  {mark} '{r['name']}' approvals: {n}{extra}")
+PY2
+
   echo "── environment ($ENVIRONMENT)"
   env_cur="$(gh api "repos/$REPO/environments/$ENVIRONMENT" 2>/dev/null || echo '{}')"
   python3 - "$env_cur" <<'PY'
