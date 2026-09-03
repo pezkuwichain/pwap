@@ -12,7 +12,9 @@ const DOC_SECTIONS = [
     title: 'Whitepaper',
     descKey: 'docs.section.whitepaper.desc',
     desc: 'The foundational document describing the PezkuwiChain vision, architecture, and tokenomics.',
-    path: '/whitepaper',
+    // The whitepaper is published from one place only, so that no copy of it can drift from
+    // the source it describes. This links there rather than shipping a second copy.
+    href: 'https://pezkuwichain.io/whitepaper',
     color: 'bg-green-900/30 border-green-700/40',
     iconBg: 'bg-green-800',
   },
@@ -113,8 +115,8 @@ const Docs: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
           {DOC_SECTIONS.map(section => (
             <a
-              key={section.path}
-              href={`${DOCS_URL}${section.path}`}
+              key={section.href ?? section.path}
+              href={section.href ?? `${DOCS_URL}${section.path}`}
               target="_blank"
               rel="noopener noreferrer"
               className={`flex gap-4 p-4 rounded-2xl border ${section.color} hover:opacity-90 transition-opacity cursor-pointer`}
