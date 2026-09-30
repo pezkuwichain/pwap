@@ -1102,7 +1102,7 @@ const LandingPageDesktop: React.FC = () => {
                 <PalletItem icon="lp-i-cal"    label={t('landing.pallets.events')}     external="https://kurdishtts.pezkiwi.app" />
                 <PalletItem icon="lp-i-help"   label={t('landing.pallets.help')}       to="/help" />
                 <PalletItem icon="lp-i-music"  label={t('landing.pallets.music')}      locked />
-                <PalletItem imgSrc="/rewshenbir-icon.png" label={t('landing.pallets.rewshenbir')} external="https://rewshenbir.pezkuwi.app" />
+                <PalletItem imgSrc="/rewshenbir-icon.png" label={t('landing.pallets.rewshenbir')} external="https://rewshenbir.pezkiwi.app" />
                 <PalletItem icon="lp-i-ref"    label={t('landing.pallets.referral')}   to="/dashboard" requiresLogin />
               </div>
             </div>
