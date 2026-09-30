@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rewşenbîr — PezkuwiChain</title>
+<meta name="description" content="Rewşenbîr connects Kurdish writers, journalists, scientists and poets directly to the readers who pay to read them. Opening soon inside PezkuwiChain.">
+<meta property="og:title" content="Rewşenbîr — PezkuwiChain">
+<meta property="og:description" content="A desk, not a stage. Kurdish writers and their readers, directly — without an algorithm or an intermediary.">
+<style>
+  :root{--bg:#0A0E14;--bg2:#0F141C;--card:#161B26;--line:rgba(255,255,255,.08);--ink:#ECEEF2;--ink2:#A9B0BC;--ink3:#6B7280;--blue:#4A8FD6;--warm:#C66B4A;--warmSoft:rgba(198,107,74,.14);
+    --serif:"Source Serif 4","Noto Naskh Arabic",Georgia,"Times New Roman",serif;--sans:Inter,-apple-system,"Segoe UI",system-ui,sans-serif;--mono:"JetBrains Mono","SF Mono",Menlo,Consolas,monospace}
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans)}
+  .wrap{max-width:980px;margin:0 auto;padding:40px 20px 56px}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:56px}
+  .lang{display:flex;gap:4px;border:1px solid var(--line);border-radius:999px;padding:3px}
+  .lang button{background:none;border:0;color:var(--ink3);font:600 12px var(--sans);padding:6px 12px;border-radius:999px;cursor:pointer}
+  .lang button[aria-pressed=true]{background:var(--card);color:var(--ink)}
+  .lockup{display:flex;align-items:center;gap:18px}
+  .lockup svg{flex:none;width:72px;height:72px}
+  .word{font-family:var(--serif);font-size:40px;font-weight:500;letter-spacing:-.8px;line-height:1}
+  .motto{font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--ink3);margin-top:8px;text-transform:uppercase}
+  .kicker{font-size:12px;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink3);margin:0 0 18px}
+  .thesis{font-family:var(--serif);font-size:clamp(20px,3.2vw,26px);line-height:1.55;max-width:820px;margin:0 0 48px}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-bottom:56px}
+  .p h3{font-family:var(--serif);font-weight:500;font-size:18px;color:var(--warm);margin:0 0 8px}
+  .p{border-left:2px solid var(--warm);padding-left:16px}
+  .p p{margin:0;font-size:14px;line-height:1.65;color:var(--ink2)}
+  .status{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:28px;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+  .status b{display:block;font-family:var(--serif);font-weight:500;font-size:21px;margin-bottom:6px}
+  .status span{color:var(--ink2);font-size:14px;line-height:1.6}
+  .badge{display:inline-block;font:600 11px var(--mono);letter-spacing:1.5px;text-transform:uppercase;color:var(--warm);background:var(--warmSoft);border-radius:999px;padding:5px 10px;margin-bottom:12px}
+  .cta{background:var(--blue);color:#fff;text-decoration:none;font-weight:600;font-size:14px;padding:12px 20px;border-radius:10px;white-space:nowrap}
+  footer{margin-top:40px;color:var(--ink3);font-size:12px}
+  footer a{color:var(--ink2)}
+  @media (max-width:760px){.grid{grid-template-columns:1fr}.top{margin-bottom:40px}.word{font-size:32px}.lockup svg{width:56px;height:56px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="lockup">
+      <svg width="96" height="96" viewBox="0 0 32 32" fill="none" aria-label="Rewshenbir"><circle cx="16" cy="16" r="15" fill="none" stroke="#4A8FD6" stroke-opacity="0.25" stroke-width="1"></circle><path d="M16.00 6.00 L17.22 6.35 L18.26 6.70 L18.96 7.05 L19.20 7.40 L18.96 7.75 L18.26 8.10 L17.22 8.45 L16.00 8.80 L14.78 9.15 L13.74 9.50 L13.04 9.85 L12.80 10.20 L13.04 10.55 L13.74 10.90 L14.78 11.25 L16.00 11.60 L17.22 11.95 L18.26 12.30 L18.96 12.65 L19.20 13.00 L18.96 13.35 L18.26 13.70 L17.22 14.05 L16.00 14.40 L14.78 14.75 L13.74 15.10 L13.04 15.45 L12.80 15.80 L13.04 16.15 L13.74 16.50 L14.78 16.85 L16.00 17.20 L17.22 17.55 L18.26 17.90 L18.96 18.25 L19.20 18.60 L18.96 18.95 L18.26 19.30 L17.22 19.65 L16.00 20.00 " stroke="#8A6A4A" stroke-width="1.8" stroke-linecap="round"></path><path d="M18.77 6.00 L17.95 6.35 L16.83 6.70 L15.58 7.05 L14.40 7.40 L13.46 7.75 L12.91 8.10 L12.83 8.45 L13.23 8.80 L14.05 9.15 L15.17 9.50 L16.42 9.85 L17.60 10.20 L18.54 10.55 L19.09 10.90 L19.17 11.25 L18.77 11.60 L17.95 11.95 L16.83 12.30 L15.58 12.65 L14.40 13.00 L13.46 13.35 L12.91 13.70 L12.83 14.05 L13.23 14.40 L14.05 14.75 L15.17 15.10 L16.42 15.45 L17.60 15.80 L18.54 16.15 L19.09 16.50 L19.17 16.85 L18.77 17.20 L17.95 17.55 L16.83 17.90 L15.58 18.25 L14.40 18.60 L13.46 18.95 L12.91 19.30 L12.83 19.65 L13.23 20.00 " stroke="#8A6A4A" stroke-width="1.8" stroke-linecap="round"></path><path d="M13.23 6.00 L12.83 6.35 L12.91 6.70 L13.46 7.05 L14.40 7.40 L15.58 7.75 L16.83 8.10 L17.95 8.45 L18.77 8.80 L19.17 9.15 L19.09 9.50 L18.54 9.85 L17.60 10.20 L16.42 10.55 L15.17 10.90 L14.05 11.25 L13.23 11.60 L12.83 11.95 L12.91 12.30 L13.46 12.65 L14.40 13.00 L15.58 13.35 L16.83 13.70 L17.95 14.05 L18.77 14.40 L19.17 14.75 L19.09 15.10 L18.54 15.45 L17.60 15.80 L16.42 16.15 L15.17 16.50 L14.05 16.85 L13.23 17.20 L12.83 17.55 L12.91 17.90 L13.46 18.25 L14.40 18.60 L15.58 18.95 L16.83 19.30 L17.95 19.65 L18.77 20.00 " stroke="#8A6A4A" stroke-width="1.8" stroke-linecap="round"></path><g><path d="M 12.3 8.52 Q 16 7.319999999999999 19.7 8.52" stroke="#D94B3B" stroke-width="1.6" stroke-linecap="round" fill="none"></path></g><g><path d="M 12.3 11.879999999999999 Q 16 10.68 19.7 11.879999999999999" stroke="#4F9E5B" stroke-width="1.6" stroke-linecap="round" fill="none"></path></g><g><path d="M 12.3 15.24 Q 16 14.040000000000001 19.7 15.24" stroke="#E8B84A" stroke-width="1.6" stroke-linecap="round" fill="none"></path></g><rect x="13.8" y="20" width="4.4" height="1.8" rx="0.8" fill="#8A6A4A"></rect><g><line x1="16" y1="23" x2="16" y2="20.6" stroke="#E8B84A" stroke-width="1.1" stroke-linecap="round"></line><line x1="16.64846138370399" y1="23.097739827270487" x2="17.35587380229016" y2="20.80436509338375" stroke="#E8B84A" stroke-width="1.1" stroke-linecap="round"></line><line x1="17.239304127739967" y1="23.382274696504812" x2="18.591272267092663" y2="21.399301638146422" stroke="#E8B84A" stroke-width="1.1" stroke-linecap="round"></line><line x1="17.720029261429666" y1="23.828322435910785" x2="19.596424819352936" y2="22.331946911449826" stroke="#E8B84A" stroke-width="1.1" stroke-linecap="round"></line><line x1="18.04792224701725" y1="24.39624974639393" x2="20.28201924376334" y2="23.519431287914582" stroke="#E8B84A" stroke-width="1.1" stroke-linecap="round"></line><line x1="18.193848353798597" y1="25.035593794109865" x2="20.58713746703343" y2="24.856241569502448" stroke="#E8B84A" stroke-width="1.1" stroke-linecap="round"></line><line x1="18.144841406800012" y1="25.68954605470389" x2="20.48466839603639" y2="26.223596296199045" stroke="#E8B84A" stroke-width="1.1" stroke-linecap="round"></line><line x1="17.905255888325765" y1="26.299999999999997" x2="19.983716857408417" y2="27.5" stroke="#E8B84A" stroke-width="1.1" stroke-linecap="round"></line><line x1="17.496380023096023" y1="26.812714118025617" x2="19.12879459374623" y2="28.5720386104172" stroke="#E8B84A" stroke-width="1.1" stroke-linecap="round"></line><line x1="16.95454422605863" y1="27.18213150938532" x2="17.995865199940766" y2="29.344456792351128" stroke="#E8B84A" stroke-width="1.1" stroke-linecap="round"></line><line x1="16.327892985587585" y1="27.375427817695282" x2="16.685594424410404" y2="29.74862180063559" stroke="#E8B84A" stroke-width="1.1" stroke-linecap="round"></line><line x1="15.672107014412417" y1="27.375427817695282" x2="15.314405575589598" y2="29.74862180063559" stroke="#E8B84A" stroke-width="1.1" stroke-linecap="round"></line><line x1="15.045455773941372" y1="27.18213150938532" x2="14.004134800059234" y2="29.344456792351128" stroke="#E8B84A" stroke-width="1.1" stroke-linecap="round"></line><line x1="14.503619976903977" y1="26.812714118025617" x2="12.87120540625377" y2="28.5720386104172" stroke="#E8B84A" stroke-width="1.1" stroke-linecap="round"></line><line x1="14.094744111674235" y1="26.3" x2="12.016283142591583" y2="27.5" stroke="#E8B84A" stroke-width="1.1" stroke-linecap="round"></line><line x1="13.855158593199988" y1="25.689546054703893" x2="11.515331603963611" y2="26.223596296199045" stroke="#E8B84A" stroke-width="1.1" stroke-linecap="round"></line><line x1="13.806151646201403" y1="25.035593794109868" x2="11.412862532966571" y2="24.85624156950245" stroke="#E8B84A" stroke-width="1.1" stroke-linecap="round"></line><line x1="13.952077752982749" y1="24.39624974639393" x2="11.71798075623666" y2="23.519431287914585" stroke="#E8B84A" stroke-width="1.1" stroke-linecap="round"></line><line x1="14.279970738570334" y1="23.828322435910785" x2="12.403575180647064" y2="22.331946911449826" stroke="#E8B84A" stroke-width="1.1" stroke-linecap="round"></line><line x1="14.760695872260031" y1="23.382274696504812" x2="13.408727732907339" y2="21.399301638146422" stroke="#E8B84A" stroke-width="1.1" stroke-linecap="round"></line><line x1="15.35153861629601" y1="23.09773982727049" x2="14.644126197709838" y2="20.80436509338375" stroke="#E8B84A" stroke-width="1.1" stroke-linecap="round"></line><circle cx="16" cy="25.2" r="1.9000000000000001" fill="#E8B84A"></circle></g></svg>
+      <div><div class="word">Rewşenbîr</div><div class="motto">Zanîn · Çand · Pêşkeftin</div></div>
+    </div>
+    <div class="lang" role="group" aria-label="Language">
+      <button data-l="en" aria-pressed="true">EN</button><button data-l="tr" aria-pressed="false">TR</button>
+    </div>
+  </div>
+
+  <p class="kicker" data-en="A mini-app inside PezkuwiChain · Social" data-tr="PezkuwiChain içinde bir mini uygulama · Sosyal">A mini-app inside PezkuwiChain · Social</p>
+  <p class="thesis" data-en="Rewşenbîr is a desk, not a stage. It connects Kurdish writers, journalists, scientists and poets to readers who pay to read them — directly, without an algorithm or an intermediary. It looks like a journal, not a marketplace: it never asks a reader to perform; it asks a writer to write and a reader to subscribe." data-tr="Rewşenbîr bir sahne değil, bir masa. Kürt yazarları, gazetecileri, bilim insanlarını ve şairleri, onları okumak için ödeme yapan okurlarla buluşturur — doğrudan, algoritma ya da aracı olmadan. Bir pazar yeri değil, bir dergi gibi görünür: okurdan gösteri beklemez; yazardan yazmasını, okurdan abone olmasını ister.">Rewşenbîr is a desk, not a stage. It connects Kurdish writers, journalists, scientists and poets to readers who pay to read them — directly, without an algorithm or an intermediary. It looks like a journal, not a marketplace: it never asks a reader to perform; it asks a writer to write and a reader to subscribe.</p>
+
+  <div class="grid">
+    <div class="p"><h3 data-en="Dignified" data-tr="Onurlu">Dignified</h3><p data-en="No streaks, no vanity counts, no “trending.” Follower counts are small metadata, never a headline number." data-tr="Seri sayaçları, gösteriş rakamları, “trend” listeleri yok. Takipçi sayısı küçük bir ayrıntıdır, asla manşet rakamı değildir.">No streaks, no vanity counts, no “trending.” Follower counts are small metadata, never a headline number.</p></div>
+    <div class="p"><h3 data-en="Native to PezkuwiChain" data-tr="PezkuwiChain'in bir parçası" >Native to PezkuwiChain</h3><p data-en="The same dark ground, the same tiki system, the same wallet signatures you already use. It opens from the Social section of the PezkuwiChain app." data-tr="Zaten kullandığınız aynı koyu zemin, aynı tiki sistemi, aynı cüzdan imzaları. PezkuwiChain uygulamasının Sosyal bölümünden açılır.">The same dark ground, the same tiki system, the same wallet signatures you already use. It opens from the Social section of the PezkuwiChain app.</p></div>
+    <div class="p"><h3 data-en="Honest about sovereignty" data-tr="Egemenlik konusunda dürüst">Honest about sovereignty</h3><p data-en="Creator status cannot be revoked by validators. And if your seed phrase is compromised, the platform tells you up front that it cannot save you." data-tr="Yazarlık statüsü validator'lar tarafından geri alınamaz. Kurtarma ifadeniz ele geçirilirse platform, sizi kurtaramayacağını baştan açıkça söyler.">Creator status cannot be revoked by validators. And if your seed phrase is compromised, the platform tells you up front that it cannot save you.</p></div>
+  </div>
+
+  <div class="status">
+    <div>
+      <div class="badge" data-en="In preparation" data-tr="Hazırlanıyor">In preparation</div>
+      <b data-en="Rewşenbîr is being built." data-tr="Rewşenbîr hazırlanıyor.">Rewşenbîr is being built.</b>
+      <span data-en="It will open inside the PezkuwiChain app. Until then, you can read Kurdish writers on Dijital Kurdistan News." data-tr="PezkuwiChain uygulamasının içinde açılacak. O zamana kadar Kürt yazarları Dijital Kurdistan News'te okuyabilirsiniz.">It will open inside the PezkuwiChain app. Until then, you can read Kurdish writers on Dijital Kurdistan News.</span>
+    </div>
+    <a class="cta" href="https://app.pezkuwichain.io" data-en="Go to PezkuwiChain" data-tr="PezkuwiChain'e git">Go to PezkuwiChain</a>
+  </div>
+
+  <footer><span data-en="Also read:" data-tr="Ayrıca okuyun:">Also read:</span> <a href="https://dks.news">Dijital Kurdistan News</a> · <a href="https://pezkuwichain.io">pezkuwichain.io</a></footer>
+</div>
+<script>
+(function(){
+  var saved; try { saved = localStorage.getItem('rb-lang'); } catch (e) {}
+  var lang = saved || ((navigator.language || '').toLowerCase().indexOf('tr') === 0 ? 'tr' : 'en');
+  function apply(l){
+    document.documentElement.lang = l;
+    document.querySelectorAll('[data-en]').forEach(function(el){ el.textContent = el.getAttribute('data-' + l); });
+    document.querySelectorAll('.lang button').forEach(function(b){ b.setAttribute('aria-pressed', String(b.dataset.l === l)); });
+    try { localStorage.setItem('rb-lang', l); } catch (e) {}
+  }
+  document.querySelectorAll('.lang button').forEach(function(b){ b.addEventListener('click', function(){ apply(b.dataset.l); }); });
+  apply(lang);
+})();
+</script>
+</body>
+</html>
