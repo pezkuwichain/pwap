@@ -15,6 +15,7 @@ import {
 import { Keyring } from 'npm:@pezkuwi/keyring@14.0.25'
 import { cryptoWaitReady, encodeAddress } from 'npm:@pezkuwi/util-crypto@14.0.25'
 import { stringToU8a, u8aToHex, u8aWrapBytes } from 'npm:@pezkuwi/util@14.0.25'
+import * as substrateSr25519 from 'npm:@scure/sr25519@2.4.0'
 
 import {
   verifyWalletSignature,
@@ -63,6 +64,27 @@ Deno.test('verifyWalletSignature: wrong signer is rejected', async () => {
 Deno.test('verifyWalletSignature: signature over a DIFFERENT message is rejected (no malleability/reuse)', async () => {
   const sig = u8aToHex(alice.sign(stringToU8a('message-A')))
   assertEquals(await verifyWalletSignature('message-B', sig, alice.address), false)
+})
+
+// The Pezkuwi Wallet mobile app signs a message in the standard `substrate` sr25519
+// context, not Pezkuwi's `bizinikiwi` (measured 2026-10-01). The keyring above signs
+// like the extension, so without these the mobile path was never exercised.
+const phone = substrateSr25519.secretFromSeed(crypto.getRandomValues(new Uint8Array(32)))
+const phoneAddress = encodeAddress(substrateSr25519.getPublicKey(phone), 42)
+const signAsPhone = (msg: string) => u8aToHex(substrateSr25519.sign(phone, u8aWrapBytes(msg)))
+
+Deno.test('verifyWalletSignature: mobile-wallet signature (substrate context) passes', async () => {
+  const msg = 'Pezkuwi P2P Withdrawal\ntoken:HEZ'
+  assert(await verifyWalletSignature(msg, signAsPhone(msg), phoneAddress))
+})
+
+Deno.test('verifyWalletSignature: substrate-context signature claimed for another address is rejected', async () => {
+  const msg = 'authorize me'
+  assertEquals(await verifyWalletSignature(msg, signAsPhone(msg), alice.address), false)
+})
+
+Deno.test('verifyWalletSignature: substrate-context signature over a DIFFERENT message is rejected', async () => {
+  assertEquals(await verifyWalletSignature('message-B', signAsPhone('message-A'), phoneAddress), false)
 })
 
 Deno.test('verifyWalletSignature: empty / malformed signatures return false (no throw)', async () => {
