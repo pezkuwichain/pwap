@@ -113,7 +113,7 @@ const APP_SECTIONS: AppSection[] = [
       { title: 'mobile.app.events',    icon: '📅', route: '/forum',     href: 'https://kurdishtts.pezkiwi.app' },
       { title: 'mobile.app.loto',      icon: '🔥', imgIcon: '/loto-icon.svg', route: '/forum', href: 'https://loto.pex.mom' },
       { title: 'mobile.app.music',     icon: '🎵', route: '/forum',     comingSoon: true },
-      { title: 'mobile.app.rewshenbir',icon: '📡', imgIcon: '/rewshenbir-icon.png', route: '/rewshenbir', href: 'https://rewshenbir.pezkuwi.app' },
+      { title: 'mobile.app.rewshenbir',icon: '📡', imgIcon: '/rewshenbir-icon.png', route: '/rewshenbir', href: 'https://rewshenbir.pezkiwi.app' },
       { title: 'mobile.app.referral',  icon: '👥', route: '/dashboard', requiresAuth: true },
     ],
   },
