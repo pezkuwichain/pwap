@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@pezkuwi/api": "^16.5.37",
+    "@pezkuwi/api": "^16.5.39",
     "@pezkuwi/extension-dapp": "^0.62.27",
     "@pezkuwi/extension-inject": "^0.62.27",
     "@pezkuwi/keyring": "^14.0.26",
@@ -20,7 +20,7 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@pezkuwi/api-augment": "^16.5.37",
+    "@pezkuwi/api-augment": "^16.5.39",
     "@types/node": "^22.20.5",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
