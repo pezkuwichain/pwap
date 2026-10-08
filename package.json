@@ -26,6 +26,6 @@
     "test:mobile": "cd mobile && npm run test"
   },
   "devDependencies": {
-    "concurrently": "^9.1.2"
+    "concurrently": "^9.2.5"
   }
 }
