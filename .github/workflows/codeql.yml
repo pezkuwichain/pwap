@@ -21,7 +21,7 @@ concurrency:
 jobs:
   analyze:
     name: Analyze ${{ matrix.language }}
-    runs-on: pwap-runner
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
