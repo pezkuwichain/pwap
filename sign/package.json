@@ -10,16 +10,18 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@pezkuwi/api": "^16.5.37",
+    "@pezkuwi/extension-dapp": "^0.62.27",
+    "@pezkuwi/extension-inject": "^0.62.27",
+    "@pezkuwi/keyring": "^14.0.26",
+    "@pezkuwi/util": "^14.0.26",
+    "@pezkuwi/util-crypto": "^14.0.26",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "@pezkuwi/api": "^16.5.36",
-    "@pezkuwi/extension-dapp": "^0.62.20",
-    "@pezkuwi/extension-inject": "^0.62.20",
-    "@pezkuwi/keyring": "^14.0.25",
-    "@pezkuwi/util": "^14.0.25",
-    "@pezkuwi/util-crypto": "^14.0.25"
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@pezkuwi/api-augment": "^16.5.37",
+    "@types/node": "^22.20.5",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react-swc": "^3.5.0",
