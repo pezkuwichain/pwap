@@ -33,7 +33,7 @@ jobs:
   # ========================================
   web:
     name: Web App
-    runs-on: pwap-runner
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
@@ -93,14 +93,11 @@ jobs:
   # ========================================
   # BACKEND - INDEXER SERVICE (lint/smoke/audit)
   # No build step exists (plain ESM node service); we lockfile-enforce install,
-  # syntax-check the entry point, and audit. The audit is currently non-blocking
-  # because the express@5 + sqlite3(node-gyp) trees carry transitive advisories
-  # that need a broader dependency upgrade; flip continue-on-error off once the
-  # tree is clean.
+  # syntax-check the entry point, and audit.
   # ========================================
   backend:
     name: Backend Indexer
-    runs-on: pwap-runner
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
@@ -138,7 +135,36 @@ jobs:
 
       - name: npm audit (high + critical, production deps)
         working-directory: ./backend
-        continue-on-error: true
+        run: npm audit --audit-level=high --omit=dev
+
+  # ========================================
+  # SIGN - MULTISIG SIGNING PORTAL (typecheck + build)
+  # sign/ compiles ../shared/lib with tsc before vite builds it, so this is also
+  # the check that shared/ still typechecks against the chain's augmented API.
+  # ========================================
+  sign:
+    name: Signing Portal
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        working-directory: ./sign
+        run: npm ci
+
+      - name: Typecheck and build
+        working-directory: ./sign
+        run: npm run build
+
+      - name: npm audit (high + critical, production deps)
+        working-directory: ./sign
         run: npm audit --audit-level=high --omit=dev
 
   # ========================================
@@ -1090,7 +1116,7 @@ jobs:
   # ========================================
   security-audit:
     name: Security Audit
-    runs-on: pwap-runner
+    runs-on: ubuntu-latest
     needs: [web]
 
     steps:
@@ -1235,8 +1261,8 @@ jobs:
 
   ci-gate:
     name: CI Gate ✅
-    runs-on: pwap-runner
-    needs: [web, backend, security-audit, migration-test, workflow-guard]
+    runs-on: ubuntu-latest
+    needs: [web, backend, sign, security-audit, migration-test, workflow-guard]
     if: always()
 
     steps:
