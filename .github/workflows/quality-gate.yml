@@ -26,6 +26,18 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: pezkuwichain/pwap-web
   BACKEND_IMAGE_NAME: pezkuwichain/pwap-indexer
+  # Deploy targets. Each deploy key is pinned on its host to one fixed script
+  # in ops/host (authorized_keys restrict,command=), so these are the only
+  # places CI can write, and only through those scripts.
+  APP_HOST: 89.117.59.63
+  INDEXER_HOST: 89.117.59.63
+  PEX_HOST: 217.77.6.126
+  SUPABASE_HOST: 217.77.6.126
+  # Host keys, read from the hosts themselves (ops/known_hosts); a deploy to a
+  # host that presents any other key fails.
+  DEPLOY_KNOWN_HOSTS: |
+    89.117.59.63 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGBR32BTb3hC4stTUvoCN/ZKZcAretzHttdkMOodgS4W
+    217.77.6.126 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMxxRmMEYyng+B9O3jcUCMnUa31SyWQ+l7aj18/soWtJ
 
 jobs:
   # ========================================
@@ -37,15 +49,15 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '20'
 
       - name: Cache npm dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: web/node_modules
           key: ${{ runner.os }}-web-${{ hashFiles('web/package-lock.json') }}
@@ -85,7 +97,7 @@ jobs:
           VITE_TURNSTILE_SITE_KEY: 0x4AAAAAAEDkUkbsUgw2D9zN
 
       - name: Upload build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: web-dist
           path: web/dist/
@@ -101,15 +113,15 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '20'
 
       - name: Cache npm dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: backend/node_modules
           key: ${{ runner.os }}-backend-${{ hashFiles('backend/package-lock.json') }}
@@ -148,10 +160,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '20'
 
@@ -174,7 +186,7 @@ jobs:
   # ========================================
   build-image:
     name: Build & Push Image
-    runs-on: pwap-runner
+    runs-on: ubuntu-latest
     needs: [web, notify-deploy-pending]
     if: |
       github.ref == 'refs/heads/main' &&
@@ -189,17 +201,17 @@ jobs:
       image_digest: ${{ steps.build.outputs.digest }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
 
       - name: Install cosign
-        uses: sigstore/cosign-installer@v3
+        uses: sigstore/cosign-installer@7e8b541eb2e61bf99390e1afd4be13a184e9ebc5 # v3.10.1
         with:
           cosign-release: 'v2.4.1'
 
       - name: Log in to GHCR
-        uses: docker/login-action@v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -215,7 +227,7 @@ jobs:
 
       - name: Build and push
         id: build
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
         with:
           context: ./
           file: ./web/Dockerfile
@@ -257,7 +269,7 @@ jobs:
   # ========================================
   build-image-backend:
     name: Build & Push Backend Image
-    runs-on: pwap-runner
+    runs-on: ubuntu-latest
     needs: [backend, notify-deploy-pending]
     if: |
       (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')) &&
@@ -272,17 +284,17 @@ jobs:
       image_digest: ${{ steps.build.outputs.digest }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
 
       - name: Install cosign
-        uses: sigstore/cosign-installer@v3
+        uses: sigstore/cosign-installer@7e8b541eb2e61bf99390e1afd4be13a184e9ebc5 # v3.10.1
         with:
           cosign-release: 'v2.4.1'
 
       - name: Log in to GHCR
-        uses: docker/login-action@v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -298,7 +310,7 @@ jobs:
 
       - name: Build and push
         id: build
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
         with:
           context: ./backend
           file: ./backend/Dockerfile
@@ -334,7 +346,7 @@ jobs:
   # ========================================
   notify-deploy-pending:
     name: Notify approver
-    runs-on: pwap-runner
+    runs-on: ubuntu-latest
     needs: [web, security-audit]
     if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     timeout-minutes: 5
@@ -412,7 +424,7 @@ jobs:
   # Waiting for approval costs no runner: GitHub holds the job before dispatch.
   approve-deploy:
     name: Await deploy approval
-    runs-on: pwap-runner
+    runs-on: ubuntu-latest
     environment: production
     needs: [notify-deploy-pending]
     timeout-minutes: 5
@@ -427,7 +439,7 @@ jobs:
   # ========================================
   bump-version:
     name: Bump Version
-    runs-on: pwap-runner
+    runs-on: ubuntu-latest
     needs: [web, security-audit, notify-deploy-pending, build-image]
     # Skip on rollback (workflow_dispatch with rollback_to set)
     if: |
@@ -439,13 +451,13 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '20'
 
@@ -473,7 +485,7 @@ jobs:
   # ========================================
   deploy-app:
     name: Deploy app.pezkuwichain.io
-    runs-on: pwap-runner
+    runs-on: ubuntu-latest
     needs: [approve-deploy, notify-deploy-pending, bump-version, build-image]
     if: |
       always() &&
@@ -508,14 +520,14 @@ jobs:
           echo "prev=$PREV" >> $GITHUB_OUTPUT
 
       - name: Log in to GHCR
-        uses: docker/login-action@v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install cosign (for verify)
-        uses: sigstore/cosign-installer@v3
+        uses: sigstore/cosign-installer@7e8b541eb2e61bf99390e1afd4be13a184e9ebc5 # v3.10.1
         with:
           cosign-release: 'v2.4.1'
 
@@ -544,16 +556,16 @@ jobs:
           echo "${{ steps.sha.outputs.sha }}" > dist/.deploy-sha
           ls -la dist/ | head -10
 
-      - name: Deploy to DEV VPS
-        uses: appleboy/scp-action@v1.0.0
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          port: ${{ secrets.VPS_SSH_PORT || 2222 }}
-          source: 'dist/*'
-          target: '/var/www/subdomains/app'
-          strip_components: 1
+      - name: Deploy to app.pezkuwichain.io (NEW-7)
+        env:
+          DEPLOY_KEY: ${{ secrets.PWAP_APP_DEPLOY_KEY }}
+        run: |
+          umask 077
+          printf '%s\n' "$DEPLOY_KEY" > "$RUNNER_TEMP/deploy_key"
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$RUNNER_TEMP/known_hosts"
+          # The key is pinned to pwap-web-receive on the host (ops/host): it
+          # takes the site tar on stdin and can do nothing else.
+          tar -C dist -cf - . | ssh -i "$RUNNER_TEMP/deploy_key" -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$RUNNER_TEMP/known_hosts" app-deploy@"$APP_HOST" deploy
 
       - name: Health check (60s window)
         id: healthcheck
@@ -587,15 +599,15 @@ jobs:
 
       - name: SCP rollback artifact
         if: steps.rollback.outcome == 'success'
-        uses: appleboy/scp-action@v1.0.0
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          port: ${{ secrets.VPS_SSH_PORT || 2222 }}
-          source: 'dist/*'
-          target: '/var/www/subdomains/app'
-          strip_components: 1
+        env:
+          DEPLOY_KEY: ${{ secrets.PWAP_APP_DEPLOY_KEY }}
+        run: |
+          umask 077
+          printf '%s\n' "$DEPLOY_KEY" > "$RUNNER_TEMP/deploy_key"
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$RUNNER_TEMP/known_hosts"
+          # The key is pinned to pwap-web-receive on the host (ops/host): it
+          # takes the site tar on stdin and can do nothing else.
+          tar -C dist -cf - . | ssh -i "$RUNNER_TEMP/deploy_key" -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$RUNNER_TEMP/known_hosts" app-deploy@"$APP_HOST" deploy
 
       - name: Re-health-check after rollback
         if: steps.rollback.outcome == 'success'
@@ -643,7 +655,7 @@ jobs:
   # ========================================
   deploy-pex:
     name: Deploy pex.mom
-    runs-on: pwap-runner
+    runs-on: ubuntu-latest
     needs: [approve-deploy, notify-deploy-pending, bump-version, build-image]
     if: |
       always() &&
@@ -676,14 +688,14 @@ jobs:
           echo "prev=$PREV" >> $GITHUB_OUTPUT
 
       - name: Log in to GHCR
-        uses: docker/login-action@v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install cosign (for verify)
-        uses: sigstore/cosign-installer@v3
+        uses: sigstore/cosign-installer@7e8b541eb2e61bf99390e1afd4be13a184e9ebc5 # v3.10.1
         with:
           cosign-release: 'v2.4.1'
 
@@ -710,15 +722,15 @@ jobs:
           echo "${{ steps.sha.outputs.sha }}" > dist/.deploy-sha
 
       - name: Deploy to VPS3
-        uses: appleboy/scp-action@v1.0.0
-        with:
-          host: ${{ secrets.VPS_PEX_HOST }}
-          username: ${{ secrets.VPS_PEX_USER }}
-          key: ${{ secrets.VPS_PEX_SSH_KEY }}
-          port: ${{ secrets.VPS_PEX_SSH_PORT || 22 }}
-          source: 'dist/*'
-          target: '/var/www/pex.mom'
-          strip_components: 1
+        env:
+          DEPLOY_KEY: ${{ secrets.PWAP_PEX_DEPLOY_KEY }}
+        run: |
+          umask 077
+          printf '%s\n' "$DEPLOY_KEY" > "$RUNNER_TEMP/deploy_key"
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$RUNNER_TEMP/known_hosts"
+          # The key is pinned to pwap-web-receive on the host (ops/host): it
+          # takes the site tar on stdin and can do nothing else.
+          tar -C dist -cf - . | ssh -i "$RUNNER_TEMP/deploy_key" -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$RUNNER_TEMP/known_hosts" pex-deploy@"$PEX_HOST" deploy
 
       - name: Health check (60s window)
         id: healthcheck
@@ -751,15 +763,15 @@ jobs:
 
       - name: SCP rollback artifact
         if: steps.rollback.outcome == 'success'
-        uses: appleboy/scp-action@v1.0.0
-        with:
-          host: ${{ secrets.VPS_PEX_HOST }}
-          username: ${{ secrets.VPS_PEX_USER }}
-          key: ${{ secrets.VPS_PEX_SSH_KEY }}
-          port: ${{ secrets.VPS_PEX_SSH_PORT || 22 }}
-          source: 'dist/*'
-          target: '/var/www/pex.mom'
-          strip_components: 1
+        env:
+          DEPLOY_KEY: ${{ secrets.PWAP_PEX_DEPLOY_KEY }}
+        run: |
+          umask 077
+          printf '%s\n' "$DEPLOY_KEY" > "$RUNNER_TEMP/deploy_key"
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$RUNNER_TEMP/known_hosts"
+          # The key is pinned to pwap-web-receive on the host (ops/host): it
+          # takes the site tar on stdin and can do nothing else.
+          tar -C dist -cf - . | ssh -i "$RUNNER_TEMP/deploy_key" -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$RUNNER_TEMP/known_hosts" pex-deploy@"$PEX_HOST" deploy
 
       - name: Re-health-check after rollback
         if: steps.rollback.outcome == 'success'
@@ -821,25 +833,25 @@ jobs:
   # failure/alert) instead of erroring on "missing server host" every push.
   backend-cfg:
     name: Backend deploy config check
-    runs-on: pwap-runner
+    runs-on: ubuntu-latest
     if: (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')) && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     outputs:
       configured: ${{ steps.c.outputs.configured }}
     steps:
       - id: c
         env:
-          BH: ${{ secrets.BACKEND_VPS_HOST }}
+          BH: ${{ secrets.PWAP_INDEXER_DEPLOY_KEY }}
         run: |
           if [ -n "$BH" ]; then
             echo "configured=true" >> "$GITHUB_OUTPUT"
           else
-            echo "::notice::BACKEND_VPS_HOST unset — backend indexer deploy skipped (provision the host to enable)"
+            echo "::notice::PWAP_INDEXER_DEPLOY_KEY unset — backend indexer deploy skipped (provision the host to enable)"
             echo "configured=false" >> "$GITHUB_OUTPUT"
           fi
 
   deploy-backend:
     name: Deploy Backend (indexer)
-    runs-on: pwap-runner
+    runs-on: ubuntu-latest
     needs: [approve-deploy, notify-deploy-pending, build-image-backend, backend-cfg]
     if: |
       always() &&
@@ -865,12 +877,12 @@ jobs:
           fi
 
       - name: Install cosign (for verify)
-        uses: sigstore/cosign-installer@v3
+        uses: sigstore/cosign-installer@7e8b541eb2e61bf99390e1afd4be13a184e9ebc5 # v3.10.1
         with:
           cosign-release: 'v2.4.1'
 
       - name: Log in to GHCR (runner-side, for verify)
-        uses: docker/login-action@v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -891,93 +903,18 @@ jobs:
 
       - name: Deploy container to backend host (health-checked, auto-rollback)
         id: deploy
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.BACKEND_VPS_HOST }}
-          username: ${{ secrets.BACKEND_VPS_USER }}
-          key: ${{ secrets.BACKEND_VPS_SSH_KEY }}
-          port: ${{ secrets.BACKEND_VPS_SSH_PORT || 22 }}
-          envs: IMAGE_REF,NEW_SHA,GHCR_USER,GHCR_TOKEN,WS_ENDPOINT,HOST_PORT
-          command_timeout: 10m
-          script_stop: true
-          script: |
-            set -e
-            REGISTRY_IMAGE="ghcr.io/pezkuwichain/pwap-indexer"
-            IMAGE="$REGISTRY_IMAGE:$NEW_SHA"
-            STATE_DIR="/opt/pwap-indexer"
-            NAME="pwap-indexer"
-            HOST_PORT="${HOST_PORT:-3001}"
-            mkdir -p "$STATE_DIR"
-            PREV="$(cat "$STATE_DIR/.deploy-sha" 2>/dev/null || echo "")"
-            echo "Deploying $IMAGE (previous: ${PREV:-none})"
-
-            echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
-            docker pull "$IMAGE"
-
-            run_container () {
-              local img="$1"
-              docker rm -f "$NAME" >/dev/null 2>&1 || true
-              # Named volume pwap-indexer-db = stateful sqlite DB. NEVER removed
-              # by this script — it is created on first run and reused forever.
-              # Config comes from the workflow (GitHub secrets/vars), NOT a
-              # hand-placed file on the host. The indexer (src/index.js) only
-              # needs WS_ENDPOINT beyond the fixed PORT/DB_PATH; it runs no
-              # KYC/council service, so no seed/Supabase secret is required.
-              # Host port is configurable (HOST_PORT, default 3001) so the indexer
-              # can co-exist with whatever else runs on the box; the container
-              # always listens on 3001 internally.
-              docker run -d --name "$NAME" --restart unless-stopped \
-                -p "${HOST_PORT}:3001" \
-                -v pwap-indexer-db:/data \
-                -e DB_PATH=/data/transactions.db \
-                -e PORT=3001 \
-                -e WS_ENDPOINT="$WS_ENDPOINT" \
-                "$img"
-            }
-
-            healthy () {
-              for i in $(seq 1 12); do
-                if curl -fsS --max-time 5 "http://localhost:${HOST_PORT}/health" >/dev/null 2>&1; then
-                  return 0
-                fi
-                echo "health attempt $i/12 failed, retry in 5s..."
-                sleep 5
-              done
-              return 1
-            }
-
-            run_container "$IMAGE"
-            if healthy; then
-              echo "$NEW_SHA" > "$STATE_DIR/.deploy-sha"
-              echo "✅ Backend healthy on $NEW_SHA"
-              docker image prune -f >/dev/null 2>&1 || true
-              exit 0
-            fi
-
-            echo "❌ Health check failed for $NEW_SHA"
-            if [ -n "$PREV" ]; then
-              echo "🔄 Rolling back to $PREV"
-              docker pull "$REGISTRY_IMAGE:$PREV"
-              run_container "$REGISTRY_IMAGE:$PREV"
-              if healthy; then
-                echo "$PREV" > "$STATE_DIR/.deploy-sha"
-                echo "✅ Rolled back to $PREV — backend healthy"
-                exit 1   # still fail the job: the new SHA did not deploy
-              fi
-              echo "🚨 Rollback to $PREV ALSO failed"
-              exit 1
-            fi
-            echo "No previous SHA to roll back to."
-            exit 1
         env:
-          IMAGE_REF: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:${{ steps.sha.outputs.sha }}
+          DEPLOY_KEY: ${{ secrets.PWAP_INDEXER_DEPLOY_KEY }}
           NEW_SHA: ${{ steps.sha.outputs.sha }}
-          GHCR_USER: ${{ github.actor }}
-          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Non-secret chain endpoint; override via the INDEXER_WS_ENDPOINT secret if needed.
-          WS_ENDPOINT: ${{ secrets.INDEXER_WS_ENDPOINT || 'wss://rpc.pezkuwichain.io' }}
-          # Host port for the indexer (container is always 3001 internally).
-          HOST_PORT: ${{ secrets.INDEXER_HOST_PORT || '3001' }}
+        run: |
+          umask 077
+          printf '%s\n' "$DEPLOY_KEY" > "$RUNNER_TEMP/deploy_key"
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$RUNNER_TEMP/known_hosts"
+          # The key is pinned to pwap-indexer-ssh on the host (ops/host): the
+          # image SHA is its only input. The host pulls the public image, runs
+          # it with its own settings (/etc/pwap-indexer.env), health-checks it
+          # and rolls back to the previous SHA if it does not come up.
+          ssh -i "$RUNNER_TEMP/deploy_key" -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$RUNNER_TEMP/known_hosts" indexer-deploy@"$INDEXER_HOST" "$NEW_SHA"
 
       - name: Post-deploy notification
         if: success()
@@ -1004,7 +941,7 @@ jobs:
   # ========================================
   deploy-supabase:
     name: Deploy Supabase (functions + migrations)
-    runs-on: pwap-runner
+    runs-on: ubuntu-latest
     needs: [approve-deploy, notify-deploy-pending]
     if: |
       always() &&
@@ -1016,7 +953,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       - name: Pack supabase tree
         run: |
@@ -1024,76 +961,18 @@ jobs:
           tar czf supabase-deploy.tgz -C web/supabase \
             --exclude='__tests__' functions migrations deploy
 
-      - name: Upload bundle to staging
-        uses: appleboy/scp-action@v1.0.0
-        with:
-          host: ${{ secrets.SUPABASE_VPS_HOST }}
-          username: ${{ secrets.SUPABASE_VPS_USER }}
-          key: ${{ secrets.SUPABASE_VPS_SSH_KEY }}
-          port: ${{ secrets.SUPABASE_VPS_SSH_PORT || 22 }}
-          source: "supabase-deploy.tgz"
-          target: /opt/supabase-self-hosted/deploy-staging
-
       - name: Sync edge functions + apply migrations (health-checked)
         id: apply
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SUPABASE_VPS_HOST }}
-          username: ${{ secrets.SUPABASE_VPS_USER }}
-          key: ${{ secrets.SUPABASE_VPS_SSH_KEY }}
-          port: ${{ secrets.SUPABASE_VPS_SSH_PORT || 22 }}
-          command_timeout: 15m
-          script: |
-            set -euo pipefail
-            BASE=/opt/supabase-self-hosted/deploy-staging
-            STAGING="$BASE/tree"
-            DB=supabase-db
-
-            echo "── 0. Unpack bundle ──"
-            rm -rf "$STAGING" && mkdir -p "$STAGING"
-            tar xzf "$BASE/supabase-deploy.tgz" -C "$STAGING"
-
-            echo "── 1. Sync edge functions (through the ownership gate) ──"
-            # The runtime volume is shared with pezkuwi-telegram-miniapp. A plain
-            # rsync here silently replaced that project's telegram-auth on
-            # 2026-06-28 and broke its sign-in for a month, so writes now go
-            # through a gate that refuses any name this project does not own.
-            # Ownership: /opt/supabase-self-hosted/functions-registry.json
-            # __tests__ are Deno test dirs — the gate skips __-prefixed dirs.
-            supabase-deploy-functions --project pwap-web --src "$STAGING/functions"
-
-            echo "── 2. Pre-flight: required edge-runtime secrets ──"
-            EF_ENV="$(docker exec supabase-edge-functions env 2>/dev/null || true)"
-            miss=""
-            for k in SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY PLATFORM_PRIVATE_KEY; do
-              grep -q "^$k=" <<<"$EF_ENV" || miss="$miss $k"
-            done
-            if [ -n "$miss" ]; then
-              echo "::warning::edge-runtime missing secrets:$miss (fund functions may fail until set)"
-            fi
-
-            echo "── 3. Apply pending migrations (transactional, tracked) ──"
-            bash "$STAGING/deploy/apply-migrations.sh" "$STAGING/migrations" "$DB"
-
-            echo "── 4. Verify the fund-custody guards actually took effect ──"
-            q() { docker exec -i "$DB" psql -U postgres -tAq -c "$1"; }
-            fail=0
-            for fn in "release_escrow_internal" "lock_escrow_internal" "refund_escrow_internal" "request_withdraw"; do
-              # any signature match; expect NO anon EXECUTE
-              oid="$(q "SELECT oid FROM pg_proc WHERE proname='$fn' LIMIT 1;")"
-              if [ -n "$oid" ]; then
-                priv="$(q "SELECT has_function_privilege('anon', $oid, 'EXECUTE');")"
-                echo "   anon EXECUTE $fn = $priv"
-                [ "$priv" = "f" ] || { echo "::error::anon still has EXECUTE on $fn"; fail=1; }
-              fi
-            done
-            trg="$(q "SELECT tgname FROM pg_trigger WHERE tgname IN ('trg_freeze_trade_financials','trg_freeze_offer_financials');")"
-            n_trg="$(printf '%s' "$trg" | grep -c . || true)"
-            echo "   freeze triggers present: ${trg:-<none>} (count=$n_trg)"
-            [ "$n_trg" = "2" ] || { echo "::error::trade/offer freeze triggers missing (expected 2, got $n_trg)"; fail=1; }
-
-            rm -rf "$BASE"
-            [ "$fail" = "0" ] && echo "✅ Supabase deploy verified" || { echo "❌ post-deploy verification failed"; exit 1; }
+        env:
+          DEPLOY_KEY: ${{ secrets.PWAP_SUPABASE_DEPLOY_KEY }}
+        run: |
+          umask 077
+          printf '%s\n' "$DEPLOY_KEY" > "$RUNNER_TEMP/deploy_key"
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$RUNNER_TEMP/known_hosts"
+          # The key is pinned to pwap-supabase-ssh on the host (ops/host): the
+          # bundle on stdin is its only input. pwap-supabase-deploy syncs the
+          # functions, applies the migrations and verifies the guards.
+          ssh -i "$RUNNER_TEMP/deploy_key" -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$RUNNER_TEMP/known_hosts" supabase-deploy@"$SUPABASE_HOST" deploy < supabase-deploy.tgz
 
       - name: Telegram notify
         if: always()
@@ -1121,12 +1000,12 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           fetch-depth: ${{ github.event_name == 'pull_request' && 0 || 1 }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '20'
 
@@ -1141,7 +1020,7 @@ jobs:
 
       - name: TruffleHog — PR diff (verified secrets only)
         if: github.event_name == 'pull_request'
-        uses: trufflesecurity/trufflehog@main
+        uses: trufflesecurity/trufflehog@e76dff8a7e57d6df0c60ad8cbf5d5cba505a8fc9 # v3.99.2
         with:
           base: ${{ github.event.pull_request.base.sha }}
           head: ${{ github.event.pull_request.head.sha }}
@@ -1149,7 +1028,7 @@ jobs:
 
       - name: TruffleHog — full repo scan (verified secrets only)
         if: github.event_name != 'pull_request'
-        uses: trufflesecurity/trufflehog@main
+        uses: trufflesecurity/trufflehog@e76dff8a7e57d6df0c60ad8cbf5d5cba505a8fc9 # v3.99.2
         with:
           path: ./
           extra_args: --only-verified
@@ -1187,7 +1066,7 @@ jobs:
           --health-retries 5
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       - name: Install psql
         run: sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client
@@ -1254,10 +1133,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       - name: Every deploy job must sit behind the approval gate
         run: python3 ops/check-deploy-gate.py
+
+      # The scripts the deploy keys are pinned to (ops/host). They are the
+      # whole of what CI can do on the hosts, so they are checked here.
+      - name: Host deploy scripts
+        run: |
+          shellcheck -S warning ops/host/pwap-* ops/host/test-web-receive.sh
+          bash ops/host/test-web-receive.sh
 
   ci-gate:
     name: CI Gate ✅

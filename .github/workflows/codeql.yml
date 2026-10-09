@@ -28,20 +28,20 @@ jobs:
         language: [javascript-typescript]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@9f759ee644a3e7c15c1390abf49868036c00067b # v3.38.3
         with:
           languages: ${{ matrix.language }}
           # OWASP top-10 + injection + auth flaws + prototype pollution
           queries: security-extended,security-and-quality
 
       - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
+        uses: github/codeql-action/autobuild@9f759ee644a3e7c15c1390abf49868036c00067b # v3.38.3
 
       - name: Perform analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@9f759ee644a3e7c15c1390abf49868036c00067b # v3.38.3
         with:
           category: /language:${{ matrix.language }}
           # GitHub Advanced Security dashboard upload requires paid plan.
@@ -50,7 +50,7 @@ jobs:
           output: /tmp/codeql-results
 
       - name: Upload SARIF as artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         continue-on-error: true
         with:
           name: codeql-sarif-${{ matrix.language }}
