@@ -4,28 +4,17 @@
   "private": true,
   "description": "Pezkuwi Web App Projects - Monorepo",
   "scripts": {
-    "build": "npm run build:web && npm run build:sdk-ui && npm run build:mobile",
+    "build": "npm run build:web && npm run build:sign",
     "build:web": "cd web && npm run build",
-    "build:sdk-ui": "cd \"${SDK_UI_DIR:-../pezkuwi-sdk-ui}\" 2>/dev/null && yarn build || echo 'sdk-ui: skipped (set SDK_UI_DIR to the pezkuwi-sdk-ui checkout to enable)'",
-    "build:mobile": "cd mobile && npx expo export --platform web",
-    "build:parallel": "concurrently \"npm run build:web\" \"npm run build:sdk-ui\"",
-    "dev": "concurrently \"npm run dev:web\" \"npm run dev:mobile\"",
+    "build:sign": "cd sign && npm run build",
     "dev:web": "cd web && npm run dev",
-    "dev:sdk-ui": "cd \"${SDK_UI_DIR:-../pezkuwi-sdk-ui}\" && yarn start",
-    "dev:mobile": "cd mobile && npm run dev",
-    "install:all": "npm run install:web && npm run install:sdk-ui && npm run install:mobile && npm run install:backend",
+    "install:all": "npm run install:web && npm run install:sign && npm run install:backend",
     "install:web": "cd web && npm install",
-    "install:sdk-ui": "cd \"${SDK_UI_DIR:-../pezkuwi-sdk-ui}\" 2>/dev/null && yarn install || echo 'sdk-ui: skipped (set SDK_UI_DIR to the pezkuwi-sdk-ui checkout to enable)'",
-    "install:mobile": "cd mobile && npm install",
+    "install:sign": "cd sign && npm install",
     "install:backend": "cd backend && npm install",
-    "lint": "npm run lint:web && npm run lint:mobile",
-    "lint:web": "cd web && npm run lint",
-    "lint:mobile": "cd mobile && npm run lint",
-    "test": "npm run test:web && npm run test:mobile",
+    "lint": "cd web && npm run lint",
+    "test": "npm run test:web && npm run test:backend",
     "test:web": "cd web && npm run test",
-    "test:mobile": "cd mobile && npm run test"
-  },
-  "devDependencies": {
-    "concurrently": "^9.1.2"
+    "test:backend": "cd backend && npm test"
   }
 }
