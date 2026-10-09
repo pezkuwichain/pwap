@@ -1,0 +1,47 @@
+#!/bin/bash
+# Forced command for the pwap web deploy keys. Installed root-owned at
+# /usr/local/sbin/pwap-web-receive; authorized_keys pins each key to one site:
+#
+#   restrict,command="/usr/local/sbin/pwap-web-receive app" ssh-ed25519 ...
+#
+# CI runs `ssh <user>@<host> deploy < site.tar`. The key can do nothing else:
+# no shell, no other command, no forwarding, and only the one web root.
+set -euo pipefail
+
+case "${1:-}" in
+  app) TARGET=/var/www/subdomains/app ;;
+  pex) TARGET=/var/www/pex.mom ;;
+  *) echo "pwap-web-receive: unknown site '${1:-}'" >&2; exit 2 ;;
+esac
+
+if [ "${SSH_ORIGINAL_COMMAND:-}" != "deploy" ]; then
+  echo "pwap-web-receive: the only command is 'deploy', with the site tar on stdin" >&2
+  exit 2
+fi
+
+STAGE=$(mktemp -d)
+trap 'rm -rf "$STAGE"' EXIT
+
+# GNU tar drops leading slashes and refuses members containing '..'.
+tar -xf - -C "$STAGE" --no-same-owner --no-same-permissions
+
+if [ ! -f "$STAGE/index.html" ] || [ ! -d "$STAGE/assets" ] || [ ! -f "$STAGE/.deploy-sha" ]; then
+  echo "pwap-web-receive: not a site build (index.html, assets/ and .deploy-sha are required)" >&2
+  exit 1
+fi
+if ! grep -qxE '[0-9a-f]{7,40}' "$STAGE/.deploy-sha"; then
+  echo "pwap-web-receive: .deploy-sha is not a commit SHA" >&2
+  exit 1
+fi
+
+# -rt copies regular files and directories only: a symlink in the upload is
+# skipped rather than placed in the web root. The modes are set explicitly,
+# because mktemp's 0700 must never reach a directory nginx has to read.
+# Assets go first and index.html last, so a browser that loads the new index
+# finds every chunk it names. Nothing is deleted: tabs still open on the
+# previous build keep loading their chunks.
+rsync -rt --perms --chmod=D2775,F664 --exclude=/index.html --exclude=/.deploy-sha "$STAGE/" "$TARGET/"
+install -m 664 "$STAGE/index.html" "$TARGET/index.html"
+install -m 664 "$STAGE/.deploy-sha" "$TARGET/.deploy-sha"
+
+echo "pwap-web-receive: $1 now serves $(cat "$TARGET/.deploy-sha")"

@@ -1,0 +1,76 @@
+#!/bin/bash
+# Runs the pwap indexer container at a given image SHA, health-checked, and
+# rolls back to the previous SHA if the new one does not come up. Installed
+# root-owned at /usr/local/sbin/pwap-indexer-deploy; reached only through
+# pwap-indexer-ssh (sudoers: indexer-deploy may run this, nothing else).
+#
+# Host settings live in /etc/pwap-indexer.env, not in CI:
+#   WS_ENDPOINT=wss://rpc.pezkuwichain.io
+#   HOST_PORT=3011
+set -euo pipefail
+
+SHA="${1:-}"
+if ! [[ "$SHA" =~ ^[0-9a-f]{7,40}$ ]]; then
+  echo "pwap-indexer-deploy: expected an image SHA" >&2
+  exit 2
+fi
+
+# shellcheck source=/dev/null
+. /etc/pwap-indexer.env
+: "${WS_ENDPOINT:?set in /etc/pwap-indexer.env}" "${HOST_PORT:?set in /etc/pwap-indexer.env}"
+
+REGISTRY_IMAGE=ghcr.io/pezkuwichain/pwap-indexer
+NAME=pwap-indexer
+STATE_DIR=/opt/pwap-indexer
+mkdir -p "$STATE_DIR"
+PREV="$(cat "$STATE_DIR/.deploy-sha" 2>/dev/null || true)"
+echo "Deploying $REGISTRY_IMAGE:$SHA (previous: ${PREV:-none})"
+
+# The image is public; no registry credential is needed or kept here.
+docker pull -q "$REGISTRY_IMAGE:$SHA"
+
+run_container () {
+  docker rm -f "$NAME" >/dev/null 2>&1 || true
+  # pwap-indexer-db holds the sqlite database; it is never removed here.
+  # The port is published on loopback only: nginx is the public side.
+  docker run -d --name "$NAME" --restart unless-stopped \
+    -p "127.0.0.1:${HOST_PORT}:3001" \
+    -v pwap-indexer-db:/data \
+    -e DB_PATH=/data/transactions.db \
+    -e PORT=3001 \
+    -e WS_ENDPOINT="$WS_ENDPOINT" \
+    "$1" >/dev/null
+}
+
+healthy () {
+  for i in $(seq 1 12); do
+    if curl -fsS --max-time 5 "http://127.0.0.1:${HOST_PORT}/health" >/dev/null 2>&1; then
+      return 0
+    fi
+    echo "health attempt $i/12 failed, retry in 5s"
+    sleep 5
+  done
+  return 1
+}
+
+run_container "$REGISTRY_IMAGE:$SHA"
+if healthy; then
+  echo "$SHA" > "$STATE_DIR/.deploy-sha"
+  docker image prune -f >/dev/null 2>&1 || true
+  echo "Backend healthy on $SHA"
+  exit 0
+fi
+
+echo "Health check failed for $SHA"
+if [ -n "$PREV" ]; then
+  echo "Rolling back to $PREV"
+  docker pull -q "$REGISTRY_IMAGE:$PREV"
+  run_container "$REGISTRY_IMAGE:$PREV"
+  if healthy; then
+    echo "Rolled back to $PREV; backend healthy"
+  else
+    echo "Rollback to $PREV also failed"
+  fi
+fi
+# The new SHA did not deploy, whatever the rollback did.
+exit 1

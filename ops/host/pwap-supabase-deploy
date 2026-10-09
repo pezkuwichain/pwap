@@ -1,0 +1,58 @@
+#!/bin/bash
+# Deploys pwap's Supabase edge functions and migrations from a bundle on
+# stdin (functions/, migrations/, deploy/ from web/supabase), then checks
+# that the fund-custody guards are in force. Installed root-owned at
+# /usr/local/sbin/pwap-supabase-deploy; reached only through pwap-supabase-ssh
+# (sudoers: supabase-deploy may run this, nothing else).
+set -euo pipefail
+
+BASE=$(mktemp -d /opt/supabase-self-hosted/deploy-staging.XXXXXX)
+trap 'rm -rf "$BASE"' EXIT
+STAGING="$BASE/tree"
+DB=supabase-db
+
+echo "── 0. Unpack bundle ──"
+mkdir -p "$STAGING"
+tar -xzf - -C "$STAGING" --no-same-owner
+for d in functions migrations deploy; do
+  [ -d "$STAGING/$d" ] || { echo "bundle has no $d/" >&2; exit 1; }
+done
+
+echo "── 1. Sync edge functions (through the ownership gate) ──"
+supabase-deploy-functions --project pwap-web --src "$STAGING/functions"
+
+echo "── 2. Pre-flight: required edge-runtime secrets ──"
+EF_ENV="$(docker exec supabase-edge-functions env 2>/dev/null || true)"
+miss=""
+for k in SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY PLATFORM_PRIVATE_KEY; do
+  grep -q "^$k=" <<<"$EF_ENV" || miss="$miss $k"
+done
+if [ -n "$miss" ]; then
+  echo "::warning::edge-runtime missing secrets:$miss (fund functions may fail until set)"
+fi
+
+echo "── 3. Apply pending migrations (transactional, tracked) ──"
+bash "$STAGING/deploy/apply-migrations.sh" "$STAGING/migrations" "$DB"
+
+echo "── 4. Verify the fund-custody guards actually took effect ──"
+q() { docker exec -i "$DB" psql -U postgres -tAq -c "$1"; }
+fail=0
+for fn in release_escrow_internal lock_escrow_internal refund_escrow_internal request_withdraw; do
+  oid="$(q "SELECT oid FROM pg_proc WHERE proname='$fn' LIMIT 1;")"
+  if [ -n "$oid" ]; then
+    priv="$(q "SELECT has_function_privilege('anon', $oid, 'EXECUTE');")"
+    echo "   anon EXECUTE $fn = $priv"
+    [ "$priv" = "f" ] || { echo "::error::anon still has EXECUTE on $fn"; fail=1; }
+  fi
+done
+trg="$(q "SELECT tgname FROM pg_trigger WHERE tgname IN ('trg_freeze_trade_financials','trg_freeze_offer_financials');")"
+n_trg="$(printf '%s' "$trg" | grep -c . || true)"
+echo "   freeze triggers present: ${trg:-<none>} (count=$n_trg)"
+[ "$n_trg" = "2" ] || { echo "::error::trade/offer freeze triggers missing (expected 2, got $n_trg)"; fail=1; }
+
+if [ "$fail" = "0" ]; then
+  echo "Supabase deploy verified"
+else
+  echo "post-deploy verification failed"
+  exit 1
+fi
