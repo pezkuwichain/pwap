@@ -1,4 +1,7 @@
 #!/bin/bash
+# The rc/before variables are read inside the check expressions, which
+# check() runs with eval; shellcheck cannot see into those strings.
+# shellcheck disable=SC2034
 # Exercises pwap-web-receive against a scratch web root: what it installs,
 # with which modes, and everything it must refuse. The script under test is
 # copied with its web roots pointed at the scratch directory; nothing else
