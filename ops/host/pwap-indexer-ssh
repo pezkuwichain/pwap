@@ -1,0 +1,18 @@
+#!/bin/bash
+# Forced command for the pwap indexer deploy key, installed root-owned at
+# /usr/local/sbin/pwap-indexer-ssh:
+#
+#   restrict,command="/usr/local/sbin/pwap-indexer-ssh" ssh-ed25519 ...
+#
+# CI runs `ssh indexer-deploy@<host> <sha>`. The SHA is the only input; the
+# deploy itself is pwap-indexer-deploy, which sudo lets this user run and
+# nothing else.
+set -euo pipefail
+
+SHA="${SSH_ORIGINAL_COMMAND:-}"
+if ! [[ "$SHA" =~ ^[0-9a-f]{7,40}$ ]]; then
+  echo "pwap-indexer-ssh: expected an image SHA" >&2
+  exit 2
+fi
+
+exec sudo -n /usr/local/sbin/pwap-indexer-deploy "$SHA"

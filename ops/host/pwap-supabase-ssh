@@ -1,0 +1,17 @@
+#!/bin/bash
+# Forced command for the pwap Supabase deploy key, installed root-owned at
+# /usr/local/sbin/pwap-supabase-ssh:
+#
+#   restrict,command="/usr/local/sbin/pwap-supabase-ssh" ssh-ed25519 ...
+#
+# CI runs `ssh supabase-deploy@<host> deploy < supabase-deploy.tgz`. The
+# bundle on stdin is the only input; pwap-supabase-deploy, which sudo lets
+# this user run and nothing else, does the work.
+set -euo pipefail
+
+if [ "${SSH_ORIGINAL_COMMAND:-}" != "deploy" ]; then
+  echo "pwap-supabase-ssh: the only command is 'deploy', with the bundle on stdin" >&2
+  exit 2
+fi
+
+exec sudo -n /usr/local/sbin/pwap-supabase-deploy
