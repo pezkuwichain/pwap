@@ -72,13 +72,11 @@ jobs:
         working-directory: ./web
         run: npm run lint
 
-      # Typecheck gate. Currently non-blocking (continue-on-error) because the
-      # existing codebase still has pre-existing type errors. Once the count
-      # reaches zero, remove `continue-on-error` to make this a hard merge block.
-      - name: Typecheck
-        working-directory: ./web
-        continue-on-error: true
-        run: npm run typecheck
+      # Typecheck gate, held to a ratchet: the type errors that predate the gate
+      # are recorded in ops/typecheck-baseline.txt, and this fails when any file
+      # gains one, or when errors were fixed without lowering the baseline.
+      - name: Typecheck (ratchet)
+        run: python3 ops/typecheck-ratchet.py
 
       - name: Run Tests
         working-directory: ./web
