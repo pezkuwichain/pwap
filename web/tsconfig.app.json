@@ -29,10 +29,12 @@
       "@pezkuwi/lib": ["../shared/lib"],
       "@pezkuwi/lib/*": ["../shared/lib/*"],
       "@pezkuwi/utils": ["../shared/utils"],
+      "@pezkuwi/utils/*": ["../shared/utils/*"],
       "@pezkuwi/theme": ["../shared/theme"],
       "@pezkuwi/types": ["../shared/types"],
       "@pezkuwi/components/*": ["../shared/components/*"],
-      "@shared/*": ["../shared/*"]
+      "@shared/*": ["../shared/*"],
+      "*": ["./node_modules/@types/*", "./node_modules/*"]
     },
     "types": ["vite/client"]
   },
