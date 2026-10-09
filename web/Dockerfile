@@ -8,7 +8,7 @@
 # "pull pwap-web:<old-sha>".
 
 # ─── Stage 1: Build ────────────────────────────────────────────
-FROM node:20-alpine AS builder
+FROM node:24-alpine AS builder
 WORKDIR /build/web
 
 # Copy package files first to leverage Docker layer cache when only src changes

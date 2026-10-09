@@ -7,9 +7,10 @@ Monorepo for Pezkuwi blockchain frontend applications.
 ```
 pwap/
 ├── web/                    # Main web application
-├── mobile/                 # Mobile application (React Native + Expo)
-├── backend/                # Backend API services
+├── sign/                   # Multisig signing portal
+├── backend/                # Indexer service
 ├── shared/                 # Shared code and utilities
+├── ops/                    # CI deploy gate checks and host deploy scripts
 └── package.json            # Root package with build scripts
 ```
 
@@ -52,29 +53,18 @@ npm install
 npm run dev
 ```
 
-### 2. `mobile/` - Mobile Application
+### 2. `sign/` - Multisig Signing Portal
 
-**Status:** 🚧 In Development
-
-React Native Expo app for iOS and Android.
-
-**Features:**
-- Welcome screen with language selection
-- Multi-language support (6 languages with RTL)
-- Authentication (Sign In/Up)
-- Main dashboard navigation (5-tab bottom nav)
-- Wallet integration with @pezkuwi/api
-- Live blockchain data (HEZ, PEZ, USDT)
-- Send/receive transactions
-- Biometric authentication
+A deliberately small app with one job: approve and sign pending multisig
+operations. It compiles `shared/lib` and is typechecked and built in CI.
 
 ```bash
-cd mobile
+cd sign
 npm install
-npm start
+npm run build
 ```
 
-### 3. `backend/` - Backend Services
+### 3. `backend/` - Indexer Service
 
 API services for the applications.
 
@@ -101,7 +91,7 @@ shared/
 ## Quick Start
 
 ### Prerequisites
-- Node.js 18+
+- Node.js 24
 - npm
 
 ### Installation
@@ -116,7 +106,7 @@ npm install
 
 # Or install individually
 npm run install:web
-npm run install:mobile
+npm run install:sign
 npm run install:backend
 ```
 
@@ -128,18 +118,12 @@ npm run build
 
 This builds:
 1. `web` - Vite production build
-2. `pezkuwi-sdk-ui` - Full SDK UI build (separate repo)
-3. `mobile` - Expo web export
+2. `sign` - typecheck and Vite production build
 
 ### Development
 
 ```bash
-# Run web and mobile in parallel
-npm run dev
-
-# Or run individually
 npm run dev:web
-npm run dev:mobile
 ```
 
 ## Multi-Language Support

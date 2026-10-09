@@ -9,14 +9,14 @@
 # replaces the container/image but never the volume — see backend/DEPLOY.md.
 
 # ─── Stage 1: install production deps (compiles sqlite3) ────────
-FROM node:20-bookworm AS builder
+FROM node:24-bookworm AS builder
 WORKDIR /app
 COPY package.json package-lock.json ./
 # --omit=dev: the test-only devDeps (supertest, @pezkuwi/keyring) never ship.
 RUN npm ci --omit=dev
 
 # ─── Stage 2: runtime ──────────────────────────────────────────
-FROM node:20-bookworm-slim
+FROM node:24-bookworm-slim
 ENV NODE_ENV=production
 ENV PORT=3001
 # DB on the volume, never in the image layer.
