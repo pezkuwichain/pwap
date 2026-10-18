@@ -176,12 +176,11 @@ const Sprite: React.FC = () => (
         <path className="pop3" d="M14 11l6 3-6 3z"/>
         <path className="stk" d="M9 26h14M16 22v4"/>
       </symbol>
-      <symbol id="lp-i-cal" viewBox="0 0 32 32">
-        <rect className="soft" x="4" y="6" width="24" height="22" rx="2"/>
-        <rect className="stk" x="4" y="6" width="24" height="22" rx="2"/>
-        <path className="pop3" d="M4 12h24"/>
-        <rect className="stk" x="9" y="3" width="2" height="6" rx="1"/>
-        <rect className="stk" x="21" y="3" width="2" height="6" rx="1"/>
+      <symbol id="lp-i-mic" viewBox="0 0 32 32">
+        <rect className="soft" x="11" y="4" width="10" height="16" rx="5"/>
+        <rect className="stk" x="11" y="4" width="10" height="16" rx="5"/>
+        <path className="pop3" d="M7 15a9 9 0 0 0 18 0"/>
+        <path className="stk" d="M16 24v4M11 28h10"/>
       </symbol>
       <symbol id="lp-i-help" viewBox="0 0 32 32">
         <circle className="soft" cx="16" cy="16" r="12"/>
@@ -1099,7 +1098,7 @@ const LandingPageDesktop: React.FC = () => {
                 <PalletItem icon="lp-i-chat"   label={t('landing.pallets.whatskurd')}  to="/social/whatskurd" requiresLogin />
                 <PalletItem icon="lp-i-forum"  label={t('landing.pallets.forum')}      to="/forum" />
                 <PalletItem icon="lp-i-media"  label={t('landing.pallets.kurdmedia')}  to="/social/kurdmedia" requiresLogin />
-                <PalletItem icon="lp-i-cal"    label={t('landing.pallets.events')}     external="https://kurdishtts.pezkiwi.app" />
+                <PalletItem icon="lp-i-mic"    label={t('landing.pallets.kurdAi')}     external="https://kurdishtts.dks.news" />
                 <PalletItem icon="lp-i-help"   label={t('landing.pallets.help')}       to="/help" />
                 <PalletItem icon="lp-i-music"  label={t('landing.pallets.music')}      locked />
                 <PalletItem imgSrc="/rewshenbir-icon.png" label={t('landing.pallets.rewshenbir')} external="https://rewshenbir.pezkiwi.app" />
