@@ -11,7 +11,6 @@ import { InitializeHezPoolModal } from './InitializeHezPoolModal';
 import { InitializeUsdtModal } from './InitializeUsdtModal';
 import { MintAssetModal } from './MintAssetModal';
 import { MINTABLE_ASSETS, type AssetConfig } from './mintableAssets';
-import { XCMConfigurationWizard } from '@/components/admin/XCMConfigurationWizard';
 import { ArrowRightLeft, Droplet, Settings } from 'lucide-react';
 import { isFounderWallet } from '@pezkuwi/utils/auth';
 
@@ -26,7 +25,6 @@ export const DEXDashboard: React.FC = () => {
   const [showCreatePoolModal, setShowCreatePoolModal] = useState(false);
   const [showInitializeHezPoolModal, setShowInitializeHezPoolModal] = useState(false);
   const [showInitializeUsdtModal, setShowInitializeUsdtModal] = useState(false);
-  const [showXcmBridgeModal, setShowXcmBridgeModal] = useState(false);
 
   // Generic mint modal state
   const [mintModalAsset, setMintModalAsset] = useState<AssetConfig | null>(null);
@@ -41,7 +39,6 @@ export const DEXDashboard: React.FC = () => {
     setShowCreatePoolModal(false);
     setShowInitializeHezPoolModal(false);
     setShowInitializeUsdtModal(false);
-    setShowXcmBridgeModal(false);
     setMintModalAsset(null);
   };
 
@@ -171,19 +168,6 @@ export const DEXDashboard: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="p-6 bg-gray-900 border border-purple-900/30 rounded-lg">
-                    <h3 className="text-xl font-bold text-white mb-2">{t('dex.admin.xcmWizard')}</h3>
-                    <p className="text-gray-400 mb-6">
-                      {t('dex.admin.xcmWizardDesc')}
-                    </p>
-                    <button
-                      onClick={() => setShowXcmBridgeModal(true)}
-                      className="w-full px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors font-medium"
-                    >
-                      {t('dex.admin.openXcmWizard')}
-                    </button>
-                  </div>
-
                   <div className="p-6 bg-gray-900 border border-gray-800 rounded-lg">
                     <h3 className="text-xl font-bold text-white mb-2">{t('dex.admin.poolManagement')}</h3>
                     <p className="text-gray-400 mb-6">
@@ -225,12 +209,6 @@ export const DEXDashboard: React.FC = () => {
 
       <InitializeUsdtModal
         isOpen={showInitializeUsdtModal}
-        onClose={handleModalClose}
-        onSuccess={handleSuccess}
-      />
-
-      <XCMConfigurationWizard
-        isOpen={showXcmBridgeModal}
         onClose={handleModalClose}
         onSuccess={handleSuccess}
       />
