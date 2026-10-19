@@ -18,7 +18,8 @@ pwap/
 
 | Repository | Description | URL |
 |------------|-------------|-----|
-| pezkuwi-sdk-ui | Blockchain Explorer & Developer Tools | https://github.com/pezkuwichain/pezkuwi-sdk-ui |
+| pezkuwi-apps | Developer Tools ([js.pezkuwichain.io](https://js.pezkuwichain.io)) | https://github.com/pezkuwichain/pezkuwi-apps |
+| pezkuwi-explorer | Blockchain Explorer ([explorer.pezkuwichain.io](https://explorer.pezkuwichain.io)) | https://github.com/pezkuwichain/pezkuwi-explorer |
 | pezkuwi-extension | Browser Wallet Extension | https://github.com/pezkuwichain/pezkuwi-extension |
 
 ## Projects
