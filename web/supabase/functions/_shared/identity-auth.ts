@@ -16,8 +16,9 @@
 // The client-supplied `userId` is NEVER trusted for authorization. Every
 // caller can only ever act on the balance of the identity their wallet owns.
 
-import { signatureVerify, cryptoWaitReady } from 'npm:@pezkuwi/util-crypto@14.0.25'
-import { stringToU8a, u8aWrapBytes } from 'npm:@pezkuwi/util@14.0.25'
+import { signatureVerify, cryptoWaitReady, decodeAddress } from 'npm:@pezkuwi/util-crypto@14.0.25'
+import { hexToU8a, stringToU8a, u8aWrapBytes } from 'npm:@pezkuwi/util@14.0.25'
+import { verify as sr25519VerifySubstrateContext } from 'npm:@scure/sr25519@2.4.0'
 import type { ApiPromise } from 'npm:@pezkuwi/api@16.5.36'
 import type { SupabaseClient } from 'npm:@supabase/supabase-js@2'
 
@@ -87,7 +88,17 @@ export async function verifyWalletSignature(
       const res = signatureVerify(candidate, signature, signerAddress)
       if (res.isValid) return true
     }
-    return false
+    // Pezkuwi's sr25519 signs in the `bizinikiwi` context, and the extension does.
+    // The Pezkuwi Wallet mobile app does not, for a message: it picks the signing
+    // chain from the address prefix, prefix 42 falls back to Polkadot, and Polkadot
+    // gets the standard `substrate` context (measured 2026-10-01 on dks.news, where
+    // every mobile sign-in was refused for this alone). The wallet is not changed
+    // for it, so the verifier accepts both: the proof is the same -- the account's
+    // own key over a canonical, single-use challenge.
+    const publicKey = decodeAddress(signerAddress)
+    const sig = hexToU8a(signature)
+    if (publicKey.length !== 32 || sig.length !== 64) return false
+    return [raw, wrapped].some((candidate) => sr25519VerifySubstrateContext(candidate, sig, publicKey))
   } catch (_e) {
     return false
   }
