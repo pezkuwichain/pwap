@@ -22,7 +22,6 @@ import {
   type StakingInfo
 } from '@pezkuwi/lib/staking';
 import {
-  recordTrustScore,
   claimPezReward,
   getPezRewards,
   type PezRewardInfo
@@ -48,7 +47,6 @@ export const StakingDashboard: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(false);
   const [pezRewards, setPezRewards] = useState<PezRewardInfo | null>(null);
-  const [isRecordingScore, setIsRecordingScore] = useState(false);
   const [isClaimingReward, setIsClaimingReward] = useState(false);
 
   // Fetch staking data from Asset Hub
@@ -110,34 +108,6 @@ export const StakingDashboard: React.FC = () => {
     const interval = setInterval(fetchPezRewards, 30000);
     return () => clearInterval(interval);
   }, [peopleApi, isPeopleReady, selectedAccount]);
-
-  const handleRecordTrustScore = async () => {
-    if (!peopleApi || !selectedAccount) return;
-
-    setIsRecordingScore(true);
-    try {
-      const injector = await getSigner(selectedAccount.address, walletSource, peopleApi);
-      const result = await recordTrustScore(peopleApi, selectedAccount.address, injector.signer);
-
-      if (result.success) {
-        handleBlockchainSuccess('pezRewards.recorded', toast);
-        // Refresh PEZ rewards data
-        setTimeout(async () => {
-          if (peopleApi && selectedAccount) {
-            const rewards = await getPezRewards(peopleApi, selectedAccount.address);
-            setPezRewards(rewards);
-          }
-        }, 3000);
-      } else {
-        toast.error(result.error || t('staking.recordFailed'));
-      }
-    } catch (error) {
-      if (import.meta.env.DEV) console.error('Record trust score failed:', error);
-      toast.error(error instanceof Error ? error.message : t('staking.recordFailed'));
-    } finally {
-      setIsRecordingScore(false);
-    }
-  };
 
   const handleClaimReward = async (epochIndex: number) => {
     if (!peopleApi || !selectedAccount) return;
@@ -536,27 +506,6 @@ export const StakingDashboard: React.FC = () => {
             <CardContent>
               <div className="space-y-2">
                 <p className="text-xs text-gray-500">{t('staking.epoch', { epoch: pezRewards.currentEpoch })}</p>
-
-                {/* Open epoch: Record score or show recorded score */}
-                {pezRewards.epochStatus === 'Open' && (
-                  pezRewards.hasRecordedThisEpoch ? (
-                    <div>
-                      <div className="text-lg font-bold text-green-400">
-                        {t('staking.scoreLabel', { score: pezRewards.userScoreCurrentEpoch })}
-                      </div>
-                      <p className="text-xs text-gray-500">{t('staking.recordedForEpoch')}</p>
-                    </div>
-                  ) : (
-                    <Button
-                      size="sm"
-                      onClick={handleRecordTrustScore}
-                      disabled={isRecordingScore}
-                      className="w-full bg-green-600 hover:bg-green-700"
-                    >
-                      {isRecordingScore ? t('staking.recording') : t('staking.recordTrustScore')}
-                    </Button>
-                  )
-                )}
 
                 {/* Claimable rewards */}
                 {pezRewards.hasPendingClaim && (

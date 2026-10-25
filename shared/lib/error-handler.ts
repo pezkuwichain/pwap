@@ -47,10 +47,6 @@ const ERROR_MESSAGES: Record<string, ErrorMessage> = {
     en: 'You have already claimed your reward for this epoch.',
     kmr: 'We berê xelata xwe ji bo vê epoch-ê wergirtiye.',
   },
-  'pezRewards.NoTrustScoreForEpoch': {
-    en: 'No trust score recorded for this epoch. You must record your score before claiming.',
-    kmr: 'Ji bo vê epoch-ê skora emîniyê tomar nebûye. Pêşî divê skora xwe tomar bikî.',
-  },
   'pezRewards.NoRewardToClaim': {
     en: 'No reward available to claim for this epoch.',
     kmr: 'Ji bo vê epoch-ê xelateke ku were wergirtin tune ye.',
@@ -453,10 +449,6 @@ export const SUCCESS_MESSAGES: Record<string, SuccessMessage> = {
   },
 
   // PEZ Rewards
-  'pezRewards.recorded': {
-    en: 'Trust score recorded for this epoch. Your score will be used for reward calculation.',
-    kmr: 'Skora emîniyê ji bo vê epoch-ê tomar bû. Skora we dê ji bo hesabkirina xelatê were bikaranîn.',
-  },
   'pezRewards.claimed': {
     en: '{{amount}} PEZ reward claimed successfully!',
     kmr: '{{amount}} PEZ xelat bi serkeftî hate wergirtin!',

@@ -11,7 +11,7 @@ import { supabase } from '@/lib/supabase';
 import { User, Mail, Phone, Globe, MapPin, Calendar, Shield, AlertCircle, ArrowLeft, Award, Users, TrendingUp, UserMinus, Play, Loader2, Coins } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { fetchUserTikis, getPrimaryRole, getTikiDisplayName, getTikiColor, getTikiEmoji, getUserRoleCategories, getAllTikiNFTDetails, generateCitizenNumber, type TikiNFTDetails } from '@pezkuwi/lib/tiki';
-import { getAllScores, getStakingScoreStatus, startScoreTracking, getPezRewards, recordTrustScore, claimPezReward, type UserScores, type StakingScoreStatus, type PezRewardInfo, formatDuration } from '@pezkuwi/lib/scores';
+import { getAllScores, getStakingScoreStatus, startScoreTracking, getPezRewards, claimPezReward, type UserScores, type StakingScoreStatus, type PezRewardInfo, formatDuration } from '@pezkuwi/lib/scores';
 import { getSigner } from '@/lib/get-signer';
 import { getKycStatus } from '@pezkuwi/lib/kyc';
 import { ReferralDashboard } from '@/components/referral/ReferralDashboard';
@@ -41,7 +41,6 @@ export default function Dashboard() {
   const [kycStatus, setKycStatus] = useState<string>('NotStarted');
   const [renouncingCitizenship, setRenouncingCitizenship] = useState(false);
   const [pezRewards, setPezRewards] = useState<PezRewardInfo | null>(null);
-  const [isRecordingScore, setIsRecordingScore] = useState(false);
   const [isClaimingReward, setIsClaimingReward] = useState(false);
   const [nftDetails, setNftDetails] = useState<{ citizenNFT: TikiNFTDetails | null; roleNFTs: TikiNFTDetails[]; totalNFTs: number }>({
     citizenNFT: null,
@@ -185,27 +184,6 @@ export default function Dashboard() {
       });
     } finally {
       setStartingScoreTracking(false);
-    }
-  };
-
-  const handleRecordTrustScore = async () => {
-    if (!peopleApi || !selectedAccount) return;
-
-    setIsRecordingScore(true);
-    try {
-      const injector = await getSigner(selectedAccount.address, walletSource, peopleApi);
-      const result = await recordTrustScore(peopleApi, selectedAccount.address, injector.signer);
-
-      if (result.success) {
-        toast({ title: t('common.success'), description: t('dashboard.trustScoreRecorded') });
-        fetchScoresAndTikis();
-      } else {
-        toast({ title: t('common.error'), description: result.error || t('dashboard.trustScoreRecordFailed'), variant: "destructive" });
-      }
-    } catch (error) {
-      toast({ title: t('common.error'), description: error instanceof Error ? error.message : t('dashboard.trustScoreRecordFailed'), variant: "destructive" });
-    } finally {
-      setIsRecordingScore(false);
     }
   };
 
@@ -655,35 +633,6 @@ export default function Dashboard() {
             <div className="space-y-3">
               <p className="text-xs text-muted-foreground">{t('dashboard.epoch', { number: pezRewards.currentEpoch })}</p>
 
-                {/* Open epoch: Record score or show recorded score */}
-                {pezRewards.epochStatus === 'Open' && (
-                  pezRewards.hasRecordedThisEpoch ? (
-                    <div className="flex items-center gap-2">
-                      <div className="text-lg font-bold text-green-600">Score: {pezRewards.userScoreCurrentEpoch}</div>
-                      <Badge variant="outline" className="text-green-600 border-green-300">{t('dashboard.recorded')}</Badge>
-                    </div>
-                  ) : (
-                    <Button
-                      size="sm"
-                      className="w-full bg-green-600 hover:bg-green-700"
-                      onClick={handleRecordTrustScore}
-                      disabled={isRecordingScore || loadingScores}
-                    >
-                      {isRecordingScore ? (
-                        <>
-                          <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                          {t('dashboard.recording')}
-                        </>
-                      ) : (
-                        <>
-                          <Play className="h-3 w-3 mr-1" />
-                          {t('dashboard.recordTrustScore')}
-                        </>
-                      )}
-                    </Button>
-                  )
-                )}
-
                 {/* Claimable rewards */}
                 {pezRewards.hasPendingClaim ? (
                   <div className="space-y-2">
@@ -706,9 +655,7 @@ export default function Dashboard() {
                     ))}
                   </div>
                 ) : (
-                  !pezRewards.hasRecordedThisEpoch && pezRewards.epochStatus !== 'Open' && (
-                    <div className="text-2xl font-bold text-muted-foreground">0 PEZ</div>
-                  )
+                  <div className="text-2xl font-bold text-muted-foreground">0 PEZ</div>
                 )}
               </div>
           </CardContent>
