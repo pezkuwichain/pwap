@@ -45,8 +45,6 @@ export interface EpochRewardPool {
 export interface PezRewardInfo {
   currentEpoch: number;
   epochStatus: EpochStatus;
-  hasRecordedThisEpoch: boolean;
-  userScoreCurrentEpoch: number;
   claimableRewards: { epoch: number; amount: string }[];
   totalClaimable: string;
   hasPendingClaim: boolean;
@@ -512,7 +510,6 @@ export async function getPerwerdeScore(
  * Uses correct storage query names from live People Chain metadata:
  * - epochInfo() → epoch info (ValueQuery)
  * - epochStatus(epoch) → Open | ClaimPeriod | Closed
- * - userEpochScores(epoch, addr) → user's recorded score (OptionQuery)
  * - claimedRewards(epoch, addr) → claimed reward amount (OptionQuery)
  * - epochRewardPools(epoch) → reward pool info (OptionQuery)
  */
@@ -548,18 +545,27 @@ export async function getPezRewards(
       // Default to Open if query fails
     }
 
-    // Check if user has recorded their score this epoch
-    let hasRecordedThisEpoch = false;
-    let userScoreCurrentEpoch = 0;
+    // What a claim pays, worked out the way the chain does (`pezRewards::entitlement`). There
+    // is no score to record beforehand: the roll is held still from an epoch's finalisation
+    // to the end of its claim window, so the trust score now is the one the rate was set
+    // against, and a seat is paid if it is held now and was taken by the time of the roll.
+    const who = peopleApi.createType('AccountId', address).toString();
+    const trustScore = BigInt((await peopleApi.query.trust.trustScores(address)).toString());
+    let seatTakenAt: number | null = null;
     try {
-      const userScoreResult = await peopleApi.query.pezRewards.userEpochScores(currentEpoch, address);
-      if (userScoreResult.isSome) {
-        hasRecordedThisEpoch = true;
-        const scoreCodec = userScoreResult.unwrap() as { toString: () => string };
-        userScoreCurrentEpoch = Number(scoreCodec.toString());
+      const tikis = ((await peopleApi.query.tiki.userTikis(address)).toJSON() ?? []) as string[];
+      if (tikis.includes('Parlementer')) {
+        const expiry = (await peopleApi.query.tiki.tikiExpiry(address, 'Parlementer')).toJSON() as number | null;
+        const now = (await peopleApi.rpc.chain.getHeader()).number.toNumber();
+        if (expiry === null || now <= expiry) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const members = (await peopleApi.query.welati.parliamentMembers()).toJSON() as any[];
+          const member = members.find((m) => peopleApi.createType('AccountId', m.account).toString() === who);
+          if (member) seatTakenAt = Number(member.electedAt ?? member.elected_at);
+        }
       }
     } catch {
-      // User hasn't recorded
+      // No seat
     }
 
     // Check for claimable rewards from completed epochs
@@ -577,10 +583,6 @@ export async function getPezRewards(
         const claimedResult = await peopleApi.query.pezRewards.claimedRewards(i, address);
         if (claimedResult.isSome) continue;
 
-        // Check if user has a score for this epoch
-        const userScoreResult = await peopleApi.query.pezRewards.userEpochScores(i, address);
-        if (!userScoreResult.isSome) continue;
-
         // Get epoch reward pool
         const epochPoolResult = await peopleApi.query.pezRewards.epochRewardPools(i);
         if (!epochPoolResult.isSome) continue;
@@ -588,17 +590,16 @@ export async function getPezRewards(
         const epochPoolCodec = epochPoolResult.unwrap() as { toJSON: () => unknown };
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const epochPool = epochPoolCodec.toJSON() as any;
-        const userScoreCodec = userScoreResult.unwrap() as { toString: () => string };
-        const userScore = BigInt(userScoreCodec.toString());
-        const rewardPerPoint = BigInt(epochPool.rewardPerTrustPoint || epochPool.reward_per_trust_point || '0');
+        const rewardPerPoint = BigInt(epochPool.rewardPerTrustPoint ?? epochPool.reward_per_trust_point ?? '0');
+        const seatShare = BigInt(epochPool.seatShare ?? epochPool.seat_share ?? '0');
+        const finalizedAt = Number(epochPool.finalizedAt ?? epochPool.finalized_at ?? 0);
 
-        const rewardAmount = userScore * rewardPerPoint;
-        const rewardFormatted = formatBalance(rewardAmount.toString());
+        let rewardAmount = trustScore * rewardPerPoint;
+        if (seatTakenAt !== null && seatTakenAt <= finalizedAt) rewardAmount += seatShare;
+        if (rewardAmount === BigInt(0)) continue;
 
-        if (parseFloat(rewardFormatted) > 0) {
-          claimableRewards.push({ epoch: i, amount: rewardFormatted });
-          totalClaimable += rewardAmount;
-        }
+        claimableRewards.push({ epoch: i, amount: formatBalance(rewardAmount.toString()) });
+        totalClaimable += rewardAmount;
       } catch (err) {
         console.warn(`Error checking epoch ${i} rewards:`, err);
       }
@@ -607,8 +608,6 @@ export async function getPezRewards(
     return {
       currentEpoch,
       epochStatus,
-      hasRecordedThisEpoch,
-      userScoreCurrentEpoch,
       claimableRewards,
       totalClaimable: formatBalance(totalClaimable.toString()),
       hasPendingClaim: claimableRewards.length > 0,
@@ -616,44 +615,6 @@ export async function getPezRewards(
   } catch (error) {
     console.warn('PEZ rewards not available:', error);
     return null;
-  }
-}
-
-/**
- * Record trust score for the current epoch
- * Calls: pezRewards.recordTrustScore()
- */
-export async function recordTrustScore(
-  peopleApi: ApiPromise,
-  address: string,
-  signer: any
-): Promise<{ success: boolean; error?: string }> {
-  try {
-    if (!peopleApi?.tx?.pezRewards?.recordTrustScore) {
-      return { success: false, error: 'pezRewards pallet not available' };
-    }
-
-    const tx = peopleApi.tx.pezRewards.recordTrustScore();
-
-    return new Promise((resolve) => {
-      tx.signAndSend(address, { signer }, ({ status, dispatchError }: any) => {
-        if (status.isInBlock || status.isFinalized) {
-          if (dispatchError) {
-            if (dispatchError.isModule) {
-              const decoded = peopleApi.registry.findMetaError(dispatchError.asModule);
-              resolve({ success: false, error: `${decoded.section}.${decoded.name}` });
-            } else {
-              resolve({ success: false, error: dispatchError.toString() });
-            }
-          } else {
-            resolve({ success: true });
-          }
-        }
-      });
-    });
-  } catch (error) {
-    console.error('Error recording trust score:', error);
-    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
   }
 }
 

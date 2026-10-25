@@ -8,10 +8,10 @@ import { ReceiveModal } from '@/components/ReceiveModal';
 import { TransactionHistory } from '@/components/TransactionHistory';
 import { NftList } from '@/components/NftList';
 import { Button } from '@/components/ui/button';
-import { ArrowUpRight, ArrowDownRight, History, ArrowLeft, RefreshCw, Coins, Loader2 } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, History, ArrowLeft, RefreshCw, Coins } from 'lucide-react';
 import { toast } from 'sonner';
 import { getSigner } from '@/lib/get-signer';
-import { getPezRewards, recordTrustScore, claimPezReward, type PezRewardInfo } from '@pezkuwi/lib/scores';
+import { getPezRewards, claimPezReward, type PezRewardInfo } from '@pezkuwi/lib/scores';
 import { isMultisigMember, BRIDGE_MULTISIG_SPECIFIC_ADDRESSES } from '@pezkuwi/lib/multisig';
 import { ShieldCheck } from 'lucide-react';
 
@@ -38,7 +38,6 @@ const WalletDashboard: React.FC = () => {
   const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([]);
   const [isLoadingRecent, setIsLoadingRecent] = useState(false);
   const [pezRewards, setPezRewards] = useState<PezRewardInfo | null>(null);
-  const [isRecordingScore, setIsRecordingScore] = useState(false);
   const [isClaimingReward, setIsClaimingReward] = useState(false);
   const [isMultisigSigner, setIsMultisigSigner] = useState(false);
 
@@ -258,26 +257,6 @@ const WalletDashboard: React.FC = () => {
     return () => clearInterval(interval);
   }, [peopleApi, isPeopleReady, selectedAccount]);
 
-  const handleRecordTrustScore = async () => {
-    if (!peopleApi || !selectedAccount) return;
-    setIsRecordingScore(true);
-    try {
-      const injector = await getSigner(selectedAccount.address, walletSource, peopleApi);
-      const result = await recordTrustScore(peopleApi, selectedAccount.address, injector.signer);
-      if (result.success) {
-        toast.success(t('wallet.trustScoreRecorded'));
-        const rewards = await getPezRewards(peopleApi, selectedAccount.address);
-        setPezRewards(rewards);
-      } else {
-        toast.error(result.error || t('wallet.failedToRecordScore'));
-      }
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : t('wallet.failedToRecordScore'));
-    } finally {
-      setIsRecordingScore(false);
-    }
-  };
-
   const handleClaimReward = async (epochIndex: number) => {
     if (!peopleApi || !selectedAccount) return;
     setIsClaimingReward(true);
@@ -478,30 +457,6 @@ const WalletDashboard: React.FC = () => {
                   </span>
                 </div>
 
-                {/* Open epoch: Record score */}
-                {pezRewards.epochStatus === 'Open' && (
-                  pezRewards.hasRecordedThisEpoch ? (
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="text-green-400 font-semibold">{t('wallet.score', { score: pezRewards.userScoreCurrentEpoch })}</span>
-                      <span className="text-xs text-gray-500">{t('wallet.recordedForEpoch')}</span>
-                    </div>
-                  ) : (
-                    <Button
-                      size="sm"
-                      onClick={handleRecordTrustScore}
-                      disabled={isRecordingScore}
-                      className="w-full mb-3 bg-green-600 hover:bg-green-700"
-                    >
-                      {isRecordingScore ? (
-                        <>
-                          <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-                          {t('wallet.recording')}
-                        </>
-                      ) : t('wallet.recordTrustScore')}
-                    </Button>
-                  )
-                )}
-
                 {/* Claimable rewards */}
                 {pezRewards.hasPendingClaim ? (
                   <div className="space-y-2">
@@ -524,9 +479,7 @@ const WalletDashboard: React.FC = () => {
                     ))}
                   </div>
                 ) : (
-                  !pezRewards.hasRecordedThisEpoch && pezRewards.epochStatus !== 'Open' && (
-                    <div className="text-gray-500 text-sm">{t('wallet.noClaimableRewards')}</div>
-                  )
+                  <div className="text-gray-500 text-sm">{t('wallet.noClaimableRewards')}</div>
                 )}
               </div>
             )}
