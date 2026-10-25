@@ -3,7 +3,7 @@
 3 ../shared/lib/perwerde.ts TS2339
 6 ../shared/lib/presale.ts TS2339
 1 ../shared/lib/referral.ts TS2339
-9 ../shared/lib/scores.ts TS2339
+5 ../shared/lib/scores.ts TS2339
 3 ../shared/lib/staking.ts TS2339
 10 ../shared/lib/validator-pool.ts TS2339
 2 ../shared/lib/welati.ts TS2305
