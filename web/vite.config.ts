@@ -87,7 +87,7 @@ export default defineConfig(({ command }) => ({
           'pezkuwi': ['@pezkuwi/api', '@pezkuwi/extension-dapp', '@pezkuwi/keyring', '@pezkuwi/util', '@pezkuwi/util-crypto'],
           'vendor': ['react', 'react-dom', 'react-router-dom'],
           'ui': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-select', '@radix-ui/react-tabs', '@radix-ui/react-toast'],
-          'forms': ['react-hook-form', '@hookform/resolvers', 'zod'],
+          'forms': ['react-hook-form'],
           'i18n': ['i18next', 'react-i18next', 'i18next-browser-languagedetector']
         }
       }
