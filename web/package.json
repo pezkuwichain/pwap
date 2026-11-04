@@ -116,7 +116,10 @@
     "@pezkuwi/x-textencoder": "^14.0.26",
     "@pezkuwi/x-ws": "^14.0.26",
     "@pezkuwi/networks": "^14.0.26",
-    "elliptic": "^6.6.1"
+    "elliptic": "^6.6.1",
+    "@tailwindcss/typography": {
+      "postcss-selector-parser": "6.1.5"
+    }
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
