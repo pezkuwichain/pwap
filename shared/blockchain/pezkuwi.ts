@@ -27,5 +27,5 @@ export const DEFAULT_ENDPOINT = getCurrentNetworkConfig().wsEndpoint;
  */
 export function getExplorerUrl(txHash: string): string {
   // Update with your actual block explorer URL
-  return `https://explorer.pezkuwichain.app/tx/${txHash}`;
+  return `https://explorer.pezkuwichain.io/tx/${txHash}`;
 }
