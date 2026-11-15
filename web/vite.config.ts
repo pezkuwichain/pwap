@@ -2,8 +2,11 @@
 import { defineConfig, configDefaults } from "vitest/config";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
-import { nodePolyfills } from 'vite-plugin-node-polyfills';
+import inject from '@rollup/plugin-inject';
 import subresourceIntegrity from 'vite-plugin-subresource-integrity';
+
+// Node globals some browser dependencies reference as free identifiers; see the file header.
+const nodeGlobals = path.resolve(__dirname, './src/lib/node-globals.ts');
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command }) => ({
@@ -14,11 +17,6 @@ export default defineConfig(({ command }) => ({
     // supabase/** holds Deno tests (Deno.test + pglite) run via `deno test`,
     // not vitest — exclude them from the web (node/jsdom) test sweep.
     exclude: [...configDefaults.exclude, 'supabase/**'],
-    alias: {
-      'vite-plugin-node-polyfills/shims/buffer': path.resolve(__dirname, './src/tests/mocks/buffer-shim.ts'),
-      'vite-plugin-node-polyfills/shims/global': path.resolve(__dirname, './src/tests/mocks/global-shim.ts'),
-      'vite-plugin-node-polyfills/shims/process': path.resolve(__dirname, './src/tests/mocks/process-shim.ts'),
-    },
   },
   server: {
     host: "::",
@@ -34,14 +32,6 @@ export default defineConfig(({ command }) => ({
   },
   plugins: [
     react(),
-    nodePolyfills({
-      globals: {
-        Buffer: true,
-        global: true,
-        process: true,
-      },
-      protocolImports: true,
-    }),
     // SRI: production build sırasında <script>/<link> tag'lerine
     // sha384 integrity hash ekle. CDN/proxy compromise olsa bile
     // tampered asset browser tarafından load edilmez.
@@ -50,11 +40,6 @@ export default defineConfig(({ command }) => ({
   resolve: {
     mainFields: ['browser', 'module', 'main', 'exports'],
     alias: {
-      // Rollup cannot resolve virtual shim modules in production — alias to real file.
-      // Dev mode: the plugin's own virtual module handles it; do NOT override it here.
-      ...(command === 'build' ? {
-        'vite-plugin-node-polyfills/shims/process': path.resolve(__dirname, './src/lib/process-shim.ts'),
-      } : {}),
       "@": path.resolve(__dirname, "./src"),
       "@pezkuwi/i18n": path.resolve(__dirname, "../shared/i18n"),
       "@pezkuwi/lib": path.resolve(__dirname, "../shared/lib"),
@@ -68,6 +53,19 @@ export default defineConfig(({ command }) => ({
   },
   optimizeDeps: {
     include: ['@pezkuwi/util-crypto', '@pezkuwi/util', '@pezkuwi/api', '@pezkuwi/extension-dapp', '@pezkuwi/keyring', 'buffer'],
+    esbuildOptions: {
+      inject: [nodeGlobals],
+      plugins: [
+        {
+          // Vite's dependency scanner marks every path outside node_modules as external, and
+          // esbuild refuses an external inject target; resolve it as a real file instead.
+          name: 'node-globals-resolver',
+          setup(build) {
+            build.onResolve({ filter: /[\\/]src[\\/]lib[\\/]node-globals\.ts$/ }, () => ({ path: nodeGlobals }));
+          },
+        },
+      ],
+    },
   },
   // Strip all console.* and debugger statements from production bundles so the
   // 600+ dev-time console calls never ship. Dev keeps full logging.
@@ -75,13 +73,13 @@ export default defineConfig(({ command }) => ({
   build: {
     rollupOptions: {
       external: [],
-      onwarn(warning, warn) {
-        // Suppress the buffer shim warning - it's handled by vite-plugin-node-polyfills
-        if (warning.message?.includes('vite-plugin-node-polyfills/shims/buffer')) {
-          return;
-        }
-        warn(warning);
-      },
+      plugins: [
+        inject({
+          Buffer: [nodeGlobals, 'Buffer'],
+          global: [nodeGlobals, 'global'],
+          process: [nodeGlobals, 'process'],
+        }),
+      ],
       output: {
         manualChunks: {
           'pezkuwi': ['@pezkuwi/api', '@pezkuwi/extension-dapp', '@pezkuwi/keyring', '@pezkuwi/util', '@pezkuwi/util-crypto'],
@@ -94,5 +92,5 @@ export default defineConfig(({ command }) => ({
     },
     chunkSizeWarningLimit: 600
   },
-  // assetsInclude: ['**/*.json'], // Disabled: interferes with node_modules JSON imports (crypto-browserify)
+  // assetsInclude: ['**/*.json'], // Disabled: interferes with node_modules JSON imports
 }));

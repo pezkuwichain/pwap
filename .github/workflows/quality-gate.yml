@@ -1012,8 +1012,8 @@ jobs:
         run: |
           npm ci
           # Audit only production dependencies. Build tooling (vite, esbuild,
-          # vite-plugin-node-polyfills → elliptic, etc.) ships to no user, and
-          # advisories on those dev deps kept blocking production deploys.
+          # etc.) ships to no user, and advisories on those dev deps kept
+          # blocking production deploys.
           npm audit --audit-level=high --omit=dev
 
       - name: TruffleHog — PR diff (verified secrets only)
